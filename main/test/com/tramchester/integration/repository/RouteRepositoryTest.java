@@ -70,7 +70,7 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Route result = routeHelper.getOneRoute(getBlue(when), when);
+        Route result = routeHelper.getOneRoute(KnownTramLines.Blue, when);
         assertEquals(getBlue(when).getId(), result.getId());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertTrue(TransportMode.isTram(result));
@@ -83,7 +83,7 @@ public class RouteRepositoryTest {
 
         Set<Route> pickups = deansgate.getPickupRoutes();
 
-        Route traffordCenterRoute = routeHelper.getOneRoute(getRed(when), when);
+        Route traffordCenterRoute = routeHelper.getOneRoute(KnownTramLines.Red, when);
 
         assertTrue(pickups.contains(traffordCenterRoute), "Could not find " + traffordCenterRoute.getId()
                 + " in " + summary(pickups));
@@ -99,7 +99,7 @@ public class RouteRepositoryTest {
     @Disabled("appear to be no longer present")
     @Test
     void extraRouteAtShudehillTowardsEcclesFromVictoria() {
-        Route towardsEcclesRoute = routeHelper.getOneRoute(getBlue(when), when);
+        Route towardsEcclesRoute = routeHelper.getOneRoute(KnownTramLines.Blue, when);
 
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
@@ -128,7 +128,7 @@ public class RouteRepositoryTest {
     @Disabled("appear to be no longer present")
     @Test
     void extraRouteAtShudehillFromEcclesToVictoria() {
-        Route ecclesRoute = routeHelper.getOneRoute(getBlue(when), when);
+        Route ecclesRoute = routeHelper.getOneRoute(KnownTramLines.Blue, when);
 
         List<Trip> ecclesTripsViaShudehill = ecclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
@@ -149,7 +149,7 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
-        Route fromBuryToAltrincham = routeHelper.getOneRoute(getGreen(when), when);
+        Route fromBuryToAltrincham = routeHelper.getOneRoute(KnownTramLines.Green, when);
 
         Station endOfLine = stationRepository.getStationById(Altrincham.getId());
 
@@ -201,8 +201,8 @@ public class RouteRepositoryTest {
 
         TramDate date =  when;
 
-        Route routeA = routeHelper.getOneRoute(getYellow(when), date);
-        Route routeB = routeHelper.getOneRoute(getGreen(when), date);
+        Route routeA = routeHelper.getOneRoute(KnownTramLines.Yellow, date);
+        Route routeB = routeHelper.getOneRoute(KnownTramLines.Green, date);
 
         assertTrue(routeA.isAvailableOn(date));
         assertTrue(routeB.isAvailableOn(date));
@@ -226,7 +226,7 @@ public class RouteRepositoryTest {
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 
-        Route buryToAlty = tramRouteHelper.getOneRoute(getGreen(when), when);
+        Route buryToAlty = tramRouteHelper.getOneRoute(KnownTramLines.Green, when);
 
         assertTrue(cornbrookPickups.contains(buryToAlty));
         assertTrue(cornbrookDropofss.contains(buryToAlty));
@@ -234,16 +234,16 @@ public class RouteRepositoryTest {
         assertTrue(cornbrookPickups.contains(buryToAlty));
         assertTrue(cornbrookDropofss.contains(buryToAlty));
 
-        Route toEccles = tramRouteHelper.getOneRoute(getBlue(when), when);
+        Route toEccles = tramRouteHelper.getOneRoute(KnownTramLines.Blue, when);
 
         assertTrue(cornbrookPickups.contains(toEccles));
         assertTrue(cornbrookDropofss.contains(toEccles));
 
-        Route toTraffordCenter = tramRouteHelper.getOneRoute(getRed(when), when);
+        Route toTraffordCenter = tramRouteHelper.getOneRoute(KnownTramLines.Red, when);
 
         assertTrue(cornbrookPickups.contains(toTraffordCenter));
 
-        Route victoriaToAirport = tramRouteHelper.getOneRoute(getNavy(date), when);
+        Route victoriaToAirport = tramRouteHelper.getOneRoute(KnownTramLines.Navy, when);
 
         assertTrue(cornbrookPickups.contains(victoriaToAirport));
         assertTrue(cornbrookDropofss.contains(victoriaToAirport));

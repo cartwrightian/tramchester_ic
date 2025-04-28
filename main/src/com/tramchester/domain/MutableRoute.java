@@ -135,6 +135,8 @@ public class MutableRoute implements Route {
 
     @Override
     public boolean isDateOverlap(final Route otherRoute) {
+        // TODO use trips?
+
         // some bus routes for tfgm have no trips/services
         if (services.isEmpty()) {
             return false;
@@ -152,21 +154,27 @@ public class MutableRoute implements Route {
      */
     @Override
     public EnumSet<DayOfWeek> getOperatingDays() {
+        // TODO use trips?
         return routeCalendar.getOperatingDays();
     }
 
     @Override
     public DateRange getDateRange() {
+        // TODO use trips?
         return routeCalendar.getDateRange();
     }
 
     @Override
-    public boolean isAvailableOn(TramDate date) {
+    public boolean isAvailableOn(final TramDate date) {
         if (this.services.isEmpty()) {
             // some bus routes for tfgm have no trips/services
             return false;
         }
-        return routeCalendar.isAvailableOn(date);
+        if (routeCalendar.isAvailableOn(date)) {
+            // actual dates
+            return trips.anyOn(date);
+        }
+        return false;
     }
 
     @Override

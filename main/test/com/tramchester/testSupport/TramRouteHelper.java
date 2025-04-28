@@ -94,7 +94,6 @@ public class TramRouteHelper {
         }
     }
 
-
     /***
      * Use version that passes KnownTramLine
      * @param knownTramRoute
@@ -104,5 +103,21 @@ public class TramRouteHelper {
     @Deprecated
     public Route getOneRoute(@NotNull TestRoute knownTramRoute, TramDate when) {
         return getOneRouteFor(knownTramRoute, when);
+    }
+
+    public Route getRed(TramDate date) {
+        return getOneRoute(KnownTramLines.Red, date);
+    }
+
+    public Route getNavy(TramDate date) {
+        return getOneRoute(KnownTramLines.Navy, date);
+    }
+
+    public Route getBlue(TramDate date) {
+        return getOneRoute(KnownTramLines.Blue, date);
+    }
+
+    public Route getPink(TramDate date) {
+        return getOneRoute(KnownTramLines.Pink, date);
     }
 }

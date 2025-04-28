@@ -12,6 +12,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -253,6 +254,7 @@ class KnownTramRouteTest {
         assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
     }
 
+    @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);

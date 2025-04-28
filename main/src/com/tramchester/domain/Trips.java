@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
@@ -48,5 +49,14 @@ public class Trips {
     @Deprecated
     public Set<Trip> getTrips() {
         return Collections.unmodifiableSet(trips);
+    }
+
+    public boolean anyOn(TramDate date) {
+        if (trips.isEmpty()) {
+            // TODO backwards compatible, needs to change
+            return true;
+        }
+        // TODO likely need to optimise this
+        return trips.stream().anyMatch(trip -> trip.operatesOn(date));
     }
 }

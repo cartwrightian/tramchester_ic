@@ -15,7 +15,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.graph.railAndTram.TramTrainNeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
-import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -50,7 +49,6 @@ public class InterchangesTramTest {
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
     private TramRouteHelper tramRouteHelper;
-    private ClosedStationsRepository closedStationsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -69,7 +67,6 @@ public class InterchangesTramTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
-        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
     }
 
@@ -89,12 +86,13 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook, PiccadillyGardens, StPetersSquare,
                 Broadway,
                 MarketStreet,
-                Victoria
+                Victoria,
+                // may 2025 works
+                OldhamMumps, OldhamKingStreet
         );
 
 
         Set<Station> expectedStations = expectedTramStations.
-                //filter(item -> !closedStationsRepository.isStationClosed(item.getId(), when)).
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         final Set<Station> additional = AdditionalTramInterchanges.stations().
@@ -130,10 +128,10 @@ public class InterchangesTramTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
         assertEquals(InterchangeType.NumberOfLinks, interchange.getType());
 
-        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.getNavy(date), date);
+        Route toAirport = tramRouteHelper.getNavy(date);
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
 
-        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.getPink(date), date);
+        Route toEastDids = tramRouteHelper.getPink(date);
         Set<Route> dropoffRoutes = interchange.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(date)).
                 collect(Collectors.toSet());

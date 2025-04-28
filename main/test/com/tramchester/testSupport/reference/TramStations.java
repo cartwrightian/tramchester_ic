@@ -67,7 +67,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
     Ladywell("9400ZZMALDY", "Ladywell", pos(53.48404,-2.32683)),
     OldhamMumps("9400ZZMAOMP", "Oldham Mumps", pos(53.54245415127,-2.10345025085)),
     OldhamCentral("9400ZZMAOMC", "Oldham Central", pos(53.54033404153,-2.11213659253)),
-    // Landslide
+    OldhamKingStreet("9400ZZMAOKS", "Oldham King Street", pos(53.54033404153,-2.11746120969)),
     RochdaleRail("9400ZZMARRS", "Rochdale Railway Station", pos(53.61102, -2.15449)),
     Rochdale("9400ZZMARIN", "Rochdale Town Centre", pos(53.61736, -2.15509)),
     ShawAndCrompton("9400ZZMASHA", "Shaw and Crompton", pos(53.5763, -2.08963));
