@@ -6,7 +6,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CrossesDay;
@@ -31,7 +30,7 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
     @Override
     GraphPropertyKey getProp();
 
-    Set<Trip> getTrips();
+    Trips getTrips();
 
     boolean isDateOverlap(Route otherRoute);
 

@@ -5,12 +5,15 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-public class Trips {
+public class Trips implements Iterable<Trip> {
     private final Set<Trip> trips;
     private Boolean intoNextDay;
 
@@ -46,10 +49,10 @@ public class Trips {
                 '}';
     }
 
-    @Deprecated
-    public Set<Trip> getTrips() {
-        return Collections.unmodifiableSet(trips);
-    }
+//    @Deprecated
+//    public Set<Trip> getTrips() {
+//        return Collections.unmodifiableSet(trips);
+//    }
 
     public boolean anyOn(TramDate date) {
         if (trips.isEmpty()) {
@@ -58,5 +61,23 @@ public class Trips {
         }
         // TODO likely need to optimise this
         return trips.stream().anyMatch(trip -> trip.operatesOn(date));
+    }
+
+    @Override
+    public void forEach(Consumer<? super Trip> action) {
+        trips.forEach(action);
+    }
+
+    public Stream<Trip> stream() {
+        return trips.stream();
+    }
+
+    @Override
+    public @NotNull Iterator<Trip> iterator() {
+        return trips.iterator();
+    }
+
+    public boolean isEmpty() {
+        return trips.isEmpty();
     }
 }

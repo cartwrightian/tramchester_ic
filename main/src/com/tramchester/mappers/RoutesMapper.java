@@ -2,6 +2,7 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.Trips;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -69,7 +70,7 @@ public class RoutesMapper {
 
     // use for visualisation in the front-end routes map
     public List<Station> getStationsOn(Route route, boolean includeNotStopping, IdFor<Station> startStation) {
-        Set<Trip> tripsForRoute = route.getTrips();
+        Trips tripsForRoute = route.getTrips();
 
         Set<Trip> startingAt = tripsForRoute.stream().filter(trip -> trip.firstStation().equals(startStation)).collect(Collectors.toSet());
 

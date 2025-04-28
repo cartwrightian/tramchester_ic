@@ -80,7 +80,7 @@ class RouteTest {
         route.addTrip(new MutableTrip(Trip.createId("tripA"), "headSignA", serviceA, route, Tram));
         route.addTrip(new MutableTrip(Trip.createId("tripB"), "headSignB", serviceA, route, Tram));
 
-        Set<Trip> trips = route.getTrips();
+        Trips trips = route.getTrips();
 
         Assertions.assertEquals(2, trips.size());
     }

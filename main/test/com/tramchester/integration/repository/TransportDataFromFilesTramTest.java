@@ -343,7 +343,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(tripsSize, allTrips.size());
 
         IdSet<Trip> tripIdsFromSvcs = allTramRoutes.stream().map(Route::getTrips).
-                flatMap(Collection::stream).
+                flatMap(Trips::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
 

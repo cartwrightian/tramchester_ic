@@ -127,8 +127,8 @@ public class MutableRoute implements Route {
     }
 
     @Override
-    public Set<Trip> getTrips() {
-        return trips.getTrips();
+    public Trips getTrips() {
+        return trips;
     }
 
     @Override

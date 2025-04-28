@@ -8,10 +8,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramDateSet;
@@ -193,7 +190,7 @@ class TransportDataFromFilesBusTest {
         assertEquals(tripsSize, allTrips.size());
 
         IdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
-                flatMap(Collection::stream).
+                flatMap(Trips::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
 
