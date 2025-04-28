@@ -19,7 +19,7 @@ public class MutableRoute implements Route {
 
     private final IdFor<Route> id;
     private final String shortName;
-    private final String name;
+    private final String longName;
     private final Agency agency;
     private final TransportMode transportMode;
     private final Set<Service> services;
@@ -33,10 +33,10 @@ public class MutableRoute implements Route {
                     TransportMode.Walk);
     }
 
-    public MutableRoute(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
+    public MutableRoute(IdFor<Route> id, String shortName, String longName, Agency agency, TransportMode transportMode) {
         this.id = id;
         this.shortName = shortName.intern();
-        this.name = name.intern();
+        this.longName = longName.intern();
 
         this.agency = agency;
         this.transportMode = transportMode;
@@ -58,7 +58,7 @@ public class MutableRoute implements Route {
 
     @Override
     public String getName() {
-        return name;
+        return longName;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class MutableRoute implements Route {
         return "MutableRoute{" +
                 "id=" + id +
                 ", shortName='" + shortName + '\'' +
-                ", name='" + name + '\'' +
+                ", longName='" + longName + '\'' +
                 ", agency=" + agency.getId() +
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
