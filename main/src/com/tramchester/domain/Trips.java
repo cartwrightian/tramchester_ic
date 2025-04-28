@@ -49,16 +49,7 @@ public class Trips implements Iterable<Trip> {
                 '}';
     }
 
-//    @Deprecated
-//    public Set<Trip> getTrips() {
-//        return Collections.unmodifiableSet(trips);
-//    }
-
     public boolean anyOn(TramDate date) {
-        if (trips.isEmpty()) {
-            // TODO backwards compatible, needs to change
-            return true;
-        }
         // TODO likely need to optimise this
         return trips.stream().anyMatch(trip -> trip.operatesOn(date));
     }

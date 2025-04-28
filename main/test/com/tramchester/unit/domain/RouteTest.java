@@ -9,6 +9,8 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +25,7 @@ import static java.time.DayOfWeek.MONDAY;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class RouteTest {
+class RouteTest extends EasyMockSupport {
 
     // TODO A lot of the date range tests here could go against the aggregate calendar
 
@@ -98,15 +100,24 @@ class RouteTest {
 
         route.addService(service);
 
+
+        Trip trip = createMock(Trip.class);
+        route.addTrip(trip);
+        DateRange range = DateRange.of(startDate,endDate);
+        range.stream().forEach(date -> EasyMock.expect(trip.operatesOn(date)).andReturn(true));
+
+        replayAll();
+
         assertFalse(route.isAvailableOn(startDate.minusDays(1)));
         assertFalse(route.isAvailableOn(endDate.plusDays(1)));
 
         TramDate date = startDate;
-        while (date.isBefore(endDate)) {
+        while (date.isBefore(endDate) || date.isEqual(endDate)) {
             assertTrue(service.getCalendar().operatesOn(date));
             assertTrue(route.isAvailableOn(date), "should be available on " + date);
             date = date.plusDays(1);
         }
+        verifyAll();
 
     }
 
@@ -117,7 +128,7 @@ class RouteTest {
     }
 
     @Test
-    void shouldRespectAdditionalDaysOnService() {
+    void shouldRespectAdditionalDaysOnServiceTripMatches() {
         TramDate startDate = TramDate.of(2020, 11, 5);
         TramDate endDate = TramDate.of(2020, 11, 25);
 
@@ -131,7 +142,37 @@ class RouteTest {
 
         route.addService(service);
 
+        Trip trip = createMock(Trip.class);
+        route.addTrip(trip);
+        EasyMock.expect(trip.operatesOn(extraRunningDate)).andReturn(true);
+
+        replayAll();
         assertTrue(route.isAvailableOn(extraRunningDate));
+        verifyAll();
+    }
+
+    @Test
+    void shouldRespectAdditionalDaysOnServiceTripDoesNotMatch() {
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
+
+        MutableRoute route = createRoute(routeId, "code", "name");
+
+        MutableService service = new MutableService(serviceId, DataSourceID.tfgm);
+        MutableNormalServiceCalendar calendar = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), NO_DAYS);
+        TramDate extraRunningDate = TramDate.of(2020, 11, 10);
+        calendar.includeExtraDate(extraRunningDate);
+        service.setCalendar(calendar);
+
+        route.addService(service);
+
+        Trip trip = createMock(Trip.class);
+        route.addTrip(trip);
+        EasyMock.expect(trip.operatesOn(extraRunningDate)).andReturn(false);
+
+        replayAll();
+        assertFalse(route.isAvailableOn(extraRunningDate));
+        verifyAll();
     }
 
     @Test
