@@ -1,0 +1,52 @@
+package com.tramchester.domain;
+
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+public class Trips {
+    private final Set<Trip> trips;
+    private Boolean intoNextDay;
+
+    public Trips() {
+        trips = new HashSet<>();
+        intoNextDay = null;
+    }
+
+    public void add(final Trip trip) {
+        trips.add(trip);
+    }
+
+    public int size() {
+        return trips.size();
+    }
+
+    public IdSet<Station> getStartStations() {
+        return trips.stream().map(Trip::firstStation).collect(IdSet.idCollector());
+    }
+
+    public boolean intoNextDay() {
+        if (intoNextDay==null) {
+            intoNextDay = trips.stream().anyMatch(Trip::intoNextDay);
+        }
+        return intoNextDay;
+    }
+
+    @Override
+    public String toString() {
+        return "Trips{" +
+                "trips=" + HasId.asIds(trips) +
+                ", intoNextDay=" + intoNextDay +
+                '}';
+    }
+
+    @Deprecated
+    public Set<Trip> getTrips() {
+        return Collections.unmodifiableSet(trips);
+    }
+}

@@ -25,10 +25,9 @@ public class MutableRoute implements Route {
     private final Agency agency;
     private final TransportMode transportMode;
     private final Set<Service> services;
-    private final Set<Trip> trips;
+    private final Trips trips;
 
     private final RouteCalendar routeCalendar;
-    private Boolean intoNextDay;
 
     public static final Route Walking;
     static {
@@ -44,10 +43,9 @@ public class MutableRoute implements Route {
         this.agency = agency;
         this.transportMode = transportMode;
         services = new HashSet<>();
-        trips  = new HashSet<>();
+        trips  = new Trips();
 
         routeCalendar = new RouteCalendar(this);
-        intoNextDay = null;
     }
 
     // test support
@@ -132,7 +130,7 @@ public class MutableRoute implements Route {
 
     @Override
     public Set<Trip> getTrips() {
-        return trips;
+        return trips.getTrips();
     }
 
     @Override
@@ -173,15 +171,12 @@ public class MutableRoute implements Route {
 
     @Override
     public IdSet<Station> getStartStations() {
-        return trips.stream().map(Trip::firstStation).collect(IdSet.idCollector());
+        return trips.getStartStations();
     }
 
     @Override
     public boolean intoNextDay() {
-        if (intoNextDay==null) {
-            intoNextDay = trips.stream().anyMatch(Trip::intoNextDay);
-        }
-        return intoNextDay;
+        return trips.intoNextDay();
     }
 
     private static class RouteCalendar {
