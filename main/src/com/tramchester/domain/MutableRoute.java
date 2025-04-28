@@ -10,8 +10,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
-import java.time.DayOfWeek;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -148,16 +146,6 @@ public class MutableRoute implements Route {
         return routeCalendar.anyOverlapInRunning(otherMutableRoute.routeCalendar);
     }
 
-    /***
-     * Use with Caution: remember does no include Additional or Excluded days, use isAvailableOn() to validate a specific date
-     * @return Days of week this route Normally operates (not including exclusions, or additional days)
-     */
-    @Override
-    public EnumSet<DayOfWeek> getOperatingDays() {
-        // TODO use trips?
-        return routeCalendar.getOperatingDays();
-    }
-
     @Override
     public DateRange getDateRange() {
         // TODO use trips?
@@ -217,11 +205,6 @@ public class MutableRoute implements Route {
                 serviceCalendar = new AggregateServiceCalendar(calendars);
             }
             loaded = true;
-        }
-
-        public EnumSet<DayOfWeek> getOperatingDays() {
-            loadFromParent();
-            return serviceCalendar.getOperatingDays();
         }
 
         public DateRange getDateRange() {

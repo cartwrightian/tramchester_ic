@@ -356,14 +356,14 @@ public class RailTransportDataFromFilesTest {
         assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
-    @Test
-    void shouldHaveAllRoutesWithOperatingDays() {
-        Set<Route> noDays = transportData.getRoutes().stream().
-                filter(route -> route.getTransportMode().equals(Train)).
-                filter(route -> route.getOperatingDays().isEmpty()).
-                collect(Collectors.toSet());
-        assertTrue(noDays.isEmpty(), HasId.asIds(noDays));
-    }
+//    @Test
+//    void shouldHaveAllRoutesWithOperatingDays() {
+//        Set<Route> noDays = transportData.getRoutes().stream().
+//                filter(route -> route.getTransportMode().equals(Train)).
+//                filter(route -> route.getOperatingDays().isEmpty()).
+//                collect(Collectors.toSet());
+//        assertTrue(noDays.isEmpty(), HasId.asIds(noDays));
+//    }
 
     @Test
     void shouldHaveSaneServiceStartAndFinishTimes() {

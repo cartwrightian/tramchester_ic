@@ -5,10 +5,11 @@ import com.tramchester.dataimport.data.CalendarData;
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MutableNormalServiceCalendar implements MutableServiceCalendar {
     private final DateRange dateRange;
-    private final EnumSet<DayOfWeek> operatingDays;
+//    private final EnumSet<DayOfWeek> operatingDays;
     private final MutableDaysBitmap days;
 
     // for diagnosis only
@@ -34,7 +35,7 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
 
     public MutableNormalServiceCalendar(DateRange dateRange, EnumSet<DayOfWeek> operatingDays) {
         this.dateRange = dateRange;
-        this.operatingDays = operatingDays;
+//        this.operatingDays = operatingDays;
         additional = new TramDateSet();
         removed = new TramDateSet();
         cancelled = false;
@@ -99,7 +100,11 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
     }
 
     private String reportDays() {
-        if (operatingDays.isEmpty()) {
+        Set<DayOfWeek> aggregatedDays = getDateRange().stream().
+                filter(days::isSet).
+                map(TramDate::getDayOfWeek).collect(Collectors.toSet());
+
+        if (aggregatedDays.isEmpty()) {
             return "SPECIAL/NONE";
         }
         if (cancelled) {
@@ -107,7 +112,7 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
         }
 
         StringBuilder found = new StringBuilder();
-        operatingDays.forEach(dayOfWeek -> {
+        aggregatedDays.forEach(dayOfWeek -> {
             if (!found.isEmpty()) {
                 found.append(",");
             }
@@ -120,11 +125,6 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
     @Override
     public boolean operatesNoDays() {
         return cancelled || days.noneSet();
-    }
-
-    @Override
-    public EnumSet<DayOfWeek> getOperatingDays() {
-        return operatingDays;
     }
 
     @Override
@@ -147,11 +147,6 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
         if (otherCalendar==null) {
             throw new RuntimeException("otherCalendar was null");
         }
-//        HasDaysBitmap other = (HasDaysBitmap) otherCalendar;
-//        //noinspection ConstantConditions
-//        if (other==null) {
-//            throw new RuntimeException("Cannot compute overlap as Not DaysAsBitmap " + otherCalendar.toString());
-//        }
 
         return this.days.anyOverlap(otherCalendar.getDaysBitmap());
     }
@@ -160,7 +155,6 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
     public String toString() {
         return "MutableServiceCalendar{" +
                 "dateRange=" + dateRange +
-                ", operatingDays=" + operatingDays +
                 ", additional=" + additional +
                 ", removed=" + removed +
                 ", cancelled=" + cancelled +

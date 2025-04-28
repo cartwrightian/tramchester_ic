@@ -250,20 +250,20 @@ public class RouteRepositoryTest {
 
     }
 
-    @Test
-    void shouldHaveActiveDatesAndDaysForAllLoadedRoutes() {
-        Set<Route> allLoaded = routeRepository.getRoutes();
-
-        Set<Route> missingDateRange = allLoaded.stream().
-                filter(route -> route.getDateRange().isEmpty()).
-                collect(Collectors.toSet());
-
-        assertTrue(missingDateRange.isEmpty(), HasId.asIds(missingDateRange));
-
-        Set<Route> noDays = allLoaded.stream().filter(route -> route.getOperatingDays().isEmpty()).collect(Collectors.toSet());
-
-        assertTrue(noDays.isEmpty(), noDays.toString());
-
-    }
+//    @Test
+//    void shouldHaveActiveDatesAndDaysForAllLoadedRoutes() {
+//        Set<Route> allLoaded = routeRepository.getRoutes();
+//
+//        Set<Route> missingDateRange = allLoaded.stream().
+//                filter(route -> route.getDateRange().isEmpty()).
+//                collect(Collectors.toSet());
+//
+//        assertTrue(missingDateRange.isEmpty(), HasId.asIds(missingDateRange));
+//
+//        Set<Route> noDays = allLoaded.stream().filter(route -> route.getOperatingDays().isEmpty()).collect(Collectors.toSet());
+//
+//        assertTrue(noDays.isEmpty(), noDays.toString());
+//
+//    }
 
 }

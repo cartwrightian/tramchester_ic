@@ -3,12 +3,12 @@ package com.tramchester.domain.dates;
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AggregateServiceCalendar implements ServiceCalendar {
 
-    private final EnumSet<DayOfWeek> aggregatedDays;
     private final MutableDaysBitmap days;
 
     // for diagnostics only
@@ -28,7 +28,6 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         cancelled = calendars.stream().allMatch(ServiceCalendar::isCancelled);
 
         sources = calendars;
-        aggregatedDays = EnumSet.noneOf(DayOfWeek.class);
 
         days = createDaysBitset(aggregatedRange);
 
@@ -36,7 +35,6 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
         calendars.forEach(calendar -> {
             setDaysFor(calendar);
-            aggregatedDays.addAll(calendar.getOperatingDays());
             hasAdditional = hasAdditional || calendar.hasAddition();
         });
     }
@@ -116,11 +114,6 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public EnumSet<DayOfWeek> getOperatingDays() {
-        return aggregatedDays;
-    }
-
-    @Override
     public boolean isCancelled() {
         return cancelled;
     }
@@ -132,15 +125,14 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         }
         printStream.printf("%s days %s%n", getDateRange(), reportDays());
         printStream.println("source calendars: " + sources.toString());
-//        if (!additional.isEmpty()) {
-//            printStream.println("Additional on: " + additional);
-//        }
-//        if (!removed.isEmpty()) {
-//            printStream.println("Not running on: " + removed);
-//        }
     }
 
     private String reportDays() {
+
+        Set<DayOfWeek> aggregatedDays = getDateRange().stream().
+                filter(days::isSet).
+                map(TramDate::getDayOfWeek).collect(Collectors.toSet());
+
         if (aggregatedDays.isEmpty()) {
             return "SPECIAL/NONE";
         }
@@ -172,7 +164,6 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     @Override
     public String toString() {
         return "AggregateServiceCalendar{" +
-                "aggregatedDays=" + aggregatedDays +
                 ", cancelled=" + cancelled +
                 ", aggregatedRange=" + aggregatedRange +
                 ", days=" + days +

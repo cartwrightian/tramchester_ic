@@ -120,4 +120,8 @@ public class TramRouteHelper {
     public Route getPink(TramDate date) {
         return getOneRoute(KnownTramLines.Pink, date);
     }
+
+    public Route getGreen(TramDate date) {
+        return getOneRoute(KnownTramLines.Green, date);
+    }
 }

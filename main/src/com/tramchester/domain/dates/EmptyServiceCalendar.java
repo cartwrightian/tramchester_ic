@@ -1,14 +1,12 @@
 package com.tramchester.domain.dates;
 
 import java.io.PrintStream;
-import java.time.DayOfWeek;
 import java.util.BitSet;
-import java.util.EnumSet;
 import java.util.stream.IntStream;
 
 public class EmptyServiceCalendar implements ServiceCalendar {
 
-    private static DaysBitmap emptyBitmap = new EmptyDaysBitmap();
+    private static final DaysBitmap emptyBitmap = new EmptyDaysBitmap();
 
     @Override
     public boolean operatesOn(TramDate queryDate) {
@@ -28,11 +26,6 @@ public class EmptyServiceCalendar implements ServiceCalendar {
     @Override
     public boolean operatesNoDays() {
         return true;
-    }
-
-    @Override
-    public EnumSet<DayOfWeek> getOperatingDays() {
-        return EnumSet. noneOf(DayOfWeek.class);
     }
 
     @Override

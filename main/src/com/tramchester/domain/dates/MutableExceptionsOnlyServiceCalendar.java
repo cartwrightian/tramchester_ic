@@ -1,9 +1,7 @@
 package com.tramchester.domain.dates;
 
 import java.io.PrintStream;
-import java.time.DayOfWeek;
 import java.util.BitSet;
-import java.util.EnumSet;
 import java.util.stream.IntStream;
 
 public class MutableExceptionsOnlyServiceCalendar implements MutableServiceCalendar {
@@ -78,14 +76,6 @@ public class MutableExceptionsOnlyServiceCalendar implements MutableServiceCalen
             return true;
         }
         return additional.isEmpty();
-    }
-
-    @Override
-    public EnumSet<DayOfWeek> getOperatingDays() {
-        if (cancelled) {
-            return EnumSet.noneOf(DayOfWeek.class);
-        }
-        return additional.getDays();
     }
 
     @Override

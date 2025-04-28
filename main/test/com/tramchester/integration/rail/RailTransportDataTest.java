@@ -22,14 +22,12 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Inverness;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.LondonEuston;
-import static java.time.DayOfWeek.SUNDAY;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -437,7 +435,7 @@ public class RailTransportDataTest {
         DateRange range = service.getCalendar().getDateRange();
         TramDate operatingDate = TramDate.of(2022, 7, 3);
         assertEquals(operatingDate, range.getStartDate());
-        assertEquals(EnumSet.of(SUNDAY), service.getCalendar().getOperatingDays());
+        //assertEquals(EnumSet.of(SUNDAY), service.getCalendar().getOperatingDays());
 
         // trip and stops
         Set<Trip> trips = dataContainer.getTrips();

@@ -391,13 +391,13 @@ public class RailTransportDataFromFilesTest {
         assertEquals(9, routes.size(), routes.toString());
     }
 
-    @Test
-    void shouldHaveAllRoutesWithOperatingDays() {
-        Set<Route> noDays = transportData.getRoutes().stream().
-                filter(route -> route.getOperatingDays().isEmpty()).
-                collect(Collectors.toSet());
-        assertTrue(noDays.isEmpty());
-    }
+//    @Test
+//    void shouldHaveAllRoutesWithOperatingDays() {
+//        Set<Route> noDays = transportData.getRoutes().stream().
+//                filter(route -> route.getOperatingDays().isEmpty()).
+//                collect(Collectors.toSet());
+//        assertTrue(noDays.isEmpty());
+//    }
 
     // Likely this will break with new data
     @Disabled("Service not in latest data")

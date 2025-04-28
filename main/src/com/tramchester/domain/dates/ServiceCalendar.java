@@ -1,8 +1,6 @@
 package com.tramchester.domain.dates;
 
 import java.io.PrintStream;
-import java.time.DayOfWeek;
-import java.util.EnumSet;
 
 public interface ServiceCalendar {
 
@@ -22,13 +20,6 @@ public interface ServiceCalendar {
      * @return true if service NEVER operates
      */
     boolean operatesNoDays();
-
-    /***
-     * Returns days this service operates, use with care since does not include exclusions/additional dates,
-     * use operatesOn() for that
-     * @return Set of days service operates ignoring additional and removed days
-     */
-    EnumSet<DayOfWeek> getOperatingDays();
 
     boolean isCancelled();
 
