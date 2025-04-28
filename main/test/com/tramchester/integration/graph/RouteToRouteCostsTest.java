@@ -3,10 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -211,12 +208,12 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldSortAsExpected() {
 
-        Route routeA = routeHelper.getOneRoute(getRed(date), date);
-        Route routeB = routeHelper.getOneRoute(getNavy(date), date);
-        Route routeC = routeHelper.getOneRoute(getYellow(date), date);
+        Route routeA = routeHelper.getRed(date);
+        Route routeB = routeHelper.getNavy(date);
+        Route routeC = routeHelper.getYellow(date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
-        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalculatorFor(LocationSet.singleton(destination), date, timeRange, modes);
+        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalculatorFor(LocationCollectionSingleton.of(destination), date, timeRange, modes);
 
         Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
 

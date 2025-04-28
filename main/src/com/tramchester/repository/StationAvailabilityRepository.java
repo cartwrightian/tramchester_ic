@@ -412,7 +412,7 @@ public class StationAvailabilityRepository {
 
     private LocationCollection expand(final Location<?> location) {
         if (location.getLocationType()==LocationType.Station) {
-            return MixedLocationSet.singleton(location);
+            return LocationCollectionSingleton.of(location);
         }
         if (location.getLocationType()==LocationType.StationGroup) {
             final StationLocalityGroup group = (StationLocalityGroup) location;

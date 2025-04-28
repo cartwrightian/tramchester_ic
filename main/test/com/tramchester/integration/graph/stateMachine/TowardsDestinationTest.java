@@ -4,15 +4,17 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.MixedLocationSet;
+import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.ImmutableGraphNode;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
@@ -23,7 +25,6 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -84,7 +85,7 @@ public class TowardsDestinationTest {
     void shouldHaveDestinationIds() {
 
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
@@ -92,11 +93,10 @@ public class TowardsDestinationTest {
 
         assertFalse(departs.isEmpty());
 
-        LocationCollection destinations = LocationSet.singleton(station);
-        //TowardsDestination towardsDestination = new TowardsDestination((station));
+        LocationCollection destinations = LocationCollectionSingleton.of(station);
 
         departs.forEach(depart -> {
-            LocationId<?> locationId = depart.getLocationId(); // towardsDestination.getLocationIdFor(depart);
+            LocationId<?> locationId = depart.getLocationId();
             assertTrue(destinations.contains(locationId));
         });
 
@@ -121,7 +121,7 @@ public class TowardsDestinationTest {
 
         StationLocalityGroup stationGroup = getStationGroup(station);
 
-        LocationCollection destinations = MixedLocationSet.singleton(stationGroup);
+        LocationCollection destinations = LocationCollectionSingleton.of(stationGroup);
 
         ImmutableGraphNode node = txn.findNode(station);
 
@@ -140,7 +140,7 @@ public class TowardsDestinationTest {
     @Test
     void shouldFindRelationshipsTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
@@ -167,7 +167,7 @@ public class TowardsDestinationTest {
     @Test
     void shouldFindNoRelationshipsIfNotTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
@@ -206,7 +206,7 @@ public class TowardsDestinationTest {
     @Test
     void shouldFindRelationshipsTowardsDestinationGroupFromRouteStation() {
         Station station = StPetersSquare.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         StationLocalityGroup stationGroup = getStationGroup(station);
 

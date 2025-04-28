@@ -39,6 +39,14 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
         return new LocationSet<>(items);
     }
 
+    /***
+     *
+     * @param location the location
+     * @return The singleton set
+     * @param <S> Location Type
+     * Use LocationCollectionSingleton.of() instead
+     */
+    @Deprecated
     public static <S extends Location<S>> LocationSet<S> singleton(S location) {
         final LocationSet<S> locationSet = new LocationSet<>();
         locationSet.add(location);

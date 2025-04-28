@@ -27,16 +27,7 @@ public class MixedLocationSet implements LocationCollection {
         locations = collection.locationStream().collect(Collectors.toSet());
     }
 
-    // TODO
-    // MixedFor a single location?
-    @Deprecated
-    public static MixedLocationSet singleton(final Location<?> location) {
-        final MixedLocationSet result = new MixedLocationSet();
-        result.add(location);
-        return result;
-    }
-
-    private void add(final Location<?> item) {
+    public void add(final Location<?> item) {
         locations.add(item);
     }
 

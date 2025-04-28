@@ -2,10 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -76,7 +73,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private ProvidesNow providesNow;
     private Duration maxInitialWait;
     private ImmutableGraphTransaction txn;
-    private LocationSet<Station> destinationStations;
+    private LocationCollection destinationStations;
     private TramTime queryTime;
 
     @BeforeEach
@@ -86,7 +83,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 new LatLong(1, 1), new GridPosition(1000,1000), DataSourceID.tfgm,
                 false);
 
-        destinationStations = LocationSet.singleton(forTest);
+        destinationStations = LocationCollectionSingleton.of(forTest);
 
         forTest.addRouteDropOff(TestEnv.getTramTestRoute());
         forTest.addRouteDropOff(TestEnv.getTramTestRoute());

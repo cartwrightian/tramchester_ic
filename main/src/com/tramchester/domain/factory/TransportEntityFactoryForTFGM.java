@@ -67,14 +67,18 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public MutableRoute createRoute(final GTFSTransportationType routeType, final RouteData routeData, final MutableAgency agency) {
 
         final IdFor<Route> routeId = getCorrectIdFor(routeData);
-
         final String longName = routeData.getLongName();
+        final TransportMode transportMode = GTFSTransportationType.toTransportMode(routeType);
         final String routeNameText = routeData.getShortName().trim();
 
-        final TFGMRouteNames routeName = TFGMRouteNames.parse(routeNameText);
+        if (transportMode.equals(TransportMode.Tram)) {
+            final TFGMRouteNames routeName = TFGMRouteNames.parse(routeNameText);
+            return new MutableRoute(routeId, routeName.getShortName(), longName, agency, transportMode);
+        } else {
+            return new MutableRoute(routeId, routeNameText, longName, agency, transportMode);
+        }
 
-        return new MutableRoute(routeId, routeName.getShortName(), longName, agency,
-                GTFSTransportationType.toTransportMode(routeType));
+
     }
 
     private IdFor<Route> getCorrectIdFor(final RouteData routeData) {

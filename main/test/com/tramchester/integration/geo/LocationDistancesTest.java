@@ -3,10 +3,10 @@ package com.tramchester.integration.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.StationPair;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.LocationDistances;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -54,8 +54,9 @@ public class LocationDistancesTest {
     void shouldGetExpectedDistancesForAltyToNavRoad() {
         long expectedMeters = 1030;
 
-        Location<?> navigationRoad = TramStations.NavigationRoad.from(stationRepository);
-        long result = locationDistances.findDistancesTo(MixedLocationSet.singleton(navigationRoad)).toStation(TramStations.Altrincham.getId());
+        LocationCollection destinations = LocationCollectionSingleton.of(NavigationRoad.from(stationRepository));
+
+        long result = locationDistances.findDistancesTo(destinations).toStation(TramStations.Altrincham.getId());
 
         assertEquals(expectedMeters, result);
 
@@ -84,7 +85,7 @@ public class LocationDistancesTest {
 
         Stream<StationPair> pairs = all.stream().flatMap(stationA -> all.stream().map(stationB -> StationPair.of(stationA, stationB)));
 
-        long foundOk = pairs.map(pair -> locationDistances.findDistancesTo(LocationSet.singleton(pair.getBegin())).toStation(pair.getEnd().getId())).
+        long foundOk = pairs.map(pair -> locationDistances.findDistancesTo(LocationCollectionSingleton.of(pair.getBegin())).toStation(pair.getEnd().getId())).
                 filter(result -> result != Long.MAX_VALUE).count();
 
         long expected = (long) count * count;

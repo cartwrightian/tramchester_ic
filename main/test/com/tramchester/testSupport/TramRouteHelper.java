@@ -124,4 +124,8 @@ public class TramRouteHelper {
     public Route getGreen(TramDate date) {
         return getOneRoute(TFGMRouteNames.Green, date);
     }
+
+    public Route getYellow(TramDate date) {
+        return getOneRoute(TFGMRouteNames.Yellow, date);
+    }
 }

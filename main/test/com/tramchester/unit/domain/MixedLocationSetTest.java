@@ -36,15 +36,6 @@ public class MixedLocationSetTest {
     }
 
     @Test
-    void shouldCreateSingleton() {
-        LocationSet<Station> locationSet = LocationSet.singleton(Altrincham.fake());
-
-        assertEquals(1, locationSet.size());
-        assertTrue(locationSet.contains(Altrincham.fake()));
-        assertFalse(locationSet.contains(StPetersSquare.fake()));
-    }
-
-    @Test
     void shouldCreateFromSet() {
         Set<Station> stations = new HashSet<>(this.stations);
 
@@ -54,34 +45,12 @@ public class MixedLocationSetTest {
         assertFalse(locationSet.contains(StPetersSquare.getLocationId()));
     }
 
-    // add now private
-//    @Test
-//    void shouldHaveAdd() {
-//
-//        MixedLocationSet locationSet = new MixedLocationSet();
-//
-//        assertTrue(locationSet.isEmpty());
-//
-//        locationSet.add(Altrincham.fake());
-//        locationSet.add(Altrincham.fake());
-//        locationSet.add(Bury.fake());
-//        locationSet.add(Cornbrook.fake());
-//
-//        assertListElementsPresent(locationSet);
-//
-//        locationSet.add(location);
-//
-//        assertEquals(4, locationSet.size());
-//        assertTrue(locationSet.contains(location.getLocationId()));
-//
-//    }
-
     @Test
     void shouldGetMixedStream() {
 
-        MixedLocationSet locationSet = MixedLocationSet.singleton(location); // new MixedLocationSet();
+        MixedLocationSet locationSet = new MixedLocationSet();
 
-        //locationSet.add(location);
+        locationSet.add(location); // new MixedLocationSet();
 
         assertEquals(1, locationSet.size());
 

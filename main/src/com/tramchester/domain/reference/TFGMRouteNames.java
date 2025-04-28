@@ -31,6 +31,9 @@ public enum TFGMRouteNames {
     }
 
     public static TFGMRouteNames parse(String text) {
+        if (!theMap.containsKey(text)) {
+            throw new RuntimeException("Missing route name " + text);
+        }
         return theMap.get(text);
     }
 

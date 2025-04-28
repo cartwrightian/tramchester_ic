@@ -2,7 +2,7 @@ package com.tramchester.unit.graph.diagnostics;
 
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
@@ -73,7 +73,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
                 false, 3, Duration.ofHours(1), 1, TramsOnly);
 
         Station dest = TramStations.Piccadilly.fake();
-        LocationCollection destinations = LocationSet.singleton(dest);
+        LocationCollection destinations = LocationCollectionSingleton.of(dest);
 
         journeyRequest.setDiag(true);
 

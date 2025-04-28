@@ -2,10 +2,7 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.MixedLocationSet;
+import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -91,7 +88,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, maxInitialWait);
 
-        LocationCollection destinations = MixedLocationSet.singleton(destination);
+        final LocationCollection destinations = LocationCollectionSingleton.of(destination);
         if (journeyRequest.getDiagnosticsEnabled()) {
             logger.warn("Diagnostics enabled, will only query for single result");
 
@@ -141,8 +138,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
 
-        // TODO Why mixed here?
-        LocationCollection destinations = MixedLocationSet.singleton(destination);
+        final LocationCollection destinations = LocationCollectionSingleton.of(destination);
 
         return getJourneyStream(txn, startOfWalkNode, endNode, destinations, journeyRequest, queryTimes, numberOfChanges, maxInitialWait, running).
                 limit(journeyRequest.getMaxNumberOfJourneys()).

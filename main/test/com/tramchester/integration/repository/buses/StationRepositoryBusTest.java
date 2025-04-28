@@ -45,14 +45,6 @@ public class StationRepositoryBusTest {
         stationRepository = componentContainer.get(StationRepository.class);
     }
 
-//    @Test
-//    void shouldHaveStopsNeededForSubgroupTest() {
-//
-//        Station start = stationRepository.getStationById(Station.createId("0600MA6001")); // "The Towers" CHEPJWM
-//        Station dest = stationRepository.getStationById(Station.createId("0600MA0175")); // "Grove Park" CHEMJDT
-//
-//    }
-
     @Test
     void shouldNotDuplicateNames() {
 

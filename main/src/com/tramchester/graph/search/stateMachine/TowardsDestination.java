@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.places.Location;
@@ -21,7 +22,7 @@ public class TowardsDestination {
     private final LocationCollection expanded;
 
     public TowardsDestination(final Location<?> destination) {
-        this(MixedLocationSet.singleton(destination));
+        this(LocationCollectionSingleton.of(destination));
     }
 
     public TowardsDestination(final LocationCollection destinations) {
