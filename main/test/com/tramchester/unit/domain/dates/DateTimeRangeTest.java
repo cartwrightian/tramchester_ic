@@ -1,10 +1,8 @@
 package com.tramchester.unit.domain.dates;
 
-import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
@@ -12,7 +10,6 @@ import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.tramchester.testSupport.reference.TramStations.ExchangeSquare;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DateTimeRangeTest {

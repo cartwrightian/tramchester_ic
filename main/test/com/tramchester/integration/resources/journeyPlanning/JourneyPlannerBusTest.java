@@ -43,7 +43,6 @@ import java.util.*;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BusTest
 @ExtendWith(DropwizardExtensionsSupport.class)

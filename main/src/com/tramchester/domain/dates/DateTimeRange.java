@@ -1,7 +1,6 @@
 package com.tramchester.domain.dates;
 
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.Objects;

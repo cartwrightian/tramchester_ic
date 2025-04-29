@@ -32,7 +32,6 @@ import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION_DEPART;
 
 public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
 
