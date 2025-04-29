@@ -2,7 +2,6 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 
 public class StationIdPair extends LocationIdPair<Station> {
@@ -11,7 +10,7 @@ public class StationIdPair extends LocationIdPair<Station> {
     }
 
     public StationIdPair(IdFor<Station> begin, IdFor<Station> end) {
-        super(begin, end, LocationType.Station);
+        super(begin, end);
     }
 
     public static StationIdPair of(HasId<Station> begin, HasId<Station> end) {

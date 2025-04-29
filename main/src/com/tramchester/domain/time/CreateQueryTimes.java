@@ -1,12 +1,10 @@
 package com.tramchester.domain.time;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.StationWalk;
-
 import jakarta.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class CreateQueryTimes {
     private final TramchesterConfig config;
@@ -16,28 +14,11 @@ public class CreateQueryTimes {
         this.config = config;
     }
 
-    public List<TramTime> generate(TramTime initialQueryTime, Set<StationWalk> walksAtStart) {
-
-        return generate(initialQueryTime);
-
-        //result.add(initialQueryTime);
-
-//        List<TramTime> result = walksAtStart.stream().
-//                map(walk -> initialQueryTime.minusMinutes(walk.getCost())).
-//                sorted().
-//                collect(Collectors.toList());
+//    public List<TramTime> generate(TramTime initialQueryTime, Set<StationWalk> walksAtStart) {
 //
-//        int interval = config.getQueryInterval();
-//        int numberQueries = config.getNumberQueries();
+//        return generate(initialQueryTime);
 //
-//        int minsToAdd = 0;
-//        for (int i = 0; i < numberQueries; i++) {
-//            result.add(initialQueryTime.plusMinutes(minsToAdd));
-//            minsToAdd = minsToAdd + interval;
-//        }
-//
-//        return result;
-    }
+//    }
 
     public List<TramTime> generate(final TramTime initialQueryTime) {
         List<TramTime> result = new ArrayList<>();

@@ -18,7 +18,7 @@ public class MarginInMeters {
         return new MarginInMeters(meters);
     }
 
-    public static MarginInMeters ofKM(final Double kilometers) {
+    public static MarginInMeters ofKM(final double kilometers) {
         final double meters = kilometers * 1000D;
         return new MarginInMeters(Math.toIntExact(Math.round(meters)));
     }
@@ -43,10 +43,6 @@ public class MarginInMeters {
         return "MarginInMeters{" +
                 "meters=" + meters +
                 '}';
-    }
-
-    public boolean within(final ComparableQuantity<Length> amount) {
-        return amount.isLessThanOrEqualTo(getDistance());
     }
 
     @Override

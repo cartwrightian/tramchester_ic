@@ -39,7 +39,6 @@ import static java.lang.String.format;
 public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationships  {
     private static final Logger logger = LoggerFactory.getLogger(AddDiversionsForClosedGraphBuilder.class);
 
-    private final GraphDatabase database;
     private final ClosedStationsRepository closedStationsRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
@@ -55,7 +54,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
                                               StationsWithDiversion stationsWithDiversion,
                                               Geography geography, StationRepository stationRepository) {
         super(database);
-        this.database = database;
         this.graphFilter = graphFilter;
         this.closedStationsRepository = closedStationsRepository;
         this.config = config;

@@ -155,10 +155,6 @@ public class ImmutableGraphNode implements GraphNode {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }
 
-    public Stream<ImmutableGraphRelationship> getAllRelationships(final GraphTransaction txn, final Direction direction) {
-        return underlying.getAllRelationships(txn, direction);
-    }
-
     @Override
     public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return underlying.hasOutgoingServiceMatching(txn, tripId);

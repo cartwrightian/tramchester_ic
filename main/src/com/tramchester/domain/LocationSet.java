@@ -65,10 +65,6 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
         return locations.stream().map(item -> item);
     }
 
-    public void addAll(final LocationSet<T> other) {
-        this.locations.addAll(other.locations);
-    }
-
     private static <S extends Location<S>> LocationSet<S> combine(final LocationSet<S> setA, final LocationSet<S> setB) {
         final LocationSet<S> result = new LocationSet<>();
         result.locations.addAll(setA.locations);

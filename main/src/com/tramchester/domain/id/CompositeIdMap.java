@@ -21,10 +21,6 @@ public class CompositeIdMap<S extends HasId<S> & CoreDomain, T extends S> implem
         theMap = new HashMap<>(items.stream().collect(Collectors.toMap(HasId::getId, item -> item)));
     }
 
-    protected static <A extends HasId<A> & CoreDomain,B extends A> CompositeIdMap<A,B> from(Set<B> items) {
-        return items.stream().collect(collector());
-    }
-
     public void add(T item) {
         theMap.put(item.getId(), item);
     }

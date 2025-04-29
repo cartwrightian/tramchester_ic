@@ -284,11 +284,6 @@ public class Interchanges implements InterchangeRepository {
     }
 
     @Override
-    public boolean isInterchange(IdFor<Station> stationId) {
-        return interchanges.containsKey(stationId);
-    }
-
-    @Override
     public boolean hasInterchangeFor(final RouteIndexPair indexPair) {
         return pairToInterchange.hasInterchangeFor(indexPair);
     }

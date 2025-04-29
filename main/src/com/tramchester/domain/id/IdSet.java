@@ -37,15 +37,6 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         theSet.addAll(ids);
     }
 
-    public IdSet(IdFor<T> id) {
-        this();
-        theSet.add(id);
-    }
-
-    public IdSet(final int initialCapabicity) {
-        theSet = new HashSet<>(initialCapabicity);
-    }
-
     public static <T extends CoreDomain> IdSet<T> singleton(final IdFor<T> id) {
         final IdSet<T> result = new IdSet<>();
         result.add(id);
@@ -57,11 +48,6 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
     }
 
     public static <S extends CoreDomain & HasId<S>> IdSet<S> from(final Set<S> items) {
-        final Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
-        return wrap(ids);
-    }
-
-    public static <S extends CoreDomain & HasId<S>> IdSet<S> from(final Collection<HasId<S>> items) {
         final Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
         return wrap(ids);
     }

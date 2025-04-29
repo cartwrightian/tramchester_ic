@@ -7,7 +7,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
@@ -91,7 +90,7 @@ class RouteCalculatorKeyGroupsBusTest {
         for(final KnownLocality placeA : localities) {
             for(final KnownLocality placeB : localities) {
                 if (placeA!=placeB) {
-                    LocationIdPair<StationLocalityGroup> pair = new LocationIdPair<>(placeA.getId(), placeB.getId(), LocationType.StationGroup);
+                    LocationIdPair<StationLocalityGroup> pair = new LocationIdPair<>(placeA.getId(), placeB.getId());
                     pairs.add(pair);
                 }
             }

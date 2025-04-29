@@ -2,25 +2,22 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.LocationType;
 
 import java.util.Objects;
 
 public class LocationIdPair<TYPE extends Location<TYPE>> {
 
     private final IdPair<TYPE> pair;
-    private final LocationType locationType;
 
     public LocationIdPair(TYPE begin, TYPE end) {
-        this(begin.getId(), end.getId(), begin.getLocationType());
+        this(begin.getId(), end.getId());
         if (begin.getLocationType()!=end.getLocationType()) {
             throw new RuntimeException(String.format("Attempt to create locationIdPair for two mismatched types %s and %s",
                     begin, end));
         }
     }
 
-    public LocationIdPair(IdFor<TYPE> begin, IdFor<TYPE> end, LocationType locationType) {
-        this.locationType = locationType;
+    public LocationIdPair(IdFor<TYPE> begin, IdFor<TYPE> end) {
         pair = new IdPair<>(begin, end);
     }
 
@@ -61,7 +58,4 @@ public class LocationIdPair<TYPE extends Location<TYPE>> {
                 '}';
     }
 
-    public LocationType getLocationType() {
-        return locationType;
-    }
 }

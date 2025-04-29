@@ -22,8 +22,6 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphNode wrapNode(Node node);
 
-    GraphNodeId createNodeId(Node node);
-
     ImmutableGraphNode getNodeById(GraphNodeId nodeId);
 
     Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel);

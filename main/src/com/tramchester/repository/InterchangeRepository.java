@@ -3,10 +3,8 @@ package com.tramchester.repository;
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.collections.RouteIndexPair;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
@@ -21,7 +19,7 @@ public interface InterchangeRepository {
 
     InterchangeStation getInterchange(Location<?> location);
 
-    boolean isInterchange(IdFor<Station> stationId);
+//    boolean isInterchange(IdFor<Station> stationId);
 
     boolean hasInterchangeFor(RouteIndexPair indexPair);
 

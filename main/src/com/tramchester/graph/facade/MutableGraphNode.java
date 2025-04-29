@@ -191,11 +191,6 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getAllRelationships(final GraphTransaction txn, final Direction direction) {
-        return node.getRelationships(direction).stream().map(txn::wrapRelationship);
-    }
-
-    @Override
     public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
                 anyMatch(relationship -> relationship.hasTripIdInList(tripId));
@@ -244,9 +239,6 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return txn.wrapRelationshipMutable(found);
     }
 
-    <T extends CoreDomain> IdFor<T> getId(Class<T> theClass) {
-        return getIdFor(theClass, node);
-    }
 
     <DT extends CoreDomain> Boolean hasIdFor(Class<DT> theClass) {
         return node.hasProperty(GraphPropertyKey.getFor(theClass).getText());

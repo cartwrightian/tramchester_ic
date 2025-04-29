@@ -14,7 +14,6 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
@@ -262,14 +260,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public boolean alreadyVisited(final GraphNode node, final EnumSet<GraphLabel> labels) {
-        if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            return coreState.alreadyVisitedRouteStation(node.getRouteStationId());
-        }
-        return false;
-    }
-
-    @Override
     public TransportMode getTransportMode() {
         return coreState.currentMode;
     }
@@ -312,7 +302,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private int numberOfDiversionsTaken;
         private boolean currentlyOnDiversion;
         private IdFor<? extends Location<?>> lastSeenStation;
-        private List<IdFor<RouteStation>> visitedRouteStations;
+        private final List<IdFor<RouteStation>> visitedRouteStations;
 
         public CoreState(final TramTime queryTime) {
             this(queryTime, false, 0,
