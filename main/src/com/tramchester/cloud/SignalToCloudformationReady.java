@@ -33,9 +33,8 @@ public class SignalToCloudformationReady {
         }
 
         logger.info("Attempt to send PUT to cloud formation to signal code ready " + url);
-        HttpClient httpClient = HttpClient.newBuilder().build();
 
-        HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
+        final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
                 uri(url).
                 PUT(HttpRequest.BodyPublishers.ofByteArray(createEntity()));
 
@@ -43,9 +42,9 @@ public class SignalToCloudformationReady {
 
         HttpRequest httpRequest = httpRequestBuilder.build();
 
-        try {
-            HttpResponse<Void> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
-            int statusCode = response.statusCode();
+        try (HttpClient httpClient = HttpClient.newBuilder().build()){
+            final HttpResponse<Void> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
+            final int statusCode = response.statusCode();
             if (statusCode != 200) {
                 logger.error("Unexpected status for cloud formation triggered " + statusCode);
             } else {

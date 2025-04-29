@@ -153,9 +153,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
         DatabaseManagementService managementService = getManagementService();
         GraphDatabaseService graphDatabaseService = managementService.database(dbName);
 
-        managementService.listDatabases().forEach(databaseName -> {
-            logger.info("Database from managementService: " + databaseName);
-        });
+        managementService.listDatabases().forEach(databaseName -> logger.info("Database from managementService: " + databaseName));
 
         logger.info("Wait for GraphDatabaseService available");
         int retries = 100;

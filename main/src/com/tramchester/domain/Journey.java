@@ -104,7 +104,7 @@ public class Journey implements Iterable<TransportStage<?,?>> {
     }
 
     private TransportMode getFirstStageMode() {
-        return stages.get(0).getMode();
+        return stages.getFirst().getMode();
     }
 
     public Location<?> getBeginning() {
@@ -132,7 +132,7 @@ public class Journey implements Iterable<TransportStage<?,?>> {
     public List<ChangeLocation<?>> getChangeStations() {
         // count any change of transport mode as a change station
         if (isDirect()) {
-            TransportStage<?, ?> firstStage = stages.get(0);
+            TransportStage<?, ?> firstStage = stages.getFirst();
 
             final ChangeLocation<?> changeStation;
             if (firstStage.getMode() == Walk) {

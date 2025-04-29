@@ -81,11 +81,13 @@ class DeparturesResourceTest {
         // find locations with valid due trains and messages, needed for tests
         // not ideal but it works
 
-        Optional<PlatformMessage> searchForMessage = stationRepository.getAllStationStream().
+        Optional<List<PlatformMessage>> searchForMessage = stationRepository.getAllStationStream().
                 map(station -> platformMessageSource.messagesFor(station, queryDate, time)).
-                flatMap(Collection::stream).
-                findAny();
-        searchForMessage.ifPresent(platformMessage -> stationWithNotes = platformMessage.getStation());
+                filter(platformMessages -> !platformMessages.isEmpty()).
+                limit(4).
+                max(Comparator.comparingInt(List::size));
+
+        searchForMessage.ifPresent(platformMessages -> stationWithNotes = platformMessages.getFirst().getStation());
 
         UpcomingDeparturesSource dueTramsSource = dependencies.get(TramDepartureRepository.class);
 
@@ -113,11 +115,12 @@ class DeparturesResourceTest {
     @LiveDataMessagesTest
     void shouldHaveMessagesForStationWithNotes() {
         assertNotNull(stationWithNotes, "No station with notes");
+
         Response response = getResponseForStation(stationWithNotes);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
-        assertFalse(departureList.getNotes().isEmpty(), "no notes found for " + stationWithNotes.getName());
+        assertFalse(departureList.getNotes().isEmpty(), "no notes in " + departureList + " for " + stationWithNotes.getName());
 
         assertFalse(departureList.isForJourney());
     }

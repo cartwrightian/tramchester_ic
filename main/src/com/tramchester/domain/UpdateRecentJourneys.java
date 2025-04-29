@@ -43,7 +43,7 @@ public class UpdateRecentJourneys {
 
     private Timestamped findOldest(Set<Timestamped> from) {
         List<Timestamped> ordered = from.stream().sorted(Timestamped::compare).toList();
-        return ordered.get(0);
+        return ordered.getFirst();
     }
 
 }

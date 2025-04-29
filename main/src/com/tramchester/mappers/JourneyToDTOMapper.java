@@ -99,7 +99,7 @@ public class JourneyToDTOMapper {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }
-        final SimpleStageDTO previousStage = stagesSoFar.get(stagesSoFar.size() - 1);
+        final SimpleStageDTO previousStage = stagesSoFar.getLast();
         final TransportMode previousMode = previousStage.getMode();
         if ((previousMode ==TransportMode.Walk) || previousMode ==TransportMode.Connect) {
             return TravelAction.Board;

@@ -70,6 +70,7 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
 
     private void processRawData(final String payload) {
         final List<TramStationDepartureInfo> receivedInfos;
+
         if (payload.isEmpty()) {
             logger.warn("Empty payload");
             receivedInfos = Collections.emptyList();

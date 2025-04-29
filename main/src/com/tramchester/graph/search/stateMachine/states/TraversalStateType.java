@@ -13,6 +13,6 @@ public enum TraversalStateType {
     RouteStationStateOnTrip,
     ServiceState,
     WalkingState,
-    JustBoardedState;
+    JustBoardedState
     
 }

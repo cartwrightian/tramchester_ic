@@ -27,7 +27,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,7 +42,6 @@ public class RailStationRecordsRepository {
     private final IdSet<Station> inUseStations;
     private final Map<String, MutableStation> tiplocToStation; // rail timetable id -> mutable station
     private final Map<String, TIPLOCInsert> tiplocToTiplocInsert;
-    private final Set<String> missing;
     private final ProvidesRailStationRecords providesRailStationRecords;
     private final RailStationCRSRepository crsRepository;
     private final NaptanRepository naptanRepository;
@@ -58,7 +56,6 @@ public class RailStationRecordsRepository {
         inUseStations = new IdSet<>();
         tiplocToStation = new HashMap<>();
         tiplocToTiplocInsert = new HashMap<>();
-        missing = new HashSet<>();
         enabled = config.hasRailConfig();
     }
 
@@ -74,10 +71,6 @@ public class RailStationRecordsRepository {
     @PreDestroy
     private void close() {
         if (enabled) {
-            if (!missing.isEmpty()) {
-                logger.warn("Missing station locations that were referenced in timetable " + missing);
-            }
-            missing.clear();
             inUseStations.clear();
             tiplocToStation.clear();
         }

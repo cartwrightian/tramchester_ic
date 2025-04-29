@@ -72,11 +72,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
             logger.info(baseMsg + " with access token set");
         }
 
-        HttpClient httpClient = HttpClient.newBuilder().
-                connectTimeout(TIMEOUT).
-                build();
-
-        try {
+        try (HttpClient httpClient = HttpClient.newBuilder().connectTimeout(TIMEOUT).build()) {
             HttpRequest.Builder builder = HttpRequest.newBuilder().uri(url.toURI()).GET();
 
             if (!accessToken.isEmpty()) {
@@ -124,23 +120,18 @@ public class FetchInstanceMetadata implements FetchMetadata {
     }
 
     private String getDataWithAccessToken() {
-        final URI url;
-        url = baseURI.resolve(USER_DATA_TOKEN_PATH);
+        final URI url = baseURI.resolve(USER_DATA_TOKEN_PATH);
 
         logger.info("Get metadata access token from " + url);
 
-        HttpRequest putRequest = HttpRequest.newBuilder().
+        final HttpRequest putRequest = HttpRequest.newBuilder().
                 uri(url).PUT(HttpRequest.BodyPublishers.noBody()).
                 setHeader("X-aws-ec2-metadata-token-ttl-seconds",  "21600").
                 build();
 
-        HttpClient httpClient = HttpClient.newBuilder().
-                connectTimeout(TIMEOUT).
-                build();
-
         final String token;
-        try {
-            HttpResponse<byte[]> response = httpClient.send(putRequest, HttpResponse.BodyHandlers.ofByteArray());
+        try ( HttpClient httpClient = HttpClient.newBuilder().connectTimeout(TIMEOUT).build()) {
+            final HttpResponse<byte[]> response = httpClient.send(putRequest, HttpResponse.BodyHandlers.ofByteArray());
             final int statusCode = response.statusCode();
             if (statusCode == HttpServletResponse.SC_OK) {
                 byte[] contents = response.body();

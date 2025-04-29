@@ -32,4 +32,13 @@ public class DepartureListDTO {
     public boolean isForJourney() {
         return forJourney;
     }
+
+    @Override
+    public String toString() {
+        return "DepartureListDTO{" +
+                "departures=" + departures +
+                ", notes=" + notes +
+                ", forJourney=" + forJourney +
+                '}';
+    }
 }

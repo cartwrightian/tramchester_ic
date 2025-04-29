@@ -69,7 +69,7 @@ public class TramStationAdjacenyRepository  {
         final Set<Duration> unique = new HashSet<>(costs);
 
         if (unique.size()==1) {
-            return costs.get(0);
+            return costs.getFirst();
         }
 
         logger.warn("Ambiguous cost between " + stationPair + " costs: " + costs + " for " + date + " and " + timeRange);

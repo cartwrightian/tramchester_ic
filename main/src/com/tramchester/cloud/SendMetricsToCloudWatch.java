@@ -6,6 +6,7 @@ import com.codahale.metrics.Timer;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -18,7 +19,6 @@ import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -171,7 +171,7 @@ public class SendMetricsToCloudWatch {
         List<MetricDatum> result = new ArrayList<>();
         final int top = Math.min(batchSize, source.size());
         for (int i = 0; i < top; i++) {
-            result.add(source.remove(0));
+            result.add(source.removeFirst());
         }
         return result;
     }

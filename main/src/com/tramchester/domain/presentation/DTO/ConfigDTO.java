@@ -16,7 +16,7 @@ public class ConfigDTO {
 
     public ConfigDTO(Collection<TransportMode> modes, TramchesterConfig config) {
         this.modes = new ArrayList<>(modes);
-        this.postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);;
+        this.postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
         this.numberJourneysToDisplay = config.getMaxNumResults();
         this.environmentName = config.getEnvironmentName();
     }

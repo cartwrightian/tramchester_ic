@@ -220,9 +220,7 @@ public class MutableStation implements Station {
         if (this == o) return true;
         if (o == null) return false;
 
-        if (!(o instanceof MutableStation)) return false;
-
-        MutableStation station = (MutableStation) o;
+        if (!(o instanceof MutableStation station)) return false;
 
         return id.equals(station.id);
     }

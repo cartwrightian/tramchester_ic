@@ -147,22 +147,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         closedStations.stream().
                 filter(closedStation -> graphFilter.shouldInclude(closedStation.getStationId())).
-            forEach(closedStation -> {
-
-                // TODO This excludes all stations with closures, more sophisticated would be to ID how/if closure
-                // dates overlaps and only exclude if really necessary
-//                Set<Station> nearbyOpenStations = closedStation.getDiversionAroundClosure().stream().
-//                        filter(nearby -> !closedStationIds.contains(nearby.getId())).
-//                        collect(Collectors.toSet());
-
-//                if (nearbyOpenStations.isEmpty()) {
-//                    logger.error("Unable to find any walks to add for " + closedStation);
-//                } else {
-//                }
-                createWalks(closedStation);
-
-
-            });
+                forEach(this::createWalks);
     }
 
     private void createWalks(final ClosedStation closedStation) {

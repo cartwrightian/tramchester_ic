@@ -87,15 +87,12 @@ public class DiagnosticsToGraphViz {
             });
 
         });
-        
 
     }
 
     private String display(final List<DiagnosticReasonDTO> reasons) {
         final StringBuilder builder = new StringBuilder();
-        reasons.forEach(reason -> {
-            builder.append(reason.getText()).append("\n");
-        });
+        reasons.forEach(reason -> builder.append(reason.getText()).append("\n"));
         return builder.toString();
     }
 

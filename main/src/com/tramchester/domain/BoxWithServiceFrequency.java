@@ -4,6 +4,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class BoxWithServiceFrequency extends BoundingBox {
@@ -36,7 +37,7 @@ public class BoxWithServiceFrequency extends BoundingBox {
         BoxWithServiceFrequency that = (BoxWithServiceFrequency) o;
 
         if (numberOfStopCalls != that.numberOfStopCalls) return false;
-        return stationsWithStopCalls != null ? stationsWithStopCalls.equals(that.stationsWithStopCalls) : that.stationsWithStopCalls == null;
+        return Objects.equals(stationsWithStopCalls, that.stationsWithStopCalls);
     }
 
     @Override

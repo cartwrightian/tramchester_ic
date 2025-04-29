@@ -371,9 +371,7 @@ public class ClientForS3 {
         if (response.hasDeleted()) {
             final List<DeletedObject> deletedIds =  response.deleted();
             logger.info("Deleted " + deletedIds.size());
-            deletedIds.forEach(deletedObject -> {
-                logger.info("Deleted " + deletedObject.key());
-            });
+            deletedIds.forEach(deletedObject -> logger.info("Deleted " + deletedObject.key()));
         } else {
             logger.warn("Deleted no objects");
         }

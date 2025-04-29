@@ -178,8 +178,7 @@ public class Interchanges implements InterchangeRepository {
         // todo into config? Per datasource & transport mode? Bus 2??
         return switch (mode) {
             case Ferry -> 2;
-            case Bus -> 3;
-            case Tram, Subway, Train, RailReplacementBus -> 3;
+            case Bus, Tram, Subway, Train, RailReplacementBus -> 3;
             default -> throw new RuntimeException("Todo for " + mode);
         };
     }

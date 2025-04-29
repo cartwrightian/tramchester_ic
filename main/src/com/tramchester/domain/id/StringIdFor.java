@@ -67,12 +67,10 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         if (o==null) {
             return false;
         }
-        if (o instanceof StringIdFor) {
-            StringIdFor<?> that = (StringIdFor<?>) o;
+        if (o instanceof StringIdFor<?> that) {
             return theId.equals(that.theId) && domainType.equals(that.domainType);
         }
-        if (o instanceof ContainsId) {
-            ContainsId<?> that = (ContainsId<?>) o;
+        if (o instanceof ContainsId<?> that) {
             StringIdFor<?> thatContainedId = that.getContainedId();
             return theId.equals(thatContainedId.theId) && domainType.equals(thatContainedId.domainType);
         }

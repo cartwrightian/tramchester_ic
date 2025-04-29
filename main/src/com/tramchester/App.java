@@ -30,7 +30,6 @@ import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.MutableServletContextHandler;
-import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.metrics.servlets.HealthCheckServlet;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
@@ -39,7 +38,6 @@ import jakarta.servlet.DispatcherType;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.slf4j.ILoggerFactory;
@@ -198,16 +196,13 @@ public class App extends Application<AppConfiguration>  {
 
         logger.info("Add lifecycle event listener");
         environment.lifecycle().addEventListener(new LifeCycleHandler(container, executor));
-        environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener() {
-               @Override
-               public void serverStarted(Server server) {
-                   logger.warn("Server has started " + server);
-                   for (Connector connector : server.getConnectors()) {
-                       if (connector instanceof ServerConnector serverConnector) {
-                           logger.warn("Connector:" + serverConnector.getName() + " port:" + serverConnector.getLocalPort());
-                       }
-                   }
-               }
+        environment.lifecycle().addServerLifecycleListener(server -> {
+            logger.warn("Server has started " + server);
+            for (Connector connector : server.getConnectors()) {
+                if (connector instanceof ServerConnector serverConnector) {
+                    logger.warn("Connector:" + serverConnector.getName() + " port:" + serverConnector.getLocalPort());
+                }
+            }
         });
 
         final RejectInvalidEncodingFilter rejectInvalidEncodingFilter = new RejectInvalidEncodingFilter();

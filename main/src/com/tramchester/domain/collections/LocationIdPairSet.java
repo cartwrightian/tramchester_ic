@@ -46,7 +46,7 @@ public class LocationIdPairSet<T extends Location<T>>  {
     }
 
     public static <T extends Location<T>> Collector<LocationIdPair<T>, LocationIdPairSet<T>, LocationIdPairSet<T>> collector() {
-        return new Collector<LocationIdPair<T>, LocationIdPairSet<T>, LocationIdPairSet<T>>() {
+        return new Collector<>() {
             @Override
             public Supplier<LocationIdPairSet<T>> supplier() {
                 return LocationIdPairSet::new;

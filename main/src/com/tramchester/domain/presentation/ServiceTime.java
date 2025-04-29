@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
+import java.util.Objects;
+
 public class ServiceTime implements Comparable<ServiceTime> {
     private final TramTime leaveBegin;
     private final TramTime arrivesEnd;
@@ -62,10 +64,10 @@ public class ServiceTime implements Comparable<ServiceTime> {
 
         ServiceTime that = (ServiceTime) o;
 
-        if (leaveBegin != null ? !leaveBegin.equals(that.leaveBegin) : that.leaveBegin != null) return false;
-        if (arrivesEnd != null ? !arrivesEnd.equals(that.arrivesEnd) : that.arrivesEnd != null) return false;
-        if (serviceId != null ? !serviceId.equals(that.serviceId) : that.serviceId != null) return false;
-        return tripId != null ? tripId.equals(that.tripId) : that.tripId == null;
+        if (!Objects.equals(leaveBegin, that.leaveBegin)) return false;
+        if (!Objects.equals(arrivesEnd, that.arrivesEnd)) return false;
+        if (!Objects.equals(serviceId, that.serviceId)) return false;
+        return Objects.equals(tripId, that.tripId);
 
     }
 

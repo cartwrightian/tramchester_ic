@@ -142,7 +142,7 @@ public class DeparturesResource extends TransportResource implements APIResource
     @NotNull
     private List<Note> getNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams,
                                 final TramDate queryDate, final TramTime queryTime, final Location<?> location) {
-        final Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams);
+        final Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams, location);
         final List<Note> notes = providesNotes.createNotesForStations(stations, queryDate, queryTime);
         if (notes.isEmpty()) {
             logger.warn("Notes empty for " + location.getId() + " at " + queryTime);
@@ -150,19 +150,35 @@ public class DeparturesResource extends TransportResource implements APIResource
         return notes;
     }
 
-    private Set<Station> getStationsToQueryForNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams) {
+    private Set<Station> getStationsToQueryForNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams, Location<?> location) {
         if (notesFor.isEmpty()) {
+            logger.info("No specific locations provided in query for notes");
             // based on the nearby departures
-            logger.info("No specific stations provided, default to nearby");
-            return dueTrams.stream().map(UpcomingDeparture::getDisplayLocation).collect(Collectors.toSet());
+            if (dueTrams.isEmpty()) {
+                return getNotesWhenNoDueTrams(location);
+            } else {
+                logger.info("Fetch notes from due dues");
+                return dueTrams.stream().map(UpcomingDeparture::getDisplayLocation).collect(Collectors.toSet());
+            }
         } else {
             // TODO other location types needed?
             logger.info("Getting notes for specific stations " + notesFor);
             return notesFor.stream().
                     filter((stationId -> locationRepository.hasLocation(LocationType.Station, stationId))).
                     map(stationId -> locationRepository.getLocation(LocationType.Station, stationId)).
-                    map(location -> (Station)location).
+                    map(station -> (Station)station).
                     collect(Collectors.toSet());
+        }
+    }
+
+    private static @NotNull Set<Station> getNotesWhenNoDueTrams(Location<?> location) {
+        if (location.getLocationType()==LocationType.Station) {
+            logger.warn("No due trams found, use location " + location.getId());
+            Station station = (Station) location;
+            return Collections.singleton(station);
+        } else {
+            logger.error("No due trams found, unable to use location to find notes " + location);
+            return Collections.emptySet();
         }
     }
 
