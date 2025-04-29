@@ -58,8 +58,7 @@ public class LiveDataParser {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
         Firswood("Firswood", "Firswood Station"),
         AshtonViaMediaCity("Ashton via MCUK", "Ashton-Under-Lyne"),
-        RochdaleStn("Rochdale Stn", "Rochdale Railway Station"),
-        AshtonViaMediaCityUK("Ashton via MCUK", "Ashton");
+        RochdaleStn("Rochdale Stn", "Rochdale Railway Station");
 
 // No longer in use?
 //        Firswood("Firswood", "Firswood Station"),
@@ -120,7 +119,7 @@ public class LiveDataParser {
         final EnumSet<OverheadDisplayLines> unusedLines = EnumSet.allOf(OverheadDisplayLines.class);
         unusedLines.remove(OverheadDisplayLines.UnknownLine);
         unusedLines.removeAll(linesSeen);
-        if (!unusedMappings.isEmpty()) {
+        if (!unusedLines.isEmpty()) {
             logger.warn("The following lines were not seen " + unusedLines);
         }
     }

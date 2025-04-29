@@ -155,7 +155,8 @@ class LiveDataHTTPFetcherTest {
     @Test
     void shouldHaveRealStationNamesForMappings() {
         List<LiveDataParser.LiveDataNamesMapping> mappings = Arrays.asList(LiveDataParser.LiveDataNamesMapping.values());
-        mappings.forEach(mapping -> assertTrue(stationByName.getTramStationByName(mapping.getToo()).isPresent(), mapping.name()));
+        mappings.forEach(mapping -> assertTrue(stationByName.getTramStationByName(mapping.getToo()).isPresent(),
+                mapping.name()));
     }
 
 
