@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -146,8 +145,8 @@ public class RailAndTramRouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereDirectTramInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getGreen(date), date);
-        Route routeB = routeHelper.getOneRoute(getNavy(date), date);
+        Route routeA = routeHelper.getGreen(date);
+        Route routeB = routeHelper.getNavy(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -179,8 +178,8 @@ public class RailAndTramRouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getYellow(date), date);
-        Route routeB = routeHelper.getOneRoute(getRed(date), date);
+        Route routeA = routeHelper.getYellow(date);
+        Route routeB = routeHelper.getRed(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(2, depth);

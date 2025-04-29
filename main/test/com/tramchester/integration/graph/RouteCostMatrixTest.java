@@ -25,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -76,8 +75,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getGreen(date), date);
-        Route routeB = routeHelper.getOneRoute(getNavy(date), date);
+        Route routeA = routeHelper.getGreen(date);
+        Route routeB = routeHelper.getNavy(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -85,8 +84,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getYellow(date), date);
-        Route routeB = routeHelper.getOneRoute(getRed(date), date);
+        Route routeA = routeHelper.getYellow(date);
+        Route routeB = routeHelper.getRed(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -94,8 +93,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexForEcclesRouteOntoAltyRoute() {
-        Route routeA = routeHelper.getOneRoute(getBlue(date), date);
-        Route routeB = routeHelper.getOneRoute(getGreen(date), date);
+        Route routeA = routeHelper.getBlue(date);
+        Route routeB = routeHelper.getGreen(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -103,8 +102,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexForEcclesRouteFromAltyRoute() {
-        Route routeA = routeHelper.getOneRoute(getGreen(date), date);
-        Route routeB = routeHelper.getOneRoute(getNavy(date), date);
+        Route routeA = routeHelper.getGreen(date);
+        Route routeB = routeHelper.getNavy(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -112,8 +111,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldGetBitsSetIfAlreadySetForLowerDepth() {
-        Route routeA = routeHelper.getOneRoute(getRed(date), date);
-        Route routeB = routeHelper.getOneRoute(getGreen(date), date);
+        Route routeA = routeHelper.getRed(date);
+        Route routeB = routeHelper.getGreen(date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
 

@@ -3,7 +3,10 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationCollectionSingleton;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -38,7 +41,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -107,7 +109,7 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.getOneRoute(getNavy(date), date);
+        Route routeA = routeHelper.getNavy(date);
 
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
@@ -115,8 +117,8 @@ public class RouteToRouteCostsTest {
     @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
-        Route routeA = routeHelper.getOneRoute(getRed(date), date);
-        Route routeB = routeHelper.getOneRoute(getYellow(date), date);
+        Route routeA = routeHelper.getRed(date);
+        Route routeB = routeHelper.getYellow(date);
 
         assertEquals(2, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -126,8 +128,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
-        Route routeA = routeHelper.getOneRoute(getRed(date), date);
-        Route routeB = routeHelper.getOneRoute(getPurple(date), date);
+        Route routeA = routeHelper.getRed(date);
+        Route routeB = routeHelper.getPurple(date);
 
         assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -139,8 +141,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
-        Route routeA = routeHelper.getOneRoute(getGreen(date), date);
-        Route routeB = routeHelper.getOneRoute(getNavy(date), date);
+        Route routeA = routeHelper.getGreen(date);
+        Route routeB = routeHelper.getNavy(date);
 
         assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());

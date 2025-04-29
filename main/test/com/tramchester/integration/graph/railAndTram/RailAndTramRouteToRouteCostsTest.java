@@ -20,10 +20,12 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -32,9 +34,10 @@ import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @GMTest
 public class RailAndTramRouteToRouteCostsTest {
@@ -221,8 +224,8 @@ public class RailAndTramRouteToRouteCostsTest {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
 
-        Route yellowInbound = tramRouteHelper.getOneRoute(KnownTramRoute.getYellow(date), date);
-        Route pinkOutbound = tramRouteHelper.getOneRoute(KnownTramRoute.getPink(date), date);
+        Route yellowInbound = tramRouteHelper.getYellow(date);
+        Route pinkOutbound = tramRouteHelper.getPink(date);
 
         int routeToRouteResult = routeToRouteCosts.getPossibleMinChanges(yellowInbound, pinkOutbound, date, timeRange, TramsOnly);
 

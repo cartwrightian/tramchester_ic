@@ -138,7 +138,7 @@ class StationGeographyResourceTest {
 
         assertFalse(areas.isEmpty());
 
-        Set<IdForDTO> areaIds = areas.stream().map(AreaBoundaryDTO::getAreaId).collect(Collectors.toSet());
+        Set<IdForDTO> areaIds = areas.stream().map(AreaBoundaryDTO::getId).collect(Collectors.toSet());
 
         Station bury = Bury.from(stationRepository);
         IdFor<NPTGLocality> buryLocalityId = bury.getLocalityId();

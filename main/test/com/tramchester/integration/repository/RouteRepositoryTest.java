@@ -11,14 +11,13 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.domain.reference.TFGMRouteNames;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -26,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +33,8 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getBlue;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getFor;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -179,11 +180,14 @@ public class RouteRepositoryTest {
     @Test
     void shouldOverlapAsExpected() {
 
-        Set<TestRoute> known = KnownTramRoute.getFor(when);
+        EnumSet<TFGMRouteNames> known = EnumSet.allOf(TFGMRouteNames.class);
+        known.remove(TFGMRouteNames.BusOne);
+        known.remove(TFGMRouteNames.BusTwo);
+
         Set<RoutePair> noOverlap = new HashSet<>();
 
-        for (TestRoute knownRouteA : known) {
-            for (TestRoute knownRouteB : known) {
+        for (TFGMRouteNames knownRouteA : known) {
+            for (TFGMRouteNames knownRouteB : known) {
                 Route routeA = routeHelper.getOneRoute(knownRouteA, when);
                 Route routeB = routeHelper.getOneRoute(knownRouteB, when);
                 if (!routeA.isDateOverlap(routeB)) {

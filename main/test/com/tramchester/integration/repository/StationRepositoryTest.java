@@ -79,7 +79,7 @@ public class StationRepositoryTest {
 
     @Test
     void shouldHaveExpectedStationsForRoute() {
-        Route buryToAlty = routeHelper.getOneRoute(getGreen(when), when);
+        Route buryToAlty = routeHelper.getGreen(when);
 
         Set<Station> allStations = stationRepository.getStations(EnumSet.of(Tram));
 

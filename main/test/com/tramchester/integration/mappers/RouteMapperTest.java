@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,7 +50,7 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForAirportRouteIdsTransposedInData() {
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(getNavy(date), date);
+        Route fromAirportRoute = tramRouteHelper.getNavy(date);
 
         List<Station> results = mapper.getStationsOn(fromAirportRoute, false, ManAirport.getId());
 
@@ -62,7 +61,7 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForTraffordCentreRouteIdsTransposedInData() {
-        Route fromTraffordCenter = tramRouteHelper.getOneRoute(getRed(date), date);
+        Route fromTraffordCenter = tramRouteHelper.getRed(date);
 
         List<Station> results = mapper.getStationsOn(fromTraffordCenter, false, TraffordCentre.getId());
 

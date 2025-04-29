@@ -30,7 +30,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -107,7 +106,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         JourneyStateUpdate updateState = new JourneyState(time, minuteState);
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         RouteStation routeStation = new RouteStation(cornbrook, route);
 
@@ -151,7 +150,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         JourneyStateUpdate updateState = new JourneyState(time, minuteState);
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         RouteStation routeStation = new RouteStation(cornbrook, route);
 
@@ -190,7 +189,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         MinuteState minuteState = mockMinuteNode(traversalStateFactory);
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         Trip trip = findATrip(route, Deansgate.getId());
 

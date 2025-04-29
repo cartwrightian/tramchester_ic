@@ -21,6 +21,7 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
+import java.util.Collections;
 import java.util.EnumSet;
 
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
@@ -95,7 +96,9 @@ public class BusRouteToRouteCostsTest {
         Station start = stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
         StationLocalityGroup end = Shudehill.from(stationGroupsRepository);
 
-        int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(LocationSet.singleton(start),
+        LocationSet<Station> starts = new LocationSet<>(Collections.singleton(start));
+
+        int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(starts,
                 end.getAllContained(), date, wholeDayRange, modes);
 
         assertEquals(2, numberOfChanges);
@@ -109,7 +112,7 @@ public class BusRouteToRouteCostsTest {
         TimeRange range = TimeRangePartial.of(TramTime.of(10,5), TramTime.of(14,53));
         int results = routeToRouteCosts.getPossibleMinChanges(start, dest, date, range, modes);
 
-        assertEquals(0, results);
+        assertEquals(1, results);
     }
 
     @Test

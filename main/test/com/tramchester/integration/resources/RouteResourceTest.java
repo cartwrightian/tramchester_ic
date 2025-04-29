@@ -66,7 +66,7 @@ class RouteResourceTest {
         List<RouteDTO> routeDTOS = getRouteResponse(); // uses current date server side
         routeDTOS.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        Set<IdForDTO> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getRouteID).collect(Collectors.toSet());
+        Set<IdForDTO> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
         Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
                 map(TestRoute::dtoId).
                 collect(Collectors.toSet());
@@ -130,7 +130,7 @@ class RouteResourceTest {
 
         assertFalse(results.isEmpty());
 
-        Set<IdForDTO> uniqueRouteIds = results.stream().map(RouteRefDTO::getRouteID).collect(Collectors.toSet());
+        Set<IdForDTO> uniqueRouteIds = results.stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
 
         assertEquals(expected.size(), uniqueRouteIds.size());
 

@@ -31,14 +31,14 @@ public class LocationSetTest {
         assertTrue(locationSet.contains(Cornbrook.fake()));
     }
 
-    @Test
-    void shouldCreateSingleton() {
-        LocationSet<Station> locationSet = LocationSet.singleton(Altrincham.fake());
-
-        assertEquals(1, locationSet.size());
-        assertTrue(locationSet.contains(Altrincham.fake()));
-        assertFalse(locationSet.contains(StPetersSquare.fake()));
-    }
+//    @Test
+//    void shouldCreateSingleton() {
+//        LocationSet<Station> locationSet = LocationSet.singleton(Altrincham.fake());
+//
+//        assertEquals(1, locationSet.size());
+//        assertTrue(locationSet.contains(Altrincham.fake()));
+//        assertFalse(locationSet.contains(StPetersSquare.fake()));
+//    }
 
     @Test
     void shouldCreateFromSet() {

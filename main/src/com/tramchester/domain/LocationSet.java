@@ -3,8 +3,6 @@ package com.tramchester.domain;
 import com.google.common.collect.Sets;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
-import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collection;
@@ -39,20 +37,6 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
         return new LocationSet<>(items);
     }
 
-    /***
-     *
-     * @param location the location
-     * @return The singleton set
-     * @param <S> Location Type
-     * Use LocationCollectionSingleton.of() instead
-     */
-    @Deprecated
-    public static <S extends Location<S>> LocationSet<S> singleton(S location) {
-        final LocationSet<S> locationSet = new LocationSet<>();
-        locationSet.add(location);
-        return locationSet;
-    }
-
     public int size() {
         return locations.size();
     }
@@ -61,25 +45,12 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
         return locations.stream();
     }
 
-    // todo sort out singleton about, then make this private
-    @Deprecated
-    public void add(T location) {
+    public void add(final T location) {
         locations.add(location);
     }
 
     public boolean contains(T item) {
         return locations.contains(item);
-    }
-
-    /***
-     * Need to sort out issue around id's
-     * @return only those locations in the set that are stations
-     */
-    @Deprecated
-    public Stream<Station> stationsOnlyStream() {
-        return locations.stream().
-                filter(location -> location.getLocationType()==LocationType.Station).
-                map(location -> (Station) location);
     }
 
     @Override

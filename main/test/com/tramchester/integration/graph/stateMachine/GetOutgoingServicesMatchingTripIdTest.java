@@ -21,7 +21,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -89,7 +88,7 @@ public class GetOutgoingServicesMatchingTripIdTest {
     @Test
     void shouldFindRelationshipsTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getGreen(when), when);
+        Route route = tramRouteHelper.getGreen(when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 

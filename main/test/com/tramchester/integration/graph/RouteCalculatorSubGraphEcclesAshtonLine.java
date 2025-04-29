@@ -17,7 +17,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBlue(when), when);
+        Route route = tramRouteHelper.getBlue(when);
         graphFilter.addRoute(route.getId());
     }
 

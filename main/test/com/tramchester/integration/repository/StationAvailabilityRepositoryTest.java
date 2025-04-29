@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -218,9 +217,9 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TramsOnly);
 
-        Route yellowInbound = tramRouteHelper.getOneRoute(getYellow(when), date);
-        Route blueInbound = tramRouteHelper.getOneRoute(getPink(when), date);
-        Route greenOutbound = tramRouteHelper.getOneRoute(getGreen(when), date);
+        Route yellowInbound = tramRouteHelper.getYellow(when);
+        Route blueInbound = tramRouteHelper.getPink(when);
+        Route greenOutbound = tramRouteHelper.getGreen(when);
 
         assertTrue(dropOffs.contains(yellowInbound));
         assertTrue(dropOffs.contains(blueInbound));

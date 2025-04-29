@@ -58,7 +58,8 @@ public class LiveDataParser {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
         Firswood("Firswood", "Firswood Station"),
         AshtonViaMediaCity("Ashton via MCUK", "Ashton-Under-Lyne"),
-        RochdaleStn("Rochdale Stn", "Rochdale Railway Station");
+        RochdaleStn("Rochdale Stn", "Rochdale Railway Station"),
+        AshtonViaMediaCityUK("Ashton via MCUK", "Ashton");
 
 // No longer in use?
 //        Firswood("Firswood", "Firswood Station"),

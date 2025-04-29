@@ -128,4 +128,8 @@ public class TramRouteHelper {
     public Route getYellow(TramDate date) {
         return getOneRoute(TFGMRouteNames.Yellow, date);
     }
+
+    public Route getPurple(TramDate date) {
+        return getOneRoute(TFGMRouteNames.Purple, date);
+    }
 }

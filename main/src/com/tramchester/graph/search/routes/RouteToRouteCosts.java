@@ -129,7 +129,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     /***
      * Bus Test support only
-     * TODO remove
+     * TODO remove?
      * @param start begin
      * @param end end
      * @param date date
@@ -137,7 +137,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * @param modes modes
      * @return number of change
      */
-    @Deprecated
     public int getPossibleMinChanges(StationLocalityGroup start, StationLocalityGroup end, TramDate date, TimeRange time,
                                      EnumSet<TransportMode> modes) {
         return getPossibleMinChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
