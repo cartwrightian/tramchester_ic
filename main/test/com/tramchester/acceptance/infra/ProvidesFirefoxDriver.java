@@ -25,11 +25,9 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     private final LatLong location;
     private final Path locationStubJSON = Paths.get("geofile.json");
 
-//    private final DesiredCapabilities capabilities;
     private ProvidesDateInput providesDateInput;
 
     public ProvidesFirefoxDriver(LatLong location) {
-//        capabilities = createCapabilities();
         this.location = location;
     }
 
@@ -68,14 +66,12 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
                 firefoxProfile.setPreference("geo.prompt.testing.allow", false);
             }
 
-//            capabilities.setCapability(FirefoxDriver.PROFILE, firefoxProfile);
             FirefoxOptions firefoxOptions = new FirefoxOptions();
             firefoxOptions.setProfile(firefoxProfile);
 
             // allow disabling of headless more via env var
             if (System.getenv(TestEnv.DISABLE_HEADLESS_ENV_VAR)==null) {
                 firefoxOptions.addArguments("-headless");
-//                firefoxOptions.setHeadless(true);
             }
 
             FirefoxDriver firefoxDriver = new FirefoxDriver(firefoxOptions);

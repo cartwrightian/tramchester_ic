@@ -450,14 +450,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Set<String> secondStageHeadsigns = new HashSet<>(Arrays.asList(ManAirport.getName(),
                 "Manchester Airport via Market Street & Wythenshawe"));
 
-//        Set<TramTime> validTimes = new HashSet<>(Arrays.asList(
-//                TramTime.of(10,28),
-//                TramTime.of(10,37),
-//                TramTime.of(10,27),
-//                TramTime.of(10,29)
-//        ));
-
-        Set<TramTime> validTimes = Collections.singleton(TramTime.of(10, 28));
+        Set<TramTime> validTimes = Collections.singleton(TramTime.of(10, 29));
 
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),

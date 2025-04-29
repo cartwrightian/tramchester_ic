@@ -39,9 +39,8 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
     @Override
     public String getData() {
 
-        HttpClient httpClient = HttpClient.newBuilder().
-                connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT_MS)).
-                build();
+        final HttpClient.Builder builder = HttpClient.newBuilder().
+                connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT_MS));
 
         final String configLiveDataUrl = config.getDataUrl();
         String liveDataSubscriptionKey = config.getDataSubscriptionKey();
@@ -50,14 +49,14 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
         }
 
         final URI uri = URI.create(configLiveDataUrl);
-        HttpRequest get = HttpRequest.newBuilder().
+        final HttpRequest get = HttpRequest.newBuilder().
                 uri(uri).
                 setHeader("Ocp-Apim-Subscription-Key", liveDataSubscriptionKey).
                 GET().build();
 
-        try {
+        try (final HttpClient httpClient = builder.build()) {
             logger.debug("Get live tram data from " + uri);
-            HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
             final int statusCode = response.statusCode();
             if (statusCode == 200) {
                 logger.info(format("Get from %s response status is %s size is %s", uri, statusCode, response.body().length()));
