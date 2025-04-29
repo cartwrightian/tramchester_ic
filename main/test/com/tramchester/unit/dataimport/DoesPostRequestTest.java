@@ -1,7 +1,6 @@
 package com.tramchester.unit.dataimport;
 
 import com.tramchester.dataimport.DoesPostRequest;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
@@ -104,7 +103,7 @@ public class DoesPostRequestTest {
         private String postedData;
 
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
             calledUrl = request.getRequestURL().toString();
             contentHeader = request.getHeader("Content-Type");
             if (request.getMethod().equals("POST")) {

@@ -27,7 +27,7 @@ public class LiveDataSNSPublisherHealthCheck extends TramchesterHealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         if (liveDataSNSPublisher.getLastSentOk()) {
             return Result.healthy("Last message send ok");
         } else {

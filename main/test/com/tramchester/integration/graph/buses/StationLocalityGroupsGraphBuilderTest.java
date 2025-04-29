@@ -27,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Direction;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +45,7 @@ public class StationLocalityGroupsGraphBuilderTest {
     private StationGroupsRepository stationGroupsRepository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationBusTestConfig(TestGroupType.performance);
 
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
@@ -64,7 +63,7 @@ public class StationLocalityGroupsGraphBuilderTest {
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() throws IOException {
+    static void OnceAfterAllTestsAreFinished() {
         txn.close();
         componentContainer.close();
     }

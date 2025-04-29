@@ -5,8 +5,8 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.collections.LocationIdPairSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TramTime;
@@ -17,7 +17,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,7 @@ class RouteCalculatorKeyGroupsBusTest {
     private JourneyRequest journeyRequest;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder().
                 create(testConfig, TestEnv.NoopRegisterMetrics());
@@ -47,7 +46,7 @@ class RouteCalculatorKeyGroupsBusTest {
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() throws IOException {
+    static void OnceAfterAllTestsAreFinished() {
         componentContainer.close();
     }
 

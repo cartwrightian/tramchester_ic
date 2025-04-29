@@ -52,7 +52,7 @@ public class RouteIndexDataSerialisationTest {
 
         assertEquals(1, loadedData.size());
 
-        RouteIndexData loadedRouteIndexData = loadedData.get(0);
+        RouteIndexData loadedRouteIndexData = loadedData.getFirst();
 
         assertEquals(routeId, loadedRouteIndexData.getRouteId());
         assertEquals(42, loadedRouteIndexData.getIndex());
@@ -74,7 +74,7 @@ public class RouteIndexDataSerialisationTest {
 
         assertEquals(1, loadedData.size());
 
-        RouteIndexData loadedRouteIndexData = loadedData.get(0);
+        RouteIndexData loadedRouteIndexData = loadedData.getFirst();
 
         assertEquals(railRouteId, loadedRouteIndexData.getRouteId());
         assertEquals(42, loadedRouteIndexData.getIndex());
@@ -96,7 +96,7 @@ public class RouteIndexDataSerialisationTest {
         return stream.collect(Collectors.toList());
     }
 
-    private void saveToFile(RouteIndexData routeIndexData) throws Exception {
+    private void saveToFile(RouteIndexData routeIndexData) {
         HasDataSaver<RouteIndexData> hasSaver = factory.getSaverFor(RouteIndexData.class, pathToJsonFile);
 
         try (HasDataSaver.ClosableDataSaver<RouteIndexData> saver = hasSaver.get()) {

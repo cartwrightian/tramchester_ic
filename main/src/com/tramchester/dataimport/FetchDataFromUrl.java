@@ -299,7 +299,7 @@ public class FetchDataFromUrl {
                                               final List<Pair<String, String>> headers) throws IOException, InterruptedException {
         RedirectStrategy redirectStrategy = new RedirectStrategy() {
             @Override
-            public URLStatus action(URI actualURL) throws IOException {
+            public URLStatus action(URI actualURL) {
                 return httpDownloader.downloadTo(destination, actualURL, localModTime, headers);
             }
         };

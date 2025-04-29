@@ -23,7 +23,7 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
 
     @Override
     public void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, GraphNode svcNode) {
-        String key = CreateKeys.getServiceKey(routeId, service.getId(), begin, end);
+        String key = getServiceKey(routeId, service.getId(), begin, end);
         svcNodes.put(key, svcNode.getId());
     }
 
@@ -31,13 +31,13 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
     @Override
     public MutableGraphNode getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service,
                                            IdFor<Station> startStation, IdFor<Station> endStation) {
-        String id = CreateKeys.getServiceKey(routeId, service.getId(), startStation, endStation);
+        String id = getServiceKey(routeId, service.getId(), startStation, endStation);
         return txn.getNodeByIdMutable(svcNodes.get(id));
     }
 
     @Override
     public boolean hasServiceNode(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end) {
-        return svcNodes.containsKey(CreateKeys.getServiceKey(routeId, service.getId(), begin,end));
+        return svcNodes.containsKey(getServiceKey(routeId, service.getId(), begin,end));
     }
 
     @Override
@@ -69,13 +69,9 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
         hourNodes.clear();
     }
 
-    private static class CreateKeys {
-
-        protected static String getServiceKey(IdFor<Route> routeId, IdFor<Service> service,
-                                              IdFor<Station> startStation, IdFor<Station> endStation) {
-            return routeId.getGraphId()+"_"+startStation.getGraphId()+"_"+endStation.getGraphId()+"_"+ service.getGraphId();
-        }
-
+    protected static String getServiceKey(IdFor<Route> routeId, IdFor<Service> service,
+                                          IdFor<Station> startStation, IdFor<Station> endStation) {
+        return routeId.getGraphId()+"_"+startStation.getGraphId()+"_"+endStation.getGraphId()+"_"+ service.getGraphId();
     }
 
     private record GraphNodeIdAndHour(GraphNodeId graphNodeId, int hour) {

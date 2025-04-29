@@ -53,7 +53,7 @@ public class StringStreamReader extends Reader {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         stream.close();
     }
 }

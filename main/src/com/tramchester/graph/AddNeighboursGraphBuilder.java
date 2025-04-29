@@ -26,7 +26,6 @@ import java.util.Set;
 public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(AddNeighboursGraphBuilder.class);
 
-    private final GraphDatabase database;
     private final GraphDatabaseMetaInfo databaseMetaInfo;
     private final StationRepository stationRepository;
     private final NeighboursRepository neighboursRepository;
@@ -40,7 +39,6 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                                      @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
                                      NeighboursRepository neighboursRepository) {
         super(database);
-        this.database = database;
         this.databaseMetaInfo = databaseMetaInfo;
         this.filter = filter;
         this.stationRepository = repository;
