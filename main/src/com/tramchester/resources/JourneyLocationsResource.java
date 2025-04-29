@@ -137,18 +137,18 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getNearWithMode(@PathParam("mode") String rawMode, @QueryParam("lat") double lat, @QueryParam("lon") double lon) {
-        MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
+        final MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         logger.info(format("Get locations within %s of %s,%s and mode %s", margin, lat, lon, rawMode));
 
-        TransportMode mode = TransportMode.valueOf(rawMode);
+        final TransportMode mode = TransportMode.valueOf(rawMode);
 
-        LatLong latLong = new LatLong(lat,lon);
+        final LatLong latLong = new LatLong(lat,lon);
 
-        MyLocation location = new MyLocation(latLong);
+        final MyLocation location = new MyLocation(latLong);
 
-        List<? extends Location<?>> nearestLocations = getNearestLocations(location, margin, mode);
+        final List<? extends Location<?>> nearestLocations = getNearestLocations(location, margin, mode);
 
-        List<LocationRefDTO> results = toLocationRefDTOList(nearestLocations);
+        final List<LocationRefDTO> results = toLocationRefDTOList(nearestLocations);
 
         return Response.ok(results).build();
     }
@@ -156,11 +156,11 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     private List<? extends Location<?>> getNearestLocations(MyLocation origin, MarginInMeters margin, TransportMode mode) {
         EnumSet<TransportMode> modes = EnumSet.of(mode);
 
-        List<Station> stations = stationLocations.nearestStationsSorted(origin, config.getNumOfNearestStopsToOffer(), margin, modes);
+        final List<Station> stations = stationLocations.nearestStationsSorted(origin, config.getNumOfNearestStopsToOffer(), margin, modes);
 
         if (mode==TransportMode.Bus) {
             // convert to localities
-            IdSet<StationLocalityGroup> localityIds = stations.stream().
+            final IdSet<StationLocalityGroup> localityIds = stations.stream().
                     map(Location::getLocalityId).
                     map(StationLocalityGroup::createId).
                     filter(IdFor::isValid).
@@ -179,7 +179,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie, @QueryParam("modes") String rawModes) {
-        logger.info(format("Get recent locations for cookie %s and modes", cookie, rawModes));
+        logger.info(format("Get recent locations for cookie %s and modes %s", cookie, rawModes));
 
         final EnumSet<TransportMode> modes;
         if (rawModes!=null) {

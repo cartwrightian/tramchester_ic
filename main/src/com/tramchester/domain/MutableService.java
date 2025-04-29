@@ -38,10 +38,6 @@ public class MutableService implements Service {
         return new MutableService(serviceId, dataSourceId);
     }
 
-    public static IdFor<Service> createId(String text) {
-        return Service.createId(text);
-    }
-
     @Override
     public IdFor<Service> getId() {
         return serviceId;

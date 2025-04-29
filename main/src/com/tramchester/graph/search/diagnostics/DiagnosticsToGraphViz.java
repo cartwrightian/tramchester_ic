@@ -20,15 +20,11 @@ import static java.lang.String.format;
 public class DiagnosticsToGraphViz {
 
     private final HashSet<Pair<IdForDTO, String>> locationToNode;
-    private final HashSet<Pair<String, String>> reasonToReason;
-//    private final HashSet<Pair<GraphNodeId, IdForDTO>> graphNodeToLocation;
     private final HashSet<Pair<String, String>> nodeToReason;
 
     @Inject
     public DiagnosticsToGraphViz() {
         locationToNode = new HashSet<>();
-        reasonToReason = new HashSet<>();
-//        graphNodeToLocation = new HashSet<>();
         nodeToReason = new HashSet<>();
     }
 
@@ -41,7 +37,6 @@ public class DiagnosticsToGraphViz {
 
     private void add(final StationDiagnosticsDTO diagnostic, final StringBuilder builder,
                      final DiagramState diagramState) {
-        //final HowIGotHere howIGotHere = reason.getHowIGotHere();
 
         LocationRefWithPosition begin = diagnostic.getBegin();
 
@@ -49,9 +44,7 @@ public class DiagnosticsToGraphViz {
 
         List<StationDiagnosticsLinkDTO> links = diagnostic.getLinks();
 
-        Set<String> seenGraphNodeId = new HashSet<>();
 
-//        IdForDTO beginLocationId = begin.getId();
         links.forEach(link -> {
 
             LocationRefWithPosition towards = link.getTowards();
@@ -90,34 +83,11 @@ public class DiagnosticsToGraphViz {
                 builder.append(format("\"%s\" [label=\"%s\"] [shape=\"%s\" style=\"filled\" color=\"%s\"]\n",
                         reasonNodeId, reason.getText(), reasonShape, reasonColor));
 
-//                Pair<String, String> reasonLinkKey = Pair.of(reasonNodeId, endNodeId);
-//                if (!reasonToReason.contains(reasonLinkKey)) {
-//                    builder.append(format("\"%s\"->\"%s\" [label=\"RR\"] \n", reasonNodeId, endNodeId));
-//                    reasonToReason.add(reasonLinkKey);
-//                }
-                seenGraphNodeId.add(endNodeId);
+
             });
 
-            // towards node
-            //addNodeToDiagram(towards, Collections.emptyList(), builder, diagramState);
-
-
-//            builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]", begin.getId(),
-//                    towards.getId(), display(link.getReasons())));
-
         });
-
-
-//        diagnostic.getAssociatedNodeIds().
-//                stream().filter(graphNodeId -> seenGraphNodeId.contains(graphNodeId.toString())).
-//                forEach(graphNodeId -> {
-//                    Pair<GraphNodeId, IdForDTO> key = Pair.of(graphNodeId, beginLocationId);
-//                    if (!graphNodeToLocation.contains(key)) {
-//                        builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]\n", graphNodeId,
-//                                beginLocationId, "assoc"));
-//                        graphNodeToLocation.add(key);
-//                    }
-//        });
+        
 
     }
 
