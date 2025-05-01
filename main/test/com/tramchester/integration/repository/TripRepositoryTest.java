@@ -269,10 +269,6 @@ public class TripRepositoryTest {
         if (UpcomingDates.hasClosure(station.getId(), date)) {
             return Collections.emptyList();
         }
-//        if (date.equals(UpcomingDates.PiccAshtonImprovementWorks)) {
-//            return times.stream().
-//                    filter(time -> !UpcomingDates.hasClosure(station, date)).toList();
-//        }
         return times;
     }
 }

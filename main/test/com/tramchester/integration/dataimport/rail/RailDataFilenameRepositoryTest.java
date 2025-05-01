@@ -5,6 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,10 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@DataUpdateTest
 public class RailDataFilenameRepositoryTest {
 
-    public static final String CURRENT_VERSION = "449";
+    public static final String CURRENT_VERSION = "456";
 
     private static GuiceContainerDependencies componentContainer;
     private RailDataFilenameRepository repository;

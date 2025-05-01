@@ -36,7 +36,8 @@ public class UpcomingDates {
 
     public static DateRanges RochdaleLineWorksSummer2025 = new DateRanges(
             DateRange.of(TramDate.of(2025, 5,3),1),
-            DateRange.of(TramDate.of(2025,5,10),1));
+            DateRange.of(TramDate.of(2025,5,10),1),
+            DateRange.of(TramDate.of(2025,5,17),1));
 
 
     public static boolean hasClosure(final Station station, final TramDate date) {
