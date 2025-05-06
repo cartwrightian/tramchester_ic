@@ -100,9 +100,9 @@ function addTrams() {
 
 function getTramTitle(tram, position) {
     if (tram.status==='Arrived') {
-        return tram.destination + ' tram at ' + position.second.name;
+        return tram.destinationName + ' tram at ' + position.second.name;
     } else {
-        return tram.destination + ' tram ' + tram.status + ' at ' + position.second.name + ' in ' + tram.wait;
+        return tram.destinationName + ' tram ' + tram.status + ' at ' + position.second.name + ' in ' + tram.wait;
     }
 }
 
