@@ -37,7 +37,6 @@ import java.nio.file.Paths;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static java.lang.String.format;
@@ -124,7 +123,7 @@ public class TestEnv {
     }
 
     public static Route getTramTestRoute() {
-        return getTramTestRoute(Route.createId("RouteId"), "routeName");
+        return getTramTestRoute(Route.createBasicRouteId("RouteId"), "routeName");
     }
 
     public static Route getTramTestRoute(IdFor<Route> routeId, String routeName) {
@@ -327,31 +326,6 @@ public class TestEnv {
             return "Dev";
         }
         return text;
-    }
-
-    @Deprecated
-    public static TramDate nextSunday() {
-        return UpcomingDates.nextSunday();
-    }
-
-    @Deprecated
-    public static TramDate nextSaturday() {
-        return UpcomingDates.nextSaturday();
-    }
-
-    @Deprecated
-    public static Collection<TramDate> daysAhead() {
-        return UpcomingDates.daysAhead();
-    }
-
-    @Deprecated
-    public static boolean UpcomingClosures(Station station, TramDate date) {
-        return UpcomingDates.hasClosure(station,date);
-    }
-
-    @Deprecated
-    public static Stream<TramDate> getUpcomingDates() {
-        return UpcomingDates.getUpcomingDates();
     }
 
     public static TramDate nextMonday() {

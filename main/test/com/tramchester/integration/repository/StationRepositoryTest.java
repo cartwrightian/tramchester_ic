@@ -26,7 +26,6 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -104,7 +103,6 @@ public class StationRepositoryTest {
         assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
-    @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 

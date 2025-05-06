@@ -356,7 +356,7 @@ class TramGraphBuilderTest {
                     collect(IdSet.idCollector());
 
             assertEquals(1,incomingRoutes.size(), "Expected only " + route.getId() + " got " + incomingRoutes);
-            assertTrue(incomingRoutes.contains(route.getId()));
+            assertTrue(incomingRoutes.contains(route.getId()), incomingRoutes + " is missing " + route.getId());
 
             IdSet<Route> outgoingRoutes = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
                     map(ImmutableGraphRelationship::getRouteId).

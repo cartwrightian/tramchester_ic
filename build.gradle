@@ -470,25 +470,6 @@ tasks.register('integrationGM', Test) {
     }
 }
 
-// tests that can be run against Tram config (the default) or RailAndTramGreaterManchesterConfig here
-// move into integrationGM?
-//tasks.register('dualTestIntegration', Test) {
-//    dependsOn 'compileJava'
-//    minHeapSize = "1000m"
-//    maxHeapSize = "1750m"
-//    useJUnitPlatform {
-//        includeTags "DualTest"
-//    }
-//    filter {
-//        includeTestsMatching "com.tramchester.integration.*"
-//    }
-//    systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
-//    testLogging {
-//        exceptionFormat "full" // default is "short"
-//        events "passed", "failed", "standardError" //, "standardOut"
-//    }
-//}
-
 tasks.register('dataUpdated', Test) {
     configure integrationTestConfiguration
     outputs.upToDateWhen { false }

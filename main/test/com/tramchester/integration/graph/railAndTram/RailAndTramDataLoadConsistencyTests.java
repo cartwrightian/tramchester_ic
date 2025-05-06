@@ -146,8 +146,8 @@ public class RailAndTramDataLoadConsistencyTests {
             RailRouteId idA = railRouteIdRepository.getRouteIdFor(agencyId, getStatonsFor(idsA, stationRepository));
 
             assertNotEquals(idA, idB);
-            assertEquals(Route.createId("MNCRIAP:SBRN=>TP:3"), idA);
-            assertEquals(Route.createId("MNCRIAP:SBRN=>TP:1"), idB);
+            assertEquals(Route.createBasicRouteId("MNCRIAP:SBRN=>TP:3"), idA);
+            assertEquals(Route.createBasicRouteId("MNCRIAP:SBRN=>TP:1"), idB);
         }
     }
 

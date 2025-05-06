@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -29,6 +30,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @LazySingleton
 public class StopCallRepository  {
@@ -127,7 +130,7 @@ public class StopCallRepository  {
                 collect(Collectors.toList());
 
         if (allCosts.isEmpty()) {
-            String msg = String.format("Found no costs (stop legs) for stations %s and %s on route %s. Are they adjacent stations?",
+            String msg = format("Found no costs (stop legs) for stations %s and %s on route %s. Are they adjacent stations?",
                     first.getId(), second.getId(), route.getId());
             logger.error(msg);
             throw new RuntimeException(msg);
@@ -140,21 +143,45 @@ public class StopCallRepository  {
         return Collections.singletonList(Pair.of("CachedCosts", cachedCosts.stats()));
     }
 
-    public List<IdFor<Station>> getClosedBetween(final IdFor<Station> beginId, final IdFor<Station> endId) {
+    public List<IdFor<Station>> getStopcallsBetween(final IdFor<Station> beginId, final IdFor<Station> endId, final DateRange dateRange) {
+        final Set<List<IdFor<Station>>> uniqueSequencesForDateRange = dateRange.stream().
+                map(date -> getStopcallsBetween(beginId, endId, date)).collect(Collectors.toSet());
+        if (uniqueSequencesForDateRange.isEmpty()) {
+            logger.warn(format("Found no call stop calls between %s and %s for %s", beginId, endId, dateRange));
+            return Collections.emptyList();
+        }
+        if (uniqueSequencesForDateRange.size()>1) {
+            String messgage = format("No unique sequence between %s and %s for %s got: %s", beginId, endId, dateRange,
+                    uniqueSequencesForDateRange);
+            logger.error(messgage);
+            throw new RuntimeException(messgage);
+        }
+        return uniqueSequencesForDateRange.iterator().next();
+    }
+
+    public List<IdFor<Station>> getStopcallsBetween(final IdFor<Station> beginId, final IdFor<Station> endId, final TramDate date) {
         final Station begin = stationRepository.getStationById(beginId);
         final Station end = stationRepository.getStationById(endId);
 
-        final SetUtils.SetView<Route> routesForwards = SetUtils.intersection(begin.getPickupRoutes(), end.getDropoffRoutes());
-        final SetUtils.SetView<Route> routesBackwards = SetUtils.intersection(end.getPickupRoutes(), begin.getDropoffRoutes());
+        final Set<Route> routesForwards =
+                SetUtils.intersection(begin.getPickupRoutes(), end.getDropoffRoutes()).stream().
+                        filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        final Set<Route> routesBackwards =
+                SetUtils.intersection(end.getPickupRoutes(), begin.getDropoffRoutes()).stream().
+                filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         Set<StopCalls> allStopCalls = tripRepository.getTrips().stream().
+                filter(trip -> trip.operatesOn(date)).
                 filter(trip -> routesForwards.contains(trip.getRoute()) || routesBackwards.contains(trip.getRoute())).
                 filter(trip -> trip.callsAt(beginId) && trip.callsAt(endId)).
+                filter(trip -> trip.isAfter(beginId, endId)).
                 map(Trip::getStopCalls).
                 collect(Collectors.toSet());
 
         if (allStopCalls.isEmpty()) {
-            throw new RuntimeException("No stop calls");
+            String message = format("Found no call stop calls between %s and %s for %s", beginId, endId, date);
+            logger.error(message);
+            throw new RuntimeException(message);
         }
 
         final Set<List<IdFor<Station>>> uniqueSequences = allStopCalls.stream().
@@ -162,8 +189,9 @@ public class StopCallRepository  {
                 collect(Collectors.toSet());
 
         if (uniqueSequences.size()!=1) {
-            throw new RuntimeException("Did not find unambiguous set of sequences between " + beginId + " and " +
-                    endId + " got " + uniqueSequences);
+            String message = "Did not find unambiguous set of sequences between " + beginId + " and " + endId + " got " + uniqueSequences;
+            logger.error(message);
+            throw new RuntimeException(message);
         }
 
         return uniqueSequences.iterator().next();
@@ -174,26 +202,22 @@ public class StopCallRepository  {
         int endIndex = stopCalls.getStopFor(end).getGetSequenceNumber();
 
         if (beginIndex>endIndex) {
-            final int temp = beginIndex;
-            beginIndex = endIndex;
-            endIndex = temp;
+            String message = format("% (%s) is after %s (%s)", begin, beginIndex, end, endIndex);
+            logger.error(message);
+            throw new RuntimeException(message);
+
+//            final int temp = beginIndex;
+//            beginIndex = endIndex;
+//            endIndex = temp;
         }
 
         final List<IdFor<Station>> result = new ArrayList<>();
         for (int i = beginIndex; i <= endIndex; i++) {
-            StopCall call = stopCalls.getStopBySequenceNumber(i);
+            final StopCall call = stopCalls.getStopBySequenceNumber(i);
             result.add(call.getStationId());
         }
 
-        final IdFor<Station> firstResult = result.getFirst();
-        final IdFor<Station> finalResult = result.getLast();
-
-        // need a well-defined ordering as trams might go between begin and end in either direction
-        if (firstResult.getGraphId().compareTo(finalResult.getGraphId())<0) {
-            return result.reversed();
-        } else {
-            return result;
-        }
+        return result;
     }
 
     public static class Costs {

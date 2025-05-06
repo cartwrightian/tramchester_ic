@@ -97,15 +97,15 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
 
         final PreloadedStationsAndPlatforms interimStations = stopDataLoader.load(dataSource.getStops());
         final CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
-        final RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
+        final RouteDataLoader.LoadedRoutesCache loadedRoutesCache = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
 
         interimAgencies.clear();
 
-        final PreloadTripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+        final PreloadTripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), loadedRoutesCache);
         final Stream<StopTimeData> stopTimes = dataSource.getStopTimesFiltered(interimTripsAndServices);
         final IdMap<Service> interimServices = stopTimeLoader.load(stopTimes, interimStations, interimTripsAndServices);
 
-        excludedRoutes.clear();
+        loadedRoutesCache.clear();
         interimStations.clear();
 
         calendarLoader.load(dataSource.getCalendars(), interimServices);

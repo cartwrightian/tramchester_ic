@@ -40,8 +40,8 @@ public class LinkedInterchangeStationTest {
 
     @BeforeEach
     public void onceBeforeEachTestRuns() {
-        tramDropoff = TestEnv.getTramTestRoute(Route.createId("routeTram1"), "tram route 1 name");
-        tramPickup = TestEnv.getTramTestRoute(Route.createId("routeTram2"), "tram route 2 name");
+        tramDropoff = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram1"), "tram route 1 name");
+        tramPickup = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram2"), "tram route 2 name");
 
         tramId = Station.createId("tramStationId");
         tramStation = new MutableStation(tramId, NPTGLocality.createId("naptanId1"),
@@ -53,8 +53,8 @@ public class LinkedInterchangeStationTest {
         trainStation = new MutableStation(trainId, NPTGLocality.createId("napranId2"),
                 "rail stations", nearPiccGardens.latLong(), nearPiccGardens.grid(), DataSourceID.openRailData, true);
 
-        trainDropoff = getTrainTestRoute(Route.createId("routeTrain1"), "train route 1 name");
-        trainPickup = getTrainTestRoute(Route.createId("routeTrain2"), "train route 2 name");
+        trainDropoff = getTrainTestRoute(Route.createBasicRouteId("routeTrain1"), "train route 1 name");
+        trainPickup = getTrainTestRoute(Route.createBasicRouteId("routeTrain2"), "train route 2 name");
         trainStation.addRouteDropOff(trainDropoff);
         trainStation.addRoutePickUp(trainPickup);
     }
@@ -108,8 +108,8 @@ public class LinkedInterchangeStationTest {
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         Duration walkingTime = Duration.ofMinutes(4);
 
-        Route tramPickupB = TestEnv.getTramTestRoute(Route.createId("routeTram3"), "tram route 3 name");
-        Route tramDropoffB = TestEnv.getTramTestRoute(Route.createId("routeTram4"), "tram route 4 name");
+        Route tramPickupB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram3"), "tram route 3 name");
+        Route tramDropoffB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram4"), "tram route 4 name");
 
         IdFor<Station> tramIdB = Station.createId("tramStationBId");
         MutableStation tramStationB = new MutableStation(tramIdB, NPTGLocality.createId("naptanId1"),

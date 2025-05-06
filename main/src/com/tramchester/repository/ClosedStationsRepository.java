@@ -74,6 +74,7 @@ public class ClosedStationsRepository {
 
         // capture closed stations and date ranges
         closureConfigs.forEach(closureConfig -> {
+            final DateRange dateRange = closureConfig.getDateRange();
             final StationsConfig stations = closureConfig.getStations();
             if (stations instanceof StationListConfig stationListConfig) {
                 final IdSet<Station> configStationIds = stationListConfig.getStations();
@@ -82,7 +83,8 @@ public class ClosedStationsRepository {
                 closedStationContainer.addStationsFor(closure, configStationIds);
             } else if (stations instanceof StationPairConfig stationPairConfig) {
                 final StationIdPair pair = stationPairConfig.getStationPair();
-                final List<IdFor<Station>> stationIdsBetween = stopCallRepository.getClosedBetween(pair.getBeginId(), pair.getEndId());
+                final List<IdFor<Station>> stationIdsBetween = stopCallRepository.
+                        getStopcallsBetween(pair.getBeginId(), pair.getEndId(), dateRange);
                 final IdSet<Station> closedStationsIds = stationIdsBetween.stream().collect(IdSet.idCollector());
 
                 final Closure closure = closedStationFactory.createFor(closureConfig, closedStationsIds);
@@ -100,6 +102,7 @@ public class ClosedStationsRepository {
 
     private void createClosedStations(final StationClosures closures) {
         final StationsConfig stationClosureConfig = closures.getStations();
+        final DateRange dateRange = closures.getDateRange();
 
         if (stationClosureConfig instanceof StationListConfig stationListConfig) {
             stationListConfig.getStations().forEach(stationId -> {
@@ -107,8 +110,9 @@ public class ClosedStationsRepository {
                 closedStationContainer.add(closures, station);
             });
         } else if (stationClosureConfig instanceof StationPairConfig stationPairConfig) {
-            StationIdPair idPair = stationPairConfig.getStationPair();
-            List<IdFor<Station>> stationIds = stopCallRepository.getClosedBetween(idPair.getBeginId(), idPair.getEndId());
+            final StationIdPair idPair = stationPairConfig.getStationPair();
+            final List<IdFor<Station>> stationIds = stopCallRepository.
+                    getStopcallsBetween(idPair.getBeginId(), idPair.getEndId(), dateRange);
             stationIds.forEach(stationId -> {
                 final Station station = stationRepository.getStationById(stationId);
                 closedStationContainer.add(closures, station);

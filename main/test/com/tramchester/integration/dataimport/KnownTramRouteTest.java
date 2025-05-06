@@ -12,7 +12,6 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -34,7 +33,6 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.UpcomingDates.LateMayBankHold2025;
-import static com.tramchester.testSupport.UpcomingDates.MayDay2025;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -205,7 +203,7 @@ class KnownTramRouteTest {
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
-                filter(date -> !(date.equals(MayDay2025) || date.equals(LateMayBankHold2025))).
+                filter(date -> !(date.equals(LateMayBankHold2025))).
                 filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
@@ -254,7 +252,6 @@ class KnownTramRouteTest {
         assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
     }
 
-    @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);
@@ -266,11 +263,11 @@ class KnownTramRouteTest {
 
         assertEquals(2, matching.size(), HasId.asIds(matching));
 
-        Route found = matching.getFirst();
+        List<DateRange> ranges = matching.stream().map(Route::getDateRange).toList();
 
-        DateRange range = found.getDateRange();
+        boolean available = ranges.stream().anyMatch(range -> range.contains(when));
 
-        assertTrue(range.contains(when), when + " is missing from " + found.getDateRange());
+        assertTrue(available, when + " is missing from " + ranges);
 
     }
 

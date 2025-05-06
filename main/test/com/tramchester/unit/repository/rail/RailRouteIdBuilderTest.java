@@ -44,7 +44,7 @@ public class RailRouteIdBuilderTest {
 
         RailRouteIds.RailRouteCallingPointsWithRouteId result = getFor(results, railRouteA);
 
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), result.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:1"), result.getRouteId());
     }
 
     @Test
@@ -66,10 +66,10 @@ public class RailRouteIdBuilderTest {
         assertEquals(2, results.size());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), resultB.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:1"), resultB.getRouteId());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
 
     }
 
@@ -92,13 +92,13 @@ public class RailRouteIdBuilderTest {
         assertEquals(3, results.size());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultA = getFor(results, routeA);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:3"), resultA.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:3"), resultA.getRouteId());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), resultB.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:1"), resultB.getRouteId());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
 
     }
 
@@ -121,13 +121,13 @@ public class RailRouteIdBuilderTest {
         assertEquals(3, results.size());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultA = getFor(results, routeA);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:1"), resultA.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:1"), resultA.getRouteId());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultB = getFor(results, routeB);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:3"), resultB.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:3"), resultB.getRouteId());
 
         RailRouteIds.RailRouteCallingPointsWithRouteId resultC = getFor(results, routeC);
-        assertEquals(Route.createId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:2"), resultC.getRouteId());
 
     }
 

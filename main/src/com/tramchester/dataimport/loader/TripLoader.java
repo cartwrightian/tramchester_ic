@@ -30,28 +30,30 @@ public class TripLoader {
         this.factory = factory;
     }
 
-    public PreloadTripAndServices load(final Stream<TripData> tripDataStream, final RouteDataLoader.ExcludedRoutes excludedRoutes) {
+    public PreloadTripAndServices load(final Stream<TripData> tripDataStream, final RouteDataLoader.LoadedRoutesCache loadedRoutesCache) {
         logger.info("Loading trips");
         final PreloadTripAndServices results = new PreloadTripAndServices(factory);
-        final Map<IdFor<Route>, IdSet<Trip>> missingRoutes = new HashMap<>();
+        final Map<RouteDataLoader.RawRouteId, IdSet<Trip>> missingRoutes = new HashMap<>();
         final AtomicInteger count = new AtomicInteger();
 
         tripDataStream.forEach((tripData) -> {
-            final IdFor<Service> serviceId = tripData.getServiceId();
-            final IdFor<Route> routeId = factory.createRouteId(tripData.getRouteId());
             final IdFor<Trip> tripId = tripData.getTripId();
+            final IdFor<Service> serviceId = tripData.getServiceId();
 
-            if (buildable.hasRouteId(routeId)) {
-                final Route route = buildable.getMutableRoute(routeId);
+            final String routeIdText = tripData.getRouteId();
+            final RouteDataLoader.RawRouteId rawRouteId = RouteDataLoader.RawRouteId.create(routeIdText);
+
+            if (loadedRoutesCache.hasRouteFor(rawRouteId)) {
+                final Route route = buildable.getMutableRoute(loadedRoutesCache.getRouteIdFor(rawRouteId));
                 final MutableService service = results.getOrCreateService(serviceId);
                 results.createTripIfMissing(tripId, tripData, service, route, route.getTransportMode());
                 count.getAndIncrement();
             } else {
-                if (!excludedRoutes.wasExcluded(routeId)) {
-                    if (!missingRoutes.containsKey(routeId)) {
-                        missingRoutes.put(routeId, new IdSet<>());
+                if (!loadedRoutesCache.wasExcluded(rawRouteId)) {
+                    if (!missingRoutes.containsKey(rawRouteId)) {
+                        missingRoutes.put(rawRouteId, new IdSet<>());
                     }
-                    missingRoutes.get(routeId).add(tripId);
+                    missingRoutes.get(rawRouteId).add(tripId);
                 }
             }
         });

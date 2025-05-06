@@ -18,10 +18,10 @@ public class KnownTramRoute {
     public static final TramDate startMayCutover = TramDate.of(2025,5,3);
 
     private static final DateRanges replacementBusOneDates = new DateRanges(
-            DateRange.of(TramDate.of(2025,5,3), 2),
-            DateRange.of(TramDate.of(2025, 5, 10), 1),
-            DateRange.of(TramDate.of(2025, 5, 17), 1),
-            DateRange.of(TramDate.of(2025, 5, 24), 2));
+            DateRange.of(TramDate.of(2025,5,3), 2));
+            //DateRange.of(TramDate.of(2025, 5, 10), 1),
+            //DateRange.of(TramDate.of(2025, 5, 17), 1),
+//            DateRange.of(TramDate.of(2025, 5, 24), 2));
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";
@@ -83,7 +83,7 @@ public class KnownTramRoute {
     }
 
     public static TestRoute findFor(final TFGMRouteNames line, final TramDate date) {
-        List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
+        final List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
                 filter(knownTramRoute -> knownTramRoute.line().equals(line)).
                 filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
                 sorted(Comparator.comparing(KnownTramRouteEnum::getValidFrom)).
@@ -91,7 +91,7 @@ public class KnownTramRoute {
         if (find.isEmpty()) {
             throw new RuntimeException("No match for " + line.getShortName() + " on " + date);
         }
-        final KnownTramRouteEnum matched = find.getLast();
+        final KnownTramRouteEnum matched = find.getLast(); // time ordered
         if (!matched.getId().isValid()) {
             throw new RuntimeException(matched + " is not valid for date " + date);
         }
@@ -124,9 +124,6 @@ public class KnownTramRoute {
         final Set<TestRoute> routes = new HashSet<>();
 
         if (date.isAfter(endAprilCutover) || date.equals(endAprilCutover)) {
-//            if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
-//                routes.add(getYellow(date));
-//            }
             routes.add(getPurple(date));
         }
 
@@ -136,7 +133,13 @@ public class KnownTramRoute {
             routes.add(getYellow(date));
         }
 
-        routes.add(getGreen(date));
+        if (date.isAfter(TramDate.of(2025,5,10))) {
+            if (date.getDayOfWeek()!=DayOfWeek.SUNDAY) {
+                routes.add(getGreen(date));
+            }
+        } else {
+            routes.add(getGreen(date));
+        }
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));

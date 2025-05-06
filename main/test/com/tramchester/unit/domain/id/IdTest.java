@@ -28,7 +28,7 @@ class IdTest {
     @Test
     void shouldNotBeEqualsIfDifferentDomains() {
         IdFor<Station> stationId = Station.createId("test123");
-        IdFor<Route> routeId = Route.createId("test123");
+        IdFor<Route> routeId = Route.createBasicRouteId("test123");
 
         assertNotEquals(stationId, routeId);
     }

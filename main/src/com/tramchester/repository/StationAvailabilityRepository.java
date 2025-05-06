@@ -211,6 +211,13 @@ public class StationAvailabilityRepository {
 
         final LocationId<?> locationId = location.getLocationId();
 
+        if (!TransportMode.intersects(location.getTransportModes(), requestedModes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(locationId + " no overlap between requested " + requestedModes + " and " + location.getTransportModes());
+            }
+            return false;
+        }
+
         if (!pickupsForLocation.containsKey(locationId)) {
             throw new RuntimeException("Missing pickups for " + locationId);
         }

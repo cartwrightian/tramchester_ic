@@ -138,9 +138,9 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
         List<IdFor<Station>> idsBetween = Arrays.asList(Cornbrook.getId(), Deansgate.getId(), StPetersSquare.getId());
 
         // should be one call, change the creation order?
-        EasyMock.expect(stopCallRepository.getClosedBetween(Cornbrook.getId(), StPetersSquare.getId())).
+        EasyMock.expect(stopCallRepository.getStopcallsBetween(Cornbrook.getId(), StPetersSquare.getId(), dateRangeA)).
                 andReturn(idsBetween);
-        EasyMock.expect(stopCallRepository.getClosedBetween(Cornbrook.getId(), StPetersSquare.getId())).
+        EasyMock.expect(stopCallRepository.getStopcallsBetween(Cornbrook.getId(), StPetersSquare.getId(), dateRangeA)).
                 andReturn(idsBetween);
 
         EasyMock.expect(stationRepository.getStationById(Deansgate.getId())).andReturn(Deansgate.fake());

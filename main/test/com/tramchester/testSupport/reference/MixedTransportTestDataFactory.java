@@ -63,7 +63,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     private void populateTestData(TransportDataContainer container) {
 
         MutableAgency ferryAgency = new MutableAgency(DataSourceID.openRailData, Agency.createId("FER"), "ferryAgency");
-        MutableRoute ferryRoute = new MutableRoute(Route.createId("FER:42:C"), "42", "Lakes",
+        MutableRoute ferryRoute = new MutableRoute(Route.createBasicRouteId("FER:42:C"), "42", "Lakes",
                 ferryAgency, TransportMode.Ferry);
 
         final MutableAgency highPeakBuses = new MutableAgency(DataSourceID.tfgm, Agency.createId("HGP"),
@@ -72,10 +72,10 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         final MutableAgency warringtonsOwnBuses = new MutableAgency(DataSourceID.tfgm, Agency.createId("WBTR"),
                 "Warringtons Own Buses");
 
-        MutableRoute routeA = new MutableRoute(Route.createId("HGP:199:I:"), "199",
+        MutableRoute routeA = new MutableRoute(Route.createBasicRouteId("HGP:199:I:"), "199",
                 "Manchester Airport - Stockport - Buxton Skyline", highPeakBuses, Bus);
 
-        MutableRoute routeC = new MutableRoute(Route.createId("WBTR05A:I:"), "5A",
+        MutableRoute routeC = new MutableRoute(Route.createBasicRouteId("WBTR05A:I:"), "5A",
                 "Alty to Stockport", warringtonsOwnBuses, Bus);
 
         highPeakBuses.addRoute(routeA);

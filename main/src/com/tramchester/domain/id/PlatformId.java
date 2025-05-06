@@ -4,14 +4,11 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 
-import java.util.Objects;
-
 public class PlatformId extends ContainsId<Platform> {
     private final String platformNumber;
-    private final StringIdFor<Platform> containedId;
 
     private PlatformId(IdFor<Station> stationId, String platformNumber) {
-        this.containedId = StringIdFor.concat(stationId, platformNumber, Platform.class);
+        super(StringIdFor.concat(stationId, platformNumber, Platform.class));
         this.platformNumber = platformNumber;
     }
 
@@ -35,20 +32,9 @@ public class PlatformId extends ContainsId<Platform> {
         }
     }
 
-
-    @Override
-    public String getGraphId() {
-        return containedId.getGraphId();
-    }
-
     @Override
     public boolean isValid() {
         return true;
-    }
-
-    @Override
-    public Class<Platform> getDomainType() {
-        return Platform.class;
     }
 
     public String getNumber() {
@@ -56,28 +42,10 @@ public class PlatformId extends ContainsId<Platform> {
     }
 
     @Override
-    public StringIdFor<Platform> getContainedId() {
-        return containedId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PlatformId that = (PlatformId) o;
-        return Objects.equals(platformNumber, that.platformNumber) && Objects.equals(containedId, that.containedId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(platformNumber, containedId);
-    }
-
-    @Override
     public String toString() {
         return "PlatformId{" +
                 "platformNumber='" + platformNumber + '\'' +
-                ", containedId=" + containedId +
+                ", containedId=" + getContainedId().getContainedId() +
                 "} ";
     }
 }

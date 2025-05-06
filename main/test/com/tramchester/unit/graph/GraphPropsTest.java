@@ -30,9 +30,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
-import com.tramchester.testSupport.reference.KnownLocations;
-import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.testSupport.reference.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Relationship;
@@ -108,6 +106,21 @@ public class GraphPropsTest {
         IdFor<Route> routeId = getRailRouteId();
 
         IdFor<RouteStation> id = RouteStation.createId(RailStationIds.Stockport.getId(), routeId);
+
+        relationship.setRouteStationId(id);
+
+        IdFor<RouteStation> result = relationship.getRouteStationId();
+
+        assertEquals(id, result);
+    }
+
+    @Test
+    void shouldBeAbleToSetTramRouteStationId() {
+        MutableGraphRelationship relationship = createRelationship();
+
+        TestRoute testRoute = KnownTramRoute.getGreen(TestEnv.testDay());
+
+        IdFor<RouteStation> id = RouteStation.createId(RailStationIds.Stockport.getId(), testRoute.getId());
 
         relationship.setRouteStationId(id);
 

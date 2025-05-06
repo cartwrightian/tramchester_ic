@@ -41,7 +41,7 @@ public class RouteIndexDataSerialisationTest {
     @Test
     void shouldSaveAndLoadToFileRouteId() throws Exception {
 
-        IdFor<Route> routeId = Route.createId("routeB");
+        IdFor<Route> routeId = Route.createBasicRouteId("routeB");
         RouteIndexData routeIndexData = new RouteIndexData((short) 42, routeId);
 
         saveToFile(routeIndexData);

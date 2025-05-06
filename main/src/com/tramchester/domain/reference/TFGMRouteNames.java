@@ -15,12 +15,12 @@ public enum TFGMRouteNames {
     //Brown("Brown Line"),
     Blue("Blue Line");
 
-    private final static Map<String, TFGMRouteNames> theMap;
+    private final static Map<String, TFGMRouteNames> fromSource;
 
     static {
-        theMap = new HashMap<>();
+        fromSource = new HashMap<>();
         for(TFGMRouteNames name : values()) {
-            theMap.put(name.shortName, name);
+            fromSource.put(name.shortName, name);
         }
     }
 
@@ -30,11 +30,15 @@ public enum TFGMRouteNames {
         this.shortName = shortName;
     }
 
-    public static TFGMRouteNames parse(String text) {
-        if (!theMap.containsKey(text)) {
+    public static TFGMRouteNames parseFromSource(final String text) {
+        if (!fromSource.containsKey(text)) {
             throw new RuntimeException("Missing route name " + text);
         }
-        return theMap.get(text);
+        return fromSource.get(text);
+    }
+
+    public static TFGMRouteNames parseFromName(final String name) {
+        return Enum.valueOf(TFGMRouteNames.class, name);
     }
 
     public String getShortName() {

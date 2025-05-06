@@ -48,8 +48,8 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
         runningRoutesAndServices = new RunningRoutesAndServices(serviceRepository, routeRepository);
 
-        routeA = TestEnv.getTramTestRoute(Route.createId("routeAId"), "route name a");
-        routeB = TestEnv.getTramTestRoute(Route.createId("routeBId"), "route name b");
+        routeA = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeAId"), "route name a");
+        routeB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeBId"), "route name b");
     }
 
     @Test
@@ -73,8 +73,8 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         verifyAll();
 
         TramTime time = TramTime.of(10,45);
-        assertFalse(filter.isRouteRunning(Route.createId("routeBId"), false));
-        assertTrue(filter.isRouteRunning(Route.createId("routeAId"), false));
+        assertFalse(filter.isRouteRunning(Route.createBasicRouteId("routeBId"), false));
+        assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeAId"), false));
 
         assertFalse(filter.isServiceRunningByDate(Service.createId("serviceBId"), time.isNextDay()));
         assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), time.isNextDay()));
@@ -222,16 +222,16 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(date, modes);
         verifyAll();
 
-        assertTrue(filter.isRouteRunning(Route.createId("routeAId"), false));
+        assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeAId"), false));
         assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), false));
 
-        assertFalse(filter.isRouteRunning(Route.createId("routeBId"), false));
+        assertFalse(filter.isRouteRunning(Route.createBasicRouteId("routeBId"), false));
         assertFalse(filter.isServiceRunningByDate(Service.createId("serviceBId"), false));
 
-        assertTrue(filter.isRouteRunning(Route.createId("routeAId"), true));
+        assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeAId"), true));
         assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), true));
 
-        assertTrue(filter.isRouteRunning(Route.createId("routeBId"), true));
+        assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeBId"), true));
         assertTrue(filter.isServiceRunningByDate(Service.createId("serviceBId"), true));
     }
 

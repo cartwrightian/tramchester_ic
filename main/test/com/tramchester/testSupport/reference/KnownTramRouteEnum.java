@@ -5,6 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
@@ -54,12 +55,12 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     private final TFGMRouteNames line;
     private final String longName; // diagnostics only
-    private final IdFor<Route> id;
+    private final TramRouteId id;
     private final TramDate validFrom;
 
     KnownTramRouteEnum(TFGMRouteNames line, String longName, String id, TramDate validFrom) {
         this.longName = longName;
-        this.id = Route.createId(id);
+        this.id = TramRouteId.create(line, id);
         this.validFrom = validFrom;
         this.line = line;
     }
@@ -104,7 +105,6 @@ public enum KnownTramRouteEnum implements TestRoute {
     public Route fake() {
         return new MutableRoute(id, line.getShortName(), longName, TestEnv.MetAgency(), TransportMode.Tram);
     }
-
 
     @Override
     public String toString() {

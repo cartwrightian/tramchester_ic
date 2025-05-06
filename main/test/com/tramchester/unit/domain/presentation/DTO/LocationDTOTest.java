@@ -42,8 +42,8 @@ class LocationDTOTest {
         MutableStation testStation = StationHelper.forTestMutable("9400ZZMAALT", "Altrincham area", "Altrincham",
                 nearAltrincham, DataSourceID.tfgm, false);
 
-        testStation.addRouteDropOff(TestEnv.getTramTestRoute(Route.createId("routeIdA"), "routeNameA"));
-        testStation.addRoutePickUp(TestEnv.getTramTestRoute(Route.createId("routeIdB"), "routeNameB"));
+        testStation.addRouteDropOff(TestEnv.getTramTestRoute(Route.createBasicRouteId("routeIdA"), "routeNameA"));
+        testStation.addRoutePickUp(TestEnv.getTramTestRoute(Route.createBasicRouteId("routeIdB"), "routeNameB"));
 
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("1", testStation, new LatLong(1.2, 1),
                 DataSourceID.unknown, NPTGLocality.InvalidId()));

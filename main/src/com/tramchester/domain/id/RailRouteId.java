@@ -13,13 +13,12 @@ import java.util.List;
 /***
  * Note: serializable for RouteIndex cache purposes
  */
-public class RailRouteId extends ContainsId<Route> { // implements IdFor<Route> {
+public class RailRouteId extends ContainsId<Route> {
 
     private final IdFor<Station> begin;
     private final IdFor<Station> end;
     private final IdFor<Agency> agencyId;
     private final int index;
-    private final StringIdFor<Route> containedId;
 
     @JsonCreator
     public RailRouteId(@JsonProperty("begin") IdFor<Station> begin,
@@ -27,7 +26,7 @@ public class RailRouteId extends ContainsId<Route> { // implements IdFor<Route> 
                        @JsonProperty("agencyId") IdFor<Agency> agencyId,
                        @JsonProperty("index") int index) {
 
-        containedId = createContainedId(begin, end, agencyId, index);
+        super(createContainedId(begin, end, agencyId, index));
         this.begin = begin;
         this.end = end;
         this.agencyId = agencyId;
@@ -55,29 +54,11 @@ public class RailRouteId extends ContainsId<Route> { // implements IdFor<Route> 
         return new StringIdFor<>(idText, Route.class);
     }
 
-    @JsonIgnore
-    @Override
-    public String getGraphId() {
-        return containedId.getGraphId();
-    }
 
     @JsonIgnore
     @Override
     public boolean isValid() {
         return true;
-    }
-
-    // so this ends up in the json, for diagnostic reasons
-    @JsonProperty("diagnostics")
-    @Override
-    StringIdFor<Route> getContainedId() {
-        return containedId;
-    }
-
-    @JsonIgnore
-    @Override
-    public Class<Route> getDomainType() {
-        return Route.class;
     }
 
     public IdFor<Station> getBegin() {
@@ -96,33 +77,28 @@ public class RailRouteId extends ContainsId<Route> { // implements IdFor<Route> 
         return index;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) {
-            return false;
-        }
-        if (StringIdFor.class == o.getClass()) {
-            StringIdFor<?> other = (StringIdFor<?>) o;
-            if (other.getDomainType() != Route.class) {
-                return false;
-            }
-            return containedId.getContainedId().equals(other.getContainedId());
-        }
-        //if (o == null || getClass() != o.getClass()) return false;
-        RailRouteId that = (RailRouteId) o;
-        return containedId.equals(that.containedId);
-    }
-
-    @Override
-    public int hashCode() {
-        return containedId.hashCode();
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null) {
+//            return false;
+//        }
+//        if (StringIdFor.class == o.getClass()) {
+//            StringIdFor<?> other = (StringIdFor<?>) o;
+//            if (other.getDomainType() != Route.class) {
+//                return false;
+//            }
+//            return containedId.getContainedId().equals(other.getContainedId());
+//        }
+//        //if (o == null || getClass() != o.getClass()) return false;
+//        RailRouteId that = (RailRouteId) o;
+//        return containedId.equals(that.containedId);
+//    }
 
     @Override
     public String toString() {
         return "RailRouteId{" +
-                " containedId=" + containedId +
+                " containedId=" + getContainedId() +
                 "} ";
     }
 }

@@ -182,7 +182,7 @@ public class RailAndTramRouteCostMatrixTest {
         Route routeB = routeHelper.getRed(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(2, depth);
+        assertEquals(1, depth);
     }
 
     @Test

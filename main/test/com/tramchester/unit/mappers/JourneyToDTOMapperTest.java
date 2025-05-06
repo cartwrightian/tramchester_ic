@@ -75,7 +75,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private Route createRoute(String name) {
-        return MutableRoute.getRoute(Route.createId("routeId"), "shortName", name,
+        return MutableRoute.getRoute(Route.createBasicRouteId("routeId"), "shortName", name,
                 TestEnv.MetAgency(), TransportMode.Tram);
     }
 

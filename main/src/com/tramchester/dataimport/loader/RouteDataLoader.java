@@ -6,14 +6,12 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.repository.WriteableTransportData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -32,14 +30,13 @@ public class RouteDataLoader {
         this.factory = factory;
     }
 
-    public ExcludedRoutes load(final Stream<RouteData> routeDataStream, final CompositeIdMap<Agency, MutableAgency> allAgencies) {
+    public LoadedRoutesCache load(final Stream<RouteData> routeDataStream, final CompositeIdMap<Agency, MutableAgency> allAgencies) {
         final EnumSet<GTFSTransportationType> transportModes = EnumSet.copyOf(sourceConfig.getTransportGTFSModes());
         final DataSourceID dataSourceID = sourceConfig.getDataSourceId();
 
         final AtomicInteger count = new AtomicInteger();
 
-        final ExcludedRoutes excludedRoutes = new ExcludedRoutes();
-
+        final LoadedRoutesCache loadedRoutesCache = new LoadedRoutesCache();
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
         routeDataStream.forEach(routeData -> {
@@ -50,6 +47,8 @@ public class RouteDataLoader {
             }
 
             final GTFSTransportationType routeType = factory.getRouteType(routeData, agencyId);
+
+            final RawRouteId rawRouteId = RawRouteId.create(routeData);
 
             if (transportModes.contains(routeType)) {
                 final MutableAgency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory)
@@ -63,17 +62,18 @@ public class RouteDataLoader {
                 }
                 buildable.addRoute(route);
 
+                loadedRoutesCache.record(rawRouteId, route.getId());
+
                 count.getAndIncrement();
 
             } else {
-                String routeIdText = routeData.getId();
-                excludedRoutes.excludeRoute(factory.createRouteId(routeIdText));
+                loadedRoutesCache.excludeRoute(rawRouteId);
             }
         });
-        excludedRoutes.recordInLog(transportModes);
-        logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ excludedRoutes.numOfExcluded());
+        loadedRoutesCache.recordInLog(transportModes);
+        logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ loadedRoutesCache.numOfExcluded());
 
-        return excludedRoutes;
+        return loadedRoutesCache;
     }
 
     private MutableAgency createMissingAgency(DataSourceID dataSourceID, CompositeIdMap<Agency, MutableAgency> allAgencies, IdFor<Agency> agencyId,
@@ -84,23 +84,21 @@ public class RouteDataLoader {
         return unknown;
     }
 
-    public static class ExcludedRoutes {
-        private final IdSet<Route> excludedRouteIds;
+    public static class LoadedRoutesCache {
+        private final Set<RawRouteId> excludedRouteIds; // so we only log missing routes that have not been specifically excluded
+        private final Map<RawRouteId, IdFor<Route>> recordedRoutes;
 
-        public ExcludedRoutes() {
-            excludedRouteIds = new IdSet<>();
+        public LoadedRoutesCache() {
+            excludedRouteIds = new HashSet<>();
+            recordedRoutes = new HashMap<>();
         }
 
-        public void excludeRoute(final IdFor<Route> routeId) {
+        public void excludeRoute(final RawRouteId routeId) {
             excludedRouteIds.add(routeId);
         }
 
-        public boolean wasExcluded(final IdFor<Route> routeId) {
+        public boolean wasExcluded(final RawRouteId routeId) {
             return excludedRouteIds.contains(routeId);
-        }
-
-        public IdSet<Route> getExcluded() {
-            return excludedRouteIds;
         }
 
         public int numOfExcluded() {
@@ -116,6 +114,53 @@ public class RouteDataLoader {
                 return;
             }
             logger.info(format("Excluded %s route id's as did not match modes %s", excludedRouteIds.size(), transportModes));
+        }
+
+        public void record(final RawRouteId rawRouteId, final IdFor<Route> id) {
+            recordedRoutes.put(rawRouteId, id);
+        }
+
+        public boolean hasRouteFor(final RawRouteId rawRouteId) {
+            return recordedRoutes.containsKey(rawRouteId);
+        }
+
+        public IdFor<Route> getRouteIdFor(final RawRouteId rawRouteId) {
+            return recordedRoutes.get(rawRouteId);
+        }
+    }
+
+    public static class RawRouteId {
+        private final String text;
+
+        private RawRouteId(final String text) {
+            this.text = text;
+        }
+
+        public static RawRouteId create(final String text) {
+            return new RawRouteId(text);
+        }
+
+        public static RawRouteId create(final RouteData routeData) {
+            return new RawRouteId(routeData.getId());
+        }
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof RawRouteId that)) return false;
+            return Objects.equals(text, that.text);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(text);
+        }
+
+        @Override
+        public String toString() {
+            return "RawRouteId{" +
+                    "text='" + text + '\'' +
+                    '}';
         }
     }
 }

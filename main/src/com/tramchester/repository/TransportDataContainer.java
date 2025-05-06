@@ -221,8 +221,8 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public RouteStation getRouteStationById(IdFor<RouteStation> routeStationId) {
-        RouteStation routeStation = routeStations.get(routeStationId);
+    public RouteStation getRouteStationById(final IdFor<RouteStation> routeStationId) {
+        final RouteStation routeStation = routeStations.get(routeStationId);
         if (routeStation==null) {
             logger.warn("Missing route station " + routeStationId);
         }

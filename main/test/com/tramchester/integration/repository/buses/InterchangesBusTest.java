@@ -60,7 +60,7 @@ class InterchangesBusTest {
     @Test
     void shouldNotCountLinksForSameRoute() {
         // Was here to diagnose issues with automatic id of interchanges
-        Route route = routeRepository.getRouteById(Route.createId("SCMN149A:O:CURRENT"));
+        Route route = routeRepository.getRouteById(Route.createBasicRouteId("SCMN149A:O:CURRENT"));
 
         assertNotNull(route);
 

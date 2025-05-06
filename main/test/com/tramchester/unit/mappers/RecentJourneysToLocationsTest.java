@@ -52,7 +52,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
         stockportRail = new MutableStation(Stockport.getId(), NPTGLocality.InvalidId(), "Stockport Train",
                 LatLong.Invalid, GridPosition.Invalid, DataSourceID.tfgm, false);
-        Route railRoute = new MutableRoute(Route.createId("fake"), "short", "long",
+        Route railRoute = new MutableRoute(Route.createBasicRouteId("fake"), "short", "long",
                 TestEnv.NorthernTrainsAgency(), TransportMode.Train);
         stockportRail.addRoutePickUp(railRoute);
     }

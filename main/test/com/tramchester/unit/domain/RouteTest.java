@@ -38,18 +38,18 @@ class RouteTest extends EasyMockSupport {
     void setUp() {
         NO_DAYS = EnumSet.noneOf(DayOfWeek.class);
         ALL_DAYS = EnumSet.allOf(DayOfWeek.class);
-        routeId = Route.createId("routeId");
+        routeId = Route.createBasicRouteId("routeId");
         serviceId = Service.createId("serviceId");
     }
 
     @Test
     void shouldHaveTramRoute() {
-        Route route = MutableRoute.getRoute(Route.createId("idA"),"code","name", TestEnv.MetAgency(),
+        Route route = MutableRoute.getRoute(Route.createBasicRouteId("idA"),"code","name", TestEnv.MetAgency(),
                 Tram);
         Assertions.assertTrue(TransportMode.isTram(route));
 
         final Agency agency = MutableAgency.build(DataSourceID.tfgm, Agency.createId("GMS"), "agencyName");
-        route = MutableRoute.getRoute(Route.createId("idB"),"code","name",
+        route = MutableRoute.getRoute(Route.createBasicRouteId("idB"),"code","name",
                 agency, TransportMode.Bus);
         assertFalse(TransportMode.isTram(route));
     }

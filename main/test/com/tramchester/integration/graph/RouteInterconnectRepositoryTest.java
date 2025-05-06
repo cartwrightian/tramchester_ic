@@ -15,6 +15,7 @@ import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.*;
@@ -25,8 +26,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
-import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
@@ -165,7 +164,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -233,7 +231,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -276,7 +273,6 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -285,7 +281,8 @@ public class RouteInterconnectRepositoryTest {
 
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
 
-        Function<InterchangeStation, Boolean> marketStreetOrCornbrook = interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId()) ||
+        Function<InterchangeStation, Boolean> marketStreetOrCornbrook = interchangeStation ->
+                interchangeStation.getStationId().equals(Cornbrook.getId()) ||
                 interchangeStation.getStationId().equals(MarketStreet.getId());
 
         PathResults viaMarketStreetAndCornbook = repository.getInterchangesFor(indexPair, dateOverlaps, marketStreetOrCornbrook);

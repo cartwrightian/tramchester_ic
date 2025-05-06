@@ -5,10 +5,7 @@ import com.tramchester.dataimport.data.StopData;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.data.TripData;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
@@ -32,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
+public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory {
 
     private static final String METROLINK_ID_PREFIX = "9400ZZ";
     private static final String METROLINK_NAME_POSTFIX = "(Manchester Metrolink)";
@@ -65,25 +62,21 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @Override
     public MutableRoute createRoute(final GTFSTransportationType routeType, final RouteData routeData, final MutableAgency agency) {
-
-        final IdFor<Route> routeId = getCorrectIdFor(routeData);
-        final String longName = routeData.getLongName();
         final TransportMode transportMode = GTFSTransportationType.toTransportMode(routeType);
+
+        final String longName = routeData.getLongName();
         final String routeNameText = routeData.getShortName().trim();
+        final String idText = routeData.getId();
 
         if (transportMode.equals(TransportMode.Tram)) {
-            final TFGMRouteNames routeName = TFGMRouteNames.parse(routeNameText);
+            final TFGMRouteNames routeName = TFGMRouteNames.parseFromSource(routeNameText);
+            final IdFor<Route> routeId = TramRouteId.create(routeName, idText);
             return new MutableRoute(routeId, routeName.getShortName(), longName, agency, transportMode);
         } else {
-            return new MutableRoute(routeId, routeNameText, longName, agency, transportMode);
+            // Buses
+            return new MutableRoute(Route.createBasicRouteId(idText), routeNameText, longName, agency, transportMode);
         }
 
-
-    }
-
-    private IdFor<Route> getCorrectIdFor(final RouteData routeData) {
-        final String idText = routeData.getId();
-        return Route.createId(idText);
     }
 
     @Override

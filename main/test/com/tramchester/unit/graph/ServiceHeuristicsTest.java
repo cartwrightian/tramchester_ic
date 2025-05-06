@@ -561,7 +561,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         IdFor<Station> stationId = TramStations.Altrincham.getId();
-        IdFor<Route> routeId = Route.createId("currentRoute");
+        IdFor<Route> routeId = Route.createBasicRouteId("currentRoute");
         Route route = TestEnv.getTramTestRoute(routeId, "routeName");
         final RouteStation routeStation = new RouteStation(TramStations.Altrincham.fake(), route);
 

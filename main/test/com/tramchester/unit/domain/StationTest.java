@@ -64,13 +64,13 @@ class StationTest {
 
         assertTrue(station.getTransportModes().isEmpty());
 
-        final Route route = MutableRoute.getRoute(Route.createId("routeIdA"), "shortName", "name",
+        final Route route = MutableRoute.getRoute(Route.createBasicRouteId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
         station.addRouteDropOff(route);
         assertTrue(station.servesMode(Tram));
 //        assertEquals("stationCode", station.getCode());
 
-        station.addRouteDropOff(MutableRoute.getRoute(Route.createId("routeIdB"), "trainShort", "train",
+        station.addRouteDropOff(MutableRoute.getRoute(Route.createBasicRouteId("routeIdB"), "trainShort", "train",
                 Walking, Train));
         assertTrue(station.servesMode(Train));
 
@@ -82,9 +82,9 @@ class StationTest {
         MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm, false);
 
-        final Route routeA = MutableRoute.getRoute(Route.createId("routeIdA"), "shortNameA", "nameA",
+        final Route routeA = MutableRoute.getRoute(Route.createBasicRouteId("routeIdA"), "shortNameA", "nameA",
                 TestEnv.MetAgency(), Tram);
-        final Route routeB = MutableRoute.getRoute(Route.createId("routeIdB"), "shortNameB", "nameB",
+        final Route routeB = MutableRoute.getRoute(Route.createBasicRouteId("routeIdB"), "shortNameB", "nameB",
                 TestEnv.BEE_A, Bus);
 
         assertFalse(station.hasPickup());
@@ -123,7 +123,7 @@ class StationTest {
         MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
                 nearPiccGardens.grid(), DataSourceID.tfgm, true);
 
-        final MutableRoute routeA = new MutableRoute(Route.createId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
+        final MutableRoute routeA = new MutableRoute(Route.createBasicRouteId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
 
         DateRange dateRangeA = new DateRange(TramDate.of(2022, 7, 15), TramDate.of(2022, 8, 24));
 

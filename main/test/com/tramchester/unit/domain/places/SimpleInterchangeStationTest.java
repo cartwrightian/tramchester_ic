@@ -15,8 +15,8 @@ public class SimpleInterchangeStationTest {
     @Test
     void shouldHaveCreateSingleModeInterchange() {
 
-        Route routeOne = TestEnv.getTramTestRoute(Route.createId("route1"), "route 1 name");
-        Route routeTwo = TestEnv.getTramTestRoute(Route.createId("route2"), "route 2 name");
+        Route routeOne = TestEnv.getTramTestRoute(Route.createBasicRouteId("route1"), "route 1 name");
+        Route routeTwo = TestEnv.getTramTestRoute(Route.createBasicRouteId("route2"), "route 2 name");
 
         IdFor<Station> stationId = Station.createId("stationId");
         MutableStation station = new MutableStation(stationId, NPTGLocality.createId("naptanId"),

@@ -26,7 +26,7 @@ public class RouteIndexDataSerialisationTest {
 
     @Test
     void shouldRoundTripRouteId() throws JsonProcessingException {
-        IdFor<Route> routeId = Route.createId("routeB");
+        IdFor<Route> routeId = Route.createBasicRouteId("routeB");
 
         RouteIndexData routeIndexData = new RouteIndexData((short) 42, routeId);
 

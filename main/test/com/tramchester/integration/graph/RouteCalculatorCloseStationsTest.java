@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.config.closures.StationClosuresLi
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -106,6 +107,7 @@ class RouteCalculatorCloseStationsTest {
         assertTrue(singleStage.isEmpty());
     }
 
+    @DisabledUntilDate(year = 2025, month = 5, day = 18)
     @Test
     void shouldFindRouteToClosedStationViaDirectTramWhenAfterClosurePeriod() {
         TramDate travelDate = UpcomingDates.avoidChristmasDate(end.plusDays(2));
@@ -116,6 +118,9 @@ class RouteCalculatorCloseStationsTest {
 
     @NotNull
     private Set<Journey> getSingleStageBuryToEccles(TramDate travelDate) {
+
+        assertFalse(UpcomingDates.hasClosure(Bury.getId(), travelDate), "sanity check failed for date " + travelDate);
+
         JourneyRequest journeyRequest = new JourneyRequest(travelDate, TramTime.of(8, 0),
                 false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
 

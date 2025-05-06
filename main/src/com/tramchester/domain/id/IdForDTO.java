@@ -21,15 +21,19 @@ public class IdForDTO {
         if (sourceId instanceof StringIdFor<?> stringId) {
             actualId = stringId.getContainedId();
         } else if (sourceId instanceof PlatformId platformId) {
-            StringIdFor<Platform> internalId = platformId.getContainedId();
+            final StringIdFor<Platform> internalId = platformId.getContainedId();
             actualId = internalId.getContainedId();
         } else if (sourceId instanceof RailRouteId railRouteId) {
-            StringIdFor<Route> internalId = railRouteId.getContainedId();
+            final StringIdFor<Route> internalId = railRouteId.getContainedId();
             actualId = internalId.getContainedId();
         } else if (sourceId instanceof PostcodeLocationId postcodeLocationId) {
-            StringIdFor<PostcodeLocation> internalId = postcodeLocationId.getContainedId();
+            final StringIdFor<PostcodeLocation> internalId = postcodeLocationId.getContainedId();
             actualId = internalId.getContainedId();
-        } else {
+        } else if (sourceId instanceof TramRouteId tramRouteId) {
+            final StringIdFor<Route> internalId = tramRouteId.getContainedId();
+            actualId = internalId.getContainedId();
+        }
+        else {
             throw new RuntimeException("Not defined for " + sourceId);
         }
     }

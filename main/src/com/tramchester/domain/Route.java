@@ -2,10 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CrossesDay;
@@ -38,8 +35,21 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
 
     boolean isAvailableOn(TramDate date);
 
-    static IdFor<Route> createId(String text) {
+    /***
+     * May need to use RailRouteId or TramRouteId - see TransportEntityFactory implementations
+     * @param text raw text id
+     * @return A basic tram route id
+     */
+    static IdFor<Route> createBasicRouteId(String text) {
         return StringIdFor.createId(text, Route.class);
+    }
+
+    static IdFor<Route> parse(final String text) {
+        if (TramRouteId.matches(text)) {
+            return TramRouteId.parse(text);
+        } else {
+            return createBasicRouteId(text);
+        }
     }
 
     IdSet<Station> getStartStations();

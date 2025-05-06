@@ -28,7 +28,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     }
 
     // todo package private?
-    public static <C extends CoreDomain> IdFor<C> createId(final String text, final Class<C> domainType) {
+    public static <C extends CoreDomain> StringIdFor<C> createId(final String text, final Class<C> domainType) {
         if (text==null) {
             return invalid(domainType);
         }
@@ -62,16 +62,16 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o==null) {
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj==null) {
             return false;
         }
-        if (o instanceof StringIdFor<?> that) {
-            return theId.equals(that.theId) && domainType.equals(that.domainType);
+        if (obj instanceof StringIdFor<?> other) {
+            return theId.equals(other.theId) && domainType.equals(other.domainType);
         }
-        if (o instanceof ContainsId<?> that) {
-            StringIdFor<?> thatContainedId = that.getContainedId();
+        if (obj instanceof ContainsId<?> other) {
+            final StringIdFor<?> thatContainedId = other.getContainedId();
             return theId.equals(thatContainedId.theId) && domainType.equals(thatContainedId.domainType);
         }
         return false;

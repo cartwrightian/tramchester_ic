@@ -51,7 +51,7 @@ class PlatformTest {
 
         assertEquals(1, platform.getDropoffRoutes().size());
 
-        Route anotherRoute = TestEnv.getTramTestRoute(Route.createId("anotherRoute"), "routeNameB");
+        Route anotherRoute = TestEnv.getTramTestRoute(Route.createBasicRouteId("anotherRoute"), "routeNameB");
 
         platform.addRoutePickUp(anotherRoute);
         assertEquals(1, platform.getDropoffRoutes().size());

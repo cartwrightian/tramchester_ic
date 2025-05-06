@@ -12,8 +12,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -31,14 +34,36 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate MayDay2025 = TramDate.of(2025,5,5);
     public static TramDate LateMayBankHold2025 = TramDate.of(2025, 5, 26);
+
+    public static List<IdFor<Station>> BuryLine10MayStations = Arrays.asList(Crumpsal.getId(),
+            Station.createId("9400ZZMABOW"), HeatonPark.getId(), Station.createId("9400ZZMAPWC"),
+            Station.createId("9400ZZMABOB"), Whitefield.getId(), Station.createId("9400ZZMARAD"), Bury.getId());
+
+    public static List<IdFor<Station>> BuryLine11MayStations = Arrays.asList(Whitefield.getId(),
+            Station.createId("9400ZZMARAD"), Bury.getId());
+
+    public static List<IdFor<Station>> AirportLineMayStations = Arrays.asList(TramStations.SaleWaterPark.getId(),
+            Station.createId("9400ZZMANMR"), Station.createId("9400ZZMAWPK"), Station.createId("9400ZZMAMRD"),
+            Station.createId("9400ZZMABAG"), Station.createId("9400ZZMARND"), Station.createId("9400ZZMAMFT"),
+            Station.createId("9400ZZMABLL"), Station.createId("9400ZZMACSS"), Station.createId("9400ZZMAWYT"),
+            Station.createId("9400ZZMARWD"), PeelHall.getId(), Station.createId("9400ZZMASDW"),
+            ManAirport.getId());
+
+    public static List<IdFor<Station>> RochdaleLineStations = Arrays.asList(Station.createId("9400ZZMAFRE"),
+            Station.createId("9400ZZMAWWD"), OldhamKingStreet.getId(), OldhamCentral.getId(), OldhamMumps.getId(),
+            Station.createId("9400ZZMADER"), ShawAndCrompton.getId(), Station.createId("9400ZZMANHY"),
+            Station.createId("9400ZZMAMIL"), Station.createId("9400ZZMAKNY"), Station.createId("9400ZZMANBD"),
+            RochdaleRail.getId(), Rochdale.getId());
+
+    public static DateRanges AirportLineWorks2025 = new DateRanges(
+            DateRange.of(TramDate.of(2025,5, 11), 1),
+            DateRange.of(TramDate.of(2025, 5, 18), 0)); // <- this is not on the web site
 
     public static DateRanges RochdaleLineWorksSummer2025 = new DateRanges(
             DateRange.of(TramDate.of(2025, 5,3),1),
             DateRange.of(TramDate.of(2025,5,10),1),
             DateRange.of(TramDate.of(2025,5,17),1));
-
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -52,14 +77,36 @@ public class UpcomingDates {
         if (TramStations.OldhamCentral.getId().equals(stationId)) {
             return RochdaleLineWorksSummer2025.contains(date);
         }
+        if (BuryLine10MayStations.contains(stationId)) {
+            if (TramDate.of(2025,5,10).equals(date)) {
+                return true;
+            }
+            if (TramDate.of(2025,5,17).equals(date)) {
+                return true; // not on the website, but trams are missing from the data
+            }
+        }
+        final IdFor<Station> radcliffe = Station.createId("9400ZZMARAD");
+        if (stationId.equals(Bury.getId()) || stationId.equals(radcliffe)) {
+            if (TramDate.of(2025, 5,18).equals(date)) {
+                return true; // not on the website!
+            }
+        }
+        if (BuryLine11MayStations.contains(stationId)) {
+            if (TramDate.of(2025,5,11).equals(date)) {
+                return true;
+            }
+        }
+        if (AirportLineMayStations.contains(stationId)) {
+            return AirportLineWorks2025.contains(date);
+        }
 
         return false;
     }
 
     public static boolean validTestDate(final TramDate date) {
-        if (date.equals(MayDay2025)) {
-            return false;
-        }
+//        if (date.equals(MayDay2025)) {
+//            return false;
+//        }
         return !(date.isChristmasPeriod());
     }
 

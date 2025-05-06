@@ -9,7 +9,7 @@ import com.tramchester.domain.places.Station;
 
 public class RouteStationId implements IdFor<RouteStation> {
 
-    private static final String DIVIDER = "_";
+    private static final String ROUTE_STATION_ID_DIVIDER = "_";
 
     private final IdFor<Route> routeId;
     private final IdFor<Station> stationId;
@@ -30,12 +30,12 @@ public class RouteStationId implements IdFor<RouteStation> {
     }
 
     public static RouteStationId parse(final String text) {
-        final int indexOf = text.indexOf(DIVIDER);
+        final int indexOf = text.indexOf(ROUTE_STATION_ID_DIVIDER);
         if (indexOf<0) {
             return RouteStationId.invalid();
         }
         // todo rail route or normal route id?
-        final IdFor<Route> routeId  = Route.createId(text.substring(0, indexOf));
+        final IdFor<Route> routeId  = Route.parse(text.substring(0, indexOf));
         final IdFor<Station> stationId = Station.createId(text.substring(indexOf+1));
         return createId(routeId, stationId);
     }
@@ -51,7 +51,7 @@ public class RouteStationId implements IdFor<RouteStation> {
     @JsonIgnore
     @Override
     public String getGraphId() {
-        return routeId.getGraphId()+DIVIDER+stationId.getGraphId();
+        return routeId.getGraphId()+ ROUTE_STATION_ID_DIVIDER +stationId.getGraphId();
     }
 
     @JsonIgnore

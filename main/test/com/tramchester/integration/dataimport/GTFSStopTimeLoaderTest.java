@@ -60,12 +60,12 @@ public class GTFSStopTimeLoaderTest {
 
         // routes
         RouteDataLoader routeDataLoader = new RouteDataLoader(buildable, dataSource.getConfig(), entityFactory);
-        RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
+        RouteDataLoader.LoadedRoutesCache loadedRoutesCache = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
 
         // trips
         TripLoader tripLoader = new TripLoader(buildable, entityFactory);
         //RouteDataLoader.ExcludedRoutes excludedRoutes = new RouteDataLoader.ExcludedRoutes();
-        PreloadTripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+        PreloadTripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), loadedRoutesCache);
 
         // stops
         StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, config);
@@ -104,10 +104,10 @@ public class GTFSStopTimeLoaderTest {
         CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
 
         RouteDataLoader routeDataLoader = new RouteDataLoader(buildable, dataSource.getConfig(), entityFactory);
-        RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
+        RouteDataLoader.LoadedRoutesCache loadedRoutesCache = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
 
         TripLoader tripLoader = new TripLoader(buildable, entityFactory);
-        PreloadTripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+        PreloadTripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), loadedRoutesCache);
 
         StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, config);
         PreloadedStationsAndPlatforms preloaded = stopDataLoader.load(dataSource.getStops());
