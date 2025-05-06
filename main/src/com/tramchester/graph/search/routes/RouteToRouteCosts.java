@@ -43,6 +43,7 @@ import static java.lang.String.format;
 @LazySingleton
 public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
+    private static final boolean DEBUG_ENABLED = logger.isDebugEnabled();
 
     public final static String INDEX_FILE = "route_index.json";
 
@@ -85,19 +86,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (routePair.areSame()) {
             return 0;
         }
-        if (!routePair.bothAvailableOn(date)) {
-            logger.debug(format("Routes %s not available on date %s", date, routePair));
-            return Integer.MAX_VALUE;
+        if (DEBUG_ENABLED) {
+            if (!routePair.bothAvailableOn(date)) {
+                logger.debug(format("Routes %s not available on date %s", date, routePair));
+                return Integer.MAX_VALUE;
+            }
         }
 
         final RouteIndexPair routeIndexPair = index.getPairFor(routePair);
         final int result = getDepth(routeIndexPair, changeStationOperating, dateAndModeOverlaps);
 
         if (result == RouteCostMatrix.MAX_VALUE) {
-            if (routePair.sameMode()) {
-                // TODO Why so many hits here?
-                // for mixed transport mode having no value is quite normal
-                logger.debug("Missing " + routePair);
+            if (DEBUG_ENABLED) {
+                if (routePair.sameMode()) {
+                    // TODO Why so many hits here?
+                    // for mixed transport mode having no value is quite normal
+                    logger.debug("Missing " + routePair);
+                }
             }
             return Integer.MAX_VALUE;
         }
@@ -116,8 +121,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return results.getDepth();
         }
 
-        if (logger.isDebugEnabled()) {
-            RoutePair pair = index.getPairFor(routePair);
+        if (DEBUG_ENABLED) {
+            final RoutePair pair = index.getPairFor(routePair);
             logger.debug("Found no operating station for " + HasId.asIds(pair));
         }
         return Integer.MAX_VALUE;
@@ -311,7 +316,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private int getNumberOfHops(final Set<Route> startRoutes, final Set<Route> destinationRoutes, final TramDate date,
                                             final StationAvailabilityFacade interchangesOperating,
                                             final int closureOffset, final EnumSet<TransportMode> requestedModes) {
-        if (logger.isDebugEnabled()) {
+        if (DEBUG_ENABLED) {
             logger.debug(format("Compute number of changes between %s and %s on %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
         }
@@ -336,7 +341,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             minHops = minHops + closureOffset;
         }
 
-        if (logger.isDebugEnabled()) {
+        if (DEBUG_ENABLED) {
             logger.debug(format("Computed min number of changes from %s to %s on %s as %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, minHops));
             interchangesOperating.reportStats();
@@ -486,7 +491,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.modes = modes;
 
             final long size = availabilityRepository.size();
-            if (logger.isDebugEnabled()) {
+            if (DEBUG_ENABLED) {
                 logger.debug("Created cache of size " + size + " for " + date + " " + time + " " + modes);
             }
             cache = Caffeine.newBuilder().

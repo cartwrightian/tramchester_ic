@@ -262,7 +262,7 @@ public class DiagramCreator {
             return node.getServiceId().getGraphId();
         }
         if (node.hasLabel(HOUR)) {
-            return   node.getHour().toString();
+            return Integer.toString(node.getHour());
         }
         if (node.hasLabel(MINUTE)) {
             final TramTime time = node.getTime();

@@ -70,15 +70,15 @@ public class SharedNodeCache implements ReportsCacheStats {
         return tripIdCache.get(nodeId, fetcher);
     }
 
-    public IdFor<RouteStation> getRouteStationId(GraphNodeId nodeId, Function<GraphNodeId, IdFor<RouteStation>> fetcher) {
+    public IdFor<RouteStation> getRouteStationId(final GraphNodeId nodeId, final Function<GraphNodeId, IdFor<RouteStation>> fetcher) {
         return routeStationIdCache.get(nodeId, fetcher);
     }
 
-    public IdFor<Station> getStationId(GraphNodeId nodeId, Function<GraphNodeId, IdFor<Station>> fetcher) {
+    public IdFor<Station> getStationId(final GraphNodeId nodeId, final Function<GraphNodeId, IdFor<Station>> fetcher) {
         return stationIdCache.get(nodeId, fetcher);
     }
 
-    public IdFor<Service> getServiceId(GraphNodeId nodeId, Function<GraphNodeId, IdFor<Service>> fetcher) {
+    public IdFor<Service> getServiceId(final GraphNodeId nodeId, final Function<GraphNodeId, IdFor<Service>> fetcher) {
         return serviceIdCache.get(nodeId, fetcher);
     }
 
@@ -87,7 +87,7 @@ public class SharedNodeCache implements ReportsCacheStats {
         return labels.contains(graphLabel);
     }
 
-    public EnumSet<GraphLabel> getLabels(GraphNodeId nodeId, Function<GraphNodeId, EnumSet<GraphLabel>> fetcher) {
+    public EnumSet<GraphLabel> getLabels(final GraphNodeId nodeId, final Function<GraphNodeId, EnumSet<GraphLabel>> fetcher) {
         return labelsCache.get(nodeId, fetcher);
     }
 
@@ -95,14 +95,17 @@ public class SharedNodeCache implements ReportsCacheStats {
         removers.forEach(cache -> cache.remove(graphNodeId));
     }
 
-    public Integer getHour(GraphNodeId nodeId, Function<GraphNodeId, Integer> fetcher) {
+    public int getHour(final GraphNodeId nodeId, final Function<GraphNodeId, Integer> fetcher) {
         return hourCache.get(nodeId, fetcher);
     }
 
-    public TramTime getTime(GraphNodeId nodeId, Function<GraphNodeId, TramTime> fetcher) {
+    public TramTime getTime(final GraphNodeId nodeId, final Function<GraphNodeId, TramTime> fetcher) {
         return tramTimeCache.get(nodeId, fetcher);
     }
 
+    public InvalidatesCacheForNode invalidatorFor(final GraphNodeId nodeId) {
+        return new InvalidatesCacheForNode(nodeId, this);
+    }
 
     private static class SimpleCache<T> implements ClearGraphId<GraphNodeId> {
         private final Cache<GraphNodeId, T> cache;
@@ -125,6 +128,21 @@ public class SharedNodeCache implements ReportsCacheStats {
 
         public Pair<String, CacheStats> stats(String name) {
             return Pair.of(name, cache.stats());
+        }
+    }
+
+    public static class InvalidatesCacheForNode {
+
+        private final GraphNodeId nodeId;
+        private final SharedNodeCache parent;
+
+        public InvalidatesCacheForNode(GraphNodeId nodeId, SharedNodeCache parent) {
+            this.nodeId = nodeId;
+            this.parent = parent;
+        }
+
+        public void remove() {
+            parent.remove(nodeId);
         }
     }
 }

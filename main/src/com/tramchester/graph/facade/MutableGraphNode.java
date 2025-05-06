@@ -4,7 +4,10 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -33,10 +36,10 @@ import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     private final Node node;
     private final GraphNodeId graphNodeId;
-    private final SharedNodeCache nodeCache;
+    private final SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode;
 
-    MutableGraphNode(Node node, GraphNodeId graphNodeId, SharedNodeCache nodeCache) {
-        this.nodeCache = nodeCache;
+    MutableGraphNode(Node node, GraphNodeId graphNodeId, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
+        this.invalidatesCacheForNode = invalidatesCacheForNode;
         if (node == null) {
             throw new RuntimeException("Null node passed");
         }
@@ -58,7 +61,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     private void invalidateCache() {
-        nodeCache.remove(graphNodeId);
+        invalidatesCacheForNode.remove();
     }
 
     ///// MUTATE ////////////////////////////////////////////////////////////
@@ -209,7 +212,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Integer getHour() {
+    public int getHour() {
         return GraphLabel.getHourFrom(getLabels());
     }
 

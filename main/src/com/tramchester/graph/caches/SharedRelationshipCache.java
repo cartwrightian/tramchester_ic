@@ -65,6 +65,10 @@ public class SharedRelationshipCache implements ReportsCacheStats {
         removers.forEach(cache -> cache.remove(id));
     }
 
+    public InvalidatesCacheFor getInvalidatorFor(GraphRelationshipId id) {
+        return new InvalidatesCacheFor(this,id);
+    }
+
     private static class IdSetCache<T extends CoreDomain> implements ClearGraphId<GraphRelationshipId> {
 
         private final Cache<GraphRelationshipId, IdSet<T>> cache;
@@ -87,6 +91,21 @@ public class SharedRelationshipCache implements ReportsCacheStats {
         @Override
         public void remove(GraphRelationshipId id) {
             cache.invalidate(id);
+        }
+
+    }
+
+    public static class InvalidatesCacheFor {
+        private final SharedRelationshipCache parent;
+        private final GraphRelationshipId id;
+
+        private InvalidatesCacheFor(SharedRelationshipCache parent, GraphRelationshipId id) {
+            this.parent = parent;
+            this.id = id;
+        }
+
+        public void remove() {
+            parent.remove(id);
         }
     }
 }

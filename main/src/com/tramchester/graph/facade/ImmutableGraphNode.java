@@ -171,7 +171,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public Integer getHour() {
+    public int getHour() {
         return sharedNodeCache.getHour(nodeId, k -> underlying.getHour());
     }
 

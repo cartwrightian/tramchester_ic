@@ -28,7 +28,10 @@ import org.neo4j.graphdb.Relationship;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -40,16 +43,17 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private final Relationship relationship;
     private final GraphRelationshipId id;
-    private final SharedRelationshipCache relationshipCache;
+    private final SharedRelationshipCache.InvalidatesCacheFor invalidatesCacheFor;
 
     private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private ImmutableGraphNode endNode;
 
-    MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id, SharedRelationshipCache relationshipCache) {
+    MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id,
+                             SharedRelationshipCache.InvalidatesCacheFor invalidatesCacheFor) {
         this.relationship = relationship;
         this.id = id;
-        this.relationshipCache = relationshipCache;
+        this.invalidatesCacheFor = invalidatesCacheFor;
     }
 
     ///// MUTATE ////////////////////////////////////////////////////////////
@@ -60,7 +64,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     private void invalidateCache() {
-        relationshipCache.remove(id);
+        invalidatesCacheFor.remove();
     }
 
     public void setTransportMode(final TransportMode transportMode) {

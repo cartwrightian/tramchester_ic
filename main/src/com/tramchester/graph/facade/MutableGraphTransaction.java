@@ -190,17 +190,21 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     private MutableGraphNode wrapNodeAsMutable(final Node node) {
         final GraphNodeId graphNodeId = idFactory.getIdFor(node);
-        return new MutableGraphNode(node, graphNodeId, sharedNodeCache);
+        return new MutableGraphNode(node, graphNodeId, sharedNodeCache.invalidatorFor(graphNodeId));
     }
 
     @Override
     public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
-        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship), sharedRelationshipCache);
+        final GraphRelationshipId id = idFactory.getIdFor(relationship);
+        final SharedRelationshipCache.InvalidatesCacheFor invalidatesCache = sharedRelationshipCache.getInvalidatorFor(id);
+        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, id, invalidatesCache);
         return new ImmutableGraphRelationship(underlying, sharedRelationshipCache);
     }
 
     public MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
-        return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship), sharedRelationshipCache);
+        final GraphRelationshipId id = idFactory.getIdFor(relationship);
+        final SharedRelationshipCache.InvalidatesCacheFor invalidatesCacheFor = sharedRelationshipCache.getInvalidatorFor(id);
+        return new MutableGraphRelationship(relationship, id, invalidatesCacheFor);
     }
 
     public ImmutableGraphNode fromStart(final Path path) {
@@ -242,10 +246,6 @@ public class MutableGraphTransaction implements GraphTransaction {
     public GraphRelationship getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
         final Relationship relationship = (Relationship) row.get(columnName);
         return wrapRelationship(relationship);
-    }
-
-    public GraphNodeId createNodeId(final Node endNode) {
-        return idFactory.getIdFor(endNode);
     }
 
     @Override

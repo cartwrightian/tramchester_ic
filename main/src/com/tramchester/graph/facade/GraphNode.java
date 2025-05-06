@@ -59,7 +59,7 @@ public interface GraphNode {
 
     TransportMode getTransportMode();
 
-    Integer getHour();
+    int getHour();
 
     boolean hasLabel(GraphLabel graphLabel);
 
