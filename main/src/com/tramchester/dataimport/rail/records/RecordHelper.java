@@ -35,7 +35,7 @@ public class RecordHelper {
         return text.substring(realBegin, realEnd).trim();
     }
 
-    public static TramDate extractTramDate(String text, int begin, int century) {
+    public static TramDate extractTramDate(final String text, final int begin, final int century) {
         return TramDate.parseSimple(text, century, begin);
     }
 

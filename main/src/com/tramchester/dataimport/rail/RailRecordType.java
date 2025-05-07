@@ -30,7 +30,7 @@ public enum RailRecordType {
         this.code = code;
     }
 
-    public static RailRecordType parse(CharSequence code) {
+    public static RailRecordType parse(final CharSequence code) {
         if (map.containsKey(code)) {
             return map.get(code);
         }

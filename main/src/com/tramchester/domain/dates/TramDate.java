@@ -12,16 +12,16 @@ public class TramDate implements Comparable<TramDate> {
     private final long epochDays;
     private final DayOfWeek dayOfWeek;
 
-    private TramDate(long epochDays) {
+    private TramDate(final long epochDays) {
         this.epochDays = epochDays;
         this.dayOfWeek = calcDayOfWeek(epochDays);
     }
 
-    public static TramDate of(long epochDay) {
+    public static TramDate of(final long epochDay) {
         return new TramDate(epochDay);
     }
 
-    public static TramDate of(LocalDate date) {
+    public static TramDate of(final LocalDate date) {
         return new TramDate(date.toEpochDay());
     }
 
@@ -30,7 +30,7 @@ public class TramDate implements Comparable<TramDate> {
         return new TramDate(date.toEpochDay());
     }
 
-    public static TramDate from(LocalDateTime localDateTime) {
+    public static TramDate from(final LocalDateTime localDateTime) {
         return of(localDateTime.toLocalDate());
     }
 
@@ -42,7 +42,7 @@ public class TramDate implements Comparable<TramDate> {
         }
     }
 
-    public static TramDate max(TramDate dateA, TramDate dateB) {
+    public static TramDate max(final TramDate dateA, final TramDate dateB) {
         if (dateA.isAfter(dateB)) {
             return dateA;
         } else {
@@ -51,8 +51,8 @@ public class TramDate implements Comparable<TramDate> {
     }
 
     // replicate LocalDate approach
-    public DayOfWeek calcDayOfWeek(long epochDays) {
-        int enumAsInt = Math.floorMod(epochDays + 3, 7);
+    public DayOfWeek calcDayOfWeek(final long epochDays) {
+        final int enumAsInt = Math.floorMod(epochDays + 3, 7);
         return DayOfWeek.of(enumAsInt + 1);
     }
 
@@ -73,16 +73,16 @@ public class TramDate implements Comparable<TramDate> {
         return Objects.hash(epochDays);
     }
 
-    public boolean isAfter(TramDate other) {
+    public boolean isAfter(final TramDate other) {
         return this.epochDays>other.epochDays;
     }
 
-    public boolean isBefore(TramDate other) {
+    public boolean isBefore(final TramDate other) {
         return this.epochDays<other.epochDays;
     }
 
-    public TramDate plusDays(int days) {
-        long newDay = days + epochDays;
+    public TramDate plusDays(final int days) {
+        final long newDay = days + epochDays;
         return new TramDate(newDay);
     }
 
@@ -90,8 +90,8 @@ public class TramDate implements Comparable<TramDate> {
         return LocalDate.ofEpochDay(epochDays);
     }
 
-    public TramDate minusDays(int days) {
-        long newDay = epochDays - days;
+    public TramDate minusDays(final int days) {
+        final long newDay = epochDays - days;
         return new TramDate(newDay);
     }
 
@@ -103,7 +103,7 @@ public class TramDate implements Comparable<TramDate> {
         return epochDays;
     }
 
-    public String format(DateTimeFormatter dateFormatter) {
+    public String format(final DateTimeFormatter dateFormatter) {
         return LocalDate.ofEpochDay(epochDays).format(dateFormatter);
     }
 
@@ -113,10 +113,10 @@ public class TramDate implements Comparable<TramDate> {
      * @param offset offset to start of text
      * @return TramDate
      */
-    public static TramDate parseSimple(String text, int offset) {
-        int year = parseFullYear(text, offset);
-        int month = parseTens(text, offset+4);
-        int day = parseTens(text, offset+6);
+    public static TramDate parseSimple(final String text, final int offset) {
+        final int year = parseFullYear(text, offset);
+        final int month = parseTens(text, offset+4);
+        final int day = parseTens(text, offset+6);
         return TramDate.of(year, month, day);
     }
 
@@ -127,33 +127,33 @@ public class TramDate implements Comparable<TramDate> {
      * @param offset offset to start of text to parse
      * @return the TramDate
      */
-    public static TramDate parseSimple(String text, int century, int offset) {
-        int year = parseTens(text, offset);
-        int month = parseTens(text, offset+2);
-        int day = parseTens(text, offset+4);
+    public static TramDate parseSimple(final String text, final int century, final int offset) {
+        final int year = parseTens(text, offset);
+        final int month = parseTens(text, offset+2);
+        final int day = parseTens(text, offset+4);
         return TramDate.of((century*100) + year, month, day);
     }
 
-    private static int parseTens(String text, int offset) {
-        char digit1 = text.charAt(offset);
-        char digit2 = text.charAt(offset+1);
+    private static int parseTens(final String text, final int offset) {
+        final char digit1 = text.charAt(offset);
+        final char digit2 = text.charAt(offset+1);
 
-        int tens = Character.digit(digit1, 10);
-        int unit = Character.digit(digit2, 10);
+        final int tens = Character.digit(digit1, 10);
+        final int unit = Character.digit(digit2, 10);
 
         return (tens*10) + unit;
     }
 
-    private static int parseFullYear(String text, int offset) {
-        char digit1 = text.charAt(offset);
-        char digit2 = text.charAt(offset+1);
-        char digit3 = text.charAt(offset+2);
-        char digit4 = text.charAt(offset+3);
+    private static int parseFullYear(final String text, final int offset) {
+        final char digit1 = text.charAt(offset);
+        final char digit2 = text.charAt(offset+1);
+        final char digit3 = text.charAt(offset+2);
+        final char digit4 = text.charAt(offset+3);
 
-        int millenium = Character.digit(digit1, 10);
-        int century = Character.digit(digit2, 10);
-        int decade = Character.digit(digit3, 10);
-        int year = Character.digit(digit4, 10);
+        final int millenium = Character.digit(digit1, 10);
+        final int century = Character.digit(digit2, 10);
+        final int decade = Character.digit(digit3, 10);
+        final int year = Character.digit(digit4, 10);
 
         return (millenium*1000) + (century*100) + (decade*10) + year;
     }
@@ -174,19 +174,19 @@ public class TramDate implements Comparable<TramDate> {
                 '}';
     }
 
-    public int compareTo(TramDate other) {
+    public int compareTo(final TramDate other) {
         return Long.compare(this.epochDays, other.epochDays);
     }
 
-    public TramDate minusWeeks(int weeks) {
+    public TramDate minusWeeks(final int weeks) {
         return of(toLocalDate().minusWeeks(weeks));
     }
 
-    public TramDate plusWeeks(int weeks) {
+    public TramDate plusWeeks(final int weeks) {
         return of (toLocalDate().plusWeeks(weeks));
     }
 
-    public Stream<TramDate> datesUntil(TramDate endDate) {
+    public Stream<TramDate> datesUntil(final TramDate endDate) {
         return toLocalDate().datesUntil(endDate.toLocalDate()).map(date -> new TramDate(date.toEpochDay()));
     }
 

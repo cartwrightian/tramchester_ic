@@ -38,13 +38,13 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
         locations = new ArrayList<>();
     }
 
-    public static List<RailRouteCallingPoints> loadCallingPoints(ProvidesRailTimetableRecords providesRailTimetableRecords,
-                                                                 RailStationRecordsRepository stationRecordsRepository) {
+    public static List<RailRouteCallingPoints> loadCallingPoints(final ProvidesRailTimetableRecords providesRailTimetableRecords,
+                                                                 final RailStationRecordsRepository stationRecordsRepository) {
 
         logger.info("Begin extraction of calling points from " + providesRailTimetableRecords.toString());
-        ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords(stationRecordsRepository);
+        final ExtractAgencyCallingPointsFromLocationRecords extractor = new ExtractAgencyCallingPointsFromLocationRecords(stationRecordsRepository);
 
-        Stream<RailTimetableRecord> records = providesRailTimetableRecords.load();
+        final Stream<RailTimetableRecord> records = providesRailTimetableRecords.load();
         records.forEach(extractor::processRecord);
 
         logger.info("Finished extraction, loaded " + extractor.agencyCallingPoints.size() + " unique agency calling points records");

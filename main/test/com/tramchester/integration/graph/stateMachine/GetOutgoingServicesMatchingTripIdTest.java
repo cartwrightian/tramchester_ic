@@ -16,7 +16,7 @@ import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -39,14 +39,13 @@ public class GetOutgoingServicesMatchingTripIdTest {
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
 
-    // NOTE: currently (3/2024) most tram stations are not allocated to a local area in Naptan
-    // See StationGroupRepositoryTest
-
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        final TramchesterConfig config = new IntegrationTramTestConfigWithGroupsEnabled();
+        final TramchesterConfig config = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+        // need built DB
+        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
     }
 
     @AfterAll
@@ -56,16 +55,14 @@ public class GetOutgoingServicesMatchingTripIdTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
+        when = TestEnv.testDay();
+
         stationRepository = componentContainer.get(StationRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
 
-        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
-
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
-
-        when = TestEnv.testDay();
     }
 
     @AfterEach
@@ -112,7 +109,8 @@ public class GetOutgoingServicesMatchingTripIdTest {
 
         Stream<ImmutableGraphRelationship> inbounds = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.TRAM_GOES_TO);
 
-        List<ImmutableGraphRelationship> matchingInbound = inbounds.filter(inbound -> inbound.getTripId().equals(tripId)).toList();
+        List<ImmutableGraphRelationship> matchingInbound = inbounds.
+                filter(inbound -> inbound.getTripId().equals(tripId)).toList();
 
         assertEquals(1, matchingInbound.size());
     }

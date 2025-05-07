@@ -12,7 +12,7 @@ public class RailDataRecordFactory {
     private final int century;
 
     @Inject
-    public RailDataRecordFactory(ProvidesNow providesNow) {
+    public RailDataRecordFactory(final ProvidesNow providesNow) {
         century = Math.floorDiv(providesNow.getDate().getYear(), 100);
     }
 
@@ -20,23 +20,23 @@ public class RailDataRecordFactory {
         return TIPLOCInsert.parse(line);
     }
 
-    public RailTimetableRecord createBasicSchedule(String line) {
+    public RailTimetableRecord createBasicSchedule(final String line) {
         return BasicSchedule.parse(line, century);
     }
 
-    public RailTimetableRecord createOrigin(String line) {
+    public RailTimetableRecord createOrigin(final String line) {
         return OriginLocation.parse(line);
     }
 
-    public IntermediateLocation createIntermediate(String line) {
+    public IntermediateLocation createIntermediate(final String line) {
         return IntermediateLocation.parse(line);
     }
 
-    public TerminatingLocation createTerminating(String line) {
+    public TerminatingLocation createTerminating(final String line) {
         return TerminatingLocation.parse(line);
     }
 
-    public RailTimetableRecord createBasicScheduleExtraDetails(String line) {
+    public RailTimetableRecord createBasicScheduleExtraDetails(final String line) {
         return BasicScheduleExtraDetails.parse(line);
     }
 }

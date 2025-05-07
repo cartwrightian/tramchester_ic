@@ -48,6 +48,7 @@ public class StationsWithDiversionsRepositoryTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+
     }
 
     @AfterAll
@@ -59,15 +60,13 @@ public class StationsWithDiversionsRepositoryTest {
     void beforeEachTestRuns() {
         diversionRepository = componentContainer.get(StationsWithDiversionRepository.class);
         stationsRepository = componentContainer.get(StationRepository.class);
-
         // trigger full build of graph DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
-
     }
 
     @Test
     void shouldHaveDiversionAtVictoria() {
-        // NOTE: if intergation test config changes for closures need to cleanGraph
+        // NOTE: if integration test config changes for closures need to cleanGraph
 
         Station victoria = TramStations.Victoria.from(stationsRepository);
         assertTrue(diversionRepository.hasDiversions(victoria));
@@ -76,7 +75,7 @@ public class StationsWithDiversionsRepositoryTest {
 
         assertEquals(1, ranges.size());
 
-        DateTimeRange dateTimeRange = ranges.get(0);
+        DateTimeRange dateTimeRange = ranges.getFirst();
 
         DateRange dateRange = dateTimeRange.getDateRange();
         assertEquals(TramDate.of(begin), dateRange.getStartDate());

@@ -29,7 +29,8 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     private final boolean enabled;
 
     @Inject
-    public LoadRailTimetableRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready, RailDataFilenameRepository filenameRepository) {
+    public LoadRailTimetableRecords(TramchesterConfig config, RailDataRecordFactory factory,
+                                    UnzipFetchedData.Ready ready, RailDataFilenameRepository filenameRepository) {
         final RailConfig railConfig = config.getRailConfig();
         enabled = (railConfig != null);
         this.factory = factory;
@@ -49,7 +50,7 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
 
         logger.info("Load from " + filePath.toAbsolutePath());
         try {
-            Reader reader = new FileReader(filePath.toString(), StandardCharsets.US_ASCII);
+            final Reader reader = new FileReader(filePath.toString(), StandardCharsets.US_ASCII);
             return load(reader);
         } catch (IOException e) {
             String msg = "Unable to load from file " + filePath.toAbsolutePath();

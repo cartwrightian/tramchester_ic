@@ -37,7 +37,7 @@ public enum BusStations implements FakeStation, HasId<Station> {
             new LatLong(53.48017, -2.23723)),
     StockportAtAldi("1800SG15721", "Aldi (at Newbridge Lane), Stockport",
             new LatLong(53.41115, -2.15221)),
-    MacclesfieldTheTowers("0600MA6001", "The Towers (opp Park Street), Macclesfield", new LatLong(53.255187,-2.123933)),
+    MacclesfieldTheTowers("0600MA6001", "Lord Street (nr Park Street), Macclesfield", new LatLong(53.255187,-2.123933)),
     KnutsfordGrovePark("0600MA0175", "Grove Park (opp Toft Road), Knutsford", new LatLong(53.300117,-2.372316)),
     StockportNewbridgeLane("1800SG15561", "Newbridge Lane (Millgate), Stockport",
             new LatLong(53.41149, -2.15438));

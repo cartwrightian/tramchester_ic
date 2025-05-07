@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -49,11 +48,11 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.locationRepository = componentContainer.get(LocationRepository.class);
         this.interchangeRepository = componentContainer.get(InterchangeRepository.class);
-        routeEndRepository = componentContainer.get(RouteEndRepository.class);
+        this.routeEndRepository = componentContainer.get(RouteEndRepository.class);
         this.checksOpen = checksOpen;
     }
 
-    public static ChecksOpen<Station> checkStationOpen(ComponentContainer componentContainer) {
+    public static ChecksOpen<Station> checkStationOpen(final ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
         return (stationId, date) -> !closedStationRepository.isStationClosed(stationId, date);
     }
@@ -241,7 +240,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         private final List<JourneyOrNot<T>> theResults;
 
         public CombinationResults(final Stream<JourneyOrNot<T>> resultsStream) {
-            theResults = resultsStream.collect(Collectors.toList());
+            theResults = resultsStream.toList();
         }
 
         public int size() {
@@ -266,7 +265,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return theResults.stream().
                     filter(journeyOrNot -> !journeyOrNot.missing()).
                     map(JourneyOrNot::getJourney).
-                    collect(Collectors.toList());
+                    toList();
         }
 
     }
