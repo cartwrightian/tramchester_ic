@@ -27,7 +27,7 @@ public class TramTime implements Comparable<TramTime> {
 
     private static final Factory factory = new Factory();
 
-    private TramTime(int hour, int minute, int offsetDays) {
+    private TramTime(final int hour, final int minute, final int offsetDays) {
         this.hour = hour;
         this.minute = minute;
         this.offsetDays = offsetDays;
@@ -56,11 +56,11 @@ public class TramTime implements Comparable<TramTime> {
      * @param time local time
      * @return Tram time
      */
-    public static TramTime ofHourMins(LocalTime time) {
+    public static TramTime ofHourMins(final LocalTime time) {
         return factory.of(time.getHour(), time.getMinute(), 0);
     }
 
-    private static TramTime of(int hours, int minutes, int offsetDays) {
+    private static TramTime of(final int hours, final int minutes, final int offsetDays) {
         return factory.of(hours, minutes, offsetDays);
     }
 
@@ -94,7 +94,7 @@ public class TramTime implements Comparable<TramTime> {
         return this != Factory.invalidTime;
     }
 
-    public static TramTime of(int hours, int minutes) {
+    public static TramTime of(final int hours, final int minutes) {
         return factory.of(hours, minutes, 0);
     }
 
@@ -125,11 +125,11 @@ public class TramTime implements Comparable<TramTime> {
         return TramTime.of(hour, minute);
     }
 
-    public static TramTime nextDay(int hour, int minute) {
+    public static TramTime nextDay(final int hour, final int minute) {
         return factory.of(hour, minute, 1);
     }
 
-    public static TramTime nextDay(TramTime other) {
+    public static TramTime nextDay(final TramTime other) {
         if (!other.isValid()) {
             throw new RuntimeException("Called nextDay on invalid time");
         }
@@ -198,7 +198,7 @@ public class TramTime implements Comparable<TramTime> {
             return "TramTime{INVALID}";
         }
 
-        String daysString = offsetDays>0 ? "d=" + offsetDays + " " : "";
+        final String daysString = offsetDays>0 ? "d=" + offsetDays + " " : "";
         return "TramTime{" +
                 daysString +
                 "h=" + hour +

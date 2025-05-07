@@ -59,6 +59,9 @@ public class TraversalStateTest extends EasyMockSupport {
         config = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+
+        // need built DB for these tests
+        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
     }
 
     @AfterAll
@@ -81,8 +84,6 @@ public class TraversalStateTest extends EasyMockSupport {
 
         cornbrook = Cornbrook.from(stationRepository);
 
-        // need built DB for these tests
-        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
     }
 
     @AfterEach

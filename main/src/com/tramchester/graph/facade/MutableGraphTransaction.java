@@ -196,14 +196,14 @@ public class MutableGraphTransaction implements GraphTransaction {
     @Override
     public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
-        final SharedRelationshipCache.InvalidatesCacheFor invalidatesCache = sharedRelationshipCache.getInvalidatorFor(id);
+        final SharedRelationshipCache.InvalidatesCache invalidatesCache = sharedRelationshipCache.invalidatorFor(id);
         final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, id, invalidatesCache);
         return new ImmutableGraphRelationship(underlying, sharedRelationshipCache);
     }
 
     public MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
-        final SharedRelationshipCache.InvalidatesCacheFor invalidatesCacheFor = sharedRelationshipCache.getInvalidatorFor(id);
+        final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor = sharedRelationshipCache.invalidatorFor(id);
         return new MutableGraphRelationship(relationship, id, invalidatesCacheFor);
     }
 

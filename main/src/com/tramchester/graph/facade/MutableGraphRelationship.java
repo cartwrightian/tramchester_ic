@@ -43,14 +43,14 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private final Relationship relationship;
     private final GraphRelationshipId id;
-    private final SharedRelationshipCache.InvalidatesCacheFor invalidatesCacheFor;
+    private final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor;
 
     private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private ImmutableGraphNode endNode;
 
     MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id,
-                             SharedRelationshipCache.InvalidatesCacheFor invalidatesCacheFor) {
+                             SharedRelationshipCache.InvalidatesCache invalidatesCacheFor) {
         this.relationship = relationship;
         this.id = id;
         this.invalidatesCacheFor = invalidatesCacheFor;
