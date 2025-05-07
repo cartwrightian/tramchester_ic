@@ -16,6 +16,7 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -205,14 +206,15 @@ class CompositeRouteTest {
     @Test
     void shouldHaveRouteCosts() throws InvalidDurationException {
         EnumSet<TransportMode> modes = TramsOnly;
+        ImmutableGraphTransaction immutable = txn.asImmutable();
 
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate, modes));
-        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(),
+        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(immutable, startGroup, transportData.getLast(), queryDate, modes));
+        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(immutable, transportData.getFirst(),
                 transportData.getLast(), queryDate, modes));
 
-        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), startGroup, queryDate, modes));
-        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getFirst(), queryDate, modes));
+        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(immutable, transportData.getFirst(), startGroup, queryDate, modes));
+        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(immutable, startGroup, transportData.getFirst(), queryDate, modes));
     }
 
     @Test

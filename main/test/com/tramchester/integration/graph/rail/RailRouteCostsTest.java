@@ -9,7 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -25,7 +25,7 @@ import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 public class RailRouteCostsTest {
     private static ComponentContainer componentContainer;
 
-    private GraphTransaction txn;
+    private ImmutableGraphTransaction txn;
     private RouteCostCalculator routeCostCalculator;
     private Station stockport;
     private Station manPicc;

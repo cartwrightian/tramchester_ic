@@ -314,6 +314,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         //return getEndNode(txn).getId();
     }
 
+    @Override
     public EnumSet<TransportMode> getTransportModes() {
         // todo can this be stored direct now?
         if (!relationship.hasProperty(TRANSPORT_MODES.getText())) {

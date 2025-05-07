@@ -82,7 +82,7 @@ public class SharedNodeCache implements ReportsCacheStats {
         return serviceIdCache.get(nodeId, fetcher);
     }
 
-    public boolean hasLabel(final GraphNodeId nodeId, final GraphLabel graphLabel, Function<GraphNodeId, EnumSet<GraphLabel>> fetcher) {
+    public boolean hasLabel(final GraphNodeId nodeId, final GraphLabel graphLabel, final Function<GraphNodeId, EnumSet<GraphLabel>> fetcher) {
         final EnumSet<GraphLabel> labels = labelsCache.get(nodeId, fetcher);
         return labels.contains(graphLabel);
     }
@@ -117,7 +117,7 @@ public class SharedNodeCache implements ReportsCacheStats {
                     build();
         }
 
-        public T get(GraphNodeId nodeId, Function<GraphNodeId, T> fetcher) {
+        public T get(final GraphNodeId nodeId, final Function<GraphNodeId, T> fetcher) {
             return cache.get(nodeId, fetcher);
         }
 
@@ -126,7 +126,7 @@ public class SharedNodeCache implements ReportsCacheStats {
             cache.invalidate(id);
         }
 
-        public Pair<String, CacheStats> stats(String name) {
+        public Pair<String, CacheStats> stats(final String name) {
             return Pair.of(name, cache.stats());
         }
     }

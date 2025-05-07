@@ -98,6 +98,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsMutable(node);
     }
 
+    @Override
     public ImmutableGraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
         final Relationship relationship = graphRelationshipId.getRelationshipFrom(txn);
         if (relationship==null) {
@@ -206,12 +207,13 @@ public class MutableGraphTransaction implements GraphTransaction {
         return new ImmutableGraphRelationship(underlying, sharedRelationshipCache);
     }
 
-    public MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
+    MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
         final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor = sharedRelationshipCache.invalidatorFor(id);
         return new MutableGraphRelationship(relationship, id, invalidatesCacheFor);
     }
 
+    @Override
     public ImmutableGraphNode fromStart(final Path path) {
         final Node startNode = path.startNode();
         if (startNode==null) {
@@ -220,6 +222,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(startNode);
     }
 
+    @Override
     public ImmutableGraphNode fromEnd(final Path path) {
         final Node endNode = path.endNode();
         if (endNode==null) {
@@ -244,6 +247,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return idFactory.getIdFor(relationship.getEndNode());
     }
 
+    @Override
     public ImmutableGraphRelationship lastFrom(final Path path) {
         final Relationship last = path.lastRelationship();
         if (last==null) {
@@ -264,7 +268,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         };
     }
 
-    public GraphRelationship getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
+    public ImmutableGraphRelationship getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
         final Relationship relationship = (Relationship) row.get(columnName);
         return wrapRelationship(relationship);
     }

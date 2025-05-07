@@ -189,8 +189,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     @Override
     public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final Direction direction,
                                                                final TransportRelationshipTypes... transportRelationshipTypes) {
-        return node.getRelationships(direction, transportRelationshipTypes).stream().
-                map(txn::wrapRelationship);
+        return node.getRelationships(direction, transportRelationshipTypes).stream().map(txn::wrapRelationship);
     }
 
     @Override

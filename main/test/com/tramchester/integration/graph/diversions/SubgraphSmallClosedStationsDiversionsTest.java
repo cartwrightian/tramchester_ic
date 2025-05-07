@@ -324,8 +324,8 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
-            GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
+        try (ImmutableGraphTransaction txn = graphDatabase.beginTx()) {
+            GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.getFirst());
             GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
             GraphNode to = relationship.getEndNode(txn);

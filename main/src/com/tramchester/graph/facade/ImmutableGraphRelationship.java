@@ -32,10 +32,11 @@ import java.util.stream.Stream;
 
 public class ImmutableGraphRelationship implements GraphRelationship {
     private final MutableGraphRelationship underlying;
-    private final SharedRelationshipCache sharedRelationshipCache;
-
-    private final CostCache costCache;
     private final GraphRelationshipId relationshipId;
+
+    // Node properties only, nodes cannot be shared beyond parent transactions
+    private final SharedRelationshipCache sharedRelationshipCache;
+    private final CostCache costCache;
 
     public ImmutableGraphRelationship(final MutableGraphRelationship underlying, final SharedRelationshipCache sharedRelationshipCache) {
         this.underlying = underlying;

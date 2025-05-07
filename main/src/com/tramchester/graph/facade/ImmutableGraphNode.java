@@ -32,6 +32,7 @@ public class ImmutableGraphNode implements GraphNode {
     private final MutableGraphNode underlying;
     private final GraphNodeId nodeId;
 
+    // Node properties only, nodes cannot be shared beyond parent transactions
     private final SharedNodeCache sharedNodeCache;
 
     ImmutableGraphNode(final MutableGraphNode underlying, SharedNodeCache sharedNodeCache) {

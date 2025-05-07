@@ -70,15 +70,15 @@ public class FindLinkedStations {
         return links;
     }
 
-    private StationToStationConnection createLink(GraphRelationship relationship) {
+    private StationToStationConnection createLink(final GraphRelationship relationship) {
 
-        IdFor<Station> startId = relationship.getStartStationId();
-        IdFor<Station> endId = relationship.getEndStationId();
+        final IdFor<Station> startId = relationship.getStartStationId();
+        final IdFor<Station> endId = relationship.getEndStationId();
 
-        Station start = stationRepository.getStationById(startId);
-        Station end = stationRepository.getStationById(endId);
+        final Station start = stationRepository.getStationById(startId);
+        final Station end = stationRepository.getStationById(endId);
 
-        EnumSet<TransportMode> modes = relationship.getTransportModes();
+        final EnumSet<TransportMode> modes = relationship.getTransportModes();
 
         return StationToStationConnection.createForWalk(start, end, modes, StationToStationConnection.LinkType.Linked, geography);
     }
