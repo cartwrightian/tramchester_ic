@@ -28,6 +28,11 @@ public class MutableGraphTransaction implements GraphTransaction {
     private final GraphIdFactory idFactory;
     private final TransactionObserver transactionObserver;
     private final int transactionId;
+
+    /*
+     these cache attributes of the nodes, not the nodes themselves as these cannot be accessed outside of the
+     parent transaction
+    */
     private final SharedNodeCache sharedNodeCache;
     private final SharedRelationshipCache sharedRelationshipCache;
 
@@ -223,6 +228,22 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(endNode);
     }
 
+    @Override
+    public GraphNodeId endNodeNodeId(final Path path) {
+        final Node endNode = path.endNode();
+        return idFactory.getIdFor(endNode);
+    }
+
+    @Override
+    public GraphNodeId getStartNodeId(final Relationship relationship) {
+        return idFactory.getIdFor(relationship.getStartNode());
+    }
+
+    @Override
+    public GraphNodeId getEndNodeId(final Relationship relationship) {
+        return idFactory.getIdFor(relationship.getEndNode());
+    }
+
     public ImmutableGraphRelationship lastFrom(final Path path) {
         final Relationship last = path.lastRelationship();
         if (last==null) {
@@ -257,6 +278,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     public ImmutableGraphNode getEndNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getEndNode());
     }
+
 
     /***
      * Diagnostic support only @See GraphTestHelper

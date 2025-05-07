@@ -300,12 +300,18 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     @Override
     public GraphNodeId getStartNodeId(final ImmutableGraphTransaction txn) {
-        return getStartNode(txn).getId();
+        return txn.getStartNodeId(relationship);
+        //return getStartNode(txn).getId();
     }
 
     @Override
     public GraphNodeId getEndNodeId(final GraphTransaction txn) {
-        return getEndNode(txn).getId();
+        if (endNode==null) {
+            return txn.getEndNodeId(relationship);
+        } else {
+            return endNode.getId();
+        }
+        //return getEndNode(txn).getId();
     }
 
     public EnumSet<TransportMode> getTransportModes() {

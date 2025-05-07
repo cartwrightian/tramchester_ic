@@ -99,7 +99,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         if (fullLogging) {
             logger.info("Return traversal stream");
         }
-        return stream.filter(path -> destinationNodeIds.contains(txn.fromEnd(path).getId()));
+        return stream.filter(path -> {
+            //final GraphNodeId endPathNodeId = txn.fromEnd(path).getId();
+            final GraphNodeId endPathNodeId = txn.endNodeNodeId(path);
+
+            return destinationNodeIds.contains(endPathNodeId);
+        });
     }
 
     @Override
@@ -114,7 +119,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final Duration cost;
         if (lastRelationship != null) {
-            cost = lastRelationship.getCost(); //nodeContentsRepository.getCost(lastRelationship);
+            cost = lastRelationship.getCost();
 
             if (Durations.greaterThan(cost, Duration.ZERO)) {
                 final Duration totalCost = currentJourneyState.getTotalDurationSoFar();

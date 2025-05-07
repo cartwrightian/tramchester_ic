@@ -28,30 +28,30 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Blue
     EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", startMayCutover),
-    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "2871", endAprilCutover),
+    //EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "2871", endAprilCutover),
 
     // Green
     BuryManchesterAltrinchamNew(Green, "Bury - Manchester - Altrincham", "841", startMayCutover),
-    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "2872", endAprilCutover),
+    //BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "2872", endAprilCutover),
 
     // Navy
     VictoriaManchesterAirportNew(Navy, "Victoria - Wythenshawe - Manchester Airport", "2120", startMayCutover),
-    VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "2873", endAprilCutover),
+    //VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "2873", endAprilCutover),
 
     // Pink
     RochdaleManchesterEastDidisburyNew(Pink, "Rochdale - Manchester - East Didsbury", "845", startMayCutover),
-    RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "2874", endAprilCutover),
+    //RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "2874", endAprilCutover),
 
     EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", startMayCutover),
-    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "2875", endAprilCutover),
+    //EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "2875", endAprilCutover),
 
     // Red
     CornbrookTheTraffordCentreNew(Red, "Etihad Campus - The Trafford Centre", "849", startMayCutover),
-    CornbrookTheTraffordCentre(Red, "Deansgate-Castlefield - The Trafford Centre", "2876", endAprilCutover),
+    //CornbrookTheTraffordCentre(Red, "Deansgate-Castlefield - The Trafford Centre", "2876", endAprilCutover),
 
     // Yellow, not in tfgm data as of 28/3/2025
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", startMayCutover),
-    PiccadillyBury(Yellow, "Piccadilly - Bury", "2877", endAprilCutover);
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", startMayCutover);
+    //PiccadillyBury(Yellow, "Piccadilly - Bury", "2877", endAprilCutover);
 
     private final TFGMRouteNames line;
     private final String longName; // diagnostics only

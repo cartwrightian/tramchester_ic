@@ -74,7 +74,7 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (TramStations.OldhamCentral.getId().equals(stationId)) {
+        if (RochdaleLineStations.contains(stationId)) {
             return RochdaleLineWorksSummer2025.contains(date);
         }
         if (BuryLine10MayStations.contains(stationId)) {

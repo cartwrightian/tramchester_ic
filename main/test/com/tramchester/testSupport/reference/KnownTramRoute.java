@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate endAprilCutover = TramDate.of(2025, 4, 24);
     public static final TramDate startMayCutover = TramDate.of(2025,5,3);
 
     private static final DateRanges replacementBusOneDates = new DateRanges(
@@ -123,9 +122,6 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        if (date.isAfter(endAprilCutover) || date.equals(endAprilCutover)) {
-            routes.add(getPurple(date));
-        }
 
         if (date.isAfter(startMayCutover) || date.equals(startMayCutover)) {
             routes.add(getYellow(date));
@@ -140,6 +136,7 @@ public class KnownTramRoute {
         } else {
             routes.add(getGreen(date));
         }
+        routes.add(getPurple(date));
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));

@@ -261,7 +261,7 @@ class KnownTramRouteTest {
                 filter(route -> route.getShortName().equals(shortName)).
                 toList();
 
-        assertEquals(2, matching.size(), HasId.asIds(matching));
+        assertEquals(1, matching.size(), HasId.asIds(matching));
 
         List<DateRange> ranges = matching.stream().map(Route::getDateRange).toList();
 

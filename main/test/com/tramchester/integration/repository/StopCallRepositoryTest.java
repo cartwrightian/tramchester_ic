@@ -154,7 +154,7 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldFindUniqueCallingPointsEndOfALineDateRange() {
-        DateRange range = DateRange.of(when.minusWeeks(1), when.plusWeeks(1));
+        DateRange range = DateRange.of(when, when.plusWeeks(1));
         List<IdFor<Station>> stations = stopCallRepository.getStopcallsBetween(Altrincham.getId(), Timperley.getId(), range);
 
         assertEquals(3, stations.size());

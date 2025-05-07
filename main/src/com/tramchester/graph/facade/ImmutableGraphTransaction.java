@@ -109,4 +109,19 @@ public class ImmutableGraphTransaction implements GraphTransaction, GraphTravers
     public ImmutableGraphNode getEndNode(final Relationship relationship) {
         return underlying.getEndNode(relationship);
     }
+
+    @Override
+    public GraphNodeId endNodeNodeId(final Path path) {
+        return underlying.endNodeNodeId(path);
+    }
+
+    @Override
+    public GraphNodeId getStartNodeId(final Relationship relationship) {
+        return underlying.getStartNodeId(relationship);
+    }
+
+    @Override
+    public GraphNodeId getEndNodeId(final Relationship relationship) {
+        return underlying.getEndNodeId(relationship);
+    }
 }

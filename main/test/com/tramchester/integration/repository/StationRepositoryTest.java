@@ -279,15 +279,16 @@ public class StationRepositoryTest {
     void shouldHaveExpectedPickupAndDropOffsForMediaCity() {
         // seen issues here
         Station mediaCity = MediaCityUK.from(stationRepository);
+        IdFor<Route> blueRouteId = getBlue(when).getId();
 
         IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertEquals(2, dropOffs.size(), dropOffs.toString());
-        assertTrue(dropOffs.contains(getBlue(when).getId()));
+        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        assertTrue(dropOffs.contains(blueRouteId));
 
         IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
-        assertEquals(2, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(getBlue(when).getId()));
+        assertEquals(1, pickUps.size(), pickUps.toString());
+        assertTrue(pickUps.contains(blueRouteId));
     }
 
     @Test
