@@ -170,21 +170,15 @@ public class StopCallRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedClosuresFor10May() {
+    void shouldDoublecheckStopsForClosuresCrumpsalToBury() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Crumpsal.getId(), Bury.getId(), when);
-        assertEquals(stopsBetween, UpcomingDates.BuryLine10MayStations);
+        assertEquals(stopsBetween, UpcomingDates.CrumpsalToBury);
     }
 
     @Test
-    void shouldHaveExpectedClosuresFor11May() {
+    void shouldDoublecheckStopsForClosuresWhitefieldToBury() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Whitefield.getId(), Bury.getId(), when);
-        assertEquals(stopsBetween, UpcomingDates.BuryLine11MayStations);
-    }
-
-    @Test
-    void shouldHaveExpectedClosuresForMay2025AirportLine() {
-        List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(SaleWaterPark.getId(), ManAirport.getId(), when);
-        assertEquals(stopsBetween, UpcomingDates.AirportLineMayStations);
+        assertEquals(stopsBetween, UpcomingDates.WhitefieldToBury);
     }
 
     @Test
