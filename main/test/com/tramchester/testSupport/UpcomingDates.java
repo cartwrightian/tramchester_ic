@@ -34,7 +34,7 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate LateMayBankHold2025 = TramDate.of(2025, 5, 26);
+    public static TramDate LateMayBankHol2025 = TramDate.of(2025, 5, 26);
 
     public static List<IdFor<Station>> BuryLine10MayStations = Arrays.asList(Crumpsal.getId(),
             Station.createId("9400ZZMABOW"), HeatonPark.getId(), Station.createId("9400ZZMAPWC"),
@@ -57,13 +57,14 @@ public class UpcomingDates {
             RochdaleRail.getId(), Rochdale.getId());
 
     public static DateRanges AirportLineWorks2025 = new DateRanges(
-            DateRange.of(TramDate.of(2025,5, 11), 1),
+            //DateRange.of(TramDate.of(2025,5, 11), 1),
             DateRange.of(TramDate.of(2025, 5, 18), 0)); // <- this is not on the web site
 
     public static DateRanges RochdaleLineWorksSummer2025 = new DateRanges(
-            DateRange.of(TramDate.of(2025, 5,3),1),
-            DateRange.of(TramDate.of(2025,5,10),1),
-            DateRange.of(TramDate.of(2025,5,17),1));
+            //DateRange.of(TramDate.of(2025, 5,3),1),
+            //DateRange.of(TramDate.of(2025,5,10),1),
+            DateRange.of(TramDate.of(2025,5,17),1),
+            DateRange.of(TramDate.of(2025, 5, 25), 0)); // <- this is not on the website
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -78,9 +79,9 @@ public class UpcomingDates {
             return RochdaleLineWorksSummer2025.contains(date);
         }
         if (BuryLine10MayStations.contains(stationId)) {
-            if (TramDate.of(2025,5,10).equals(date)) {
-                return true;
-            }
+//            if (TramDate.of(2025,5,10).equals(date)) {
+//                return true;
+//            }
             if (TramDate.of(2025,5,17).equals(date)) {
                 return true; // not on the website, but trams are missing from the data
             }
@@ -91,11 +92,11 @@ public class UpcomingDates {
                 return true; // not on the website!
             }
         }
-        if (BuryLine11MayStations.contains(stationId)) {
-            if (TramDate.of(2025,5,11).equals(date)) {
-                return true;
-            }
-        }
+//        if (BuryLine11MayStations.contains(stationId)) {
+//            if (TramDate.of(2025,5,11).equals(date)) {
+//                return true;
+//            }
+//        }
         if (AirportLineMayStations.contains(stationId)) {
             return AirportLineWorks2025.contains(date);
         }

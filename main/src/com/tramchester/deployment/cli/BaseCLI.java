@@ -11,10 +11,11 @@ import io.dropwizard.configuration.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 
 public abstract class BaseCLI {
+
     @NotNull
     protected GuiceContainerDependencies bootstrap(Path configFile, String name) throws IOException, ConfigurationException {
         TramchesterConfig configuration = StandaloneConfigLoader.LoadConfigFromFile(configFile);
@@ -34,6 +35,43 @@ public abstract class BaseCLI {
     }
 
     public abstract  boolean run(Logger logger,  GuiceContainerDependencies dependencies, TramchesterConfig config);
+
+    protected String getLine() {
+        final Console console = System.console();
+        if (console==null) {
+            return readFromSystemIn();
+        } else {
+            return console.readLine();
+        }
+    }
+
+    private static @NotNull String readFromSystemIn() {
+        InputStream in = System.in;
+        if (in==null) {
+            throw new RuntimeException("System.in is null");
+        }
+
+        try {
+            final InputStreamReader reader = new InputStreamReader(in);
+            final BufferedReader bufferedReader = new BufferedReader(reader);
+
+            while (!bufferedReader.ready()) {
+                Thread.sleep(1000); // not great, but this is just for testing....
+            }
+            return bufferedReader.readLine().trim();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void display(final String text) {
+        final Console console = System.console();
+        if (console ==null) {
+            System.out.println("out:" + text);
+        } else {
+            console.writer().println("console:" + text);
+        }
+    }
 
     private static class NoOpCacheMetrics implements CacheMetrics.RegistersCacheMetrics {
         @Override

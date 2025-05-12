@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -32,7 +33,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.UpcomingDates.LateMayBankHold2025;
+import static com.tramchester.testSupport.UpcomingDates.LateMayBankHol2025;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -105,7 +106,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getYellow, true);
     }
 
-    void checkRouteIdFor(Function<TramDate, TestRoute> function, boolean skipSunday) {
+    void checkRouteIdFor(Function<TramDate, KnownTramRouteEnum> function, boolean skipSunday) {
 
         List<TramDate> missingOnDates = new ArrayList<>();
         getDateRange().
@@ -113,8 +114,8 @@ class KnownTramRouteTest {
                 sorted(TramDate::compareTo).
                 forEach(date -> {
                     final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
-                    TestRoute testRoute = function.apply(date);
-                    if (!loadedIds.contains(testRoute.getId())) {
+                    final KnownTramRouteEnum testRoute = function.apply(date);
+                    if (checkRouteOnDate(date, testRoute) && !loadedIds.contains(testRoute.getId())) {
                         missingOnDates.add(date);
                     }
             });
@@ -124,7 +125,14 @@ class KnownTramRouteTest {
         assertTrue(missingOnDates.isEmpty(), diag.toString());
     }
 
-    private String shortNameMatch(Function<TramDate, TestRoute> function, TramDate date) {
+    private boolean checkRouteOnDate(TramDate date, KnownTramRouteEnum testRoute) {
+        if (testRoute.line()== TFGMRouteNames.Green) {
+            return !LateMayBankHol2025.equals(date);
+        }
+        return true;
+    }
+
+    private String shortNameMatch(Function<TramDate, KnownTramRouteEnum> function, TramDate date) {
         String shortName = function.apply(date).shortName();
         IdSet<Route> matchedShortNames = getLoadedTramRoutes(date).
                 filter(route -> route.getShortName().equals(shortName)).
@@ -203,7 +211,7 @@ class KnownTramRouteTest {
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
-                filter(date -> !(date.equals(LateMayBankHold2025))).
+                filter(date -> !(date.equals(LateMayBankHol2025))).
                 filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());

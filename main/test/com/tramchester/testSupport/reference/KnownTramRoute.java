@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.DateRanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
+import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.DayOfWeek;
@@ -18,9 +19,6 @@ public class KnownTramRoute {
 
     private static final DateRanges replacementBusOneDates = new DateRanges(
             DateRange.of(TramDate.of(2025,5,3), 2));
-            //DateRange.of(TramDate.of(2025, 5, 10), 1),
-            //DateRange.of(TramDate.of(2025, 5, 17), 1),
-//            DateRange.of(TramDate.of(2025, 5, 24), 2));
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";
@@ -28,60 +26,60 @@ public class KnownTramRoute {
     /***
      * @return Yellow route
      */
-    public static @NotNull TestRoute getReplacementBusOne(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getReplacementBusOne(TramDate date) {
         return findFor(TFGMRouteNames.BusOne, date);
     }
 
     /***
      * @return Yellow route
      */
-    public static @NotNull TestRoute getYellow(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getYellow(TramDate date) {
         return findFor(TFGMRouteNames.Yellow, date);
     }
 
     /***
      * @return Red route
      */
-    public static @NotNull TestRoute getRed(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getRed(TramDate date) {
         return findFor(TFGMRouteNames.Red, date);
     }
 
     /***
      * @return Purple route
      */
-    public static @NotNull TestRoute getPurple(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getPurple(TramDate date) {
         return findFor(TFGMRouteNames.Purple, date);
     }
 
     /***
      * @return Pink route
      */
-    public static @NotNull TestRoute getPink(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getPink(TramDate date) {
         return findFor(TFGMRouteNames.Pink, date);
     }
 
     /***
      * @return Navy route
      */
-    public static @NotNull TestRoute getNavy(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getNavy(TramDate date) {
         return findFor(TFGMRouteNames.Navy, date);
     }
 
     /***
      * @return Green route
      */
-    public static @NotNull TestRoute getGreen(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getGreen(TramDate date) {
         return findFor(TFGMRouteNames.Green, date);
     }
 
     /***
      * @return Blue route
      */
-    public static @NotNull TestRoute getBlue(TramDate date) {
+    public static @NotNull KnownTramRouteEnum getBlue(TramDate date) {
         return findFor(TFGMRouteNames.Blue, date);
     }
 
-    public static TestRoute findFor(final TFGMRouteNames line, final TramDate date) {
+    public static KnownTramRouteEnum findFor(final TFGMRouteNames line, final TramDate date) {
         final List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
                 filter(knownTramRoute -> knownTramRoute.line().equals(line)).
                 filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
@@ -130,7 +128,7 @@ public class KnownTramRoute {
         }
 
         if (date.isAfter(TramDate.of(2025,5,10))) {
-            if (date.getDayOfWeek()!=DayOfWeek.SUNDAY) {
+            if (date.getDayOfWeek()!=DayOfWeek.SUNDAY && !date.equals(UpcomingDates.LateMayBankHol2025)) {
                 routes.add(getGreen(date));
             }
         } else {

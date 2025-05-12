@@ -60,7 +60,8 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     public static ChecksOpen<StationLocalityGroup> checkGroupOpen(final ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
         final StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
-        return (stationGroupId, date) -> !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
+        return (stationGroupId, date) ->
+                !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
     }
 
     public Optional<Journey> findJourneys(final ImmutableGraphTransaction txn, final IdFor<T> start, final IdFor<T> dest,

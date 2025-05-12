@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -123,30 +120,6 @@ public class TidyOldDistDataCLI extends BaseCLI {
         String consent = getLine();
 
         return "Y".equals(consent) || "y".equals(consent);
-    }
-
-    private String getLine() {
-        final Console console = System.console();
-        if (console==null) {
-            InputStreamReader reader = new InputStreamReader(System.in);
-            BufferedReader bufferedReader = new BufferedReader(reader);
-            try {
-                return bufferedReader.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            return console.readLine();
-        }
-    }
-
-    private void display(String text) {
-        final Console console = System.console();
-        if (console ==null) {
-            System.out.println(text);
-        } else {
-            console.writer().println(text);
-        }
     }
 
     private ZonedDateTime getModTime(final S3Object response) {
