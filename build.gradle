@@ -453,11 +453,11 @@ tasks.register('busTest', Test) {
 
 tasks.register('integrationGM', Test) {
     dependsOn 'compileJava'
-    minHeapSize = "1000m"
-    maxHeapSize = "2000m"
+    minHeapSize = "1g"
+    maxHeapSize = "3g"
     useJUnitPlatform {
-        includeTags "dataExpiry"
         includeTags "GMTest"
+        includeTags "dataExpiry"
         includeTags "DualTest"
     }
     filter {

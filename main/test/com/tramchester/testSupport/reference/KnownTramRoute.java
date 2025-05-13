@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate startMayCutover = TramDate.of(2025,5,3);
+    public static final TramDate startMayCutover = TramDate.of(2025,5,10);
 
     private static final DateRanges replacementBusOneDates = new DateRanges(
             DateRange.of(TramDate.of(2025,5,3), 2));
@@ -127,13 +127,17 @@ public class KnownTramRoute {
             routes.add(getYellow(date));
         }
 
-        if (date.isAfter(TramDate.of(2025,5,10))) {
-            if (date.getDayOfWeek()!=DayOfWeek.SUNDAY && !date.equals(UpcomingDates.LateMayBankHol2025)) {
+        if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
+            if (date.isAfter(TramDate.of(2025,5,24))) {
+                routes.add(getGreen(date));
+            } // else don't add green
+        } else {
+            if (!date.equals(UpcomingDates.LateMayBankHol2025)) {
                 routes.add(getGreen(date));
             }
-        } else {
-            routes.add(getGreen(date));
         }
+
+
         routes.add(getPurple(date));
         routes.add(getBlue(date));
         routes.add(getRed(date));

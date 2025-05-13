@@ -53,10 +53,7 @@ public class RailAndTramRouteCalculatorTest {
     private TramTime travelTime;
     private Duration maxDurationFromConfig;
 
-
-    // TODO remove after end Feb 2025
-    private final int ECCLES_CHANGES_WHILE_BUS_REPLACEMENT = 2;
-
+    private final int CHANGES = 1;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -100,7 +97,7 @@ public class RailAndTramRouteCalculatorTest {
     void reproIssueRochdaleToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, CHANGES,
                 maxDurationFromConfig, 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(Rochdale, Eccles, journeyRequest);
@@ -120,7 +117,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveStPetersSquareToEccles() {
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, CHANGES,
                 maxDurationFromConfig, 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(StPetersSquare, Eccles, journeyRequest);
@@ -171,7 +168,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveVictoriaToEccles() {
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT, maxDurationFromConfig,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, CHANGES, maxDurationFromConfig,
                 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(Victoria, Eccles, journeyRequest);
@@ -184,7 +181,7 @@ public class RailAndTramRouteCalculatorTest {
         // check if allowing all transport modes makes a difference.....
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT, maxDurationFromConfig,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, CHANGES, maxDurationFromConfig,
                 1, EnumSet.of(Tram, Train));
 
 //        journeyRequest.setDiag(true);
@@ -210,7 +207,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveExchangeSqToEccles() {
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT, maxDurationFromConfig,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, CHANGES, maxDurationFromConfig,
                 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(ExchangeSquare, Eccles, journeyRequest);
@@ -220,7 +217,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveMarketStreetToEccles() {
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT, maxDurationFromConfig,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, CHANGES, maxDurationFromConfig,
                 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(MarketStreet, Eccles, journeyRequest);

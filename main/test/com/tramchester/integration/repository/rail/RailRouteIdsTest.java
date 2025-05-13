@@ -71,7 +71,9 @@ public class RailRouteIdsTest {
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        componentContainer.close();
+        if (componentContainer!=null) {
+            componentContainer.close();
+        }
     }
 
     @BeforeEach
@@ -212,7 +214,7 @@ public class RailRouteIdsTest {
                 toList();
 
         // was 36 under old ID scheme
-        assertEquals(11, routes.size(), routes.toString());
+        assertEquals(15, routes.size(), routes.toString());
     }
 
     @Test

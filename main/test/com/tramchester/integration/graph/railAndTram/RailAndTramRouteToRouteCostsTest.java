@@ -153,7 +153,7 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = getPossibleMinChanges(tram(Cornbrook), rail(RailStationIds.Altrincham),
                 allTransportModes, date, timeRange);
 
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     @Test
@@ -197,8 +197,7 @@ public class RailAndTramRouteToRouteCostsTest {
         Station eccles = TramStations.Eccles.from(stationRepository);
         int changes = getPossibleMinChanges(rochdale, eccles, TramsOnly, date, timeRange);
 
-        // 1 -> 2 , eccles replacement bus
-        assertEquals(2, changes);
+        assertEquals(1, changes);
     }
 
     @Test

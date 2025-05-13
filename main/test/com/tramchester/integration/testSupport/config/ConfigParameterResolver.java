@@ -37,17 +37,20 @@ public class ConfigParameterResolver implements ParameterResolver {
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        Set<String> tags = extensionContext.getTags();
+        final Set<String> testTags = extensionContext.getTags();
 
-        final Optional<String> configOverride = extensionContext.getConfigurationParameter(PARAMETER_KEY);
+        final Optional<String> haveOverride = extensionContext.getConfigurationParameter(PARAMETER_KEY);
 
         final TramchesterConfig config;
-        if (tags.contains(dualTest)) {
-            config = configOverride.map(name -> getExpectedOverride(name, tramAndTrain)).orElse(tramOnly);
-        } else if (tags.contains(trainTest) && tags.contains(gmTest)) {
-            config = configOverride.map(name -> getExpectedOverride(name, trainOnly)).orElse(tramAndTrain);
-        } else {
-            throw new ExtensionConfigurationException("ConfigParameterResolver and overrides not defined for tags " + tags);
+        if (testTags.contains(dualTest)) {
+            config = haveOverride.map(override -> getExpectedOverride(override, tramAndTrain)).orElse(tramOnly);
+        }  else if (testTags.contains(gmTest)) {
+            config = haveOverride.map(override -> getExpectedOverride(override, tramAndTrain)).orElse(trainOnly);
+        } else if (testTags.contains(trainTest)) {
+            config = haveOverride.map(override -> getExpectedOverride(override, trainOnly)).orElse(tramAndTrain);
+        }
+        else {
+            throw new ExtensionConfigurationException("ConfigParameterResolver and overrides not defined for tags " + testTags);
         }
 
         extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put("tramchester.config", config);
@@ -55,13 +58,13 @@ public class ConfigParameterResolver implements ParameterResolver {
     }
 
     @NotNull
-    private static TramchesterConfig getExpectedOverride(final String name, final TramchesterConfig expected) {
+    private static TramchesterConfig getExpectedOverride(final String overrideName, final TramchesterConfig expected) {
         final String expectedClassName = (expected.getClass().getSimpleName());
-        if (name.equals(expectedClassName)) {
+        if (overrideName.equals(expectedClassName)) {
             return expected;
         } else {
-            throw new ExtensionConfigurationException(format("Unknown test config provided for %s, name %s expected %s",
-                    PARAMETER_KEY, name, expectedClassName));
+            throw new ExtensionConfigurationException(format("Unknown test config provided for '%s',' name '%s' expected '%s'",
+                    PARAMETER_KEY, overrideName, expectedClassName));
         }
     }
 

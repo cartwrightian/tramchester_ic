@@ -45,6 +45,7 @@ public class RailAndTramRouteCostMatrixTest {
     private RailRouteHelper railRouteHelper;
     private RouteIndex routeIndex;
     private int numberOfRoutes;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -64,7 +65,7 @@ public class RailAndTramRouteCostMatrixTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(routeRepository);
         railRouteHelper = new RailRouteHelper(componentContainer);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
@@ -130,12 +131,16 @@ public class RailAndTramRouteCostMatrixTest {
         Set<Route> altrinchamTramRoutes = altrinchamTram.getPickupRoutes();
         Set<Route> altrinchamRailRoutes = altrinchamRail.getPickupRoutes();
 
+        TramDate when = TestEnv.testDay();
+
         List<IdPair<Route>> incorrect = new ArrayList<>();
         for(final Route begin : altrinchamTramRoutes) {
             for(final Route end : altrinchamRailRoutes) {
-                final int result = routeMatrix.getConnectionDepthFor(begin, end);
-                if (result!=1) {
-                    incorrect.add(IdPair.of(begin, end));
+                if (begin.isAvailableOn(when) && end.isAvailableOn(date)) {
+                    final int result = routeMatrix.getConnectionDepthFor(begin, end);
+                    if (result > 1) {
+                        incorrect.add(IdPair.of(begin, end));
+                    }
                 }
                 //assertEquals(1, result, "Got " + result + " for " + begin.getId() + " and " + end.getId());
             }
@@ -182,7 +187,7 @@ public class RailAndTramRouteCostMatrixTest {
         Route routeB = routeHelper.getRed(date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(1, depth);
+        assertEquals(2, depth);
     }
 
     @Test

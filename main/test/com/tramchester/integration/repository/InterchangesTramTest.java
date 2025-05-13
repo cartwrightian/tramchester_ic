@@ -86,11 +86,8 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook, PiccadillyGardens, StPetersSquare,
                 Broadway,
                 MarketStreet,
-                Victoria,
-                // may 2025 works
-                OldhamMumps, OldhamKingStreet
+                Victoria
         );
-
 
         Set<Station> expectedStations = expectedTramStations.
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());

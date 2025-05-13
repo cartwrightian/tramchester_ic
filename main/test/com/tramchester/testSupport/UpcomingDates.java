@@ -53,6 +53,15 @@ public class UpcomingDates {
             DateRange.of(TramDate.of(2025,5,17),1),
             DateRange.of(TramDate.of(2025, 5, 25), 0)); // <- this is not on the website
 
+    public static DateRanges LineClosuresMayJune2025CrumpsalBury = new DateRanges(
+            DateRange.of(TramDate.of(2025, 5, 25), 0),
+            DateRange.of(TramDate.of(2025,5,30), TramDate.of(2025,6,1)));
+
+
+    public static DateRange LineClosuresMayJune2025WhitefieldBury = DateRange.of(
+            TramDate.of(2025,5,26), TramDate.of(2025,5,29));
+
+
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
@@ -64,6 +73,18 @@ public class UpcomingDates {
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
         if (RochdaleLineStations.contains(stationId)) {
             return RochdaleLineWorksSummer2025.contains(date);
+        }
+
+        if (CrumpsalToBury.contains(stationId)) {
+            if (LineClosuresMayJune2025CrumpsalBury.contains(date)) {
+                return true;
+            }
+        }
+
+        if (WhitefieldToBury.contains(stationId)) {
+            if (LineClosuresMayJune2025WhitefieldBury.contains(date)) {
+                return true;
+            }
         }
 
         return false;

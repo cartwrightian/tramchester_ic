@@ -43,6 +43,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -166,7 +167,10 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
-    void shouldFindNoHopeIfWrongTransportMode() {
+    void shouldFindNoHopsIfWrongTransportMode() {
+
+        assumeFalse(config.getTransportModes().contains(Train)); // for DualTest
+
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
