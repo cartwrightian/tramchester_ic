@@ -82,6 +82,7 @@ public class RailAndTramRouteInterconnectRepositoryTest {
         assertEquals(resultA, resultB);
     }
 
+    @Disabled("Huddersfield trains on diversion summer 2025")
     @Test
     void shouldReproIssueGettingInterchangesAndMissingIndex() {
         Set<Route> routesA = railRouteHelper.getRoutes(TrainOperatingCompanies.TP, ManchesterVictoria, Huddersfield);

@@ -24,7 +24,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Bus
-    //ReplacementBus1(BusOne, "Replacement Bus Rochdale - Freehold", "2462", startMayCutover),
+    ReplacementBus1(BusOne, "Replacement Bus One", "2757", replacementBusOneDates.getStartDate()),
 
     // Blue
     EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", startMayCutover),

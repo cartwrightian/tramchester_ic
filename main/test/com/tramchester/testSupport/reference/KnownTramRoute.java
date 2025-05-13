@@ -2,7 +2,6 @@ package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.DateRanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
@@ -17,8 +16,8 @@ public class KnownTramRoute {
 
     public static final TramDate startMayCutover = TramDate.of(2025,5,10);
 
-    private static final DateRanges replacementBusOneDates = new DateRanges(
-            DateRange.of(TramDate.of(2025,5,3), 2));
+    static final DateRange replacementBusOneDates =
+            DateRange.of(TramDate.of(2025,5,18), 0);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";

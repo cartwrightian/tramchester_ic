@@ -13,9 +13,11 @@ import com.tramchester.domain.reference.CentralZoneStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RoutePairToInterchangeRepository;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RoutePairToInterchangeRepositoryTest {
 
     private static ComponentContainer componentContainer;
+    private static TramchesterConfig config;
 
     private TramRouteHelper routeHelper;
     private final EnumSet<TransportMode> modes = TramsOnly;
@@ -50,6 +53,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
         // Clear Cache - test creation here
         TestEnv.clearDataCache(componentContainer);
+
+        config = tramchesterConfig;
     }
 
     @AfterAll
@@ -84,7 +89,14 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertEquals(1, stationIds.size(), stationIds.toString());
+        if (config.hasRailConfig()) {
+            assertEquals(3, stationIds.size(), stationIds.toString());
+            assertTrue(stationIds.contains(Deansgate.getId()));
+            assertTrue(stationIds.contains(RailStationIds.ManchesterDeansgate.getId()));
+        } else {
+            assertEquals(1, stationIds.size(), stationIds.toString());
+        }
+
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
         //assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
     }
@@ -115,6 +127,12 @@ public class RoutePairToInterchangeRepositoryTest {
                         ).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());
+
+        if (config.hasRailConfig()) {
+            expected.add(RailStationIds.ManchesterVictoria.getId());
+            expected.add(RailStationIds.ManchesterDeansgate.getId());
+            expected.add(TramStations.Deansgate.getId());
+        }
 
         IdSet<Station> diff = IdSet.disjunction(expected, stationIds);
 

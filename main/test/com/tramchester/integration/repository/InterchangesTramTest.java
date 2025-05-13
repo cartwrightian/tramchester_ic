@@ -86,7 +86,9 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook, PiccadillyGardens, StPetersSquare,
                 Broadway,
                 MarketStreet,
-                Victoria
+                Victoria,
+                // summery 2025 closures
+                OldhamMumps, OldhamKingStreet
         );
 
         Set<Station> expectedStations = expectedTramStations.
@@ -96,8 +98,10 @@ public class InterchangesTramTest {
                 stream().map(id -> stationRepository.getStationById(id)).collect(Collectors.toSet());
         expectedStations.addAll(additional);
 
+        // when RAIL enabled
         if (config.hasRailConfig()) {
-            final List<TramStations> adjacentToRail = Arrays.asList(RochdaleRail, NavigationRoad, Eccles, Ashton, Altrincham, ManAirport, EastDidsbury);
+            final List<TramStations> adjacentToRail = Arrays.asList(RochdaleRail, NavigationRoad, Eccles, Ashton, Altrincham, ManAirport,
+                    EastDidsbury, Piccadilly, Deansgate);
             final Set<Station> forRail = adjacentToRail.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
             expectedStations.addAll(forRail);
         }

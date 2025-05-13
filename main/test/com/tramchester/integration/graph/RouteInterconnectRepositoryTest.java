@@ -52,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataUpdateTest
 public class RouteInterconnectRepositoryTest {
     private static ComponentContainer componentContainer;
+    private static TramchesterConfig config;
 
     private TramRouteHelper routeHelper;
     private TramDate date;
@@ -66,6 +67,7 @@ public class RouteInterconnectRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
+        config = tramchesterConfig;
 
         componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -111,7 +113,9 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        assertEquals(5, results.numberPossible(), results.toString());
+        int expectedChanges = (config.hasRailConfig()) ? 8 : 5;
+
+        assertEquals(expectedChanges, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
 
     }
@@ -202,7 +206,9 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        assertEquals(5, interchanges.size(), HasId.asIds(interchanges));
+        int expectedChanges = (config.hasRailConfig()) ? 8 : 5;
+
+        assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));

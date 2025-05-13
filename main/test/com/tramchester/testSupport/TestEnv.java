@@ -54,7 +54,7 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    public static final int NumberOfStationLinks = 202;
+    public static final int NumberOfStationLinks = 204;
 
     private static final TramDate testDay;
 
