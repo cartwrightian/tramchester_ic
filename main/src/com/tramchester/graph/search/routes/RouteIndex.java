@@ -83,15 +83,15 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
         logger.info("Added " + routeIndexes.size() + " index entries");
     }
 
-    public short indexFor(IdFor<Route> routeId) {
+    public short indexFor(final IdFor<Route> routeId) {
         return routeIndexes.getIndexFor(routeId);
     }
 
-    public Route getRouteFor(short index) {
+    public Route getRouteFor(final short index) {
         return routeIndexes.getRouteFor(index);
     }
 
-    public RoutePair getPairFor(RouteIndexPair indexPair) {
+    public RoutePair getPairFor(final RouteIndexPair indexPair) {
         return routeIndexes.getPairFor(indexPair);
     }
 
@@ -101,11 +101,11 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
         return pairFactory.get(a, b);
     }
 
-    public boolean hasIndexFor(IdFor<Route> routeId) {
+    public boolean hasIndexFor(final IdFor<Route> routeId) {
         return routeIndexes.hasIndexFor(routeId);
     }
 
-    public long sizeFor(TransportMode mode) {
+    public long sizeFor(final TransportMode mode) {
         return routeIndexes.sizeFor(mode);
     }
 
@@ -176,8 +176,8 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
             }
         }
 
-        public boolean hasIndexFor(IdFor<Route> routeId) {
-            Route route = routeRepository.getRouteById(routeId);
+        public boolean hasIndexFor(final IdFor<Route> routeId) {
+            final Route route = routeRepository.getRouteById(routeId);
             return mapRouteIdToIndex.containsKey(route);
         }
 
@@ -200,12 +200,12 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
             return mapRouteIdToIndex.size();
         }
 
-        public short getIndexFor(IdFor<Route> routeId) {
-            Route route = routeRepository.getRouteById(routeId);
+        public short getIndexFor(final IdFor<Route> routeId) {
+            final Route route = routeRepository.getRouteById(routeId);
             return getIndexFor(route);
         }
 
-        public short getIndexFor(Route route) {
+        public short getIndexFor(final Route route) {
             if (!(mapRouteIdToIndex.containsKey(route))) {
                 String message = format("No index for route %s, is cache file %s outdated? ",
                         route.getId(), getFilename());
@@ -215,16 +215,16 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
             return mapRouteIdToIndex.get(route);
         }
 
-        public Route getRouteFor(short index) {
+        public Route getRouteFor(final short index) {
             return mapIndexToRouteId.get(index);
         }
 
-        public RoutePair getPairFor(RouteIndexPair indexPair) {
-            Route first = mapIndexToRouteId.get(indexPair.first());
+        public RoutePair getPairFor(final RouteIndexPair indexPair) {
+            final Route first = mapIndexToRouteId.get(indexPair.first());
             if (first==null) {
                 throw new RuntimeException("Could not find first Route for index " + indexPair);
             }
-            Route second = mapIndexToRouteId.get(indexPair.second());
+            final Route second = mapIndexToRouteId.get(indexPair.second());
             if (second==null) {
                 throw new RuntimeException("Could not find second Route for index " + indexPair);
             }
@@ -232,7 +232,7 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
             return new RoutePair(first, second);
         }
 
-        public long sizeFor(TransportMode mode) {
+        public long sizeFor(final TransportMode mode) {
             return mapRouteIdToIndex.keySet().stream().filter(route -> route.getTransportMode().equals(mode)).count();
         }
 

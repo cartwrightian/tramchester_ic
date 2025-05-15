@@ -145,7 +145,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         }
     }
 
-    private Stream<Pair<RouteIndexPair, RouteIndexPair>> forDepth(final int depth, final RouteIndexPair indexPair) {
+    private Stream<PairOfRouteIndexPair> forDepth(final int depth, final RouteIndexPair indexPair) {
         guardDepth(depth);
         final RoutePairInterconnects routePairInterconnects = interconnectsForDepth.forDepth(depth);
         if (routePairInterconnects.hasLinksFor(indexPair)) {
@@ -175,14 +175,15 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         return interconnectsForDepth.forDepth(depth);
     }
 
-    private Stream<Pair<RouteIndexPair, RouteIndexPair>> forDegree(final int degree, final RouteIndexPair indexPair) {
+    private Stream<PairOfRouteIndexPair> forDegree(final int degree, final RouteIndexPair indexPair) {
         return forDepth(degree - 1, indexPair);
     }
 
     // test support
     public Set<Pair<RoutePair, RoutePair>> getBackTracksFor(int degree, RouteIndexPair indexPair) {
         return forDegree(degree, indexPair).
-                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
+                //map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
+                map(pair -> pair.resolve(routeIndex)).
                 collect(Collectors.toSet());
     }
 
@@ -256,7 +257,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         } else {
             final int lowerDegree = currentDegree-1;
 
-            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = forDegree(lowerDegree, indexPair);
+            final Stream<PairOfRouteIndexPair> underlying = forDegree(lowerDegree, indexPair);
 
             final Set<QueryPathsWithDepth.BothOf> combined = underlying.
                     map(pair -> expandPathFor(pair, lowerDegree, interchangeFilter)).
@@ -275,7 +276,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
     }
 
     @NotNull
-    private QueryPathsWithDepth.BothOf expandPathFor(final Pair<RouteIndexPair, RouteIndexPair> pair, final int degree,
+    private QueryPathsWithDepth.BothOf expandPathFor(final PairOfRouteIndexPair pair, final int degree,
                                                      final Function<InterchangeStation, Boolean> interchangeFilter) {
         final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree, interchangeFilter);
         final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree, interchangeFilter);
@@ -397,18 +398,20 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
             return (indexA * numRoutes) + indexB;
         }
 
-        public boolean hasLinksFor(RouteIndexPair indexPair) {
+        public boolean hasLinksFor(final RouteIndexPair indexPair) {
             return haveBitset[indexPair.first()][indexPair.second()];
         }
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)
-        public Stream<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(final RouteIndexPair indexPair) {
+        public Stream<PairOfRouteIndexPair> getLinksFor(final RouteIndexPair indexPair) {
             final int position = getPositionFor(indexPair);
 
             final BitSet connectingRoutes = bitSetForIndex.get(position);
             return connectingRoutes.stream().
-                    mapToObj(link -> (short) link).
-                    map(link -> Pair.of(pairFactory.get(indexPair.first(), link), pairFactory.get(link, indexPair.second())));
+                    mapToObj(link -> indexPair.expandWith(pairFactory, link));
+//                    mapToObj(link -> (short) link).
+//                    map(link -> PairOfRouteIndexPair.of(pairFactory.get(indexPair.first(), link),
+//                            pairFactory.get(link, indexPair.second())));
         }
 
         public void cacheTo(final int depth, final HasDataSaver.ClosableDataSaver<RoutePairInterconnectsData> saver) {

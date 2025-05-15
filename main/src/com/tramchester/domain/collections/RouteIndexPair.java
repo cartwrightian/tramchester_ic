@@ -30,6 +30,11 @@ public class RouteIndexPair {
         return first == second;
     }
 
+    public PairOfRouteIndexPair expandWith(final RouteIndexPairFactory pairFactory, final int linkAsInt) {
+        final short link = (short) linkAsInt;
+        return PairOfRouteIndexPair.of(pairFactory.get(first, link), pairFactory.get(link, second));
+    }
+
     @Override
     public String toString() {
         return "RouteIndexPair{" +
@@ -50,6 +55,5 @@ public class RouteIndexPair {
     public int hashCode() {
         return hashCode;
     }
-
 
 }
