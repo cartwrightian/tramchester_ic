@@ -211,7 +211,7 @@ public class StationAvailabilityRepository {
 
         final LocationId<?> locationId = location.getLocationId();
 
-        if (!TransportMode.intersects(location.getTransportModes(), requestedModes)) {
+        if (!location.anyOverlapWith(requestedModes)) {
             if (logger.isDebugEnabled()) {
                 logger.debug(locationId + " no overlap between requested " + requestedModes + " and " + location.getTransportModes());
             }
@@ -226,7 +226,7 @@ public class StationAvailabilityRepository {
         }
 
         final Set<Service> services = servicesForLocation.get(locationId).stream().
-                filter(service -> TransportMode.intersects(requestedModes, service.getTransportModes())).
+                filter(service -> service.anyOverlapWith(requestedModes)).
                 collect(Collectors.toSet());
 
         if (services.isEmpty()) {

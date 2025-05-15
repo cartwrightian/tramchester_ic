@@ -6,5 +6,5 @@ import java.util.EnumSet;
 
 public interface HasTransportModes {
     EnumSet<TransportMode> getTransportModes();
-
+    boolean anyOverlapWith(EnumSet<TransportMode> modes);
 }

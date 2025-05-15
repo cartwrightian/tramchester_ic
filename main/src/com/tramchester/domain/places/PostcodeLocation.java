@@ -96,6 +96,11 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
     }
 
     @Override
+    public boolean anyOverlapWith(EnumSet<TransportMode> modes) {
+        return modes.contains(TransportMode.Walk);
+    }
+
+    @Override
     public LocationType getLocationType() {
         return LocationType.Postcode;
     }

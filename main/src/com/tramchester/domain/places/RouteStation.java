@@ -61,6 +61,11 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
     }
 
     @Override
+    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+        return modes.contains(route.getTransportMode());
+    }
+
+    @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.ROUTE_STATION_ID;
     }

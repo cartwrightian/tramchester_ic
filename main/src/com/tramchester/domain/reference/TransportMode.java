@@ -59,7 +59,7 @@ public enum TransportMode implements HasTransportMode {
         return EnumSet.copyOf(result);
     }
 
-    public static boolean intersects(final EnumSet<TransportMode> modesA, final EnumSet<TransportMode> modesB) {
+    public static boolean anyIntersection(final EnumSet<TransportMode> modesA, final EnumSet<TransportMode> modesB) {
         for (final TransportMode mode:modesA) {
             if (modesB.contains(mode)) {
                 return true;

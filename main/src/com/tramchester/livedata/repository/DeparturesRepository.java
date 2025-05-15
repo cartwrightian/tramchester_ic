@@ -84,7 +84,7 @@ public class DeparturesRepository {
     }
 
     private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final EnumSet<TransportMode> modes) {
-        if (!TransportMode.intersects(modes, platform.getTransportModes())) {
+        if (!platform.anyOverlapWith(modes)) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
             return Collections.emptyList();
         }
@@ -110,7 +110,7 @@ public class DeparturesRepository {
 
     private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final EnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
-                filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
+                filter(station -> station.anyOverlapWith(modes)).
                 flatMap(station -> getStationDepartures(station, modes).stream()).
                 distinct().collect(Collectors.toList());
 

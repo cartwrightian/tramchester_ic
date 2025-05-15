@@ -175,11 +175,16 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
 
     @Override
     public EnumSet<TransportMode> getTransportModes() {
-        Set<TransportMode> transportModes = flatten(Station::getTransportModes);
+        final Set<TransportMode> transportModes = flatten(Station::getTransportModes);
         return EnumSet.copyOf(transportModes);
     }
 
-    private boolean anyMatch(Predicate<Station> predicate) {
+    @Override
+    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+        return anyMatch(station -> station.anyOverlapWith(modes));
+    }
+
+    private boolean anyMatch(final Predicate<Station> predicate) {
         return groupedStations.stream().anyMatch(predicate);
     }
 

@@ -63,11 +63,15 @@ class StationTest {
                 nearPiccGardens.grid(), DataSourceID.tfgm, false);
 
         assertTrue(station.getTransportModes().isEmpty());
+        assertFalse(station.anyOverlapWith(EnumSet.of(Tram)));
 
         final Route route = MutableRoute.getRoute(Route.createBasicRouteId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
         station.addRouteDropOff(route);
         assertTrue(station.servesMode(Tram));
+        assertTrue(station.anyOverlapWith(EnumSet.of(Tram)));
+        assertFalse(station.anyOverlapWith(EnumSet.of(Train)));
+
 //        assertEquals("stationCode", station.getCode());
 
         station.addRouteDropOff(MutableRoute.getRoute(Route.createBasicRouteId("routeIdB"), "trainShort", "train",
@@ -75,6 +79,11 @@ class StationTest {
         assertTrue(station.servesMode(Train));
 
         assertEquals(2, station.getTransportModes().size());
+
+        assertTrue(station.anyOverlapWith(EnumSet.of(Train, Tram)));
+        assertTrue(station.anyOverlapWith(EnumSet.of(Train)));
+        assertTrue(station.anyOverlapWith(EnumSet.of(Train)));
+
     }
 
     @Test

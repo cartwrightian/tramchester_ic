@@ -100,6 +100,11 @@ public class LinkedInterchangeStation implements InterchangeStation {
         return allModes;
     }
 
+    @Override
+    public boolean anyOverlapWith(final EnumSet<TransportMode> other) {
+        return TransportMode.anyIntersection(allModes, other);
+    }
+
     public void addLink(final StationToStationConnection stationLink) {
         if (!stationLink.getBegin().equals(origin)) {
             throw new RuntimeException(format("Attempt to add a stationlink (%s) that does not match origin %s", stationLink, origin));

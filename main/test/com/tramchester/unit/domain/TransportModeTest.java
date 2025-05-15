@@ -16,8 +16,8 @@ public class TransportModeTest {
         EnumSet<TransportMode> modesB = EnumSet.of(Bus, Walk);
         EnumSet<TransportMode> modesC = EnumSet.of(Ship, Subway);
 
-        assertTrue(TransportMode.intersects(modesA, modesB));
-        assertFalse(TransportMode.intersects(modesB, modesC));
+        assertTrue(TransportMode.anyIntersection(modesA, modesB));
+        assertFalse(TransportMode.anyIntersection(modesB, modesC));
     }
 
     @Test

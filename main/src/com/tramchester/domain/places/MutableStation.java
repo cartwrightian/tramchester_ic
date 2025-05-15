@@ -105,6 +105,11 @@ public class MutableStation implements Station {
     }
 
     @Override
+    public boolean anyOverlapWith(final EnumSet<TransportMode> other) {
+        return TransportMode.anyIntersection(modes, other);
+    }
+
+    @Override
     public boolean servesMode(final TransportMode mode) {
         return hasMode(mode, servesRoutesPickup) || hasMode(mode, servesRoutesDropoff);
     }

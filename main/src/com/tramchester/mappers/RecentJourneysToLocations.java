@@ -32,7 +32,7 @@ public class RecentJourneysToLocations {
                 map(this::getLocationFor).
                 filter(Optional::isPresent).
                 map(Optional::get).
-                filter(location -> TransportMode.intersects(modes, location.getTransportModes())).
+                filter(location -> location.anyOverlapWith(modes)).
                 collect(Collectors.toSet());
     }
 

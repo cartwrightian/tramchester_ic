@@ -12,6 +12,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
@@ -64,6 +65,8 @@ class PlatformTest {
         final Set<TransportMode> transportModes = platform.getTransportModes();
         assertEquals(1, transportModes.size());
         assertTrue(transportModes.contains(tramTestRoute.getTransportMode()));
+
+        assertTrue(platform.anyOverlapWith(EnumSet.of(tramTestRoute.getTransportMode())));
 
     }
 

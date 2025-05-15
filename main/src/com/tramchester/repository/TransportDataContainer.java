@@ -164,7 +164,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Set<Station> getStations(final EnumSet<TransportMode> modes) {
         return stationsById.getValuesStream().
-                filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
+                filter(station -> station.anyOverlapWith(modes)).
                 collect(Collectors.toSet());
     }
 
@@ -240,9 +240,10 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Service> getServices(EnumSet<TransportMode> modes) {
+    public Set<Service> getServices(final EnumSet<TransportMode> modes) {
         return services.getValuesStream().
-                filter(service -> TransportMode.intersects(service.getTransportModes(), modes)).collect(Collectors.toSet());
+                filter(service -> service.anyOverlapWith(modes)).
+                collect(Collectors.toSet());
     }
 
     @Override
@@ -277,7 +278,8 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Set<Platform> getPlatforms(final EnumSet<TransportMode> modes) {
         return platforms.getValuesStream().
-                filter(platform -> TransportMode.intersects(modes, platform.getTransportModes())).collect(Collectors.toSet());
+                filter(platform -> platform.anyOverlapWith(modes)).
+                collect(Collectors.toSet());
     }
 
     @Override
@@ -462,7 +464,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Set<Service> getServicesOnDate(final TramDate date,  final EnumSet<TransportMode> modes) {
         return services.
-                filterStream(service -> TransportMode.intersects(modes, service.getTransportModes()) && service.getCalendar().operatesOn(date)).
+                filterStream(service -> service.anyOverlapWith(modes) && service.getCalendar().operatesOn(date)).
                 collect(Collectors.toSet());
     }
 

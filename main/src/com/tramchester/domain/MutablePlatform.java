@@ -239,4 +239,10 @@ public class MutablePlatform implements Platform {
         return EnumSet.copyOf(modes);
     }
 
+    @Override
+    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+        return servesRoutesDropoff.stream().anyMatch(route -> modes.contains(route.getTransportMode()))
+                || servesRoutesPickup.stream().anyMatch(route -> modes.contains(route.getTransportMode()));
+    }
+
 }

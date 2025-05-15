@@ -198,7 +198,7 @@ public class StationLocations implements StationLocationsRepository {
 
     private Stream<Station> getStationModeFilteredStations(EnumSet<TransportMode> modes) {
         return stationRepository.getActiveStationStream().
-                filter(station -> TransportMode.intersects(modes, station.getTransportModes()));
+                filter(station -> station.anyOverlapWith(modes));
     }
 
     @Override

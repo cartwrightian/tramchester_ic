@@ -97,7 +97,7 @@ public class Neighbours implements NeighboursRepository {
                     // nearby could be any transport mode
                     Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                             filter(nearby -> !nearby.equals(begin)).
-                            filter(nearby -> DIFF_MODES_ONLY && noOverlapModes(beginModes, nearby.getTransportModes())).
+                            filter(nearby -> DIFF_MODES_ONLY && !nearby.anyOverlapWith(beginModes)).
                             map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, linkType, geography)).
                             collect(Collectors.toSet());
                     if (!links.isEmpty()) {
@@ -232,11 +232,4 @@ public class Neighbours implements NeighboursRepository {
         return enabled;
     }
 
-
-    private boolean noOverlapModes(final EnumSet<TransportMode> modesA, final EnumSet<TransportMode> modesB) {
-        return !TransportMode.intersects(modesA, modesB);
-//        boolean aNotInB = modesA.stream().noneMatch(modesB::contains);
-//        boolean bNotInA = modesB.stream().noneMatch(modesA::contains);
-//        return aNotInB && bNotInA;
-    }
 }

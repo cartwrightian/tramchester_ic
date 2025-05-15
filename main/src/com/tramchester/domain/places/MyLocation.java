@@ -99,6 +99,11 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
+    public boolean anyOverlapWith(EnumSet<TransportMode> modes) {
+        return modes.contains(TransportMode.Walk);
+    }
+
+    @Override
     public LocationType getLocationType() {
         return LocationType.MyLocation;
     }

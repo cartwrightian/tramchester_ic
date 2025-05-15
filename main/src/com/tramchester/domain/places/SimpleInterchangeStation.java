@@ -86,6 +86,11 @@ public class SimpleInterchangeStation implements InterchangeStation {
     }
 
     @Override
+    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+        return station.anyOverlapWith(modes);
+    }
+
+    @Override
     public String toString() {
         return "SimpleInterchangeStation{" +
                 "station=" + asId(station) +
