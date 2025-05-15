@@ -80,6 +80,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("stopped");
     }
 
+    @NotNull
+    private static StationAvailabilityFacade getAvailabilityFacade(final StationAvailabilityRepository availabilityRepository,
+                                                                   final TramDate date, final TimeRange timeRange,
+                                                                   final EnumSet<TransportMode> requestedModes) {
+        return new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
+    }
+
     private int getNumberChangesFor(final RoutePair routePair, final TramDate date,
                                     final StationAvailabilityFacade changeStationOperating,
                                     final IndexedBitSet dateAndModeOverlaps) {
@@ -181,12 +188,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return getNumberOfHops(startRoutes, endRoutes, date, availabilityFacade, 0, requestedModes);
     }
 
-    @NotNull
-    private static StationAvailabilityFacade getAvailabilityFacade(final StationAvailabilityRepository availabilityRepository,
-                                                                   final TramDate date, final TimeRange timeRange,
-                                                                   final EnumSet<TransportMode> requestedModes) {
-        return new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
-    }
 
     @Override
     public int getNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest,
@@ -206,7 +207,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         final int closureOffset = getClosureOffset(start, destinations, date);
 
-        final StationAvailabilityFacade availabilityFacade = new StationAvailabilityFacade(availabilityRepository, date,
+        final StationAvailabilityFacade availabilityFacade = RouteToRouteCosts.getAvailabilityFacade(availabilityRepository, date,
                 timeRange, requestedModes);
         return getNumberOfHops(pickupRoutes, dropoffRoutes, date, availabilityFacade, closureOffset, requestedModes);
     }
@@ -222,7 +223,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         final int closureOffset = getClosureOffset(destination, starts, date);
 
-        final StationAvailabilityFacade availabilityFacade = new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
+        final StationAvailabilityFacade availabilityFacade = RouteToRouteCosts.getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
+        //new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
         return getNumberOfHops(pickupRoutes, dropoffRoutes, date, availabilityFacade, closureOffset, requestedModes);
     }
 
@@ -393,10 +395,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         private final ConcurrentMap<Short, Integer> cache;
 
-        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory,
-                                         Set<Route> destinationRoutes,
-                                         TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes,
-                                         StationAvailabilityRepository availabilityRepository) {
+        public LowestCostForDestinations(final BetweenRoutesCostRepository routeToRouteCosts, final RouteIndexPairFactory pairFactory,
+                                         final Set<Route> destinationRoutes,
+                                         final TramDate date, final TimeRange time, final EnumSet<TransportMode> requestedModes,
+                                         final StationAvailabilityRepository availabilityRepository) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             this.pairFactory = pairFactory;
             destinationIndexs = destinationRoutes.stream().
@@ -424,12 +426,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public int getFewestChanges(final Route startingRoute) {
             final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
 
-            return cache.computeIfAbsent(indexOfStart, key -> getFewestChangesUncached(startingRoute));
+            return cache.computeIfAbsent(indexOfStart, unused -> getFewestChangesUncached(indexOfStart, startingRoute));
         }
 
 
-        public int getFewestChangesUncached(final Route startingRoute) {
-            final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
+        private int getFewestChangesUncached(final short indexOfStart, final Route startingRoute) {
+            //final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;
             }
@@ -483,7 +485,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         private final Cache<IdFor<Station>, Boolean> cache;
 
-        public StationAvailabilityFacade(StationAvailabilityRepository availabilityRepository, TramDate date, TimeRange time,
+        private StationAvailabilityFacade(StationAvailabilityRepository availabilityRepository, TramDate date, TimeRange time,
                                          EnumSet<TransportMode> modes) {
             this.availabilityRepository = availabilityRepository;
             this.date = date;

@@ -162,7 +162,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Station> getStations(EnumSet<TransportMode> modes) {
+    public Set<Station> getStations(final EnumSet<TransportMode> modes) {
         return stationsById.getValuesStream().
                 filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
                 collect(Collectors.toSet());
@@ -184,16 +184,16 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Station> getStationsServing(TransportMode mode) {
+    public Set<Station> getStationsServing(final TransportMode mode) {
         return getStationsServingModeStream(mode).collect(Collectors.toUnmodifiableSet());
     }
 
-    private Stream<Station> getStationsServingModeStream(TransportMode mode) {
+    private Stream<Station> getStationsServingModeStream(final TransportMode mode) {
         return stationsById.filterStream(item -> item.servesMode(mode));
     }
 
     @Override
-    public long getNumberOfStations(DataSourceID dataSourceID, TransportMode mode) {
+    public long getNumberOfStations(final DataSourceID dataSourceID, final TransportMode mode) {
         return stationsById.getValues().stream().
                 filter(station -> station.getDataSourceID().equals(dataSourceID)).
                 filter(station -> station.getTransportModes().contains(mode)).count();

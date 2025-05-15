@@ -80,16 +80,36 @@ public class ServedRoute {
     @NotNull
     private Set<Route> getRouteForDateAndTimeRange(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
         return routeAndServices.stream().
+                filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
                 filter(routeAndService -> hasTimeRangerOverlap(range, routeAndService)).
                 map(RouteAndService::getRoute).
-                filter(route -> modes.contains(route.getTransportMode())).
+//                map(RouteAndService::getRoute).
+//                filter(route -> modes.contains(route.getTransportMode())).
                 collect(Collectors.toSet());
     }
 
-    public boolean anyAvailable(final TramDate when, final TimeRange timeRange, final EnumSet<TransportMode> requestedModes) {
-        // todo optimise this
-        return !getRoutes(when, timeRange, requestedModes).isEmpty();
+    private boolean anyRouteForDateAndTimeRange(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
+        return routeAndServices.stream().
+                filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
+                filter(routeAndService -> routeAndService.isAvailableOn(date)).
+                anyMatch(routeAndService -> hasTimeRangerOverlap(range, routeAndService));
+    }
+
+    public boolean anyAvailable(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
+        if (anyRouteForDateAndTimeRange(date, range, modes)) {
+            return true;
+        }
+        if (range.intoNextDay()) {
+            final TimeRange nextDayRange = range.forFollowingDay();
+            final TramDate followingDay = date.plusDays(1);
+            return anyRouteForDateAndTimeRange(followingDay, nextDayRange, modes);
+        } else {
+            // Cope with services from previous day that run into current date and range
+            final TramDate previousDay = date.minusDays(1);
+            final TimeRange previousDayRange = range.transposeToNextDay();
+            return anyRouteForDateAndTimeRange(previousDay, previousDayRange, modes);
+        }
     }
 
     private boolean hasTimeRangerOverlap(final TimeRange range, final RouteAndService routeAndService) {

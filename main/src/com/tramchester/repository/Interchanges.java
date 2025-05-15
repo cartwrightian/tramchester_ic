@@ -353,7 +353,7 @@ public class Interchanges implements InterchangeRepository {
             map = new HashMap<>();
         }
 
-        public void addFor(InterchangeStation interchange, Set<RouteIndexPair> pairs) {
+        public void addFor(final InterchangeStation interchange, final Set<RouteIndexPair> pairs) {
             pairs.forEach(pair -> {
                 if (!map.containsKey(pair)) {
                     map.put(pair, new HashSet<>());
@@ -362,11 +362,11 @@ public class Interchanges implements InterchangeRepository {
             });
         }
 
-        public boolean hasInterchangeFor(RouteIndexPair indexPair) {
+        public boolean hasInterchangeFor(final RouteIndexPair indexPair) {
             return map.containsKey(indexPair);
         }
 
-        public Stream<InterchangeStation> getInterchangesFor(RouteIndexPair indexPair) {
+        public Stream<InterchangeStation> getInterchangesFor(final RouteIndexPair indexPair) {
             return map.get(indexPair).stream();
         }
     }

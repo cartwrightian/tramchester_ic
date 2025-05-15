@@ -19,8 +19,6 @@ public interface InterchangeRepository {
 
     InterchangeStation getInterchange(Location<?> location);
 
-//    boolean isInterchange(IdFor<Station> stationId);
-
     boolean hasInterchangeFor(RouteIndexPair indexPair);
 
     Stream<InterchangeStation> getInterchangesFor(RouteIndexPair indexPair);

@@ -147,7 +147,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
 
     private Stream<Pair<RouteIndexPair, RouteIndexPair>> forDepth(final int depth, final RouteIndexPair indexPair) {
         guardDepth(depth);
-        RoutePairInterconnects routePairInterconnects = interconnectsForDepth.forDepth(depth);
+        final RoutePairInterconnects routePairInterconnects = interconnectsForDepth.forDepth(depth);
         if (routePairInterconnects.hasLinksFor(indexPair)) {
             return routePairInterconnects.getLinksFor(indexPair);
         }
@@ -267,7 +267,8 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         }
     }
 
-    private @NotNull Set<InterchangeStation> getFilteredInterchangesFor(RouteIndexPair indexPair, Function<InterchangeStation, Boolean> interchangeFilter) {
+    private @NotNull Set<InterchangeStation> getFilteredInterchangesFor(final RouteIndexPair indexPair,
+                                                                        final Function<InterchangeStation, Boolean> interchangeFilter) {
         return interchangeRepository.getInterchangesFor(indexPair).
                 filter(interchangeFilter::apply).
                 collect(Collectors.toSet());
