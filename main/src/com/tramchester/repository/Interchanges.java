@@ -148,7 +148,7 @@ public class Interchanges implements InterchangeRepository {
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
         Set<Station> foundViaLinks = foundIdsViaLinks.stream().
                 map(stationRepository::getStationById).
-                filter(station -> !station.isMarkedInterchange()).
+                 filter(station -> !station.isMarkedInterchange()).
                 filter(station -> !config.onlyMarkedInterchange(station)).
                 collect(Collectors.toSet());
         logger.info(format("Added %s interchanges for %s and link threshold %s", foundViaLinks.size(), mode, linkThreshhold));
@@ -321,7 +321,6 @@ public class Interchanges implements InterchangeRepository {
     }
 
     private void recordPairsToInterchanges() {
-        //final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         logger.info("Capture route index pairs to interchanges for " + interchanges.size() + " interchanges");
 
         interchanges.values().forEach(interchange -> {

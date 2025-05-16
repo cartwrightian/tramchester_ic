@@ -29,7 +29,8 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     private final AtomicInteger transactionCount;
     private final GraphIdFactory graphIdFactory;
 
-    public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache, final boolean diagnostics) {
+    public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache,
+                                   SharedRelationshipCache relationshipCache, final boolean diagnostics) {
         this.databaseService = databaseService;
         this.nodeCache = nodeCache;
         this.relationshipCache = relationshipCache;
@@ -140,9 +141,9 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             if (openTransactions.remove(index) == null) {
                 logger.error("onClose: Could not find for index: " + index);
             }
-//            else {
-//                diagnostics.remove(index);
-//            }
+            else {
+                diagnostics.remove(index);
+            }
         }
 
         public synchronized void commitTransaction(final GraphTransaction graphTransaction) {
@@ -152,7 +153,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             if (openTransactions.remove(index)==null) {
                 logger.error("onCommit: Could not find for index: " + index);
             } else {
-                //diagnostics.remove(index);
+                diagnostics.remove(index);
                 commited.add(index);
             }
         }
@@ -177,8 +178,10 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             });
         }
 
-        private String stackAsString(StackTraceElement[] stackTraceElements) {
-            return Arrays.stream(stackTraceElements).map(line -> line + System.lineSeparator()).collect(Collectors.joining());
+        private String stackAsString(final StackTraceElement[] stackTraceElements) {
+            return Arrays.stream(stackTraceElements).
+                    map(line -> line + System.lineSeparator()).
+                    collect(Collectors.joining());
         }
 
         private void guardNotClosed() {
@@ -187,7 +190,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             }
         }
 
-        public void logDiagnostics(final Logger logger, Level level) {
+        public void logDiagnostics(final Logger logger, final Level level) {
             diagnostics.values().forEach(value -> logger.atLevel(level).log(stackAsString(value)));
         }
     }

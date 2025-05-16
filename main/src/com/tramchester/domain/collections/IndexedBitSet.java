@@ -120,11 +120,6 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         }
     }
 
-//    public void or(final SimpleImmutableBitmap immutableBitmap) {
-//        final SimpleBitmap simpleBitmap = (SimpleBitmap) immutableBitmap;
-//        bitmap.or(simpleBitmap);
-//    }
-
     /***
      * position within the bitmap for row and column
      * @param row the row

@@ -1,8 +1,9 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.Dates;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramDateBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.UpcomingDates;
@@ -16,8 +17,8 @@ public class KnownTramRoute {
 
     public static final TramDate startMayCutover = TramDate.of(2025,5,10);
 
-    static final DateRange replacementBusOneDates =
-            DateRange.of(TramDate.of(2025,5,18), 0);
+    static final Dates replacementBusOneDates =
+            TramDateBuilder.forYear(2025).forMonth(5).add(18,30).toYear().forMonth(6).add(1,6,8,13,15).toYear().build();
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";
@@ -119,7 +120,6 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-
         if (date.isAfter(startMayCutover) || date.equals(startMayCutover)) {
             routes.add(getYellow(date));
         } else if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
@@ -127,7 +127,7 @@ public class KnownTramRoute {
         }
 
         if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
-            if (date.isAfter(TramDate.of(2025,5,24))) {
+            if (date.isAfter(TramDate.of(2025,5,24)) && date.isBefore(TramDate.of(2025,6,1))) {
                 routes.add(getGreen(date));
             } // else don't add green
         } else {
@@ -135,7 +135,6 @@ public class KnownTramRoute {
                 routes.add(getGreen(date));
             }
         }
-
 
         routes.add(getPurple(date));
         routes.add(getBlue(date));

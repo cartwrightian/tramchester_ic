@@ -2,8 +2,9 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.DateRanges;
+import com.tramchester.domain.dates.Dates;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.TramDateBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.reference.TramStations;
@@ -49,18 +50,14 @@ public class UpcomingDates {
             Station.createId("9400ZZMAMIL"), Station.createId("9400ZZMAKNY"), Station.createId("9400ZZMANBD"),
             RochdaleRail.getId(), Rochdale.getId());
 
-    public static DateRanges RochdaleLineWorksSummer2025 = new DateRanges(
-            DateRange.of(TramDate.of(2025,5,17),1),
-            DateRange.of(TramDate.of(2025, 5, 25), 0)); // <- this is not on the website
+    public static Dates RochdaleLineWorksSummer2025 = TramDateBuilder.forYear(2025).forMonth(5).add(17,18,25).build();
 
-    public static DateRanges LineClosuresMayJune2025CrumpsalBury = new DateRanges(
+    public static Dates LineClosuresMayJune2025CrumpsalBury = Dates.of(
             DateRange.of(TramDate.of(2025, 5, 25), 0),
             DateRange.of(TramDate.of(2025,5,30), TramDate.of(2025,6,1)));
 
-
     public static DateRange LineClosuresMayJune2025WhitefieldBury = DateRange.of(
             TramDate.of(2025,5,26), TramDate.of(2025,5,29));
-
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);

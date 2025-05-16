@@ -25,6 +25,11 @@ public class DateRange {
         return Empty;
     }
 
+    /***
+     * Finds the first and last date in the collection and creates a range based on those
+     * @param dates a collection of dates
+     * @return the computed range
+     */
     public static DateRange from(final Collection<TramDate> dates) {
         final List<TramDate> sorted = dates.stream().sorted(TramDate::compareTo).toList();
 

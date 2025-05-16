@@ -10,7 +10,7 @@ public class DomainPair<T extends CoreDomain & HasId<T>> {
     private final T first;
     private final T second;
 
-    public DomainPair(T first, T second) {
+    public DomainPair(final T first, final T second) {
         this.first = first;
         this.second = second;
     }

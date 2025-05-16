@@ -8,13 +8,13 @@ public class RouteIndexPair {
     private final short second;
     private final int hashCode;
 
-    private RouteIndexPair(short first, short second) {
+    private RouteIndexPair(final short first, final short second) {
         this.first = first;
         this.second = second;
         hashCode = Objects.hash(first, second);
     }
 
-    static RouteIndexPair of(short first, short second) {
+    static RouteIndexPair of(final short first, final short second) {
         return new RouteIndexPair(first, second);
     }
 

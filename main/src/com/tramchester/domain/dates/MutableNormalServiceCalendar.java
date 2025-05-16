@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 public class MutableNormalServiceCalendar implements MutableServiceCalendar {
     private final DateRange dateRange;
-//    private final EnumSet<DayOfWeek> operatingDays;
     private final MutableDaysBitmap days;
 
     // for diagnosis only
@@ -33,9 +32,8 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
         this(new DateRange(startDate, endDate), enumFrom(operatingDays));
     }
 
-    public MutableNormalServiceCalendar(DateRange dateRange, EnumSet<DayOfWeek> operatingDays) {
+    public MutableNormalServiceCalendar(final DateRange dateRange, final EnumSet<DayOfWeek> operatingDays) {
         this.dateRange = dateRange;
-//        this.operatingDays = operatingDays;
         additional = new TramDateSet();
         removed = new TramDateSet();
         cancelled = false;
