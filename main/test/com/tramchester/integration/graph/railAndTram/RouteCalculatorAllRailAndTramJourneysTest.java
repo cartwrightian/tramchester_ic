@@ -79,8 +79,9 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
 
         List<RouteCalculationCombinations.JourneyOrNot<Station>> failed = results.getFailed();
 
-        assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
-                    journeyRequest, results.size(), stationIdPairs.size(), combinations.displayFailed(failed)));
+        assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s %s",
+                    journeyRequest, results.size(), stationIdPairs.size(),
+                failed.size(), combinations.displayFailed(failed)));
 
     }
 

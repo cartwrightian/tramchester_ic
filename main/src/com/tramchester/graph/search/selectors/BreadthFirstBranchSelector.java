@@ -26,7 +26,6 @@ public class BreadthFirstBranchSelector implements BranchSelector {
         expansionQueue = new TraversalBranchQueue(locationDistances, destinationIds);
     }
 
-    // breadth
     @Override
     public TraversalBranch next(final TraversalContext metadata) {
         TraversalBranch next = branchToExpand.next(expander, metadata);

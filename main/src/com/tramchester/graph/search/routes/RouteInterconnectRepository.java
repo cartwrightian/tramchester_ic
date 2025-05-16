@@ -235,6 +235,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
                                                      final Function<InterchangeStation, Boolean> interchangeFilter) {
 
         if (currentDegree==1) {
+            // did we find interchange?
             if (!interchangeRepository.hasInterchangeFor(indexPair)) {
                 final RoutePair routePair = routeIndex.getPairFor(indexPair);
                 final String msg = "Unable to find interchange for " + HasId.asIds(routePair);
@@ -250,6 +251,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
             final Set<InterchangeStation> changes = getFilteredInterchangesFor(indexPair, interchangeFilter);
 
             if (changes.isEmpty()) {
+                // might not be available due to interchange filter
                 return QueryPathsWithDepth.ZeroPaths.get();
             } else {
                 return QueryPathsWithDepth.AnyOfInterchanges.Of(changes);

@@ -19,7 +19,7 @@ public interface PathResults {
 
         @Override
         public boolean hasAny() {
-            return pathFor.stream().anyMatch(QueryPathsWithDepth.QueryPath::hasAny);
+            return pathFor.anyMatch(queryPath -> queryPath.hasAny());
         }
 
         @Override
@@ -33,8 +33,8 @@ public interface PathResults {
         }
 
         // test support, get at underlying details
-        public Stream<QueryPathsWithDepth.QueryPath> stream() {
-            return pathFor.stream().filter(QueryPathsWithDepth::hasAny);
+        public Stream<QueryPathsWithDepth.QueryPath> forTesting() {
+            return pathFor.forTesting().filter(QueryPathsWithDepth::hasAny);
         }
 
         @Override

@@ -300,7 +300,7 @@ public class RouteInterconnectRepositoryTest {
         PathResults.HasPathResults results = (PathResults.HasPathResults) viaMarketStreetAndCornbook;
         assertNotNull(results);
 
-        Set<QueryPathsWithDepth.BothOf> parts = results.stream().
+        Set<QueryPathsWithDepth.BothOf> parts = results.forTesting().
                 filter(path -> path instanceof QueryPathsWithDepth.BothOf).
                 map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
 
@@ -308,11 +308,11 @@ public class RouteInterconnectRepositoryTest {
 
         parts.forEach(part -> {
             QueryPathsWithDepth.QueryPath firstPath = part.getFirst();
-            assertTrue(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())), part.toString());
-            assertFalse(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())), part.toString());
+            assertTrue(firstPath.forTesting(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())), part.toString());
+            assertFalse(firstPath.forTesting(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())), part.toString());
             QueryPathsWithDepth.QueryPath secondPath = part.getSecond();
-            assertTrue(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())), part.toString());
-            assertFalse(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())), part.toString());
+            assertTrue(secondPath.forTesting(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())), part.toString());
+            assertFalse(secondPath.forTesting(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())), part.toString());
         });
 
     }

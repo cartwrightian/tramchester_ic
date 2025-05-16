@@ -4,7 +4,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public interface QueryPathsWithDepth {
@@ -14,11 +14,14 @@ public interface QueryPathsWithDepth {
 
     interface QueryPath extends QueryPathsWithDepth {
 
-        Stream<QueryPath> stream();
+        @Deprecated
+        Stream<QueryPath> forTesting();
 
-        boolean isValid(Function<InterchangeStation, Boolean> validator);
+        boolean forTesting(Predicate<InterchangeStation> stationPredicate);
 
         int size();
+
+        boolean anyMatch(final Predicate<QueryPath> predicate);
     }
 
     class AnyOf implements QueryPath {
@@ -42,7 +45,7 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public Stream<QueryPath> stream() {
+        public Stream<QueryPath> forTesting() {
             return paths.stream();
         }
 
@@ -63,8 +66,8 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isValid(final Function<InterchangeStation, Boolean> validator) {
-            return paths.stream().anyMatch(path -> path.isValid(validator));
+        public boolean forTesting(final Predicate<InterchangeStation> stationPredicate) {
+            return paths.stream().anyMatch(path -> path.forTesting(stationPredicate));
         }
 
         @Override
@@ -74,13 +77,18 @@ public interface QueryPathsWithDepth {
 
         @Override
         public int getDepth() {
-            final Optional<Integer> anyMatch = paths.stream().map(QueryPath::getDepth).max(Integer::compareTo);
-            return anyMatch.orElse(Integer.MAX_VALUE);
+            final OptionalInt findMaximum = paths.stream().mapToInt(QueryPath::getDepth).max();
+            return findMaximum.orElse(Integer.MAX_VALUE);
         }
 
         @Override
         public int size() {
             return paths.size();
+        }
+
+        @Override
+        public boolean anyMatch(final Predicate<QueryPath> predicate) {
+            return paths.stream().anyMatch(predicate);
         }
     }
 
@@ -102,13 +110,18 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public Stream<QueryPath> stream() {
-            return Stream.concat(pathsA.stream(), pathsB.stream());
+        public Stream<QueryPath> forTesting() {
+            return Stream.concat(pathsA.forTesting(), pathsB.forTesting());
         }
 
         @Override
-        public boolean isValid(final Function<InterchangeStation, Boolean> validator) {
-            return pathsA.isValid(validator) && pathsB.isValid(validator);
+        public boolean anyMatch(final Predicate<QueryPath> predicate) {
+            return pathsA.anyMatch(predicate) || pathsB.anyMatch(predicate);
+        }
+
+        @Override
+        public boolean forTesting(final Predicate<InterchangeStation> stationPredicate) {
+            return pathsA.forTesting(stationPredicate) && pathsB.forTesting(stationPredicate);
         }
 
         @Override
@@ -126,6 +139,7 @@ public interface QueryPathsWithDepth {
         public int size() {
             return pathsA.size() + pathsB.size();
         }
+
 
         @Override
         public boolean equals(Object o) {
@@ -163,7 +177,7 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
+        public boolean forTesting(Predicate<InterchangeStation> stationPredicate) {
             return false;
         }
 
@@ -183,7 +197,12 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public Stream<QueryPath> stream() {
+        public boolean anyMatch(final Predicate<QueryPath> predicate) {
+            return false;
+        }
+
+        @Override
+        public Stream<QueryPath> forTesting() {
             return Stream.empty();
         }
 
@@ -227,8 +246,13 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public Stream<QueryPath> stream() {
+        public Stream<QueryPath> forTesting() {
             return changes.stream().map(SingleInterchange::new);
+        }
+
+        @Override
+        public boolean anyMatch(final Predicate<QueryPath> predicate) {
+            return changes.stream().map(SingleInterchange::new).anyMatch(predicate);
         }
 
         @Override
@@ -260,8 +284,8 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public boolean isValid(Function<InterchangeStation, Boolean> validator) {
-            return changes.stream().anyMatch(validator::apply);
+        public boolean forTesting(Predicate<InterchangeStation> stationPredicate) {
+            return changes.stream().anyMatch(stationPredicate);
         }
     }
 
@@ -274,13 +298,13 @@ public interface QueryPathsWithDepth {
         }
 
         @Override
-        public Stream<QueryPath> stream() {
+        public Stream<QueryPath> forTesting() {
             return Stream.of(new SingleInterchange(interchangeStation));
         }
 
         @Override
-        public boolean isValid(final Function<InterchangeStation, Boolean> validator) {
-            return validator.apply(interchangeStation);
+        public boolean forTesting(final Predicate<InterchangeStation> stationPredicate) {
+            return stationPredicate.test(interchangeStation);
         }
 
         @Override
@@ -296,6 +320,11 @@ public interface QueryPathsWithDepth {
         @Override
         public int size() {
             return 1;
+        }
+
+        @Override
+        public boolean anyMatch(final Predicate<QueryPath> predicate) {
+            return predicate.test(this);
         }
 
         @Override
