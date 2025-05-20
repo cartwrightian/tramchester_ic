@@ -10,7 +10,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.LocationDistances;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.selectors.BreadthFirstBranchSelector;
+import com.tramchester.graph.search.selectors.DestinationDistanceBranchSelector;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class BreadthFirstBranchSelectorQueueTest extends EasyMockSupport {
+public class DestinationDistanceBranchSelectorQueueTest extends EasyMockSupport {
 
     private static GuiceContainerDependencies componentContainer;
 
@@ -56,8 +56,8 @@ public class BreadthFirstBranchSelectorQueueTest extends EasyMockSupport {
 
     @Test
     void shouldHaveExpectedGeoOrderDifferentNodes() {
-        BreadthFirstBranchSelector.TraversalBranchQueue traversalBranchQueue =
-                new BreadthFirstBranchSelector.TraversalBranchQueue(locationDistances, destinations);
+        DestinationDistanceBranchSelector.TraversalBranchQueue traversalBranchQueue =
+                new DestinationDistanceBranchSelector.TraversalBranchQueue(locationDistances, destinations);
 
         ImmutableJourneyState stateA = createMockJourneyState(45, TramStations.Altrincham, true, TramTime.of(8, 15));
         ImmutableJourneyState stateB = createMockJourneyState(87, TramStations.Deansgate, true, TramTime.of(8, 15));
@@ -81,8 +81,8 @@ public class BreadthFirstBranchSelectorQueueTest extends EasyMockSupport {
 
     @Test
     void shouldFallbackToClockIfSameNode() {
-        BreadthFirstBranchSelector.TraversalBranchQueue traversalBranchQueue =
-                new BreadthFirstBranchSelector.TraversalBranchQueue(locationDistances, destinations);
+        DestinationDistanceBranchSelector.TraversalBranchQueue traversalBranchQueue =
+                new DestinationDistanceBranchSelector.TraversalBranchQueue(locationDistances, destinations);
 
         ImmutableJourneyState stateA = createMockJourneyState(45, TramStations.Deansgate, true, TramTime.of(8,45));
         ImmutableJourneyState stateB = createMockJourneyState(45, TramStations.Deansgate, true, TramTime.of(8, 5));
@@ -107,8 +107,8 @@ public class BreadthFirstBranchSelectorQueueTest extends EasyMockSupport {
 
     @Test
     void shouldHaveExpectedOrderNotStartedYet() {
-        BreadthFirstBranchSelector.TraversalBranchQueue traversalBranchQueue =
-                new BreadthFirstBranchSelector.TraversalBranchQueue(locationDistances, destinations);
+        DestinationDistanceBranchSelector.TraversalBranchQueue traversalBranchQueue =
+                new DestinationDistanceBranchSelector.TraversalBranchQueue(locationDistances, destinations);
 
         ImmutableJourneyState stateA = createMockJourneyState(45, TramStations.Altrincham, false, TramTime.of(8, 45));
         ImmutableJourneyState stateB = createMockJourneyState(87, TramStations.Altrincham, false, TramTime.of(8, 5));
@@ -132,8 +132,8 @@ public class BreadthFirstBranchSelectorQueueTest extends EasyMockSupport {
 
     @Test
     void shouldHaveExpectedOrderSomeStarted() {
-        BreadthFirstBranchSelector.TraversalBranchQueue traversalBranchQueue =
-                new BreadthFirstBranchSelector.TraversalBranchQueue(locationDistances, destinations);
+        DestinationDistanceBranchSelector.TraversalBranchQueue traversalBranchQueue =
+                new DestinationDistanceBranchSelector.TraversalBranchQueue(locationDistances, destinations);
 
         ImmutableJourneyState stateA = createMockJourneyState(45, TramStations.Altrincham, true, TramTime.of(8, 45));
         ImmutableJourneyState stateB = createMockJourneyState(87, TramStations.Deansgate, false, TramTime.of(8, 5));

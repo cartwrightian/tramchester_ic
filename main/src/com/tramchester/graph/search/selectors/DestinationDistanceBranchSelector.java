@@ -12,15 +12,15 @@ import org.neo4j.graphdb.traversal.TraversalContext;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-public class BreadthFirstBranchSelector implements BranchSelector {
+public class DestinationDistanceBranchSelector implements BranchSelector {
 
     private final TraversalBranchQueue expansionQueue;
     private final PathExpander<JourneyState> expander;
 
     private TraversalBranch branchToExpand;
 
-    public BreadthFirstBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
-                                      final LocationDistances locationDistances, final LocationCollection destinationIds) {
+    public DestinationDistanceBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
+                                             final LocationDistances locationDistances, final LocationCollection destinationIds) {
         this.branchToExpand = start;
         this.expander = expander;
         expansionQueue = new TraversalBranchQueue(locationDistances, destinationIds);

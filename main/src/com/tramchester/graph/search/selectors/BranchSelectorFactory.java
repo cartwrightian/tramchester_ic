@@ -27,12 +27,12 @@ public class BranchSelectorFactory {
     public BranchOrderingPolicy getFor(final LocationCollection destinations) {
         logger.info("creating for depthFirst " + config.getDepthFirst());
 
-        return config.getDepthFirst() ? DepthFirstBranchSelector::new : getBreadthFirstBranchSelector(destinations);
+        return config.getDepthFirst() ? SimpleDepthFirstBranchSelector::new : getBreadthFirstBranchSelector(destinations);
     }
 
     @SuppressWarnings("unchecked")
     private @NotNull BranchOrderingPolicy getBreadthFirstBranchSelector(final LocationCollection destinations) {
-        return (start, expander) -> new BreadthFirstBranchSelector(start, expander, locationDistances, destinations);
+        return (start, expander) -> new DestinationDistanceBranchSelector(start, expander, locationDistances, destinations);
     }
 
 

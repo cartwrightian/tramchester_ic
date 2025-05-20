@@ -6,12 +6,12 @@ import org.neo4j.graphdb.traversal.BranchSelector;
 import org.neo4j.graphdb.traversal.TraversalBranch;
 import org.neo4j.graphdb.traversal.TraversalContext;
 
-public class DepthFirstBranchSelector implements BranchSelector {
+public class SimpleDepthFirstBranchSelector implements BranchSelector {
     private TraversalBranch currentPosition;
 
     private final PathExpander<JourneyState> expander;
 
-    DepthFirstBranchSelector(TraversalBranch startSource, PathExpander<JourneyState> expander) {
+    SimpleDepthFirstBranchSelector(TraversalBranch startSource, PathExpander<JourneyState> expander) {
         this.currentPosition = startSource;
         this.expander = expander;
     }
