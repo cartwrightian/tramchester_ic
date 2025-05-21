@@ -11,7 +11,6 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
@@ -97,14 +96,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public Evaluation evaluate(final Path path, final BranchState<JourneyState> state) {
 
         final ImmutableJourneyState journeyState = state.getState();
-
         final GraphNode nextNode = txn.fromEnd(path);
-        final GraphRelationship last = txn.lastFrom(path);
 
         // reuse these, label operations on nodes are expensive
         final EnumSet<GraphLabel> labels = nextNode.getLabels();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), getPreviousNodeSafe(last));
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), txn.getPreviousNodeId(path));
 
         // TODO WIP Spike
 //        if (journeyState.alreadyVisited(nextNode, labels)) {
@@ -137,14 +134,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         previousVisits.cacheVisitIfUseful(heuristicsReason, nextNode, journeyState, labels);
 
         return result;
-    }
-
-
-    private GraphNodeId getPreviousNodeSafe(final GraphRelationship graphRelationship) {
-        if (graphRelationship==null) {
-            return null;
-        }
-        return graphRelationship.getStartNodeId(txn);
     }
 
     private HeuristicsReason doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,

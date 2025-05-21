@@ -247,7 +247,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return idFactory.getIdFor(relationship.getEndNode());
     }
 
-    @Override
+//    @Override
     public ImmutableGraphRelationship lastFrom(final Path path) {
         final Relationship last = path.lastRelationship();
         if (last==null) {
@@ -281,6 +281,22 @@ public class MutableGraphTransaction implements GraphTransaction {
     @Override
     public ImmutableGraphNode getEndNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getEndNode());
+    }
+
+    @Override
+    public GraphNodeId getPreviousNodeId(final Path path) {
+        final Relationship last = path.lastRelationship();
+        if (last == null) {
+            return null;
+        } else {
+            return idFactory.getIdFor(last.getStartNode());
+        }
+//        final GraphRelationship graphRelationship = result;
+//
+//        if (graphRelationship==null) {
+//            return null;
+//        }
+//        return graphRelationship.getStartNodeId(txn);
     }
 
 

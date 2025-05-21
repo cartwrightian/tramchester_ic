@@ -141,9 +141,11 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
 
         EasyMock.expect(txn.fromEnd(path)).andReturn(node);
-        EasyMock.expect(txn.lastFrom(path)).andStubReturn(lastRelationship);
+//        EasyMock.expect(txn.lastFrom(path)).andStubReturn(lastRelationship);
+//
+//        EasyMock.expect(lastRelationship.getStartNodeId(txn)).andStubReturn(previousNodeId);
 
-        EasyMock.expect(lastRelationship.getStartNodeId(txn)).andStubReturn(previousNodeId);
+        EasyMock.expect(txn.getPreviousNodeId(path)).andReturn(previousNodeId);
 
     }
 

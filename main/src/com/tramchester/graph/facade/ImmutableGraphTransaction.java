@@ -96,6 +96,11 @@ public class ImmutableGraphTransaction implements GraphTransaction, GraphTravers
     }
 
     @Override
+    public GraphNodeId getPreviousNodeId(final Path path) {
+        return underlying.getPreviousNodeId(path);
+    }
+
+    @Override
     public ImmutableGraphNode fromStart(final Path path) {
         return underlying.fromStart(path);
     }
@@ -124,4 +129,6 @@ public class ImmutableGraphTransaction implements GraphTransaction, GraphTravers
     public GraphNodeId getEndNodeId(final Relationship relationship) {
         return underlying.getEndNodeId(relationship);
     }
+
+
 }

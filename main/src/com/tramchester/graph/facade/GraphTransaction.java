@@ -36,8 +36,6 @@ public interface GraphTransaction extends AutoCloseable {
 
     List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction);
 
-    ImmutableGraphRelationship lastFrom(Path path);
-
     Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable);
 
     ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
@@ -46,13 +44,17 @@ public interface GraphTransaction extends AutoCloseable {
 
     ImmutableGraphNode getEndNode(Relationship relationship);
 
+    GraphNodeId getStartNodeId(Relationship relationship);
+
+    GraphNodeId getEndNodeId(Relationship relationship);
+    
+    //    ImmutableGraphRelationship lastFrom(Path path);
+
+    GraphNodeId getPreviousNodeId(Path path);
+
     ImmutableGraphNode fromStart(Path path);
 
     ImmutableGraphNode fromEnd(Path path);
 
     GraphNodeId endNodeNodeId(Path path);
-
-    GraphNodeId getStartNodeId(Relationship relationship);
-
-    GraphNodeId getEndNodeId(Relationship relationship);
 }
