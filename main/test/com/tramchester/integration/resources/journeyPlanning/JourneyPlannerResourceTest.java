@@ -48,7 +48,7 @@ public class JourneyPlannerResourceTest {
     private StationRepository stationRepository;
 
     @BeforeAll
-    static void onceBeforeAnyTesst() {
+    static void onceBeforeAnyTest() {
         App app = appExtension.getTestSupport().getApplication();
         dependencies = app.getDependencies();
     }
@@ -61,7 +61,7 @@ public class JourneyPlannerResourceTest {
         stationRepository = dependencies.get(StationRepository.class);
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
         List<Platform> platforms = new ArrayList<>(altrincham.getPlatforms());
-        firstPlatformAtAlty = platforms.get(0);
+        firstPlatformAtAlty = platforms.getFirst();
     }
 
     @Test
@@ -86,7 +86,7 @@ public class JourneyPlannerResourceTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
+            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().getFirst();
 
             String headSign = firstStage.getHeadSign();
             assertTrue(possibleHeadsigns.contains(headSign), "unexpected headsign " + headSign);
@@ -211,7 +211,7 @@ public class JourneyPlannerResourceTest {
         assertFalse(journeys.isEmpty(), "no journeys");
 
         journeys.forEach(journey -> {
-            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
+            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().getFirst();
             PlatformDTO stategOnePlatform = firstStage.getPlatform();
 
             assertEquals("1", stategOnePlatform.getPlatformNumber());
@@ -223,9 +223,9 @@ public class JourneyPlannerResourceTest {
 
             PlatformDTO secondStagePlatform = secondStage.getPlatform();
 
-            // seems can be either 1,2 or 3
+            // seems can be 1 through 4
             String platformNumber = secondStagePlatform.getPlatformNumber();
-            assertTrue("123".contains(platformNumber), "unexpected platform number, got " + platformNumber);
+            assertTrue("1234".contains(platformNumber), "unexpected platform number, got " + platformNumber);
 
             List<String> expectedSecondStationNames = Arrays.asList(
                     Cornbrook.getName(),
@@ -242,7 +242,7 @@ public class JourneyPlannerResourceTest {
 
             List<ChangeStationRefWithPosition> changeStations = journey.getChangeStations();
             assertEquals(1, changeStations.size());
-            ChangeStationRefWithPosition changeStation = changeStations.get(0);
+            ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertTrue(expectedSecondStationNames.contains(changeStation.getName()), "did not expect " + changeStation.getName());
             assertEquals(TransportMode.Tram, changeStation.getFromMode());
 

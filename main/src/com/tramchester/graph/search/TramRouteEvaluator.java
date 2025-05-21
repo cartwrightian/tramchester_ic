@@ -9,7 +9,10 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +27,6 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
 
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
@@ -300,14 +301,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // TODO is this still needed, should drop through via continue anyway?
-        //final Relationship inboundRelationship = thePath.lastRelationship();
-        final GraphRelationship inboundRelationship = txn.lastFrom(thePath);
-        if (inboundRelationship != null) {
-            // for walking routes we do want to include them all even if at same time
-            if (inboundRelationship.isType(WALKS_TO_STATION)) {
-                return reasons.recordReason(HeuristicReasonsOK.IsValid(ReasonCode.WalkOk, howIGotHere));
-            }
-        }
+//        final GraphRelationship inboundRelationship = txn.lastFrom(thePath);
+//        if (inboundRelationship != null) {
+//            // for walking routes we do want to include them all even if at same time
+//            if (inboundRelationship.isType(WALKS_TO_STATION)) {
+//                return reasons.recordReason(HeuristicReasonsOK.IsValid(ReasonCode.WalkOk, howIGotHere));
+//            }
+//        }
 
         return reasons.recordReason(HeuristicReasonsOK.Continue(howIGotHere));
     }
