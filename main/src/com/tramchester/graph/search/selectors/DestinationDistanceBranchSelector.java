@@ -30,6 +30,7 @@ public class DestinationDistanceBranchSelector implements BranchSelector {
     public TraversalBranch next(final TraversalContext metadata) {
         TraversalBranch next = branchToExpand.next(expander, metadata);
         while (next!=null) {
+            // walk down the branch adding to queue
             expansionQueue.addBranch(next);
             next = branchToExpand.next(expander, metadata);
         }
@@ -57,7 +58,6 @@ public class DestinationDistanceBranchSelector implements BranchSelector {
         private class BranchComparator implements Comparator<TraversalBranch> {
 
             // TODO What is the right Strategy here?
-            // Comparing only on distance once seen a station, so for majority of time
 
             @Override
             public int compare(final TraversalBranch branchA, final TraversalBranch branchB) {
@@ -65,11 +65,13 @@ public class DestinationDistanceBranchSelector implements BranchSelector {
                 final ImmutableJourneyState journeyStateA = (ImmutableJourneyState) branchA.state();
                 final ImmutableJourneyState journeyStateB = (ImmutableJourneyState) branchB.state();
 
-                // only worth comparing on distance if not the same node
+                // only worth comparing on distance if not already at the same node
                 if (journeyStateA.getNodeId().equals(journeyStateB.getNodeId())) {
+                    // arbitrarily pick the earliest time
                     return journeyStateA.getJourneyClock().compareTo(journeyStateB.getJourneyClock());
                 }
 
+                // by distance, or prefer having starting journey, or fall back to clock time
                 if(journeyStateA.hasBegunJourney() && journeyStateB.hasBegunJourney()) {
                     return findDistances.compare(journeyStateA.approxPosition(), journeyStateB.approxPosition());
                 } else if (journeyStateA.hasBegunJourney()) {

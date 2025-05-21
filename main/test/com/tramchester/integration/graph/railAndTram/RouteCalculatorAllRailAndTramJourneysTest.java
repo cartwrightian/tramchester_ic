@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -14,7 +13,6 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -65,7 +62,7 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
     void shouldFindRouteEachStationToEveryOtherStream() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
-        LocationIdPairSet<Station> stationIdPairs = createStationPairs(stationRepository,
+        LocationIdPairSet<Station> stationIdPairs = RouteCalculationCombinations.createStationPairs(stationRepository,
                 when, modes);
 
         final TramTime time = TramTime.of(8, 5);
@@ -85,19 +82,6 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
 
     }
 
-    public static LocationIdPairSet<Station> createStationPairs(final StationRepository stationRepository,
-                                                                final TramDate date,
-                                                                final EnumSet<TransportMode> modes) {
 
-        Set<Station> allStations = stationRepository.getStations(modes);
-
-        // pairs of stations to check
-        return allStations.stream().
-                flatMap(start -> allStations.stream().
-                map(dest -> LocationIdPair.of(start, dest))).
-                filter(pair -> !UpcomingDates.hasClosure(pair, date)).
-                filter(pair -> !pair.same()).
-                collect(LocationIdPairSet.collector());
-    }
 
 }

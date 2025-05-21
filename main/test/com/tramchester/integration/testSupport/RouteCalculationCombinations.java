@@ -20,12 +20,11 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.*;
+import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -196,6 +195,21 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         final Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
         final LocationIdAndNamePair<T> requested = new LocationIdAndNamePair<>(locationIdPair, resolver);
         return new JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
+    }
+
+    public static LocationIdPairSet<Station> createStationPairs(final StationRepository stationRepository,
+                                                                final TramDate date,
+                                                                final EnumSet<TransportMode> modes) {
+
+        final Set<Station> allStations = stationRepository.getStations(modes);
+
+        // pairs of stations to check
+        return allStations.stream().
+                flatMap(start -> allStations.stream().
+                        map(dest -> LocationIdPair.of(start, dest))).
+                filter(pair -> !UpcomingDates.hasClosure(pair, date)).
+                filter(pair -> !pair.same()).
+                collect(LocationIdPairSet.collector());
     }
 
     public static class JourneyOrNot<T extends Location<T>> {

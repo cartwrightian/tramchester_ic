@@ -84,8 +84,8 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
         return new OpenRailDataTestConfig();
     }
 
-//    @Override
-//    public boolean getDepthFirst() {
-//        return false;
-//    }
+    @Override
+    public boolean getDepthFirst() {
+        return true;
+    }
 }

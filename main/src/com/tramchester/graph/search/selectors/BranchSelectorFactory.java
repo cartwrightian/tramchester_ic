@@ -27,6 +27,7 @@ public class BranchSelectorFactory {
     public BranchOrderingPolicy getFor(final LocationCollection destinations) {
         logger.info("creating for depthFirst " + config.getDepthFirst());
 
+        //return getBreadthFirstBranchSelector(destinations);
         return config.getDepthFirst() ? SimpleDepthFirstBranchSelector::new : getBreadthFirstBranchSelector(destinations);
     }
 

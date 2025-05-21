@@ -7,11 +7,13 @@ public class Timing implements AutoCloseable {
     private final String name;
     private final Instant start;
     private final org.slf4j.Logger logger;
+    private long millis;
 
-    public Timing(org.slf4j.Logger logger, String name) {
+    public Timing(final org.slf4j.Logger logger, final String name) {
         this.name = name;
         this.logger = logger;
         this.start = Instant.now();
+        this.millis = -1;
 
         logger.info("Start " + name);
     }
@@ -19,6 +21,16 @@ public class Timing implements AutoCloseable {
     @Override
     public void close() {
         Instant finish = Instant.now();
-        logger.info("TIMING: " + name + " TOOK: " + Duration.between(start, finish).toMillis() +" ms");
+        millis = Duration.between(start, finish).toMillis();
+        logger.info("TIMING: " + name + " TOOK: " + millis +" ms");
+    }
+
+    @Override
+    public String toString() {
+        return "Timing{" +
+                "name='" + name + '\'' +
+                ", start=" + start +
+                ", millis=" + millis +
+                '}';
     }
 }

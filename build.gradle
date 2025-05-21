@@ -658,11 +658,20 @@ tasks.register('monitorLiveTramData', JavaExec) {
     args 'config/local.yml', '2'
 }
 
-tasks.register('performanceTest', JavaExec) {
+def performanceTestConfig = {
     dependsOn 'classes'
     mainClass = 'com.tramchester.testSupport.cli.PerformanceTestCLI'
     classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
+}
+
+tasks.register('performanceTestGM', JavaExec) {
+    configure performanceTestConfig
+    args 'config/gm.yml'
+}
+
+tasks.register('performanceTest', JavaExec) {
+    configure performanceTestConfig
     args 'config/local.yml'
 }
 

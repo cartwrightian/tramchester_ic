@@ -59,9 +59,12 @@ public class DestinationDistanceBranchSelectorQueueTest extends EasyMockSupport 
         DestinationDistanceBranchSelector.TraversalBranchQueue traversalBranchQueue =
                 new DestinationDistanceBranchSelector.TraversalBranchQueue(locationDistances, destinations);
 
-        ImmutableJourneyState stateA = createMockJourneyState(45, TramStations.Altrincham, true, TramTime.of(8, 15));
-        ImmutableJourneyState stateB = createMockJourneyState(87, TramStations.Deansgate, true, TramTime.of(8, 15));
-        ImmutableJourneyState stateC = createMockJourneyState(55, TramStations.NavigationRoad, true, TramTime.of(8, 15));
+        ImmutableJourneyState stateA = createMockJourneyState(45, TramStations.Altrincham, true,
+                TramTime.of(8, 15));
+        ImmutableJourneyState stateB = createMockJourneyState(87, TramStations.Deansgate, true,
+                TramTime.of(8, 15));
+        ImmutableJourneyState stateC = createMockJourneyState(55, TramStations.NavigationRoad, true,
+                TramTime.of(8, 15));
 
         TraversalBranch branchA = createMockBranchFor(stateA);
         TraversalBranch branchB = createMockBranchFor(stateB);
