@@ -138,10 +138,10 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     public IndexedBitSet createOverlapMatrixFor(final TramDate date, final EnumSet<TransportMode> requestedModes) {
 
         final Set<Short> availableOnDate = new HashSet<>();
-        for (short routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
-            final Route route = this.routeIndex.getRouteFor(routeIndex);
+        for (short index = 0; index < numRoutes; index++) {
+            final Route route = routeIndex.getRouteFor(index);
             if (route.isAvailableOn(date) && requestedModes.contains(route.getTransportMode())) {
-                availableOnDate.add(routeIndex);
+                availableOnDate.add(index);
             }
         }
 

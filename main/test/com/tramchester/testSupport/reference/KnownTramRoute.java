@@ -15,10 +15,11 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate startMayCutover = TramDate.of(2025,5,10);
+    public static final TramDate startMayCutover = TramDate.of(2025,5,17);
 
+    // TODO mismatch between data and website
     static final Dates replacementBusOneDates =
-            TramDateBuilder.forYear(2025).forMonth(5).add(18,30).toYear().forMonth(6).add(1,6,8,13,15).toYear().build();
+            TramDateBuilder.forYear(2025).forMonth(5).add(18,30).toYear().forMonth(6).add(1).toYear().build();
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";
@@ -120,23 +121,24 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        if (date.isAfter(startMayCutover) || date.equals(startMayCutover)) {
-            routes.add(getYellow(date));
-        } else if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
-            routes.add(getYellow(date));
-        }
-
         if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
             if (date.isAfter(TramDate.of(2025,5,24)) && date.isBefore(TramDate.of(2025,6,1))) {
                 routes.add(getGreen(date));
-            } // else don't add green
+            } else if (date.isAfter(TramDate.of(2025, 6,7))) {
+                routes.add(getGreen(date));
+            }
+            // else don't add green
         } else {
             if (!date.equals(UpcomingDates.LateMayBankHol2025)) {
                 routes.add(getGreen(date));
             }
         }
 
-        routes.add(getPurple(date));
+        if (!UpcomingDates.PiccGardensWorksummer2025.contains(date)) {
+            routes.add(getPurple(date));
+            routes.add(getYellow(date));
+        }
+
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));

@@ -14,6 +14,8 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void setAll(int start, int end, boolean value);
 
+    void insert(int offset, SimpleBitmap connectionsForRoute);
+
     void or(SimpleImmutableBitmap other);
 
     void and(SimpleImmutableBitmap other);

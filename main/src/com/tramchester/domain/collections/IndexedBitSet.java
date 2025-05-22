@@ -90,9 +90,10 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
      */
     public void insert(final int row, final SimpleBitmap connectionsForRoute) {
         final int startPosition = getPositionFor(row, 0);
-        for (int column = 0; column < columns; column++) {
-            bitmap.set(startPosition + column, connectionsForRoute.get(column));
-        }
+        bitmap.insert(startPosition, connectionsForRoute);
+//        for (int column = 0; column < columns; column++) {
+//            bitmap.set(startPosition + column, connectionsForRoute.get(column));
+//        }
     }
 
     @Override

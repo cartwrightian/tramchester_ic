@@ -13,6 +13,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -91,6 +92,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
+    @DisabledUntilDate(year = 2025, month = 8, day = 11)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -101,6 +103,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
+    @DisabledUntilDate(year = 2025, month = 8, day = 11)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getYellow, true);

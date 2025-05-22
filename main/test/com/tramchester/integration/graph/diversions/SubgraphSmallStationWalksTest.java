@@ -57,8 +57,7 @@ class SubgraphSmallStationWalksTest {
         TemporaryStationsWalkIds temporaryStationsWalkA = new TemporaryStationsWalkConfigForTest(stationIdPair,
                 DateRange.of(when.minusWeeks(1), when.plusWeeks(1)));
 
-        List<TemporaryStationsWalkIds> temporaryStationWalks = List.of(temporaryStationsWalkA);
-        config = new SubgraphConfig(temporaryStationWalks);
+        config = new SubgraphConfig(List.of(temporaryStationsWalkA));
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -108,6 +107,9 @@ class SubgraphSmallStationWalksTest {
     //@DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindRouteUsingWalkCornbrookToPicc() {
+
+        // TODO likely need the closures here as well, otherwise chance will end up with Tram journey without walks
+
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 2, maxJourneyDuration, 1, getRequestedModes());
 

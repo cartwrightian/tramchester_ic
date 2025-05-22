@@ -92,6 +92,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
+                    // preload all files
+                    setConfig(GraphDatabaseSettings.pagecache_warmup_prefetch, true).
 
                     setConfig(GraphDatabaseSettings.memory_transaction_global_max_size, memoryTransactionGlobalMaxSize).
 

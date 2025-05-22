@@ -59,6 +59,9 @@ public class UpcomingDates {
     public static DateRange LineClosuresMayJune2025WhitefieldBury = DateRange.of(
             TramDate.of(2025,5,26), TramDate.of(2025,5,29));
 
+    public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
+        TramDate.of(2025,8,11));
+
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
@@ -80,6 +83,12 @@ public class UpcomingDates {
 
         if (WhitefieldToBury.contains(stationId)) {
             if (LineClosuresMayJune2025WhitefieldBury.contains(date)) {
+                return true;
+            }
+        }
+
+        if (PiccadillyGardens.getId().equals(stationId)) {
+            if (PiccGardensWorksummer2025.contains(date)) {
                 return true;
             }
         }
@@ -140,7 +149,6 @@ public class UpcomingDates {
         }
         return date;
     }
-
 
     public static boolean isChristmasDay(TramDate date) {
         LocalDate localDate = date.toLocalDate();

@@ -312,6 +312,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    @DisabledUntilDate(year = 2025, month = 8, day = 11)
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);

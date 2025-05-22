@@ -9,7 +9,7 @@ public class TimeRangePartial implements TimeRange {
     private TramTime begin;
     private TramTime end;
 
-    private TimeRangePartial(TramTime begin, TramTime end) {
+    private TimeRangePartial(final TramTime begin, final TramTime end) {
         this.begin = begin;
         this.end = end;
         if (end.isBefore(begin)) {
@@ -20,7 +20,7 @@ public class TimeRangePartial implements TimeRange {
         }
     }
 
-    private TimeRangePartial(TramTime tramTime) {
+    private TimeRangePartial(final TramTime tramTime) {
         begin = tramTime;
         end = tramTime;
     }
@@ -49,16 +49,16 @@ public class TimeRangePartial implements TimeRange {
         return new TimeRangePartial(begin, end);
     }
 
-    public static TimeRange of(TramTime time) {
+    public static TimeRange of(final TramTime time) {
         return new TimeRangePartial(time);
     }
 
     // TODO package private
-    public static TimeRange of(TramTime first, TramTime second) {
+    public static TimeRange of(final TramTime first, final TramTime second) {
         return new TimeRangePartial(first, second);
     }
 
-    public boolean contains(TramTime time) {
+    public boolean contains(final TramTime time) {
         return time.between(begin, end);
     }
 

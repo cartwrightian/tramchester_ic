@@ -212,4 +212,16 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     public int hashCode() {
         return Objects.hash(bitmap, size);
     }
+
+    @Override
+    public void insert(final int offset, final SimpleBitmap other) {
+        for (int column = 0; column < other.size(); column++) {
+            final int location = offset + column;
+            if (other.get(column)) {
+                bitmap.add(location);
+            } else {
+                bitmap.remove(location);
+            }
+        }
+    }
 }

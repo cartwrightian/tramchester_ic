@@ -23,7 +23,6 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.ImmutableGraphNode;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
@@ -69,7 +68,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private TramchesterConfig config;
     private PreviousVisits previousSuccessfulVisit;
     private GraphNodeId destinationNodeId;
-    private ImmutableGraphRelationship lastRelationship;
     private GraphNodeId startNodeId;
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
@@ -128,7 +126,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         serviceHeuristics = createMock(ServiceHeuristics.class);
         path = createMock(Path.class);
         node = createMock(ImmutableGraphNode.class);
-        lastRelationship = createMock(ImmutableGraphRelationship.class);
 
         final GraphNodeId nodeId = GraphNodeId.TestOnly(42L);
         final GraphNodeId previousNodeId = GraphNodeId.TestOnly(21L);
@@ -141,10 +138,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
 
         EasyMock.expect(txn.fromEnd(path)).andReturn(node);
-//        EasyMock.expect(txn.lastFrom(path)).andStubReturn(lastRelationship);
-//
-//        EasyMock.expect(lastRelationship.getStartNodeId(txn)).andStubReturn(previousNodeId);
-
         EasyMock.expect(txn.getPreviousNodeId(path)).andReturn(previousNodeId);
 
     }
