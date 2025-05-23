@@ -20,6 +20,15 @@ public class TimeRangePartial implements TimeRange {
         }
     }
 
+    public static TimeRange of(final TramTime first, final TramTime second) {
+        return new TimeRangePartial(first, second);
+    }
+
+    public static TimeRange of(final TramTime time) {
+        return new TimeRangePartial(time);
+    }
+
+    // supports use of updateToInclude
     private TimeRangePartial(final TramTime tramTime) {
         begin = tramTime;
         end = tramTime;
@@ -49,29 +58,26 @@ public class TimeRangePartial implements TimeRange {
         return new TimeRangePartial(begin, end);
     }
 
-    public static TimeRange of(final TramTime time) {
-        return new TimeRangePartial(time);
-    }
-
-    // TODO package private
-    public static TimeRange of(final TramTime first, final TramTime second) {
-        return new TimeRangePartial(first, second);
-    }
 
     public boolean contains(final TramTime time) {
-        return time.between(begin, end);
+        return !time.isBefore(begin) && !time.isAfter(end);
+
+//        if ((time.equals(begin)) || time.isAfter(begin)) {
+//            return (time.equals(end) || time.isBefore(end));
+//        }
+//        return false;
     }
 
     @Override
     public boolean fullyContains(final TimeRange other) {
         if (other.allDay()) {
-            return false;
+            return false; // since this is partial
         }
         final TramTime otherBegin = other.getStart();
         if (otherBegin.isBefore(begin) || otherBegin.isAfter(end)) {
             return false;
         }
-        TramTime otherEnd = other.getEnd();
+        final TramTime otherEnd = other.getEnd();
         if (otherEnd.isBefore(begin) || otherEnd.isAfter(end)) {
             return false;
         }
@@ -88,7 +94,12 @@ public class TimeRangePartial implements TimeRange {
 
     @Override
     public boolean anyOverlap(final TimeRange other) {
-        return contains(other.getStart()) || contains(other.getEnd()) || other.contains(begin) || other.contains(end);
+
+        if (contains(other.getStart()) || contains(other.getEnd())) {
+            return true;
+        }
+
+        return other.contains(begin) || other.contains(end);
     }
 
     @Override

@@ -215,7 +215,7 @@ public class TramTime implements Comparable<TramTime> {
             return true;
         }
         if (hour==other.hour) {
-            return minute > other.minute; // minute>other.minute || minute==other.minute;
+            return minute > other.minute; 
         }
         return false;
     }
@@ -225,7 +225,7 @@ public class TramTime implements Comparable<TramTime> {
             return true;
         }
         if (hour==other.hour) {
-            return minute < other.minute; // minute>other.minute || minute==other.minute;
+            return minute < other.minute;
         }
         return false;
     }
