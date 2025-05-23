@@ -393,7 +393,7 @@ public class RouteInterconnectRepositoryTest {
         RouteDateAndDayOverlap routeDateAndDayOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
 
         return new RouteInterconnectRepository(pairFactory, numberOfRoutes, routeIndex, interchangeRepository,
-                routeMatrix, routeDateAndDayOverlap, dataCache, new GraphFilterActive(false));
+                routeMatrix, routeDateAndDayOverlap, dataCache, new GraphFilterActive(false), config);
     }
 
 

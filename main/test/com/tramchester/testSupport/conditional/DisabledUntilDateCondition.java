@@ -16,12 +16,13 @@ public class DisabledUntilDateCondition implements ExecutionCondition {
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
         AnnotatedElement element = context.getElement().orElse(null);
-        return findAnnotation(element, DisabledUntilDate.class).map(this::createResult).
+        return findAnnotation(element, DisabledUntilDate.class).
+                map(this::createResult).
                 orElse(ENABLED_NOT_PRESENT);
     }
 
-    private ConditionEvaluationResult createResult(DisabledUntilDate disabledUntilDate) {
-        LocalDate enabledFrom = LocalDate.of(disabledUntilDate.year(), disabledUntilDate.month(), disabledUntilDate.day());
+    private ConditionEvaluationResult createResult(final DisabledUntilDate disabledUntilDate) {
+        final LocalDate enabledFrom = LocalDate.of(disabledUntilDate.year(), disabledUntilDate.month(), disabledUntilDate.day());
 
         if (LocalDate.now().isBefore(enabledFrom)) {
             return ConditionEvaluationResult.disabled("Disabled since not reached " + enabledFrom);

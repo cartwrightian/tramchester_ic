@@ -3,7 +3,6 @@ package com.tramchester.integration.graph.railAndTram;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.caching.DataCache;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
@@ -34,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @GMTest
 public class RailAndTramRouteInterconnectRepositoryTest {
     private static ComponentContainer componentContainer;
+    private static RailAndTramGreaterManchesterConfig config;
 
     private RailRouteHelper railRouteHelper;
     private RouteIndex routeIndex;
@@ -43,7 +43,7 @@ public class RailAndTramRouteInterconnectRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        TramchesterConfig config = new RailAndTramGreaterManchesterConfig();
+        config = new RailAndTramGreaterManchesterConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -138,7 +138,6 @@ public class RailAndTramRouteInterconnectRepositoryTest {
 
     }
 
-
     @NotNull
     private RouteInterconnectRepository createRepository() {
         NumberOfRoutes numberOfRoutes = componentContainer.get(NumberOfRoutes.class);
@@ -150,7 +149,8 @@ public class RailAndTramRouteInterconnectRepositoryTest {
         DataCache dataCache = new FakeDataCache();
 
         RouteInterconnectRepository anotherRepository = new RouteInterconnectRepository(pairFactory, numberOfRoutes, routeIndex,
-                interchangeRepository, routeCostMatrix, routeDayAndDateOverlap, dataCache, new GraphFilterActive(false));
+                interchangeRepository, routeCostMatrix, routeDayAndDateOverlap, dataCache, new GraphFilterActive(false),
+                config);
 
         anotherRepository.start();
         return anotherRepository;

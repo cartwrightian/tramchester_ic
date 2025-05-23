@@ -21,6 +21,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
@@ -131,6 +132,7 @@ class RouteCalculatorForBoundingBoxTest {
 
         List<JourneysForBox> missed = groupedJourneys.stream().
                 filter(group -> group.getJourneys().isEmpty()).
+                filter(group -> !allClosed(group)).
                 toList();
 
         assertEquals(1, missed.size(), missed.toString()); // when start and dest match
@@ -138,6 +140,10 @@ class RouteCalculatorForBoundingBoxTest {
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertFalse(journey.getStages().isEmpty()); // catch case where starting point is dest
         } ));
+    }
+
+    private boolean allClosed(JourneysForBox group) {
+        return group.getBox().getStations().stream().allMatch(station -> UpcomingDates.hasClosure(station, when));
     }
 
 }

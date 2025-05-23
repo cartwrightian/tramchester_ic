@@ -1,16 +1,16 @@
 package com.tramchester.domain;
 
-import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
 
 import java.util.Comparator;
 import java.util.Set;
 
 public class JourneysForBox {
-    private final BoundingBox box;
+    private final BoundingBoxWithStations box;
     private final Set<Journey> journeys;
 
-    public JourneysForBox(BoundingBox box, Set<Journey> journeys) {
+    public JourneysForBox(BoundingBoxWithStations box, Set<Journey> journeys) {
         this.box = box;
         this.journeys = journeys;
     }
@@ -19,7 +19,7 @@ public class JourneysForBox {
         return journeys;
     }
 
-    public BoundingBox getBox() {
+    public BoundingBoxWithStations getBox() {
         return box;
     }
 
@@ -31,7 +31,7 @@ public class JourneysForBox {
                 '}';
     }
 
-    public boolean contains(GridPosition destination) {
+    public boolean contains(final GridPosition destination) {
         return box.contained(destination);
     }
 

@@ -9,6 +9,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.mappers.StopOrderChecker;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,7 @@ public class StopOrderCheckerTest {
         when = TestEnv.testDay();
     }
 
+    @BuryWorksSummer2025
     @Test
     void shouldMatchForAltrinchamStPetersBury() {
         Station begin = Altrincham.from(stationRepository);

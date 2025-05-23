@@ -31,6 +31,8 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
@@ -285,6 +287,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 6, day = 2)
     @Test
     void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -295,7 +298,7 @@ class TramGraphBuilderTest {
                 filter(trip -> trip.isAfter(start.getId(), end.getId()))
                 .toList();
 
-        assertFalse(callingTrips.isEmpty());
+        assertFalse(callingTrips.isEmpty(), "no trips for " + when);
 
         callingTrips.forEach(trip -> {
             final Route route = trip.getRoute();
@@ -547,6 +550,7 @@ class TramGraphBuilderTest {
         });
     }
 
+    @DisabledUntilDate(year = 2025, month = 6, day = 2)
     @Test
     void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -557,7 +561,7 @@ class TramGraphBuilderTest {
                 filter(trip -> trip.isAfter(start.getId(), end.getId()))
                 .toList();
 
-        assertFalse(callingTrips.isEmpty());
+        assertFalse(callingTrips.isEmpty(), "no trips for " + when);
 
         callingTrips.forEach(trip -> {
             final Route route = trip.getRoute();
@@ -720,6 +724,7 @@ class TramGraphBuilderTest {
         return outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
     }
 
+    @BuryWorksSummer2025
     @Test
     void shouldHaveSameOutboundTripIdsForNeighbouringRouteStationWhenSameRouteAndSvc() {
         // outbound from manchester Timperley then Brooklands (not navigation road since some services "turn around" at timperley)
@@ -727,6 +732,8 @@ class TramGraphBuilderTest {
         Station stationB = Brooklands.from(stationRepository);
 
         Route buryToAlty = tramRouteHelper.getGreen(when);
+
+        assertTrue(buryToAlty.isAvailableOn(when), "No route on " + when);
 
         RouteStation routeStationA = stationRepository.getRouteStation(stationA, buryToAlty);
         RouteStation routeStationB = stationRepository.getRouteStation(stationB, buryToAlty);
@@ -747,10 +754,7 @@ class TramGraphBuilderTest {
         IdSet<Service> stationBServices = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
 
         IdSet<Service> differenceInRelationships = IdSet.disjunction(stationAServices, stationBServices);
-
         assertTrue(differenceInRelationships.isEmpty(), "not same set of services, diff was " + differenceInRelationships);
-
-        assertFalse(stationAServices.isEmpty());
 
         // NOTE: Late night services can terminate in unexpected places...
         IdSet<Service> stationAServicesForDate = stationAServices.stream().
@@ -759,14 +763,19 @@ class TramGraphBuilderTest {
                 filter(service -> service.getFinishTime().isBefore(TramTime.of(23,0))).
                 collect(IdSet.collector());
 
-        assertFalse(stationAServicesForDate.isEmpty());
+        assertFalse(stationAServicesForDate.isEmpty(), "no services at A for " + when);
+
+        boolean anyServicesForB = stationBServices.stream().map(svcId -> serviceRepository.getServiceById(svcId)).
+                anyMatch(service -> service.getCalendar().operatesOn(when));
+        assertTrue(anyServicesForB, "no services at B for " + when);
 
         stationAServicesForDate.forEach(svcId -> {
 
             // from A towards B only
             List<ImmutableGraphRelationship> fromA = svcOutboundsA.stream().
                     filter(svcOutbound -> svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationB.getId())).
-                    filter(svcOutbound -> svcOutbound.getServiceId().equals(svcId)).toList();
+                    filter(svcOutbound -> svcOutbound.getServiceId().equals(svcId)).
+                    toList();
             assertEquals(1, fromA.size(), "On " + when +" could not find " + svcId + " from A towards B " + stationAServicesForDate);
 
             // from B, excluding back towards A

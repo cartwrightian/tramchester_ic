@@ -17,6 +17,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -169,12 +170,14 @@ public class StopCallRepositoryTest {
         assertThrows(RuntimeException.class, () -> stopCallRepository.getStopcallsBetween(StPetersSquare.getId(), Victoria.getId(), when));
     }
 
+    @BuryWorksSummer2025
     @Test
     void shouldDoublecheckStopsForClosuresCrumpsalToBury() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Crumpsal.getId(), Bury.getId(), when);
         assertEquals(stopsBetween, UpcomingDates.CrumpsalToBury);
     }
 
+    @BuryWorksSummer2025
     @Test
     void shouldDoublecheckStopsForClosuresWhitefieldToBury() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Whitefield.getId(), Bury.getId(), when);

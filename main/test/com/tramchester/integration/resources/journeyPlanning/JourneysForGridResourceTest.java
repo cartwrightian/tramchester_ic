@@ -21,7 +21,6 @@ import com.tramchester.resources.JourneysForGridResource;
 import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
-import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -80,9 +80,8 @@ class JourneysForGridResourceTest {
     @Test
     void shouldHaveJourneysForWholeGridChunked() throws IOException {
         LatLong nearDestination = KnownLocations.nearStPetersSquare.latLong();
-        Station destination = TramStations.StPetersSquare.from(stationRepository);
+        Station destination = StPetersSquare.from(stationRepository);
 
-        final int outOfRangeForDuration = 0;
 
         IdForDTO destinationId = IdForDTO.createFor(destination);
         LocalDate departureDate = when.toLocalDate();
@@ -109,7 +108,7 @@ class JourneysForGridResourceTest {
 
         final List<BoxWithCostDTO> containsDest = results.stream().filter(result -> result.getMinutes() == 0).toList();
         assertEquals(1, containsDest.size());
-        BoxWithCostDTO boxWithDest = containsDest.get(0);
+        BoxWithCostDTO boxWithDest = containsDest.getFirst();
         assertTrue(boxWithDest.getBottomLeft().getLat() <= nearDestination.getLat());
         assertTrue(boxWithDest.getBottomLeft().getLon() <= nearDestination.getLon());
         assertTrue(boxWithDest.getTopRight().getLat() >= nearDestination.getLat());
@@ -122,6 +121,8 @@ class JourneysForGridResourceTest {
         notDest.forEach(boundingBoxWithCost ->
                 assertTrue(boundingBoxWithCost.getMinutes() <= maxDuration,
                         boundingBoxWithCost.getMinutes() + " more than " + maxDuration + " failed for " + boundingBoxWithCost));
+
+        final int outOfRangeForDuration = 2; // todo compute this?
 
         List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
         assertEquals(outOfRangeForDuration, noResult.size());

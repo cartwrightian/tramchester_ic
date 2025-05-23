@@ -82,8 +82,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveDirectWalkNearPiccadillyGardens() {
-        // plus one week for spring 2025 closures
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusWeeks(1), TramTime.of(9, 0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
                 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens,
                 journeyRequest, 3);
@@ -117,8 +116,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveDirectWalkFromPiccadilly() {
-        // plus one week for spring 2025 closures
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusWeeks(1), TramTime.of(9, 0),
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens, nearPiccGardens, journeyRequest, 2);
 
@@ -365,8 +363,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
-        // plus one week for spring 2025 closures
-        final JourneyRequest request = new JourneyRequest(when.plusWeeks(1), TramTime.of(9, 0),
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         // set max stages to 1, because there is another path via walk to market street and then tram

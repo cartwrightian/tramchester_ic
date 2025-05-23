@@ -53,7 +53,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public static ChecksOpen<Station> checkStationOpen(final ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
-        return (stationId, date) -> !closedStationRepository.isStationClosed(stationId, date);
+        return (stationId, date) -> {
+            return !( UpcomingDates.hasClosure(stationId, date) || closedStationRepository.isStationClosed(stationId, date) );
+        };
     }
 
     public static ChecksOpen<StationLocalityGroup> checkGroupOpen(final ComponentContainer componentContainer) {

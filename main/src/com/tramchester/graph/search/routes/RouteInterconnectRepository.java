@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.ComponentThatCaches;
 import com.tramchester.caching.DataCache;
 import com.tramchester.caching.FileDataCache;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.RoutePairInterconnectsData;
 import com.tramchester.domain.RoutePair;
@@ -42,11 +43,13 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
 
     private final RouteInterconnects interconnectsForDepth;
     private final GraphFilterActive graphFilter;
+    private final boolean warnForMissing;
 
     @Inject
     public RouteInterconnectRepository(RouteIndexPairFactory pairFactory, NumberOfRoutes numberOfRoutes, RouteIndex routeIndex,
                                        InterchangeRepository interchangeRepository, RouteCostMatrix routeCostMatrix,
-                                       RouteDateAndDayOverlap routeDateAndDayOverlap, DataCache dataCache, GraphFilterActive graphFilter) {
+                                       RouteDateAndDayOverlap routeDateAndDayOverlap, DataCache dataCache, GraphFilterActive graphFilter,
+                                       TramchesterConfig config) {
         super(dataCache, RoutePairInterconnectsData.class);
         this.pairFactory = pairFactory;
         this.numRoutes = numberOfRoutes.numberOfRoutes();
@@ -56,6 +59,13 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         this.routeDateAndDayOverlap = routeDateAndDayOverlap;
         interconnectsForDepth = new RouteInterconnects(RouteCostMatrix.MAX_DEPTH);
         this.graphFilter = graphFilter;
+
+        if (graphFilter.isActive()) {
+            warnForMissing = false;
+        } else {
+            // for mixed modes don't warn on lack on route overlap
+            this.warnForMissing = config.getTransportModes().size()==1;
+        }
     }
 
     @PostConstruct
@@ -205,7 +215,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         final int degree = routeCostMatrix.getDegree(indexPair);
 
         if (degree==Byte.MAX_VALUE) {
-            if (!graphFilter.isActive()) {
+            if (warnForMissing) {
                 logger.warn("No degree found for " + routeIndex.getPairFor(indexPair));
             }
             return new PathResults.NoPathResults();

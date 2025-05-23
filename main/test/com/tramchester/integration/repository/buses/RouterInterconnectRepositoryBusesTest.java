@@ -4,7 +4,6 @@ package com.tramchester.integration.repository.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.caching.DataCache;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.IndexedBitSet;
@@ -34,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @BusTest
 public class RouterInterconnectRepositoryBusesTest {
     private static ComponentContainer componentContainer;
+    private static IntegrationBusTestConfig tramchesterConfig;
 
     private RouteIndex routeIndex;
     private TramRouteHelper routeHelper;
@@ -46,7 +46,7 @@ public class RouterInterconnectRepositoryBusesTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
 
-        TramchesterConfig tramchesterConfig = new IntegrationBusTestConfig();
+        tramchesterConfig = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -101,7 +101,8 @@ public class RouterInterconnectRepositoryBusesTest {
         DataCache dataCache = new FakeDataCache();
 
         RouteInterconnectRepository anotherRepository = new RouteInterconnectRepository(pairFactory, numberOfRoutes, routeIndex,
-                interchangeRepository, routeMatrix, routeDayAndDateOverlap, dataCache, new GraphFilterActive(false));
+                interchangeRepository, routeMatrix, routeDayAndDateOverlap, dataCache, new GraphFilterActive(false),
+                tramchesterConfig);
 
         for (int i = 0; i < 20; i++) {
             anotherRepository.start();

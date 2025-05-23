@@ -40,7 +40,7 @@ public class JourneyPlannerResourceStreamingTest {
         final boolean arriveBy = false;
 
         List<JourneyDTO> journeyDTOS = journeyPlanner.getJourneyPlanStreamed(when, TramTime.of(11,45),
-                TramStations.Bury, TramStations.ManAirport, arriveBy, maxChanges);
+                TramStations.StPetersSquare, TramStations.ManAirport, arriveBy, maxChanges);
 
         Assertions.assertFalse(journeyDTOS.isEmpty());
         journeyDTOS.forEach(journeyDTO -> Assertions.assertFalse(journeyDTO.getStages().isEmpty()));
