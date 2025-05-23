@@ -215,7 +215,17 @@ public class TramTime implements Comparable<TramTime> {
             return true;
         }
         if (hour==other.hour) {
-            return minute>other.minute || minute==other.minute;
+            return minute > other.minute; // minute>other.minute || minute==other.minute;
+        }
+        return false;
+    }
+
+    private boolean isBeforeBasic(final TramTime other) {
+        if (hour<other.hour) {
+            return true;
+        }
+        if (hour==other.hour) {
+            return minute < other.minute; // minute>other.minute || minute==other.minute;
         }
         return false;
     }
@@ -265,9 +275,9 @@ public class TramTime implements Comparable<TramTime> {
             return false;
         }
         if (this.offsetDays==other.offsetDays) {
-            return other.isAfterBasic(this);
+            return isBeforeBasic(other);
         }
-        return other.offsetDays > this.offsetDays;
+        return this.offsetDays < other.offsetDays;
     }
 
     public boolean isAfter(final TramTime other) {
