@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate startMayCutover = TramDate.of(2025,5,17);
+    public static final TramDate startMayCutover = TramDate.of(2025,5,25);
 
     // TODO mismatch between data and website
     static final Dates replacementBusOneDates =

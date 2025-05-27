@@ -238,7 +238,7 @@ class KnownTramRouteTest {
         assertFalse(knowRoutes.isEmpty());
 
         knowRoutes.forEach(known -> {
-            assertTrue(routeRepository.hasRouteId(known.getId()), known + " is missing from repo");
+            assertTrue(routeRepository.hasRouteId(known.getId()), known + "(" +known.getId() + ") is missing from repo");
             Route actual = routeRepository.getRouteById(known.getId());
             assertTrue(actual.getDateRange().contains(known.getValidFrom()), known.getValidFrom() + " for " +
                     known + " not within " + actual.getDateRange());

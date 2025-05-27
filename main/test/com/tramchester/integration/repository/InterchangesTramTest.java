@@ -86,9 +86,9 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook, PiccadillyGardens, StPetersSquare,
                 Broadway,
                 MarketStreet,
-                Victoria,
+                Victoria
                 // summery 2025 closures
-                OldhamMumps, OldhamKingStreet
+                ///OldhamMumps, OldhamKingStreet
         );
 
         Set<Station> expectedStations = expectedTramStations.
