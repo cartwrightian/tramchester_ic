@@ -14,10 +14,7 @@ import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchest
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -28,6 +25,10 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+// see also performanceTestGM in gradle for another way to run this same test
+
+@Disabled("performance testing only - too slow")
 @GMTest
 public class RouteCalculatorAllRailAndTramJourneysTest {
 

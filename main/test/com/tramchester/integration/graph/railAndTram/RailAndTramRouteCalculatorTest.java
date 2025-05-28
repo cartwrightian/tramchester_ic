@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -509,6 +510,7 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
+    @BuryWorksSummer2025
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 3,
