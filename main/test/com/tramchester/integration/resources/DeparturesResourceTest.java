@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrinchamInterchange;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RequiresNetwork
@@ -202,8 +203,21 @@ class DeparturesResourceTest {
         SortedSet<DepartureDTO> departures = result.getDepartures();
         assertFalse(departures.isEmpty(), "no departures for " + nearAltrinchamInterchange);
 
+        Set<IdForDTO> departsFrom = departures.stream().
+                map(departureDTO -> departureDTO.getFrom().getId()).
+                collect(Collectors.toSet());
+
+        assertTrue(departsFrom.contains(Altrincham.getIdForDTO()), "Did see altrincham departure in " + departures);
+
         List<Note> notes = result.getNotes();
         assertFalse(notes.isEmpty(),"no notes for " + nearAltrinchamInterchange);
+
+        Set<IdForDTO> notesDisplayedAt = notes.stream().
+                flatMap(note -> note.getDisplayedAt().stream()).
+                map(LocationRefDTO::getId).
+                collect(Collectors.toSet());
+
+        assertTrue(notesDisplayedAt.contains(Altrincham.getIdForDTO()), "Did see altrincham departure in " + notes);
     }
 
     @Test
@@ -243,7 +257,7 @@ class DeparturesResourceTest {
     void shouldNotGetNearbyIfOutsideOfThreshold() {
         LatLong where = nearAltrinchamInterchange.latLong();
 
-        final Set<IdForDTO> nearAlty = Stream.of(TramStations.Altrincham, TramStations.NavigationRoad).
+        final Set<IdForDTO> nearAlty = Stream.of(Altrincham, TramStations.NavigationRoad).
                 map(TramStations::getIdForDTO).collect(Collectors.toSet());
 
         Response response = getResponseForLocation(where);
