@@ -100,7 +100,6 @@ public class DeparturesResource extends TransportResource implements APIResource
             queryTime = providesNow.getNowHourMins();
         }
 
-        final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
 
         final EnumSet<TransportMode> modesFromQuery = departuresQuery.getModes();
         final EnumSet<TransportMode> modes;
@@ -118,6 +117,8 @@ public class DeparturesResource extends TransportResource implements APIResource
 
         final SortedSet<DepartureDTO> departs;
         departs = mapToDTOs(departuresQuery, dueTrams);
+
+        final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
 
         final List<Note> notes = getNotes(notesFor, dueTrams, queryDate, queryTime, location);
 
@@ -157,7 +158,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             if (dueTrams.isEmpty()) {
                 return getNotesWhenNoDueTrams(location);
             } else {
-                logger.info("Fetch notes from due dues");
+                logger.info("Fetch notes from due trams");
                 return dueTrams.stream().map(UpcomingDeparture::getDisplayLocation).collect(Collectors.toSet());
             }
         } else {

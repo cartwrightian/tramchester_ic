@@ -99,7 +99,7 @@ public class DeparturesRepository {
         final MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
-        List<Station> nearbyStations = stationLocationsRepository.nearestStationsSorted(location, numOfNearestStopsToOffer,
+        final List<Station> nearbyStations = stationLocationsRepository.nearestStationsSorted(location, numOfNearestStopsToOffer,
                 margin, modes);
 
         return nearbyStations.stream().

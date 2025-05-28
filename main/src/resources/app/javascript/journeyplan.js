@@ -106,7 +106,9 @@ function queryLiveData(app, callingStations) {
 
     // locations we should request notes for
     var getNotesFor = callingStations.slice();
-    getNotesFor.push(startLocationId);
+    if (startLocationType != app.myLocation.locationType) {
+        getNotesFor.push(startLocationId);
+    } // else API returns nearby Trams and Notes by default
 
     var journeyList;
     if (app.journeys==null) {
@@ -119,7 +121,7 @@ function queryLiveData(app, callingStations) {
         time: app.time,
         locationType: startLocationType,
         locationId: startLocationId,
-        notes: true,
+        //notes: true, -- no longer used
         notesFor: getNotesFor,
         modes: modes,
         journeys: journeyList

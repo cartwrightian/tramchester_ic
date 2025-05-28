@@ -162,7 +162,8 @@ class DeparturesResourceTest {
         Station station = stationWithDepartures;
 
         LocalTime now = TestEnv.LocalNow().toLocalTime();
-        SortedSet<DepartureDTO> departures = getDeparturesForStation(station, now);
+        DepartureListDTO result = getDeparturesForStation(station, now);
+        SortedSet<DepartureDTO> departures = result.getDepartures();
         assertFalse(departures.isEmpty(), "no due trams at " + station);
         departures.forEach(depart -> assertEquals(new LocationRefDTO(station), depart.getFrom()));
     }
@@ -172,8 +173,10 @@ class DeparturesResourceTest {
     void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
 
-        SortedSet<DepartureDTO> departures = getDeparturesForStation(stationWithDepartures, queryTime);
+        DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
+        SortedSet<DepartureDTO> departures = result.getDepartures();
         assertTrue(departures.isEmpty());
+        assertTrue(result.getNotes().isEmpty());
     }
 
     @Test
@@ -181,9 +184,11 @@ class DeparturesResourceTest {
     void shouldGetDueTramsForStationWithQuerytimeFuture() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
 
-        SortedSet<DepartureDTO> departures = getDeparturesForStation(stationWithDepartures, queryTime);
+        DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
+        SortedSet<DepartureDTO> departures = result.getDepartures();
 
         assertTrue(departures.isEmpty());
+        assertTrue(result.getNotes().isEmpty());
     }
 
     @Test
@@ -191,8 +196,14 @@ class DeparturesResourceTest {
     void shouldGetNearbyDeparturesQuerytimeNow() {
         LatLong where = nearAltrinchamInterchange.latLong();
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
-        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(where, queryTime);
-        assertFalse(departures.isEmpty(), "no departures for lat/long altrincham");
+
+        DepartureListDTO result = getDeparturesForLatlongTime(where, queryTime);
+        assertFalse(result.isForJourney());
+        SortedSet<DepartureDTO> departures = result.getDepartures();
+        assertFalse(departures.isEmpty(), "no departures for " + nearAltrinchamInterchange);
+
+        List<Note> notes = result.getNotes();
+        assertFalse(notes.isEmpty(),"no notes for " + nearAltrinchamInterchange);
     }
 
     @Test
@@ -200,8 +211,15 @@ class DeparturesResourceTest {
     void shouldGetNearbyDeparturesQuerytimeFuture() {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
-        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
+        //SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
+
+        DepartureListDTO result = getDeparturesForLatlongTime(latLong, queryTime);
+        assertFalse(result.isForJourney());
+
+        SortedSet<DepartureDTO> departures = result.getDepartures();
+
         assertTrue(departures.isEmpty());
+        assertTrue(result.getNotes().isEmpty());
     }
 
     @Test
@@ -210,9 +228,14 @@ class DeparturesResourceTest {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
 
-        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
+        //SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
+        DepartureListDTO result = getDeparturesForLatlongTime(latLong, queryTime);
+        assertFalse(result.isForJourney());
+
+        SortedSet<DepartureDTO> departures = result.getDepartures();
 
         assertTrue(departures.isEmpty());
+        assertTrue(result.getNotes().isEmpty());
     }
 
     @Test
@@ -227,6 +250,7 @@ class DeparturesResourceTest {
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+        assertFalse(departureList.isForJourney());
 
         SortedSet<DepartureDTO> departures = departureList.getDepartures();
         assertFalse(departures.isEmpty(), "no departures");
@@ -243,23 +267,20 @@ class DeparturesResourceTest {
 
     }
 
-    private SortedSet<DepartureDTO> getDeparturesForLatlongTime(LatLong where, LocalTime queryTime) {
+    private DepartureListDTO getDeparturesForLatlongTime(LatLong where, LocalTime queryTime) {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
         return getDepartureDTOS(queryTime, queryDTO);
     }
 
-    private SortedSet<DepartureDTO> getDeparturesForStation(Station station, LocalTime queryTime) {
+    private DepartureListDTO getDeparturesForStation(Station station, LocalTime queryTime) {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
         return getDepartureDTOS(queryTime, queryDTO);
     }
 
-    private SortedSet<DepartureDTO> getDepartureDTOS(LocalTime time, DeparturesQueryDTO queryDTO) {
+    private DepartureListDTO getDepartureDTOS(LocalTime time, DeparturesQueryDTO queryDTO) {
         queryDTO.setTime(time);
-
         Response response = getPostResponse(queryDTO);
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        return departureList.getDepartures();
+        return response.readEntity(DepartureListDTO.class);
     }
 
     private Response getResponseForStation(Station station) {
