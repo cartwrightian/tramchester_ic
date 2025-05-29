@@ -46,21 +46,21 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         return new BitmapAsRoaringBitmap(result, size);
     }
 
-    private void extractColumn_old(final RoaringBitmap result, final int column, final int totalRows, final int totalColumns) {
-        // used of buffer and addN has significant performance impact
-        final int[] outputBuffer = new int[totalRows];
-        int beginOfRow = 0;
-        int index = 0;
-
-        for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
-            final int columnPosition = column + beginOfRow;
-            if (bitmap.contains(columnPosition)) {
-                outputBuffer[index++] = columnPosition;
-            }
-            beginOfRow = beginOfRow + totalColumns;
-        }
-        result.addN(outputBuffer, 0, index);
-    }
+//    private void extractColumn_old(final RoaringBitmap result, final int column, final int totalRows, final int totalColumns) {
+//        // used of buffer and addN has significant performance impact
+//        final int[] outputBuffer = new int[totalRows];
+//        int beginOfRow = 0;
+//        int index = 0;
+//
+//        for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+//            final int columnPosition = column + beginOfRow;
+//            if (bitmap.contains(columnPosition)) {
+//                outputBuffer[index++] = columnPosition;
+//            }
+//            beginOfRow = beginOfRow + totalColumns;
+//        }
+//        result.addN(outputBuffer, 0, index);
+//    }
 
     private void extractColumn(final RoaringBitmap result, final int column, final int totalRows, final int totalColumns) {
         int beginOfRow = 0;
@@ -230,17 +230,34 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
 
     @Override
     public void orAtOffset(final int offset, final SimpleBitmap other) {
-        for (int column = 0; column < other.size(); column++) {
-            final int location = offset + column;
-            if (other.get(column)) {
-                bitmap.add(location);
-            }
+        final RoaringBitmap mask = new RoaringBitmap();
+        final int[] array = other.toArray();
+
+        for (int i = 0; i < array.length; i++) {
+            array[i] = array[i] + offset;
         }
+
+        mask.addN(array, 0, array.length);
+        bitmap.or(mask);
+
+//        // slow....
+//        for (int column = 0; column < other.size(); column++) {
+//            final int location = offset + column;
+//            if (other.get(column)) {
+//                bitmap.add(location);
+//            }
+//        }
+    }
+
+    @Override
+    public int[] toArray() {
+        return bitmap.toArray();
     }
 
 
     @Override
     public void insert(final int offset, final SimpleBitmap other) {
+        // zero the region where insert will take place
         bitmap.remove(offset, offset + other.size());
         orAtOffset(offset, other);
     }

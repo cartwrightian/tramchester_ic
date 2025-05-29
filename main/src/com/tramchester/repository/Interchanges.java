@@ -108,7 +108,7 @@ public class Interchanges implements InterchangeRepository {
                     if (interchanges.containsKey(beginId)) {
                         InterchangeStation existing = interchanges.get(beginId);
                         if (existing.getType()==InterchangeType.NeighbourLinks) {
-                            LinkedInterchangeStation multiInterchangeStation = (LinkedInterchangeStation) existing;
+                            final LinkedInterchangeStation multiInterchangeStation = (LinkedInterchangeStation) existing;
                             logger.info(format("Updating an existing multiple link interchange %s with %s", multiInterchangeStation, stationLink));
                             multiInterchangeStation.addLink(stationLink);
                         } else {

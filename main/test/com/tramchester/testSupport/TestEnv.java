@@ -134,6 +134,10 @@ public class TestEnv {
         return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.NorthernTrainsAgency(), Train);
     }
 
+    public static Route getBusTestRoute(IdFor<Route> routeId, String routeName) {
+        return MutableRoute.getRoute(routeId, "routeCode", routeName, TestEnv.MetAgency(), Bus);
+    }
+
     public static Agency MetAgency() {
         return MET;
     }

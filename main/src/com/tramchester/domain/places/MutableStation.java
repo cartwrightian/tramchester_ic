@@ -11,10 +11,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MutableStation implements Station {
@@ -36,6 +33,7 @@ public class MutableStation implements Station {
     private final EnumSet<TransportMode> modes;
     private final Duration changeTimeNeeded;
     private final boolean isCentral;
+    private final int hashCode;
 
     public MutableStation(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID, boolean isCentral) {
@@ -62,6 +60,8 @@ public class MutableStation implements Station {
         this.latLong = latLong;
         this.isCentral = isCentral;
         modes = EnumSet.noneOf(TransportMode.class);
+        // for performance
+        this.hashCode = Objects.hashCode(id);
     }
 
     public static Station Unknown(final DataSourceID dataSourceID) {
@@ -232,7 +232,7 @@ public class MutableStation implements Station {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return hashCode;
     }
 
     @Override

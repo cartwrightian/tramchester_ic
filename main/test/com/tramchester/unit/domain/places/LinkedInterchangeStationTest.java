@@ -18,10 +18,9 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.Walk;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.TestEnv.getTrainTestRoute;
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
-import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
+import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -57,6 +56,65 @@ public class LinkedInterchangeStationTest {
         trainPickup = getTrainTestRoute(Route.createBasicRouteId("routeTrain2"), "train route 2 name");
         trainStation.addRouteDropOff(trainDropoff);
         trainStation.addRoutePickUp(trainPickup);
+    }
+
+    @Test
+    void shouldHaveCreateLinkedInterchangeAndAddLink() {
+
+        EnumSet<TransportMode> modes = EnumSet.of(Walk);
+        Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
+        Duration walkingTime = Duration.ofMinutes(4);
+
+        StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
+        StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, linkType, distance, walkingTime);
+
+        IdFor<Station> busStationId = Station.createId("busStation1");
+        MutableStation busStation = new MutableStation(busStationId, NPTGLocality.createId("napranId2"),
+                "bus station", nearShudehill.latLong(), nearShudehill.grid(), DataSourceID.openRailData, true);
+        IdFor<Route> routeId = Route.createBasicRouteId("busRouteA");
+        Route busRoute = TestEnv.getBusTestRoute(routeId, "busRouteNameA");
+        busStation.addRoutePickUp(busRoute);
+
+        StationToStationConnection tramToBus = new StationToStationConnection(tramStation, busStation, modes, linkType, distance, walkingTime);
+
+        LinkedInterchangeStation tramInterchange = new LinkedInterchangeStation(tramToTrain);
+
+        assertTrue(tramInterchange.isMultiMode());
+        assertEquals(EnumSet.of(Tram, Train), tramInterchange.getTransportModes());
+
+        assertEquals(tramId, tramInterchange.getStationId());
+        assertEquals(tramStation, tramInterchange.getStation());
+
+        Set<Route> pickupRoutes = tramInterchange.getPickupRoutes();
+        assertEquals(2, pickupRoutes.size());
+        assertTrue(pickupRoutes.contains(tramPickup));
+        assertTrue(pickupRoutes.contains(trainPickup));
+
+        assertEquals(2, tramInterchange.getDropoffRoutes().size());
+        assertTrue(tramInterchange.getDropoffRoutes().contains(tramDropoff));
+
+        tramInterchange.addLink(tramToBus);
+
+        pickupRoutes = tramInterchange.getPickupRoutes();
+        assertEquals(3, pickupRoutes.size());
+
+        assertEquals(EnumSet.of(Tram, Train, Bus), tramInterchange.getTransportModes());
+
+
+//        InterchangeStation trainInterchange = new LinkedInterchangeStation(trainToTram);
+//
+//        assertTrue(trainInterchange.isMultiMode());
+//
+//        assertEquals(trainId, trainInterchange.getStationId());
+//        assertEquals(trainStation, trainInterchange.getStation());
+//
+//        Set<Route> pickupRoutesTrain = trainInterchange.getPickupRoutes();
+//        assertEquals(2, pickupRoutesTrain.size());
+//        assertTrue(pickupRoutesTrain.contains(tramPickup));
+//        assertTrue(pickupRoutesTrain.contains(trainPickup));
+//
+//        assertEquals(2, trainInterchange.getDropoffRoutes().size());
+//        assertTrue(trainInterchange.getDropoffRoutes().contains(trainDropoff));
     }
 
     @Test

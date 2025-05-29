@@ -10,10 +10,12 @@ public interface SimpleImmutableBitmap {
 
     int size();
 
+    /***
+     * @return number of bits set
+     */
     long cardinality();
 
     SimpleImmutableBitmap getSubmap(int start, int end);
 
     Stream<Short> getBitIndexes();
-
 }

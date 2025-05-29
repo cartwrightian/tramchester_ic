@@ -22,6 +22,19 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
 
     void andNot(SimpleImmutableBitmap other);
 
+    /***
+     * factory method, so can swap bitmap impl's quickly
+     * @param size size of the bit
+     * @return an implementation of SimpleBitmap
+     */
+    static SimpleBitmap create(int size) {
+        return new BitmapAsRoaringBitmap(size);
+    }
+
+    void orAtOffset(int offset, SimpleBitmap other);
+
+    int[] toArray();
+
     static int getPositionFor(int row, int column, int rows, int columns) {
         if (row >= rows) {
             throw new RuntimeException("Row is out of bounds, more than " + rows);
@@ -46,14 +59,4 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
         return result.toString();
     }
 
-    /***
-     * factory method, so can swap bitmap impl's quickly
-     * @param size size of the bit
-     * @return an implementation of SimpleBitmap
-     */
-    static SimpleBitmap create(int size) {
-        return new BitmapAsRoaringBitmap(size);
-    }
-
-    void orAtOffset(int offset, SimpleBitmap other);
 }

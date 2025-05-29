@@ -25,13 +25,25 @@ public class LinkedInterchangeStation implements InterchangeStation {
     private final EnumSet<TransportMode> allModes;
 
     public LinkedInterchangeStation(final StationToStationConnection stationLink) {
+        origin = stationLink.getBegin();
+
         links = new HashSet<>();
         links.add(stationLink);
-        origin = stationLink.getBegin();
         final Set<TransportMode> collectedModes = links.stream().
                 flatMap(links -> links.getContainedModes().stream()).
                 collect(Collectors.toSet());
         this.allModes = EnumSet.copyOf(collectedModes);
+    }
+
+    public void addLink(final StationToStationConnection stationLink) {
+        if (!stationLink.getBegin().equals(origin)) {
+            throw new RuntimeException(format("Attempt to add a stationlink (%s) that does not match origin %s", stationLink, origin));
+        }
+        if (links.contains(stationLink)) {
+            throw new RuntimeException(format("Attempt to add duplicated link %s to %s", stationLink, links));
+        }
+        links.add(stationLink);
+        allModes.addAll(stationLink.getContainedModes());
     }
 
     @Override
@@ -59,7 +71,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
         return fold(station -> station.servesRouteDropOff(route));
     }
 
-    private boolean fold(Function<Station, Boolean> check) {
+    private boolean fold(final Function<Station, Boolean> check) {
         if (check.apply(origin)) {
             return true;
         }
@@ -105,15 +117,6 @@ public class LinkedInterchangeStation implements InterchangeStation {
         return TransportMode.anyIntersection(allModes, other);
     }
 
-    public void addLink(final StationToStationConnection stationLink) {
-        if (!stationLink.getBegin().equals(origin)) {
-            throw new RuntimeException(format("Attempt to add a stationlink (%s) that does not match origin %s", stationLink, origin));
-        }
-        if (links.contains(stationLink)) {
-            throw new RuntimeException(format("Attempt to add duplicated link %s to %s", stationLink, links));
-        }
-        links.add(stationLink);
-    }
 
     @Override
     public String toString() {
