@@ -46,7 +46,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         return new BitmapAsRoaringBitmap(result, size);
     }
 
-    private void extractColumn(RoaringBitmap result, final int column, final int totalRows, final int totalColumns) {
+    private void extractColumn_old(final RoaringBitmap result, final int column, final int totalRows, final int totalColumns) {
         // used of buffer and addN has significant performance impact
         final int[] outputBuffer = new int[totalRows];
         int beginOfRow = 0;
@@ -60,6 +60,21 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
             beginOfRow = beginOfRow + totalColumns;
         }
         result.addN(outputBuffer, 0, index);
+    }
+
+    private void extractColumn(final RoaringBitmap result, final int column, final int totalRows, final int totalColumns) {
+        int beginOfRow = 0;
+
+        final RoaringBitmap mask = new RoaringBitmap();
+        for (int rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+            final int columnPosition = column + beginOfRow;
+            mask.add(columnPosition);
+            beginOfRow = beginOfRow + totalColumns;
+        }
+
+        final RoaringBitmap matching = RoaringBitmap.and(bitmap, mask);
+        result.addN(matching.toArray(), 0, matching.getCardinality());
+
     }
 
     private void extractRow(RoaringBitmap result, final int row, final int totalColumns) {
@@ -214,14 +229,19 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public void insert(final int offset, final SimpleBitmap other) {
+    public void orAtOffset(final int offset, final SimpleBitmap other) {
         for (int column = 0; column < other.size(); column++) {
             final int location = offset + column;
             if (other.get(column)) {
                 bitmap.add(location);
-            } else {
-                bitmap.remove(location);
             }
         }
+    }
+
+
+    @Override
+    public void insert(final int offset, final SimpleBitmap other) {
+        bitmap.remove(offset, offset + other.size());
+        orAtOffset(offset, other);
     }
 }

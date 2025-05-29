@@ -55,4 +55,5 @@ public interface SimpleBitmap extends SimpleImmutableBitmap {
         return new BitmapAsRoaringBitmap(size);
     }
 
+    void orAtOffset(int offset, SimpleBitmap other);
 }

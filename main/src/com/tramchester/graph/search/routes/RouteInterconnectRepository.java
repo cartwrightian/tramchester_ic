@@ -225,7 +225,9 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
             logger.debug(String.format("Get interchanges for %s with initial degree %s", HasId.asIds(routeIndex.getPairFor(indexPair)), degree));
         }
 
-        final ImmutableIndexedBitSet changesForDegree = routeCostMatrix.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
+        final ImmutableIndexedBitSet changesForDegree = routeCostMatrix.
+                getDegree(degree).
+                getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes quickly
         final IndexedBitSet withDateApplied = IndexedBitSet.and(changesForDegree, dateOverlaps);
 

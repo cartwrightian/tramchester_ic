@@ -91,9 +91,6 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
     public void insert(final int row, final SimpleBitmap connectionsForRoute) {
         final int startPosition = getPositionFor(row, 0);
         bitmap.insert(startPosition, connectionsForRoute);
-//        for (int column = 0; column < columns; column++) {
-//            bitmap.set(startPosition + column, connectionsForRoute.get(column));
-//        }
     }
 
     @Override
@@ -156,7 +153,7 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
     /***
      * Return a new grid with bits set if they were set in the row and column provided
      * @param row to select set bits from
-     * @param column to select set bit from
+     * @param column to select set bits from
      * @return IndexedBitSet of same dimensions
      */
     @Override
@@ -189,5 +186,9 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
     @Override
     public int hashCode() {
         return Objects.hash(rows, columns, bitmap, totalSize);
+    }
+
+    public void or(final short offset, final SimpleBitmap other) {
+        bitmap.orAtOffset(offset, other);
     }
 }

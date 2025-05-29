@@ -113,8 +113,6 @@ public class BitmapAsRoaringBitmapTest {
         assertEquals(5, submap.size());
 
         assertEquals(5, submap.cardinality(), submap.toString());
-
-
     }
 
     @Test
@@ -188,6 +186,44 @@ public class BitmapAsRoaringBitmapTest {
         assertTrue(result.get(4), result.toString());
         assertTrue(result.get(5), result.toString());
         assertTrue(result.get(7), result.toString());
+
+    }
+
+    @Test
+    void shouldInsert() {
+        BitmapAsRoaringBitmap other = new BitmapAsRoaringBitmap(3);
+        other.set(0);
+        other.set(2);
+        simpleBitmap.set(4);
+
+        assertFalse(simpleBitmap.get(3));
+        assertTrue(simpleBitmap.get(4));
+        assertFalse(simpleBitmap.get(5));
+
+        simpleBitmap.insert(3, other);
+
+        assertTrue(simpleBitmap.get(3));
+        assertFalse(simpleBitmap.get(4));
+        assertTrue(simpleBitmap.get(5));
+
+    }
+
+    @Test
+    void shouldOrWithOffset() {
+        BitmapAsRoaringBitmap other = new BitmapAsRoaringBitmap(3);
+        other.set(0);
+        other.set(2);
+        simpleBitmap.set(4);
+
+        assertFalse(simpleBitmap.get(3));
+        assertTrue(simpleBitmap.get(4));
+        assertFalse(simpleBitmap.get(5));
+
+        simpleBitmap.orAtOffset(3, other);
+
+        assertTrue(simpleBitmap.get(3));
+        assertTrue(simpleBitmap.get(4));
+        assertTrue(simpleBitmap.get(5));
 
     }
 
