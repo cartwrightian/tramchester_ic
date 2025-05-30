@@ -29,7 +29,12 @@ gtfsSourceConfig:
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures: []
-    temporaryStationsWalks: []
+    temporaryStationsWalks:
+      - stations:
+          first: 9400ZZMAPIC
+          second: 9400ZZMAMKT
+        begin: 2025-06-03
+        end: 2025-08-10
 remoteSources:
   - name: openRailData
     dataURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
