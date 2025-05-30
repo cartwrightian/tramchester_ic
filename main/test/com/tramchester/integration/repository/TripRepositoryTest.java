@@ -116,15 +116,18 @@ public class TripRepositoryTest {
         Set<Route> routes = trips.stream().map(Trip::getRoute).collect(Collectors.toSet());
 
         assertFalse(routes.isEmpty());
-        assertEquals(4, routes.size(), HasId.asIds(routes));
+        // 4->3 picc gardens summer 2025
+        assertEquals(3, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when)));
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
+
+        // summer 2025
+        //assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
+        // assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
 
         assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
-        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
 
     }
 

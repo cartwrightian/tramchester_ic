@@ -60,7 +60,7 @@ public class UpcomingDates {
             TramDate.of(2025,5,26), TramDate.of(2025,5,29));
 
     public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
-        TramDate.of(2025,8,11));
+        TramDate.of(2025,8,10));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);

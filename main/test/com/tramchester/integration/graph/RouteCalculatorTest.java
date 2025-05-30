@@ -30,6 +30,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -126,7 +127,8 @@ public class RouteCalculatorTest {
             assertTrue(expected.contains(interchange), interchange + " not in " + expected);
 
             List<ChangeLocation<?>> changeStations = journey.getChangeStations();
-            assertEquals(1, changeStations.size(), changeStations.toString());
+            // 1->3 picc gardens closed
+            assertEquals(3, changeStations.size(), changeStations.toString());
             assertTrue(expected.contains(changeStations.getFirst().location().getName()));
         });
 
@@ -227,6 +229,7 @@ public class RouteCalculatorTest {
                 + " cuttoff " + cutoffInterval + " earliest journey " + earliest) ;
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveSameResultWithinReasonableTime() {
         final TramTime queryTimeA = TramTime.of(8, 50);
@@ -546,7 +549,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
-    @DisabledUntilDate(year = 2025, month = 5, day = 29)
     @Test
     void shouldReproIssueWithJourneysToEcclesWithBus() {
         TramDate testDate = when.plusWeeks(1);
@@ -557,6 +559,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void reproduceIssueEdgePerTrip() {
 

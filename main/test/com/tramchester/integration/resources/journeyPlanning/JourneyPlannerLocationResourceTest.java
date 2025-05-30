@@ -15,6 +15,7 @@ import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
@@ -72,7 +73,7 @@ class JourneyPlannerLocationResourceTest {
 
         List<SimpleStageDTO> stages = firstJourney.getStages();
         assertEquals(2, stages.size());
-        SimpleStageDTO walkingStage = stages.get(0);
+        SimpleStageDTO walkingStage = stages.getFirst();
         LocalDateTime departureTime = walkingStage.getFirstDepartureTime();
 
         // todo new lockdown timetable
@@ -91,7 +92,7 @@ class JourneyPlannerLocationResourceTest {
     private JourneyDTO getEarliestArrivingJourney(Set<JourneyDTO> journeys) {
         return journeys.stream().
                 sorted(Comparator.comparing(JourneyDTO::getExpectedArrivalTime)).
-                toList().get(0);
+                toList().getFirst();
     }
 
     @Test
@@ -123,7 +124,7 @@ class JourneyPlannerLocationResourceTest {
                 sorted(Comparator.comparing(JourneyDTO::getExpectedArrivalTime)).
                 toList();
 
-        JourneyDTO earliest = sorted.get(0);
+        JourneyDTO earliest = sorted.getFirst();
 
         final LocalDateTime query = queryTime.toDate(when);
         final LocalDateTime firstDepartureTime = earliest.getFirstDepartureTime();
@@ -152,7 +153,7 @@ class JourneyPlannerLocationResourceTest {
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
             assertEquals(1, changeStations.size());
 
-            ChangeStationRefWithPosition changeStation = changeStations.get(0);
+            ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertEquals(TransportMode.Walk, changeStation.getFromMode());
 
         });
@@ -178,7 +179,7 @@ class JourneyPlannerLocationResourceTest {
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
             assertEquals(1, changeStations.size());
 
-            ChangeStationRefWithPosition changeStation = changeStations.get(0);
+            ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertEquals(TransportMode.Tram, changeStation.getFromMode());
         });
     }
@@ -194,11 +195,11 @@ class JourneyPlannerLocationResourceTest {
                 filter(journeyDTO -> journeyDTO.getStages().size() == numberOfStages).toList();
         assertFalse(journeys.isEmpty());
 
-        JourneyDTO firstJourney = journeys.get(0);
+        JourneyDTO firstJourney = journeys.getFirst();
         assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
 
         List<SimpleStageDTO> stages = firstJourney.getStages();
-        assertEquals(TransportMode.Tram, stages.get(0).getMode());
+        assertEquals(TransportMode.Tram, stages.getFirst().getMode());
         int lastStageIndex = numberOfStages - 1;
         assertEquals(TransportMode.Walk, stages.get(lastStageIndex).getMode());
    }
@@ -212,7 +213,7 @@ class JourneyPlannerLocationResourceTest {
 
         List<SimpleStageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
-        SimpleStageDTO walkingStage = stages.get(0);
+        SimpleStageDTO walkingStage = stages.getFirst();
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
@@ -225,14 +226,15 @@ class JourneyPlannerLocationResourceTest {
 
         List<SimpleStageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
-        SimpleStageDTO walkingStage = stages.get(0);
+        SimpleStageDTO walkingStage = stages.getFirst();
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnly() {
-        TramDate testDay = when.plusDays(1); // Sping 2025 works
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
+        TramDate testDay = when;
+        // Picc Gardens -> Market Street during closure
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.MarketStreet,
                 TramTime.of(9,0), false, testDay);
 
         assertFalse(journeys.isEmpty());
@@ -243,7 +245,7 @@ class JourneyPlannerLocationResourceTest {
 
         List<SimpleStageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
-        SimpleStageDTO stage = stages.get(0);
+        SimpleStageDTO stage = stages.getFirst();
         assertEquals(getDateTimeFor(testDay, 9, 0), stage.getFirstDepartureTime());
         assertEquals(getDateTimeFor(testDay, 9, 2), stage.getExpectedArrivalTime());
     }
@@ -252,7 +254,8 @@ class JourneyPlannerLocationResourceTest {
     void shouldFindStationsNearPiccGardensWalkingOnlyArriveBy() {
         TramTime queryTime = TramTime.of(9, 0);
 
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
+        // Picc Gardens -> Market Street during closure
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.MarketStreet,
                 queryTime, true, when.plusDays(1));
 
         journeys.forEach(journeyDTO -> {
@@ -270,6 +273,7 @@ class JourneyPlannerLocationResourceTest {
         return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 

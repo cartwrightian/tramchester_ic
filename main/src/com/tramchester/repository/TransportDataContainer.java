@@ -463,6 +463,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Set<Service> getServicesOnDate(final TramDate date,  final EnumSet<TransportMode> modes) {
+        // TODO PERFORMANCE OF service.getCalendar().operatesOn(date)
         return services.
                 filterStream(service -> service.anyOverlapWith(modes) && service.getCalendar().operatesOn(date)).
                 collect(Collectors.toSet());

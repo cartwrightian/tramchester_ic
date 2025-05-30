@@ -73,7 +73,7 @@ public class CompositeIdMap<S extends HasId<S> & CoreDomain, T extends S> implem
         return value;
     }
 
-    public Stream<S> filterStream(Filter<S> theFilter) {
+    public Stream<S> filterStream(final Filter<S> theFilter) {
         return getValuesStream().filter(theFilter::include);
     }
 

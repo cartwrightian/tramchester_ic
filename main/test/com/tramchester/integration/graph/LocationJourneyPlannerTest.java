@@ -23,6 +23,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -80,6 +81,7 @@ class LocationJourneyPlannerTest {
         txn.close();
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveDirectWalkNearPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
@@ -114,6 +116,7 @@ class LocationJourneyPlannerTest {
         return TestEnv.Modes.TramsOnly;
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveDirectWalkFromPiccadilly() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
@@ -361,6 +364,7 @@ class LocationJourneyPlannerTest {
 
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(9, 0),

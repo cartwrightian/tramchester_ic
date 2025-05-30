@@ -21,6 +21,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -114,6 +115,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
@@ -125,6 +127,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
@@ -208,6 +211,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldSortAsExpected() {
 

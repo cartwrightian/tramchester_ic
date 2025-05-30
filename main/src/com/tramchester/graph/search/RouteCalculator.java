@@ -88,14 +88,17 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, maxInitialWait);
 
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
         final LocationCollection destinations = LocationCollectionSingleton.of(destination);
         if (journeyRequest.getDiagnosticsEnabled()) {
             logger.warn("Diagnostics enabled, will only query for single result");
 
-            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, destinations, maxInitialWait, running).
+            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, routesAndServicesFilter, destinations, maxInitialWait, running).
                     limit(journeyRequest.getMaxNumberOfJourneys());
         } else {
-            return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, numberOfChanges, maxInitialWait, running).
+            return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,
+                    numberOfChanges, maxInitialWait, running).
                     limit(journeyRequest.getMaxNumberOfJourneys());
         }
     }
@@ -121,9 +124,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final GraphNode startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
         final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
 
-        return getJourneyStream(txn, startNode, endOfWalk, destinations, journeyRequest, queryTimes, numberOfChanges, maxInitialWait, running).
+        return getJourneyStream(txn, startNode, endOfWalk, destinations, journeyRequest, queryTimes, routesAndServicesFilter, numberOfChanges, maxInitialWait, running).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
@@ -138,9 +143,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
 
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
         final LocationCollection destinations = LocationCollectionSingleton.of(destination);
 
-        return getJourneyStream(txn, startOfWalkNode, endNode, destinations, journeyRequest, queryTimes, numberOfChanges, maxInitialWait, running).
+        return getJourneyStream(txn, startOfWalkNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter, numberOfChanges, maxInitialWait, running).
                 limit(journeyRequest.getMaxNumberOfJourneys()).
                 takeWhile(finished::notDoneYet);
     }
@@ -153,14 +160,17 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
-        return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, numberOfChanges, maxInitialWait, running).
+        return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,
+                numberOfChanges, maxInitialWait, running).
                 takeWhile(finished::notDoneYet);
     }
 
 
     private Stream<Journey> getSingleJourneyStream(final ImmutableGraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                                   final JourneyRequest journeyRequest, final LocationCollection destinations,
+                                                   final JourneyRequest journeyRequest, RunningRoutesAndServices.FilterForDate routesAndServicesFilter, final LocationCollection destinations,
                                                    final Duration maxInitialWait, final Running running) {
 
         final TramDate tramDate = journeyRequest.getDate();
@@ -180,7 +190,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate, requestedModes),
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routesAndServicesFilter,
                 closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
 
         // share selector across queries, to allow caching of station to station distances
@@ -223,7 +233,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     private Stream<Journey> getJourneyStream(final ImmutableGraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                              final LocationCollection destinations, final JourneyRequest journeyRequest,
-                                             final List<TramTime> queryTimes, final int possibleMinNumChanges,
+                                             final List<TramTime> queryTimes, RunningRoutesAndServices.FilterForDate runningRoutesAndServicesFilter, final int possibleMinNumChanges,
                                              final Duration maxInitialWait, Running running) {
 
         if (possibleMinNumChanges==Integer.MAX_VALUE) {
@@ -249,7 +259,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
         final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate, requestedModes),
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
                 closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
 
         // share selector across queries, to allow caching of station to station distances

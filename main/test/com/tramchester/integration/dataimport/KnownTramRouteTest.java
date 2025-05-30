@@ -14,6 +14,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -245,6 +246,7 @@ class KnownTramRouteTest {
         });
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldCheckForMissingRouteSpring2025Closures() {
         // TODO needed for each route?
@@ -263,6 +265,7 @@ class KnownTramRouteTest {
         assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);
@@ -278,7 +281,7 @@ class KnownTramRouteTest {
 
         boolean available = ranges.stream().anyMatch(range -> range.contains(when));
 
-        assertTrue(available, when + " is missing from " + ranges);
+        assertTrue(available, when + " is missing from loaded " + ranges);
 
     }
 

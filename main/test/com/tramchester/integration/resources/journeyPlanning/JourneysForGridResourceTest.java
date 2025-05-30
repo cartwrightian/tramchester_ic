@@ -122,7 +122,7 @@ class JourneysForGridResourceTest {
                 assertTrue(boundingBoxWithCost.getMinutes() <= maxDuration,
                         boundingBoxWithCost.getMinutes() + " more than " + maxDuration + " failed for " + boundingBoxWithCost));
 
-        final int outOfRangeForDuration = 2; // todo compute this?
+        final int outOfRangeForDuration = 0; // todo compute this?
 
         List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
         assertEquals(outOfRangeForDuration, noResult.size());

@@ -196,7 +196,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest,
                 timeRange);
-        final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date, journeyRequest.getRequestedModes());
+        final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(journeyRequest);
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(date);
 

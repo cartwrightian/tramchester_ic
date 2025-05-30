@@ -244,7 +244,9 @@ public class JourneyPlannerResourceTest {
             assertTrue(platformIds.contains(secondStagePlatform.getId()), stategOnePlatform.getId() + " not in " + platformIds);
 
             List<ChangeStationRefWithPosition> changeStations = journey.getChangeStations();
-            assertEquals(1, changeStations.size());
+
+            // 1->3 picc gardens closure
+            assertEquals(3, changeStations.size());
             ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertTrue(expectedSecondStationNames.contains(changeStation.getName()), "did not expect " + changeStation.getName());
             assertEquals(TransportMode.Tram, changeStation.getFromMode());

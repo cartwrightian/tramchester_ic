@@ -5,8 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@DisabledUntilDate(year = 2025, month = 6, day = 2)
-public @interface BuryWorksSummer2025{
+@DisabledUntilDate(year = 2025, month = 8, day = 10)
+public @interface PiccGardensWorkSummer2025 {
 }

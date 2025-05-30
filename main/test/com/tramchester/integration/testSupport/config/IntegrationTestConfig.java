@@ -4,6 +4,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -14,14 +15,14 @@ import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfi
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.TramStations.MarketStreet;
-import static com.tramchester.testSupport.reference.TramStations.Shudehill;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -39,7 +40,10 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     public static final List<StationClosures> CurrentClosures = Collections.emptyList(); //List.of(marketStreetApril2025);
 
-    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
+    private static final TemporaryStationsWalkIds piccadillyToMarketStreet = new TemporaryStationsWalkConfigForTest(
+            StationIdPair.of(Piccadilly.getId(), MarketStreet.getId()), UpcomingDates.PiccGardensWorksummer2025);
+
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.singletonList(piccadillyToMarketStreet);
 
     private final TestGroupType testGroupType;
 

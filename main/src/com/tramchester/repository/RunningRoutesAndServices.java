@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
@@ -35,17 +36,21 @@ public class RunningRoutesAndServices {
         this.routeRepository = routeRepository;
     }
 
+    public FilterForDate getFor(JourneyRequest journeyRequest) {
+        return getFor(journeyRequest.getDate(), journeyRequest.getRequestedModes());
+    }
+
     public FilterForDate getFor(final TramDate date, final EnumSet<TransportMode> modes) {
-        IdMap<Service> serviceIds = getServicesFor(date, modes);
-        IdMap<Route> routeIds = getRoutesFor(date, modes);
+        final IdMap<Service> serviceIds = getServicesFor(date, modes);
+        final IdMap<Route> routeIds = getRoutesFor(date, modes);
 
         final TramDate nextDay = date.plusDays(1);
-        IdMap<Service> runningServicesNextDay = getServicesFor(nextDay, modes);
-        IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay, modes);
+        final IdMap<Service> runningServicesNextDay = getServicesFor(nextDay, modes);
+        final IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay, modes);
 
         final TramDate previousDay = date.minusDays(1);
-        IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay, modes);
-        IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay, modes);
+        final IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay, modes);
+        final IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay, modes);
 
         return new FilterForDate(date, serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay,
                 previousDaySvcs, previousDayRoutes);
@@ -86,6 +91,7 @@ public class RunningRoutesAndServices {
         }
         return new IdMap<>(services);
     }
+
 
     public static class FilterForDate {
         private final TramDate date;

@@ -113,7 +113,8 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        assertEquals(4, lines.size(), lines.toString());
+        // 4->3 picc gardens closure
+        assertEquals(3, lines.size(), lines.toString());
 
     }
 
@@ -232,7 +233,7 @@ public class StationRepositoryTest {
                         getBlue(when),
                         getNavy(when),
                         getRed(when),
-                        getPurple(when),
+                        //getPurple(when), // picc gardens summer 2025
                         getPink(when));
 
         IdSet<Route> expectedIds = expected.stream().

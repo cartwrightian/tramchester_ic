@@ -66,10 +66,11 @@ class RouteReachableTramTest {
 
         IdSet<Route> routeIds = results.stream().collect(IdSet.collector());
 
-        assertEquals(2, routeIds.size(), routeIds.toString());
+        // 2->1 picc gardens closure 2025
+        assertEquals(1, routeIds.size(), routeIds.toString());
 
         assertTrue(routeIds.contains(KnownTramRoute.getGreen(when).getId()), routeIds.toString());
-        assertTrue(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
+        //assertTrue(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
     }
 
 

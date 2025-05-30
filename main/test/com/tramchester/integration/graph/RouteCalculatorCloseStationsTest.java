@@ -101,7 +101,6 @@ class RouteCalculatorCloseStationsTest {
         return TramsOnly;
     }
 
-    @DisabledUntilDate(year = 2025, month = 5, day = 29)
     @Test
     void shouldNotFindRouteToClosedStationViaDirectTram() {
         Set<Journey> singleStage = getSingleStageBuryToEccles(begin);

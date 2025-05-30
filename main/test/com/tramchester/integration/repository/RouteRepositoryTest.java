@@ -18,6 +18,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -177,6 +178,7 @@ public class RouteRepositoryTest {
 
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldOverlapAsExpected() {
 
@@ -200,6 +202,35 @@ public class RouteRepositoryTest {
 
     }
 
+    @Test
+    void shouldOverlapAsExpectedDuringSummer2025() {
+
+        EnumSet<TFGMRouteNames> known = EnumSet.allOf(TFGMRouteNames.class);
+        known.remove(TFGMRouteNames.BusOne);
+        known.remove(TFGMRouteNames.BusTwo);
+
+        known.remove(TFGMRouteNames.Purple);
+        known.remove(TFGMRouteNames.Yellow);
+
+        Set<RoutePair> noOverlap = new HashSet<>();
+
+        assertTrue(when.isBefore(TramDate.of(2025, 8, 11)),"renable other test, remove this one");
+
+        for (TFGMRouteNames knownRouteA : known) {
+            for (TFGMRouteNames knownRouteB : known) {
+                Route routeA = routeHelper.getOneRoute(knownRouteA, when);
+                Route routeB = routeHelper.getOneRoute(knownRouteB, when);
+                if (!routeA.isDateOverlap(routeB)) {
+                    noOverlap.add(RoutePair.of(routeA, routeB));
+                }
+            }
+        }
+
+        assertTrue(noOverlap.isEmpty(), noOverlap.toString());
+
+    }
+
+    @PiccGardensWorkSummer2025
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
@@ -226,7 +257,8 @@ public class RouteRepositoryTest {
         Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
-        int throughRoutes = 6; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        // 6->5 picc gardens closures summer 2025
+        int throughRoutes = 5; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 
