@@ -450,7 +450,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Set<String> secondStageHeadsigns = new HashSet<>(Arrays.asList(ManAirport.getName(),
                 "Manchester Airport via Market Street & Wythenshawe"));
 
-        Set<TramTime> validTimes = Collections.singleton(TramTime.of(10, 29));
+        List<TramTime> validTimes = Arrays.asList(TramTime.of(10, 29),
+                TramTime.of(10,23));
 
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),
@@ -577,7 +578,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     }
 
     // TODO pass in a time range for depart times?
-    public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation,
+    public static void validateAStage(Stage stage, Collection<TramTime> departTimes, String action, String actionStation,
                                       List<Integer> platforms, Set<String> headsigns, int passedStops) {
 
 //        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::shortName).collect(Collectors.toSet());
