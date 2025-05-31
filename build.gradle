@@ -122,7 +122,7 @@ dependencies {
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.12.1',
-            'org.junit.platform:junit-platform-launcher:1.12.1',
+            'org.junit.platform:junit-platform-launcher:1.13.0',
             'org.easymock:easymock:5.5.0',
             'org.seleniumhq.selenium:selenium-java:4.29.0',
             'org.hamcrest:hamcrest:3.0'
