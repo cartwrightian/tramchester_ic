@@ -94,7 +94,7 @@ public class PerformanceTestCLI extends BaseCLI {
         final JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, modes);
 
-        combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        combinations.getJourneysFor(stationIdPairs, journeyRequest, Duration.ofMinutes(10));
 
     }
 }

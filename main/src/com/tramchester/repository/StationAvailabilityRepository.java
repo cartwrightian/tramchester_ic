@@ -146,7 +146,8 @@ public class StationAvailabilityRepository {
                 filter(StopCall::callsAtStation);
 
         return stationStopCalls.
-                map(stopCall -> addForStopCall(forLocations, station.getLocationId(), stopCall, getTime)).reduce(false, (a,b) -> a || b);
+                map(stopCall -> addForStopCall(forLocations, station.getLocationId(), stopCall, getTime)).
+                reduce(false, (a,b) -> a || b);
 
     }
 
@@ -222,7 +223,7 @@ public class StationAvailabilityRepository {
             throw new RuntimeException("Missing pickups for " + locationId);
         }
         if (!dropoffsForLocation.containsKey(locationId)) {
-            throw new RuntimeException("Missing dropoffs for " + location.getLocalityId());
+            throw new RuntimeException("Missing dropoffs for " + locationId);
         }
 
         final Set<Service> services = servicesForLocation.get(locationId).stream().
@@ -269,36 +270,8 @@ public class StationAvailabilityRepository {
             throw new RuntimeException("No pickups for " + locationId);
         }
 
-        // remove workaround for now, should not be needed.... TODO
-
         final ServedRoute servedRoute = pickupsForLocation.get(locationId);
         return servedRoute.getRoutes(date, timeRange, modes);
-
-//        if (interchangeRepository.isInterchange(location)) {
-//            final InterchangeStation interchange = interchangeRepository.getInterchange(location);
-//            final EnumSet<TransportMode> modesForInterchange = interchange.getTransportModes();
-//            if (TransportMode.intersects(modesForInterchange, modes)) {
-//                // serves requested modes should'nt this already work since ServedRoutes is meant to include these
-//                // interchanges routes
-//                // TODO Write test for the above....
-//                final Set<Route> results = interchange.getAllStations().stream().
-//                        map(station -> pickupsForLocation.get(station.getLocationId())).
-//                        flatMap(servedRoute -> servedRoute.getRoutes(date, timeRange, modes).stream()).
-//                        collect(Collectors.toSet());
-//                if (results.isEmpty()) {
-//                    logger.warn(format("pickups: failed to match any modes %s for interchange %s", modes, interchange.getStationId()));
-//                }
-//                return results;
-//            } else {
-//                // doesn't support requested modes
-//                logger.warn(String.format("pickups: location %s is interchange but no mode overlap between requested %s and served %s",
-//                        locationId, modes, modesForInterchange));
-//                return Collections.emptySet();
-//            }
-//        } else {
-//            final ServedRoute servedRoute = pickupsForLocation.get(locationId);
-//            return servedRoute.getRoutes(date, timeRange, modes);
-//        }
 
     }
 
@@ -330,32 +303,6 @@ public class StationAvailabilityRepository {
         }
 
         return dropoffsForLocation.get(locationId).getRoutes(date, timeRange, modes);
-
-        // remove workaround for now, should not be needed.... TODO
-
-//        if (interchangeRepository.isInterchange(location)) {
-//            final InterchangeStation interchange = interchangeRepository.getInterchange(location);
-//            final EnumSet<TransportMode> modesForInterchange = interchange.getTransportModes();
-//            // TODO Write test served routes already including interchange routes
-//            if (TransportMode.intersects(modesForInterchange, modes)) {
-//                // serves requested modes
-//                final Set<Route> results = interchange.getAllStations().stream().
-//                        map(station -> dropoffsForLocation.get(station.getLocationId())).
-//                        flatMap(servedRoute -> servedRoute.getRoutes(date, timeRange, modes).stream()).
-//                        collect(Collectors.toSet());
-//                if (results.isEmpty()) {
-//                    logger.warn(format("dropoffs: Failed to match any modes %s for interchange %s", modes, interchange.getStationId()));
-//                }
-//                return results;
-//            } else {
-//                // doesn't support requested modes
-//                logger.warn(String.format("dropoffs: location %s is interchange but no mode overlap between requested %s and served %s",
-//                        locationId, modes, modesForInterchange));
-//                return Collections.emptySet();
-//            }
-//        } else {
-//            return dropoffsForLocation.get(locationId).getRoutes(date, timeRange, modes);
-//        }
     }
 
     private Set<Route> getDropoffRoutesForGroup(StationLocalityGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {

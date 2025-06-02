@@ -15,15 +15,16 @@ import java.util.stream.Stream;
 
 public class Trips implements Iterable<Trip> {
     private final Set<Trip> trips;
-    private Boolean intoNextDay;
+    private boolean intoNextDay;
 
     public Trips() {
         trips = new HashSet<>();
-        intoNextDay = null;
+        intoNextDay = false;
     }
 
     public void add(final Trip trip) {
         trips.add(trip);
+        intoNextDay = intoNextDay || trip.intoNextDay();
     }
 
     public int size() {
@@ -35,9 +36,6 @@ public class Trips implements Iterable<Trip> {
     }
 
     public boolean intoNextDay() {
-        if (intoNextDay==null) {
-            intoNextDay = trips.stream().anyMatch(Trip::intoNextDay);
-        }
         return intoNextDay;
     }
 

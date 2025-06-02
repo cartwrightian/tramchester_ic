@@ -485,8 +485,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         private final Cache<IdFor<Station>, Boolean> cache;
 
-        private StationAvailabilityFacade(StationAvailabilityRepository availabilityRepository, TramDate date, TimeRange time,
-                                         EnumSet<TransportMode> modes) {
+        private StationAvailabilityFacade(final StationAvailabilityRepository availabilityRepository, final TramDate date,
+                                          final TimeRange time, final EnumSet<TransportMode> modes) {
             this.availabilityRepository = availabilityRepository;
             this.date = date;
             this.time = time;

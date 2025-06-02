@@ -84,8 +84,6 @@ public class ServedRoute {
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
                 filter(routeAndService -> hasTimeRangerOverlap(range, routeAndService)).
                 map(RouteAndService::getRoute).
-//                map(RouteAndService::getRoute).
-//                filter(route -> modes.contains(route.getTransportMode())).
                 collect(Collectors.toSet());
     }
 
