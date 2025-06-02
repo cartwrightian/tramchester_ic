@@ -25,17 +25,20 @@ import java.util.EnumSet;
 
 public class PerformanceTestCLI extends BaseCLI {
 
+    private final Duration transactionTimeout;
+
     public static void main(String[] args)  {
         Logger logger = LoggerFactory.getLogger(PerformanceTestCLI.class);
 
-        if (args.length != 1) {
-            throw new RuntimeException("Expected 1 arguments: <config file>");
+        if (args.length != 2) {
+            throw new RuntimeException("Expected 2 arguments: <config file> <transaction timeout minutes>");
         }
-        Path configFile = Paths.get(args[0]).toAbsolutePath();
-        logger.info("Config from " + configFile);
+        final Path configFile = Paths.get(args[0]).toAbsolutePath();
+        final int transactionTimeout = Integer.parseInt(args[1]);
+        logger.info("Config from " + configFile + " txn timeout " + transactionTimeout);
 
         try {
-            PerformanceTestCLI performanceTestCLI = new PerformanceTestCLI();
+            PerformanceTestCLI performanceTestCLI = new PerformanceTestCLI(Duration.ofMinutes(transactionTimeout));
             performanceTestCLI.run(configFile, logger, "BuildGraphCLI");
         } catch (ConfigurationException | IOException e) {
             logger.error("Failed",e);
@@ -43,8 +46,9 @@ public class PerformanceTestCLI extends BaseCLI {
         }
     }
 
-    public PerformanceTestCLI() {
+    public PerformanceTestCLI(final Duration transactionTimeout) {
         super();
+        this.transactionTimeout = transactionTimeout;
     }
 
     @Override
@@ -94,7 +98,6 @@ public class PerformanceTestCLI extends BaseCLI {
         final JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, modes);
 
-        combinations.getJourneysFor(stationIdPairs, journeyRequest, Duration.ofMinutes(10));
-
+        combinations.getJourneysFor(stationIdPairs, journeyRequest, transactionTimeout);
     }
 }

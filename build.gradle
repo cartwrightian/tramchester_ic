@@ -667,12 +667,12 @@ def performanceTestConfig = {
 
 tasks.register('performanceTestGM', JavaExec) {
     configure performanceTestConfig
-    args 'config/gm.yml'
+    args 'config/gm.yml', '10'
 }
 
 tasks.register('performanceTest', JavaExec) {
     configure performanceTestConfig
-    args 'config/local.yml'
+    args 'config/local.yml', '2'
 }
 
 // todo gm here so include both sets of data
