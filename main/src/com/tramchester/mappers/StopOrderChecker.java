@@ -112,7 +112,7 @@ public class StopOrderChecker {
 
     private boolean appearInOrder(TramDate date, Station begin, Station middle, Station end, Route route) {
         return route.getTrips().stream().
-                filter(trip -> trip.operatesOn(date)).
+                filter(trip -> trip.serviceOperatesOn(date)).
                 anyMatch(trip -> appearInOrder(begin.getId(), middle.getId(), end.getId(), trip));
     }
 

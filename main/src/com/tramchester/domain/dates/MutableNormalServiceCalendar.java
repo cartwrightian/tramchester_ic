@@ -72,10 +72,7 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
 
     @Override
     public boolean operatesOn(final TramDate date) {
-        if (dateRange.contains(date)) {
-            return days.isSet(date);
-        }
-        return false;
+        return days.isSet(date);
     }
 
     @Override

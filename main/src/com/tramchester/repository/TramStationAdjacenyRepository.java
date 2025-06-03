@@ -48,7 +48,7 @@ public class TramStationAdjacenyRepository  {
 
         final List<StopCalls.StopLeg> legs = tripRepository.getTrips().stream().
                 filter(TransportMode::isTram).
-                filter(trip -> trip.operatesOn(date)).
+                filter(trip -> trip.serviceOperatesOn(date)).
                 filter(trip -> trip.callsAt(begin) && trip.callsAt(end)).
                 flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isActive()).stream()).toList();
 
@@ -83,7 +83,7 @@ public class TramStationAdjacenyRepository  {
 
         return tripRepository.getTrips().stream().
                 filter(TransportMode::isTram).
-                filter(trip -> trip.operatesOn(date)).
+                filter(trip -> trip.serviceOperatesOn(date)).
                 flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isActive()).stream()).
                 map(StationPair::of).
                 collect(Collectors.toSet());

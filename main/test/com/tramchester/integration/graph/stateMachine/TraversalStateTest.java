@@ -272,7 +272,7 @@ public class TraversalStateTest extends EasyMockSupport {
         // want a trip that calls at cornbrook but does not finish these
         IdFor<Station> cornbrookId = cornbrook.getId();
         Optional<Trip> findTrip = route.getTrips().stream().
-                filter(trip -> trip.callsAt(cornbrookId) && trip.operatesOn(when)).
+                filter(trip -> trip.callsAt(cornbrookId) && trip.serviceOperatesOn(when)).
                 filter(trip -> !trip.lastStation().equals(cornbrookId)).
                 filter(trip -> !trip.firstStation().equals(cornbrookId)).
                 filter(trip -> trip.isAfter(cornbrookId, towardsId)).

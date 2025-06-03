@@ -113,9 +113,6 @@ logging:
   appenders:
     - type: console
       threshold: WARN
-    - type: syslog
-      host: localhost
-      port: 514
     - type: file
       currentLogFilename: logs/tramchester_all.log
       threshold: INFO

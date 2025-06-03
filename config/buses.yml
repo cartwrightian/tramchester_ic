@@ -98,9 +98,6 @@ logging:
   appenders:
     - type: console
       threshold: INFO
-    - type: syslog
-      host: localhost
-      port: 514
     - type: file
       currentLogFilename: logs/tramchester_buses.log
       threshold: INFO

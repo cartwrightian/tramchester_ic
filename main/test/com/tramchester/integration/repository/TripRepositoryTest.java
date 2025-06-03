@@ -82,7 +82,7 @@ public class TripRepositoryTest {
     void shouldHaveTripsFromAltrinchamPostMidnight() {
         Set<Trip> fromAlty = tripRepository.getTrips().stream().
                 filter(trip -> !trip.isFiltered()).
-                filter(trip -> trip.operatesOn(when)).
+                filter(trip -> trip.serviceOperatesOn(when)).
                 filter(trip -> trip.firstStation().equals(Altrincham.getId())).collect(Collectors.toSet());
 
         assertFalse(fromAlty.isEmpty());

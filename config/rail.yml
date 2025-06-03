@@ -94,10 +94,6 @@ logging:
 
   appenders:
     - type: console
-      threshold: INFO
-    - type: syslog
-      host: localhost
-      port: 514
       threshold: WARN
     - type: file
       currentLogFilename: logs/tramchester_rail.log

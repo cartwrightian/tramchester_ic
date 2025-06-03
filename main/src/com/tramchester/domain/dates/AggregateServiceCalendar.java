@@ -97,10 +97,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     @Override
     public boolean operatesOn(final TramDate date) {
-        if (aggregatedRange.contains(date)) {
-            return days.isSet(date);
-        }
-        return false;
+        return days.isSet(date);
     }
 
     @Override

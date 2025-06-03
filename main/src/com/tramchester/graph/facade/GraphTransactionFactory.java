@@ -10,6 +10,8 @@ import org.slf4j.event.Level;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -106,14 +108,14 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     }
 
     private static class State {
-        private final Map<Integer,GraphTransaction> openTransactions;
-        private final Map<Integer, StackTraceElement[]> diagnostics;
+        private final ConcurrentMap<Integer,GraphTransaction> openTransactions;
+        private final ConcurrentMap<Integer, StackTraceElement[]> diagnostics;
         private final Set<Integer> commited;
         private final AtomicBoolean closed;
 
         private State() {
-            openTransactions = new HashMap<>();
-            diagnostics = new HashMap<>();
+            openTransactions = new ConcurrentHashMap<>();
+            diagnostics = new ConcurrentHashMap<>();
             commited = new HashSet<>();
             closed = new AtomicBoolean(false);
         }
@@ -173,8 +175,12 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             openTransactions.keySet().forEach(index -> {
                 logger.warn("Transaction " + index + " from " + stackAsString(diagnostics.get(index)));
                 final GraphTransaction graphTransaction = openTransactions.get(index);
-                logger.info("Closing " + graphTransaction);
-                graphTransaction.close();
+                if (graphTransaction==null) {
+                    logger.error("Transaction for " + index + " is null");
+                } else {
+                    logger.info("Closing " + graphTransaction);
+                    graphTransaction.close();
+                }
             });
         }
 

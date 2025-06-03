@@ -6,12 +6,13 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class RouteEndRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteEndRepository.class);
 
     private final TripRepository tripRepository;
-    private final Map<TransportMode,IdSet<Station>> beginOrEndOfRoutes;
+    private final Map<TransportMode, IdSet<Station>> beginOrEndOfRoutes;
     private final Set<TransportMode> enabledModes;
 
     @Inject
@@ -76,8 +77,13 @@ public class RouteEndRepository {
         logger.info("stopped");
     }
 
-    public IdSet<Station> getStations(TransportMode mode) {
-        return beginOrEndOfRoutes.get(mode);
+    public IdSet<Station> getStations(final EnumSet<TransportMode> modes) {
+        return modes.stream().
+                flatMap(mode -> beginOrEndOfRoutes.get(mode).stream()).
+                collect(IdSet.idCollector());
     }
 
+    public IdSet<Station> getStations(TransportMode transportMode) {
+        return getStations(EnumSet.of(transportMode));
+    }
 }

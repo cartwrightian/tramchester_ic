@@ -9,7 +9,6 @@ import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.reference.TransportMode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,8 +50,8 @@ public class PreloadTripAndServices implements ChecksForTripId {
     }
 
     public void createTripIfMissing(final IdFor<Trip> tripId, final TripData tripData, final MutableService service,
-                                    final Route route, final TransportMode transportMode) {
-        trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route, transportMode));
+                                    final Route route) {
+        trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route, route.getTransportMode()));
         loadedTrips.add(tripId.getGraphId());
     }
 

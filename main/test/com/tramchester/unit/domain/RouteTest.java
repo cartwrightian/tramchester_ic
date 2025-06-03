@@ -104,7 +104,7 @@ class RouteTest extends EasyMockSupport {
         Trip trip = createMock(Trip.class);
         DateRange range = DateRange.of(startDate,endDate);
         EasyMock.expect(trip.intoNextDay()).andStubReturn(false);
-        range.stream().forEach(date -> EasyMock.expect(trip.operatesOn(date)).andReturn(true));
+        range.stream().forEach(date -> EasyMock.expect(trip.serviceOperatesOn(date)).andReturn(true));
 
         replayAll();
         route.addTrip(trip);
@@ -144,7 +144,7 @@ class RouteTest extends EasyMockSupport {
 
         Trip trip = createMock(Trip.class);
         EasyMock.expect(trip.intoNextDay()).andReturn(false);
-        EasyMock.expect(trip.operatesOn(extraRunningDate)).andReturn(true);
+        EasyMock.expect(trip.serviceOperatesOn(extraRunningDate)).andReturn(true);
 
         replayAll();
         route.addTrip(trip);
@@ -170,7 +170,7 @@ class RouteTest extends EasyMockSupport {
         Trip trip = createMock(Trip.class);
 
         EasyMock.expect(trip.intoNextDay()).andReturn(false);
-        EasyMock.expect(trip.operatesOn(extraRunningDate)).andReturn(false);
+        EasyMock.expect(trip.serviceOperatesOn(extraRunningDate)).andReturn(false);
 
         replayAll();
         route.addTrip(trip);

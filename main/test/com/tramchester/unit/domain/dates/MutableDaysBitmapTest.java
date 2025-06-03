@@ -23,6 +23,18 @@ public class MutableDaysBitmapTest {
     }
 
     @Test
+    void shouldNotContainIfBeforeOfAfter() {
+        int size = 100;
+        MutableDaysBitmap days = new MutableDaysBitmap(epochDay, size);
+
+        TramDate before = when.minusDays(1);
+        assertFalse(days.isSet(before));
+
+        TramDate after = when.plusDays(size).plusDays(1);
+        assertFalse(days.isSet(after));
+    }
+
+    @Test
     void shouldSetADay() {
         MutableDaysBitmap days = new MutableDaysBitmap(epochDay, 100);
 

@@ -50,7 +50,7 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, Core
 
     boolean callsAt(InterchangeStation interchangeStation);
 
-    boolean operatesOn(TramDate date);
+    boolean serviceOperatesOn(TramDate date);
 
     IdFor<Station> firstStation();
 

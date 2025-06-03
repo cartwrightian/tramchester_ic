@@ -46,7 +46,7 @@ public class TripLoader {
             if (loadedRoutesCache.hasRouteFor(rawRouteId)) {
                 final Route route = buildable.getMutableRoute(loadedRoutesCache.getRouteIdFor(rawRouteId));
                 final MutableService service = results.getOrCreateService(serviceId);
-                results.createTripIfMissing(tripId, tripData, service, route, route.getTransportMode());
+                results.createTripIfMissing(tripId, tripData, service, route);
                 count.getAndIncrement();
             } else {
                 if (!loadedRoutesCache.wasExcluded(rawRouteId)) {

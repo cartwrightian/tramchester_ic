@@ -121,7 +121,7 @@ public class RouteRepositoryTest {
 
         @NotNull Set<Trip> callingTrips = red.getTrips().stream().
                 filter(trip -> trip.callsAt(Shudehill.getId())).
-                filter(trip -> trip.operatesOn(when)).
+                filter(trip -> trip.serviceOperatesOn(when)).
                 collect(Collectors.toSet());
 
         assertTrue(callingTrips.isEmpty(), HasId.asIds(callingTrips));

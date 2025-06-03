@@ -99,8 +99,8 @@ public class ServedRoute {
             return true;
         }
         if (range.intoNextDay()) {
-            final TimeRange nextDayRange = range.forFollowingDay();
             final TramDate followingDay = date.plusDays(1);
+            final TimeRange nextDayRange = range.forFollowingDay();
             return anyRouteForDateAndTimeRange(followingDay, nextDayRange, modes);
         } else {
             // Cope with services from previous day that run into current date and range

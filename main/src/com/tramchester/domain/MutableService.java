@@ -102,7 +102,7 @@ public class MutableService implements Service {
         calendar.cancel();
     }
 
-    public void addTrip(Trip trip) {
+    public void addTrip(final Trip trip) {
         modes.add(trip.getTransportMode());
         trips.add(trip);
     }

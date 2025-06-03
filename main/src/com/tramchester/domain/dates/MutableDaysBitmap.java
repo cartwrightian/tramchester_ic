@@ -60,6 +60,10 @@ public class MutableDaysBitmap implements DaysBitmap {
 
     @Override
     public boolean isSet(final TramDate date) {
+        final long epochDay = date.toEpochDay();
+        if (epochDay<beginningDay || epochDay>(beginningDay+size)) {
+            return false;
+        }
         final int offset = offsetFor(date);
         return days.get(offset);
     }

@@ -32,7 +32,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
@@ -287,7 +286,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 6, day = 2)
     @Test
     void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -550,7 +548,6 @@ class TramGraphBuilderTest {
         });
     }
 
-    @DisabledUntilDate(year = 2025, month = 6, day = 2)
     @Test
     void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);

@@ -69,7 +69,7 @@ class RailRouteCalculatorCombinationTests {
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
-        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToInterchange(Train);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).InterchangeToInterchange(Train);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);
     }
 
@@ -84,7 +84,7 @@ class RailRouteCalculatorCombinationTests {
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
-        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Train);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).EndOfRoutesToEndOfRoutes(Train);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);
     }
 

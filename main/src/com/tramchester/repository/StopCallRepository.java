@@ -171,7 +171,7 @@ public class StopCallRepository  {
                 filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         Set<StopCalls> allStopCalls = tripRepository.getTrips().stream().
-                filter(trip -> trip.operatesOn(date)).
+                filter(trip -> trip.serviceOperatesOn(date)).
                 filter(trip -> routesForwards.contains(trip.getRoute()) || routesBackwards.contains(trip.getRoute())).
                 filter(trip -> trip.callsAt(beginId) && trip.callsAt(endId)).
                 filter(trip -> trip.isAfter(beginId, endId)).

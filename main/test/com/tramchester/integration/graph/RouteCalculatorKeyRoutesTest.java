@@ -72,7 +72,7 @@ class RouteCalculatorKeyRoutesTest {
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToInterchanges(Tram).stream().
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).EndOfRoutesToInterchanges(Tram).stream().
                 filter(pair -> !UpcomingDates.hasClosure(pair, when)).
                 collect(LocationIdPairSet.collector());
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
@@ -81,14 +81,14 @@ class RouteCalculatorKeyRoutesTest {
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).EndOfRoutesToEndOfRoutes(Tram);
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToEndRoutes(Tram)
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).InterchangeToEndRoutes(Tram)
                 .stream().filter(pair -> !UpcomingDates.hasClosure(pair, when)).
                 collect(LocationIdPairSet.collector());
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
@@ -97,7 +97,7 @@ class RouteCalculatorKeyRoutesTest {
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToInterchange(Tram).stream().
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).InterchangeToInterchange(Tram).stream().
                 filter(pair -> !UpcomingDates.hasClosure(pair, when)).
                 collect(LocationIdPairSet.collector());
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
@@ -108,7 +108,7 @@ class RouteCalculatorKeyRoutesTest {
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
 
-        final LocationIdPairSet<Station> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+        final LocationIdPairSet<Station> pairs = combinations.getCreatePairs(when).EndOfRoutesToEndOfRoutes(Tram);
 
         final Map<TramDate, LocationIdsAndNames<Station>> missing = new HashMap<>();
 
@@ -136,7 +136,7 @@ class RouteCalculatorKeyRoutesTest {
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesInNDays() {
-        final LocationIdPairSet<Station> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+        final LocationIdPairSet<Station> pairs = combinations.getCreatePairs(when).EndOfRoutesToEndOfRoutes(Tram);
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
 
         TramDate testDate = UpcomingDates.avoidChristmasDate(when);
@@ -153,7 +153,7 @@ class RouteCalculatorKeyRoutesTest {
                 maxJourneyDuration.multipliedBy(2), 3, modes);
 
         RouteCalculationCombinations.CombinationResults<Station> results =
-                combinations.getJourneysFor(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
+                combinations.getJourneysFor(combinations.getCreatePairs(when).EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
 
         validateFor(results);
 

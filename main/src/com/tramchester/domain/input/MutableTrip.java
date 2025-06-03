@@ -177,7 +177,7 @@ public class MutableTrip implements Trip {
     }
 
     @Override
-    public boolean operatesOn(final TramDate date) {
+    public boolean serviceOperatesOn(final TramDate date) {
         return service.getCalendar().operatesOn(date);
     }
 

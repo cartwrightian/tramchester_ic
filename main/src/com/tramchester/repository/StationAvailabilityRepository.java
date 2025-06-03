@@ -226,19 +226,20 @@ public class StationAvailabilityRepository {
             throw new RuntimeException("Missing dropoffs for " + locationId);
         }
 
-        final Set<Service> services = servicesForLocation.get(locationId).stream().
-                filter(service -> service.anyOverlapWith(requestedModes)).
-                collect(Collectors.toSet());
+        final Set<Service> services = servicesForLocation.get(locationId);
 
-        if (services.isEmpty()) {
-            logger.warn("Found no services for " + locationId + " and " + requestedModes);
-            return false;
+        boolean modesMatch = services.stream().
+                anyMatch(service -> service.anyOverlapWith(requestedModes));
+
+        if (!modesMatch) {
+            logger.warn("No services modes overlap for " + locationId + " and " + requestedModes);
         }
 
-        // TODO is this worth it?
-        final boolean onDate = services.stream().anyMatch(service -> service.getCalendar().operatesOn(date));
-        if (!onDate) {
-            return false;
+        boolean datesMatch = services.stream().
+                anyMatch(service -> service.getCalendar().operatesOn(date));
+
+        if (!datesMatch) {
+            logger.warn("No services date overlap for " + locationId);
         }
 
         return pickupsForLocation.get(locationId).anyAvailable(date, timeRange, requestedModes) &&

@@ -11,7 +11,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
@@ -61,10 +60,8 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
 
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
-        LocationIdPairSet<Station> stationIdPairs = RouteCalculationCombinations.createStationPairs(stationRepository,
-                when, modes);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).createStationPairsForAll(modes);
 
         final TramTime time = TramTime.of(8, 5);
 
