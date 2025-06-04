@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.deployment.cli.BaseCLI;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.LocationIdPairSet;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PerformanceTestCLI extends BaseCLI {
 
@@ -68,6 +70,8 @@ public class PerformanceTestCLI extends BaseCLI {
         final RouteCalculationCombinations<Station> combinations = new RouteCalculationCombinations<>(componentContainer,
                 RouteCalculationCombinations.checkStationOpen(componentContainer));
 
+        final AtomicBoolean keepRunning = new AtomicBoolean(true);
+
         boolean stop = false;
         while ( !stop )  {
             display("Begin test run, hit enter. ('N' or 'n' to stop)");
@@ -75,12 +79,15 @@ public class PerformanceTestCLI extends BaseCLI {
 
             stop = response==null || "n".equalsIgnoreCase(response);
 
+            Running running = () -> keepRunning.get();
+
             if (!stop) {
                 try (Timing timing = new Timing(logger, "Journeys Between All Stations")) {
-                    doCalculations(date, config, combinations);
+                    doCalculations(date, config, combinations, running);
                     timing.close();
                     display(timing.toString());
                 } catch (Exception exception) {
+                    keepRunning.set(false);
                     logger.error("Failed", exception);
                     return false;
                 }
@@ -91,7 +98,7 @@ public class PerformanceTestCLI extends BaseCLI {
     }
 
     private void doCalculations(TramDate date,
-                                TramchesterConfig config, RouteCalculationCombinations<Station> combinations) {
+                                TramchesterConfig config, RouteCalculationCombinations<Station> combinations, Running running) {
 
         final EnumSet<TransportMode> modes = config.getTransportModes();
 
@@ -104,7 +111,7 @@ public class PerformanceTestCLI extends BaseCLI {
         final JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, modes);
 
-        combinations.getJourneysFor(stationIdPairs, journeyRequest, transactionTimeout);
+        combinations.getJourneysFor(stationIdPairs, journeyRequest, transactionTimeout, running);
     }
 
     private LocationIdPairSet<Station> getPairs(TramDate date, EnumSet<TransportMode> modes,
@@ -112,8 +119,8 @@ public class PerformanceTestCLI extends BaseCLI {
         final RouteCalculationCombinations.CreatePairs createPairs = combinations.getCreatePairs(date);
         return switch (scope) {
             case All -> createPairs.createStationPairsForAll(modes);
-            case Interchanges -> createPairs.InterchangeToInterchange(modes);
-            case RouteEnds -> createPairs.EndOfRoutesToEndOfRoutes(modes);
+            case Interchanges -> createPairs.interchangeToInterchange(modes);
+            case RouteEnds -> createPairs.endOfRoutesToEndOfRoutes(modes);
         };
 
     }

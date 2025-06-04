@@ -13,7 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.TrainTest;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@TrainTest
+@GMTest
 public class RailAndTramRouteRepositoryTest {
     public static final int ALL_GM_ROUTES = 604;
     private static ComponentContainer componentContainer;

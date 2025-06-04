@@ -6,7 +6,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteEndRepository;
+import com.tramchester.repository.TripEndsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -18,9 +18,9 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class RouteEndRepositoryTramTest {
+class TripEndsRepositoryTramTest {
     private static ComponentContainer componentContainer;
-    private RouteEndRepository endStationsRepository;
+    private TripEndsRepository endStationsRepository;
 
     // TODO this code is only used for test support
 
@@ -37,7 +37,7 @@ class RouteEndRepositoryTramTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        endStationsRepository = componentContainer.get(RouteEndRepository.class);
+        endStationsRepository = componentContainer.get(TripEndsRepository.class);
     }
 
     @Test
@@ -56,9 +56,6 @@ class RouteEndRepositoryTramTest {
                 collect(IdSet.idCollector());
 
         assertTrue(missing.isEmpty(), "missing " + missing);
-
-        // TODO This code only used to test support
-        //assertEquals(eolIds.size() , results.size(), results.toString());
     }
 
 

@@ -8,11 +8,13 @@ import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchest
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@GMTest
 public class RailAndTramStationRepositoryTest {
     private static ComponentContainer componentContainer;
     private StationRepository stationRepository;

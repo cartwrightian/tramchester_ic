@@ -16,6 +16,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.integration.repository.buses.StationRepositoryBusTest.agecroftRoadStops;
 import static org.junit.jupiter.api.Assertions.*;
 
+@GMTest
 class RailAndTramNaptanRepositoryTest {
     private static GuiceContainerDependencies componentContainer;
     private NaptanRepository repository;

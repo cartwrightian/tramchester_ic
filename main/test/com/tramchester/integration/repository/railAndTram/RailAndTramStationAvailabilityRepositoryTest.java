@@ -47,18 +47,6 @@ public class RailAndTramStationAvailabilityRepositoryTest {
         componentContainer.close();
     }
 
-//    @BeforeEach
-//    void onceBeforeEachTestRuns() {
-//        stationRepository = componentContainer.get(StationRepository.class);
-//        availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
-//
-//        when = TestEnv.testDay();
-//
-//        allDay = TimeRangePartial.of(of(4, 30), TramTime.nextDay(22, 30));
-//
-//    }
-
-
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);

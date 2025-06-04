@@ -92,32 +92,6 @@ public class JourneyRequest {
         return Objects.hash(date, originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys);
     }
 
-    //    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//
-//        JourneyRequest that = (JourneyRequest) o;
-//
-//        if (arriveBy != that.arriveBy) return false;
-//        if (maxChanges != that.maxChanges) return false;
-//        if (maxNumberOfJourneys != that.maxNumberOfJourneys) return false;
-//        if (!date.equals(that.date)) return false;
-//        if (!originalQueryTime.equals(that.originalQueryTime)) return false;
-//        return maxJourneyDuration.equals(that.maxJourneyDuration);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        int result = date.hashCode();
-//        result = 31 * result + originalQueryTime.hashCode();
-//        result = 31 * result + (arriveBy ? 1 : 0);
-//        result = 31 * result + maxChanges.hashCode();
-//        result = 31 * result + maxJourneyDuration.hashCode();
-//        result = 31 * result + (int) (maxNumberOfJourneys ^ (maxNumberOfJourneys >>> 32));
-//        return result;
-//    }
-
     public boolean getDiagnosticsEnabled() {
         return diagRequested;
     }
@@ -172,10 +146,6 @@ public class JourneyRequest {
         return requestedModes;
     }
 
-//    public TimeRange getTimeRange() {
-//        return TimeRangePartial.of(originalQueryTime, Duration.ZERO, maxJourneyDuration);
-//    }
-
     public synchronized void injectDiag(final JourneyDiagnostics diagnostics) {
         // todo need better way to handle passing back diagnostics
         // for now when diags is enabled don't look for range of times or changes
@@ -221,10 +191,6 @@ public class JourneyRequest {
         public int get() {
             return maxChanges;
         }
-
-//        public boolean isUseComputed() {
-//            return maxChanges==-1;
-//        }
 
         @Override
         public String toString() {

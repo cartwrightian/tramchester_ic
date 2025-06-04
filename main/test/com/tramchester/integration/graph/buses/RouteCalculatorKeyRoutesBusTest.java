@@ -65,25 +65,25 @@ class RouteCalculatorKeyRoutesBusTest {
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).EndOfRoutesToInterchanges(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToInterchanges(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).EndOfRoutesToEndOfRoutes(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).InterchangeToEndRoutes(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).interchangeToEndRoutes(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).InterchangeToInterchange(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).interchangeToInterchange(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 

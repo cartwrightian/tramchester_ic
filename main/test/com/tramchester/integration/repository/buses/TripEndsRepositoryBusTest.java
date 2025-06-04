@@ -6,7 +6,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.RouteEndRepository;
+import com.tramchester.repository.TripEndsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-class RouteEndRepositoryBusTest {
+class TripEndsRepositoryBusTest {
     private static ComponentContainer componentContainer;
-    private RouteEndRepository routeEndRepository;
+    private TripEndsRepository routeEndRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -34,7 +34,7 @@ class RouteEndRepositoryBusTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        routeEndRepository = componentContainer.get(RouteEndRepository.class);
+        routeEndRepository = componentContainer.get(TripEndsRepository.class);
     }
 
     @Test

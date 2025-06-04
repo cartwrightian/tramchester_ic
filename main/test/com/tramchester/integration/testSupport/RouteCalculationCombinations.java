@@ -37,7 +37,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     private final RouteCalculator calculator;
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
-    private final RouteEndRepository routeEndRepository;
+    private final TripEndsRepository routeEndRepository;
     private final ChecksOpen<T> checksOpen;
     private final LocationRepository locationRepository;
 
@@ -47,7 +47,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.locationRepository = componentContainer.get(LocationRepository.class);
         this.interchangeRepository = componentContainer.get(InterchangeRepository.class);
-        this.routeEndRepository = componentContainer.get(RouteEndRepository.class);
+        this.routeEndRepository = componentContainer.get(TripEndsRepository.class);
         this.checksOpen = checksOpen;
     }
 
@@ -82,15 +82,25 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
-                                                                             final JourneyRequest journeyRequest, final boolean check, final Duration timeout) {
+                                                                  final JourneyRequest journeyRequest, final boolean check,
+                                                                  final Duration timeout) {
+
+        final Running running = () -> true;
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, check, timeout, running);
+    }
+
+    public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
+                                                                             final JourneyRequest journeyRequest, final boolean check,
+                                                                  final Duration timeout, final Running running) {
 
         if (stationIdPairs.isEmpty()) {
             fail("no station pairs");
         }
-        final long openPairs = stationIdPairs.stream().filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest.getDate())).count();
+        final long openPairs = stationIdPairs.stream().
+                filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest.getDate())).
+                count();
         assertNotEquals(0, openPairs);
 
-        final Running running = () -> true;
 
         final CombinationResults<T> results = computeJourneys(stationIdPairs, journeyRequest, running, timeout);
         assertEquals(openPairs, results.size(), "Not enough results");
@@ -116,8 +126,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, GraphDatabase.DEFAULT_TXN_TIMEOUT);
     }
 
-    public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest, Duration timeout ) {
-        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, timeout);
+    public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest,
+                                                Duration timeout, Running running) {
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, timeout, running);
     }
 
     @Deprecated
@@ -152,11 +163,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return stringBuilder.toString();
     }
 
-
-
-
-
-
     public boolean betweenInterchanges(final Station start, final Station dest) {
         return interchangeRepository.isInterchange(start) && interchangeRepository.isInterchange(dest);
     }
@@ -170,11 +176,11 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public static class CreatePairs {
         private final StationRepository stationRepository;
-        private final RouteEndRepository routeEndRepository;
+        private final TripEndsRepository routeEndRepository;
         private final InterchangeRepository interchangeRepository;
         private final TramDate date;
 
-        public CreatePairs(StationRepository stationRepository, RouteEndRepository routeEndRepository,
+        public CreatePairs(StationRepository stationRepository, TripEndsRepository routeEndRepository,
                            InterchangeRepository interchangeRepository, TramDate date) {
             this.stationRepository = stationRepository;
             this.routeEndRepository = routeEndRepository;
@@ -195,39 +201,47 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                     collect(LocationIdPairSet.collector());
         }
 
-        public LocationIdPairSet<Station> EndOfRoutesToEndOfRoutes(final TransportMode mode) {
-            return EndOfRoutesToEndOfRoutes(EnumSet.of(mode));
+        public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final TransportMode mode) {
+            return endOfRoutesToEndOfRoutes(EnumSet.of(mode));
         }
 
-            public LocationIdPairSet<Station> EndOfRoutesToEndOfRoutes(final EnumSet<TransportMode> modes) {
+        public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final EnumSet<TransportMode> modes) {
             final IdSet<Station> endRoutes = routeEndRepository.getStations(modes);
-            return createJourneyPairs(endRoutes, endRoutes, date);
+            // sanity check, primarily for rail
+            IdSet<Station> missingStations = endRoutes.stream().
+                    filter(stationIdFor -> !stationRepository.hasStationId(stationIdFor)).
+                    collect(IdSet.idCollector());
+            if (missingStations.isEmpty()) {
+                return createJourneyPairs(endRoutes, endRoutes, date);
+            } else {
+                throw new RuntimeException("Got missing stations from end routes " + missingStations);
+            }
         }
 
-        public LocationIdPairSet<Station> EndOfRoutesToInterchanges(final TransportMode mode) {
-            return EndOfRoutesToInterchanges(EnumSet.of(mode));
+        public LocationIdPairSet<Station> endOfRoutesToInterchanges(final TransportMode mode) {
+            return endOfRoutesToInterchanges(EnumSet.of(mode));
         }
 
-            public LocationIdPairSet<Station> EndOfRoutesToInterchanges(final EnumSet<TransportMode> modes) {
+            public LocationIdPairSet<Station> endOfRoutesToInterchanges(final EnumSet<TransportMode> modes) {
             final IdSet<Station> interchanges = getInterchangesFor(modes);
             final IdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             return createJourneyPairs(interchanges, endRoutes, date);
         }
 
-        public LocationIdPairSet<Station> InterchangeToInterchange(TransportMode mode) {
-            return InterchangeToInterchange(EnumSet.of(mode));
+        public LocationIdPairSet<Station> interchangeToInterchange(TransportMode mode) {
+            return interchangeToInterchange(EnumSet.of(mode));
         }
 
-        public LocationIdPairSet<Station> InterchangeToInterchange(final EnumSet<TransportMode> modes) {
+        public LocationIdPairSet<Station> interchangeToInterchange(final EnumSet<TransportMode> modes) {
             final IdSet<Station> interchanges = getInterchangesFor(modes);
             return createJourneyPairs(interchanges, interchanges, date);
         }
 
-        public LocationIdPairSet<Station> InterchangeToEndRoutes(final TransportMode mode) {
-            return InterchangeToEndRoutes(EnumSet.of(mode));
+        public LocationIdPairSet<Station> interchangeToEndRoutes(final TransportMode mode) {
+            return interchangeToEndRoutes(EnumSet.of(mode));
         }
 
-            public LocationIdPairSet<Station> InterchangeToEndRoutes(final EnumSet<TransportMode> modes) {
+            public LocationIdPairSet<Station> interchangeToEndRoutes(final EnumSet<TransportMode> modes) {
             final IdSet<Station> interchanges = getInterchangesFor(modes);
             final IdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             return createJourneyPairs(endRoutes, interchanges, date);
