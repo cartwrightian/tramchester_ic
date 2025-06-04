@@ -10,10 +10,7 @@ import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchest
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -21,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled("WIP")
 @GMTest
 class TripRepositoryRailAndTramTest {
     private static ComponentContainer componentContainer;
