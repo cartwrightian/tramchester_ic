@@ -221,7 +221,7 @@ public class RailTransportDataFromFilesTest {
                 filter(trip -> trip.callsAt(endStation.getId())).
                 filter(trip -> trip.getStopCalls().numberOfCallingPoints()==numberOfCalingPoints).
                 filter(trip -> trip.getStopCalls().getStationSequence(false).get(0).equals(startStation)).
-                filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
+                filter(trip -> trip.getStopCalls().getLastStop(false).getStation().equals(endStation)).
                 toList();
 
         assertFalse(matchingTripsForCallingPoints.isEmpty());
@@ -241,7 +241,7 @@ public class RailTransportDataFromFilesTest {
         assertEquals(service, trip.getService());
 
         StopCalls stops = trip.getStopCalls();
-        final StopCall firstStopCall = stops.getFirstStop();
+        final StopCall firstStopCall = stops.getFirstStop(false);
         assertEquals(startStation, firstStopCall.getStation());
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
@@ -252,7 +252,7 @@ public class RailTransportDataFromFilesTest {
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
 
 
-        final StopCall lastStopCall = stops.getLastStop();
+        final StopCall lastStopCall = stops.getLastStop(false);
         assertEquals(endStation, lastStopCall.getStation());
         assertEquals(GTFSPickupDropoffType.Regular, lastStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.None, lastStopCall.getPickupType());
@@ -515,11 +515,11 @@ public class RailTransportDataFromFilesTest {
 
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {
-        StopCall firstCall = trip.getStopCalls().getFirstStop();
+        StopCall firstCall = trip.getStopCalls().getFirstStop(false);
         if (!firstCall.getStationId().equals(firstId)) {
             return false;
         }
-        StopCall finalCall = trip.getStopCalls().getLastStop();
+        StopCall finalCall = trip.getStopCalls().getLastStop(false);
         return secondId.equals(finalCall.getStationId());
     }
 

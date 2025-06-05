@@ -3,9 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.TramRouteId;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
@@ -24,42 +22,48 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Bus
-    ReplacementBus1EndMay(BusOne, "Replacement Bus One", "2462", TramDate.of(2025,5,30)),
+    //ReplacementBus1EndMay(BusOne, "Replacement Bus One", "2462", TramDate.of(2025,5,30)),
 
     // Blue
-    EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", startMayCutover),
+    EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", latestCutoverDate),
 
     // Green
-    BuryManchesterAltrinchamNew(Green, "Bury - Manchester - Altrincham", "841", startMayCutover),
+    BuryManchesterAltrinchamNew(Green, "Bury - Manchester - Altrincham", "841", latestCutoverDate),
 
     // Navy
-    VictoriaManchesterAirportNew(Navy, "Victoria - Wythenshawe - Manchester Airport", "2120", startMayCutover),
+    VictoriaManchesterAirportNew(Navy, "Victoria - Wythenshawe - Manchester Airport", "2120", latestCutoverDate),
 
     // Pink
-    RochdaleManchesterEastDidisburyNew(Pink, "Rochdale - Manchester - East Didsbury", "845", startMayCutover),
+    RochdaleManchesterEastDidisburyNew(Pink, "Rochdale - Manchester - East Didsbury", "845", latestCutoverDate),
 
-    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", startMayCutover),
+    // Purple
+    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", MISSING_ROUTE_ID, latestCutoverDate),
 
     // Red
-    CornbrookTheTraffordCentreNew(Red, "Etihad Campus - The Trafford Centre", "849", startMayCutover),
+    CornbrookTheTraffordCentreNew(Red, "Etihad Campus - The Trafford Centre", "849", latestCutoverDate),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", startMayCutover);
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", MISSING_ROUTE_ID, latestCutoverDate);
 
     private final TFGMRouteNames line;
     private final String longName; // diagnostics only
-    private final TramRouteId id;
+    private final IdFor<Route> id;
     private final TramDate validFrom;
 
     KnownTramRouteEnum(TFGMRouteNames line, String longName, String id, TramDate validFrom) {
         this.longName = longName;
-        this.id = TramRouteId.create(line, id);
+        if (id.isEmpty()) {
+            this.id = IdFor.invalid(Route.class);
+        } else {
+            this.id = TramRouteId.create(line, id);
+        }
         this.validFrom = validFrom;
         this.line = line;
     }
 
     public static EnumSet<KnownTramRouteEnum> validRoutes() {
-        return Arrays.stream(values()).filter(item -> item.getId().isValid()).
+        return Arrays.stream(values()).
+                filter(item -> item.getId().isValid()).
                 collect(Collectors.toCollection(() -> EnumSet.noneOf(KnownTramRouteEnum.class)));
     }
 

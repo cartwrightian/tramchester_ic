@@ -104,11 +104,11 @@ public class RouteRepositoryTest {
         Route towardsEcclesRoute = routeHelper.getOneRoute(TFGMRouteNames.Blue, when);
 
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
-                filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
+                filter(trip -> trip.getStopCalls().getFirstStop(true).getStationId().equals(Ashton.getId())).
                 filter(trip -> trip.callsAt(Shudehill.getId())).toList();
 
         List<StopCall> fromVictoria = ecclesTripsViaShudehill.stream().
-                map(trip -> trip.getStopCalls().getFirstStop()).
+                map(trip -> trip.getStopCalls().getFirstStop(true)).
                 filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
                 toList();
 
@@ -133,14 +133,14 @@ public class RouteRepositoryTest {
         Route ecclesRoute = routeHelper.getOneRoute(TFGMRouteNames.Blue, when);
 
         List<Trip> ecclesTripsViaShudehill = ecclesRoute.getTrips().stream().
-                filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
+                filter(trip -> trip.getStopCalls().getFirstStop(true).getStationId().equals(Ashton.getId())).
                 filter(trip -> trip.getStopCalls().callsAt(Shudehill.getId())).
                 toList();
 
         assertFalse(ecclesTripsViaShudehill.isEmpty());
 
         List<StopCall> toVictoria = ecclesTripsViaShudehill.stream().
-                map(trip -> trip.getStopCalls().getLastStop()).
+                map(trip -> trip.getStopCalls().getLastStop(true)).
                 filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
                 toList();
 

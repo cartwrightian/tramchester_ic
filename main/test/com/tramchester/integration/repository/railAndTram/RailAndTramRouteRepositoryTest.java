@@ -117,28 +117,6 @@ public class RailAndTramRouteRepositoryTest {
         assertTrue(routeRepository.hasRouteId(routeId));
     }
 
-//    @Test
-//    void shouldReproIssueWithRailRouteIdSerialized() throws JsonProcessingException {
-//
-//        RailRouteId sourceId = new RailRouteId(LondonEuston.getId(), ManchesterPiccadilly.getId(), TrainOperatingCompanies.VT.getAgencyId(), 4);
-//        assertTrue(routeRepository.hasRouteId(sourceId));
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//
-//        RouteIndexData routeIndexData = new RouteIndexData(56, sourceId);
-//
-//        for (int i = 0; i < 100000; i++) {
-//
-//            String asString = mapper.writeValueAsString(routeIndexData);
-//
-//            RouteIndexData result = mapper.readValue(asString, RouteIndexData.class);
-//
-//            IdFor<Route> finalId = result.getRouteId();
-//            assertTrue(routeRepository.hasRouteId(finalId));
-//        }
-//
-//    }
-
     private boolean railRouteStartsAt(Route route, IdFor<Station> stationId) {
         final RailRouteId railRouteId = (RailRouteId) route.getId();
         return railRouteId.getBegin().equals(stationId);
@@ -152,14 +130,14 @@ public class RailAndTramRouteRepositoryTest {
     private boolean beginsAtAndCallsAt(Route route, IdFor<Station> first, IdFor<Station> callsAt) {
         return route.getTrips().stream().
                 map(Trip::getStopCalls).
-                filter(stopCalls -> stopCalls.getFirstStop().getStationId().equals(first)).
+                filter(stopCalls -> stopCalls.getFirstStop(true).getStationId().equals(first)).
                 anyMatch(stopCalls -> stopCalls.callsAt(callsAt));
     }
 
     private boolean callsAtEndsAt(Route route, IdFor<Station> callsAt, IdFor<Station> endsAt) {
         return route.getTrips().stream().
                 map(Trip::getStopCalls).
-                filter(stopCalls -> stopCalls.getLastStop().getStationId().equals(endsAt)).
+                filter(stopCalls -> stopCalls.getLastStop(true).getStationId().equals(endsAt)).
                 anyMatch(stopCalls -> stopCalls.callsAt(callsAt));
     }
 }

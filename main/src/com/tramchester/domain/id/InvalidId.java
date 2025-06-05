@@ -7,7 +7,6 @@ public class InvalidId<T extends CoreDomain> implements IdFor<T> {
     private final Class<T> domainType;
 
     public InvalidId(Class<T> domainType) {
-
         this.domainType = domainType;
     }
 

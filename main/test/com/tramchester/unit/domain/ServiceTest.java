@@ -13,6 +13,8 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +36,16 @@ class ServiceTest {
 
     @BeforeEach
     void setUp() {
-        manAirport = ManAirport.fake();
-        shudehill = Shudehill.fake();
+        TramDate when = TestEnv.testDay();
+        KnownTramRouteEnum route = KnownTramRoute.getGreen(when);
+        manAirport = ManAirport.fake(route);
+        shudehill = Shudehill.fake(route);
+    }
+
+    @Test
+    void needStationsToBeActive() {
+        assertTrue(manAirport.isActive());
+        assertTrue(shudehill.isActive());
     }
 
     @Test
@@ -56,12 +66,13 @@ class ServiceTest {
 
     @Test
     void shouldHaveTimeRange() {
+        Route route = TestEnv.getTramTestRoute();
+
         Platform platformA = new MutablePlatform(PlatformId.createId(manAirport, "platA"), manAirport, "man airport",
                 dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
         Platform platformB = new MutablePlatform(PlatformId.createId(shudehill, "platB"), shudehill, "shudehill",
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
-        Route route = TestEnv.getTramTestRoute();
         MutableService service = new MutableService(Service.createId("svcA"), DataSourceID.tfgm);
 
         final MutableTrip tripA = new MutableTrip(Trip.createId("tripA"), "headSignA", service, route, Tram);

@@ -227,7 +227,7 @@ class StationResourceTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        assertFalse(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
 //        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()), ids.toString());
 
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()), ids.toString());
@@ -252,7 +252,7 @@ class StationResourceTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        assertFalse(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
 
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()), ids.toString());
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()), ids.toString());

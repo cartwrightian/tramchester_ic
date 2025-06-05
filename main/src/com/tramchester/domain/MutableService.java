@@ -108,7 +108,7 @@ public class MutableService implements Service {
     }
 
     private void computeStartTime() {
-        Optional<TramTime> firstDepartForTrips = trips.stream().
+        final Optional<TramTime> firstDepartForTrips = trips.stream().
                 filter(Trip::hasStops).
                 map(Trip::departTime).
                 min(TramTime::compareTo);

@@ -6,6 +6,8 @@ import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ class TripTest {
     private TramStations stationC;
 
     private MutableTrip trip;
+    private TestRoute route;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -35,17 +38,19 @@ class TripTest {
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
         stationC = TramStations.Cornbrook;
+
+        route = KnownTramRoute.getGreen(TestEnv.testDay());
     }
 
     @Test
     void shouldModelCircularTripsCorrectly() {
 
         PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1,
-                of(10, 0), of(10, 1));
+                of(10, 0), of(10, 1), route);
         PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "statB1", stationB, (byte) 2,
-                of(10, 5), of(10, 6));
+                of(10, 5), of(10, 6), route);
         PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 3,
-                of(10, 10), of(10, 10));
+                of(10, 10), of(10, 10), route);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -65,11 +70,11 @@ class TripTest {
     void shouldHaveTripDepartAndArrivalTimes() {
 
         PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1,
-                of(10, 0), of(10, 1));
+                of(10, 0), of(10, 1), route);
         PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "statB1", stationB, (byte) 2,
-                of(10, 5), of(10, 6));
+                of(10, 5), of(10, 6), route);
         PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 3,
-                of(10, 10), of(10, 10));
+                of(10, 10), of(10, 10), route);
 
         assertFalse(trip.hasStops());
 
@@ -87,9 +92,9 @@ class TripTest {
     @Test
     void shouldCheckIfNotCrossesIntoNextDay() {
         PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "stop1", stationA, (byte) 2,
-                of(23, 45), of(23, 46));
+                of(23, 45), of(23, 46), route);
         PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "stop2", stationB, (byte) 3,
-                of(23, 59), of(0, 1));
+                of(23, 59), of(0, 1), route);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -100,11 +105,11 @@ class TripTest {
     @Test
     void shouldHaveOneStartAfterAnother() {
         PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1,
-                of(10, 0), of(10, 1));
+                of(10, 0), of(10, 1), route);
         PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "statB1", stationB, (byte) 2,
-                of(10, 5), of(10, 6));
+                of(10, 5), of(10, 6), route);
         PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationC, (byte) 3,
-                of(10, 10), of(10, 10));
+                of(10, 10), of(10, 10), route);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -123,13 +128,13 @@ class TripTest {
     void shouldFindEarliestDepartCorrectlyCrossingMidnight() {
 
         PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "stop1", stationA, (byte) 2,
-                of(23, 45), of(23, 46));
+                of(23, 45), of(23, 46), route);
         PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "stop2", stationB, (byte) 3,
-                of(23, 59), of(0, 1));
+                of(23, 59), of(0, 1), route);
         PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "stop3", stationC, (byte) 4,
-                nextDay(0, 10), nextDay(0, 11));
+                nextDay(0, 10), nextDay(0, 11), route);
         PlatformStopCall fourthStop = TestEnv.createTramStopCall(trip, "stop4", stationC, (byte) 1,
-                of(22, 45), of(22, 46));
+                of(22, 45), of(22, 46), route);
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -147,9 +152,9 @@ class TripTest {
     void shouldFindDepartCorrectly() {
 
         PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "stop3", stationC, (byte) 3,
-                of(0, 10), of(0, 11));
+                of(0, 10), of(0, 11), route);
         PlatformStopCall fourthStop = TestEnv.createTramStopCall(trip, "stop4", stationC, (byte) 1,
-                of(6, 30), of(6, 31));
+                of(6, 30), of(6, 31), route);
 
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
@@ -159,10 +164,11 @@ class TripTest {
 
     @Test
     void shouldFindLatestDepartCorrectly() {
-        trip.addStop(TestEnv.createTramStopCall(trip, "stopId3", TramStations.Deansgate, (byte) 3,
-                of(10, 25), of(10, 26)));
-        trip.addStop(TestEnv.createTramStopCall(trip, "stopId4", TramStations.Deansgate, (byte) 4,
-                of(0, 1), of(0, 1)));
+        TramStations deansgate = TramStations.Deansgate;
+        trip.addStop(TestEnv.createTramStopCall(trip, "stopId3", deansgate, (byte) 3,
+                of(10, 25), of(10, 26), route));
+        trip.addStop(TestEnv.createTramStopCall(trip, "stopId4", deansgate, (byte) 4,
+                of(0, 1), of(0, 1), route));
 
         assertEquals(of(0,1), trip.arrivalTime());
 

@@ -110,8 +110,8 @@ public class RailTransportDataTest {
         IdFor<Station> firstStation = Station.createId("VICTRIC");
         IdFor<Station> lastStation = Station.createId("GTWK");
 
-        assertEquals(firstStation, calls.getFirstStop().getStation().getId());
-        assertEquals(lastStation, calls.getLastStop().getStation().getId());
+        assertEquals(firstStation, calls.getFirstStop(false).getStation().getId());
+        assertEquals(lastStation, calls.getLastStop(false).getStation().getId());
 
         List<StopCall> callingsStations = calls.stream().filter(StopCall::callsAtStation).toList();
         assertEquals(firstStation, callingsStations.getFirst().getStationId());
@@ -159,8 +159,8 @@ public class RailTransportDataTest {
         // 19 - 2 passing records
         assertEquals(17, calls.numberOfCallingPoints(), calls.toString());
 
-        assertEquals(Station.createId("WATRLMN"), calls.getFirstStop().getStation().getId());
-        assertEquals(Station.createId("SHEPRTN"), calls.getLastStop().getStation().getId());
+        assertEquals(Station.createId("WATRLMN"), calls.getFirstStop(false).getStation().getId());
+        assertEquals(Station.createId("SHEPRTN"), calls.getLastStop(false).getStation().getId());
 
     }
 
@@ -446,8 +446,8 @@ public class RailTransportDataTest {
         StopCalls stopCalls = trip.getStopCalls();
         assertEquals(12, stopCalls.numberOfCallingPoints());
 
-        assertEquals(Inverness.getId(), stopCalls.getFirstStop().getStationId());
-        assertEquals(RailStationIds.LondonEuston.getId(), stopCalls.getLastStop().getStationId());
+        assertEquals(Inverness.getId(), stopCalls.getFirstStop(false).getStationId());
+        assertEquals(RailStationIds.LondonEuston.getId(), stopCalls.getLastStop(false).getStationId());
 
         List<StopCalls.StopLeg> legs = stopCalls.getLegs(false);
         assertEquals(11, legs.size());

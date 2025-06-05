@@ -53,15 +53,13 @@ public class LiveDataParser {
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
 
-
     public enum LiveDataNamesMapping {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
-        Firswood("Firswood", "Firswood Station"),
+        //Firswood("Firswood", "Firswood Station"), // now Firswood in tram data
         AshtonViaMediaCity("Ashton via MCUK", "Ashton-Under-Lyne"),
         RochdaleStn("Rochdale Stn", "Rochdale Railway Station");
 
 // No longer in use?
-//        Firswood("Firswood", "Firswood Station"),
 //        Ashton("Ashton","Ashton-Under-Lyne"),
 //        DeansgateAliasA("Deansgate - Castlefield","Deansgate-Castlefield"),
 //        BessesOThBarns("Besses O’ Th’ Barn","Besses o'th'barn"),
@@ -80,6 +78,12 @@ public class LiveDataParser {
 
         public String getToo() {
             return too;
+        }
+
+
+        @Override
+        public String toString() {
+            return "{"+from+"-->"+too+"}";
         }
     }
 

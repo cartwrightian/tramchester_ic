@@ -70,7 +70,7 @@ public class RouteRepositoryRailTest {
     private boolean tripsMatch(Route route, IdFor<Station> first, IdFor<Station> last) {
         return route.getTrips().stream().
                 map(Trip::getStopCalls).
-                filter(stopCalls -> stopCalls.getFirstStop().getStationId().equals(first)).
-                anyMatch(stopCalls -> stopCalls.getLastStop().getStationId().equals(last));
+                filter(stopCalls -> stopCalls.getFirstStop(false).getStationId().equals(first)).
+                anyMatch(stopCalls -> stopCalls.getLastStop(false).getStationId().equals(last));
     }
 }

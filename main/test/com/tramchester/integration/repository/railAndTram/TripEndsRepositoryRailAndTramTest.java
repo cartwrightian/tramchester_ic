@@ -18,7 +18,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("WIP")
+@Disabled("wip")
 @GMTest
 class TripEndsRepositoryRailAndTramTest {
     private static ComponentContainer componentContainer;

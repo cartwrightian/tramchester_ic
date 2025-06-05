@@ -100,8 +100,8 @@ public class GMRailTransportDataTest {
         StopCalls calls = trip.getStopCalls();
         assertEquals(2, calls.numberOfCallingPoints());
 
-        assertEquals(ManchesterPiccadilly.getId(), calls.getFirstStop().getStationId());
-        assertEquals(ManchesterAirport.getId(), calls.getLastStop().getStationId());
+        assertEquals(ManchesterPiccadilly.getId(), calls.getFirstStop(false).getStationId());
+        assertEquals(ManchesterAirport.getId(), calls.getLastStop(false).getStationId());
 
     }
 
@@ -195,8 +195,8 @@ public class GMRailTransportDataTest {
         StopCalls calls = trip.getStopCalls();
         assertEquals(2, calls.numberOfCallingPoints());
 
-        assertEquals(Station.createId("BOLTON"), calls.getFirstStop().getStationId());
-        assertEquals(ManchesterPiccadilly.getId(), calls.getLastStop().getStationId());
+        assertEquals(Station.createId("BOLTON"), calls.getFirstStop(false).getStationId());
+        assertEquals(ManchesterPiccadilly.getId(), calls.getLastStop(false).getStationId());
 
         Service service = services.getFirst();
 

@@ -60,7 +60,7 @@ public class TripEndsRepository {
         Set<StopCall> stopCalls = tripRepository.getTrips().stream().
                 filter(trip -> !trip.isFiltered()).
                 filter(trip -> trip.getTransportMode().equals(mode)).
-                map(trip -> trip.getStopCalls().getFirstStop()).
+                map(trip -> trip.getStopCalls().getFirstStop(true)).
                 collect(Collectors.toSet());
         return validateStations(stopCalls);
     }
@@ -69,7 +69,7 @@ public class TripEndsRepository {
         Set<StopCall> stopCalls = tripRepository.getTrips().stream().
                 filter(trip -> !trip.isFiltered()).
                 filter(trip -> trip.getTransportMode().equals(mode)).
-                map(trip -> trip.getStopCalls().getLastStop()).
+                map(trip -> trip.getStopCalls().getLastStop(true)).
                 collect(Collectors.toSet());
         return validateStations(stopCalls);
     }

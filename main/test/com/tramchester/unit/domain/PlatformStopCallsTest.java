@@ -9,6 +9,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +39,8 @@ class PlatformStopCallsTest {
     @BeforeEach
     void beforeEachTestRuns() {
 
+        KnownTramRouteEnum route = KnownTramRoute.getGreen(TestEnv.testDay());
+
         stationA = TramStations.Ashton;
 
         stationB = TramStations.Broadway;
@@ -49,9 +53,9 @@ class PlatformStopCallsTest {
         trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 
-        stopA = TestEnv.createTramStopCall(trip, "statA1", stationA, 3, of(10, 10), of(10, 11));
-        stopB = TestEnv.createTramStopCall(trip, "statB1", stationB, 2, of(10, 3), of(10, 4));
-        stopC = TestEnv.createTramStopCall(trip, "statC1", stationC, 1, of(10, 0), of(10, 1));
+        stopA = TestEnv.createTramStopCall(trip, "statA1", stationA, 3, of(10, 10), of(10, 11), route);
+        stopB = TestEnv.createTramStopCall(trip, "statB1", stationB, 2, of(10, 3), of(10, 4), route);
+        stopC = TestEnv.createTramStopCall(trip, "statC1", stationC, 1, of(10, 0), of(10, 1), route);
 
         stops = new StopCalls(trip.getId());
 
@@ -62,8 +66,8 @@ class PlatformStopCallsTest {
 
     @Test
     void shouldHaveFirstAndLast() {
-        assertEquals(stopC, stops.getFirstStop());
-        assertEquals(stopA, stops.getLastStop());
+        assertEquals(stopC, stops.getFirstStop(false));
+        assertEquals(stopA, stops.getLastStop(false));
     }
 
     @Test

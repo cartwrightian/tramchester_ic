@@ -83,12 +83,13 @@ public class InterchangesTramTest {
 
         Stream<TramStations> expectedTramStations = Stream.of(
                 StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
-                Pomona, Cornbrook, PiccadillyGardens, StPetersSquare,
+                Pomona, Cornbrook,
+                // summer 2025 closures
+//                MarketStreet,
+//                PiccadillyGardens,
+                StPetersSquare,
                 Broadway,
-                MarketStreet,
                 Victoria
-                // summery 2025 closures
-                ///OldhamMumps, OldhamKingStreet
         );
 
         Set<Station> expectedStations = expectedTramStations.

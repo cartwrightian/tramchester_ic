@@ -183,11 +183,10 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         Station begin = Altrincham.fake();
         Station destination = TramStations.Bury.fake(getGreen(when));
 
-        Station tramDestination = Piccadilly.fake(getPurple(when));
+        Station tramDestination = Piccadilly.fake(getBlue(when));
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
         EasyMock.expect(stationRepository.getStationById(tramDestination.getId())).andReturn(tramDestination);
-
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
 
         replayAll();

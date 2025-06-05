@@ -72,7 +72,9 @@ public class RoutesMapper {
     public List<Station> getStationsOn(Route route, boolean includeNotStopping, IdFor<Station> startStation) {
         Trips tripsForRoute = route.getTrips();
 
-        Set<Trip> startingAt = tripsForRoute.stream().filter(trip -> trip.firstStation().equals(startStation)).collect(Collectors.toSet());
+        Set<Trip> startingAt = tripsForRoute.stream().
+                filter(trip -> trip.firstStation().equals(startStation)).
+                collect(Collectors.toSet());
 
         Optional<Trip> maybeLongest = startingAt.stream().
                 max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber()));

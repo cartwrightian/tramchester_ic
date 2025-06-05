@@ -5,8 +5,6 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
@@ -32,13 +30,13 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    private static final List<TramStations> closedStations = List.of(MarketStreet, Shudehill);
+    private static final List<TramStations> closedStations = List.of(PiccadillyGardens);
 
     public static final StationClosures marketStreetApril2025 = new StationClosuresListForTest(closedStations,
-        DateRange.of(TramDate.of(2025, 3, 25), TramDate.of(2025, 4, 24)),
+        UpcomingDates.PiccGardensWorksummer2025,
         true, Collections.emptySet(), Collections.emptySet());
 
-    public static final List<StationClosures> CurrentClosures = Collections.emptyList(); //List.of(marketStreetApril2025);
+    public static final List<StationClosures> CurrentClosures = List.of(marketStreetApril2025);
 
     private static final TemporaryStationsWalkIds piccadillyToMarketStreet = new TemporaryStationsWalkConfigForTest(
             StationIdPair.of(Piccadilly.getId(), MarketStreet.getId()), UpcomingDates.PiccGardensWorksummer2025);

@@ -91,7 +91,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Ashton,
             Rochdale,
             Bury,
-            TraffordCentre
+            TraffordCentre,
+            Piccadilly // summer 2025 closures
             //MediaCityUK
     ));
 

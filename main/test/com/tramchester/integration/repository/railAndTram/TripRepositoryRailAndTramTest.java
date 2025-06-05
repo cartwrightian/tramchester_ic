@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -18,13 +19,11 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("WIP")
+@Disabled("wip")
 @GMTest
 class TripRepositoryRailAndTramTest {
     private static ComponentContainer componentContainer;
     private TripRepository repository;
-
-    // TODO this code is only used for test support
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -44,11 +43,21 @@ class TripRepositoryRailAndTramTest {
     }
 
     @Test
+    void shouldNotTripsWithSensibleLength() {
+        Set<Trip> trips = repository.getTrips();
+
+        IdSet<Trip> tooShort = trips.stream().filter(trip -> trip.getStopCalls().totalNumber() <= 1)
+                .collect(IdSet.collector());
+
+        assertTrue(tooShort.isEmpty(), tooShort.toString());
+    }
+
+    @Test
     void shouldHaveActiveStartStationsForAllTrips() {
         Set<Trip> trips = repository.getTrips();
 
         Set<Trip> inactiveStarts = trips.stream().
-                filter(trip -> isActive(trip, t -> t.getStopCalls().getFirstStop())).
+                filter(trip -> isActive(trip, t -> t.getStopCalls().getFirstStop(true))).
                 collect(Collectors.toSet());
 
         assertTrue(inactiveStarts.isEmpty(), HasId.asIds(inactiveStarts));
@@ -59,7 +68,7 @@ class TripRepositoryRailAndTramTest {
         Set<Trip> trips = repository.getTrips();
 
         Set<Trip> inactiveLast = trips.stream().
-                filter(trip -> isActive(trip, t -> t.getStopCalls().getLastStop())).
+                filter(trip -> isActive(trip, t -> t.getStopCalls().getLastStop(true))).
                 collect(Collectors.toSet());
 
         assertTrue(inactiveLast.isEmpty(), HasId.asIds(inactiveLast));

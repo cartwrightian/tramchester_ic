@@ -138,7 +138,7 @@ public class TripRepositoryTest {
         Set<Trip> allTrips = tripRepository.getTrips();
 
         Set<String> endTripNotInterchange = allTrips.stream().
-                map(trip -> trip.getStopCalls().getLastStop()).
+                map(trip -> trip.getStopCalls().getLastStop(true)).
                 map(StopCall::getStation).
                 filter(station -> !interchangeRepository.isInterchange(station)).
                 filter(station -> !TramStations.isEndOfLine(station)).

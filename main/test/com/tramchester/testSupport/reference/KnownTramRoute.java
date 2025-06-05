@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate startMayCutover = TramDate.of(2025,5,25);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,6,3);
 
     // TODO mismatch between data and website
     static final Dates replacementBusOneDates =
             TramDateBuilder.forYear(2025).forMonth(5).add(18,30).toYear().forMonth(6).add(1).toYear().build();
 
     // missing from tfgm data
-    public static final String MISSING_ROUTE = "";
+    public static final String MISSING_ROUTE_ID = "";
 
     /***
      * @return Yellow route

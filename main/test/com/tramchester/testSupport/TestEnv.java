@@ -25,6 +25,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
@@ -54,7 +55,8 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    public static final int NumberOfStationLinks = 202;
+    // summery 2025 closures 202->196
+    public static final int NumberOfStationLinks = 196;
 
     private static final TramDate testDay;
 
@@ -172,8 +174,8 @@ public class TestEnv {
     }
 
     public static PlatformStopCall createTramStopCall(Trip trip, String stopCode, TramStations tramStation, int seq, TramTime arrive,
-                                                      TramTime depart) {
-        final Station station = tramStation.fake();
+                                                      TramTime depart, TestRoute route) {
+        final Station station = tramStation.fake(route);
 
         PlatformId platformId = TransportEntityFactoryForTFGM.createPlatformId(station.getId(), stopCode);
         Platform platform = MutablePlatform.buildForTFGMTram(platformId, station, tramStation.getLatLong(),

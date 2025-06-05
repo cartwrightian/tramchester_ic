@@ -22,6 +22,8 @@ public class StopCalls {
     private final Map<IdFor<Station>, Integer> stationIndex;
     private final IdFor<Trip> parentTripId;
     private final List<StopLeg> legs;
+    private int lowestActiveIndex;
+    private int highestActiveIndex;
 
     private boolean intoNextDay;
 
@@ -31,6 +33,8 @@ public class StopCalls {
         stationIndex = new HashMap<>();
         intoNextDay = false;
         legs = new ArrayList<>();
+        lowestActiveIndex = Integer.MAX_VALUE;
+        highestActiveIndex = Integer.MIN_VALUE;
     }
 
     public void dispose() {
@@ -57,6 +61,15 @@ public class StopCalls {
         orderedStopCalls.put(sequenceNumber, stopCall);
         stationIndex.put(station.getId(), sequenceNumber);
         intoNextDay = intoNextDay || stopCall.intoNextDay();
+
+        if (station.isActive()) {
+            if (sequenceNumber<lowestActiveIndex) {
+                lowestActiveIndex = sequenceNumber;
+            }
+            if (sequenceNumber>highestActiveIndex) {
+                highestActiveIndex = sequenceNumber;
+            }
+        }
     }
 
     public long numberOfCallingPoints() {
@@ -171,14 +184,28 @@ public class StopCalls {
                 map(StopCall::getStation).collect(Collectors.toList());
     }
 
-    public StopCall getFirstStop() {
-        final int firstKey = orderedStopCalls.firstKey();
-        return orderedStopCalls.get(firstKey);
+    public StopCall getFirstStop(final boolean activeOnly) {
+        if (activeOnly) {
+            if (!orderedStopCalls.containsKey(lowestActiveIndex)) {
+                throw new RuntimeException("No first stop for " + lowestActiveIndex + " " + orderedStopCalls);
+            }
+            return orderedStopCalls.get(lowestActiveIndex);
+        } else {
+            final int firstKey = orderedStopCalls.firstKey();
+            return orderedStopCalls.get(firstKey);
+        }
     }
 
-    public StopCall getLastStop() {
-        final int lastKey = orderedStopCalls.lastKey();
-        return orderedStopCalls.get(lastKey);
+    public StopCall getLastStop(final boolean activeOnly) {
+        if (activeOnly) {
+            if (!orderedStopCalls.containsKey(highestActiveIndex)) {
+                throw new RuntimeException("No last stop for " + lowestActiveIndex + " " + orderedStopCalls);
+            }
+            return orderedStopCalls.get(highestActiveIndex);
+        } else {
+            final int lastKey = orderedStopCalls.lastKey();
+            return orderedStopCalls.get(lastKey);
+        }
     }
 
     public long totalNumber() {

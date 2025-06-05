@@ -116,7 +116,7 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> expected = Stream.of(
                 StPetersSquare,
-                MarketStreet,
+                //MarketStreet, summery 2025
                 Victoria,
                 //Deansgate,
                 Cornbrook,

@@ -140,7 +140,7 @@ public class MutableTrip implements Trip {
         if (stopCalls.isEmpty()) {
             throw new RuntimeException("Cannot get stopCalls for " + this);
         }
-        return stopCalls.getFirstStop().getDepartureTime();
+        return stopCalls.getFirstStop(true).getDepartureTime();
     }
 
     @Override
@@ -148,7 +148,7 @@ public class MutableTrip implements Trip {
         if (stopCalls.isEmpty()) {
             throw new RuntimeException("Cannot get stopCalls for " + this);
         }
-        return stopCalls.getLastStop().getArrivalTime();
+        return stopCalls.getLastStop(true).getArrivalTime();
     }
 
     @Override
@@ -183,12 +183,17 @@ public class MutableTrip implements Trip {
 
     @Override
     public IdFor<Station> firstStation() {
-        return stopCalls.getFirstStop().getStationId();
+        return stopCalls.getFirstStop(true).getStationId();
     }
 
+    /***
+     * Test support only
+     * @return id of last station on the trip
+     */
+    @Deprecated
     @Override
     public IdFor<Station> lastStation() {
-        final StopCall lastStop = stopCalls.getLastStop();
+        final StopCall lastStop = stopCalls.getLastStop(true);
         if (!lastStop.callsAtStation()) {
             // todo
             throw new RuntimeException("Undefined behaviour, last stop is not called at for " + lastStop);

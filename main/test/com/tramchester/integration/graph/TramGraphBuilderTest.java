@@ -927,7 +927,7 @@ class TramGraphBuilderTest {
                 transportData.getRouteById(route.getId()).getTrips().stream().
                 filter(trip -> trip.callsAt(station.getId())). // calls at , but not starts at because no inbound for these
                 //filter(trip -> !trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
-                filter(trip -> !trip.getStopCalls().getFirstStop().getStation().equals(station)).
+                filter(trip -> !trip.getStopCalls().getFirstStop(true).getStation().equals(station)).
                 collect(Collectors.toSet());
 
         SortedSet<IdFor<Service>> svcIdsFromCallingTrips = callingTrips.stream().
