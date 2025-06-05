@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("wip")
 @GMTest
 class TripRepositoryRailAndTramTest {
     private static ComponentContainer componentContainer;
@@ -43,7 +42,7 @@ class TripRepositoryRailAndTramTest {
     }
 
     @Test
-    void shouldNotTripsWithSensibleLength() {
+    void shouldGetTripsWithSensibleLength() {
         Set<Trip> trips = repository.getTrips();
 
         IdSet<Trip> tooShort = trips.stream().filter(trip -> trip.getStopCalls().totalNumber() <= 1)
@@ -57,7 +56,7 @@ class TripRepositoryRailAndTramTest {
         Set<Trip> trips = repository.getTrips();
 
         Set<Trip> inactiveStarts = trips.stream().
-                filter(trip -> isActive(trip, t -> t.getStopCalls().getFirstStop(true))).
+                filter(trip -> !isActive(trip, t -> t.getStopCalls().getFirstStop(true))).
                 collect(Collectors.toSet());
 
         assertTrue(inactiveStarts.isEmpty(), HasId.asIds(inactiveStarts));
@@ -68,7 +67,7 @@ class TripRepositoryRailAndTramTest {
         Set<Trip> trips = repository.getTrips();
 
         Set<Trip> inactiveLast = trips.stream().
-                filter(trip -> isActive(trip, t -> t.getStopCalls().getLastStop(true))).
+                filter(trip -> !isActive(trip, t -> t.getStopCalls().getLastStop(true))).
                 collect(Collectors.toSet());
 
         assertTrue(inactiveLast.isEmpty(), HasId.asIds(inactiveLast));

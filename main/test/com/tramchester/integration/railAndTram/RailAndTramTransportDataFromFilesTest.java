@@ -22,34 +22,33 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.NT;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
-public class RailTransportDataFromFilesTest {
+public class RailAndTramTransportDataFromFilesTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private TransportData transportData;
     private RailRouteIds routeIdRepository;
-    private TramDate when;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -67,7 +66,6 @@ public class RailTransportDataFromFilesTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         routeIdRepository = componentContainer.get(RailRouteIds.class);
-        when = TestEnv.testDay();
     }
 
     @Test
@@ -107,36 +105,6 @@ public class RailTransportDataFromFilesTest {
         assertEquals("Manchester Piccadilly Rail Station", result.getName());
         assertEquals(KnownLocality.ManchesterCityCentre.getLocalityId(), result.getLocalityId());
     }
-
-    // out of bounds stations no longer loaded
-    // TODO how to test this?
-//    @Test
-//    void shouldHaveExpectedCallingPointsForTripOnARoute() {
-//
-//        Station piccadilly = ManchesterPiccadilly.from(transportData);
-//        Station euston = LondonEuston.from(transportData);
-//
-//        String longName = "VT service from Manchester Piccadilly Rail Station to London Euston Rail Station via Stockport " +
-//                "Rail Station, Macclesfield Rail Station, Stoke-on-Trent Rail Station, Milton Keynes Central Rail Station";
-//
-//        List<Station> expectedCallingPoints = Arrays.asList(piccadilly,
-//                Stockport.from(transportData),
-//                Macclesfield.from(transportData),
-//                StokeOnTrent.from(transportData),
-//                MiltonKeynesCentral.from(transportData),
-//                euston);
-//
-//        Set<Route> routes = piccadilly.getPickupRoutes().stream().
-//                filter(route -> longName.equals(route.getName())).
-//                collect(Collectors.toSet());
-//
-//        Set<Trip> wrongCallingPoints = routes.stream().
-//                flatMap(route -> route.getTrips().stream()).
-//                filter(trip -> !trip.getStopCalls().getStationSequence(false).equals(expectedCallingPoints)).
-//                collect(Collectors.toSet());
-//
-//        assertTrue(wrongCallingPoints.isEmpty(), wrongCallingPoints.toString());
-//    }
 
     @Test
     void shouldHaveExpectedAgencies() {
@@ -179,7 +147,7 @@ public class RailTransportDataFromFilesTest {
 
         assertFalse(matchingTrips.isEmpty());
 
-        final Trip matchingTrip = matchingTrips.get(0);
+        final Trip matchingTrip = matchingTrips.getFirst();
         final IdFor<Service> svcId = matchingTrip.getService().getId();
         Service service = transportData.getServiceById(svcId);
         assertNotNull(service);
@@ -194,8 +162,8 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        final int totalNumberOfCalls = 7;
-        final int expectedPassedStops = 7; // calls at all stations
+        final int totalNumberOfCalls = 9;
+        final int expectedPassedStops = 9; // calls at all stations
 
         assertEquals(totalNumberOfCalls, stops.numberOfCallingPoints(),
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
@@ -340,30 +308,6 @@ public class RailTransportDataFromFilesTest {
         assertTrue(agencies.contains(TrainOperatingCompanies.TP.getCompanyName()));
         assertTrue(agencies.contains(NT.getCompanyName()));
     }
-
-    @Test
-    void shouldHaveExpectedNumbersForTram() {
-        assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
-        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
-
-        Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TramsOnly).stream().
-//                filter(route -> route.getTransportMode()==Tram).
-                map(Route::getName).collect(Collectors.toSet());
-
-        assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
-
-        int expected = 200;
-        assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
-    }
-
-//    @Test
-//    void shouldHaveAllRoutesWithOperatingDays() {
-//        Set<Route> noDays = transportData.getRoutes().stream().
-//                filter(route -> route.getTransportMode().equals(Train)).
-//                filter(route -> route.getOperatingDays().isEmpty()).
-//                collect(Collectors.toSet());
-//        assertTrue(noDays.isEmpty(), HasId.asIds(noDays));
-//    }
 
     @Test
     void shouldHaveSaneServiceStartAndFinishTimes() {

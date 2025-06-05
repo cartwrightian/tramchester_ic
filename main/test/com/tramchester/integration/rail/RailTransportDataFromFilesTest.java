@@ -388,16 +388,8 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(9, routes.size(), routes.toString());
+        assertEquals(14, routes.size(), routes.toString());
     }
-
-//    @Test
-//    void shouldHaveAllRoutesWithOperatingDays() {
-//        Set<Route> noDays = transportData.getRoutes().stream().
-//                filter(route -> route.getOperatingDays().isEmpty()).
-//                collect(Collectors.toSet());
-//        assertTrue(noDays.isEmpty());
-//    }
 
     // Likely this will break with new data
     @Disabled("Service not in latest data")
@@ -446,25 +438,19 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveLongestSingleLeg() {
-        // Currently Euston to Sterling
 
-        Optional<StopCalls.StopLeg> findLongest = transportData.getTrips().stream().
+        // sorted since might get A->B or B->A if same length both ways
+        List<StopCalls.StopLeg> findLongest = transportData.getTrips().stream().
                 filter(trip -> trip.getTransportMode().equals(Train)).
                 flatMap(trip -> getLongDurationStopLeg(trip).stream()).
-                max(Comparator.comparing(StopCalls.StopLeg::getCost));
+                sorted(Comparator.comparing(StopCalls.StopLeg::getCost)).
+                toList();
 
-        assertTrue(findLongest.isPresent());
+        assertFalse(findLongest.isEmpty());
 
-        StopCalls.StopLeg longest = findLongest.get();
+        StopCalls.StopLeg longest = findLongest.getLast();
 
-        // TODO This seems suspect, unless train just stops somewhere for 7 hours???
-
-        IdFor<Station> carrbridgeScotland = Station.createId("CARRBDG");
-        IdFor<Station> dundee = Station.createId("DUNDETB");
-
-        assertEquals(carrbridgeScotland, longest.getFirstStation().getId());
-        assertEquals(dundee, longest.getSecondStation().getId());
-        assertEquals(Duration.ofHours(9).plusMinutes(28), longest.getCost());
+        assertEquals(Duration.ofHours(8).plusMinutes(39), longest.getCost());
     }
 
     private Set<StopCalls.StopLeg> getLongDurationStopLeg(Trip trip) {

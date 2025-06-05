@@ -21,6 +21,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
@@ -34,6 +35,7 @@ import static com.tramchester.integration.testSupport.rail.RailStationIds.Manche
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.TramStations.Piccadilly;
 import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -102,18 +104,20 @@ class RailAndTramLocationJourneyPlannerTest {
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveDirectWalkFromPiccadily() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, TramsOnly);
 
-        Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(PiccadillyGardens, nearPiccGardens, journeyRequest, 2);
+        Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(Piccadilly, nearPiccGardens, journeyRequest, 2);
 
         assertFalse(unsortedResults.isEmpty());
+
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            WalkingFromStationStage first = (WalkingFromStationStage) stages.get(0);
+            WalkingFromStationStage first = (WalkingFromStationStage) stages.getFirst();
             assertEquals(PiccadillyGardens.getId(), first.getFirstStation().getId());
             assertEquals(nearPiccGardens.latLong(), first.getLastStation().getLatLong());
         });

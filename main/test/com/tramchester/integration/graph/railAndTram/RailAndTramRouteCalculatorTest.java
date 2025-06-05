@@ -18,6 +18,7 @@ import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -125,6 +126,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldFindRoutesWhenTramAndTrainPossible() {
         TramTime time = TramTime.of(15,50);

@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterAirport;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -195,12 +194,16 @@ public class GMRailTransportDataTest {
         StopCalls calls = trip.getStopCalls();
         assertEquals(2, calls.numberOfCallingPoints());
 
+        // inactive
         assertEquals(Station.createId("BOLTON"), calls.getFirstStop(false).getStationId());
         assertEquals(ManchesterPiccadilly.getId(), calls.getLastStop(false).getStationId());
+        // active
+        assertEquals(ManchesterOxfordRoad.getId(), calls.getFirstStop(true).getStationId());
+        assertEquals(ManchesterPiccadilly.getId(), calls.getLastStop(true).getStationId());
 
         Service service = services.getFirst();
 
-        assertEquals(TramTime.of(23,26), service.getStartTime());
+        assertEquals(TramTime.of(23,51), service.getStartTime());
         assertEquals(TramTime.of(23,54), service.getFinishTime());
 
         assertFalse(service.intoNextDay());

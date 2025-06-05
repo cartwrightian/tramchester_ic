@@ -20,6 +20,7 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +46,6 @@ public class RailAndTramRouteCostMatrixTest {
     private RailRouteHelper railRouteHelper;
     private RouteIndex routeIndex;
     private int numberOfRoutes;
-    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -65,7 +65,7 @@ public class RailAndTramRouteCostMatrixTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        routeRepository = componentContainer.get(RouteRepository.class);
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(routeRepository);
         railRouteHelper = new RailRouteHelper(componentContainer);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
@@ -181,6 +181,7 @@ public class RailAndTramRouteCostMatrixTest {
         assertNotEquals(0, oneChange.get());
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);

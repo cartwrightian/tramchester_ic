@@ -31,6 +31,7 @@ public enum TrainOperatingCompanies {
     LM("West Midlands Railway"),
     LO("London Overground"),
     TL("Thameslink"),
+    TW("Tyne & Wear Passenger Transport Executive"),
     LE("Greater Anglia"),
     HT("Hull Trains"),
     HX("Heathrow Express"),
