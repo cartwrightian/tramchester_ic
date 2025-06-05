@@ -49,7 +49,7 @@ public class RouteRepositoryBusTest {
     void shouldFindLargestNumberOfHopsSPIKE() {
         OptionalLong findMostStopCalls = routeRepository.getRoutes().stream().
                 flatMap(route -> route.getTrips().stream()).
-                mapToLong(trip -> trip.getStopCalls().totalNumber()).
+                mapToLong(trip -> trip.getStopCalls().totalNumber(true)).
                 max();
 
         assertTrue(findMostStopCalls.isPresent());
@@ -63,7 +63,7 @@ public class RouteRepositoryBusTest {
     void shouldFindTotalTopFiveSpike() {
         long total = routeRepository.getRoutes().stream().
                 flatMap(route -> route.getTrips().stream()).
-                map(trip -> trip.getStopCalls().totalNumber()).
+                map(trip -> trip.getStopCalls().totalNumber(true)).
                 sorted((a,b) -> Long.compare(b,a)).
                 limit(5).mapToLong(i -> i).sum();
 

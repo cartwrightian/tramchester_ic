@@ -208,8 +208,14 @@ public class StopCalls {
         }
     }
 
-    public long totalNumber() {
-        return orderedStopCalls.size();
+    public long totalNumber(final boolean activeOnly) {
+        if (activeOnly) {
+          return orderedStopCalls.values().stream().
+                  filter(stopCall -> stopCall.getStation().isActive()).
+                  count();
+        } else {
+            return orderedStopCalls.size();
+        }
     }
 
     public boolean isEmpty() {

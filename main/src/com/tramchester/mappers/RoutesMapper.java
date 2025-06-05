@@ -77,7 +77,7 @@ public class RoutesMapper {
                 collect(Collectors.toSet());
 
         Optional<Trip> maybeLongest = startingAt.stream().
-                max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber()));
+                max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber(includeNotStopping)));
 
         if (maybeLongest.isEmpty()) {
             logger.error("Found no longest trip for route " + route.getId());

@@ -45,7 +45,7 @@ class TripRepositoryRailAndTramTest {
     void shouldGetTripsWithSensibleLength() {
         Set<Trip> trips = repository.getTrips();
 
-        IdSet<Trip> tooShort = trips.stream().filter(trip -> trip.getStopCalls().totalNumber() <= 1)
+        IdSet<Trip> tooShort = trips.stream().filter(trip -> trip.getStopCalls().totalNumber(false) <= 1)
                 .collect(IdSet.collector());
 
         assertTrue(tooShort.isEmpty(), tooShort.toString());

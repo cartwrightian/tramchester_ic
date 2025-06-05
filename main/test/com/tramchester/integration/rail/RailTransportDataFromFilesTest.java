@@ -227,7 +227,7 @@ public class RailTransportDataFromFilesTest {
         assertFalse(matchingTripsForCallingPoints.isEmpty());
 
         List<Trip> matchingTrips = matchingTripsForCallingPoints.stream().
-                filter(trip -> trip.getStopCalls().totalNumber()==numberPassedStops).toList();
+                filter(trip -> trip.getStopCalls().totalNumber(false)==numberPassedStops).toList();
 
         assertFalse(matchingTrips.isEmpty());
 

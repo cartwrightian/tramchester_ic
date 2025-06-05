@@ -32,10 +32,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.NT;
@@ -143,11 +140,12 @@ public class RailAndTramTransportDataFromFilesTest {
                 filter(trip -> trip.callsAt(endStation.getId())).
                 filter(trip -> trip.getStopCalls().getStationSequence(false).getFirst().equals(startStation)).
                 filter(trip -> trip.getStopCalls().getLastStop(false).getStation().equals(endStation)).
+                sorted(Comparator.comparingLong(a -> a.getStopCalls().totalNumber(true))).
                 toList();
 
         assertFalse(matchingTrips.isEmpty());
 
-        final Trip matchingTrip = matchingTrips.getFirst();
+        final Trip matchingTrip = matchingTrips.getLast();
         final IdFor<Service> svcId = matchingTrip.getService().getId();
         Service service = transportData.getServiceById(svcId);
         assertNotNull(service);
@@ -168,7 +166,7 @@ public class RailAndTramTransportDataFromFilesTest {
         assertEquals(totalNumberOfCalls, stops.numberOfCallingPoints(),
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
 
-        assertEquals(expectedPassedStops, stops.totalNumber());
+        assertEquals(expectedPassedStops, stops.totalNumber(false));
 
         final StopCall lastStopCall = stops.getLastStop(false);
         assertEquals(endStation, lastStopCall.getStation());
