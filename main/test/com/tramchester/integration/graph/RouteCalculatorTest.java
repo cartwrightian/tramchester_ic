@@ -28,7 +28,6 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
@@ -459,7 +458,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, HeatonPark, BurtonRoad);
     }
 
-    @BuryWorksSummer2025
     @Test
     void shouldReproIssueRochTownCentreToBury() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 0), maxNumResults, 1);
@@ -539,7 +537,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest9am, Cornbrook, Eccles);
     }
 
-    @BuryWorksSummer2025
     @Test
     void shouldReproIssueWithJourneysToEccles() {
 

@@ -17,7 +17,6 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
@@ -30,12 +29,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.TramStations.Eccles;
 import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Eccles;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -512,7 +511,6 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
-    @BuryWorksSummer2025
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 3,

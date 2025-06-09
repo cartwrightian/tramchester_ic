@@ -20,7 +20,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -72,7 +71,6 @@ public class RailAndTramRouteToRouteCostsTest {
         railRouteHelper = new RailRouteHelper(componentContainer);
     }
 
-    @BuryWorksSummer2025
     @Test
     void shouldValidHopsBetweenTramAndRailLongRange() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
