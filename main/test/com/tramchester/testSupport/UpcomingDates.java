@@ -2,18 +2,18 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.Dates;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramDateBuilder;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -35,57 +35,51 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate LateMayBankHol2025 = TramDate.of(2025, 5, 26);
-
-    public static List<IdFor<Station>> CrumpsalToBury = Arrays.asList(Crumpsal.getId(),
-            Station.createId("9400ZZMABOW"), HeatonPark.getId(), Station.createId("9400ZZMAPWC"),
-            Station.createId("9400ZZMABOB"), Whitefield.getId(), Station.createId("9400ZZMARAD"), Bury.getId());
-
-    public static List<IdFor<Station>> WhitefieldToBury = Arrays.asList(Whitefield.getId(),
-            Station.createId("9400ZZMARAD"), Bury.getId());
-
-    public static List<IdFor<Station>> RochdaleLineStations = Arrays.asList(Station.createId("9400ZZMAFRE"),
-            Station.createId("9400ZZMAWWD"), OldhamKingStreet.getId(), OldhamCentral.getId(), OldhamMumps.getId(),
-            Station.createId("9400ZZMADER"), ShawAndCrompton.getId(), Station.createId("9400ZZMANHY"),
-            Station.createId("9400ZZMAMIL"), Station.createId("9400ZZMAKNY"), Station.createId("9400ZZMANBD"),
-            RochdaleRail.getId(), Rochdale.getId());
-
-    public static Dates RochdaleLineWorksSummer2025 = TramDateBuilder.forYear(2025).forMonth(5).add(17,18,25).build();
-
-    public static Dates LineClosuresMayJune2025CrumpsalBury = Dates.of(
-            DateRange.of(TramDate.of(2025, 5, 25), 0),
-            DateRange.of(TramDate.of(2025,5,30), TramDate.of(2025,6,1)));
-
-    public static DateRange LineClosuresMayJune2025WhitefieldBury = DateRange.of(
-            TramDate.of(2025,5,26), TramDate.of(2025,5,29));
+    public static TramDate AltrinchamLineWorks = TramDate.of(2025, 6, 22);
+    public static TimeRange AltrinchamLineWorkTimes = TimeRange.of(TramTime.of(0, 1), TramTime.of(9, 30));
+    public static IdSet<Station> AltrinchamLineWorksStations = Stream.of(Altrincham.getId(), NavigationRoad.getId()).
+            collect(IdSet.idCollector());
 
     public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
-        TramDate.of(2025,8,10));
+            TramDate.of(2025, 8, 10));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
+
+    public static boolean hasClosure(Station station, TramDate date, TimeRange timeRange) {
+        if (hasClosure(station, date)) {
+            return true;
+        }
+        if (AltrinchamLineWorksStations.contains(station.getId())) {
+            if (date.equals(AltrinchamLineWorks)) {
+                return AltrinchamLineWorkTimes.anyOverlap(timeRange);
+            }
+        }
+        return false;
+    }
+
 
     public static boolean hasClosure(TramStations station, TramDate date) {
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (RochdaleLineStations.contains(stationId)) {
-            return RochdaleLineWorksSummer2025.contains(date);
-        }
+//        if (RochdaleLineStations.contains(stationId)) {
+//            return RochdaleLineWorksSummer2025.contains(date);
+//        }
 
-        if (CrumpsalToBury.contains(stationId)) {
-            if (LineClosuresMayJune2025CrumpsalBury.contains(date)) {
-                return true;
-            }
-        }
+//        if (CrumpsalToBury.contains(stationId)) {
+//            if (LineClosuresMayJune2025CrumpsalBury.contains(date)) {
+//                return true;
+//            }
+//        }
 
-        if (WhitefieldToBury.contains(stationId)) {
-            if (LineClosuresMayJune2025WhitefieldBury.contains(date)) {
-                return true;
-            }
-        }
+//        if (WhitefieldToBury.contains(stationId)) {
+//            if (LineClosuresMayJune2025WhitefieldBury.contains(date)) {
+//                return true;
+//            }
+//        }
 
         if (PiccadillyGardens.getId().equals(stationId)) {
             if (PiccGardensWorksummer2025.contains(date)) {
@@ -103,7 +97,7 @@ public class UpcomingDates {
     public static List<TramDate> daysAhead() {
         TramDate date = TramDate.of(TestEnv.LocalNow().toLocalDate()).plusDays(1);
 
-        final List<TramDate> dates= new ArrayList<>();
+        final List<TramDate> dates = new ArrayList<>();
         while (dates.size() <= DAYS_AHEAD) {
             if (validTestDate(date)) {
                 dates.add(date);
@@ -152,18 +146,20 @@ public class UpcomingDates {
 
     public static boolean isChristmasDay(TramDate date) {
         LocalDate localDate = date.toLocalDate();
-        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth()==25;
+        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth() == 25;
     }
 
     public static boolean isBoxingDay(TramDate date) {
         LocalDate localDate = date.toLocalDate();
-        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth()==26;
+        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth() == 26;
     }
 
     public static boolean hasClosure(LocationIdPair<Station> pair, TramDate date) {
-        if (hasClosure(pair.getBeginId(),date)) {
+        if (hasClosure(pair.getBeginId(), date)) {
             return true;
         }
         return hasClosure(pair.getEndId(), date);
     }
 }
+
+

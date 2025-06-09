@@ -8,12 +8,23 @@ public class RouteIndexPair {
     private final short second;
     private final int hashCode;
 
+    /***
+     * Always via RouteIndexPairFactory
+     * @param first route index
+     * @param second route index
+     */
     private RouteIndexPair(final short first, final short second) {
         this.first = first;
         this.second = second;
         hashCode = Objects.hash(first, second);
     }
 
+    /***
+     * Always via RouteIndexPairFactory
+     * @param first route index
+     * @param second route index
+     * @return the pair
+     */
     static RouteIndexPair of(final short first, final short second) {
         return new RouteIndexPair(first, second);
     }
@@ -45,10 +56,8 @@ public class RouteIndexPair {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final RouteIndexPair routePair = (RouteIndexPair) o;
-        return first == routePair.first && second == routePair.second;
+        // since always via RouteIndexPairFactory
+        return this == o;
     }
 
     @Override

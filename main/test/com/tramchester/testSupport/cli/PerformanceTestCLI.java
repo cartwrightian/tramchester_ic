@@ -48,7 +48,7 @@ public class PerformanceTestCLI extends BaseCLI {
 
         try {
             PerformanceTestCLI performanceTestCLI = new PerformanceTestCLI(Duration.ofMinutes(transactionTimeout), scope);
-            performanceTestCLI.run(configFile, logger, "BuildGraphCLI");
+            performanceTestCLI.run(configFile, logger, "BuildGraphCLI", true);
         } catch (ConfigurationException | IOException e) {
             logger.error("Failed",e);
             System.exit(-1);

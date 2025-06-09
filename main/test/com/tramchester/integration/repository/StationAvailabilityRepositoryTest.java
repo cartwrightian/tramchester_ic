@@ -199,7 +199,7 @@ public class StationAvailabilityRepositoryTest {
         UpcomingDates.getUpcomingDates().forEach(date -> {
 
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().
-                    filter(station -> !UpcomingDates.hasClosure(station, date)).
+                    filter(station -> !UpcomingDates.hasClosure(station, date, earlyRange)).
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).

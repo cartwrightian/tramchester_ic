@@ -129,9 +129,9 @@ public class KnownTramRoute {
             }
             // else don't add green
         } else {
-            if (!date.equals(UpcomingDates.LateMayBankHol2025)) {
+            //if (!date.equals(UpcomingDates.LateMayBankHol2025)) {
                 routes.add(getGreen(date));
-            }
+            //}
         }
 
         if (!UpcomingDates.PiccGardensWorksummer2025.contains(date)) {

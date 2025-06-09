@@ -16,8 +16,6 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.BuryWorksSummer2025;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -26,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -43,6 +42,18 @@ public class StopCallRepositoryTest {
     private TramDate when;
 
     private static final IdFor<Station> freeHold = Station.createId("9400ZZMAFRE");
+
+    public static List<IdFor<Station>> RochdaleLineStations = Arrays.asList(Station.createId("9400ZZMAFRE"),
+            Station.createId("9400ZZMAWWD"), OldhamKingStreet.getId(), OldhamCentral.getId(), OldhamMumps.getId(),
+            Station.createId("9400ZZMADER"), ShawAndCrompton.getId(), Station.createId("9400ZZMANHY"),
+            Station.createId("9400ZZMAMIL"), Station.createId("9400ZZMAKNY"), Station.createId("9400ZZMANBD"),
+            RochdaleRail.getId(), Rochdale.getId());
+
+
+    public static List<IdFor<Station>> CrumpsalToBury = Arrays.asList(Crumpsal.getId(),
+            Station.createId("9400ZZMABOW"), HeatonPark.getId(), Station.createId("9400ZZMAPWC"),
+            Station.createId("9400ZZMABOB"), Whitefield.getId(), Station.createId("9400ZZMARAD"), Bury.getId());
+
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -170,18 +181,10 @@ public class StopCallRepositoryTest {
         assertThrows(RuntimeException.class, () -> stopCallRepository.getStopcallsBetween(StPetersSquare.getId(), Victoria.getId(), when));
     }
 
-    @BuryWorksSummer2025
     @Test
     void shouldDoublecheckStopsForClosuresCrumpsalToBury() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Crumpsal.getId(), Bury.getId(), when);
-        assertEquals(stopsBetween, UpcomingDates.CrumpsalToBury);
-    }
-
-    @BuryWorksSummer2025
-    @Test
-    void shouldDoublecheckStopsForClosuresWhitefieldToBury() {
-        List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Whitefield.getId(), Bury.getId(), when);
-        assertEquals(stopsBetween, UpcomingDates.WhitefieldToBury);
+        assertEquals(stopsBetween, CrumpsalToBury);
     }
 
     @Test
@@ -192,10 +195,9 @@ public class StopCallRepositoryTest {
         assertEquals(Rochdale.getId(), stopsBetween.getLast());
     }
 
-    // Freehold and Rochdale Town Centre
     @Test
     void shouldHaveExpectedClosuresForMay2025Rochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(freeHold, Rochdale.getId(), when);
-        assertEquals(stopsBetween, UpcomingDates.RochdaleLineStations);
+        assertEquals(stopsBetween, RochdaleLineStations);
     }
 }

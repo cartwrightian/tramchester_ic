@@ -311,7 +311,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         private final MarginInMeters margin;
         int skippedStop;
 
-        private Consumer(BoundingBox bounds, MarginInMeters margin) {
+        private Consumer(final BoundingBox bounds, final MarginInMeters margin) {
             this.bounds = bounds;
             this.margin = margin;
             skippedStop = 0;

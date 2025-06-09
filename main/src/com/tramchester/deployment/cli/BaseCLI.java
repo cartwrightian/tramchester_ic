@@ -19,6 +19,7 @@ public abstract class BaseCLI {
     @NotNull
     protected GuiceContainerDependencies bootstrap(Path configFile, String name) throws IOException, ConfigurationException {
         TramchesterConfig configuration = StandaloneConfigLoader.LoadConfigFromFile(configFile);
+
         configuration.getLoggingFactory().configure(new MetricRegistry(), name);
 
         GuiceContainerDependencies container = new ComponentsBuilder().create(configuration, new NoOpCacheMetrics());
@@ -27,7 +28,17 @@ public abstract class BaseCLI {
     }
 
     protected boolean run(Path configFile, Logger logger, String name) throws ConfigurationException, IOException {
+        return run(configFile, logger, name, false);
+    }
+
+    protected boolean run(Path configFile, Logger logger, String name, boolean promptForStart) throws ConfigurationException, IOException {
         GuiceContainerDependencies container = bootstrap(configFile, name);
+
+        if (promptForStart) {
+            display("hit enter to initialise");
+            getLine();
+        }
+
         final TramchesterConfig config = container.get(TramchesterConfig.class);
         boolean success = run(logger, container, config);
         container.close();

@@ -8,7 +8,6 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -35,7 +34,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.UpcomingDates.LateMayBankHol2025;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -130,9 +128,9 @@ class KnownTramRouteTest {
     }
 
     private boolean checkRouteOnDate(TramDate date, KnownTramRouteEnum testRoute) {
-        if (testRoute.line()== TFGMRouteNames.Green) {
-            return !LateMayBankHol2025.equals(date);
-        }
+//        if (testRoute.line()== TFGMRouteNames.Green) {
+//            return !LateMayBankHol2025.equals(date);
+//        }
         return true;
     }
 
@@ -215,7 +213,7 @@ class KnownTramRouteTest {
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
-                filter(date -> !(date.equals(LateMayBankHol2025))).
+                //filter(date -> !(date.equals(LateMayBankHol2025))).
                 filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());

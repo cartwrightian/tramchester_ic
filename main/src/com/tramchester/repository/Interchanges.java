@@ -106,7 +106,7 @@ public class Interchanges implements InterchangeRepository {
                     final IdFor<Station> beginId = stationLink.getBegin().getId();
 
                     if (interchanges.containsKey(beginId)) {
-                        InterchangeStation existing = interchanges.get(beginId);
+                        final InterchangeStation existing = interchanges.get(beginId);
                         if (existing.getType()==InterchangeType.NeighbourLinks) {
                             final LinkedInterchangeStation multiInterchangeStation = (LinkedInterchangeStation) existing;
                             logger.info(format("Updating an existing multiple link interchange %s with %s", multiInterchangeStation, stationLink));
@@ -114,13 +114,13 @@ public class Interchanges implements InterchangeRepository {
                         } else {
                             // replace an existing simple interchange, as the start station of link will be same will
                             // contain same dropoffs and pickups as one it is replacing
-                            LinkedInterchangeStation multiInterchangeStation = new LinkedInterchangeStation(stationLink);
+                            final LinkedInterchangeStation multiInterchangeStation = new LinkedInterchangeStation(stationLink);
                             logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing.getId(),
                                     multiInterchangeStation.getId()));
                             interchanges.put(beginId, multiInterchangeStation);
                         }
                     } else {
-                        LinkedInterchangeStation interchangeStation = new LinkedInterchangeStation(stationLink);
+                        final LinkedInterchangeStation interchangeStation = new LinkedInterchangeStation(stationLink);
                         interchanges.put(beginId, interchangeStation);
                     }
             });

@@ -39,6 +39,8 @@ import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
+import static com.tramchester.testSupport.UpcomingDates.AltrinchamLineWorkTimes;
+import static com.tramchester.testSupport.UpcomingDates.AltrinchamLineWorksStations;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -191,7 +193,7 @@ public class TripRepositoryTest {
                                         filter(stopCall -> stopCall.getStation().equals(station)).
                                         anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
                                 if (!calls) {
-                                    Pair<TramDate, TramTime> key = Pair.of(date, time);
+                                    final Pair<TramDate, TramTime> key = Pair.of(date, time);
                                     if (!missing.containsKey(key)) {
                                         missing.put(key, new IdSet<>());
                                     }
@@ -271,6 +273,11 @@ public class TripRepositoryTest {
     private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
         if (UpcomingDates.hasClosure(station.getId(), date)) {
             return Collections.emptyList();
+        }
+        if (UpcomingDates.AltrinchamLineWorks.equals(date)) {
+            if (AltrinchamLineWorksStations.contains(station.getId())) {
+                return times.stream().filter(time -> !AltrinchamLineWorkTimes.contains(time)).toList();
+            }
         }
         return times;
     }

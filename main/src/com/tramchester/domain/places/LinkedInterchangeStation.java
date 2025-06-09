@@ -128,15 +128,13 @@ public class LinkedInterchangeStation implements InterchangeStation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LinkedInterchangeStation that = (LinkedInterchangeStation) o;
-        return links.equals(that.links) && origin.equals(that.origin);
+        if (!(o instanceof LinkedInterchangeStation that)) return false;
+        return Objects.equals(origin, that.origin);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(links, origin);
+        return Objects.hashCode(origin);
     }
 
     public Set<Station> getLinked() {
