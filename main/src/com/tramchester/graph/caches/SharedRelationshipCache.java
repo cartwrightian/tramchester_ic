@@ -43,7 +43,10 @@ public class SharedRelationshipCache implements ReportsCacheStats {
 
     @PreDestroy
     public void stop() {
+        logger.info("stopping");
         stats().forEach(stat -> logger.info(stat.getKey() + " " + stat.getValue()));
+        tripIdCache.close();
+        tripIdListCache.close();
         logger.info("stopped");
     }
 
@@ -91,6 +94,12 @@ public class SharedRelationshipCache implements ReportsCacheStats {
         @Override
         public void remove(GraphRelationshipId id) {
             cache.invalidate(id);
+        }
+
+        @Override
+        public void close() {
+            cache.invalidateAll();
+            cache.cleanUp();
         }
 
     }

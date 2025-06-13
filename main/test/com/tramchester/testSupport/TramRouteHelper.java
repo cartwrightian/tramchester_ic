@@ -1,13 +1,14 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownBusRoute;
-import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import org.jetbrains.annotations.NotNull;
@@ -27,9 +28,14 @@ public class TramRouteHelper {
     private Map<TestRoute, Set<Route>> knownRouteToRoutes;
     private final RouteRepository routeRepository;
 
-    public TramRouteHelper(RouteRepository routeRepository) {
+    private TramRouteHelper(RouteRepository routeRepository) {
         this.routeRepository = routeRepository;
         createMap();
+    }
+
+    public TramRouteHelper(ComponentContainer componentContainer) {
+        this(componentContainer.get(RouteRepository.class));
+        componentContainer.registerCallbackFor(() -> knownRouteToRoutes.clear());
     }
 
     private void createMap() {
@@ -132,4 +138,6 @@ public class TramRouteHelper {
     public Route getPurple(TramDate date) {
         return getOneRoute(TFGMRouteNames.Purple, date);
     }
+
+
 }

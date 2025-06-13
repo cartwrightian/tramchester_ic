@@ -8,7 +8,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import org.junit.jupiter.api.AfterAll;
@@ -36,10 +35,9 @@ class RouteMapperTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         date = TestEnv.testDay();
         mapper = componentContainer.get(RoutesMapper.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
     }
 
     @AfterAll

@@ -11,7 +11,6 @@ import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -51,8 +50,7 @@ class RouteCalculatorSubGraphMonsallTest {
 
         database = componentContainer.get(GraphDatabase.class);
 
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
 
     }
 

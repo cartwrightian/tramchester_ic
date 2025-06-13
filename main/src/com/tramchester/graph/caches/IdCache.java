@@ -33,4 +33,10 @@ class IdCache<K extends GraphId, V extends CoreDomain> implements ClearGraphId<K
     public void remove(K id) {
         cache.invalidate(id);
     }
+
+    @Override
+    public void close() {
+        cache.invalidateAll();
+        cache.cleanUp();
+    }
 }

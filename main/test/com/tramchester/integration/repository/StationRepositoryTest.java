@@ -20,7 +20,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -69,8 +68,7 @@ public class StationRepositoryTest {
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper(componentContainer);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
         when = TestEnv.testDay();

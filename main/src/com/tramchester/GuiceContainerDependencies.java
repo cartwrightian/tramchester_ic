@@ -13,6 +13,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class GuiceContainerDependencies implements ComponentContainer {
     private static final Logger logger = LoggerFactory.getLogger(GuiceContainerDependencies.class);
 
+    private Set<ClosesResource> closeCallbacks;
     private final Reflections reflections;
 
     private Injector injector;
@@ -29,6 +31,7 @@ public class GuiceContainerDependencies implements ComponentContainer {
         injector = LifecycleInjector.builder().
                 withModules(moduleList).build().
                 createInjector();
+        closeCallbacks = new HashSet<>();
     }
 
     public void initialise() {
@@ -86,6 +89,16 @@ public class GuiceContainerDependencies implements ComponentContainer {
     }
 
     synchronized public void close() {
+        logger.info("Callbacks");
+        closeCallbacks.forEach(closesResource -> {
+            try {
+                closesResource.close();
+            } catch(Exception exception) {
+                logger.warn("Exception while closing " + closesResource, exception);
+            }
+        });
+        closeCallbacks.clear();
+
         logger.info("Dependencies close");
 
         if (injector==null) {
@@ -103,6 +116,11 @@ public class GuiceContainerDependencies implements ComponentContainer {
 
         logger.info("Dependencies closed");
         System.gc(); // for tests which accumulate/free a lot of memory
+    }
+
+    @Override
+    public void registerCallbackFor(ClosesResource closesResource) {
+        closeCallbacks.add(closesResource);
     }
 
     protected void stop() {

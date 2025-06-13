@@ -5,7 +5,6 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -37,8 +36,7 @@ class TramRouteHelperTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
     }
 
     @Test

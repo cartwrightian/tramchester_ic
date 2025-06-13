@@ -59,7 +59,7 @@ public class GetOutgoingServicesMatchingTripIdTest {
 
         stationRepository = componentContainer.get(StationRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();

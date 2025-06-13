@@ -36,6 +36,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     private final SharedNodeCache sharedNodeCache;
     private final SharedRelationshipCache sharedRelationshipCache;
 
+    /* GraphIdFactory ownership is passed in */
     MutableGraphTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
                             final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
                             SharedRelationshipCache sharedRelationshipCache) {
@@ -64,6 +65,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     public void close() {
         txn.close();
         transactionObserver.onClose(this);
+        idFactory.close();
     }
 
     public void commit() {

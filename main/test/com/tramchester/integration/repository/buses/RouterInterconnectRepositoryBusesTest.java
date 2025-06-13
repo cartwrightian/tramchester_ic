@@ -15,7 +15,6 @@ import com.tramchester.graph.search.routes.*;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.FakeDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -63,8 +62,7 @@ public class RouterInterconnectRepositoryBusesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper(componentContainer);
         routeIndex = componentContainer.get(RouteIndex.class);
         date = TestEnv.testDay();
         routeMatrix = componentContainer.get(RouteCostMatrix.class);

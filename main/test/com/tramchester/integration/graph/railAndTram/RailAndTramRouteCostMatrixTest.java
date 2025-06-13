@@ -66,7 +66,7 @@ public class RailAndTramRouteCostMatrixTest {
     @BeforeEach
     void beforeEachTestRuns() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper(componentContainer);
         railRouteHelper = new RailRouteHelper(componentContainer);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
         stationRepository = componentContainer.get(StationRepository.class);

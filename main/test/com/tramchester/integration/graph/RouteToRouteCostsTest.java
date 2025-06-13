@@ -80,7 +80,7 @@ public class RouteToRouteCostsTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routesCostRepository = componentContainer.get(RouteToRouteCosts.class);
         routeRepository = componentContainer.get(RouteRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper(componentContainer);
 
         date = TestEnv.testDay();
         timeRange = TimeRangePartial.of(TramTime.of(7,45), TramTime.of(22,45));

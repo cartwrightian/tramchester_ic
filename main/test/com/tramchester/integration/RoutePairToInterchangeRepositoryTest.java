@@ -14,7 +14,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RoutePairToInterchangeRepository;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -67,9 +66,7 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
-        //routeIndex = componentContainer.get(RouteIndex.class);
+        routeHelper = new TramRouteHelper(componentContainer);
 
         date = TestEnv.testDay().plusWeeks(1);
 

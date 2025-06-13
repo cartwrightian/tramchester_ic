@@ -20,7 +20,6 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -61,8 +60,7 @@ public class TowardsDestinationTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
 
         groupRepository = componentContainer.get(StationGroupsRepository.class);
 

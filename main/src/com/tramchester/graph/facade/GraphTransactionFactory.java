@@ -29,7 +29,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     private final SharedRelationshipCache relationshipCache;
     private final State state;
     private final AtomicInteger transactionCount;
-    private final GraphIdFactory graphIdFactory;
+    private final boolean diagnostics;
 
     public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache,
                                    SharedRelationshipCache relationshipCache, final boolean diagnostics) {
@@ -40,7 +40,10 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         transactionCount = new AtomicInteger(0);
         state = new State();
 
-        graphIdFactory = new GraphIdFactory(diagnostics);
+        this.diagnostics = diagnostics;
+
+        // neo4j docs state id's not guaranteed beyond transaction boundaries
+        //graphIdFactory = new GraphIdFactory(diagnostics);
     }
 
 
@@ -64,7 +67,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             }
         }
 
-        graphIdFactory.close();
+        //graphIdFactory.close();
         state.close();
     }
 
@@ -72,6 +75,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
+        GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
         final MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory,
                 index,this, nodeCache, relationshipCache);
 
@@ -84,7 +88,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
-
+        GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
         TimedTransaction graphTransaction = new TimedTransaction(graphDatabaseTxn, graphIdFactory,
                 index,this, logger, text, nodeCache, relationshipCache);
 

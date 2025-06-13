@@ -73,7 +73,7 @@ class TramGraphBuilderTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
-        tramRouteHelper = new TramRouteHelper(transportData);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
 
         when = TestEnv.testDay();
 

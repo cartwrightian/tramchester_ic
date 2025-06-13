@@ -54,7 +54,7 @@ public class RunningRoutesAndServicesTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
-        helper = new TramRouteHelper(transportData);
+        helper = new TramRouteHelper(componentContainer);
     }
 
     @Test

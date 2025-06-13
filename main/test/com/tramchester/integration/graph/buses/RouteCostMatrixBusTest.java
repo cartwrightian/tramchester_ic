@@ -62,7 +62,7 @@ public class RouteCostMatrixBusTest {
     @BeforeEach
     void beforeEachTestRuns() {
         routeRepository = componentContainer.get(RouteRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper(componentContainer);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
         routeIndex = componentContainer.get(RouteIndex.class);
 

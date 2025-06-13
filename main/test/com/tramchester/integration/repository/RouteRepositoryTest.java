@@ -65,7 +65,7 @@ public class RouteRepositoryTest {
     void beforeEachTestRuns() {
         routeRepository = componentContainer.get(RouteRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper(componentContainer);
 
         when = TestEnv.testDay();
     }
@@ -248,7 +248,7 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
 
         Station cornbrook = Cornbrook.from(stationRepository);
 

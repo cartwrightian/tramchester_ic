@@ -54,7 +54,14 @@ public class SharedNodeCache implements ReportsCacheStats {
 
     @PreDestroy
     public void stop() {
+        logger.info("stopping");
         stats().forEach(stat -> logger.info(stat.getKey() + " " + stat.getValue()));
+        tramTimeCache.close();
+        routeStationIdCache.close();
+        serviceIdCache.close();
+        labelsCache.close();
+        hourCache.close();
+        tramTimeCache.close();
         logger.info("stopped");
     }
 
@@ -124,6 +131,12 @@ public class SharedNodeCache implements ReportsCacheStats {
         @Override
         public void remove(final GraphNodeId id) {
             cache.invalidate(id);
+        }
+
+        @Override
+        public void close() {
+            cache.invalidateAll();
+            cache.cleanUp();
         }
 
         public Pair<String, CacheStats> stats(final String name) {

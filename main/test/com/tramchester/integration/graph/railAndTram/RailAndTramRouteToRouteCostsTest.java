@@ -15,7 +15,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
@@ -224,8 +223,7 @@ public class RailAndTramRouteToRouteCostsTest {
         // specifically because Victoria is linked to rail routes and is only place to change between pink/yellow route
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 45), TramTime.of(16, 45));
 
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
 
         Route yellowInbound = tramRouteHelper.getYellow(date);
         Route pinkOutbound = tramRouteHelper.getPink(date);

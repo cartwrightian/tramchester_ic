@@ -26,6 +26,8 @@ public class GraphIdFactory implements ReportsCacheStats {
     private final Cache<String, GraphRelationshipId> relationshipIds;
     private final boolean diagnostics;
 
+    ///  NOTE: beware scoping of this, neo4j docs say IDs are transaction scoped
+
     public GraphIdFactory(final boolean diagnostics) {
         this.diagnostics = diagnostics;
 

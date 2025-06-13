@@ -16,7 +16,6 @@ import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -72,8 +71,7 @@ public class StationAvailabilityRepositoryTest {
         availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
 
         when = TestEnv.testDay();
         modes = TramsOnly;

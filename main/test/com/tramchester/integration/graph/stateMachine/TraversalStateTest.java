@@ -26,7 +26,6 @@ import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTrip
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -71,8 +70,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachOfTheTestsRun() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
         stationRepository = componentContainer.get(StationRepository.class);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);

@@ -28,6 +28,11 @@ public class JourneyPlannerResourceStreamingTest {
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
 
+//    @AfterAll
+//    static void afterAll() {
+//        appExtension.after();
+//    }
+
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();

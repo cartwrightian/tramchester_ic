@@ -67,7 +67,7 @@ public class InterchangesTramTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
     }
 
     @Test

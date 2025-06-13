@@ -72,7 +72,7 @@ public class RouteIndexTest extends EasyMockSupport {
         factory = componentContainer.get(LoaderSaverFactory.class);
         routeIndex = componentContainer.get(RouteIndex.class);
 
-        routeHelper = new TramRouteHelper(routeRepository);
+        routeHelper = new TramRouteHelper(componentContainer);
         date = TestEnv.testDay();
 
         Files.deleteIfExists(otherFile);

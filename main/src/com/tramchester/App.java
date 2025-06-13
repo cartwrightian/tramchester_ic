@@ -80,12 +80,17 @@ public class App extends Application<AppConfiguration>  {
     public static void main(String[] args) {
         logEnvironmentalVars(Arrays.asList("PLACE", "BUILD", "JAVA_OPTS", "BUCKET"));
 
-        App app = new App();
+        final App app = new App();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.warn("Shutting down");
 
-            app.getDependencies().close();
+            final GuiceContainerDependencies dependencies = app.getDependencies();
+            if (dependencies!=null) {
+                dependencies.close();
+            } else {
+                logger.error("Dependencies were null, startup failed?");
+            }
 
             // attempt to flush logs, messages are being lost when exception is uncaught
             ILoggerFactory factory = LoggerFactory.getILoggerFactory();
@@ -105,7 +110,7 @@ public class App extends Application<AppConfiguration>  {
         }
     }
 
-    private static void logArgs(String[] args) {
+    private static void logArgs(final String[] args) {
         final StringBuilder msg = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             if (i>0) {

@@ -106,8 +106,7 @@ public class TripRepositoryTest {
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
-        RouteRepository routeRespository = componentContainer.get(RouteRepository.class);
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRespository);
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
 
         Station shudehill = Shudehill.from(stationRepository);
 
