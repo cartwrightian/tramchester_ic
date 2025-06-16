@@ -21,9 +21,6 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
  */
 public enum KnownTramRouteEnum implements TestRoute {
 
-    // Replacement Bus
-    //ReplacementBus1EndMay(BusOne, "Replacement Bus One", "2462", TramDate.of(2025,5,30)),
-
     // Blue
     EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", latestCutoverDate),
 

@@ -5,7 +5,7 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '8.3.6'
 }
 
 idea{
@@ -181,10 +181,6 @@ tasks.register("railLiveDataCodeGen", Wsdl2Java) {
     }
 }
 
-distZip {
-    dependsOn 'queryLiveDataArchiveStartScript'
-}
-
 tasks.register('npmInstall', Exec) {
     inputs.file("package.json")
     inputs.file("package-lock.json")
@@ -314,12 +310,6 @@ test {
     useJUnitPlatform()
 }
 
-tasks.register('cdkApp', JavaExec) {
-    dependsOn classes
-    mainClass = 'com.tramchester.deployment.CdkApp'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 tasks.register('buses', JavaExec) {
     dependsOn 'webpack'
     mainClass = mainClassName
@@ -433,12 +423,6 @@ tasks.register('integration', Test) {
     configure integrationTestConfiguration
 }
 
-tasks.register('integrationProfile', Test) {
-    dependsOn 'compileJava'
-    configure integrationTestConfiguration
-    jvmArgs agentPath
-}
-
 tasks.register('busTest', Test) {
     dependsOn 'compileJava'
     useJUnitPlatform {
@@ -476,16 +460,6 @@ tasks.register('dataUpdated', Test) {
     useJUnitPlatform {
         includeTags 'DataUpdateTest'
     }
-}
-
-tasks.register('profileDataUpdated', Test) {
-    configure integrationTestConfiguration
-    outputs.upToDateWhen { false }
-    dependsOn 'compileJava'
-    useJUnitPlatform {
-        includeTags 'DataUpdateTest'
-    }
-    jvmArgs agentPath
 }
 
 tasks.register('liveRailSmoke', Test) {
@@ -543,21 +517,6 @@ tasks.register('graphTests', Test) {
     testLogging {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
-    }
-}
-
-tasks.register('allStationsTest', Test) {
-    dependsOn 'compileJava'
-    outputs.upToDateWhen { false }
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
-    useJUnitPlatform()
-    filter {
-        includeTestsMatching "com.tramchester.integration.graph.RouteCalculatorAllTramJourneysTest"
-    }
-    testLogging {
-        exceptionFormat "full" // default is "short"
-        events("passed", "skipped", "failed")
     }
 }
 
@@ -676,20 +635,12 @@ tasks.register('performanceTest', JavaExec) {
 }
 
 // todo gm here so include both sets of data
-tasks.register('queryDueTramStatus', JavaExec) {
-    dependsOn 'classes'
-    mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
-    classpath = sourceSets.main.runtimeClasspath
-    args '2023-01-30', '3', '15', 'config/gm.yml', 'dueTramStatus.txt'
-}
-
-tasks.register('queryLiveDataArchiveStartScript', CreateStartScripts) {
-    dependsOn 'compileJava'
-    classpath = startScripts.classpath
-    outputDir = startScripts.outputDir
-    mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
-    applicationName = 'queryLiveData'
-}
+//tasks.register('queryDueTramStatus', JavaExec) {
+//    dependsOn 'classes'
+//    mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
+//    classpath = sourceSets.main.runtimeClasspath
+//    args '2023-01-30', '3', '15', 'config/gm.yml', 'dueTramStatus.txt'
+//}
 
 // temp additional target while deploying train/tram version to just UAT
 //tasks.register('buildDatabaseUAT', JavaExec) {
@@ -730,8 +681,14 @@ tasks.register('tidyOldDists', JavaExec) {
 }
 
 distZip {
-    dependsOn 'queryLiveDataArchiveStartScript'
     dependsOn 'webpack'
+}
+
+tasks.shadowJar {
+    dependsOn 'distZip'
+    archiveClassifier = 'full'
+    mergeServiceFiles()
+    zip64 true
 }
 
 distTar.dependsOn('webpack')

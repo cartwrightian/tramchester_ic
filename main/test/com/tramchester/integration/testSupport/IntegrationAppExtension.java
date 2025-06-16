@@ -5,6 +5,7 @@ import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
 import io.dropwizard.core.Application;
+import io.dropwizard.testing.DropwizardTestSupport;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 
 public class IntegrationAppExtension extends DropwizardAppExtension<AppConfiguration> {
@@ -12,7 +13,7 @@ public class IntegrationAppExtension extends DropwizardAppExtension<AppConfigura
     // NOTE See TestConfig for set-up of server, including gzip
 
     public IntegrationAppExtension(Class<? extends Application<AppConfiguration>> applicationClass, AppConfiguration configuration) {
-        super(applicationClass, configuration);
+        super(new DropwizardTestSupport<>(applicationClass, configuration));
     }
 
     @Override

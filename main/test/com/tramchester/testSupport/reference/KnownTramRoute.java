@@ -1,35 +1,21 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.dates.Dates;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramDateBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,6,3);
-
-    // TODO mismatch between data and website
-    static final Dates replacementBusOneDates =
-            TramDateBuilder.forYear(2025).forMonth(5).add(18,30).toYear().forMonth(6).add(1).toYear().build();
+    public static final TramDate latestCutoverDate = TramDate.of(2025,6,13);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
-
-    /***
-     * @return Yellow route
-     */
-    public static @NotNull KnownTramRouteEnum getReplacementBusOne(TramDate date) {
-        return findFor(TFGMRouteNames.BusOne, date);
-    }
 
     /***
      * @return Yellow route
@@ -121,18 +107,7 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
-            if (date.isAfter(TramDate.of(2025,5,24)) && date.isBefore(TramDate.of(2025,6,1))) {
-                routes.add(getGreen(date));
-            } else if (date.isAfter(TramDate.of(2025, 6,7))) {
-                routes.add(getGreen(date));
-            }
-            // else don't add green
-        } else {
-            //if (!date.equals(UpcomingDates.LateMayBankHol2025)) {
-                routes.add(getGreen(date));
-            //}
-        }
+        routes.add(getGreen(date));
 
         if (!UpcomingDates.PiccGardensWorksummer2025.contains(date)) {
             routes.add(getPurple(date));
@@ -143,10 +118,6 @@ public class KnownTramRoute {
         routes.add(getRed(date));
         routes.add(getNavy(date));
         routes.add(getPink(date));
-
-        if (replacementBusOneDates.contains(date)) {
-            routes.add(getReplacementBusOne(date));
-        }
 
         return routes;
     }

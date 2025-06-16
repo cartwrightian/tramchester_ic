@@ -39,6 +39,8 @@ public class StopCalls {
 
     public void dispose() {
         orderedStopCalls.clear();
+        legs.clear();
+        stationIndex.clear();
     }
 
     public void add(final StopCall stopCall) {
