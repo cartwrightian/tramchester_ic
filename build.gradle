@@ -130,7 +130,7 @@ dependencies {
     testImplementation("org.javassist:javassist:3.30.2-GA")
 
     // cxf complains about missing conduit without this
-    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.1'
+    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.2'
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
