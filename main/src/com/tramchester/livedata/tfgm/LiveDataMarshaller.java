@@ -25,6 +25,12 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
 
     private static final Duration TIME_LIMIT = Duration.ofMinutes(20); // only enrich if data is within this many minutes
 
+    public enum Timely {
+        OnTime,
+        TimeExpired,
+        DateExpried
+    }
+
     private final List<LiveDataObserver> observers;
 
     private final LiveDataFetcher fetcher;
@@ -114,13 +120,22 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
         observers.add(observer);
     }
 
-    private static class FreshAndStale {
-
-        enum Timely {
-            OnTime,
-            TimeExpired,
-            DateExpried
+    public static Timely isTimely(final TramStationDepartureInfo newDepartureInfo, final LocalDate date, final TramTime now) {
+        final LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
+        if (!updateDate.equals(date)) {
+            return Timely.DateExpried;
         }
+
+        final TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
+        if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
+            return Timely.TimeExpired;
+        }
+
+        return Timely.OnTime;
+    }
+
+
+    public static class FreshAndStale {
 
         public static final int REPORTING_THRESHOLD = 10;
         private final List<TramStationDepartureInfo> fresh;
@@ -154,20 +169,6 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
             return fresh;
         }
 
-        private Timely isTimely(final TramStationDepartureInfo newDepartureInfo, final LocalDate date, final TramTime now) {
-            final LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
-            if (!updateDate.equals(date)) {
-                return Timely.DateExpried;
-            }
-
-            final TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
-            if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
-                return Timely.TimeExpired;
-            }
-
-            return Timely.OnTime;
-        }
-
         public void logResults() {
             if (fresh.isEmpty()) {
                 logger.error("No fresh results received, all " + stale.size() + " were stale");
@@ -191,7 +192,7 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
         }
 
         public void addDepartures(final List<TramStationDepartureInfo> receivedInfos) {
-            final Map<Timely, AtomicInteger> counters = new HashMap<>();
+            final Map<Timely, AtomicInteger> counters = new EnumMap<>(Timely.class);
             for(final Timely counter : Timely.values()) {
                 counters.put(counter, new AtomicInteger(0));
             }

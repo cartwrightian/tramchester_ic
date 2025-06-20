@@ -73,7 +73,8 @@ class LiveDataParserTest extends EasyMockSupport {
                         }""", i, i);
             message.append(line);
             LocalDateTime expectedDateTime = LocalDateTime.of(2017, 11, 29, i, 45);
-            TramStationDepartureInfo dep = setExpectationsForDeparture(i, OverheadDisplayLines.Eccles, LineDirection.Incoming, "Test.", MediaCityUK, expectedDateTime, "2", mediaCityPlatform);
+            TramStationDepartureInfo dep = setExpectationsForDeparture(i, OverheadDisplayLines.Eccles, LineDirection.Incoming, "Test.",
+                    MediaCityUK, expectedDateTime, "2", mediaCityPlatform);
             expectDueTram(dep, Piccadilly, 1, "Due", "Single", mediaCityPlatform);
         }
         message.append(footer);
@@ -171,7 +172,7 @@ class LiveDataParserTest extends EasyMockSupport {
         expectDueTram(depA, Piccadilly, 1, "Due", "Single", mediaCityPlatform);
         expectDueTram(depA, Piccadilly, 12, "Due", "Single", mediaCityPlatform);
 
-        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
+        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55).plusHours(1);
         TramStationDepartureInfo depB = setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Incoming, msgB, ManAirport, dateTimeB, "1", null);
 
         expectDueTram(depB, Deansgate, 5, "Due", "Single", null);
@@ -213,7 +214,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         assertEquals(OverheadDisplayLines.Airport, departureInfoB.getLine());
         ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 6, 29, 13, 55), TramchesterConfig.TimeZoneId);
-        assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
+        assertEquals(expectedDateB.toLocalDateTime().plusHours(1), departureInfoB.getLastUpdate());
         assertEquals(LineDirection.Incoming, departureInfoB.getDirection());
 
         assertEquals(2, departureInfoB.getDueTrams().size());
@@ -262,7 +263,7 @@ class LiveDataParserTest extends EasyMockSupport {
                 dateTimeA, "1", navRoadPlatform1);
         expectDueTram(depA, Piccadilly, 1, "Due", "Single", navRoadPlatform1);
 
-        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
+        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55).plusHours(1);
         TramStationDepartureInfo depB = setExpectationsForDeparture(234, OverheadDisplayLines.Altrincham, LineDirection.Outgoing, msgB, NavigationRoad,
                 dateTimeB, "2", null);
         expectDueTram(depB, Altrincham, 5, "Due", "Single", null);
@@ -315,7 +316,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         expectDueTram(depA, Piccadilly, 12, "Due", "Single", null);
 
-        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
+        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55).plusHours(1);
         TramStationDepartureInfo depB = setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Incoming, "message B", ManAirport, dateTimeB, "1", null);
 
         expectDueTram(depB, Deansgate, 5, "Due", "Single", null);
@@ -388,7 +389,7 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Ashton);
 
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
-        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
+        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55).plusHours(1);
 
         setExpectationsForDeparture(1, OverheadDisplayLines.Eccles, LineDirection.Both, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
         setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Both, "message B", ManAirport, dateTimeB, "1", null);
@@ -450,7 +451,7 @@ class LiveDataParserTest extends EasyMockSupport {
                  }
                 """;
 
-        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
+        LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55).plusHours(1);
 
         TramStationDepartureInfo dep = setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Incoming, "message B", ManAirport, dateTimeB, "1", null);
         expectDueTram(dep, Deansgate, 5, "Due", "Single", null);

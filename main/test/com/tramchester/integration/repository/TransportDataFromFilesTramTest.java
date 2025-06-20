@@ -101,8 +101,8 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        // -4 Summer 2025 closures
-        int expectedPlatforms = 201-4;
+        // -3 Summer 2025 closures
+        int expectedPlatforms = 201-3;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 

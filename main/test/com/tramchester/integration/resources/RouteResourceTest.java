@@ -79,7 +79,7 @@ class RouteResourceTest {
     @Test
     void shouldHaveExpectedFirstLastForAirportRoute() {
         IdForDTO manAirportIdForDTO = ManAirport.getIdForDTO();
-        IdForDTO finalStationDTOId =  Victoria.getIdForDTO();
+        IdForDTO finalStationDTOId =  Crumpsal.getIdForDTO();
 
         List<RouteDTO> routes = getRouteResponse();
 

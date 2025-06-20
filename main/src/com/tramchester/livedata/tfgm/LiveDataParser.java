@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -228,12 +227,13 @@ public class LiveDataParser {
 
         LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
 
+        // Following workaround no longer needed, as in is not switching to BST (but change was in June'25)
         // WORKAROUND - feed always contains 'Z' at end of date/time even though feed actually switches to BST
-        final boolean dst = timeZone.inDaylightTime(Date.from(instanceOfUpdate));
-        if (dst) {
-            int seconds_offset = timeZone.getDSTSavings() / 1000;
-            localDateTime = localDateTime.minusSeconds(seconds_offset);
-        }
+//        final boolean dst = timeZone.inDaylightTime(Date.from(instanceOfUpdate));
+//        if (dst) {
+//            int seconds_offset = timeZone.getDSTSavings() / 1000;
+//            localDateTime = localDateTime.minusSeconds(seconds_offset);
+//        }
 
         return localDateTime;
     }

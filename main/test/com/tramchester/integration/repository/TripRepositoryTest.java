@@ -6,6 +6,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -13,6 +15,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
@@ -21,7 +24,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -34,7 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -56,6 +57,9 @@ public class TripRepositoryTest {
     private TramDate when;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
+
+    DateTimeRange exchangeSquareMissing = DateTimeRange.of(DateRange.of(TramDate.of(2025,7,3),0) ,
+            TimeRange.of(TramTime.of(18,0), TramTime.of(19,0)));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -169,13 +173,17 @@ public class TripRepositoryTest {
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
 
-        int latestHour = 23;
-        int earliestHour = 7;
+        int intervalInMins = 30;
 
-        final List<TramTime> times = IntStream.range(earliestHour, latestHour).boxed().
-                map(hour -> TramTime.of(hour, 0)).
-                sorted().
-                toList();
+        final List<TramTime> times = new ArrayList<>();
+
+        final TramTime start = TramTime.of(7, 0);
+        final TramTime last = TramTime.of(23,31);
+        TramTime current = start;
+        while (current.isBefore(last)) {
+            times.add(current);
+            current = current.plusMinutes(intervalInMins);
+        }
 
         int maxwait = 25;
 
@@ -203,6 +211,27 @@ public class TripRepositoryTest {
                         }));
 
         assertTrue(missing.isEmpty(), missing.toString());
+    }
+
+    @Test
+    void checkIfExchangeSquareWorkaround() {
+
+        Station exchangeSqaure = ExchangeSquare.from(stationRepository);
+
+        Set<StopCall> workaroundNotNeeded = new HashSet<>();
+
+        UpcomingDates.getUpcomingDates().
+                forEach(date -> {
+                    final Set<Trip> trips = tripRepository.getTripsCallingAt(exchangeSqaure, date);
+                    Set<StopCall> present = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
+                            filter(stopCall -> stopCall.getStation().equals(exchangeSqaure)).
+                            filter(stopCall -> exchangeSquareMissing.contains(date,stopCall.getArrivalTime())).
+                            collect(Collectors.toSet());
+                    workaroundNotNeeded.addAll(present);
+                });
+
+        assertTrue(workaroundNotNeeded.isEmpty(), workaroundNotNeeded.toString());
+
     }
 
     @Test
@@ -277,6 +306,9 @@ public class TripRepositoryTest {
             if (AltrinchamLineWorksStations.contains(station.getId())) {
                 return times.stream().filter(time -> !AltrinchamLineWorkTimes.contains(time)).toList();
             }
+        }
+        if (ExchangeSquare.getId().equals(station.getId())) {
+            return times.stream().filter(time -> !exchangeSquareMissing.contains(date,time)).toList();
         }
         return times;
     }
