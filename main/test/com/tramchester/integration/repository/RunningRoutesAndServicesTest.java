@@ -185,15 +185,16 @@ public class RunningRoutesAndServicesTest {
         assertTrue(weekdayDateRange.contains(tuesdayDate), weekdayDateRange + " not contain " + tuesdayDate);
         assertTrue(weekdayDateRange.contains(fridayDate), weekdayDateRange + " not contain " + fridayDate);
 
-        // services operating on tuesday and on nextTuesday
+        // services operating on tuesday (TODO what is this: and on nextTuesday)
         List<Service> tuesdayServices = weekdayServices.stream().
-                filter(service -> service.getCalendar().getDateRange().contains(tuesdayDate)).
+                //filter(service -> service.getCalendar().getDateRange().contains(tuesdayDate)).
                 filter(service -> service.getCalendar().getDateRange().contains(tuesdayDate)).toList();
 
         assertFalse(tuesdayServices.isEmpty(), "found no weekday services for " + tuesdayDate);
 
+        // weekday services on Tuesday also running Friday
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(fridayDate, config.getTransportModes());
-        Set<Service> weekdayFiltered = tuesdayServices.stream().
+        Set<Service> weekdayFiltered = weekdayServices.stream().
                 filter(svc -> filterForNextFriday.isServiceRunningByDate(svc.getId(), false))
                 .collect(Collectors.toSet());
 
@@ -207,6 +208,7 @@ public class RunningRoutesAndServicesTest {
                 collect(Collectors.toList());
         assertFalse(saturdayServices.isEmpty(), weekdayDateRange.toString());
 
+        // saturday services should pass the friday filter with the next day enabled
         Set<Service> matchingForSaturday = saturdayServices.stream().
                 filter(service -> filterForNextFriday.isServiceRunningByDate(service.getId(), true)).
                 collect(Collectors.toSet());

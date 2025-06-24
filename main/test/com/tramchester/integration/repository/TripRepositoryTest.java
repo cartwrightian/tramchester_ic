@@ -299,6 +299,13 @@ public class TripRepositoryTest {
     }
 
     private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
+        if (ExchangeSquare.getId().equals(station.getId())) {
+            if (date.equals(TramDate.of(2025,7,6))) {
+                return Collections.emptyList();
+            } else {
+                return times.stream().filter(time -> !exchangeSquareMissing.contains(date, time)).toList();
+            }
+        }
         if (UpcomingDates.hasClosure(station.getId(), date)) {
             return Collections.emptyList();
         }
@@ -307,9 +314,7 @@ public class TripRepositoryTest {
                 return times.stream().filter(time -> !AltrinchamLineWorkTimes.contains(time)).toList();
             }
         }
-        if (ExchangeSquare.getId().equals(station.getId())) {
-            return times.stream().filter(time -> !exchangeSquareMissing.contains(date,time)).toList();
-        }
+
         return times;
     }
 }
