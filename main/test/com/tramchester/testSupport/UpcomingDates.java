@@ -2,9 +2,9 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
 
 public class UpcomingDates {
 
@@ -35,13 +35,12 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate AltrinchamLineWorks = TramDate.of(2025, 6, 22);
-    public static TimeRange AltrinchamLineWorkTimes = TimeRange.of(TramTime.of(0, 1), TramTime.of(9, 30));
-    public static IdSet<Station> AltrinchamLineWorksStations = Stream.of(Altrincham.getId(), NavigationRoad.getId()).
-            collect(IdSet.idCollector());
-
     public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
             TramDate.of(2025, 8, 10));
+
+    public static DateTimeRange DeansgateEmergencyWorkJune2025 = DateTimeRange.of(
+            TramDate.of(2025,6,29), TimeRange.of(TramTime.of(4,0), TramTime.of(14,0)));
+
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -50,11 +49,6 @@ public class UpcomingDates {
     public static boolean hasClosure(Station station, TramDate date, TimeRange timeRange) {
         if (hasClosure(station, date)) {
             return true;
-        }
-        if (AltrinchamLineWorksStations.contains(station.getId())) {
-            if (date.equals(AltrinchamLineWorks)) {
-                return AltrinchamLineWorkTimes.anyOverlap(timeRange);
-            }
         }
         return false;
     }
@@ -65,26 +59,14 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-//        if (RochdaleLineStations.contains(stationId)) {
-//            return RochdaleLineWorksSummer2025.contains(date);
-//        }
-
-//        if (CrumpsalToBury.contains(stationId)) {
-//            if (LineClosuresMayJune2025CrumpsalBury.contains(date)) {
-//                return true;
-//            }
-//        }
-
-//        if (WhitefieldToBury.contains(stationId)) {
-//            if (LineClosuresMayJune2025WhitefieldBury.contains(date)) {
-//                return true;
-//            }
-//        }
 
         if (PiccadillyGardens.getId().equals(stationId)) {
             if (PiccGardensWorksummer2025.contains(date)) {
                 return true;
             }
+        }
+        if (DeansgateEmergencyWorkJune2025.contains(date)) {
+            return true;
         }
 
         return false;

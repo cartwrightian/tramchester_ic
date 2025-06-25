@@ -55,8 +55,8 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    // summery 2025 closures 202->196
-    public static final int NumberOfStationLinks = 196;
+    // summery 2025 closures 202->198
+    public static final int NumberOfStationLinks = 198;
 
     private static final TramDate testDay;
 
@@ -66,9 +66,6 @@ public class TestEnv {
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100BRP90268";
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
-
-//    public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, Agency.createId("7778462"),
-//            "Stagecoach Manchester");
 
     public static final Agency BEE_A = MutableAgency.build(DataSourceID.tfgm, Agency.createId("7778550"),
             "Bee Network");

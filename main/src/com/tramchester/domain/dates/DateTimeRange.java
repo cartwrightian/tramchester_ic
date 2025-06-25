@@ -26,6 +26,10 @@ public class DateTimeRange {
         return new DateTimeRange(dateRange, timeRange);
     }
 
+    public static DateTimeRange of(TramDate date, TimeRange timeRange) {
+        return of(DateRange.of(date,0), timeRange);
+    }
+
     public boolean contains(TramDate date, TramTime time) {
         if (dateRange.contains(date)) {
             return timeRange.contains(time);

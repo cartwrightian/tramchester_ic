@@ -160,8 +160,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(diff <= 110, String.format("now:%s timeOnPage: %s diff: %s", now, timeOnPage, diff));
     }
 
-    private LocalTime timeSelectedOnPage(AppPage appPage) {
-        String timeOnPageRaw = appPage.getTime();
+    private LocalTime timeSelectedOnPage(final AppPage appPage) {
+        final String timeOnPageRaw = appPage.getTime();
+        assertNotNull(timeOnPageRaw, "Could not get time, was null");
         return LocalTime.parse(timeOnPageRaw);
     }
 
@@ -581,8 +582,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
     public static void validateAStage(Stage stage, Collection<TramTime> departTimes, String action, String actionStation,
                                       List<Integer> platforms, Set<String> headsigns, int passedStops) {
 
-//        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::shortName).collect(Collectors.toSet());
-
         assertTrue(departTimes.stream().allMatch(TramTime::isValid),"departTime not valid");
 
         TramTime stageDepartTime = stage.getDepartTime();
@@ -592,8 +591,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(actionStation, stage.getActionStation(), "actionStation");
         assertTrue(platforms.contains(stage.getPlatform()), "platform");
 
-//        String stageRoute = stage.getRouteName();
-//        assertTrue(expectedRoutesNames.contains(stageRoute), "Wrong linename, got '"+ stageRoute +"' but needed one of " + expectedRoutesNames);
 
         String stageHeadsign = stage.getHeadsign();
         assertTrue(headsigns.contains(stageHeadsign), "Wrong headsign, got '"+ stageHeadsign +"' but needed one of" + headsigns);

@@ -17,6 +17,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.logging.Level;
 
 public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
@@ -26,25 +27,27 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     private final Path locationStubJSON = Paths.get("geofile.json");
 
     private ProvidesDateInput providesDateInput;
+    private final Duration timeout;
 
-    public ProvidesFirefoxDriver(LatLong location) {
+    public ProvidesFirefoxDriver(LatLong location, Duration timeout) {
         this.location = location;
+        this.timeout = timeout;
     }
 
     @Override
     public void init() throws IOException {
         if (driver==null) {
             providesDateInput = new ProvidesFirefoxDateInput();
-            Path firefoxPath = TestEnv.getPathFromEnv("FIREFOX_PATH");
+            final Path firefoxPath = TestEnv.getPathFromEnv("FIREFOX_PATH");
             if (firefoxPath != null) {
                 System.setProperty(FirefoxDriver.SystemProperty.BROWSER_BINARY, firefoxPath.toString());
             }
-            Path geckoDriverPath = TestEnv.getPathFromEnv("GECKODRIVER_PATH");
+            final Path geckoDriverPath = TestEnv.getPathFromEnv("GECKODRIVER_PATH");
             if (geckoDriverPath != null) {
                 System.setProperty("webdriver.gecko.driver", geckoDriverPath.toString());
             }
 
-            FirefoxProfile firefoxProfile = new FirefoxProfile();
+            final FirefoxProfile firefoxProfile = new FirefoxProfile();
 
             // This does not seem to work at all when it comes time input, only setting of LANG seems to matter
             // https://firefox-source-docs.mozilla.org/intl/locale.html
@@ -66,7 +69,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
                 firefoxProfile.setPreference("geo.prompt.testing.allow", false);
             }
 
-            FirefoxOptions firefoxOptions = new FirefoxOptions();
+            final FirefoxOptions firefoxOptions = new FirefoxOptions();
             firefoxOptions.setProfile(firefoxProfile);
 
             // allow disabling of headless more via env var
@@ -74,7 +77,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
                 firefoxOptions.addArguments("-headless");
             }
 
-            FirefoxDriver firefoxDriver = new FirefoxDriver(firefoxOptions);
+            final FirefoxDriver firefoxDriver = new FirefoxDriver(firefoxOptions);
             firefoxDriver.setLogLevel(Level.SEVERE);
 
             driver = firefoxDriver;
@@ -83,7 +86,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
     @Override
     public AppPage getAppPage() {
-        return new AppPage(driver, providesDateInput);
+        return new AppPage(driver, providesDateInput, timeout);
     }
 
     @Override

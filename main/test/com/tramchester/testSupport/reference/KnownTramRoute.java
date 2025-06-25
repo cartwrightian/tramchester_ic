@@ -18,6 +18,13 @@ public class KnownTramRoute {
     public static final String MISSING_ROUTE_ID = "";
 
     /***
+     * @return Bus one route
+     */
+    public static @NotNull KnownTramRouteEnum getBusOne(TramDate date) {
+        return findFor(TFGMRouteNames.BusOne, date);
+    }
+
+    /***
      * @return Yellow route
      */
     public static @NotNull KnownTramRouteEnum getYellow(TramDate date) {
@@ -118,6 +125,10 @@ public class KnownTramRoute {
         routes.add(getRed(date));
         routes.add(getNavy(date));
         routes.add(getPink(date));
+
+        if (UpcomingDates.DeansgateEmergencyWorkJune2025.contains(date)) {
+            routes.add(getBusOne(date));
+        }
 
         return routes;
     }

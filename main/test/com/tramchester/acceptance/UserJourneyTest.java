@@ -10,6 +10,7 @@ import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.TestInfo;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,7 +24,8 @@ public class UserJourneyTest {
         if (driverFactory!=null) {
             throw new RuntimeException("Factory already created");
         }
-        driverFactory = new DriverFactory(location);
+        final Duration timeout = TestEnv.isCircleci() ? Duration.ofSeconds(15) : Duration.ofSeconds(5);
+        driverFactory = new DriverFactory(location, timeout);
     }
 
     protected static void closeFactory() {
@@ -32,11 +34,11 @@ public class UserJourneyTest {
         driverFactory = null;
     }
 
-    protected AppPage prepare(ProvidesDriver providesDriver, String url) throws IOException {
+    protected AppPage prepare(final ProvidesDriver providesDriver, final String url) throws IOException {
         providesDriver.init();
         providesDriver.clearCookies();
 
-        AppPage appPage = providesDriver.getAppPage();
+        final AppPage appPage = providesDriver.getAppPage();
         appPage.load(url);
 
         assertTrue(appPage.waitForCookieAgreementVisible(), "cookie agreement visible");

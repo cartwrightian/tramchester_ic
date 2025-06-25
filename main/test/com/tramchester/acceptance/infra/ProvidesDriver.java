@@ -18,12 +18,14 @@ public abstract class ProvidesDriver {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesDriver.class);
 
     public abstract void init() throws IOException;
+
     public abstract AppPage getAppPage();
+
     protected abstract String getDriverName();
 
     private static final Path screenshotsDir = Path.of("build/reports/tests/screenshots/");
 
-    protected void takeScreenShot(String testName) {
+    protected void takeScreenShot(final String testName) {
         TakesScreenshot driver = getDriver();
         if (driver==null) {
             return;
@@ -43,7 +45,7 @@ public abstract class ProvidesDriver {
         }
     }
 
-    private String safeFilename(String testName) {
+    private String safeFilename(final String testName) {
         int endOfTestName = testName.indexOf("(");
         return testName.substring(0, endOfTestName) + "_" + getDriverName();
     }
@@ -66,7 +68,6 @@ public abstract class ProvidesDriver {
             driver.close();
         }
      }
-
 
     public void clearCookies() {
         getDriver().manage().deleteAllCookies();

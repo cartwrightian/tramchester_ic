@@ -40,8 +40,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.UpcomingDates.AltrinchamLineWorkTimes;
-import static com.tramchester.testSupport.UpcomingDates.AltrinchamLineWorksStations;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -309,11 +307,11 @@ public class TripRepositoryTest {
         if (UpcomingDates.hasClosure(station.getId(), date)) {
             return Collections.emptyList();
         }
-        if (UpcomingDates.AltrinchamLineWorks.equals(date)) {
-            if (AltrinchamLineWorksStations.contains(station.getId())) {
-                return times.stream().filter(time -> !AltrinchamLineWorkTimes.contains(time)).toList();
-            }
-        }
+//        if (UpcomingDates.AltrinchamLineWorks.equals(date)) {
+//            if (AltrinchamLineWorksStations.contains(station.getId())) {
+//                return times.stream().filter(time -> !AltrinchamLineWorkTimes.contains(time)).toList();
+//            }
+//        }
 
         return times;
     }

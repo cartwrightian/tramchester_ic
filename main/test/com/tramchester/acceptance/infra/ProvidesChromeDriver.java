@@ -9,6 +9,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.html5.Location;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -23,37 +24,31 @@ import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_VERBO
 
 public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public final static String Name = "chrome";
-//    private final DesiredCapabilities capabilities;
     private final ChromeOptions chromeOptions;
     private final LatLong location;
 
     private final ProvidesDateInput providesDateInput;
+    private final Duration timeout;
 
-    public ProvidesChromeDriver(LatLong location) {
+    public ProvidesChromeDriver(LatLong location, Duration timeout) {
         this.location = location;
+        this.timeout = timeout;
 
-        Path chromedriverPath = TestEnv.getPathFromEnv(TestEnv.CHROMEDRIVER_PATH_ENV_VAR);
+        final Path chromedriverPath = TestEnv.getPathFromEnv(TestEnv.CHROMEDRIVER_PATH_ENV_VAR);
         if (chromedriverPath!=null) {
             System.setProperty(CHROME_DRIVER_EXE_PROPERTY, chromedriverPath.toString());
         }
         System.setProperty(CHROME_DRIVER_VERBOSE_LOG_PROPERTY,"false");
 
-//        capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
         setGeoLocation(location.isValid(), chromeOptions);
         if (location.isValid()) {
-
-            // geolocation fails on headless chrome, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
-            //chromeOptions.setHeadless(false);
-
             // exception on set location otherwise
             chromeOptions.setExperimentalOption("w3c",false);
-            //chromeOptions.setExperimentalOption("geolocation", true);
         } else {
             if (System.getenv(TestEnv.DISABLE_HEADLESS_ENV_VAR)==null) {
                 chromeOptions.addArguments("--headless=new");
-                //chromeOptions.setHeadless(true);
             }
         }
 
@@ -61,7 +56,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     }
 
     private void setGeoLocation(boolean enableGeo, ChromeOptions chromeOptions) {
-        int option = enableGeo ? 1 : 2;
+        final int option = enableGeo ? 1 : 2;
         Map<String, Object> prefs = new HashMap<>();
 
         // very old
@@ -71,7 +66,6 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         prefs.put("googlegeolocationaccess.enabled", true);
 
         // version 128 and later?
-
         chromeOptions.setExperimentalOption("prefs", prefs);
     }
 
@@ -79,9 +73,6 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public void init() {
 
         if (driver == null) {
-
-            //chromeOptions.merge(capabilities);
-            //capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 
             ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
             chromeDriver.setLogLevel(Level.SEVERE);
@@ -104,7 +95,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
 
     @Override
     public AppPage getAppPage() {
-        return new AppPage(driver, providesDateInput);
+        return new AppPage(driver, providesDateInput, timeout);
     }
 
 //    @Override

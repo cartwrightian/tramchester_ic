@@ -22,8 +22,6 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
         loggingPrefs.enable(LogType.BROWSER, Level.SEVERE);
         loggingPrefs.enable(LogType.DRIVER, Level.SEVERE);
 
-//        caps.setCapability(CapabilityType.LOGGING_PREFS, loggingPrefs);
-
         return caps;
     }
 

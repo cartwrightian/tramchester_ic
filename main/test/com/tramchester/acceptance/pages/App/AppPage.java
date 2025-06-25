@@ -30,7 +30,7 @@ public class AppPage extends Page {
     public static final String COOKIE_AGREE_BUTTON = "cookieAgreeButton";
 
     private final ProvidesDateInput providesDateInput;
-    private final Duration timeoutInSeconds = Duration.ofSeconds(15);
+    private final Duration timeoutInSeconds;
 
     private static final String DATE_OUTPUT = "date";
     public static final String FROM_STOP = "startStop";
@@ -38,9 +38,10 @@ public class AppPage extends Page {
     private static final String TIME = "time";
     private static final String RESULTS = "results";
 
-    public AppPage(WebDriver driver, ProvidesDateInput providesDateInput) {
+    public AppPage(WebDriver driver, ProvidesDateInput providesDateInput, Duration timeoutInSeconds) {
         super(driver);
         this.providesDateInput = providesDateInput;
+        this.timeoutInSeconds = timeoutInSeconds;
     }
 
     public void load(String url) {
@@ -132,47 +133,15 @@ public class AppPage extends Page {
         WebElement dateElement = findElementById("date");
         String keys = providesDateInput.createDateInput(targetDate);
         dateElement.sendKeys(keys);
-
-//        LocalDate currentDate = TestEnv.LocalNow().toLocalDate();
-//        moveToElement(dateElement).click().perform();
-
-//        WebElement dialog = waitForElement(By.xpath("//div[@aria-roledescription='TravelDateCalendar']"),
-//                timeoutInSeconds);
-//        dialog.sendKeys(Keys.HOME); // today
-//
-//        // forwards or back as needed, very clunky....
-//        if (targetDate.isAfter(currentDate)) {
-//            long diffInDays = (targetDate.toEpochDay() - currentDate.toEpochDay());
-//            for (int i = 0; i < diffInDays; i++) {
-//                dialog.sendKeys(Keys.RIGHT);
-//            }
-//        } else {
-//            long diffInDays = (currentDate.toEpochDay() - targetDate.toEpochDay());
-//            for (int i = 0; i < diffInDays; i++) {
-//                dialog.sendKeys(Keys.LEFT);
-//            }
-//        }
-//
-//        dialog.sendKeys(Keys.ENTER);
     }
 
-    public void setTime(TramTime time) {
+    public void setTime(final TramTime time) {
         WebElement element = getTimeElement();
 
         String input = providesDateInput.createTimeFormat(time.asLocalTime());
 
         element.sendKeys(input);
 
-//        Actions builder  = new Actions(driver);
-//        int chars = input.length();
-//
-//        moveToElement(element);
-//        while (chars-- > 0) {
-//            builder.sendKeys(element, Keys.ARROW_LEFT);
-//        }
-//        builder.sendKeys(element, input);
-//        builder.pause(Duration.ofMillis(50));
-//        builder.build().perform();
     }
 
     private WebElement getTimeElement() {
@@ -190,7 +159,6 @@ public class AppPage extends Page {
     }
 
     public String getFromStop() {
-        //Select selector = new Select(driver.findElement(By.id(FROM_STOP)));
         Select selector = new Select(findElementById(FROM_STOP));
         return selector.getFirstSelectedOption().getText().trim();
     }
@@ -201,11 +169,15 @@ public class AppPage extends Page {
     }
 
     public String getTime() {
-        return getTimeElement().getAttribute("value");
+        return getTimeElement().getDomProperty("value");
     }
 
     public LocalDate getDate() {
-        String rawDate = getDateElementOutput().getAttribute("value");
+        final WebElement dateElementOutput = getDateElementOutput();
+        final String rawDate = dateElementOutput.getDomProperty("value");
+        if (rawDate==null) {
+           throw new org.openqa.selenium.NoSuchElementException("Failed to find value for " + dateElementOutput);
+        }
         return LocalDate.parse(rawDate);
     }
 
@@ -218,7 +190,7 @@ public class AppPage extends Page {
     public List<TestResultSummaryRow> getResults() {
         final List<TestResultSummaryRow> results = new ArrayList<>();
         By resultsById = By.id(RESULTS);
-        WebElement resultsDiv = new WebDriverWait(driver, Duration.ofSeconds(10)).
+        WebElement resultsDiv = new WebDriverWait(driver, timeoutInSeconds).
                 until(elementToBeClickable(resultsById));
 
         WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
@@ -289,7 +261,7 @@ public class AppPage extends Page {
 
     public boolean noResults() {
         try {
-            waitForElement("noResults",timeoutInSeconds);
+            waitForElement("noResults", timeoutInSeconds);
             return true;
         }
         catch (TimeoutException notFound) {
@@ -363,7 +335,7 @@ public class AppPage extends Page {
         okToModal(By.id(MODAL_COOKIE_CONSENT), COOKIE_AGREE_BUTTON);
     }
 
-    private boolean waitForModalToOpen(By byId, String buttonName) {
+    private boolean waitForModalToOpen(final By byId, final String buttonName) {
         createWait().until(webDriver -> elementToBeClickable(byId).apply(webDriver));
         WebElement diag = driver.findElement(byId);
         WebElement button = diag.findElement(By.id(buttonName));
@@ -378,7 +350,7 @@ public class AppPage extends Page {
         if (elements.size()!=1) {
             throw new RuntimeException("UNexpected number of elements " + elements);
         }
-        WebElement diag = elements.get(0);
+        WebElement diag = elements.getFirst();
         return createWait().until(ExpectedConditions.invisibilityOf(diag));
 
     }
@@ -439,10 +411,10 @@ public class AppPage extends Page {
 
     public boolean waitForReady() {
         // geo loc on firefox can be slow even when stubbing location via a file....
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        By plan = By.id(PLAN);
-        WebElement element = driver.findElement(plan);
+        final By plan = By.id(PLAN);
+        final WebElement element = driver.findElement(plan);
 
+        final WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.until(webDriver -> (element.isDisplayed() && element.isEnabled()));
 
         return element.isDisplayed() && element.isEnabled();
