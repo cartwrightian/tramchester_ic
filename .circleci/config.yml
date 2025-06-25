@@ -136,7 +136,7 @@ jobs:
       - store_artifacts:
           path: ~/repo/build/reports/tests/screenshots
       - store_artifacts:
-          path: ~/logs
+          path: ~/repo/logs
   deployProd:
     docker:
       - image: cimg/openjdk:21.0
