@@ -2,7 +2,6 @@ package com.tramchester.acceptance;
 
 import com.tramchester.acceptance.infra.AcceptanceAppExtenstion;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import jakarta.ws.rs.core.GenericType;
@@ -19,16 +18,9 @@ public class FetchAllStationsFromAPI {
     }
 
     public List<LocationRefDTO> getStations() {
-        //Response result = apiClientFactory.clientFor("stations/mode/Tram").getApiResponse();
         Response result = APIClient.getApiResponse(apiClientFactory, "stations/mode/Tram");
 
         return result.readEntity(new GenericType<>() {});
     }
 
-    public List<StationClosureDTO> getClosedStations() {
-        //Response result = apiClientFactory.clientFor("stations/closures").getApiResponse();
-        Response result = APIClient.getApiResponse(apiClientFactory, "stations/closures");
-
-        return result.readEntity(new GenericType<>() {});
-    }
 }
