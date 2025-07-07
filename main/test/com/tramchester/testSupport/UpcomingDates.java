@@ -38,6 +38,10 @@ public class UpcomingDates {
     public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
             TramDate.of(2025, 8, 10));
 
+    // clousure over but routes not back in the data yet....
+    public static DateRange PiccGardensWorksummer2025RoutesMissing = DateRange.of(TramDate.of(2025, 8, 10),
+            TramDate.of(2025, 8, 22));
+
     public static DateTimeRange DeansgateEmergencyWorkJune2025 = DateTimeRange.of(
             TramDate.of(2025,6,29), TimeRange.of(TramTime.of(4,0), TramTime.of(14,0)));
 

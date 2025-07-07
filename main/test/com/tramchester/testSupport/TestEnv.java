@@ -55,8 +55,8 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    // summery 2025 closures 202->198
-    public static final int NumberOfStationLinks = 198;
+    // summery 2025 closures 202->196
+    public static final int NumberOfStationLinks = 196;
 
     private static final TramDate testDay;
 
