@@ -5,9 +5,11 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -42,9 +44,11 @@ public class UpcomingDates {
     public static DateRange PiccGardensWorksummer2025RoutesMissing = DateRange.of(TramDate.of(2025, 8, 10),
             TramDate.of(2025, 8, 22));
 
-    public static DateTimeRange DeansgateEmergencyWorkJune2025 = DateTimeRange.of(
-            TramDate.of(2025,6,29), TimeRange.of(TramTime.of(4,0), TramTime.of(14,0)));
+    public static DateTimeRange DeansgateEmergencyWorkJuly2025 = DateTimeRange.of(
+            TramDate.of(2025,7,13), TimeRange.of(TramTime.of(2,0), TramTime.of(14,0)));
 
+    public static IdSet<Station> DeansgateEmergencyWorkStations = Stream.of(Deansgate, Shudehill, MarketStreet).
+            map(FakeStation::getId).collect(IdSet.idCollector());
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -69,8 +73,10 @@ public class UpcomingDates {
                 return true;
             }
         }
-        if (DeansgateEmergencyWorkJune2025.contains(date)) {
-            return true;
+        if (DeansgateEmergencyWorkJuly2025.contains(date)) {
+            if (DeansgateEmergencyWorkStations.contains(stationId)) {
+                return true;
+            }
         }
 
         return false;

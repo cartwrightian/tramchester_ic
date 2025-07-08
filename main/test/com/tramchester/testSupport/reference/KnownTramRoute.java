@@ -128,7 +128,7 @@ public class KnownTramRoute {
         routes.add(getNavy(date));
         routes.add(getPink(date));
 
-        if (UpcomingDates.DeansgateEmergencyWorkJune2025.contains(date)) {
+        if (UpcomingDates.DeansgateEmergencyWorkJuly2025.contains(date)) {
             routes.add(getBusOne(date));
         }
 
