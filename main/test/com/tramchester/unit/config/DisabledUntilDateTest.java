@@ -5,6 +5,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.testSupport.FindMethodLineNumber;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
+import com.tramchester.testSupport.conditional.DisabledUntilDateCondition;
 import javassist.NotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,12 +14,15 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DisabledUntilDateTest {
 
@@ -57,7 +61,32 @@ public class DisabledUntilDateTest {
                 filter(method -> method.getDeclaringClass().equals(DisabledUntilDateTest.class)).
                 toList();
 
-        assertEquals(1, byThisClass.size());
+        assertEquals(2, byThisClass.size());
+    }
+
+    @Test
+    @AnnotatedClassTestThatHasExpired
+    void shouldMatchCustomAnnotationExpired() throws NoSuchMethodException {
+        Method currentMethod = this.getClass().getDeclaredMethod("shouldMatchCustomAnnotationExpired");
+        assertNotNull(currentMethod);
+
+        boolean expired = expired(today, currentMethod);
+        assertTrue(expired);
+    }
+
+    @Test
+    @AnnotatedClassTestThatHasNotExpired
+    void shouldAlwaysBeDisabled() {
+        fail("should be disabled");
+    }
+
+    @Test
+    void shouldMatchCustomAnnotationNotExpired() throws NoSuchMethodException {
+        Method disabled = this.getClass().getDeclaredMethod("shouldAlwaysBeDisabled");
+        assertNotNull(disabled);
+
+        boolean expired = expired(today, disabled);
+        assertFalse(expired);
     }
 
     @Test
@@ -72,7 +101,7 @@ public class DisabledUntilDateTest {
                 filter(method -> method.getDeclaringClass().equals(DisabledUntilDateTest.class)).
                 toList();
 
-        assertEquals(1, byThisClass.size());
+        assertEquals(3, byThisClass.size(), byThisClass.toString());
 
     }
 
@@ -85,24 +114,33 @@ public class DisabledUntilDateTest {
 
         Reflections reflections = new Reflections(builder);
 
-        return reflections.getMethodsAnnotatedWith(DisabledUntilDate.class);
-    }
-
-    private @NotNull Set<Method> getExpired(String packageName, TramDate now) {
-        Set<Method> havePath = getMethodsWithAnnotation(packageName);
-
-        return havePath.stream().
-                filter(method -> expired(now, method)).
+        return reflections.getMethodsAnnotatedWith(Test.class).stream().
+                filter(method -> findAnnotationFor(method).isPresent()).
                 collect(Collectors.toSet());
     }
 
-    private boolean expired(TramDate now, Method method) {
-        DisabledUntilDate annotation = method.getAnnotation(DisabledUntilDate.class);
-        if (annotation==null) {
+    private static Optional<DisabledUntilDate> findAnnotationFor(Method method) {
+        return DisabledUntilDateCondition.findAnnotationFor(method);
+    }
+
+    private @NotNull Set<Method> getExpired(final String packageName, final TramDate date) {
+        Set<Method> havePath = getMethodsWithAnnotation(packageName);
+
+        return havePath.stream().
+                filter(method -> expired(date, method)).
+                collect(Collectors.toSet());
+    }
+
+    private boolean expired(final TramDate date, final Method method) {
+        Optional<DisabledUntilDate> search = findAnnotationFor(method);
+        if (search.isPresent()) {
+            DisabledUntilDate disabledUntilDate = search.get();
+
+            TramDate annotationDate = TramDate.of(disabledUntilDate.year(), disabledUntilDate.month(), disabledUntilDate.day());
+            return annotationDate.isBefore(date);
+        } else {
             return false;
         }
-        TramDate annotationDate = TramDate.of(annotation.year(), annotation.month(), annotation.day());
-        return annotationDate.isBefore(now);
     }
 
     private String getMethodNamesAndLineNumbers(final Collection<Method> methods) throws NotFoundException {
@@ -124,5 +162,17 @@ public class DisabledUntilDateTest {
         }
 
         return  "Failed " + text;
+    }
+
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @DisabledUntilDate(year = 2012, month = 10, day = 30)
+    public @interface AnnotatedClassTestThatHasExpired {
+    }
+
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @DisabledUntilDate(year = 2099, month = 10, day = 30)
+    public @interface AnnotatedClassTestThatHasNotExpired {
     }
 }
