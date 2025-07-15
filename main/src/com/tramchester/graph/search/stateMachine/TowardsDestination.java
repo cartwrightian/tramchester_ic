@@ -6,16 +6,12 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class TowardsDestination {
 
@@ -41,20 +37,20 @@ public class TowardsDestination {
     }
 
     public FilterByDestinations<ImmutableGraphRelationship> fromRouteStation(final GraphTransaction txn, final GraphNode node) {
-        final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
+        final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return getTowardsDestination(relationships);
     }
 
     public FilterByDestinations<ImmutableGraphRelationship> fromPlatform(final GraphTransaction txn, final GraphNode node) {
-        return getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
+        return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM));
     }
 
     public FilterByDestinations<ImmutableGraphRelationship> fromStation(final GraphTransaction txn, final GraphNode node) {
-        return getTowardsDestination(node.getRelationships(txn, OUTGOING, GROUPED_TO_PARENT));
+        return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT));
     }
 
     public FilterByDestinations<ImmutableGraphRelationship> fromWalk(final GraphTransaction txn, final GraphNode node) {
-        return getTowardsDestination(node.getRelationships(txn, OUTGOING, WALKS_TO_STATION));
+        return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION));
     }
 
     private <R extends GraphRelationship> FilterByDestinations<R> getTowardsDestination(final Stream<R> outgoing) {

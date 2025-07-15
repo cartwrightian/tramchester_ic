@@ -3,6 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -13,7 +14,6 @@ import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_HOUR;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState implements HasTowardsStationId {
 
@@ -53,7 +53,7 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
         }
 
         private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode serviceNode, final GraphTransaction txn) {
-            return serviceNode.getRelationships(txn, OUTGOING, TO_HOUR);
+            return serviceNode.getRelationships(txn, GraphDirection.Outgoing, TO_HOUR);
         }
 
     }

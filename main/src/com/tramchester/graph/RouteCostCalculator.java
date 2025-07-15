@@ -99,10 +99,8 @@ public class RouteCostCalculator {
         final EvaluationContext context = graphDatabaseService.createContext(txn);
 
         final GraphRelationshipFilter routeFilter = new GraphRelationshipFilter(txn,
-                graphRelationship -> !graphRelationship.isType(ON_ROUTE) || available.contains(graphRelationship.getRouteId()));
-
-//        Predicate<? super Relationship> routeFilter = (Predicate<Relationship>) relationship ->
-//                !relationship.isType(ON_ROUTE) || available.contains(GraphProps.getRouteIdFrom(relationship));
+                graphRelationship -> !graphRelationship.isType(ON_ROUTE) ||
+                        available.contains(graphRelationship.getRouteId()));
 
         final PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 

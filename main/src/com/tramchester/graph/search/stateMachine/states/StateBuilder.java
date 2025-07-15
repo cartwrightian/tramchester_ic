@@ -8,7 +8,6 @@ import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.Towards;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +45,8 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         }
 
         // TODO Is this ordering the right approach, or require only one diversion from each location (doesn't work either?)
-        if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
-            final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION).
+        if (node.hasRelationship(GraphDirection.Outgoing, DIVERSION)) {
+            final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
                     filter(diversion -> diversion.validOn(queryDate)).
                     sorted(Comparator.comparing(ImmutableGraphRelationship::getCost));
 

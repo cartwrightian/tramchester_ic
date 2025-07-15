@@ -10,8 +10,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -24,7 +24,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Direction;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -108,7 +107,7 @@ public class GetOutgoingServicesMatchingTripIdTest {
 
         // should have a corresponding inbound relationship for the trip id
 
-        Stream<ImmutableGraphRelationship> inbounds = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.TRAM_GOES_TO);
+        Stream<ImmutableGraphRelationship> inbounds = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.TRAM_GOES_TO);
 
         List<ImmutableGraphRelationship> matchingInbound = inbounds.
                 filter(inbound -> inbound.getTripId().equals(tripId)).toList();

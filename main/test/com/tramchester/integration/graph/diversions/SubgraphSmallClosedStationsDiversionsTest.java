@@ -19,7 +19,10 @@ import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.*;
+import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.StationsWithDiversion;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -37,7 +40,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Direction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -314,7 +316,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
-                Stream<ImmutableGraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
+                Stream<ImmutableGraphRelationship> iterable = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });

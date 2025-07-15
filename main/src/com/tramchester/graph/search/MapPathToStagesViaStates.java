@@ -31,8 +31,6 @@ import java.util.List;
 import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
-import static org.neo4j.graphdb.Direction.INCOMING;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
 public class MapPathToStagesViaStates implements PathToStages {
@@ -119,7 +117,8 @@ public class MapPathToStagesViaStates implements PathToStages {
         if (stages.isEmpty()) {
             if (path.length()==2) {
                 /// child -> parent, end <- parent => startOfPath is station, endOfPath is station
-                if (startOfPath.hasRelationship(OUTGOING, GROUPED_TO_PARENT) && (endOfPath.hasRelationship(INCOMING, GROUPED_TO_CHILD))) {
+                if (startOfPath.hasRelationship(GraphDirection.Outgoing, GROUPED_TO_PARENT) &&
+                        (endOfPath.hasRelationship(GraphDirection.Incoming, GROUPED_TO_CHILD))) {
                     stages.add(getDirectConnectionFor(startOfPath, endOfPath, journeyRequest));
                 }
             } else {

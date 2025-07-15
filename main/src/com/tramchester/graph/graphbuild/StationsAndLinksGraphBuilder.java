@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
 public class StationsAndLinksGraphBuilder extends GraphBuilder {
@@ -233,12 +232,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode to, final TransportMode mode, final MutableGraphTransaction txn) {
-        if (from.hasRelationship(OUTGOING, LINKED)) {
+        if (from.hasRelationship(GraphDirection.Outgoing, LINKED)) {
 
             // update existing relationships if not already present
 
             final GraphNodeId toNodeId = to.getId();
-            final Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, OUTGOING, LINKED);
+            final Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, GraphDirection.Outgoing, LINKED);
 
             // if there is an existing link between stations then update iff the transport mode not already present
             final Optional<MutableGraphRelationship> find = alreadyPresent.

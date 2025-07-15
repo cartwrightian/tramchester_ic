@@ -3,13 +3,13 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
-import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -42,13 +42,13 @@ public class GroupedStationState extends TraversalState {
         public TraversalState fromChildStation(StationState stationState, JourneyStateUpdate journeyStateUpdate,
                                                GraphNode node, Duration cost, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = filterExcludingNode(txn,
-                    node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), stationState);
+                    node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), stationState);
             return new GroupedStationState(stationState, journeyStateUpdate, relationships, cost, this, node);
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, JourneyStateUpdate journeyStateUpdate,
                                         Duration cost, GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED);
+            final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_CHILD, GROUPED_TO_GROUPED);
             return new GroupedStationState(notStartedState, journeyStateUpdate, relationships,
                     cost, this, node);
         }
@@ -56,7 +56,7 @@ public class GroupedStationState extends TraversalState {
         public TraversalState fromGrouped(GroupedStationState parent, Duration cost, JourneyStateUpdate journeyStateUpdate,
                                           GraphNode node, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = filterExcludingNode(txn,
-                    node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), parent);
+                    node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), parent);
             return new GroupedStationState(parent, journeyStateUpdate, relationships, cost, this, node);
         }
     }

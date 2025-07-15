@@ -4,6 +4,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -16,7 +17,6 @@ import java.util.Comparator;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState implements HasTowardsStationId {
 
@@ -46,7 +46,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
         }
 
         private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, OUTGOING, TO_MINUTE);
+            Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
                 // the order here, unlike for HOURS

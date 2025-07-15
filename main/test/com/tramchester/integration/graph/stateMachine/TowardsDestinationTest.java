@@ -10,12 +10,8 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.ImmutableGraphNode;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
@@ -27,7 +23,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Direction;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -88,7 +83,7 @@ public class TowardsDestinationTest {
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
-        List<ImmutableGraphRelationship> departs = node.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.DEPART).toList();
+        List<ImmutableGraphRelationship> departs = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.DEPART).toList();
 
         assertFalse(departs.isEmpty());
 
@@ -126,7 +121,7 @@ public class TowardsDestinationTest {
 
         assertNotNull(node);
 
-        List<ImmutableGraphRelationship> towardsGroup = node.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
+        List<ImmutableGraphRelationship> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
 
         assertFalse(towardsGroup.isEmpty());
 

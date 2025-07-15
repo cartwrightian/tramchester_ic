@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -10,7 +11,6 @@ import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class FindStateAfterRouteStation  {
 
@@ -75,9 +75,9 @@ public class FindStateAfterRouteStation  {
 
         final Stream<ImmutableGraphRelationship> other;
         if (isPlatform) {
-            other = node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM);
+            other = node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM);
         } else {
-            other = node.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
+            other = node.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
         }
 
         final Stream<ImmutableGraphRelationship> boarding = getBoardingRelationships(txn, node);
@@ -92,7 +92,7 @@ public class FindStateAfterRouteStation  {
     public Stream<ImmutableGraphRelationship> getBoardingRelationships(final GraphTransaction txn, final GraphNode node) {
         // TODO Order here?
         // towards route stations
-        return node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
+        return node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
     }
 
     private FilterByDestinations<ImmutableGraphRelationship> getTowardsDestination(final StateBuilder<?> stateBuilder,

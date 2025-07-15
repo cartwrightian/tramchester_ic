@@ -17,7 +17,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +117,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);
 
-        final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
+        final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn,GraphDirection.Outgoing, DIVERSION);
 
         final Set<DateTimeRange> ranges = outgoingDiversion.map(GraphRelationship::getDateTimeRange).collect(Collectors.toSet());
 

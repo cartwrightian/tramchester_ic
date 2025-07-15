@@ -176,31 +176,39 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final Direction direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes relationshipType) {
-        return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationship);
+        return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationship);
     }
 
-    public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransaction txn, final Direction direction,
+    private Direction map(final GraphDirection direction) {
+        return switch (direction) {
+            case Outgoing -> Direction.OUTGOING;
+            case Incoming -> Direction.INCOMING;
+            case Both -> Direction.BOTH;
+        };
+    }
+
+    public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransaction txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes relationshipType) {
-        return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationshipMutable);
+        return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationshipMutable);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final Direction direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes... transportRelationshipTypes) {
-        return node.getRelationships(direction, transportRelationshipTypes).stream().map(txn::wrapRelationship);
+        return node.getRelationships(map(direction), transportRelationshipTypes).stream().map(txn::wrapRelationship);
     }
 
     @Override
     public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
-        return getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+        return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 anyMatch(relationship -> relationship.hasTripIdInList(tripId));
     }
 
     @Override
     public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
-        return getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+        return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
 
@@ -215,8 +223,9 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return GraphLabel.getHourFrom(getLabels());
     }
 
-    public boolean hasRelationship(final Direction direction, final TransportRelationshipTypes transportRelationshipTypes) {
-        return node.hasRelationship(direction, transportRelationshipTypes);
+    @Override
+    public boolean hasRelationship(final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
+        return node.hasRelationship(map(direction), transportRelationshipTypes);
     }
 
     @Override
@@ -225,8 +234,9 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipType, Direction direction) {
-        final Relationship found = node.getSingleRelationship(transportRelationshipType, direction);
+    public ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
+                                                            GraphDirection direction) {
+        final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
         if (found==null) {
             return null;
         }

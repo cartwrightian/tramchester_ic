@@ -19,10 +19,7 @@ import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.TimedTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
 import com.tramchester.metrics.Timing;
@@ -42,7 +39,6 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
 public class StagedTransportGraphBuilder extends GraphBuilder {
@@ -516,10 +512,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 //            onRoute.setTransportMode(route.getTransportMode());
 //        }
 
-        if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
+        if (from.hasRelationship(GraphDirection.Outgoing, ON_ROUTE)) {
             // diff outbounds for same route actually a normal situation, where (especially) trains go via
             // different paths even thought route is the "same", or back to the depot
-            final boolean alreadyHasRelationship = from.getRelationships(txn, OUTGOING, ON_ROUTE).
+            final boolean alreadyHasRelationship = from.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE).
                     map(relationship -> relationship.getEndNodeId(txn)).
                     anyMatch(endNodesId -> endNodesId.equals(to.getId()));
             if (alreadyHasRelationship) {

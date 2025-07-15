@@ -8,12 +8,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
@@ -21,7 +17,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.List;
@@ -89,7 +84,7 @@ class GraphBuilderRailTest {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
         GraphNode startNode = txn.findNode(piccadilly);
-        List<ImmutableGraphRelationship> outboundLinks = startNode.getRelationships(txn, Direction.OUTGOING, LINKED).toList();
+        List<ImmutableGraphRelationship> outboundLinks = startNode.getRelationships(txn, GraphDirection.Outgoing, LINKED).toList();
 
         assertEquals(25, outboundLinks.size(), outboundLinks.toString());
 
@@ -112,25 +107,25 @@ class GraphBuilderRailTest {
 
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
-            GraphRelationship leave = node.getSingleRelationship(txn, TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
+            GraphRelationship leave = node.getSingleRelationship(txn, TransportRelationshipTypes.LEAVE_PLATFORM, GraphDirection.Outgoing);
             Duration leaveCost = leave.getCost(); // GraphProps.getCost(leave);
             assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
 
-            GraphRelationship enter = node.getSingleRelationship(txn, TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
+            GraphRelationship enter = node.getSingleRelationship(txn, TransportRelationshipTypes.ENTER_PLATFORM, GraphDirection.Incoming);
             Duration enterCost = enter.getCost(); // GraphProps.getCost(enter);
             assertEquals(cost, enterCost, "wrong enter cost for " + platform.getId());
         });
 
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
-            if (node.hasRelationship(Direction.OUTGOING, BOARD)) {
-                GraphRelationship board = node.getSingleRelationship(txn, BOARD, Direction.OUTGOING);
+            if (node.hasRelationship(GraphDirection.Outgoing, BOARD)) {
+                GraphRelationship board = node.getSingleRelationship(txn, BOARD, GraphDirection.Outgoing);
                 Duration boardCost = board.getCost(); // GraphProps.getCost(board);
                 assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
             }
 
-            if (node.hasRelationship(Direction.INCOMING, DEPART)) {
-                GraphRelationship depart = node.getSingleRelationship(txn, DEPART, Direction.INCOMING);
+            if (node.hasRelationship(GraphDirection.Incoming, DEPART)) {
+                GraphRelationship depart = node.getSingleRelationship(txn, DEPART, GraphDirection.Incoming);
                 Duration enterCost = depart.getCost(); //GraphProps.getCost(depart);
                 assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
             }
@@ -148,7 +143,7 @@ class GraphBuilderRailTest {
         Set<GraphNode> manPicRouteStations = getRouteStationNodes(manPic);
 
         Stream<GraphRelationship> outgoingFromStockport = stockportRouteStations.stream().
-                flatMap(node -> node.getRelationships(txn, Direction.OUTGOING, ON_ROUTE));
+                flatMap(node -> node.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE));
 
         List<GraphRelationship> endIsManPic = outgoingFromStockport.
                 filter(relationship -> manPicRouteStations.contains(relationship.getEndNode(txn))).

@@ -3,11 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
-import org.neo4j.graphdb.Direction;
+import com.tramchester.graph.facade.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +85,7 @@ public class CreateNodesAndRelationships {
     private boolean addRelationshipFor(final MutableGraphTransaction txn, final MutableGraphNode fromNode, final MutableGraphNode toNode,
                                        final Duration walkCost, final TransportRelationshipTypes relationshipType) {
 
-        final boolean alreadyPresent = fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
+        final boolean alreadyPresent = fromNode.getRelationships(txn, GraphDirection.Outgoing, relationshipType).
                 map(relationship -> relationship.getEndNodeId(txn)).
                 anyMatch(endNodeId -> endNodeId.equals(toNode.getId()));
 

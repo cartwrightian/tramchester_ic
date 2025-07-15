@@ -4,6 +4,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -14,8 +15,6 @@ import com.tramchester.graph.search.stateMachine.Towards;
 
 import java.time.Duration;
 import java.util.stream.Stream;
-
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState implements HasTowardsStationId {
 
@@ -41,7 +40,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
                                        final GraphTransaction txn) {
 
-            final Stream<ImmutableGraphRelationship> allOutboundForMode = minuteNode.getRelationships(txn, OUTGOING, currentModes);
+            final Stream<ImmutableGraphRelationship> allOutboundForMode = minuteNode.getRelationships(txn, GraphDirection.Outgoing, currentModes);
 
             if (journeyState.onTrip()) {
                 final IdFor<Trip> existingTripId = journeyState.getCurrentTrip();

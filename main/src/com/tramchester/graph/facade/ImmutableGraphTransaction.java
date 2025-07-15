@@ -61,7 +61,7 @@ public class ImmutableGraphTransaction implements GraphTransaction, GraphTravers
     }
 
     @Override
-    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final Direction direction) {
+    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
         return underlying.getRouteStationRelationships(routeStation, direction);
     }
 

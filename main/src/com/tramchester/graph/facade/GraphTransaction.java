@@ -14,17 +14,15 @@ import java.util.stream.Stream;
 
 public interface GraphTransaction extends AutoCloseable {
 
+    // external (pure)
+
     int getTransactionId();
 
     void close();
 
-    ImmutableGraphRelationship wrapRelationship(Relationship relationship);
-
-    GraphNode wrapNode(Node node);
+    Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel);
 
     ImmutableGraphNode getNodeById(GraphNodeId nodeId);
-
-    Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel);
 
     boolean hasAnyMatching(GraphLabel label, String field, String value);
 
@@ -32,13 +30,28 @@ public interface GraphTransaction extends AutoCloseable {
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item);
 
-    EvaluationContext createEvaluationContext(GraphDatabaseService databaseService);
+    List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
+    ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
-    List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction);
+    // external (neo4j)
+
+    ImmutableGraphRelationship wrapRelationship(Relationship relationship);
+
+    GraphNode wrapNode(Node node);
+
+    EvaluationContext createEvaluationContext(GraphDatabaseService databaseService);
 
     Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable);
 
-    ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
+    GraphNodeId getPreviousNodeId(Path path);
+
+    ImmutableGraphNode fromStart(Path path);
+
+    ImmutableGraphNode fromEnd(Path path);
+
+    GraphNodeId endNodeNodeId(Path path);
+
+    // internal
 
     ImmutableGraphNode getStartNode(Relationship relationship);
 
@@ -48,11 +61,5 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphNodeId getEndNodeId(Relationship relationship);
 
-    GraphNodeId getPreviousNodeId(Path path);
 
-    ImmutableGraphNode fromStart(Path path);
-
-    ImmutableGraphNode fromEnd(Path path);
-
-    GraphNodeId endNodeNodeId(Path path);
 }

@@ -19,7 +19,6 @@ import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.repository.TemporaryStationWalksRepository;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +107,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);
 
-        final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
+        final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION);
 
         final Set<DateTimeRange> ranges = outgoingDiversion.map(ImmutableGraphRelationship::getDateTimeRange).collect(Collectors.toSet());
 

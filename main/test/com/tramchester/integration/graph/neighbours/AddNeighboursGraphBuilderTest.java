@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -21,7 +20,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.TramBusTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Direction;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,8 +31,6 @@ import static com.tramchester.graph.graphbuild.GraphLabel.STATION;
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.neo4j.graphdb.Direction.INCOMING;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @TramBusTest
 class AddNeighboursGraphBuilderTest {
@@ -110,8 +106,8 @@ class AddNeighboursGraphBuilderTest {
 
         Station victoria = TramStations.Victoria.fake();
 
-        Set<GraphRelationship> outFromTram = getRelationships(tramNode, OUTGOING);
-        Set<GraphRelationship> towardsTram = getRelationships(tramNode, INCOMING);
+        Set<GraphRelationship> outFromTram = getRelationships(tramNode, GraphDirection.Outgoing);
+        Set<GraphRelationship> towardsTram = getRelationships(tramNode, GraphDirection.Incoming);
 
         assertFalse(seenNode(txn, victoria, outFromTram, this::getEndNode));
         assertFalse(seenNode(txn, shudehillTram, outFromTram, this::getEndNode));
@@ -131,10 +127,10 @@ class AddNeighboursGraphBuilderTest {
             GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
 
-            Set<GraphRelationship> awayFrom = getRelationships(busNode, OUTGOING);
+            Set<GraphRelationship> awayFrom = getRelationships(busNode, GraphDirection.Outgoing);
             assertTrue(seenNode(txn, shudehillTram, awayFrom, this::getEndNode));
 
-            Set<GraphRelationship> towards = getRelationships(busNode, INCOMING);
+            Set<GraphRelationship> towards = getRelationships(busNode, GraphDirection.Incoming);
             assertTrue(seenNode(txn, shudehillTram, towards, this::getStartNode));
         });
 
@@ -176,7 +172,7 @@ class AddNeighboursGraphBuilderTest {
         return graphRelationship.getEndNode(txn);
     }
 
-    private Set<GraphRelationship> getRelationships(GraphNode node, Direction direction) {
+    private Set<GraphRelationship> getRelationships(GraphNode node, GraphDirection direction) {
         return node.getRelationships(txn, direction, NEIGHBOUR).collect(Collectors.toSet());
     }
 

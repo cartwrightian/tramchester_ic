@@ -18,7 +18,6 @@ import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
-import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -74,7 +73,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public boolean hasRelationship(final Direction direction, final TransportRelationshipTypes transportRelationshipTypes) {
+    public boolean hasRelationship(final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
         return underlying.hasRelationship(direction, transportRelationshipTypes);
     }
 
@@ -85,7 +84,7 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public ImmutableGraphRelationship getSingleRelationship(final GraphTransaction txn,
-                                                            final TransportRelationshipTypes transportRelationshipTypes, final Direction direction) {
+                                                            final TransportRelationshipTypes transportRelationshipTypes, final GraphDirection direction) {
         return underlying.getSingleRelationship(txn, transportRelationshipTypes,direction);
     }
 
@@ -145,13 +144,13 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final Direction direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes relationshipType) {
         return underlying.getRelationships(txn, direction, relationshipType);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final Direction direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes... transportRelationshipTypes) {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }

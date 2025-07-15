@@ -16,12 +16,11 @@ import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -133,7 +132,7 @@ public class DiagramCreator {
     private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen,
                                Set<GraphRelationshipId> relationshipSeen,
                                boolean topLevel, GraphTransaction txn) {
-        getRelationships(targetNode, Direction.INCOMING, topLevel, txn).forEach(towards -> {
+        getRelationships(targetNode, GraphDirection.Incoming, topLevel, txn).forEach(towards -> {
 
             GraphNode startNode = towards.getStartNode(txn);
             addNode(builder, startNode);
@@ -144,7 +143,7 @@ public class DiagramCreator {
         });
     }
 
-    private Stream<ImmutableGraphRelationship> getRelationships(GraphNode targetNode, Direction direction,
+    private Stream<ImmutableGraphRelationship> getRelationships(GraphNode targetNode, GraphDirection direction,
                                                                 boolean toplevelOnly, GraphTransaction txn) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
         return targetNode.getRelationships(txn, direction, types);
@@ -154,7 +153,7 @@ public class DiagramCreator {
                                 Set<GraphRelationshipId> relationshipSeen, boolean topLevel, GraphTransaction txn) {
         Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
 
-        getRelationships(startNode, Direction.OUTGOING, topLevel, txn).forEach(awayFrom -> {
+        getRelationships(startNode, GraphDirection.Outgoing, topLevel, txn).forEach(awayFrom -> {
 
             TransportRelationshipTypes relationshipType = awayFrom.getType(); // TransportRelationshipTypes.valueOf(awayFrom.getType().name());
 

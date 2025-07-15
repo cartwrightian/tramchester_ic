@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -10,8 +11,7 @@ import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static org.neo4j.graphdb.Direction.OUTGOING;
+import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 public class JustBoardedState extends RouteStationState {
 
@@ -50,7 +50,7 @@ public class JustBoardedState extends RouteStationState {
 
         private static Stream<ImmutableGraphRelationship> getServices(final GraphNode routeStationNode, final GraphTransaction txn) {
             // not sorted, only see one svc outbound from a route station node
-            return routeStationNode.getRelationships(txn, OUTGOING, TO_SERVICE);
+            return routeStationNode.getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE);
         }
     }
 

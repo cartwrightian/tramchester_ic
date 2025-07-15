@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -11,7 +12,6 @@ import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public abstract class TowardsRouteStation<T extends RouteStationState> extends StateBuilder<T> {
 
@@ -32,13 +32,13 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         final Stream<ImmutableGraphRelationship> outboundsToFollow;
         if (interchangesOnly) {
             if (isInterchange) {
-                outboundsToFollow = node.getRelationships(txn, OUTGOING, INTERCHANGE_DEPART);
+                outboundsToFollow = node.getRelationships(txn, GraphDirection.Outgoing, INTERCHANGE_DEPART);
             } else {
                 outboundsToFollow = Stream.empty();
             }
         } else {
             // not only interchanges
-            outboundsToFollow = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART);
+            outboundsToFollow = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART);
         }
 
         // also follow any active diversions
@@ -50,7 +50,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
     private Stream<ImmutableGraphRelationship> getActiveDiversions(final GraphNode node, final GraphTransaction txn) {
         final TramDate queryDate = super.getQueryDate();
 
-        final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
+        final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION_DEPART);
         return diversions.filter(relationship -> relationship.validOn(queryDate));
     }
 
