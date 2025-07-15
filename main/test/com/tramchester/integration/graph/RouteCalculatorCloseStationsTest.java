@@ -10,7 +10,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
@@ -37,7 +37,7 @@ class RouteCalculatorCloseStationsTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+    private static GraphDatabaseNeo4J database;
 
     private RouteCalculatorTestFacade calculator;
     private final static TramDate when = TestEnv.testDay();
@@ -61,7 +61,7 @@ class RouteCalculatorCloseStationsTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabaseNeo4J.class);
     }
 
     @AfterAll

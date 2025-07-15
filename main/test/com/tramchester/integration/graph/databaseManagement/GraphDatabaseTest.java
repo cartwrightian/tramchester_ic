@@ -2,7 +2,7 @@ package com.tramchester.integration.graph.databaseManagement;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
@@ -36,7 +36,7 @@ class GraphDatabaseTest {
 
     @Test
     void shouldStartDatabase() {
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(5000));

@@ -4,7 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.graph.facade.GraphTransactionFactory;
@@ -34,7 +34,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     private MutableGraphTransaction transaction;
     private TramchesterConfig config;
     private DataSourceRepository dataSourceRepository;
-    private final Duration timeout = GraphDatabase.DEFAULT_TXN_TIMEOUT;
+    private final Duration timeout = GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT;
 
     @BeforeEach
     public void beforeAnyTestsRun() {

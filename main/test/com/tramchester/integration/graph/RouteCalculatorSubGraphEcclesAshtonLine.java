@@ -8,12 +8,11 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -33,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @Disabled("Just used to track down specific issue")
 class RouteCalculatorSubGraphEcclesAshtonLine {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+    private static GraphDatabaseNeo4J database;
     private static SubgraphConfig config;
     private static TramRouteHelper tramRouteHelper;
 
@@ -52,7 +51,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
                 configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabaseNeo4J.class);
 
         tramRouteHelper = new TramRouteHelper(componentContainer);
 

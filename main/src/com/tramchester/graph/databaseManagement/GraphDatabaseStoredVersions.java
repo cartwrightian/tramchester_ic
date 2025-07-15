@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.repository.DataSourceRepository;
@@ -37,7 +37,7 @@ public class GraphDatabaseStoredVersions {
 
         // version -> flag
         final Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
-        try(MutableGraphTransaction transaction = transactionFactory.beginMutable(GraphDatabase.DEFAULT_TXN_TIMEOUT)) {
+        try(MutableGraphTransaction transaction = transactionFactory.beginMutable(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)) {
 
             if (neighboursEnabledMismatch(transaction)) {
                 return false;

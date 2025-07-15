@@ -74,7 +74,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     @Inject
-    public StagedTransportGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
+    public StagedTransportGraphBuilder(GraphDatabaseNeo4J graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
                                        TransportData transportData, InterchangeRepository interchangeRepository,
                                        GraphBuilderCache builderCache,
                                        @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
@@ -110,7 +110,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         logger.info("started");
     }
 
-    private void buildGraphWithFilter(final GraphDatabase graphDatabase) {
+    private void buildGraphWithFilter(final GraphDatabaseNeo4J graphDatabase) {
         logger.info("Building graph for data source: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
 
@@ -160,7 +160,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void addVersionNodes(final GraphDatabase graphDatabase, final DataSourceRepository sourceRepository) {
+    private void addVersionNodes(final GraphDatabaseNeo4J graphDatabase, final DataSourceRepository sourceRepository) {
         if (!sourceRepository.hasDataSourceInfo()) {
             logger.error("No data source info was provided, version will not be set in the DB");
             return;
@@ -173,7 +173,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void buildForAgency(final GraphDatabase graphDatabase, final Agency agency, final StationAndPlatformNodeCache stationAndPlatformCache,
+    private void buildForAgency(final GraphDatabaseNeo4J graphDatabase, final Agency agency, final StationAndPlatformNodeCache stationAndPlatformCache,
                                 final RouteStationNodeCache routeStationNodeCache, final BoardingDepartNodeCache boardingDepartNodeCache) {
 
         // serviceNodeCache and hourNodeCache

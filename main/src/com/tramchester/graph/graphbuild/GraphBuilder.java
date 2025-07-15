@@ -2,7 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.HasGraphDBConfig;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
     protected final GraphFilter graphFilter;
     private final GraphBuilderCache builderCache;
 
-    protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, HasGraphDBConfig config,
+    protected GraphBuilder(GraphDatabaseNeo4J graphDatabase, GraphFilter graphFilter, HasGraphDBConfig config,
                            GraphBuilderCache builderCache) {
         super(graphDatabase);
         this.graphDBConfig = config.getGraphDBConfig();

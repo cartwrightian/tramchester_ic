@@ -12,7 +12,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -42,7 +42,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static final TramDate when = TestEnv.testDay();
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+    private static GraphDatabaseNeo4J database;
 
     private static final List<IdFor<Station>> stations = Stream.of(Victoria, ExchangeSquare, StPetersSquare,
             Deansgate, Cornbrook, Pomona, ExchangeQuay, SalfordQuay, Anchorage, HarbourCity,
@@ -64,7 +64,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabaseNeo4J.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {

@@ -3,7 +3,7 @@ package com.tramchester.unit.graph.databaseManagement;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GraphDatabaseStartStopTest extends EasyMockSupport {
 
  private List<GTFSSourceConfig> dataSourceConfigs;
-    private GraphDatabase graphDatabase;
+    private GraphDatabaseNeo4J graphDatabase;
     private GraphDatabaseLifecycleManager lifecycleManager;
     private GraphDatabaseService graphDatabaseService;
     private GraphDBConfig dbConfig;
@@ -58,7 +58,7 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
 
         SharedNodeCache nodeCache = createMock(SharedNodeCache.class);
         SharedRelationshipCache relationshipCache = createMock(SharedRelationshipCache.class);
-        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager, nodeCache, relationshipCache);
+        graphDatabase = new GraphDatabaseNeo4J(config, dataSourceRepository, lifecycleManager, nodeCache, relationshipCache);
 
 
         Files.deleteIfExists(dbConfig.getDbPath());

@@ -47,7 +47,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     private final StationRepository stationRepository;
 
     @Inject
-    public AddTemporaryStationWalksGraphBuilder(GraphDatabase database, GraphFilter graphFilter,
+    public AddTemporaryStationWalksGraphBuilder(GraphDatabaseNeo4J database, GraphFilter graphFilter,
                                                 TemporaryStationWalksRepository walksRepository,
                                                 TramchesterConfig config,
                                                 @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,

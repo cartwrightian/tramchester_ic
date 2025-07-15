@@ -9,7 +9,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
@@ -38,7 +38,7 @@ import static java.lang.String.format;
 public class DiagramCreator {
     private static final Logger logger = LoggerFactory.getLogger(DiagramCreator.class);
 
-    private final GraphDatabase graphDatabase;
+    private final GraphDatabaseNeo4J graphDatabase;
     private final TransportRelationshipTypes[] toplevelRelationships =
             new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION,
                     ENTER_PLATFORM, LEAVE_PLATFORM, DIVERSION_DEPART  };
@@ -48,7 +48,7 @@ public class DiagramCreator {
     private static final Path diagramsFolder = Path.of("diagrams");
 
     @Inject
-    public DiagramCreator(GraphDatabase graphDatabase, StationRepository stationRepository,
+    public DiagramCreator(GraphDatabaseNeo4J graphDatabase, StationRepository stationRepository,
                           NPTGRepository nptgRepository) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;

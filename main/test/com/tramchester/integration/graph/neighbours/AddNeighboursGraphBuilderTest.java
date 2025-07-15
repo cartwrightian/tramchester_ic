@@ -7,7 +7,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -38,7 +38,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 @TramBusTest
 class AddNeighboursGraphBuilderTest {
 
-    private static GraphDatabase graphDatabase;
+    private static GraphDatabaseNeo4J graphDatabase;
     private static StationRepository stationRepository;
     private static StationGroupsRepository stationGroupRepository;
     private StationLocalityGroup shudehillCentralBus;
@@ -53,7 +53,7 @@ class AddNeighboursGraphBuilderTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        graphDatabase = componentContainer.get(GraphDatabase.class);
+        graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
 
         // make sure composites added to the DB
         StationGroupsGraphBuilder builder = componentContainer.get(StationGroupsGraphBuilder.class);

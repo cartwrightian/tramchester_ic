@@ -22,12 +22,12 @@ import static java.lang.String.format;
 public class FindStationsByNumberLinks {
     private static final Logger logger = LoggerFactory.getLogger(FindStationsByNumberLinks.class);
 
-    private final GraphDatabase graphDatabase;
+    private final GraphDatabaseNeo4J graphDatabase;
 
     // NOTE: beware circular dependencies here, interchange discovery depends on this which is in turn used during
     // graph building
     @Inject
-    public FindStationsByNumberLinks(GraphDatabase graphDatabase,
+    public FindStationsByNumberLinks(GraphDatabaseNeo4J graphDatabase,
                                      @SuppressWarnings("unused") StationGroupsGraphBuilder.Ready readyToken) {
         this.graphDatabase = graphDatabase;
     }

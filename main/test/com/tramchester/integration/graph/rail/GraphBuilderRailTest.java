@@ -7,7 +7,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
@@ -51,7 +51,7 @@ class GraphBuilderRailTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        GraphDatabase service = componentContainer.get(GraphDatabase.class);
+        GraphDatabaseNeo4J service = componentContainer.get(GraphDatabaseNeo4J.class);
         transportData = componentContainer.get(TransportData.class);
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);

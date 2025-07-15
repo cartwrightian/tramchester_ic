@@ -14,7 +14,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -81,7 +81,7 @@ class CompositeRouteTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
-        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+        GraphDatabaseNeo4J database = componentContainer.get(GraphDatabaseNeo4J.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         queryDate = TramDate.of(2014,6,30);

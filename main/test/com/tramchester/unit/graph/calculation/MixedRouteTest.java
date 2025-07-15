@@ -13,7 +13,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -39,7 +39,7 @@ class MixedRouteTest {
     private static MixedTransportTestDataFactory.MixedTransportTestData transportData;
     private static RouteCalculator calculator;
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+    private static GraphDatabaseNeo4J database;
     private static SimpleMixedRouteGraphConfig config;
 
     private TramDate queryDate;
@@ -58,7 +58,7 @@ class MixedRouteTest {
         componentContainer.initialise();
 
         transportData = (MixedTransportTestDataFactory.MixedTransportTestData) componentContainer.get(TransportData.class);
-        database = componentContainer.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabaseNeo4J.class);
         calculator = componentContainer.get(RouteCalculator.class);
     }
 

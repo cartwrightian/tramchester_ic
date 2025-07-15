@@ -16,7 +16,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.*;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteCalculationCombinations<T extends Location<T>> {
 
-    private final GraphDatabase database;
+    private final GraphDatabaseNeo4J database;
     private final RouteCalculator calculator;
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
@@ -42,7 +42,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     private final LocationRepository locationRepository;
 
     public RouteCalculationCombinations(ComponentContainer componentContainer, ChecksOpen<T> checksOpen) {
-        this.database = componentContainer.get(GraphDatabase.class);
+        this.database = componentContainer.get(GraphDatabaseNeo4J.class);
         this.calculator = componentContainer.get(RouteCalculator.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.locationRepository = componentContainer.get(LocationRepository.class);
@@ -78,7 +78,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
                                                                              final JourneyRequest journeyRequest, final boolean check) {
-        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, check, GraphDatabase.DEFAULT_TXN_TIMEOUT);
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, check, GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT);
     }
 
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
@@ -123,7 +123,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, final JourneyRequest journeyRequest) {
-        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, GraphDatabase.DEFAULT_TXN_TIMEOUT);
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT);
     }
 
     public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest,
@@ -133,7 +133,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     @Deprecated
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest) {
-        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true, GraphDatabase.DEFAULT_TXN_TIMEOUT);
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true, GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT);
     }
 
     @NotNull

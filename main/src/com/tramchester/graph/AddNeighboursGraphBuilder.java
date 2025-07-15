@@ -33,7 +33,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private final GraphFilter filter;
 
     @Inject
-    public AddNeighboursGraphBuilder(GraphDatabase database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter,
+    public AddNeighboursGraphBuilder(GraphDatabaseNeo4J database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter,
                                      StationRepository repository,
                                      TramchesterConfig config,
                                      @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,

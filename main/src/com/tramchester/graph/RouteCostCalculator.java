@@ -37,11 +37,11 @@ import static java.lang.String.format;
 public class RouteCostCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostCalculator.class);
 
-    private final GraphDatabase graphDatabaseService;
+    private final GraphDatabaseNeo4J graphDatabaseService;
     private final RouteRepository routeRepository;
 
     @Inject
-    public RouteCostCalculator(GraphDatabase graphDatabaseService,
+    public RouteCostCalculator(GraphDatabaseNeo4J graphDatabaseService,
                                @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                                RouteRepository routeRepository) {
         this.graphDatabaseService = graphDatabaseService;

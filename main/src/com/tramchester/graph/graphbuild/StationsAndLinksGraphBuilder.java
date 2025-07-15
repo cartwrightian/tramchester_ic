@@ -12,7 +12,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.*;
@@ -57,7 +57,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     @Inject
-    public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
+    public StationsAndLinksGraphBuilder(GraphDatabaseNeo4J graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
                                         TransportData transportData, GraphBuilderCache builderCache,
                                         GraphDatabaseMetaInfo databaseMetaInfo) {
         super(graphDatabase, graphFilter, config, builderCache);
@@ -88,7 +88,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void buildGraphwithFilter(final GraphDatabase graphDatabase, final StationAndPlatformNodeCache stationAndPlatformNodeCache,
+    private void buildGraphwithFilter(final GraphDatabaseNeo4J graphDatabase, final StationAndPlatformNodeCache stationAndPlatformNodeCache,
                                       final RouteStationNodeCache routeStationNodeCache) {
         logger.info("Building graph for feedinfo: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");

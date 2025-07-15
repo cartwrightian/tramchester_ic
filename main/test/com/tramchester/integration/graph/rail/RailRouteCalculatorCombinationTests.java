@@ -9,7 +9,7 @@ import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -31,7 +31,7 @@ class RailRouteCalculatorCombinationTests {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+    private static GraphDatabaseNeo4J database;
     private RouteCalculationCombinations<Station> combinations;
 
     private final TramDate when = TestEnv.testDay();
@@ -43,7 +43,7 @@ class RailRouteCalculatorCombinationTests {
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabaseNeo4J.class);
     }
 
     @AfterAll

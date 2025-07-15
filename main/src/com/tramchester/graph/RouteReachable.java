@@ -32,12 +32,12 @@ import static com.tramchester.graph.TransportRelationshipTypes.ON_ROUTE;
 public class RouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(RouteReachable.class);
 
-    private final GraphDatabase graphDatabaseService;
+    private final GraphDatabaseNeo4J graphDatabaseService;
     private final StationRepository stationRepository;
     private final StationAvailabilityRepository availabilityRepository;
 
     @Inject
-    public RouteReachable(GraphDatabase graphDatabaseService, StationRepository stationRepository,
+    public RouteReachable(GraphDatabaseNeo4J graphDatabaseService, StationRepository stationRepository,
                           @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                           StationAvailabilityRepository availabilityRepository) {
         this.graphDatabaseService = graphDatabaseService;

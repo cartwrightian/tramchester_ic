@@ -25,8 +25,8 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @LazySingleton
-public class GraphDatabase implements DatabaseEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
+public class GraphDatabaseNeo4J implements DatabaseEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseNeo4J.class);
     public static final Duration DEFAULT_TXN_TIMEOUT = Duration.ofMinutes(5);
 
     private final DataSourceRepository dataSourceRepository;
@@ -41,9 +41,9 @@ public class GraphDatabase implements DatabaseEventListener {
     private final SharedRelationshipCache relationshipCache;
 
     @Inject
-    public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                         GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache,
-                         SharedRelationshipCache relationshipCache) {
+    public GraphDatabaseNeo4J(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
+                              GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache,
+                              SharedRelationshipCache relationshipCache) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();

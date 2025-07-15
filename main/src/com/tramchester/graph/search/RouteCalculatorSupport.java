@@ -14,7 +14,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -47,7 +47,7 @@ public class RouteCalculatorSupport {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorSupport.class);
 
     private final PathToStages pathToStages;
-    private final GraphDatabase graphDatabaseService;
+    private final GraphDatabaseNeo4J graphDatabaseService;
     protected final ProvidesNow providesNow;
     private final MapPathToLocations mapPathToLocations;
     private final StationRepository stationRepository;
@@ -59,7 +59,7 @@ public class RouteCalculatorSupport {
     private final NumberOfNodesAndRelationshipsRepository countsNodes;
 
     protected RouteCalculatorSupport(PathToStages pathToStages,
-                                     GraphDatabase graphDatabaseService,
+                                     GraphDatabaseNeo4J graphDatabaseService,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config,
                                      BetweenRoutesCostRepository routeToRouteCosts,

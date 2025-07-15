@@ -4,7 +4,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +14,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BatchTransactionStrategy implements TransactionStrategy {
     private static final Logger logger = LoggerFactory.getLogger(BatchTransactionStrategy.class);
 
-    private final GraphDatabase graphDatabase;
+    private final GraphDatabaseNeo4J graphDatabase;
     private final int batchSize;
     private final IdFor<Agency> agencyId;
     private final AtomicInteger tripCount;
 
     private MutableGraphTransaction transaction;
 
-    public BatchTransactionStrategy(GraphDatabase graphDatabase, int batchSize, IdFor<Agency> agencyId) {
+    public BatchTransactionStrategy(GraphDatabaseNeo4J graphDatabase, int batchSize, IdFor<Agency> agencyId) {
         this.graphDatabase = graphDatabase;
         this.batchSize = batchSize;
         this.agencyId = agencyId;

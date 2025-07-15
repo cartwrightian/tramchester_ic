@@ -18,10 +18,10 @@ import java.util.Map;
 // TODO Only used for test support: move
 public class FindRouteEndPoints {
     private static final Logger logger = LoggerFactory.getLogger(FindRouteEndPoints.class);
-    private final GraphDatabase graphDatabase;
+    private final GraphDatabaseNeo4J graphDatabase;
 
     @Inject
-    public FindRouteEndPoints(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready readyToken) {
+    public FindRouteEndPoints(GraphDatabaseNeo4J graphDatabase, StagedTransportGraphBuilder.Ready readyToken) {
         this.graphDatabase = graphDatabase;
     }
 

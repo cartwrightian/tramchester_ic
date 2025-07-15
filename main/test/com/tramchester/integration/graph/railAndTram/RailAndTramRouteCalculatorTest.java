@@ -9,7 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -46,7 +46,7 @@ public class RailAndTramRouteCalculatorTest {
     private final TramDate when = TestEnv.testDay();
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+    private static GraphDatabaseNeo4J database;
 
     private ImmutableGraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
@@ -63,7 +63,7 @@ public class RailAndTramRouteCalculatorTest {
         componentContainer.initialise();
 
         stationRepository = componentContainer.get(StationRepository.class);
-        database = componentContainer.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabaseNeo4J.class);
     }
 
     @AfterEach

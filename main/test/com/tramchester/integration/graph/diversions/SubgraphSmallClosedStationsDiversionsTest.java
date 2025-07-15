@@ -20,7 +20,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
@@ -62,7 +62,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+    private static GraphDatabaseNeo4J database;
     private static IntegrationTramClosedStationsTestConfig config;
 
     private final static TramDate when = TestEnv.testDay();
@@ -86,7 +86,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
                 configureGraphFilter(CentralStationsSubGraph::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabaseNeo4J.class);
     }
 
     @AfterAll
@@ -313,7 +313,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station exchange = ExchangeSquare.from(stationRepository);
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
