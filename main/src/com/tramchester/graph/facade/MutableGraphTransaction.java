@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.schema.Schema;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -85,8 +84,8 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsMutable(node);
     }
 
-    public Schema schema() {
-        return txn.schema();
+    public DBSchema schema() {
+        return new DBSchema(txn.schema());
     }
 
     @Override

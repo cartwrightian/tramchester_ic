@@ -12,10 +12,8 @@ import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
-import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +42,8 @@ public class GraphDatabase implements DatabaseEventListener {
 
     @Inject
     public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                         GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {
+                         GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache,
+                         SharedRelationshipCache relationshipCache) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
@@ -123,22 +122,16 @@ public class GraphDatabase implements DatabaseEventListener {
 
         try (TimedTransaction tx = beginTimedTxMutable(logger, "Create DB Constraints & indexes"))
         {
-            final Schema schema = tx.schema();
+            final DBSchema schema = tx.schema();
 
-            createUniqueIdConstraintFor(schema, GraphLabel.STATION, GraphPropertyKey.STATION_ID);
-
-            createUniqueIdConstraintFor(schema, GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
-            schema.indexFor(GraphLabel.ROUTE_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
-            schema.indexFor(GraphLabel.ROUTE_STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
-
-            schema.indexFor(GraphLabel.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
+            schema.createIndex(GraphLabel.STATION, GraphPropertyKey.STATION_ID);
+            schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
+            schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.STATION_ID);
+            schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_ID);
+            schema.createIndex(GraphLabel.PLATFORM, GraphPropertyKey.PLATFORM_ID);
 
             tx.commit();
         }
-    }
-
-    private void createUniqueIdConstraintFor(Schema schema, GraphLabel label, GraphPropertyKey property) {
-        schema.indexFor(label).on(property.getText()).create();
     }
 
     public void waitForIndexes() {
@@ -148,31 +141,15 @@ public class GraphDatabase implements DatabaseEventListener {
         if (databaseService==null) {
             throw new RuntimeException("Database service was not started");
         }
-        try(Transaction tx = databaseService.beginTx()) {
+        try(MutableGraphTransaction tx = beginTxMutable()) {
             waitForIndexesReady(tx.schema());
             indexesOnline = true;
         }
     }
 
-    private void waitForIndexesReady(Schema schema) {
+    private void waitForIndexesReady(DBSchema schema) {
         logger.info("Wait for indexs online");
-        schema.awaitIndexesOnline(5, TimeUnit.SECONDS);
-
-        schema.getIndexes().forEach(indexDefinition -> {
-            Schema.IndexState state = schema.getIndexState(indexDefinition);
-            if (indexDefinition.isNodeIndex()) {
-                logger.info(String.format("Node Index %s labels %s keys %s state %s",
-                        indexDefinition.getName(),
-                        indexDefinition.getLabels(), indexDefinition.getPropertyKeys(), state));
-            } else {
-                logger.info(String.format("Non-Node Index %s keys %s state %s",
-                        indexDefinition.getName(), indexDefinition.getPropertyKeys(), state));
-            }
-        });
-
-        schema.getConstraints().forEach(definition -> logger.info(String.format("Constraint label %s keys %s type %s",
-                definition.getLabel(), definition.getPropertyKeys(), definition.getConstraintType()
-                )));
+        schema.waitForIndexes();
     }
 
     public boolean isAvailable(long timeoutMillis) {

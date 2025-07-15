@@ -99,7 +99,9 @@ public class ServiceReasons {
 
     public HeuristicsReason recordReason(final HeuristicsReason serviceReason) {
 
-        if (serviceReason.getReasonCode()==ReasonCode.Arrived) {
+        final ReasonCode reasonCode = serviceReason.getReasonCode();
+
+        if (reasonCode ==ReasonCode.Arrived) {
             success.set(true);
         }
 
@@ -117,7 +119,7 @@ public class ServiceReasons {
 //            }
 //        }
 
-        incrementReasonCode(serviceReason.getReasonCode());
+        incrementReasonCode(reasonCode);
         return serviceReason;
     }
 
