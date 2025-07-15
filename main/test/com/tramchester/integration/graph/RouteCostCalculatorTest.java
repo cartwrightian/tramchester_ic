@@ -60,7 +60,7 @@ class RouteCostCalculatorTest {
     void beforeEachTestRuns() {
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
 
         altrincham = Altrincham.from(stationRepository);

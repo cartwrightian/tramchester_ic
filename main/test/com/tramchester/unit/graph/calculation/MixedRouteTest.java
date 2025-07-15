@@ -59,7 +59,7 @@ class MixedRouteTest {
         componentContainer.initialise();
 
         transportData = (MixedTransportTestDataFactory.MixedTransportTestData) componentContainer.get(TransportData.class);
-        database = componentContainer.get(GraphDatabaseNeo4J.class);
+        database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
     }
 

@@ -68,7 +68,7 @@ public class RouteToRouteCostsRailTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         txn = database.beginTx();
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);

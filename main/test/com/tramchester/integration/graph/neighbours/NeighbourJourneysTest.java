@@ -74,7 +74,7 @@ public class NeighbourJourneysTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);

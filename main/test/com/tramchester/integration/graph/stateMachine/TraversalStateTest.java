@@ -74,7 +74,7 @@ public class TraversalStateTest extends EasyMockSupport {
         tramRouteHelper = new TramRouteHelper(componentContainer);
         stationRepository = componentContainer.get(StationRepository.class);
 
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
         when = TestEnv.testDay();
 

@@ -83,7 +83,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
                 configureGraphFilter(CentralStationsSubGraph::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabaseNeo4J.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -310,7 +310,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station exchange = ExchangeSquare.from(stationRepository);
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);

@@ -4,15 +4,17 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
-import org.junit.jupiter.api.*;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GraphDatabaseTest {
+class GraphDatabaseNeo4JTest {
 
     private static UnitTestOfGraphConfig config;
     private static ComponentContainer componentContainer;

@@ -98,7 +98,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabaseNeo4J.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter toConfigure, RouteRepository routeRepository) {

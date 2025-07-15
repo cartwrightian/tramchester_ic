@@ -62,7 +62,7 @@ class BusRouteCostCalculatorTest {
         stationRepository = componentContainer.get(StationRepository.class);
         StationGroupsRepository stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
 
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         altrincham = KnownLocality.Altrincham.from(stationGroupRepository);
         stockport = KnownLocality.Stockport.from(stationGroupRepository);

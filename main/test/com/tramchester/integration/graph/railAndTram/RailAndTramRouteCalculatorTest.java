@@ -64,7 +64,7 @@ public class RailAndTramRouteCalculatorTest {
         componentContainer.initialise();
 
         stationRepository = componentContainer.get(StationRepository.class);
-        database = componentContainer.get(GraphDatabaseNeo4J.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterEach

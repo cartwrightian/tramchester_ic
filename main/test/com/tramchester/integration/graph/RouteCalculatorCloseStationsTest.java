@@ -62,7 +62,7 @@ class RouteCalculatorCloseStationsTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabaseNeo4J.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll

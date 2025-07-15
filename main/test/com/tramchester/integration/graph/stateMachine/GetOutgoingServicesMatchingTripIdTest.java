@@ -62,7 +62,7 @@ public class GetOutgoingServicesMatchingTripIdTest {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(componentContainer);
 
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
     }
 

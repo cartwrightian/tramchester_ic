@@ -54,7 +54,7 @@ public class StationLocalityGroupsGraphBuilderTest {
 
         componentContainer.get(StationGroupsGraphBuilder.Ready.class);
 
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         txn = graphDatabase.beginTxMutable(Duration.ofMinutes(5));
     }
 

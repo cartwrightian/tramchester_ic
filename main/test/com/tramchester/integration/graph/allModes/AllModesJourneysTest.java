@@ -65,7 +65,7 @@ public class AllModesJourneysTest {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         when = TestEnv.testDay();
 
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 

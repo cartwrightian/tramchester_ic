@@ -75,7 +75,7 @@ public class GraphPropsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         txn = graphDatabase.beginTxMutable();
         node = txn.createNode(GraphLabel.QUERY_NODE);
     }

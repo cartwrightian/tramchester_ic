@@ -67,7 +67,7 @@ class SubgraphSmallStationWalksTest {
                 configureGraphFilter(CentralStationsSubGraph::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabaseNeo4J.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll

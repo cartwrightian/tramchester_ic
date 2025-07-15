@@ -34,8 +34,9 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
     private final TramchesterConfig tramchesterConfig;
-    private AtomicBoolean indexesCreated;
-    private AtomicBoolean indexesOnline;
+
+    private final AtomicBoolean indexesCreated;
+    private final AtomicBoolean indexesOnline;
 
     private GraphTransactionFactory graphTransactionFactory;
     private GraphDatabaseService databaseService;

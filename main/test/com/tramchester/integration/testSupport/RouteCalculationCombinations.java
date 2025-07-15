@@ -43,7 +43,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     private final LocationRepository locationRepository;
 
     public RouteCalculationCombinations(ComponentContainer componentContainer, ChecksOpen<T> checksOpen) {
-        this.database = componentContainer.get(GraphDatabaseNeo4J.class);
+        this.database = componentContainer.get(GraphDatabase.class);
         this.calculator = componentContainer.get(RouteCalculator.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.locationRepository = componentContainer.get(LocationRepository.class);

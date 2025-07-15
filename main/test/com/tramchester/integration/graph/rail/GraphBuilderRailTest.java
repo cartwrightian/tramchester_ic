@@ -52,7 +52,7 @@ class GraphBuilderRailTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        GraphDatabase service = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase service = componentContainer.get(GraphDatabase.class);
         transportData = componentContainer.get(TransportData.class);
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);

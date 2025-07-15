@@ -94,7 +94,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
         assertFalse(altyToMacc.isEmpty());
 
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);

@@ -84,7 +84,7 @@ class TramRouteTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
         //calculator = componentContainer.get(RouteCalculator.class);
 
         queryDate = TramTransportDataForTestFactory.startDate; //   TramDate.of(2014,6,30);

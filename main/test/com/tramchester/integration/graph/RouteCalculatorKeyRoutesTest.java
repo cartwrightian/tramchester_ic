@@ -177,7 +177,7 @@ class RouteCalculatorKeyRoutesTest {
     @Disabled("used for diagnosing specific issue")
     @Test
     void shouldRepoServiceTimeIssueForConcurrency() {
-        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         List<StationIdPair> stationIdPairs = new ArrayList<>();
         for (int i = 0; i < 99; i++) {

@@ -51,7 +51,7 @@ class LocationJourneyPlannerBusTest {
         testConfig = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabaseNeo4J.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll

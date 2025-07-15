@@ -51,7 +51,7 @@ class RailAndTramGraphBuilderTest {
     void beforeEachTestRuns() {
 
         stationRepository = componentContainer.get(StationRepository.class);
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();

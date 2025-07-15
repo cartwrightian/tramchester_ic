@@ -54,7 +54,7 @@ class AddNeighboursGraphBuilderTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        graphDatabase = componentContainer.get(GraphDatabase.class);
 
         // make sure composites added to the DB
         StationGroupsGraphBuilder builder = componentContainer.get(StationGroupsGraphBuilder.class);
