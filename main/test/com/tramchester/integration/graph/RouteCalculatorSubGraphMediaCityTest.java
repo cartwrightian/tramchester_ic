@@ -36,7 +36,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -140,12 +139,15 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(10,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2025, month = 7,day = 15)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
+        // not on the website....
+        TramDate missingData = TramDate.of(2025,7,27);
+
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdsAndNames<Station>>> failed = UpcomingDates.getUpcomingDates().
+                filter(date -> !date.equals(missingData)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         2, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
