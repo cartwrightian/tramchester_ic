@@ -13,7 +13,7 @@ import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.facade.GraphNode;
@@ -54,7 +54,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     @Inject
     public RouteCalculator(TransportData transportData, PathToStages pathToStages,
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
-                           GraphDatabaseNeo4J graphDatabaseService,
+                           GraphDatabase graphDatabaseService,
                            ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,

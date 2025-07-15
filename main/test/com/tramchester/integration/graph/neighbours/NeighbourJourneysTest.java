@@ -14,6 +14,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -73,7 +74,7 @@ public class NeighbourJourneysTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);

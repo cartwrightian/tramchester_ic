@@ -14,6 +14,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
@@ -73,7 +74,7 @@ public class TraversalStateTest extends EasyMockSupport {
         tramRouteHelper = new TramRouteHelper(componentContainer);
         stationRepository = componentContainer.get(StationRepository.class);
 
-        GraphDatabaseNeo4J database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
         txn = database.beginTx();
         when = TestEnv.testDay();
 

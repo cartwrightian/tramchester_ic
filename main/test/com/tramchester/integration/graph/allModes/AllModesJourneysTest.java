@@ -11,6 +11,7 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -64,7 +65,7 @@ public class AllModesJourneysTest {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         when = TestEnv.testDay();
 
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
 
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 

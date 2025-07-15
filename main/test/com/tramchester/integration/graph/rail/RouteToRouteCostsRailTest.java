@@ -13,6 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -67,7 +68,7 @@ public class RouteToRouteCostsRailTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        GraphDatabaseNeo4J database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
 
         txn = database.beginTx();
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);

@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.time.Instant;
 public class RouteTripTransactionStrategy implements TransactionStrategy {
     private static final Logger logger = LoggerFactory.getLogger(RouteTripTransactionStrategy.class);
 
-    private final GraphDatabaseNeo4J graphDatabase;
+    private final GraphDatabase graphDatabase;
     private final boolean eachTrip;
     private final int numTrips;
 
@@ -24,7 +24,7 @@ public class RouteTripTransactionStrategy implements TransactionStrategy {
     private Instant startRoute;
     private IdFor<Route> routeId;
 
-    public RouteTripTransactionStrategy(GraphDatabaseNeo4J graphDatabase, TramchesterConfig config, int numTrips) {
+    public RouteTripTransactionStrategy(GraphDatabase graphDatabase, TramchesterConfig config, int numTrips) {
         this.graphDatabase = graphDatabase;
         if (config.getTransportModes().contains(TransportMode.Bus)) {
             eachTrip = (numTrips>800);

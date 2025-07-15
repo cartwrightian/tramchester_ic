@@ -5,7 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.TimedTransaction;
@@ -25,12 +25,12 @@ import static java.lang.String.format;
 public class FindLinkedStations {
     private static final Logger logger = LoggerFactory.getLogger(FindStationsByNumberLinks.class);
 
-    private final GraphDatabaseNeo4J graphDatabase;
+    private final GraphDatabase graphDatabase;
     private final StationRepository stationRepository;
     private final Geography geography;
 
     @Inject
-    public FindLinkedStations(GraphDatabaseNeo4J graphDatabase,
+    public FindLinkedStations(GraphDatabase graphDatabase,
                               @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready readyToken,
                               StationRepository stationRepository, Geography geography) {
         this.graphDatabase = graphDatabase;

@@ -9,6 +9,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.facade.GraphNodeId;
@@ -37,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(StationGroupsGraphBuilder.class);
 
-    private final GraphDatabaseNeo4J graphDatabase;
+    private final GraphDatabase graphDatabase;
     private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;

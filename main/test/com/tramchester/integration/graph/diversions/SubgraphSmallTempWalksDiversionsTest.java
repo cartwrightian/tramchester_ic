@@ -18,6 +18,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -62,7 +63,7 @@ class SubgraphSmallTempWalksDiversionsTest {
     private static final Duration STPETERS_PICC_GARDENS_WALK = Duration.ofMinutes(6).plusSeconds(1);
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabaseNeo4J database;
+    private static GraphDatabase database;
     private static IntegrationTramClosedStationsTestConfig config;
 
     // TODO will need to find another data/approach once works complete
@@ -319,7 +320,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station piccadilly = Piccadilly.from(stationRepository);
         Station stPetersSquare = StPetersSquare.from(stationRepository);
 
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
@@ -342,7 +343,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station piccadillyGardens = PiccadillyGardens.from(stationRepository);
         Station stPetersSquare = StPetersSquare.from(stationRepository);
 
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             ImmutableGraphNode piccadillyGardensNode = txn.findNode(piccadillyGardens);
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
@@ -366,7 +367,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station stPetersSquare = StPetersSquare.from(stationRepository);
         Station piccGardens = PiccadillyGardens.from(stationRepository);
 
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
             ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
@@ -401,7 +402,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station stPetersSquare = StPetersSquare.from(stationRepository);
         Station piccGardens = PiccadillyGardens.from(stationRepository);
 
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
             ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);

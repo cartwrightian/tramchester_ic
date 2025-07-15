@@ -9,6 +9,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
@@ -66,7 +67,7 @@ public class TowardsDestinationTest {
 
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
-        GraphDatabaseNeo4J database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
         txn = database.beginTx();
 
         when = TestEnv.testDay();

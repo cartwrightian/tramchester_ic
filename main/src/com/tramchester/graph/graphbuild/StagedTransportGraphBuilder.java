@@ -110,9 +110,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         logger.info("started");
     }
 
-    private void buildGraphWithFilter(final GraphDatabaseNeo4J graphDatabase) {
+    private void buildGraphWithFilter(final GraphDatabase graphDatabase) {
         logger.info("Building graph for data source: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
+
+        graphDatabase.createIndexes();
 
         try(Timing ignored = new Timing(logger, "Graph rebuild")) {
 
@@ -160,7 +162,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void addVersionNodes(final GraphDatabaseNeo4J graphDatabase, final DataSourceRepository sourceRepository) {
+    private void addVersionNodes(final GraphDatabase graphDatabase, final DataSourceRepository sourceRepository) {
         if (!sourceRepository.hasDataSourceInfo()) {
             logger.error("No data source info was provided, version will not be set in the DB");
             return;
@@ -173,7 +175,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void buildForAgency(final GraphDatabaseNeo4J graphDatabase, final Agency agency, final StationAndPlatformNodeCache stationAndPlatformCache,
+    private void buildForAgency(final GraphDatabase graphDatabase, final Agency agency, final StationAndPlatformNodeCache stationAndPlatformCache,
                                 final RouteStationNodeCache routeStationNodeCache, final BoardingDepartNodeCache boardingDepartNodeCache) {
 
         // serviceNodeCache and hourNodeCache

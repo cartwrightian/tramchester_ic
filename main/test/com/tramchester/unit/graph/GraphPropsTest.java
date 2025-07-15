@@ -22,6 +22,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -74,7 +75,7 @@ public class GraphPropsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
         txn = graphDatabase.beginTxMutable();
         node = txn.createNode(GraphLabel.QUERY_NODE);
     }

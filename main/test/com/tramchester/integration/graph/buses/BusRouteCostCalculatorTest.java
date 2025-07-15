@@ -9,6 +9,7 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
@@ -61,7 +62,7 @@ class BusRouteCostCalculatorTest {
         stationRepository = componentContainer.get(StationRepository.class);
         StationGroupsRepository stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
 
-        GraphDatabaseNeo4J database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
 
         altrincham = KnownLocality.Altrincham.from(stationGroupRepository);
         stockport = KnownLocality.Stockport.from(stationGroupRepository);

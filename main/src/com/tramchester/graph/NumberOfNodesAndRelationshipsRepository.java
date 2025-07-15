@@ -23,10 +23,10 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private final Map<GraphLabel, Long> nodeCounts;
     private final Map<TransportRelationshipTypes, Long> relationshipCounts;
-    private final GraphDatabaseNeo4J graphDatabase;
+    private final GraphDatabase graphDatabase;
 
     @Inject
-    public NumberOfNodesAndRelationshipsRepository(GraphDatabaseNeo4J graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+    public NumberOfNodesAndRelationshipsRepository(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
         this.graphDatabase = graphDatabase;
         nodeCounts = new HashMap<>(GraphLabel.values().length);
         relationshipCounts = new HashMap<>(TransportRelationshipTypes.values().length);

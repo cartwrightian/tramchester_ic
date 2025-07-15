@@ -23,9 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @LazySingleton
-public class GraphDatabaseNeo4J implements DatabaseEventListener {
+public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseNeo4J.class);
     public static final Duration DEFAULT_TXN_TIMEOUT = Duration.ofMinutes(5);
 
@@ -33,7 +34,8 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
     private final TramchesterConfig tramchesterConfig;
-    private boolean indexesOnline;
+    private AtomicBoolean indexesCreated;
+    private AtomicBoolean indexesOnline;
 
     private GraphTransactionFactory graphTransactionFactory;
     private GraphDatabaseService databaseService;
@@ -50,7 +52,8 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
         this.lifecycleManager = lifecycleManager;
         this.nodeCache = nodeCache;
         this.relationshipCache = relationshipCache;
-        indexesOnline = false;
+        indexesOnline = new AtomicBoolean(false);
+        indexesCreated = new AtomicBoolean(false);
     }
 
     @PostConstruct
@@ -60,7 +63,8 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
-            graphTransactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache, graphDBConfig.enableDiagnostics());
+            graphTransactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache,
+                    graphDBConfig.enableDiagnostics());
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");
@@ -80,38 +84,46 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
         logger.info("stopped");
     }
 
+    @Override
     public boolean isCleanDB() {
         return lifecycleManager.isCleanDB();
     }
 
     // immutable transactions
 
+    @Override
     public ImmutableGraphTransaction beginTx() {
         return beginTx(DEFAULT_TXN_TIMEOUT);
     }
 
+    @Override
     public ImmutableGraphTransaction beginTx(final Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 
+    @Override
     public ImmutableGraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
         return beginTx(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 
     // mutable transactions
 
+    @Override
     public MutableGraphTransaction beginTxMutable(int timeout, TimeUnit timeUnit) {
         return beginTxMutable(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 
+    @Override
     public MutableGraphTransaction beginTxMutable() {
         return graphTransactionFactory.beginMutable(DEFAULT_TXN_TIMEOUT);
     }
 
+    @Override
     public MutableGraphTransaction beginTxMutable(final Duration timeout) {
         return graphTransactionFactory.beginMutable(timeout);
     }
 
+    @Override
     public TimedTransaction beginTimedTxMutable(final Logger logger, final String text) {
         return graphTransactionFactory.beginTimedMutable(logger, text, DEFAULT_TXN_TIMEOUT);
     }
@@ -120,22 +132,38 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
 
     public void createIndexes() {
 
+
         try (TimedTransaction tx = beginTimedTxMutable(logger, "Create DB Constraints & indexes"))
         {
-            final DBSchema schema = tx.schema();
 
-            schema.createIndex(GraphLabel.STATION, GraphPropertyKey.STATION_ID);
-            schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
-            schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.STATION_ID);
-            schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_ID);
-            schema.createIndex(GraphLabel.PLATFORM, GraphPropertyKey.PLATFORM_ID);
+            if (indexesCreated.get()) {
+                logger.warn("Indexes already created");
+            } else {
+                final DBSchema schema = tx.schema();
+
+                schema.createIndex(GraphLabel.STATION, GraphPropertyKey.STATION_ID);
+                schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
+                schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.STATION_ID);
+                schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_ID);
+                schema.createIndex(GraphLabel.PLATFORM, GraphPropertyKey.PLATFORM_ID);
+
+                indexesCreated.set(true);
+            }
 
             tx.commit();
         }
     }
 
     public void waitForIndexes() {
-        if (indexesOnline) {
+        if (!indexesCreated.get()) {
+            String msg = "Indexes not created";
+            logger.error(msg);
+            return;
+            // TODO put this back
+            //throw new RuntimeException(msg);
+        }
+
+        if (indexesOnline.get()) {
             return;
         }
         if (databaseService==null) {
@@ -143,7 +171,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
         }
         try(MutableGraphTransaction tx = beginTxMutable()) {
             waitForIndexesReady(tx.schema());
-            indexesOnline = true;
+            indexesOnline.set(true);
         }
     }
 
@@ -152,6 +180,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
         schema.waitForIndexes();
     }
 
+    @Override
     public boolean isAvailable(long timeoutMillis) {
         if (databaseService == null) {
             logger.error("Checking for DB available when not started, this is will likely be a bug");
@@ -160,7 +189,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
         return databaseService.isAvailable(timeoutMillis);
     }
 
-    public EvaluationContext createContext(GraphTransaction txn) {
+    public EvaluationContext createContext(final GraphTransaction txn) {
         return txn.createEvaluationContext(databaseService);
     }
 
@@ -189,8 +218,10 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener {
         logger.info("database event: drop " + eventContext.getDatabaseName());
     }
 
-    public String getDbPath() {
-        return graphDBConfig.getDbPath().toAbsolutePath().toString();
+    @Override
+    public String toString() {
+        return "GraphDatabaseNeo4J{" +
+                "graphDBConfig=" + graphDBConfig +
+                '}';
     }
-
 }

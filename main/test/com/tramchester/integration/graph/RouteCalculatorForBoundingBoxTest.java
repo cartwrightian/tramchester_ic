@@ -14,6 +14,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationBoxFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
@@ -41,7 +42,7 @@ class RouteCalculatorForBoundingBoxTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabaseNeo4J database;
+    private static GraphDatabase database;
     private static TramchesterConfig testConfig;
 
     private RouteCalculatorForBoxes calculator;

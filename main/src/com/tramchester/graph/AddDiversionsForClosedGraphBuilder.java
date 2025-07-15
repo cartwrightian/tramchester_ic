@@ -47,7 +47,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     private final StationRepository stationRepository;
 
     @Inject
-    public AddDiversionsForClosedGraphBuilder(GraphDatabaseNeo4J database, GraphFilter graphFilter,
+    public AddDiversionsForClosedGraphBuilder(GraphDatabase database, GraphFilter graphFilter,
                                               ClosedStationsRepository closedStationsRepository,
                                               TramchesterConfig config,
                                               @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,

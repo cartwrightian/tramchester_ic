@@ -8,6 +8,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @Disabled("Just used to track down specific issue")
 class RouteCalculatorSubGraphEcclesAshtonLine {
     private static ComponentContainer componentContainer;
-    private static GraphDatabaseNeo4J database;
+    private static GraphDatabase database;
     private static SubgraphConfig config;
     private static TramRouteHelper tramRouteHelper;
 

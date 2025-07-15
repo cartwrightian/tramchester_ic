@@ -16,7 +16,7 @@ import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
@@ -51,14 +51,14 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
     private final LocationJourneyPlanner locToLocPlanner;
     private final JourneyToDTOMapper journeyToDTOMapper;
-    private final GraphDatabaseNeo4J graphDatabase;
+    private final GraphDatabase graphDatabase;
     private final TramchesterConfig config;
     private final JourneyDTODuplicateFilter duplicateFilter;
     private final LocationRepository locationRepository;
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
-                                  GraphDatabaseNeo4J graphDatabase,
+                                  GraphDatabase graphDatabase,
                                   ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper,
                                   TramchesterConfig config, JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
         super(updateRecentJourneys, providesNow);

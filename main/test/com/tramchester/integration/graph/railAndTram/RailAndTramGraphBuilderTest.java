@@ -8,6 +8,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -50,7 +51,7 @@ class RailAndTramGraphBuilderTest {
     void beforeEachTestRuns() {
 
         stationRepository = componentContainer.get(StationRepository.class);
-        GraphDatabaseNeo4J graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabaseNeo4J.class);
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();

@@ -12,6 +12,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
@@ -88,7 +89,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void buildGraphwithFilter(final GraphDatabaseNeo4J graphDatabase, final StationAndPlatformNodeCache stationAndPlatformNodeCache,
+    private void buildGraphwithFilter(final GraphDatabase graphDatabase, final StationAndPlatformNodeCache stationAndPlatformNodeCache,
                                       final RouteStationNodeCache routeStationNodeCache) {
         logger.info("Building graph for feedinfo: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
@@ -121,7 +122,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
-            throw new RuntimeException("Unable to build graph " + graphDatabase.getDbPath(), except);
+            throw new RuntimeException("Unable to build graph " + graphDatabase, except);
         }
 
         reportStats();

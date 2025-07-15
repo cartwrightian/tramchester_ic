@@ -18,6 +18,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -93,7 +94,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
         assertFalse(altyToMacc.isEmpty());
 
-        GraphDatabaseNeo4J database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
 
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);

@@ -7,6 +7,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
@@ -59,7 +60,7 @@ class RouteCostCalculatorTest {
     void beforeEachTestRuns() {
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        GraphDatabaseNeo4J database = componentContainer.get(GraphDatabaseNeo4J.class);
+        GraphDatabase database = componentContainer.get(GraphDatabaseNeo4J.class);
         txn = database.beginTx();
 
         altrincham = Altrincham.from(stationRepository);

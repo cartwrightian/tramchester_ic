@@ -16,6 +16,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteCalculationCombinations<T extends Location<T>> {
 
-    private final GraphDatabaseNeo4J database;
+    private final GraphDatabase database;
     private final RouteCalculator calculator;
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;

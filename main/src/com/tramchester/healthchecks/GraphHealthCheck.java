@@ -3,7 +3,7 @@ package com.tramchester.healthchecks;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.GraphDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +15,12 @@ public class GraphHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(GraphHealthCheck.class);
 
     private static final long TIMEOUT_MILLIS = 5;
-    private final GraphDatabaseNeo4J graphDatabase;
+    private final GraphDatabase graphDatabase;
     private final TramchesterConfig config;
     private final Path dbPath;
 
     @Inject
-    public GraphHealthCheck(GraphDatabaseNeo4J graphDatabase, ServiceTimeLimits serviceTimeLimits, TramchesterConfig config) {
+    public GraphHealthCheck(GraphDatabase graphDatabase, ServiceTimeLimits serviceTimeLimits, TramchesterConfig config) {
         super(serviceTimeLimits);
         this.graphDatabase = graphDatabase;
         this.config = config;
