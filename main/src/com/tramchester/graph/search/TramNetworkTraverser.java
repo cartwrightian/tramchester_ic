@@ -100,7 +100,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             logger.info("Return traversal stream");
         }
         return stream.filter(path -> {
-            //final GraphNodeId endPathNodeId = txn.fromEnd(path).getId();
             final GraphNodeId endPathNodeId = txn.endNodeNodeId(path);
 
             return destinationNodeIds.contains(endPathNodeId);

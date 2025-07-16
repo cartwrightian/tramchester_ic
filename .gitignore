@@ -31,3 +31,6 @@ store_lock
 **/.vscode/*
 summaryOfRouteAndServices.txt
 /main/src/generated-live-rail-api/**
+allure-report
+allure-results
+.idea_broken/
