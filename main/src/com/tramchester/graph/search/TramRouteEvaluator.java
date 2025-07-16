@@ -10,7 +10,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphPath;
 import com.tramchester.graph.facade.neo4j.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphPathNeo4j;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
@@ -128,7 +130,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         reasons.recordReason(HeuristicsReasons.CacheMiss(howIGotHere));
 
-        final HeuristicsReason heuristicsReason = doEvaluate(path, journeyState, nextNode, labels, howIGotHere);
+        GraphPath graphPath = new GraphPathNeo4j(path);
+
+        final HeuristicsReason heuristicsReason = doEvaluate(graphPath, journeyState, nextNode, labels, howIGotHere);
         final Evaluation result = heuristicsReason.getEvaluationAction();
 
         previousVisits.cacheVisitIfUseful(heuristicsReason, nextNode, journeyState, labels);
@@ -136,8 +140,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         return result;
     }
 
-    private HeuristicsReason doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
-                                  final EnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
+    private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
+                                        final EnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 

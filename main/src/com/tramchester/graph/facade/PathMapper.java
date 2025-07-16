@@ -2,10 +2,6 @@ package com.tramchester.graph.facade;
 
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
-import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 
@@ -25,26 +21,14 @@ public class PathMapper {
         Duration currentCost = Duration.ZERO;
         for (GraphEntity entity : path.getEntities(txn)) {
             if (entity.isNode()) {
-                //final GraphNode graphNode = txn.wrapNode(node);
                 final GraphNode graphNode = (GraphNode) entity;
                 currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
             }
             if (entity.isRelationship()) {
-                //final GraphRelationship graphRelationship = txn.wrapRelationship(relationship);
                 final GraphRelationship graphRelationship = (GraphRelationship) entity;
                 currentCost = forGraphRelationship.getCostFor(currentState, graphRelationship);
             }
         }
-//        for (Entity entity : path) {
-//            if (entity instanceof Node node) {
-//                final GraphNode graphNode = txn.wrapNode(node);
-//                currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
-//            }
-//            if (entity instanceof Relationship relationship) {
-//                final GraphRelationship graphRelationship = txn.wrapRelationship(relationship);
-//                currentCost = forGraphRelationship.getCostFor(currentState, graphRelationship);
-//            }
-//        }
     }
 
     public TraversalState getFinalState() {
