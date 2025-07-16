@@ -9,10 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.graph.facade.GraphDirection;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
@@ -52,7 +49,7 @@ public class RouteReachable {
         final Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange, modes);
         final IdFor<Station> endStationId = pair.getEnd().getId();
 
-        try (GraphTransactionNeo4J txn = graphDatabaseService.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
                 final RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
                 final GraphNode routeStationNode = txn.findNode(routeStation);

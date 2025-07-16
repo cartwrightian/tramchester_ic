@@ -42,7 +42,7 @@ class AddNeighboursGraphBuilderTest {
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private GraphTransactionNeo4J txn;
+    private ImmutableGraphTransactionNeo4J txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

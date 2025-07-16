@@ -11,10 +11,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.ImmutableGraphNode;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
@@ -90,7 +87,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
         EasyMock.expect(node.getId()).andStubReturn(nodeId);
 
-        GraphTransaction txn = createMock(GraphTransactionNeo4J.class);
+        GraphTransaction txn = createMock(ImmutableGraphTransactionNeo4J.class);
         EasyMock.expect(txn.getNodeById(nodeId)).andReturn(node);
 
         RouteCalculatorSupport.PathRequest pathRequest = createMock(RouteCalculatorSupport.PathRequest.class);

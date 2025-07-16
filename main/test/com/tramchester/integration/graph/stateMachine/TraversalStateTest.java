@@ -19,6 +19,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -45,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TraversalStateTest extends EasyMockSupport {
     private static GuiceContainerDependencies componentContainer;
     private static TramchesterConfig config;
-    private GraphTransactionNeo4J txn;
+    private ImmutableGraphTransactionNeo4J txn;
     private StationRepository stationRepository;
     private TramDate when;
     private TramTime time;

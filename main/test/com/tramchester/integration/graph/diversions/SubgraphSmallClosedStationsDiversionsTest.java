@@ -313,7 +313,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         Station exchange = ExchangeSquare.from(stationRepository);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        try (GraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
                 Stream<ImmutableGraphRelationship> iterable = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.DIVERSION_DEPART);

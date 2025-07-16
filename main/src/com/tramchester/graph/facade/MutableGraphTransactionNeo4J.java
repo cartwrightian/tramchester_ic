@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 /***
  * Facade around underlying graph DB Transaction
  */
-public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J {
+public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J, AutoCloseable {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
     private final TransactionObserver transactionObserver;

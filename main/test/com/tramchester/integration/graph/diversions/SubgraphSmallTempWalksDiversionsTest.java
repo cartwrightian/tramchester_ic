@@ -315,7 +315,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station stPetersSquare = StPetersSquare.from(stationRepository);
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        try (GraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
 
@@ -338,7 +338,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station stPetersSquare = StPetersSquare.from(stationRepository);
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        try (GraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             ImmutableGraphNode piccadillyGardensNode = txn.findNode(piccadillyGardens);
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
 
@@ -362,7 +362,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station piccGardens = PiccadillyGardens.from(stationRepository);
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        try (GraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
             ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
             ImmutableGraphNode piccGradensNode = txn.findNode(piccGardens);
@@ -397,7 +397,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         Station piccGardens = PiccadillyGardens.from(stationRepository);
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        try (GraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
             ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
             ImmutableGraphNode piccGradensNode = txn.findNode(piccGardens);

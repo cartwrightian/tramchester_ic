@@ -75,7 +75,7 @@ public class DiagramCreator {
 
         final DiagramBuild builder = new DiagramBuild(printStream);
 
-        try (GraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {

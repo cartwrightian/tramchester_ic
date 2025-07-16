@@ -3,7 +3,7 @@ package com.tramchester.graph.facade;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 
-public interface GraphTransactionNeo4J extends GraphTransaction {
+public interface GraphTransactionNeo4J extends AutoCloseable {
 
     ImmutableGraphRelationship wrapRelationship(Relationship relationship);
 
