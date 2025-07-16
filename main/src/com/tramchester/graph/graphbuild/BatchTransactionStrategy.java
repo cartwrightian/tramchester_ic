@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

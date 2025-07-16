@@ -8,7 +8,7 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.TimedTransaction;
+import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;

@@ -10,7 +10,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.DiagnosticReasonDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
-import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.repository.LocationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

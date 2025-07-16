@@ -1,5 +1,6 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
+import com.tramchester.graph.facade.GraphRelationship;
 import org.neo4j.graphdb.Relationship;
 
 public class GraphTestHelper {

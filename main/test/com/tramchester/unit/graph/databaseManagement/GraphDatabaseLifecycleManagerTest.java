@@ -7,7 +7,7 @@ import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
-import com.tramchester.graph.facade.GraphTransactionFactory;
+import com.tramchester.graph.facade.neo4j.GraphTransactionFactory;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.repository.DataSourceRepository;

@@ -3,7 +3,7 @@ package com.tramchester.graph.search.diagnostics;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.stateMachine.states.HasTowardsStationId;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;

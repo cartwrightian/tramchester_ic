@@ -5,9 +5,9 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.MutableGraphNode;
+import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

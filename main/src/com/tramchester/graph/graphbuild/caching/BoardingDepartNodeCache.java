@@ -1,6 +1,6 @@
 package com.tramchester.graph.graphbuild.caching;
 
-import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphNodeId;
 
 import java.util.HashSet;
 import java.util.Map;

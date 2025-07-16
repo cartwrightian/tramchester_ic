@@ -1,4 +1,4 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
@@ -22,6 +22,8 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 

@@ -4,8 +4,8 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.MutableGraphNode;
+import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 
 public interface StationAndPlatformNodeCache {
     void putStation(IdFor<Station> station, GraphNode stationNode);

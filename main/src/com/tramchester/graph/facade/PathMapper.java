@@ -1,5 +1,6 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;

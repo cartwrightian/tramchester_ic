@@ -1,10 +1,11 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
@@ -12,7 +13,7 @@ import org.neo4j.graphdb.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J, GraphTraverseTransaction  {
+public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J, GraphTraverseTransaction {
 
     private final MutableGraphTransactionNeo4J underlying;
 

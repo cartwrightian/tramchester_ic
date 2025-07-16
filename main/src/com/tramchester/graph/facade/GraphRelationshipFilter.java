@@ -1,5 +1,6 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.function.Predicate;

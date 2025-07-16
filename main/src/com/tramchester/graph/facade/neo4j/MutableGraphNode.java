@@ -1,4 +1,4 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
@@ -16,6 +16,8 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.facade.GraphDirection;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Label;

@@ -1,9 +1,9 @@
 package com.tramchester.graph;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
-import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
-import com.tramchester.graph.facade.TimedTransaction;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import org.slf4j.Logger;
 
 import java.time.Duration;

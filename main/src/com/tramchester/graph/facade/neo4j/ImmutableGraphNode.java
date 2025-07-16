@@ -1,4 +1,4 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -15,6 +15,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.facade.GraphDirection;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;

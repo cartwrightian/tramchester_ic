@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation.DTO.diagnostics;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 
 import java.util.EnumSet;

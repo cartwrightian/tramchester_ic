@@ -1,7 +1,8 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
+import com.tramchester.graph.facade.TransactionObserver;
 import com.tramchester.metrics.Timing;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransientTransactionFailureException;
@@ -15,6 +16,8 @@ public class TimedTransaction extends MutableGraphTransactionNeo4J implements Au
     private final String name;
     private final Timing timing;
     private boolean committed;
+
+    // TODO Wrap GraphTransaction instead
 
     TimedTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId, final TransactionObserver transactionObserver,
                      final Logger logger, final String name, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {

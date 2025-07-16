@@ -18,7 +18,7 @@ import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.RouteRepository;

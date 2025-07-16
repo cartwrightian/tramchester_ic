@@ -11,7 +11,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;

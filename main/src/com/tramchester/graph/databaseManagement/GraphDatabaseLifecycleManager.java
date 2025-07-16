@@ -5,7 +5,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.facade.GraphTransactionFactory;
+import com.tramchester.graph.facade.neo4j.GraphTransactionFactory;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;

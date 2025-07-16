@@ -7,7 +7,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 
 import java.util.Set;
 import java.util.stream.Stream;

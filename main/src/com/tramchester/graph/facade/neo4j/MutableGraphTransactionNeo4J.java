@@ -1,4 +1,4 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
 import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
@@ -10,7 +10,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.facade.neo4j.DBSchema;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -37,9 +37,9 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     private final SharedRelationshipCache sharedRelationshipCache;
 
     /* GraphIdFactory ownership is passed in */
-    MutableGraphTransactionNeo4J(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
-                                 final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
-                                 SharedRelationshipCache sharedRelationshipCache) {
+    protected MutableGraphTransactionNeo4J(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
+                                           final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
+                                           SharedRelationshipCache sharedRelationshipCache) {
         this.txn = txn;
         this.idFactory = idFactory;
         this.transactionId = transactionId;
@@ -313,8 +313,4 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
         return txn.getRelationshipByElementId(elementId);
     }
 
-    interface TransactionObserver {
-        void onClose(GraphTransaction graphTransaction);
-        void onCommit(GraphTransaction graphTransaction);
-    }
 }

@@ -5,8 +5,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 

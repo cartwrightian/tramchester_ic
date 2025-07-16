@@ -4,6 +4,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.neo4j.MutableGraphNode;
+import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

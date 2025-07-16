@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 

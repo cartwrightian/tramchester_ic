@@ -16,6 +16,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.neo4j.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.RouteStationNodeCache;

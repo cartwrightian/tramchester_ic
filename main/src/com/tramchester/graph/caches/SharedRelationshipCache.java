@@ -8,7 +8,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.neo4j.GraphRelationshipId;
 import com.tramchester.repository.ReportsCacheStats;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;

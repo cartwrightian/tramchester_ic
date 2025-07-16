@@ -4,7 +4,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Result;

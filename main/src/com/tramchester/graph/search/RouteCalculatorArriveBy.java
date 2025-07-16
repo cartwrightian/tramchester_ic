@@ -12,7 +12,7 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

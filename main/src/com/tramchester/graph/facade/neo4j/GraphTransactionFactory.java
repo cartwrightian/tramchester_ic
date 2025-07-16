@@ -1,7 +1,9 @@
-package com.tramchester.graph.facade;
+package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.TransactionObserver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
  * NOTE: not under normal lifecycle control as is used during DB startup which happens before main graph DB is created
  * Do not call these directly when GraphDatabase object is available
  */
-public class GraphTransactionFactory implements MutableGraphTransactionNeo4J.TransactionObserver {
+public class GraphTransactionFactory implements TransactionObserver {
     private static final Logger logger = LoggerFactory.getLogger(GraphTransactionFactory.class);
 
     private final GraphDatabaseService databaseService;

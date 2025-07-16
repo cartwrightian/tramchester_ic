@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
 import java.time.Duration;
