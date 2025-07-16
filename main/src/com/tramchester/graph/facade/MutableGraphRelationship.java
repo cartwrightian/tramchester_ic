@@ -287,14 +287,14 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
-    public GraphNode getEndNode(final GraphTransaction txn) {
+    public GraphNode getEndNode(final GraphTransactionNeo4J txn) {
         if (endNode==null) {
             endNode = txn.getEndNode(relationship);
         }
         return endNode;
     }
 
-    public GraphNode getStartNode(final GraphTransaction txn) {
+    public GraphNode getStartNode(final GraphTransactionNeo4J txn) {
         return txn.getStartNode(relationship);
     }
 
@@ -305,7 +305,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
-    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
+    public GraphNodeId getEndNodeId(final GraphTransactionNeo4J txn) {
         if (endNode==null) {
             return txn.getEndNodeId(relationship);
         } else {

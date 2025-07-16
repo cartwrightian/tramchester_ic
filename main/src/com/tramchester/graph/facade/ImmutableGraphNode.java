@@ -83,7 +83,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public ImmutableGraphRelationship getSingleRelationship(final GraphTransaction txn,
+    public ImmutableGraphRelationship getSingleRelationship(final GraphTransactionNeo4J txn,
                                                             final TransportRelationshipTypes transportRelationshipTypes, final GraphDirection direction) {
         return underlying.getSingleRelationship(txn, transportRelationshipTypes,direction);
     }
@@ -144,24 +144,24 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes relationshipType) {
         return underlying.getRelationships(txn, direction, relationshipType);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes... transportRelationshipTypes) {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }
 
     @Override
-    public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
+    public boolean hasOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
         return underlying.hasOutgoingServiceMatching(txn, tripId);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
         return underlying.getOutgoingServiceMatching(txn, tripId);
     }
 

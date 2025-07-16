@@ -75,7 +75,7 @@ public class DiagramCreator {
 
         final DiagramBuild builder = new DiagramBuild(printStream);
 
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (GraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
@@ -112,7 +112,7 @@ public class DiagramCreator {
 
     private void visit(final GraphNode node, final DiagramBuild builder, final int depth,
                        final Set<GraphNodeId> nodeSeen, final Set<GraphRelationshipId> relationshipSeen,
-                       boolean topLevel, GraphTransaction txn) {
+                       boolean topLevel, GraphTransactionNeo4J txn) {
         if (depth<=0) {
             return;
         }
@@ -131,7 +131,7 @@ public class DiagramCreator {
 
     private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen,
                                Set<GraphRelationshipId> relationshipSeen,
-                               boolean topLevel, GraphTransaction txn) {
+                               boolean topLevel, GraphTransactionNeo4J txn) {
         getRelationships(targetNode, GraphDirection.Incoming, topLevel, txn).forEach(towards -> {
 
             GraphNode startNode = towards.getStartNode(txn);
@@ -144,13 +144,13 @@ public class DiagramCreator {
     }
 
     private Stream<ImmutableGraphRelationship> getRelationships(GraphNode targetNode, GraphDirection direction,
-                                                                boolean toplevelOnly, GraphTransaction txn) {
+                                                                boolean toplevelOnly, GraphTransactionNeo4J txn) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
         return targetNode.getRelationships(txn, direction, types);
     }
 
     private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<GraphNodeId> seen,
-                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel, GraphTransaction txn) {
+                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel, GraphTransactionNeo4J txn) {
         Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
 
         getRelationships(startNode, GraphDirection.Outgoing, topLevel, txn).forEach(awayFrom -> {

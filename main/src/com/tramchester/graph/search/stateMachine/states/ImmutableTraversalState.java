@@ -19,7 +19,7 @@ public interface ImmutableTraversalState {
 
     GraphNodeId nodeId();
 
-    GraphTransaction getTransaction();
+    GraphTransactionNeo4J getTransaction();
 
     TraversalStateFactory getTraversalStateFactory();
 

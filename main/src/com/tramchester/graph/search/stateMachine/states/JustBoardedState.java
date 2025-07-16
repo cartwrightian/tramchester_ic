@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -33,7 +33,7 @@ public class JustBoardedState extends RouteStationState {
         }
 
         public JustBoardedState fromPlatformState(JourneyStateUpdate journeyState, final PlatformState platformState, final GraphNode routeStationNode,
-                                                  final Duration cost, final GraphTransaction txn) {
+                                                  final Duration cost, final GraphTransactionNeo4J txn) {
 
             final Stream<ImmutableGraphRelationship> services = getServices(routeStationNode, txn);
 
@@ -41,14 +41,14 @@ public class JustBoardedState extends RouteStationState {
         }
 
         public JustBoardedState fromNoPlatformStation(JourneyStateUpdate journeyState, final NoPlatformStationState noPlatformStation, final GraphNode routeStationNode,
-                                                      final Duration cost, final GraphTransaction txn) {
+                                                      final Duration cost, final GraphTransactionNeo4J txn) {
 
             final Stream<ImmutableGraphRelationship> services = getServices(routeStationNode, txn);
 
             return new JustBoardedState(noPlatformStation, services, journeyState, cost, this, routeStationNode);
         }
 
-        private static Stream<ImmutableGraphRelationship> getServices(final GraphNode routeStationNode, final GraphTransaction txn) {
+        private static Stream<ImmutableGraphRelationship> getServices(final GraphNode routeStationNode, final GraphTransactionNeo4J txn) {
             // not sorted, only see one svc outbound from a route station node
             return routeStationNode.getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE);
         }

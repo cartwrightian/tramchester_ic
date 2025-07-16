@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
 import java.time.Duration;
@@ -10,7 +10,7 @@ import java.time.Duration;
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(final TraversalStateFactory traversalStateFactory,
-                           final GraphNodeId graphNodeId, GraphTransaction txn) {
+                           final GraphNodeId graphNodeId, GraphTransactionNeo4J txn) {
         super(traversalStateFactory, TraversalStateType.NotStartedState, graphNodeId, txn);
     }
 

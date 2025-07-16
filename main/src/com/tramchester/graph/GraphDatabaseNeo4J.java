@@ -191,7 +191,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
         return databaseService.isAvailable(timeoutMillis);
     }
 
-    public EvaluationContext createContext(final GraphTransaction txn) {
+    public EvaluationContext createContext(final GraphTransactionNeo4J txn) {
         return txn.createEvaluationContext(databaseService);
     }
 

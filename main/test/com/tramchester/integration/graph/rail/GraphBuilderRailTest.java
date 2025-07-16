@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GraphBuilderRailTest {
     private static ComponentContainer componentContainer;
 
-    private GraphTransaction txn;
+    private GraphTransactionNeo4J txn;
     private TransportData transportData;
 
     @BeforeAll

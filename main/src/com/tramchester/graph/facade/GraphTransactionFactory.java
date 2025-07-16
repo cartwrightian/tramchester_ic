@@ -112,7 +112,7 @@ public class GraphTransactionFactory implements MutableGraphTransactionNeo4J.Tra
     }
 
     private static class State {
-        private final ConcurrentMap<Integer,GraphTransaction> openTransactions;
+        private final ConcurrentMap<Integer, GraphTransaction> openTransactions;
         private final ConcurrentMap<Integer, StackTraceElement[]> diagnostics;
         private final Set<Integer> commited;
         private final AtomicBoolean closed;

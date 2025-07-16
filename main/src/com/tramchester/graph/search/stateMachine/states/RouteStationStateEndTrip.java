@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
@@ -34,7 +34,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
         }
 
         public RouteStationStateEndTrip fromMinuteState(JourneyStateUpdate journeyState, final MinuteState minuteState, final GraphNode node,
-                                                        final Duration cost, final boolean isInterchange, final GraphTransaction txn) {
+                                                        final Duration cost, final boolean isInterchange, final GraphTransactionNeo4J txn) {
             final TransportMode transportMode = node.getTransportMode();
 
             final FilterByDestinations<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(node, txn);

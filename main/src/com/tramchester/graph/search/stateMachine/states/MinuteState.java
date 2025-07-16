@@ -6,7 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
@@ -38,7 +38,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
 
         public TraversalState fromHour(final HourState hourState, final GraphNode minuteNode, final Duration cost,
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
-                                       final GraphTransaction txn) {
+                                       final GraphTransactionNeo4J txn) {
 
             final Stream<ImmutableGraphRelationship> allOutboundForMode = minuteNode.getRelationships(txn, GraphDirection.Outgoing, currentModes);
 

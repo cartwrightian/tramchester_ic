@@ -83,12 +83,12 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public GraphNode getEndNode(GraphTransaction txn) {
+    public GraphNode getEndNode(GraphTransactionNeo4J txn) {
         return underlying.getEndNode(txn);
     }
 
     @Override
-    public GraphNode getStartNode(GraphTransaction txn) {
+    public GraphNode getStartNode(GraphTransactionNeo4J txn) {
         return underlying.getStartNode(txn);
     }
 
@@ -148,7 +148,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
+    public GraphNodeId getEndNodeId(final GraphTransactionNeo4J txn) {
         return underlying.getEndNodeId(txn);
     }
 

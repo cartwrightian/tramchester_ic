@@ -113,7 +113,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
      * @param node current node
      * @param txn transaction
      */
-    private void recordDiversionsAtNode(final ImmutableGraphNode node, final GraphTransaction txn) {
+    private void recordDiversionsAtNode(final ImmutableGraphNode node, final GraphTransactionNeo4J txn) {
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);
 

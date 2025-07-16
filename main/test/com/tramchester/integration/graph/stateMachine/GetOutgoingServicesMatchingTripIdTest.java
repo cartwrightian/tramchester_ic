@@ -12,7 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphDirection;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GetOutgoingServicesMatchingTripIdTest {
     private static GuiceContainerDependencies componentContainer;
-    private GraphTransaction txn;
+    private GraphTransactionNeo4J txn;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;

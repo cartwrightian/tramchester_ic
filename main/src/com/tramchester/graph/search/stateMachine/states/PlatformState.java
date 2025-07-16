@@ -4,7 +4,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -38,21 +38,21 @@ public class PlatformState extends TraversalState implements NodeId {
             return TraversalStateType.PlatformState;
         }
 
-        public PlatformState from(final PlatformStationState stationState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
+        public PlatformState from(final PlatformStationState stationState, final GraphNode node, final Duration cost, final GraphTransactionNeo4J txn) {
             final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
 
             return new PlatformState(stationState, boarding, node, cost, this.getDestination());
         }
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip routeStationStateOnTrip, final GraphNode node,
-                                                     final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
+                                                     final Duration cost, final JourneyStateUpdate journeyState, final GraphTransactionNeo4J txn) {
             return findStateAfterRouteStation.onTripTowardsPlatform(getDestination(), routeStationStateOnTrip, node, cost, txn, this);
         }
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
                                                       final Duration cost,
                                                       JourneyStateUpdate journeyState,
-                                                      final GraphTransaction txn) {
+                                                      final GraphTransactionNeo4J txn) {
             return findStateAfterRouteStation.endTripTowardsPlatform(getDestination(), routeStationState, node, cost, txn, this);
         }
 

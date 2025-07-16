@@ -32,13 +32,13 @@ public interface GraphRelationship {
 
     Duration getCost();
 
-    GraphNode getEndNode(final GraphTransaction txn);
+    GraphNode getEndNode(final GraphTransactionNeo4J txn);
 
-    GraphNode getStartNode(GraphTransaction txn);
+    GraphNode getStartNode(GraphTransactionNeo4J txn);
 
     GraphNodeId getStartNodeId(ImmutableGraphTransactionNeo4J txn);
 
-    GraphNodeId getEndNodeId(GraphTransaction txn);
+    GraphNodeId getEndNodeId(GraphTransactionNeo4J txn);
 
     EnumSet<TransportMode> getTransportModes() ;
 

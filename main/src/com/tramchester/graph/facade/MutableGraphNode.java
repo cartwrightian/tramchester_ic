@@ -176,7 +176,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes relationshipType) {
         return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationship);
     }
@@ -195,19 +195,19 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes... transportRelationshipTypes) {
         return node.getRelationships(map(direction), transportRelationshipTypes).stream().map(txn::wrapRelationship);
     }
 
     @Override
-    public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
+    public boolean hasOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 anyMatch(relationship -> relationship.hasTripIdInList(tripId));
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
@@ -234,7 +234,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
+    public ImmutableGraphRelationship getSingleRelationship(GraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipType,
                                                             GraphDirection direction) {
         final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
         if (found==null) {

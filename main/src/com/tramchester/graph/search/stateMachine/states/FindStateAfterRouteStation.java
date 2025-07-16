@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
@@ -16,7 +16,7 @@ public class FindStateAfterRouteStation  {
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate,
-                                                final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+                                                final GraphTransactionNeo4J txn, StateBuilder<?> stateBuilder) {
         final FilterByDestinations<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, false);
         if (!towardsDest.isEmpty()) {
@@ -31,7 +31,7 @@ public class FindStateAfterRouteStation  {
     }
 
     public TraversalState endTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateEndTrip routeStationState,
-                                                 final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+                                                 final GraphNode node, final Duration cost, final GraphTransactionNeo4J txn, StateBuilder<?> stateBuilder) {
         final FilterByDestinations<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, true);
         if (!towardsDest.isEmpty()) {
@@ -44,7 +44,7 @@ public class FindStateAfterRouteStation  {
     }
 
     public TraversalState onTripTowardsStation(final TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
-                                               final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+                                               final Duration cost, final JourneyStateUpdate journeyState, final GraphTransactionNeo4J txn, StateBuilder<?> stateBuilder) {
         final FilterByDestinations<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, false);
         if (!towardsDest.isEmpty()) {
             return createNoPlatformStationState(onTrip, node, cost, journeyState, towardsDest.stream(), destination);
@@ -57,7 +57,7 @@ public class FindStateAfterRouteStation  {
     }
 
     public TraversalState onTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateOnTrip routeStationStateOnTrip,
-                                                final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+                                                final GraphNode node, final Duration cost, final GraphTransactionNeo4J txn, StateBuilder<?> stateBuilder) {
         final FilterByDestinations<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, true);
         if (!towardsDest.isEmpty()) {
             return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, towardsState);
@@ -71,7 +71,7 @@ public class FindStateAfterRouteStation  {
         return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, towardsState);
     }
 
-    private Stream<ImmutableGraphRelationship> getBoardsAndOthers(final GraphNode node, final GraphTransaction txn, final boolean isPlatform) {
+    private Stream<ImmutableGraphRelationship> getBoardsAndOthers(final GraphNode node, final GraphTransactionNeo4J txn, final boolean isPlatform) {
 
         final Stream<ImmutableGraphRelationship> other;
         if (isPlatform) {
@@ -89,14 +89,14 @@ public class FindStateAfterRouteStation  {
         return Stream.concat(other, boarding);
     }
 
-    public Stream<ImmutableGraphRelationship> getBoardingRelationships(final GraphTransaction txn, final GraphNode node) {
+    public Stream<ImmutableGraphRelationship> getBoardingRelationships(final GraphTransactionNeo4J txn, final GraphNode node) {
         // TODO Order here?
         // towards route stations
         return node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
     }
 
     private FilterByDestinations<ImmutableGraphRelationship> getTowardsDestination(final StateBuilder<?> stateBuilder,
-                                                                                   final GraphNode node, final GraphTransaction txn,
+                                                                                   final GraphNode node, final GraphTransactionNeo4J txn,
                                                                                    boolean isPlatform) {
         if (isPlatform) {
             return stateBuilder.getTowardsDestinationFromPlatform(txn, node);

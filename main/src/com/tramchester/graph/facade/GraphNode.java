@@ -68,13 +68,13 @@ public interface GraphNode {
 
     boolean hasRelationship(GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
-    ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
+    ImmutableGraphRelationship getSingleRelationship(GraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
 
-    boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
+    boolean hasOutgoingServiceMatching(GraphTransactionNeo4J txn, IdFor<Trip> tripId);
 
-    Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
+    Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransactionNeo4J txn, IdFor<Trip> tripId);
 }

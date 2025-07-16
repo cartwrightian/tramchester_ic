@@ -5,7 +5,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -39,20 +39,20 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
         }
 
         public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final GraphNode serviceNode,
-                                               final Duration cost, final GraphTransaction txn) {
+                                               final Duration cost, final GraphTransactionNeo4J txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
             return new ServiceState(state, hourRelationships, cost, this, serviceNode, depthFirst,
                     super.getQueryHour());
         }
 
         public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode serviceNode,
-                                               final Duration cost, final GraphTransaction txn) {
+                                               final Duration cost, final GraphTransactionNeo4J txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
             return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst,
                     super.getQueryHour());
         }
 
-        private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode serviceNode, final GraphTransaction txn) {
+        private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode serviceNode, final GraphTransactionNeo4J txn) {
             return serviceNode.getRelationships(txn, GraphDirection.Outgoing, TO_HOUR);
         }
 
