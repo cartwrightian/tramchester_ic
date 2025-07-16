@@ -17,6 +17,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphPath;
 import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
@@ -26,7 +27,6 @@ import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,17 +293,17 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     public static final class TimedPath {
-        private final Path path;
+        private final GraphPath path;
         private final TramTime queryTime;
         private final int numChanges;
 
-        public TimedPath(final Path path, final TramTime actualQueryTime, int numChanges) {
+        public TimedPath(final GraphPath path, final TramTime actualQueryTime, int numChanges) {
             this.path = path;
             this.queryTime = actualQueryTime;
             this.numChanges = numChanges;
         }
 
-        public TimedPath(final Path path, final PathRequest pathRequest) {
+        public TimedPath(final GraphPath path, final PathRequest pathRequest) {
             this(path, pathRequest.getActualQueryTime(), pathRequest.getNumChanges());
         }
 
@@ -316,7 +316,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                         '}';
             }
 
-        public Path path() {
+        public GraphPath path() {
             return path;
         }
 

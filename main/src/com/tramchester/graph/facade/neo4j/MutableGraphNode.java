@@ -369,4 +369,13 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
 
+    @Override
+    public boolean isNode() {
+        return true;
+    }
+
+    @Override
+    public boolean isRelationship() {
+        return false;
+    }
 }

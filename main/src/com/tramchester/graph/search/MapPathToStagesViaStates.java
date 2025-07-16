@@ -22,7 +22,6 @@ import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import jakarta.inject.Inject;
-import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +56,7 @@ public class MapPathToStagesViaStates implements PathToStages {
     @Override
     public List<TransportStage<?, ?>> mapDirect(final RouteCalculator.TimedPath timedPath, final JourneyRequest journeyRequest,
                                                 final TowardsDestination towardsDestination, final ImmutableGraphTransactionNeo4J txn, boolean fullLogging) {
-        final Path path = timedPath.path();
+        final GraphPath path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();
         if (fullLogging) {
             logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
@@ -71,7 +70,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
-        final ImmutableGraphNode startOfPath = txn.fromStart(path);
+        final ImmutableGraphNode startOfPath = path.getStartNode(txn); // txn.fromStart(path);
 
         final TraversalState initial = new NotStartedState(stateFactory, startOfPath.getId(), txn);
 
@@ -111,7 +110,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final TraversalState finalState = pathMapper.getFinalState();
 
-        final ImmutableGraphNode endOfPath = txn.fromEnd(path);
+        final ImmutableGraphNode endOfPath = path.getEndNode(txn); // txn.fromEnd(path);
 
         finalState.toDestination(finalState, endOfPath, Duration.ZERO, mapStatesToStages);
 

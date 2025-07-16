@@ -477,4 +477,13 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return extra;
     }
 
+    @Override
+    public boolean isNode() {
+        return false;
+    }
+
+    @Override
+    public boolean isRelationship() {
+        return true;
+    }
 }

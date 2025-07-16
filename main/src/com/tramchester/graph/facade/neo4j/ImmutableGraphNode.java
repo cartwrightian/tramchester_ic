@@ -219,4 +219,13 @@ public class ImmutableGraphNode implements GraphNode {
         return Objects.hash(nodeId);
     }
 
+    @Override
+    public boolean isNode() {
+        return true;
+    }
+
+    @Override
+    public boolean isRelationship() {
+        return false;
+    }
 }

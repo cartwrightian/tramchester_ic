@@ -5,11 +5,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphPath;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Path;
 
 import jakarta.inject.Inject;
 import java.util.ArrayList;
@@ -32,12 +32,11 @@ public class MapPathToLocations {
         this.stationGroupsRepository = stationGroupsRepository;
     }
 
-    public List<Location<?>> mapToLocations(Path path, GraphTransactionNeo4J txn) {
+    public List<Location<?>> mapToLocations(GraphPath path, GraphTransactionNeo4J txn) {
         Location<?> previous = null;
         List<Location<?>> results = new ArrayList<>();
-        for(GraphNode node : txn.iter(path.nodes())) {
-//            GraphNode node = GraphNode.from(pathNode);
-
+        //for(GraphNode node : txn.iter(path.nodes())) {
+        for(GraphNode node : path.getNodes(txn)) {
             Optional<Location<?>> maybeLocation = mapNode(node);
             maybeLocation.ifPresent(location -> {});
             if (maybeLocation.isPresent()) {

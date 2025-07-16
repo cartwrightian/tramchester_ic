@@ -253,6 +253,16 @@ public class ImmutableGraphRelationship implements GraphRelationship {
         return underlying.getStartNodeId(txn);
     }
 
+    @Override
+    public boolean isNode() {
+        return false;
+    }
+
+    @Override
+    public boolean isRelationship() {
+        return true;
+    }
+
     private class CostCache {
         private Duration duration;
 

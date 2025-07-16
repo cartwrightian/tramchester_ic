@@ -25,7 +25,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public interface GraphNode {
+public interface GraphNode extends GraphEntity {
 
     GraphNodeId getId();
 

@@ -11,11 +11,11 @@ import java.time.Duration;
 
 public class PathMapper {
 
-    private final Path path;
+    private final GraphPath path;
     private final ImmutableGraphTransactionNeo4J txn;
     private TraversalState currentState;
 
-    public PathMapper(Path path, ImmutableGraphTransactionNeo4J txn) {
+    public PathMapper(GraphPath path, ImmutableGraphTransactionNeo4J txn) {
         this.path = path;
         this.txn = txn;
     }
@@ -23,16 +23,28 @@ public class PathMapper {
     public void process(final TraversalState initial, final ForGraphNode forGraphNode, final ForGraphRelationship forGraphRelationship) {
         currentState = initial;
         Duration currentCost = Duration.ZERO;
-        for (Entity entity : path) {
-            if (entity instanceof Node node) {
-                final GraphNode graphNode = txn.wrapNode(node);
+        for (GraphEntity entity : path.getEntities(txn)) {
+            if (entity.isNode()) {
+                //final GraphNode graphNode = txn.wrapNode(node);
+                final GraphNode graphNode = (GraphNode) entity;
                 currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
             }
-            if (entity instanceof Relationship relationship) {
-                final GraphRelationship graphRelationship = txn.wrapRelationship(relationship);
+            if (entity.isRelationship()) {
+                //final GraphRelationship graphRelationship = txn.wrapRelationship(relationship);
+                final GraphRelationship graphRelationship = (GraphRelationship) entity;
                 currentCost = forGraphRelationship.getCostFor(currentState, graphRelationship);
             }
         }
+//        for (Entity entity : path) {
+//            if (entity instanceof Node node) {
+//                final GraphNode graphNode = txn.wrapNode(node);
+//                currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
+//            }
+//            if (entity instanceof Relationship relationship) {
+//                final GraphRelationship graphRelationship = txn.wrapRelationship(relationship);
+//                currentCost = forGraphRelationship.getCostFor(currentState, graphRelationship);
+//            }
+//        }
     }
 
     public TraversalState getFinalState() {

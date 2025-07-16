@@ -26,7 +26,7 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Map;
 
-public interface GraphRelationship {
+public interface GraphRelationship extends GraphEntity {
 
     GraphRelationshipId getId();
 

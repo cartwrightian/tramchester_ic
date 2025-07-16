@@ -134,7 +134,7 @@ public class RouteCalculatorSupport {
 
         final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, config, fullLogging);
 
-        final Stream<Path> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
+        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
                 destinationNodeIds, destinations, towardsDestination, running);
         return paths.map(path -> new RouteCalculator.TimedPath(path, pathRequest));
     }

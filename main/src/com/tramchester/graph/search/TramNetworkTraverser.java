@@ -11,6 +11,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphPathNeo4j;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -52,7 +53,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.config = config;
     }
 
-    public Stream<Path> findPaths(final ImmutableGraphTransactionNeo4J txn, final RouteCalculatorSupport.PathRequest pathRequest,
+    public Stream<GraphPath> findPaths(final ImmutableGraphTransactionNeo4J txn, final RouteCalculatorSupport.PathRequest pathRequest,
                                   final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations,
                                   final TowardsDestination towardsDestination, final Running running) {
@@ -108,7 +109,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             final GraphNodeId endPathNodeId = txn.endNodeNodeId(path);
 
             return destinationNodeIds.contains(endPathNodeId);
-        });
+            }).map(GraphPathNeo4j::new);
     }
 
     @Override

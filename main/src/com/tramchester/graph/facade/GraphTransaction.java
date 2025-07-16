@@ -32,4 +32,5 @@ public interface GraphTransaction extends AutoCloseable {
     List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
 
     ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
+
 }
