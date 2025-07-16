@@ -38,7 +38,6 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
 import static java.lang.String.format;
-import static org.neo4j.graphdb.Direction.INCOMING;
 
 @LazySingleton
 public class StagedTransportGraphBuilder extends GraphBuilder {
@@ -323,7 +322,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             svcRelationship.set(route);
         } else {
             // note: switch of direction here, can't use OUTGOING from routeStationStart since has multiple links to services
-            svcRelationship = svcNode.getSingleRelationshipMutable(tx, TO_SERVICE, INCOMING);
+            svcRelationship = svcNode.getSingleRelationshipMutable(tx, TO_SERVICE, GraphDirection.Incoming);
         }
 
         svcRelationship.addTripId(trip.getId());

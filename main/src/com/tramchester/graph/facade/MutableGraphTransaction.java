@@ -10,6 +10,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
+import com.tramchester.graph.facade.neo4j.DBSchema;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;

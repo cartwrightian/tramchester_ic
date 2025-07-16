@@ -244,8 +244,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
-                                                                 Direction direction) {
-        final Relationship found = node.getSingleRelationship(transportRelationshipType, direction);
+                                                                 GraphDirection direction) {
+        final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
         if (found==null) {
             return null;
         }

@@ -60,14 +60,16 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
         final BranchOrderingPolicy selector = pathRequest.getSelector();
-        final GraphNode startNode = pathRequest.getStartNode();
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
+
+        final GraphNode startNode = pathRequest.getStartNode();
+        final GraphNodeId startNodeId = startNode.getId();
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest,
                 destinationNodeIds, reasons, previousVisits, lowestCostSeen, config,
-                startNode.getId(), txn, running);
+                startNodeId, txn, running);
 
-        final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
+        final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
         if (fullLogging) {
