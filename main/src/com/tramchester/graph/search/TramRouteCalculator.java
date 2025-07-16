@@ -7,21 +7,21 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
 public interface TramRouteCalculator {
-    Stream<Journey> calculateRoute(ImmutableGraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running);
+    Stream<Journey> calculateRoute(ImmutableGraphTransactionNeo4J txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running);
 
-    Stream<Journey> calculateRouteWalkAtEnd(ImmutableGraphTransaction txn, Location<?> start, GraphNode destination, LocationCollection destStations,
+    Stream<Journey> calculateRouteWalkAtEnd(ImmutableGraphTransactionNeo4J txn, Location<?> start, GraphNode destination, LocationCollection destStations,
                                             JourneyRequest journeyRequest, int possibleMinChanges, Running running);
 
-    Stream<Journey> calculateRouteWalkAtStart(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination,
+    Stream<Journey> calculateRouteWalkAtStart(ImmutableGraphTransactionNeo4J txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination,
                                               JourneyRequest journeyRequest, int possibleMinChanges, Running running);
 
-    Stream<Journey> calculateRouteWalkAtStartAndEnd(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
+    Stream<Journey> calculateRouteWalkAtStartAndEnd(ImmutableGraphTransactionNeo4J txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
                                                     LocationCollection destinationStations,
                                                     JourneyRequest journeyRequest, int possibleMinChanges, Running running);
 }

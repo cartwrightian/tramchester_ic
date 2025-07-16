@@ -7,7 +7,7 @@ import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
@@ -102,20 +102,20 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag() {
         boolean flag;
-        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
             flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
     }
 
     private void addDBFlag() {
-        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
             databaseMetaInfo.setNeighboursEnabled(txn);
             txn.commit();
         }
     }
 
-    private void addNeighbourRelationships(MutableGraphTransaction txn, GraphFilter graphFilter, Station from, Set<StationToStationConnection> links) {
+    private void addNeighbourRelationships(MutableGraphTransactionNeo4J txn, GraphFilter graphFilter, Station from, Set<StationToStationConnection> links) {
         final MutableGraphNode fromNode = txn.findNodeMutable(from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();

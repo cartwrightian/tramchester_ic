@@ -13,7 +13,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.*;
@@ -57,7 +56,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     @Inject
-    public StationsAndLinksGraphBuilder(GraphDatabaseNeo4J graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
+    public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
                                         TransportData transportData, GraphBuilderCache builderCache,
                                         GraphDatabaseMetaInfo databaseMetaInfo) {
         super(graphDatabase, graphFilter, config, builderCache);
@@ -131,7 +130,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void addBoundsNode() {
 
-        try(MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
+        try(MutableGraphTransactionNeo4J tx = graphDatabase.beginTxMutable()) {
             logger.info("Adding bounds to the DB");
             databaseMetaInfo.setBounds(tx, tramchesterConfig.getBounds());
             tx.commit();
@@ -178,7 +177,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void linkStationAndRouteStation(final MutableGraphTransaction txn, final Station station, final MutableGraphNode routeStationNode,
+    private void linkStationAndRouteStation(final MutableGraphTransactionNeo4J txn, final Station station, final MutableGraphNode routeStationNode,
                                             final TransportMode transportMode, final StationAndPlatformNodeCache cache) {
         final MutableGraphNode stationNode = cache.getStation(txn, station.getId());
 
@@ -198,7 +197,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
-    private void createLinkRelationships(MutableGraphTransaction tx, final Route route, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
+    private void createLinkRelationships(MutableGraphTransactionNeo4J tx, final Route route, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
@@ -231,7 +230,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode to, final TransportMode mode, final MutableGraphTransaction txn) {
+    private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode to, final TransportMode mode, final MutableGraphTransactionNeo4J txn) {
         if (from.hasRelationship(GraphDirection.Outgoing, LINKED)) {
 
             // update existing relationships if not already present
@@ -261,7 +260,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         stationsLinked.addTransportMode(mode);
     }
 
-    private void createPlatformsForStation(final MutableGraphTransaction txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
+    private void createPlatformsForStation(final MutableGraphTransactionNeo4J txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
         for (final Platform platform : station.getPlatforms()) {
 
             final MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
@@ -274,7 +273,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private MutableGraphNode createRouteStationNode(final MutableGraphTransaction tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
+    private MutableGraphNode createRouteStationNode(final MutableGraphTransactionNeo4J tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
 
         final boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import jakarta.ws.rs.core.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +18,11 @@ public class JsonStreamingOutput<T> implements StreamingOutput {
     private static final Logger logger = LoggerFactory.getLogger(JsonStreamingOutput.class);
 
     private final Stream<T> theStream;
-    private final MutableGraphTransaction txn;
+    private final MutableGraphTransactionNeo4J txn;
 
     private final JsonFactory jsonFactory ;
 
-    JsonStreamingOutput(MutableGraphTransaction txn, Stream<T> theStream) {
+    JsonStreamingOutput(MutableGraphTransactionNeo4J txn, Stream<T> theStream) {
         this.txn = txn;
         this.theStream = theStream;
         JsonMapper mapper = JsonMapper.builder().

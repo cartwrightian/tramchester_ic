@@ -10,8 +10,7 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -42,7 +41,7 @@ class LocationJourneyPlannerBusTest {
     private Duration maxDuration;
 
     private final TramDate nextMonday = TestEnv.nextMonday();
-    private MutableGraphTransaction txn;
+    private MutableGraphTransactionNeo4J txn;
     private LocationJourneyPlannerTestFacade planner;
     private StationGroupsRepository stationGroupsRepository;
 

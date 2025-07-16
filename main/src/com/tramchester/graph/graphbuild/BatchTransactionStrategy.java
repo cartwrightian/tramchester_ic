@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ public class BatchTransactionStrategy implements TransactionStrategy {
     private final IdFor<Agency> agencyId;
     private final AtomicInteger tripCount;
 
-    private MutableGraphTransaction transaction;
+    private MutableGraphTransactionNeo4J transaction;
 
     public BatchTransactionStrategy(GraphDatabase graphDatabase, int batchSize, IdFor<Agency> agencyId) {
         this.graphDatabase = graphDatabase;
@@ -58,7 +58,7 @@ public class BatchTransactionStrategy implements TransactionStrategy {
     }
 
     @Override
-    public MutableGraphTransaction currentTxn() {
+    public MutableGraphTransactionNeo4J currentTxn() {
         return transaction;
     }
 

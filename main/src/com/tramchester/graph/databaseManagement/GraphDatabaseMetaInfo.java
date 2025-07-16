@@ -5,7 +5,7 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
@@ -22,23 +22,23 @@ import java.util.stream.Stream;
 public class GraphDatabaseMetaInfo {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseMetaInfo.class);
 
-    public boolean isNeighboursEnabled(MutableGraphTransaction txn) {
+    public boolean isNeighboursEnabled(MutableGraphTransactionNeo4J txn) {
         return hasAnyNodeWith(txn, GraphLabel.NEIGHBOURS_ENABLED);
     }
 
-    public boolean hasVersionInfo(MutableGraphTransaction txn) {
+    public boolean hasVersionInfo(MutableGraphTransactionNeo4J txn) {
         return hasAnyNodeWith(txn, GraphLabel.VERSION);
     }
 
-    private boolean hasAnyNodeWith(MutableGraphTransaction txn, GraphLabel label) {
+    private boolean hasAnyNodeWith(MutableGraphTransactionNeo4J txn, GraphLabel label) {
         return txn.hasAnyMatching(label);
     }
 
-    public void setNeighboursEnabled(MutableGraphTransaction txn) {
+    public void setNeighboursEnabled(MutableGraphTransactionNeo4J txn) {
         txn.createNode(GraphLabel.NEIGHBOURS_ENABLED);
     }
 
-    public Map<String, String> getVersions(final MutableGraphTransaction txn) {
+    public Map<String, String> getVersions(final MutableGraphTransactionNeo4J txn) {
         Stream<ImmutableGraphNode> query = txn.findNodes(GraphLabel.VERSION);
 
         Map<String, String> versions = new HashMap<>();
@@ -51,7 +51,7 @@ public class GraphDatabaseMetaInfo {
         return versions;
     }
 
-    public void createVersionNode(MutableGraphTransaction tx, DataSourceRepository dataSourceRepository) {
+    public void createVersionNode(MutableGraphTransactionNeo4J tx, DataSourceRepository dataSourceRepository) {
         Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
         logger.info("Setting version data in DB for " + dataSourceInfo);
         MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
@@ -59,7 +59,7 @@ public class GraphDatabaseMetaInfo {
         logger.info("Set version data");
     }
 
-    public boolean boundsMatch(MutableGraphTransaction txn, final BoundingBox boundingBox) {
+    public boolean boundsMatch(MutableGraphTransactionNeo4J txn, final BoundingBox boundingBox) {
         final boolean hasBoundsNode = txn.hasAnyMatching(GraphLabel.BOUNDS);
 
         if (!hasBoundsNode) {
@@ -83,7 +83,7 @@ public class GraphDatabaseMetaInfo {
         return match;
     }
 
-    public void setBounds(final MutableGraphTransaction transaction, final BoundingBox bounds) {
+    public void setBounds(final MutableGraphTransactionNeo4J transaction, final BoundingBox bounds) {
         boolean hasBoundsNode = transaction.hasAnyMatching(GraphLabel.BOUNDS);
 
         if (hasBoundsNode) {

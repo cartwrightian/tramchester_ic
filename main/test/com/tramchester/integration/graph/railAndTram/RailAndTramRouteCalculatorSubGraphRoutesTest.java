@@ -13,8 +13,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -51,7 +50,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
             RailStationIds.ManchesterVictoria,
             RailStationIds.ManchesterOxfordRoad).map(HasId::getId).toList();
 
-    private ImmutableGraphTransaction txn;
+    private ImmutableGraphTransactionNeo4J txn;
     private RouteCalculatorTestFacade testFacade;
     private Duration maxDurationFromConfig;
 

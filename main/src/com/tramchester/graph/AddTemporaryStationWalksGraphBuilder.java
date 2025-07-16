@@ -92,7 +92,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     private void recordDiversionsInPlace() {
-        try (final ImmutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (final ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             final Stream<ImmutableGraphNode> haveDiversions = txn.findNodes(GraphLabel.HAS_DIVERSION);
             haveDiversions.forEach(node -> recordDiversionsAtNode(node, txn));
         }
@@ -143,7 +143,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     private boolean hasDBFlag(final GTFSSourceConfig sourceConfig) {
         logger.info("Checking DB if temp walks added for " + sourceConfig.getName());
         final boolean flag;
-        try (final MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+        try (final MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
             final String value = sourceConfig.getName();
 
             flag = txn.hasAnyMatching(GraphLabel.TEMP_WALKS_ADDED, SOURCE_NAME_PROP.getText(), value);
@@ -152,7 +152,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     private void addDBFlag(final GTFSSourceConfig sourceConfig) {
-        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
             final List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.TEMP_WALKS_ADDED).toList();
 
             final MutableGraphNode node;
@@ -174,7 +174,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         }
     }
 
-    private void addStationWalk(final MutableGraphTransaction txn, final TemporaryStationWalk temporaryStationWalk) {
+    private void addStationWalk(final MutableGraphTransactionNeo4J txn, final TemporaryStationWalk temporaryStationWalk) {
         final Station first = temporaryStationWalk.getStationPair().first();
         final Station second = temporaryStationWalk.getStationPair().second();
 
@@ -206,7 +206,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     @NotNull
-    private static MutableGraphNode findNodeFor(final MutableGraphTransaction txn, final Station station) {
+    private static MutableGraphNode findNodeFor(final MutableGraphTransactionNeo4J txn, final Station station) {
         final MutableGraphNode closedNode = txn.findNodeMutable(station);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + station.getId();

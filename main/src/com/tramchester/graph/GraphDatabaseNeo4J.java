@@ -94,34 +94,34 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     // immutable transactions
 
     @Override
-    public ImmutableGraphTransaction beginTx() {
+    public ImmutableGraphTransactionNeo4J beginTx() {
         return beginTx(DEFAULT_TXN_TIMEOUT);
     }
 
     @Override
-    public ImmutableGraphTransaction beginTx(final Duration timeout) {
+    public ImmutableGraphTransactionNeo4J beginTx(final Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 
     @Override
-    public ImmutableGraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
+    public ImmutableGraphTransactionNeo4J beginTx(int timeout, TimeUnit timeUnit) {
         return beginTx(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 
     // mutable transactions
 
     @Override
-    public MutableGraphTransaction beginTxMutable(int timeout, TimeUnit timeUnit) {
+    public MutableGraphTransactionNeo4J beginTxMutable(int timeout, TimeUnit timeUnit) {
         return beginTxMutable(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 
     @Override
-    public MutableGraphTransaction beginTxMutable() {
+    public MutableGraphTransactionNeo4J beginTxMutable() {
         return graphTransactionFactory.beginMutable(DEFAULT_TXN_TIMEOUT);
     }
 
     @Override
-    public MutableGraphTransaction beginTxMutable(final Duration timeout) {
+    public MutableGraphTransactionNeo4J beginTxMutable(final Duration timeout) {
         return graphTransactionFactory.beginMutable(timeout);
     }
 
@@ -171,7 +171,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
         if (databaseService==null) {
             throw new RuntimeException("Database service was not started");
         }
-        try(MutableGraphTransaction tx = beginTxMutable()) {
+        try(MutableGraphTransactionNeo4J tx = beginTxMutable()) {
             waitForIndexesReady(tx.schema());
             indexesOnline.set(true);
         }

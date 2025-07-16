@@ -14,8 +14,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
@@ -45,7 +44,7 @@ class MixedRouteTest {
 
     private TramDate queryDate;
     private TramTime queryTime;
-    private ImmutableGraphTransaction txn;
+    private ImmutableGraphTransactionNeo4J txn;
     private EnumSet<TransportMode> modes;
 
     @BeforeAll

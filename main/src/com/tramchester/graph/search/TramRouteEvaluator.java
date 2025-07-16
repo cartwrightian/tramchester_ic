@@ -11,7 +11,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final int maxInitialWaitMins;
     private final GraphNodeId startNodeId;
     private final EnumSet<GraphLabel> requestedLabels;
-    private final ImmutableGraphTransaction txn;
+    private final ImmutableGraphTransactionNeo4J txn;
     private final boolean depthFirst;
     private final Running running;
 
@@ -53,7 +53,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                               final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId,
-                              final ImmutableGraphTransaction txn, Running running) {
+                              final ImmutableGraphTransactionNeo4J txn, Running running) {
         this(pathRequest.getServiceHeuristics(), destinationNodeIds, reasons, previousVisits,
                 bestResultSoFar, config, startNodeId, pathRequest.getRequestedModes(),
                 pathRequest.getDesintationModes(),
@@ -65,7 +65,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId, final EnumSet<TransportMode> requestedModes,
                               final EnumSet<TransportMode> destinationModes,
-                              final Duration maxInitialWait, final ImmutableGraphTransaction txn, Running running) {
+                              final Duration maxInitialWait, final ImmutableGraphTransactionNeo4J txn, Running running) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.reasons = reasons;

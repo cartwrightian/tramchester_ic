@@ -12,7 +12,7 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(ImmutableGraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running) {
+    public Stream<Journey> calculateRoute(ImmutableGraphTransactionNeo4J txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running) {
         try {
             final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
@@ -55,7 +55,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(ImmutableGraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(ImmutableGraphTransactionNeo4J txn, Location<?> start, GraphNode endOfWalk, LocationCollection destStations,
                                                    JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
@@ -71,7 +71,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
+    public Stream<Journey> calculateRouteWalkAtStart(ImmutableGraphTransactionNeo4J txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
                                                      JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             final Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
@@ -87,7 +87,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(ImmutableGraphTransactionNeo4J txn, Set<StationWalk> stationWalks, GraphNode startNode,
                                                            GraphNode endNode, LocationCollection destinationStations,
                                                            JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {

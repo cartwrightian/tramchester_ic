@@ -5,13 +5,13 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 
 public interface StationAndPlatformNodeCache {
     void putStation(IdFor<Station> station, GraphNode stationNode);
     void putPlatform(IdFor<Platform> platformId, GraphNode platformNode);
 
-    MutableGraphNode getStation(MutableGraphTransaction txn, IdFor<Station> stationId);
-    MutableGraphNode getPlatform(MutableGraphTransaction txn, IdFor<Platform> platformId);
+    MutableGraphNode getStation(MutableGraphTransactionNeo4J txn, IdFor<Station> stationId);
+    MutableGraphNode getPlatform(MutableGraphTransactionNeo4J txn, IdFor<Platform> platformId);
 
 }

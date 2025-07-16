@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 /***
  * Facade around underlying graph DB Transaction
  */
-public class MutableGraphTransaction implements GraphTransaction {
+public class MutableGraphTransactionNeo4J implements GraphTransaction {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
     private final TransactionObserver transactionObserver;
@@ -37,9 +37,9 @@ public class MutableGraphTransaction implements GraphTransaction {
     private final SharedRelationshipCache sharedRelationshipCache;
 
     /* GraphIdFactory ownership is passed in */
-    MutableGraphTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
-                            final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
-                            SharedRelationshipCache sharedRelationshipCache) {
+    MutableGraphTransactionNeo4J(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
+                                 final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
+                                 SharedRelationshipCache sharedRelationshipCache) {
         this.txn = txn;
         this.idFactory = idFactory;
         this.transactionId = transactionId;
@@ -52,8 +52,8 @@ public class MutableGraphTransaction implements GraphTransaction {
      * Use with care, this original transaction must not be used any further but must be closed
      * @return GraphTransaction
      */
-    public ImmutableGraphTransaction asImmutable() {
-        return new ImmutableGraphTransaction(this);
+    public ImmutableGraphTransactionNeo4J asImmutable() {
+        return new ImmutableGraphTransactionNeo4J(this);
     }
 
     @Override

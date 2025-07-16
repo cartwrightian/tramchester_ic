@@ -11,10 +11,10 @@ import java.time.Duration;
 public class PathMapper {
 
     private final Path path;
-    private final ImmutableGraphTransaction txn;
+    private final ImmutableGraphTransactionNeo4J txn;
     private TraversalState currentState;
 
-    public PathMapper(Path path, ImmutableGraphTransaction txn) {
+    public PathMapper(Path path, ImmutableGraphTransactionNeo4J txn) {
         this.path = path;
         this.txn = txn;
     }

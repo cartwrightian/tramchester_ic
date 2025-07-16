@@ -10,7 +10,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.postcodes.PostcodeRepository;
@@ -46,7 +46,7 @@ class PostcodeTramJourneyPlannerTest {
 
     private static final TramDate when = TestEnv.testDay();
     private static TramWithPostcodesEnabled testConfig;
-    private MutableGraphTransaction txn;
+    private MutableGraphTransactionNeo4J txn;
     private LocationJourneyPlannerTestFacade planner;
     private PostcodeRepository repository;
     private PostcodeLocation centralLocation;

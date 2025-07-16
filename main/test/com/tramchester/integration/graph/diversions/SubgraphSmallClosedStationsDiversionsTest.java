@@ -71,7 +71,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private ImmutableGraphTransaction txn;
+    private ImmutableGraphTransactionNeo4J txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
     private StationsWithDiversionRepository diversionRepository;
@@ -325,7 +325,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (ImmutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.getFirst());
             GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());

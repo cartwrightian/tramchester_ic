@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StationLocalityGroupsGraphBuilderTest {
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
-    private static MutableGraphTransaction txn;
+    private static MutableGraphTransactionNeo4J txn;
     private StationGroupsRepository stationGroupsRepository;
 
     @BeforeAll

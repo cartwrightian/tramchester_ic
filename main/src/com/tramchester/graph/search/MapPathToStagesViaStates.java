@@ -54,7 +54,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     @Override
     public List<TransportStage<?, ?>> mapDirect(final RouteCalculator.TimedPath timedPath, final JourneyRequest journeyRequest,
-                                                final TowardsDestination towardsDestination, final ImmutableGraphTransaction txn, boolean fullLogging) {
+                                                final TowardsDestination towardsDestination, final ImmutableGraphTransactionNeo4J txn, boolean fullLogging) {
         final Path path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();
         if (fullLogging) {

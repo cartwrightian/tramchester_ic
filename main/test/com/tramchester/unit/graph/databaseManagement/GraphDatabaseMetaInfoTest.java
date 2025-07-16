@@ -6,7 +6,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -27,13 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
-    private MutableGraphTransaction transaction;
+    private MutableGraphTransactionNeo4J transaction;
     private Node node;
 
     @BeforeEach
     public void beforeAnyTestRuns() {
         node = createMock(Node.class);
-        transaction = createMock(MutableGraphTransaction.class);
+        transaction = createMock(MutableGraphTransactionNeo4J.class);
         databaseMetaInfo = new GraphDatabaseMetaInfo();
     }
 

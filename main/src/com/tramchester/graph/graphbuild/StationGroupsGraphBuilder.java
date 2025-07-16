@@ -10,11 +10,10 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
@@ -49,7 +48,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     // NOTE: cannot use graphquery here as creates a circular dependency on this class
 
     @Inject
-    public StationGroupsGraphBuilder(GraphDatabaseNeo4J graphDatabase, StationGroupsRepository stationGroupsRepository,
+    public StationGroupsGraphBuilder(GraphDatabase graphDatabase, StationGroupsRepository stationGroupsRepository,
                                      TramchesterConfig config, GraphFilter graphFilter,
                                      @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
                                      GraphBuilderCache builderCache, Geography geography) {
@@ -75,14 +74,14 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
             logger.warn("Disabled, StationGroupsRepository is not enabled");
             return;
         }
-        try(MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+        try(MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
             if (hasDBFlag(txn)) {
                 logger.info("Already present in DB");
                 return;
             }
         }
         config.getTransportModes().forEach(this::addGroupedStationsNodesAndLinks);
-        try(MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+        try(MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
             addDBFlag(txn);
             txn.commit();
         }
@@ -140,7 +139,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
     }
 
-    private void createGroupToParentRelationship(final MutableGraphTransaction txn, final MutableGraphNode childNode,
+    private void createGroupToParentRelationship(final MutableGraphTransactionNeo4J txn, final MutableGraphNode childNode,
                                                  final MutableGraphNode parentNode, final StationLocalityGroup childGroup) {
         // parent group <-> child group
         final Location<?> parentGroup = stationGroupsRepository.getStationGroup(childGroup.getParentId());
@@ -157,7 +156,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private MutableGraphNode createGroupedStationNodes(final MutableGraphTransaction txn, final StationLocalityGroup stationGroup) {
+    private MutableGraphNode createGroupedStationNodes(final MutableGraphTransactionNeo4J txn, final StationLocalityGroup stationGroup) {
         final MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         final IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
         groupNode.setAreaId(areaId);
@@ -165,7 +164,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         return groupNode;
     }
 
-    private void linkStationsWithGroup(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationLocalityGroup stationGroup) {
+    private void linkStationsWithGroup(final MutableGraphTransactionNeo4J txn, final MutableGraphNode groupNode, final StationLocalityGroup stationGroup) {
         final LocationSet<Station> contained = stationGroup.getAllContained();
 
         contained.stream().
@@ -184,11 +183,11 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         });
     }
 
-    private boolean hasDBFlag(MutableGraphTransaction txn) {
+    private boolean hasDBFlag(MutableGraphTransactionNeo4J txn) {
         return txn.hasAnyMatching(GraphLabel.COMPOSITES_ADDED);
     }
 
-    private void addDBFlag(MutableGraphTransaction txn) {
+    private void addDBFlag(MutableGraphTransactionNeo4J txn) {
         txn.createNode(GraphLabel.COMPOSITES_ADDED);
     }
 

@@ -18,7 +18,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.UpcomingDates;
@@ -70,7 +70,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
     }
 
-    public Optional<Journey> findJourneys(final ImmutableGraphTransaction txn, final IdFor<T> start, final IdFor<T> dest,
+    public Optional<Journey> findJourneys(final ImmutableGraphTransactionNeo4J txn, final IdFor<T> start, final IdFor<T> dest,
                                           final JourneyRequest journeyRequest, final Running running) {
         return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest, running)
                 .limit(1).
@@ -150,7 +150,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 filter(stationIdPair -> bothOpen(stationIdPair, queryDate)).
                 map(stationIdPair -> new LocationIdAndNamePair<>(stationIdPair, resolver)).
                 map(stationIdPair -> {
-                    try (final ImmutableGraphTransaction txn = database.beginTx(timeout)) {
+                    try (final ImmutableGraphTransactionNeo4J txn = database.beginTx(timeout)) {
                         final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request, running);
                         return new JourneyOrNot<>(stationIdPair, queryDate, queryTime, optionalJourney);
                     }

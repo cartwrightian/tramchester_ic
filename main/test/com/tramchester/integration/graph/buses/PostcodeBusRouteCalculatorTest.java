@@ -11,8 +11,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -44,7 +43,7 @@ class PostcodeBusRouteCalculatorTest {
     private static TramchesterConfig testConfig;
 
     private final TramDate day = TestEnv.testDay();
-    private MutableGraphTransaction txn;
+    private MutableGraphTransactionNeo4J txn;
     private final TramTime time = TramTime.of(9,11);
     private LocationJourneyPlannerTestFacade planner;
     private Duration maxJourneyDuration;

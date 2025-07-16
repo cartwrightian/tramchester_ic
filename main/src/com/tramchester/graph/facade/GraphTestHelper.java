@@ -10,7 +10,7 @@ public class GraphTestHelper {
      * @param graphRelationship the facaded relationship
      * @return underlying relationship
      */
-    public Relationship getUnderlyingUnsafe(MutableGraphTransaction txn, final GraphRelationship graphRelationship) {
+    public Relationship getUnderlyingUnsafe(MutableGraphTransactionNeo4J txn, final GraphRelationship graphRelationship) {
         return txn.unwrap(graphRelationship);
     }
 }

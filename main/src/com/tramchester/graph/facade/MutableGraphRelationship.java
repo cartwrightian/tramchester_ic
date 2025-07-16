@@ -299,7 +299,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
-    public GraphNodeId getStartNodeId(final ImmutableGraphTransaction txn) {
+    public GraphNodeId getStartNodeId(final ImmutableGraphTransactionNeo4J txn) {
         return txn.getStartNodeId(relationship);
         //return getStartNode(txn).getId();
     }

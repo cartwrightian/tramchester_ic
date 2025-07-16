@@ -36,7 +36,7 @@ public interface GraphRelationship {
 
     GraphNode getStartNode(GraphTransaction txn);
 
-    GraphNodeId getStartNodeId(ImmutableGraphTransaction txn);
+    GraphNodeId getStartNodeId(ImmutableGraphTransactionNeo4J txn);
 
     GraphNodeId getEndNodeId(GraphTransaction txn);
 

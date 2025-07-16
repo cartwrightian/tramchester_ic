@@ -21,8 +21,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.LocationIdsAndNames;
@@ -79,7 +78,7 @@ class RouteCalculatorSubGraphMediaCityTest {
             MarketStreet
     );
 
-    private ImmutableGraphTransaction txn;
+    private ImmutableGraphTransactionNeo4J txn;
 
     private Duration maxJourneyDuration;
     private RouteCalculationCombinations<Station> combinations;

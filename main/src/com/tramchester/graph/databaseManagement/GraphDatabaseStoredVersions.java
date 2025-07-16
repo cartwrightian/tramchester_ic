@@ -6,7 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class GraphDatabaseStoredVersions {
 
         // version -> flag
         final Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
-        try(MutableGraphTransaction transaction = transactionFactory.beginMutable(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)) {
+        try(MutableGraphTransactionNeo4J transaction = transactionFactory.beginMutable(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)) {
 
             if (neighboursEnabledMismatch(transaction)) {
                 return false;
@@ -86,7 +86,7 @@ public class GraphDatabaseStoredVersions {
         return upToDate.values().stream().allMatch(flag -> flag);
     }
 
-    private boolean boundingBoxMismatch(final MutableGraphTransaction transaction, final BoundingBox bounds) {
+    private boolean boundingBoxMismatch(final MutableGraphTransactionNeo4J transaction, final BoundingBox bounds) {
         final boolean match = databaseMetaInfo.boundsMatch(transaction, bounds);
         if (!match) {
             logger.warn("Mismatch on bounds, did not match " + bounds);
@@ -94,7 +94,7 @@ public class GraphDatabaseStoredVersions {
         return !match;
     }
 
-    private boolean neighboursEnabledMismatch(MutableGraphTransaction txn) {
+    private boolean neighboursEnabledMismatch(MutableGraphTransactionNeo4J txn) {
 
         boolean fromDB = databaseMetaInfo.isNeighboursEnabled(txn);
         boolean fromConfig = config.hasNeighbourConfig();

@@ -66,7 +66,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     ///// MUTATE ////////////////////////////////////////////////////////////
 
-    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNode end,
+    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransactionNeo4J txn, final MutableGraphNode end,
                                                          final TransportRelationshipTypes relationshipType) {
         final Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipType);
         return txn.wrapRelationshipMutable(relationshipTo);
@@ -189,7 +189,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         };
     }
 
-    public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransaction txn, final GraphDirection direction,
+    public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransactionNeo4J txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes relationshipType) {
         return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationshipMutable);
     }
@@ -243,7 +243,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return txn.wrapRelationship(found);
     }
 
-    public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
+    public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipType,
                                                                  GraphDirection direction) {
         final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
         if (found==null) {

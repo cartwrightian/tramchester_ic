@@ -12,11 +12,11 @@ import org.neo4j.graphdb.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ImmutableGraphTransaction implements GraphTransaction, GraphTraverseTransaction  {
+public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTraverseTransaction  {
 
-    private final MutableGraphTransaction underlying;
+    private final MutableGraphTransactionNeo4J underlying;
 
-    public ImmutableGraphTransaction(final MutableGraphTransaction underlying) {
+    public ImmutableGraphTransactionNeo4J(final MutableGraphTransactionNeo4J underlying) {
         this.underlying = underlying;
     }
 

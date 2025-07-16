@@ -18,10 +18,10 @@ import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
@@ -71,7 +71,7 @@ public class LocationJourneyPlanner {
         this.routeToRouteCosts = routeToRouteCosts;
     }
 
-    public Stream<Journey> quickestRouteForLocation(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+    public Stream<Journey> quickestRouteForLocation(final MutableGraphTransactionNeo4J txn, final Location<?> start, final Location<?> destination,
                                                     final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(), destination.getId(), destination.getName(), journeyRequest));
         final boolean walkAtStart = start.getLocationType().isWalk();
@@ -89,7 +89,7 @@ public class LocationJourneyPlanner {
 
         // station => station
         final Running running = () -> true;
-        final ImmutableGraphTransaction immutableTxn = txn.asImmutable();
+        final ImmutableGraphTransactionNeo4J immutableTxn = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
             return routeCalculatorArriveBy.calculateRoute(immutableTxn, start, destination, journeyRequest, running);
         } else {
@@ -97,7 +97,7 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private Stream<Journey> quickRouteWalkAtStart(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+    private Stream<Journey> quickRouteWalkAtStart(final MutableGraphTransactionNeo4J txn, final Location<?> start, final Location<?> destination,
                                                   final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
@@ -123,7 +123,7 @@ public class LocationJourneyPlanner {
         final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
         final Stream<Journey> journeys;
         Running running = () -> true;
-        final ImmutableGraphTransaction immutable = txn.asImmutable();
+        final ImmutableGraphTransactionNeo4J immutable = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(immutable, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
         } else {
@@ -135,7 +135,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+    private Stream<Journey> quickestRouteWalkAtEnd(final MutableGraphTransactionNeo4J txn, final Location<?> start, final Location<?> destination,
                                                    final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
@@ -173,7 +173,7 @@ public class LocationJourneyPlanner {
 
         final Stream<Journey> journeys;
         final Running running = () -> true;
-        final ImmutableGraphTransaction immutable = txn.asImmutable();
+        final ImmutableGraphTransactionNeo4J immutable = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(immutable, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
         } else {
@@ -186,7 +186,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtStartAndEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> dest,
+    private Stream<Journey> quickestRouteWalkAtStartAndEnd(final MutableGraphTransactionNeo4J txn, final Location<?> start, final Location<?> dest,
                                                            final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", start, dest, journeyRequest));
 
@@ -214,7 +214,7 @@ public class LocationJourneyPlanner {
         /// CALC
         Stream<Journey> journeys;
         Running running = () -> true;
-        final ImmutableGraphTransaction immutable = txn.asImmutable();
+        final ImmutableGraphTransactionNeo4J immutable = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(immutable, walksAtStart, startNode,  endWalk, destinationStations,
                     journeyRequest, numberOfChanges, running);
@@ -274,11 +274,11 @@ public class LocationJourneyPlanner {
 
     private static class WalkNodesAndRelationships {
 
-        private final MutableGraphTransaction txn;
+        private final MutableGraphTransactionNeo4J txn;
         private final List<MutableGraphRelationship> relationships;
         private final List<MutableGraphNode> nodes;
 
-        private WalkNodesAndRelationships(MutableGraphTransaction txn) {
+        private WalkNodesAndRelationships(MutableGraphTransactionNeo4J txn) {
             this.txn = txn;
             this.relationships = new ArrayList<>();
             this.nodes = new ArrayList<>();
@@ -343,7 +343,7 @@ public class LocationJourneyPlanner {
             return walkingRelationship;
         }
 
-        private MutableGraphNode createWalkingNode(final MutableGraphTransaction txn, final LatLong origin, final UUID uniqueId) {
+        private MutableGraphNode createWalkingNode(final MutableGraphTransactionNeo4J txn, final LatLong origin, final UUID uniqueId) {
             final MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
             startOfWalkNode.setLatLong(origin);
             startOfWalkNode.setWalkId(origin, uniqueId);

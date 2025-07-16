@@ -23,7 +23,6 @@ import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
@@ -49,7 +48,7 @@ public class GraphPropsTest {
 
     private static ComponentContainer componentContainer;
     private static UnitTestOfGraphConfig config;
-    private MutableGraphTransaction txn;
+    private MutableGraphTransactionNeo4J txn;
     private MutableGraphNode node;
 
     // See TransportDataFromFilesTramTest for test that gets this number

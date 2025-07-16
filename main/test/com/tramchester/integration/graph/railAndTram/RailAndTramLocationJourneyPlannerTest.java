@@ -13,8 +13,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -50,7 +49,7 @@ class RailAndTramLocationJourneyPlannerTest {
     private static IntegrationTramTestConfig testConfig;
 
     private final TramDate when = TestEnv.testDay();
-    private MutableGraphTransaction txn;
+    private MutableGraphTransactionNeo4J txn;
     private LocationJourneyPlannerTestFacade testFacade;
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;

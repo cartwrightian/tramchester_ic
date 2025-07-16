@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * NOTE: not under normal lifecycle control as is used during DB startup which happens before main graph DB is created
  * Do not call these directly when GraphDatabase object is available
  */
-public class GraphTransactionFactory implements MutableGraphTransaction.TransactionObserver {
+public class GraphTransactionFactory implements MutableGraphTransactionNeo4J.TransactionObserver {
     private static final Logger logger = LoggerFactory.getLogger(GraphTransactionFactory.class);
 
     private final GraphDatabaseService databaseService;
@@ -71,12 +71,12 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         state.close();
     }
 
-    public MutableGraphTransaction beginMutable(final Duration timeout) {
+    public MutableGraphTransactionNeo4J beginMutable(final Duration timeout) {
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
         GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
-        final MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory,
+        final MutableGraphTransactionNeo4J graphTransaction = new MutableGraphTransactionNeo4J(graphDatabaseTxn, graphIdFactory,
                 index,this, nodeCache, relationshipCache);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());
@@ -97,8 +97,8 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         return graphTransaction;
     }
 
-    public ImmutableGraphTransaction begin(final Duration timeout) {
-        return new ImmutableGraphTransaction(beginMutable(timeout));
+    public ImmutableGraphTransactionNeo4J begin(final Duration timeout) {
+        return new ImmutableGraphTransactionNeo4J(beginMutable(timeout));
     }
 
     @Override
@@ -130,7 +130,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             closed.set(true);
         }
 
-        public synchronized void put(final MutableGraphTransaction graphTransaction, final StackTraceElement[] stackTrace) {
+        public synchronized void put(final MutableGraphTransactionNeo4J graphTransaction, final StackTraceElement[] stackTrace) {
             guardNotClosed();
             final int index = graphTransaction.getTransactionId();
             openTransactions.put(index, graphTransaction);

@@ -4,7 +4,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Result;
@@ -68,7 +68,7 @@ public class FindRouteEndPoints {
         params.put("mode", mode.getNumber());
 
         IdSet<RouteStation> stationIds = new IdSet<>();
-        try (MutableGraphTransaction txn  = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransactionNeo4J txn  = graphDatabase.beginTxMutable()) {
             final Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();

@@ -27,7 +27,7 @@ public class CreateNodesAndRelationships {
         numberRelationships = 0;
     }
 
-    protected GraphNode createStationNode(final MutableGraphTransaction tx, final Station station) {
+    protected GraphNode createStationNode(final MutableGraphTransactionNeo4J tx, final Station station) {
 
         final EnumSet<GraphLabel> labels = GraphLabel.forModes(station.getTransportModes());
         labels.add(GraphLabel.STATION);
@@ -40,17 +40,17 @@ public class CreateNodesAndRelationships {
         return stationNode;
     }
 
-    protected MutableGraphNode createGraphNode(final MutableGraphTransaction tx, final GraphLabel label) {
+    protected MutableGraphNode createGraphNode(final MutableGraphTransactionNeo4J tx, final GraphLabel label) {
         numberNodes++;
         return tx.createNode(label);
     }
 
-    public MutableGraphNode createGraphNode(final MutableGraphTransaction tx, final EnumSet<GraphLabel> labels) {
+    public MutableGraphNode createGraphNode(final MutableGraphTransactionNeo4J tx, final EnumSet<GraphLabel> labels) {
         numberNodes++;
         return tx.createNode(labels);
     }
 
-    protected MutableGraphRelationship createRelationship(final MutableGraphTransaction txn, final MutableGraphNode start,
+    protected MutableGraphRelationship createRelationship(final MutableGraphTransactionNeo4J txn, final MutableGraphNode start,
                                                           final MutableGraphNode end, final TransportRelationshipTypes relationshipType) {
         numberRelationships++;
         return start.createRelationshipTo(txn, end, relationshipType);
@@ -61,28 +61,28 @@ public class CreateNodesAndRelationships {
         logger.info("Relationships created: " + numberRelationships);
     }
 
-    protected void addNeighbourRelationship(final MutableGraphTransaction txn, final MutableGraphNode fromNode,
+    protected void addNeighbourRelationship(final MutableGraphTransactionNeo4J txn, final MutableGraphNode fromNode,
                                             final MutableGraphNode toNode, final Duration walkCost) {
         addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addContainedRelationshipTowardsGroup(final MutableGraphTransaction txn, final MutableGraphNode stationNode,
+    protected void addContainedRelationshipTowardsGroup(final MutableGraphTransactionNeo4J txn, final MutableGraphNode stationNode,
                                                         final MutableGraphNode groupNode, final Duration walkCost) {
         addRelationshipFor(txn, stationNode, groupNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsContained(final MutableGraphTransaction txn, final MutableGraphNode groupNode,
+    protected void addGroupRelationshipTowardsContained(final MutableGraphTransactionNeo4J txn, final MutableGraphNode groupNode,
                                                         final MutableGraphNode stationNode, final Duration walkCost) {
         addRelationshipFor(txn, groupNode, stationNode, walkCost, GROUPED_TO_CHILD);
     }
 
-    protected void addRelationshipsBetweenGroupAndParentGroup(final MutableGraphTransaction txn, final MutableGraphNode childGroupNode,
+    protected void addRelationshipsBetweenGroupAndParentGroup(final MutableGraphTransactionNeo4J txn, final MutableGraphNode childGroupNode,
                                                               final MutableGraphNode parentGroupNode, final Duration walkCost) {
         addRelationshipFor(txn, parentGroupNode, childGroupNode, walkCost, GROUPED_TO_GROUPED);
         addRelationshipFor(txn, childGroupNode, parentGroupNode, walkCost, GROUPED_TO_GROUPED);
     }
 
-    private boolean addRelationshipFor(final MutableGraphTransaction txn, final MutableGraphNode fromNode, final MutableGraphNode toNode,
+    private boolean addRelationshipFor(final MutableGraphTransactionNeo4J txn, final MutableGraphNode fromNode, final MutableGraphNode toNode,
                                        final Duration walkCost, final TransportRelationshipTypes relationshipType) {
 
         final boolean alreadyPresent = fromNode.getRelationships(txn, GraphDirection.Outgoing, relationshipType).

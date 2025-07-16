@@ -8,7 +8,7 @@ import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.graph.facade.GraphTransactionFactory;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransactionNeo4J;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -31,7 +31,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     private GraphDatabaseMetaInfo databaseMetaInfo;
     private GraphDatabaseStoredVersions storedVersions;
     private GraphTransactionFactory transactionFactory;
-    private MutableGraphTransaction transaction;
+    private MutableGraphTransactionNeo4J transaction;
     private TramchesterConfig config;
     private DataSourceRepository dataSourceRepository;
     private final Duration timeout = GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT;
@@ -42,7 +42,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         config = TestEnv.GET();
         databaseMetaInfo = createMock(GraphDatabaseMetaInfo.class);
         transactionFactory = createMock(GraphTransactionFactory.class);
-        transaction = createMock(MutableGraphTransaction.class);
+        transaction = createMock(MutableGraphTransactionNeo4J.class);
         storedVersions = new GraphDatabaseStoredVersions(config, databaseMetaInfo);
         dataSourceRepository = createMock(DataSourceRepository.class);
     }

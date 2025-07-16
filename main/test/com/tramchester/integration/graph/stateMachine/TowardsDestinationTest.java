@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TowardsDestinationTest {
     private static GuiceContainerDependencies componentContainer;
-    private ImmutableGraphTransaction txn;
+    private ImmutableGraphTransactionNeo4J txn;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
