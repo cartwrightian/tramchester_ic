@@ -84,7 +84,7 @@ public class KnownTramRoute {
         }
         final KnownTramRouteEnum matched = find.getLast(); // time ordered
         if (!matched.getId().isValid()) {
-            throw new RuntimeException(matched + " is not valid for date " + date);
+            throw new RuntimeException(matched + " has invalid id for date " + date);
         }
         return matched;
      }
@@ -128,9 +128,9 @@ public class KnownTramRoute {
         routes.add(getNavy(date));
         routes.add(getPink(date));
 
-        if (UpcomingDates.DeansgateEmergencyWorkJuly2025.contains(date)) {
-            routes.add(getBusOne(date));
-        }
+//        if (UpcomingDates.DeansgateEmergencyWorkJuly2025.contains(date)) {
+//            routes.add(getBusOne(date));
+//        }
 
         return routes;
     }

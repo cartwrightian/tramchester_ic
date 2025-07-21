@@ -13,8 +13,13 @@ import java.util.Iterator;
 public class GraphPathNeo4j implements GraphPath {
     private final Path path;
 
-    public GraphPathNeo4j(Path path) {
+    GraphPathNeo4j(Path path) {
         this.path = path;
+    }
+
+    // TODO into factory?
+    public static GraphPath from(Path path) {
+        return new GraphPathNeo4j(path);
     }
 
     @Override
@@ -45,6 +50,15 @@ public class GraphPathNeo4j implements GraphPath {
     @Override
     public Iterable<ImmutableGraphNode> getNodes(final GraphTransactionNeo4J txn) {
         return txn.iter(path.nodes());
+    }
+
+    @Override
+    public GraphRelationship getLastRelationship(final GraphTransactionNeo4J txn) {
+        final Relationship relationship = path.lastRelationship();
+        if (relationship==null) {
+            return null;
+        }
+        return txn.wrapRelationship(relationship);
     }
 
     private static class PathIterator implements Iterator<GraphEntity> {

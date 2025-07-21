@@ -250,13 +250,13 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     }
 
 //    @Override
-    public ImmutableGraphRelationship lastFrom(final Path path) {
-        final Relationship last = path.lastRelationship();
-        if (last==null) {
-            return null;
-        }
-        return wrapRelationship(last);
-    }
+//    public ImmutableGraphRelationship lastFrom(final Path path) {
+//        final Relationship last = path.lastRelationship();
+//        if (last==null) {
+//            return null;
+//        }
+//        return wrapRelationship(last);
+//    }
 
     @Override
     public Iterable<ImmutableGraphNode> iter(final Iterable<Node> iterable) {

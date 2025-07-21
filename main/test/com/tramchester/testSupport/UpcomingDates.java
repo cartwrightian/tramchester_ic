@@ -16,6 +16,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -42,13 +43,15 @@ public class UpcomingDates {
 
     // clousure over but routes not back in the data yet....
     public static DateRange PiccGardensWorksummer2025RoutesMissing = DateRange.of(TramDate.of(2025, 8, 10),
-            TramDate.of(2025, 8, 28));
+            TramDate.of(2025, 9, 4));
 
-    public static DateTimeRange DeansgateEmergencyWorkJuly2025 = DateTimeRange.of(
-            TramDate.of(2025,7,13), TimeRange.of(TramTime.of(2,0), TramTime.of(14,0)));
+    public static DateRange EcclesAndTraffordParkLinesSummer2025 = DateRange.of(TramDate.of(2025, 8, 2),
+            TramDate.of(2025, 8, 11));
 
-    public static IdSet<Station> DeansgateEmergencyWorkStations = Stream.of(Deansgate, Shudehill, MarketStreet).
-            map(FakeStation::getId).collect(IdSet.idCollector());
+    public static List<IdFor<Station>> EcclesAndTraffordParkLinesSummer2025Stations = Stream.of(
+            "9400ZZMACRN", "9400ZZMAPOM", "9400ZZMAEXC", "9400ZZMASQY", "9400ZZMAANC", "9400ZZMAHCY",
+                    "9400ZZMAMCU", "9400ZZMABWY", "9400ZZMALWY", "9400ZZMAWST", "9400ZZMALDY", "9400ZZMAECC").
+            map(Station::createId).toList();
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -73,8 +76,8 @@ public class UpcomingDates {
                 return true;
             }
         }
-        if (DeansgateEmergencyWorkJuly2025.contains(date)) {
-            if (DeansgateEmergencyWorkStations.contains(stationId)) {
+        if (EcclesAndTraffordParkLinesSummer2025.contains(date)) {
+            if (EcclesAndTraffordParkLinesSummer2025Stations.contains(stationId)) {
                 return true;
             }
         }

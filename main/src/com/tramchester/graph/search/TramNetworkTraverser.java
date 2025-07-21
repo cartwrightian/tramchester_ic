@@ -10,10 +10,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.GraphNodeId;
-import com.tramchester.graph.facade.neo4j.GraphPathNeo4j;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.neo4j.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
@@ -44,7 +41,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final TramchesterConfig config;
-    private final GraphTraverseTransaction txn;
+    private final GraphTransactionNeo4J txn;
     private final boolean fullLogging;
 
     public TramNetworkTraverser(ImmutableGraphTransactionNeo4J txn, TramchesterConfig config, boolean fullLogging) {
@@ -109,18 +106,22 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             final GraphNodeId endPathNodeId = txn.endNodeNodeId(path);
 
             return destinationNodeIds.contains(endPathNodeId);
-            }).map(GraphPathNeo4j::new);
+            }).map(GraphPathNeo4j::from);
     }
 
     @Override
     public ResourceIterable<Relationship> expand(final Path path, final BranchState<JourneyState> graphState) {
+        return expand(GraphPathNeo4j.from(path), graphState);
+    }
+
+    public ResourceIterable<Relationship> expand(final GraphPath path, final BranchState<JourneyState> graphState) {
         // GraphState -> JourneyState -> TraversalState
         final ImmutableJourneyState currentJourneyState = graphState.getState();
         final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
 
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
 
-        final GraphRelationship lastRelationship = txn.lastFrom(path);
+        final GraphRelationship lastRelationship = path.getLastRelationship(txn); //txn.lastFrom(path);
 
         final Duration cost;
         if (lastRelationship != null) {
@@ -140,7 +141,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             cost = Duration.ZERO;
         }
 
-        final GraphNode endPathNode =  txn.fromEnd(path);
+        final GraphNode endPathNode =  path.getEndNode(txn); // txn.fromEnd(path);
 
         final EnumSet<GraphLabel> labels = endPathNode.getLabels();
 

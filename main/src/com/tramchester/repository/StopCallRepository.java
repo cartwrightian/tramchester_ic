@@ -9,6 +9,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -160,12 +161,19 @@ public class StopCallRepository  {
     }
 
     public List<IdFor<Station>> getStopcallsBetween(final IdFor<Station> beginId, final IdFor<Station> endId, final TramDate date) {
+        return getStopcallsBetween(beginId, endId, date, Station.InvalidId());
+    }
+
+    public List<IdFor<Station>> getStopcallsBetween(final IdFor<Station> beginId, final IdFor<Station> endId, final TramDate date, final IdFor<Station> mustInclude) {
         final Station begin = stationRepository.getStationById(beginId);
         final Station end = stationRepository.getStationById(endId);
+
+        final boolean skipMustInclude = !mustInclude.isValid();
 
         final Set<Route> routesForwards =
                 SetUtils.intersection(begin.getPickupRoutes(), end.getDropoffRoutes()).stream().
                         filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+
         final Set<Route> routesBackwards =
                 SetUtils.intersection(end.getPickupRoutes(), begin.getDropoffRoutes()).stream().
                 filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
@@ -174,6 +182,7 @@ public class StopCallRepository  {
                 filter(trip -> trip.serviceOperatesOn(date)).
                 filter(trip -> routesForwards.contains(trip.getRoute()) || routesBackwards.contains(trip.getRoute())).
                 filter(trip -> trip.callsAt(beginId) && trip.callsAt(endId)).
+                filter(trip -> skipMustInclude || trip.callsAt(mustInclude)).
                 filter(trip -> trip.isAfter(beginId, endId)).
                 map(Trip::getStopCalls).
                 collect(Collectors.toSet());

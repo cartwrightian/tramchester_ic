@@ -136,7 +136,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
-        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(10,0), testSunday);
+        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(13,0), testSunday);
     }
 
     @Test

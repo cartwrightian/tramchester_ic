@@ -7,6 +7,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -16,6 +17,7 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -196,8 +198,19 @@ public class StopCallRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedClosuresForMay2025Rochdale() {
+    void shouldHaveExpectedFreeHoldToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(freeHold, Rochdale.getId(), when);
         assertEquals(stopsBetween, RochdaleLineStations);
+    }
+
+    @Test
+    void shouldHaveExpectedEcclesLinesClosures() {
+        List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());
+        assertEquals(12, stopsBetween.size());
+
+        IdSet<Station> unique = new IdSet<>(stopsBetween);
+        assertEquals(unique.size(), stopsBetween.size());
+
+        assertEquals(UpcomingDates.EcclesAndTraffordParkLinesSummer2025Stations, stopsBetween);
     }
 }

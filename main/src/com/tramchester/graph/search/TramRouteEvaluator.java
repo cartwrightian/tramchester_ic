@@ -98,7 +98,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public Evaluation evaluate(final Path path, final BranchState<JourneyState> state) {
 
         final ImmutableJourneyState journeyState = state.getState();
-        final GraphNode nextNode = txn.fromEnd(path);
+        GraphPath graphPath = GraphPathNeo4j.from(path);
+
+        final GraphNode nextNode = graphPath.getEndNode(txn); // txn.fromEnd(path);
 
         // reuse these, label operations on nodes are expensive
         final EnumSet<GraphLabel> labels = nextNode.getLabels();
@@ -130,7 +132,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         reasons.recordReason(HeuristicsReasons.CacheMiss(howIGotHere));
 
-        GraphPath graphPath = new GraphPathNeo4j(path);
 
         final HeuristicsReason heuristicsReason = doEvaluate(graphPath, journeyState, nextNode, labels, howIGotHere);
         final Evaluation result = heuristicsReason.getEvaluationAction();

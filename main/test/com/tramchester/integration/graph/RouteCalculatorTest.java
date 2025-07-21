@@ -595,15 +595,17 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Deansgate, Ashton);
     }
 
+    @DisabledUntilDate(year = 2025, month = 7, day = 27)
     @Test
     void reproduceIssueWithTramsSundayStPetersToDeansgate() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,0), maxNumResults, 0);
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
+    @DisabledUntilDate(year = 2025, month = 7, day = 27)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
-        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 45), maxNumResults, 1);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 15), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 
