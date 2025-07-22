@@ -54,6 +54,10 @@ public class HeuristicsReasons {
         return new HeuristicReasonWithValidity(ReasonCode.AlreadySeenRouteStation, howIGotHere, false);
     }
 
+    public static HeuristicsReason AlreadyBoardedAt(HowIGotHere howIGotHere) {
+        return new HeuristicReasonWithValidity(ReasonCode.AlreadyBoarded, howIGotHere, false);
+    }
+
     public static HeuristicsReason SearchStopped(HowIGotHere howIGotHere) {
         return new SearchStopped(howIGotHere);
     }

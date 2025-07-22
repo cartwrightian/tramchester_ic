@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.graph.search.ImmutableJourneyState;
@@ -16,7 +16,7 @@ public class HowIGotHere {
     private final GraphNodeId nodeId;
 
     private final TraversalStateType traversalStateType;
-    private final IdFor<? extends Location<?>> approxPosition;
+    private final LocationId<?> approxPosition;
     private final IdFor<Station> towards;
     private final GraphNodeId previousId;
 
@@ -26,7 +26,7 @@ public class HowIGotHere {
     }
 
     public HowIGotHere(final GraphNodeId endNodeId, final GraphNodeId previousNodeId, final TraversalStateType traversalStateType,
-                       IdFor<? extends Location<?>> approxPosition, final IdFor<Station> towards) {
+                       LocationId<?> approxPosition, final IdFor<Station> towards) {
         this.nodeId = endNodeId;
         this.previousId = previousNodeId;
         this.traversalStateType = traversalStateType;
@@ -84,7 +84,7 @@ public class HowIGotHere {
                 '}';
     }
 
-    public IdFor<? extends Location<?>> getApproxLocation() {
+    public LocationId<?> getApproxLocation() {
         return approxPosition;
     }
 

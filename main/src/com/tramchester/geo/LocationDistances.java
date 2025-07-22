@@ -6,6 +6,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.repository.LocationRepository;
 import jakarta.inject.Inject;
 
@@ -42,8 +43,8 @@ public class LocationDistances {
             cache = Caffeine.newBuilder().build();
         }
 
-        public long shortestDistanceToDest(final IdFor<? extends Location<?>>stationId) {
-            return cache.get(stationId, this::getMinDistance);
+        public long shortestDistanceToDest(final LocationId<?> locationId) {
+            return cache.get(locationId.getId(), this::getMinDistance);
         }
 
         private Long getMinDistance(final IdFor<? extends Location<?>> locationId) {
@@ -61,7 +62,7 @@ public class LocationDistances {
             return find.orElse(Long.MAX_VALUE);
         }
 
-        public int compare(final IdFor<? extends Location<?>> locationA, final IdFor<? extends Location<?>> locationB) {
+        public int compare(final LocationId<?> locationA, final LocationId<?> locationB) {
             final long distanceA = shortestDistanceToDest(locationA);
             final long distanceB = shortestDistanceToDest(locationB);
 

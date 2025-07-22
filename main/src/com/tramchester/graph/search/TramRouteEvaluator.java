@@ -7,10 +7,12 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphPath;
+import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.graph.facade.neo4j.GraphPathNeo4j;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
@@ -132,7 +134,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         reasons.recordReason(HeuristicsReasons.CacheMiss(howIGotHere));
 
-
         final HeuristicsReason heuristicsReason = doEvaluate(graphPath, journeyState, nextNode, labels, howIGotHere);
         final Evaluation result = heuristicsReason.getEvaluationAction();
 
@@ -167,6 +168,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 reasons.recordReason(HeuristicReasonsOK.SeenGroup(ReasonCode.SeenGroup, howIGotHere, areaId));
             }
         }
+
+        // WIP - not working!
+        // already boarded at this location?
+//        if (journeyState.justBoarded()) {
+//            if (journeyState.alreadyBoarded(howIGotHere.getApproxLocation())) {
+//                logger.warn("Already saw boarding at " + nextNodeId);
+//                return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
+//            }
+//        }
 
         // no journey longer than N nodes
         // TODO check length based on current transport mode??

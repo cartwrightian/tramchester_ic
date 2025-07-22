@@ -46,6 +46,12 @@ public class LocationRepository {
         };
     }
 
+    /***
+     * Use LocationId<> instead where possible
+     * @param locationId the ID for the location
+     * @return the corresponding location
+     */
+    @Deprecated
     public Location<?> getLocation(final IdFor<? extends Location<?>> locationId) {
         final LocationType type = LocationType.getFor(locationId);
         return switch (type) {
@@ -55,14 +61,23 @@ public class LocationRepository {
         };
     }
 
-    private <T extends Location<?>> Location<?> getStation(IdFor<T> location) {
-        IdFor<Station> stationId = StringIdFor.convert(location, Station.class);
+    public Location<?> getLocation(final LocationId<?> locationId) {
+        final LocationType type = locationId.getLocationType(); // LocationType.getFor(locationId);
+        return switch (type) {
+            case Station -> getStation(locationId.getId());
+            case StationGroup -> getGroupStation(locationId.getId());
+            case Postcode, MyLocation, Platform -> throw new RuntimeException("not supported yet");
+        };
+    }
+
+    private <T extends Location<?>> Location<?> getStation(final IdFor<T> location) {
+        final IdFor<Station> stationId = StringIdFor.convert(location, Station.class);
         return stationRepository.getStationById(stationId);
     }
 
-    private <T extends Location<?>> Location<?> getGroupStation(IdFor<T> location) {
-        IdFor<StationLocalityGroup> stationId = StringIdFor.convert(location, StationLocalityGroup.class);
-        return stationGroupsRepository.getStationGroup(stationId);
+    private <T extends Location<?>> Location<?> getGroupStation(final IdFor<T> location) {
+        final IdFor<StationLocalityGroup> localityGroupId = StringIdFor.convert(location, StationLocalityGroup.class);
+        return stationGroupsRepository.getStationGroup(localityGroupId);
     }
 
 }

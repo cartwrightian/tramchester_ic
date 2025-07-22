@@ -546,6 +546,36 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
+    @Disabled("WIP")
+    @Test
+    void shouldReproIssuePiccToAltrinchamDuringClosures() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12,15), 4, 2);
+
+        List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Altrincham, journeyRequest);
+
+        assertFalse(results.isEmpty());
+
+        Set<Set<IdFor<?>>> hasDuplications = results.stream().
+                map(result -> duplicateCalls(result.getPath())).
+                filter(dups -> !dups.isEmpty()).
+                collect(Collectors.toSet());
+
+        assertTrue(hasDuplications.isEmpty(), hasDuplications + " for " + results);
+
+    }
+
+    private Set<IdFor<?>> duplicateCalls(final List<Location<?>> path) {
+        Set<Location<?>> seen = new HashSet<>();
+        Set<IdFor<?>> duplicates = new HashSet<>();
+        for (Location<?> location : path) {
+            if (seen.contains(location)) {
+                duplicates.add(location.getId());
+            }
+            seen.add(location);
+        }
+        return duplicates;
+    }
+
     @Test
     void shouldReproIssueWithJourneysToEcclesWithBus() {
         TramDate testDate = when.plusWeeks(1);

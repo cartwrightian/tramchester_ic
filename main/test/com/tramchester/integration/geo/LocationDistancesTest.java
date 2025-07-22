@@ -56,7 +56,7 @@ public class LocationDistancesTest {
 
         LocationCollection destinations = LocationCollectionSingleton.of(NavigationRoad.from(stationRepository));
 
-        long result = locationDistances.findDistancesTo(destinations).shortestDistanceToDest(TramStations.Altrincham.getId());
+        long result = locationDistances.findDistancesTo(destinations).shortestDistanceToDest(TramStations.Altrincham.getLocationId());
 
         assertEquals(expectedMeters, result);
 
@@ -70,7 +70,7 @@ public class LocationDistancesTest {
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         LocationSet<Station> locationSet = LocationSet.of(aroundPiccadilly);
-        long result = locationDistances.findDistancesTo(locationSet).shortestDistanceToDest(TramStations.Bury.getId());
+        long result = locationDistances.findDistancesTo(locationSet).shortestDistanceToDest(TramStations.Bury.getLocationId());
 
         assertEquals(expectedMeters, result);
     }
@@ -85,7 +85,8 @@ public class LocationDistancesTest {
 
         Stream<StationPair> pairs = all.stream().flatMap(stationA -> all.stream().map(stationB -> StationPair.of(stationA, stationB)));
 
-        long foundOk = pairs.map(pair -> locationDistances.findDistancesTo(LocationCollectionSingleton.of(pair.getBegin())).shortestDistanceToDest(pair.getEnd().getId())).
+        long foundOk = pairs.map(pair -> locationDistances.
+                        findDistancesTo(LocationCollectionSingleton.of(pair.getBegin())).shortestDistanceToDest(pair.getEnd().getLocationId())).
                 filter(result -> result != Long.MAX_VALUE).count();
 
         long expected = (long) count * count;

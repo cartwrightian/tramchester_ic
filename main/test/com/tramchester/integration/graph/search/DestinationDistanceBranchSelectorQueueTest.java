@@ -171,10 +171,9 @@ public class DestinationDistanceBranchSelectorQueueTest extends EasyMockSupport 
         ImmutableJourneyState state = createMock(ImmutableJourneyState.class);
         EasyMock.expect(state.getNodeId()).andStubReturn(GraphNodeId.TestOnly(nodeId));
         EasyMock.expect(state.hasBegunJourney()).andStubReturn(begunJourney);
-        IdFor<Station> stationId = station.getId();
         //EasyMock.expect(state.approxPosition()).andStubReturn(stationId);
         state.approxPosition();
-        EasyMock.expectLastCall().andStubReturn(stationId);
+        EasyMock.expectLastCall().andStubReturn(station.getLocationId());
         EasyMock.expect(state.getJourneyClock()).andStubReturn(tramTime);
         return state;
     }

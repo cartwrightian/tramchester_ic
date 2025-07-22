@@ -24,7 +24,7 @@ public enum GraphLabel implements Label {
     HAS_DIVERSION, // impacted by a diversion
 
     PLATFORM,
-    QUERY_NODE, // created to support journeys walking from arbitary location
+    QUERY_NODE, // created to support journeys walking from arbitrary location
     SERVICE,
     HOUR,
     MINUTE,

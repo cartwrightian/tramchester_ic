@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.selectors;
 
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.search.ImmutableJourneyState;
@@ -43,14 +42,15 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
     private static class TraversalBranchQueue {
 
         private final PriorityQueue<TraversalBranch> theQueue;
-        private final Map<IdFor<Station>, StationsBoxSimpleGrid> stationToBox;
+        private final Map<LocationId<Station>, StationsBoxSimpleGrid> stationToBox;
         private final StationsBoxSimpleGrid destination;
 
         public TraversalBranchQueue(final StationsBoxSimpleGrid destination, final List<StationsBoxSimpleGrid> startingBoxes) {
             this.destination = destination;
             theQueue = new PriorityQueue<>(new BranchComparator());
             stationToBox = new HashMap<>();
-            startingBoxes.forEach(box -> box.getStations().stream().forEach(station -> stationToBox.put(station.getId(), box)));
+            startingBoxes.forEach(box -> box.getStations().stream().
+                    forEach(station -> stationToBox.put(station.getLocationId(), box)));
         }
 
         public TraversalBranch removeFront() {
@@ -72,8 +72,8 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
                 // only worth comparing on distance if not the same node
                 if (!journeyStateA.getNodeId().equals(journeyStateB.getNodeId())) {
                     if(journeyStateA.hasBegunJourney() && journeyStateB.hasBegunJourney()) {
-                        final IdFor<? extends Location<?>> approxPositionA = journeyStateA.approxPosition();
-                        final IdFor<? extends Location<?>> approxPositionB = journeyStateB.approxPosition();
+                        final LocationId<?> approxPositionA = journeyStateA.approxPosition();
+                        final LocationId<?> approxPositionB = journeyStateB.approxPosition();
 
                         if (approxPositionA.getDomainType()==Station.class && approxPositionB.getDomainType()==Station.class) {
                             final StationsBoxSimpleGrid boxA = getBoxForPosition(approxPositionA);
@@ -87,10 +87,10 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
                 return journeyStateA.getJourneyClock().compareTo(journeyStateB.getJourneyClock());
             }
 
-            private @NotNull StationsBoxSimpleGrid getBoxForPosition(IdFor<? extends Location<?>> approxPositionA) {
-                final StationsBoxSimpleGrid box = stationToBox.get(approxPositionA);
+            private @NotNull StationsBoxSimpleGrid getBoxForPosition(final LocationId<?> locationId) {
+                final StationsBoxSimpleGrid box = stationToBox.get(locationId);
                 if (box==null) {
-                    throw new RuntimeException("Cannot find box for " + approxPositionA);
+                    throw new RuntimeException("Cannot find box for " + locationId);
                 }
                 return box;
             }

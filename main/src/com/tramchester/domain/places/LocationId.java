@@ -1,5 +1,6 @@
 package com.tramchester.domain.places;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 
@@ -44,5 +45,17 @@ public class LocationId<T extends Location<?>> implements HasId<T> {
     @Override
     public IdFor<T> getId() {
         return theId;
+    }
+
+    public boolean isValid() {
+        return theId.isValid();
+    }
+
+    public LocationType getLocationType() {
+        return LocationType.getFor(theId);
+    }
+
+    public Class<?> getDomainType() {
+        return theId.getDomainType();
     }
 }

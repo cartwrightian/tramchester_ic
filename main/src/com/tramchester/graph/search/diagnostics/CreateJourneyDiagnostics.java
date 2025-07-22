@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.diagnostics.DiagnosticReasonDTO;
@@ -40,7 +41,7 @@ public class CreateJourneyDiagnostics {
 
         reasons.forEach(reason -> {
             final HowIGotHere howIGotHere = reason.getHowIGotHere();
-            final IdFor<? extends Location<?>> locationId = howIGotHere.getApproxLocation();
+            final LocationId<?> locationId = howIGotHere.getApproxLocation();
             if (locationId.isValid()) {
                 final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
                 final DiagNode node = tree.addOrUpdateNode(locationId, endNodeId);
@@ -218,13 +219,13 @@ public class CreateJourneyDiagnostics {
     }
 
     private class DiagnosticTree {
-        private final Map<IdFor<? extends Location<?>>, DiagNode> nodes;
+        private final Map<LocationId<?>, DiagNode> nodes;
 
         public DiagnosticTree() {
             nodes = new HashMap<>();
         }
 
-        public DiagNode addOrUpdateNode(IdFor<? extends Location<?>> stationId, GraphNodeId nodeId) {
+        public DiagNode addOrUpdateNode(final LocationId<?> stationId, final GraphNodeId nodeId) {
 
             final DiagNode diagNode;
             if (!nodes.containsKey(stationId)) {
@@ -239,8 +240,8 @@ public class CreateJourneyDiagnostics {
             return diagNode;
         }
 
-        public void updateRelationshipsFor(DiagNode node, IdFor<Station> towardsId, HeuristicsReason reason, GraphNodeId associatedGraphNodeId) {
-            final DiagNode towardsNode = addOrUpdateNode(towardsId, associatedGraphNodeId);
+        public void updateRelationshipsFor(final DiagNode node, final IdFor<Station> towardsId, final HeuristicsReason reason, final GraphNodeId associatedGraphNodeId) {
+            final DiagNode towardsNode = addOrUpdateNode(LocationId.wrap(towardsId), associatedGraphNodeId);
             node.addEdgeTowards(towardsId, towardsNode, reason);
         }
 
@@ -250,19 +251,19 @@ public class CreateJourneyDiagnostics {
     }
 
     private class DiagNode {
-        private final IdFor<? extends Location<?>> locationId;
+        private final LocationId<?> locationId;
         private final Map<IdFor<? extends Location<?>>, Edge> edges;
         private final Set<HeuristicsReason> reasonCodes;
         private final Set<GraphNodeId> associatedNodeIds;
 
-        private DiagNode(final IdFor<? extends Location<?>> locationId) {
+        private DiagNode(final LocationId<?> locationId) {
             this.locationId = locationId;
             edges = new HashMap<>();
             reasonCodes = new HashSet<>();
             associatedNodeIds = new HashSet<>();
         }
 
-        public void addEdgeTowards(IdFor<Station> towardsId, DiagNode towardsNode, HeuristicsReason heuristicsReason) {
+        public void addEdgeTowards(final IdFor<Station> towardsId, final DiagNode towardsNode, final HeuristicsReason heuristicsReason) {
             final Edge edge;
             if (edges.containsKey(towardsId)) {
                 edge = edges.get(towardsId);

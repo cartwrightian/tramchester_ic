@@ -148,10 +148,11 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
                 schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_ID);
                 schema.createIndex(GraphLabel.PLATFORM, GraphPropertyKey.PLATFORM_ID);
 
+                tx.commit();
+
                 indexesCreated.set(true);
             }
 
-            tx.commit();
         }
     }
 
