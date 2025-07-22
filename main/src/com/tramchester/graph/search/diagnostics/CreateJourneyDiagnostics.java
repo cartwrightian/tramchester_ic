@@ -48,7 +48,8 @@ public class CreateJourneyDiagnostics {
 
                 if (howIGotHere.hasTowardsId()) {
                     final IdFor<Station> towardsId = howIGotHere.getTowardsId();
-                    tree.updateRelationshipsFor(node, towardsId, reason, endNodeId);
+                    final LocationId<Station> towardsLocationId = LocationId.wrap(towardsId);
+                    tree.updateRelationshipsFor(node, towardsLocationId, reason, endNodeId);
                 } else {
                     node.addReason(reason);
                 }
@@ -240,8 +241,9 @@ public class CreateJourneyDiagnostics {
             return diagNode;
         }
 
-        public void updateRelationshipsFor(final DiagNode node, final IdFor<Station> towardsId, final HeuristicsReason reason, final GraphNodeId associatedGraphNodeId) {
-            final DiagNode towardsNode = addOrUpdateNode(LocationId.wrap(towardsId), associatedGraphNodeId);
+        public void updateRelationshipsFor(final DiagNode node, final LocationId<Station> towardsId, final HeuristicsReason reason,
+                                           final GraphNodeId associatedGraphNodeId) {
+            final DiagNode towardsNode = addOrUpdateNode(towardsId, associatedGraphNodeId);
             node.addEdgeTowards(towardsId, towardsNode, reason);
         }
 
@@ -252,7 +254,7 @@ public class CreateJourneyDiagnostics {
 
     private class DiagNode {
         private final LocationId<?> locationId;
-        private final Map<IdFor<? extends Location<?>>, Edge> edges;
+        private final Map<LocationId<?>, Edge> edges;
         private final Set<HeuristicsReason> reasonCodes;
         private final Set<GraphNodeId> associatedNodeIds;
 
@@ -263,7 +265,7 @@ public class CreateJourneyDiagnostics {
             associatedNodeIds = new HashSet<>();
         }
 
-        public void addEdgeTowards(final IdFor<Station> towardsId, final DiagNode towardsNode, final HeuristicsReason heuristicsReason) {
+        public void addEdgeTowards(final LocationId<Station> towardsId, final DiagNode towardsNode, final HeuristicsReason heuristicsReason) {
             final Edge edge;
             if (edges.containsKey(towardsId)) {
                 edge = edges.get(towardsId);

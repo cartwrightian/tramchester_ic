@@ -64,7 +64,10 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Bury.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        Set<Timestamped> timestampedIds = stationIds.stream().
+                map(LocationId::wrap).
+                map(id -> new Timestamped(id, timeStamp, LocationType.Station)).
+                collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andReturn(true);
@@ -89,7 +92,10 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Bury.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        Set<Timestamped> timestampedIds = stationIds.stream().
+                map(LocationId::wrap).
+                map(id -> new Timestamped(id, timeStamp, LocationType.Station)).
+                collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andReturn(true);
@@ -112,7 +118,10 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Stockport.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        Set<Timestamped> timestampedIds = stationIds.stream().
+                map(LocationId::wrap).
+                map(id -> new Timestamped(id, timeStamp, LocationType.Station)).
+                collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andReturn(true);
@@ -138,7 +147,10 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Bury.getId(), Stockport.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        Set<Timestamped> timestampedIds = stationIds.stream().
+                map(LocationId::wrap).
+                map(id -> new Timestamped(id, timeStamp, LocationType.Station)).
+                collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andStubReturn(true);

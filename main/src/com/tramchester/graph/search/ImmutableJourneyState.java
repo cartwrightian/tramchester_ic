@@ -3,7 +3,6 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.neo4j.GraphNodeId;

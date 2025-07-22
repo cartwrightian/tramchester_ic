@@ -25,8 +25,8 @@ public class LocationRepository {
         this.postcodeRepository = postcodeRepository;
     }
 
-    public boolean hasLocation(LocationType type, IdForDTO idForDTO) {
-        String rawId = idForDTO.getActualId();
+    public boolean hasLocation(final LocationType type, final IdForDTO idForDTO) {
+        final String rawId = idForDTO.getActualId();
         return switch (type) {
             case Station -> stationRepository.hasStationId(Station.createId(rawId));
             case Platform, MyLocation -> false;
@@ -46,14 +46,8 @@ public class LocationRepository {
         };
     }
 
-    /***
-     * Use LocationId<> instead where possible
-     * @param locationId the ID for the location
-     * @return the corresponding location
-     */
-    @Deprecated
-    public Location<?> getLocation(final IdFor<? extends Location<?>> locationId) {
-        final LocationType type = LocationType.getFor(locationId);
+    public Location<?> getLocation(final LocationId<?> locationId) {
+        final LocationType type = locationId.getLocationType();
         return switch (type) {
             case Station -> getStation(locationId);
             case StationGroup -> getGroupStation(locationId);
@@ -61,22 +55,13 @@ public class LocationRepository {
         };
     }
 
-    public Location<?> getLocation(final LocationId<?> locationId) {
-        final LocationType type = locationId.getLocationType(); // LocationType.getFor(locationId);
-        return switch (type) {
-            case Station -> getStation(locationId.getId());
-            case StationGroup -> getGroupStation(locationId.getId());
-            case Postcode, MyLocation, Platform -> throw new RuntimeException("not supported yet");
-        };
-    }
-
-    private <T extends Location<?>> Location<?> getStation(final IdFor<T> location) {
-        final IdFor<Station> stationId = StringIdFor.convert(location, Station.class);
+    private Location<Station> getStation(final LocationId<?> location) {
+        final IdFor<Station> stationId = StringIdFor.convert(location.getId(), Station.class);
         return stationRepository.getStationById(stationId);
     }
 
-    private <T extends Location<?>> Location<?> getGroupStation(final IdFor<T> location) {
-        final IdFor<StationLocalityGroup> localityGroupId = StringIdFor.convert(location, StationLocalityGroup.class);
+    private Location<StationLocalityGroup> getGroupStation(final LocationId<?> location) {
+        final IdFor<StationLocalityGroup> localityGroupId = StringIdFor.convert(location.getId(), StationLocalityGroup.class);
         return stationGroupsRepository.getStationGroup(localityGroupId);
     }
 

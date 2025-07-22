@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 
 import java.util.Objects;
 
@@ -29,8 +30,16 @@ public class LocationIdPair<TYPE extends Location<TYPE>> {
         return pair.getFirst();
     }
 
+    public LocationId<TYPE> getBeginLocationId() {
+        return LocationId.wrap(getBeginId());
+    }
+
     public IdFor<TYPE> getEndId() {
         return pair.getSecond();
+    }
+
+    public LocationId<TYPE> getEndLocationId() {
+        return LocationId.wrap(getEndId());
     }
 
     public boolean same() {

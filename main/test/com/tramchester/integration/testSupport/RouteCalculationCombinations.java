@@ -10,10 +10,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.InterchangeStation;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -70,7 +67,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
     }
 
-    public Optional<Journey> findJourneys(final ImmutableGraphTransactionNeo4J txn, final IdFor<T> start, final IdFor<T> dest,
+    public Optional<Journey> findJourneys(final ImmutableGraphTransactionNeo4J txn, final LocationId<T> start, final LocationId<T> dest,
                                           final JourneyRequest journeyRequest, final Running running) {
         return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest, running)
                 .limit(1).
@@ -143,7 +140,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         final TramDate queryDate = request.getDate();
         final TramTime queryTime = request.getOriginalTime();
 
-        final Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
+        final Function<LocationId<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
 
         Stream<JourneyOrNot<T>> resultsStream = combinations.
                 parallelStream().
@@ -151,7 +148,8 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 map(stationIdPair -> new LocationIdAndNamePair<>(stationIdPair, resolver)).
                 map(stationIdPair -> {
                     try (final ImmutableGraphTransactionNeo4J txn = database.beginTx(timeout)) {
-                        final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request, running);
+                        final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginLocationId(),
+                                stationIdPair.getEndLocationId(), request, running);
                         return new JourneyOrNot<>(stationIdPair, queryDate, queryTime, optionalJourney);
                     }
                 });
@@ -170,7 +168,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public JourneyOrNot<T> createResult(LocationIdPair<T> locationIdPair, TramDate queryDate, TramTime queryTime,
                                         Optional<Journey> optionalJourney) {
-        final Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
+        final Function<LocationId<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
         final LocationIdAndNamePair<T> requested = new LocationIdAndNamePair<>(locationIdPair, resolver);
         return new JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
     }

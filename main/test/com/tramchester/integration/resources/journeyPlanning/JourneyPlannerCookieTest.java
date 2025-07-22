@@ -87,7 +87,7 @@ public class JourneyPlannerCookieTest {
 
         // cookie with ashton
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped ashtonCookieEntry = new Timestamped(TramStations.Ashton.getId(), now, LocationType.Station);
+        Timestamped ashtonCookieEntry = new Timestamped(TramStations.Ashton.getLocationId(), now, LocationType.Station);
         recentJourneys.setTimeStamps(Sets.newHashSet(ashtonCookieEntry));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
@@ -116,7 +116,7 @@ public class JourneyPlannerCookieTest {
         // cookie with ashton as
         RecentJourneys recentJourneys = new RecentJourneys();
         IdFor<StationLocalityGroup> idForStockportLocality = StringIdFor.convert(KnownLocality.Stockport.getId(), StationLocalityGroup.class);
-        Timestamped stockportLocalityCookie = new Timestamped(idForStockportLocality, now, LocationType.StationGroup);
+        Timestamped stockportLocalityCookie = new Timestamped(LocationId.wrap(idForStockportLocality), now, LocationType.StationGroup);
         recentJourneys.setTimeStamps(Sets.newHashSet(stockportLocalityCookie));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 

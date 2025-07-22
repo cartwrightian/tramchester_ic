@@ -30,7 +30,7 @@ public class TimestampedTest {
 
         LocalDateTime when = TestEnv.LocalNow().truncatedTo(ChronoUnit.MILLIS);
 
-        Timestamped timestamped = new Timestamped(TramStations.Altrincham.getId(), when, LocationType.Station);
+        Timestamped timestamped = new Timestamped(TramStations.Altrincham.getLocationId(), when, LocationType.Station);
 
         String json = objectMapper.writeValueAsString(timestamped);
 

@@ -33,7 +33,7 @@ public class LocationDistances {
         // only look up distance to destination once for any station
         // note: assumes FindDistancesTo lifetime is limited to one query, otherwise need tuning of cache creation to
         // avoid memory issues
-        private final Cache<IdFor<? extends Location<?>>, Long> cache;
+        private final Cache<LocationId<?>, Long> cache;
 
         public FindDistancesTo(final LocationCollection destinationLocations) {
             destinationGrids = destinationLocations.locationStream().
@@ -44,20 +44,16 @@ public class LocationDistances {
         }
 
         public long shortestDistanceToDest(final LocationId<?> locationId) {
-            return cache.get(locationId.getId(), this::getMinDistance);
+            return cache.get(locationId, this::getMinDistance);
         }
 
-        private Long getMinDistance(final IdFor<? extends Location<?>> locationId) {
+        private Long getMinDistance(final LocationId<?> locationId) {
             final Location<?> location = locationRepository.getLocation(locationId);
             final GridPosition gridPosition = location.getGridPosition();
 
             final OptionalLong find = destinationGrids.stream().
                     mapToLong(dest -> GridPositions.distanceTo(gridPosition, dest)).
                     min();
-
-//            final Optional<Long> find = destinationGrids.stream().
-//                    map(grid -> GridPositions.distanceTo(gridPosition, grid)).
-//                    min(Long::compare);
 
             return find.orElse(Long.MAX_VALUE);
         }

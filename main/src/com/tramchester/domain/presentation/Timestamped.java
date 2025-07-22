@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializerAsMillis;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializeAsMillis;
@@ -28,8 +29,8 @@ public class Timestamped  {
         // deserialisation
     }
 
-    public Timestamped(IdFor<? extends Location<?>> id, LocalDateTime when, LocationType locationType) {
-        this(new IdForDTO(id), when, locationType);
+    public Timestamped(LocationId<?> id, LocalDateTime when, LocationType locationType) {
+        this(IdForDTO.createFor(id), when, locationType);
     }
 
     public Timestamped(Location<?> location, LocalDateTime when) {

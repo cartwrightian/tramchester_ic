@@ -191,7 +191,7 @@ class RouteCalculatorKeyRoutesTest {
                     try (ImmutableGraphTransactionNeo4J txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, false,
                                 3, maxJourneyDuration, 1, modes);
-                        final Optional<Journey> optionalJourney = combinations.findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(),
+                        final Optional<Journey> optionalJourney = combinations.findJourneys(txn, stationIdPair.getBeginLocationId(), stationIdPair.getEndLocationId(),
                                 journeyRequest, () -> true);
                         RouteCalculationCombinations.JourneyOrNot<Station> journeyOrNot =
                                 combinations.createResult(stationIdPair, queryDate, queryTime, optionalJourney);
