@@ -1,11 +1,11 @@
 
 plugins {
-    id 'com.mgd.core.gradle.s3' version '2.1.1'
+    id 'com.mgd.core.gradle.s3' version '2.2.0'
     id 'io.mateo.cxf-codegen' version '2.4.1'
     id 'java'
     id 'application'
     id 'idea'
-    id 'com.gradleup.shadow' version '8.3.6'
+    id 'com.gradleup.shadow' version '8.3.8'
 }
 
 idea{
@@ -47,8 +47,8 @@ version = buildNumber
 ext {
     dropwizardVersion = '4.0.14'
     jacksonVersion = '2.19.2'
-    awsSdkVersion = '2.31.1'
-    allureVersion = '2.25.0'
+    awsSdkVersion = '2.32.4'
+    allureVersion = '2.29.1'
     //allure.results.directory=build/reports/allure
 }
 
@@ -83,7 +83,7 @@ dependencies {
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
             'commons-io:commons-io:2.20.0',
             'commons-codec:commons-codec:1.18.0',
-            'org.apache.commons:commons-collections4:4.4',
+            'org.apache.commons:commons-collections4:4.5.0',
             'org.apache.commons:commons-compress:1.27.1',
             'com.github.ben-manes.caffeine:caffeine:3.2.2'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
@@ -130,7 +130,7 @@ dependencies {
     testImplementation("org.javassist:javassist:3.30.2-GA")
 
     // cxf complains about missing conduit without this
-    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.1'
+    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.2'
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
