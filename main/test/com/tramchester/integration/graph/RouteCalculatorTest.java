@@ -275,7 +275,6 @@ public class RouteCalculatorTest {
         });
     }
 
-    //@Disabled("Failing due to temporarily less frequency service")
     @Test
     void shouldUseAllRoutesCorrectlWhenMultipleRoutesServDestination() {
 
@@ -546,6 +545,8 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
+    @Disabled("WIP")
+    // NOTE: with latest data changes (23/7/2025) this issue is no longer reproducible
     @Test
     void shouldReproIssuePiccToAltrinchamDuringClosures() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10,40), 8, 2);

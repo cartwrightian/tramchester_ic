@@ -316,11 +316,12 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                     false, 0, LocationId.wrap(Station.InvalidId()), new ArrayList<>(), false);
         }
 
-        // Copy cons
+        // COPY cons
+        // NOTE: Don't pass by Ref, create duplicates for collections etc
         public CoreState(final CoreState previous) {
             this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
                     previous.numberNeighbourConnections,
-                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation,
+                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation.copy(),
                     new ArrayList<>(previous.boardingLocations),
                     //false);
                     previous.duplicatedBoardingSeen);
@@ -356,7 +357,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         public void board(final TransportMode mode) {
             numberOfBoardings = numberOfBoardings + 1;
             if (boardingLocations.contains(lastSeenStation)) {
-                // check if occured earlier
+                // check if occurred earlier
                 if (!boardingLocations.getLast().equals(lastSeenStation)) {
                     duplicatedBoardingSeen = true;
                     logger.warn("Duplicated boarding ("+numberOfBoardings+") at " + lastSeenStation + " and boardings " + boardingLocations);

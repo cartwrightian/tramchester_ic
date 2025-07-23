@@ -58,4 +58,8 @@ public class LocationId<T extends Location<?>> implements HasId<T> {
     public Class<?> getDomainType() {
         return theId.getDomainType();
     }
+
+    public LocationId<?> copy() {
+        return new LocationId<>(this.theId);
+    }
 }
