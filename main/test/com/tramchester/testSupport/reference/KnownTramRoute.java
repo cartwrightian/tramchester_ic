@@ -7,12 +7,13 @@ import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,7,10);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,7,18);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -114,23 +115,27 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        routes.add(getGreen(date));
+        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            if (date.isBefore(TramDate.of(2025,8,24))) {
+                routes.add(getGreen(date));
+            }
+        } else {
+            if (!date.equals(TramDate.of(2025,8,25))) {
+                routes.add(getGreen(date));
+            }
+        }
 
         if (!UpcomingDates.PiccGardensWorksummer2025.contains(date) ) {
-            if (!UpcomingDates.PiccGardensWorksummer2025RoutesMissing.contains(date)) {
+            //if (!UpcomingDates.PiccGardensWorksummer2025RoutesMissing.contains(date)) {
                 routes.add(getPurple(date));
                 routes.add(getYellow(date));
-            }
+            //}
         }
 
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));
         routes.add(getPink(date));
-
-//        if (UpcomingDates.DeansgateEmergencyWorkJuly2025.contains(date)) {
-//            routes.add(getBusOne(date));
-//        }
 
         return routes;
     }

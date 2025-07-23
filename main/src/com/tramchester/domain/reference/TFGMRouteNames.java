@@ -12,8 +12,11 @@ public enum TFGMRouteNames {
     Green("Green Line"),
     Navy("Navy Line"),
     Yellow("Yellow Line"),
-    //Brown("Brown Line"),
     Blue("Blue Line");
+
+    // this pops up in the data as a metrolink route, but is the circular bus within the city centre
+    // exception will be thrown in TransportEntityFactoryForTFGM if it ever appears as a tram route
+    public static final String EXT2_IS_A_BUS = "EXT2";
 
     private final static Map<String, TFGMRouteNames> fromSource;
 
@@ -32,7 +35,7 @@ public enum TFGMRouteNames {
 
     public static TFGMRouteNames parseFromSource(final String text) {
         if (!fromSource.containsKey(text)) {
-            throw new RuntimeException("Missing route name " + text);
+            throw new RuntimeException("Missing from Enum: route name " + text);
         }
         return fromSource.get(text);
     }

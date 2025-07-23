@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.testSupport.UpcomingDates.AfterPiccGardensWorksummer2025;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 
 /*
@@ -22,7 +23,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Bus One
-    ReplacementBusOne(BusOne, "Replacement Bus One", "2949", TramDate.of(2025,7,13)),
+    //ReplacementBusOne(BusOne, "Replacement Bus One", "2949", TramDate.of(2025,7,13)),
 
     // Blue
     EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", latestCutoverDate),
@@ -37,13 +38,13 @@ public enum KnownTramRouteEnum implements TestRoute {
     RochdaleManchesterEastDidisburyNew(Pink, "Rochdale - Manchester - East Didsbury", "845", latestCutoverDate),
 
     // Purple
-    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", MISSING_ROUTE_ID, latestCutoverDate),
+    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", AfterPiccGardensWorksummer2025),
 
     // Red
     CornbrookTheTraffordCentreNew(Red, "Etihad Campus - The Trafford Centre", "849", latestCutoverDate),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", MISSING_ROUTE_ID, latestCutoverDate);
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", AfterPiccGardensWorksummer2025);
 
     private final TFGMRouteNames line;
     private final String longName; // diagnostics only

@@ -56,7 +56,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // summery 2025 closures 202->198
-    public static final int NumberOfStationLinks = 198;
+    public static final int NumberOfStationLinks = 202;
 
     private static final TramDate testDay;
 

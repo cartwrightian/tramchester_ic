@@ -546,14 +546,13 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldReproIssuePiccToAltrinchamDuringClosures() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10,40), 8, 2);
 
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Altrincham, journeyRequest);
 
-        assertFalse(results.isEmpty());
+        assertFalse(results.isEmpty(), "no results");
 
         Set<Set<IdFor<?>>> hasDuplications = results.stream().
                 map(result -> duplicateCalls(result.getPath())).

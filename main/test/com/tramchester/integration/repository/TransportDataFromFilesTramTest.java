@@ -101,8 +101,7 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        // -3 Summer 2025 closures
-        int expectedPlatforms = 201-2;
+        int expectedPlatforms = 201;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 
@@ -185,9 +184,9 @@ public class TransportDataFromFilesTramTest {
 
         Set<Station> allStations = transportData.getStations(TramsOnly);
 
-        Set<Route> noPickups = allTramRoutes.stream().
+        IdSet<Route> noPickups = allTramRoutes.stream().
                 filter(route -> allStations.stream().noneMatch(station -> station.servesRoutePickup(route))).
-                collect(Collectors.toSet());
+                collect(IdSet.collector());
 
         assertTrue(noPickups.isEmpty(), noPickups.toString());
 
@@ -447,7 +446,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1879, maximumNumberOfTrips);
+        assertEquals(1780, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

@@ -269,10 +269,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
     public GTFSTransportationType getRouteType(final RouteData routeData, final IdFor<Agency> agencyId) {
         final GTFSTransportationType routeType = routeData.getRouteType();
         final boolean isMetrolink = Agency.IsMetrolink(agencyId);
+        final String shortName = routeData.getShortName();
 
         // NOTE: this data issue has been reported to TFGM
         if (isMetrolink && routeType!=GTFSTransportationType.tram) {
-            if (routeData.getId().equals("2870")) {
+            if (shortName.equals(TFGMRouteNames.EXT2_IS_A_BUS)) {
                 logger.warn("Ignoring route with metrolink agency but not a tram " + routeData);
                 return routeType;
             } else {
@@ -280,6 +281,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
                 logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
                 return GTFSTransportationType.tram;
             }
+        }
+
+        // else if not caught about
+        if (shortName.equals(TFGMRouteNames.EXT2_IS_A_BUS)) {
+            throw new RuntimeException(TFGMRouteNames.EXT2_IS_A_BUS+" seen as a tram route?");
         }
 
         // NOTE: this data issue has been reported to TFGM

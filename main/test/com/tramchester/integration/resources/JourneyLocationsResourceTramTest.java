@@ -134,7 +134,7 @@ class JourneyLocationsResourceTramTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertFalse(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
 
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
