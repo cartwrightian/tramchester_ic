@@ -275,7 +275,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @Disabled("Failing due to temporarily less frequency service")
+    //@Disabled("Failing due to temporarily less frequency service")
     @Test
     void shouldUseAllRoutesCorrectlWhenMultipleRoutesServDestination() {
 
@@ -549,7 +549,7 @@ public class RouteCalculatorTest {
     @Disabled("WIP")
     @Test
     void shouldReproIssuePiccToAltrinchamDuringClosures() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12,15), 4, 2);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10,40), 8, 2);
 
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Altrincham, journeyRequest);
 

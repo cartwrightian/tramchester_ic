@@ -25,6 +25,7 @@ public interface ImmutableJourneyState extends HasTransportMode {
     GraphNodeId getNodeId();
     LocationId<?> approxPosition();
 
-    boolean justBoarded();
-    boolean alreadyBoarded(LocationId<?> locationId);
+    //boolean justBoarded();
+
+    boolean duplicatedBoardingSeen();
 }

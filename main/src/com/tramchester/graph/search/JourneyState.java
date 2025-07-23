@@ -255,13 +255,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return coreState.getLastVisited();
     }
 
-    @Override
-    public boolean justBoarded() {
-        return traversalState.getStateType().equals(TraversalStateType.JustBoardedState);
-    }
+//    @Override
+//    public boolean justBoarded() {
+//        return traversalState.getStateType().equals(TraversalStateType.JustBoardedState);
+//    }
 
-    public boolean alreadyBoarded(LocationId<?> locationId) {
-        return coreState.seenBoardingAt(locationId);
+    @Override
+    public boolean duplicatedBoardingSeen() {
+        return coreState.duplicatedBoardingSeen();
     }
 
     @Override
@@ -308,25 +309,28 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private boolean currentlyOnDiversion;
         private LocationId<?> lastSeenStation;
         private final Set<LocationId<?>> boardingLocations;
+        private boolean duplicatedBoardingSeen;
 
         public CoreState(final TramTime queryTime) {
             this(queryTime, false, 0,
                     TransportMode.NotSet, 0, 0,
-                    false, 0, LocationId.wrap(Station.InvalidId()), new HashSet<>());
+                    false, 0, LocationId.wrap(Station.InvalidId()), new HashSet<>(), false);
         }
 
         // Copy cons
         public CoreState(final CoreState previous) {
             this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
                     previous.numberNeighbourConnections,
-                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation, previous.boardingLocations);
+                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation, previous.boardingLocations,
+                    previous.duplicatedBoardingSeen);
         }
 
         private CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings,
                                                   final TransportMode currentMode, final int numberOfWalkingConnections,
                                                   final int numberNeighbourConnections, final boolean currentlyOnDiversion,
                                                   final int numberOfDiversionsTaken, final LocationId<?> lastSeenStation,
-                                                  final Set<LocationId<?>> boardingLocations) {
+                                                  final Set<LocationId<?>> boardingLocations,
+                                                    final boolean duplicatedBoardingSeen) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
@@ -337,6 +341,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this.numberOfDiversionsTaken = numberOfDiversionsTaken;
             this.lastSeenStation = lastSeenStation;
             this.boardingLocations = boardingLocations;
+            this.duplicatedBoardingSeen = duplicatedBoardingSeen;
         }
 
         public void incrementWalkingConnections() {
@@ -349,6 +354,10 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void board(final TransportMode mode) {
             numberOfBoardings = numberOfBoardings + 1;
+            if (boardingLocations.contains(lastSeenStation)) {
+                duplicatedBoardingSeen = true;
+                logger.warn("Duplicated boarding at " + lastSeenStation);
+            }
             boardingLocations.add(lastSeenStation);
             currentMode = mode;
             hasBegun = true;
@@ -379,7 +388,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 return 0;
             }
             return Math.max(0, withoutDiversions-numberOfDiversionsTaken);
-
         }
 
         @Override
@@ -470,8 +478,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             return lastSeenStation;
         }
 
-        public boolean seenBoardingAt(final LocationId<?> locationId) {
-            return boardingLocations.contains(locationId);
+        public boolean duplicatedBoardingSeen() {
+            return duplicatedBoardingSeen;
         }
     }
 
