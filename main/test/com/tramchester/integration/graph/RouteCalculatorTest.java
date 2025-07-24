@@ -545,7 +545,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
-    @Disabled("WIP")
     // NOTE: with latest data changes (23/7/2025) this issue is no longer reproducible
     @Test
     void shouldReproIssuePiccToAltrinchamDuringClosures() {
@@ -555,7 +554,7 @@ public class RouteCalculatorTest {
 
         assertFalse(results.isEmpty(), "no results");
 
-        Set<Set<IdFor<?>>> hasDuplications = results.stream().
+        Set<List<IdFor<?>>> hasDuplications = results.stream().
                 map(result -> duplicateCalls(result.getPath())).
                 filter(dups -> !dups.isEmpty()).
                 collect(Collectors.toSet());
@@ -564,9 +563,9 @@ public class RouteCalculatorTest {
 
     }
 
-    private Set<IdFor<?>> duplicateCalls(final List<Location<?>> path) {
+    private List<IdFor<?>> duplicateCalls(final List<Location<?>> path) {
         Set<Location<?>> seen = new HashSet<>();
-        Set<IdFor<?>> duplicates = new HashSet<>();
+        List<IdFor<?>> duplicates = new ArrayList<>();
         for (Location<?> location : path) {
             if (seen.contains(location)) {
                 duplicates.add(location.getId());
