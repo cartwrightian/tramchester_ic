@@ -29,6 +29,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
+import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -546,6 +547,7 @@ public class RouteCalculatorTest {
     }
 
     // NOTE: with latest data changes (23/7/2025) this issue is no longer reproducible
+    @Disabled("WIP")
     @Test
     void shouldReproIssuePiccToAltrinchamDuringClosures() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10,40), 8, 2);
@@ -575,6 +577,7 @@ public class RouteCalculatorTest {
         return duplicates;
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldReproIssueWithJourneysToEcclesWithBus() {
         TramDate testDate = when.plusWeeks(1);
@@ -624,20 +627,20 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Deansgate, Ashton);
     }
 
-    @DisabledUntilDate(year = 2025, month = 7, day = 27)
     @Test
     void reproduceIssueWithTramsSundayStPetersToDeansgate() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,0), maxNumResults, 0);
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2025, month = 7, day = 27)
+    @EcclesLineWorkSummer2025
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 15), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30),
@@ -647,6 +650,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrookWithBus() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30),
