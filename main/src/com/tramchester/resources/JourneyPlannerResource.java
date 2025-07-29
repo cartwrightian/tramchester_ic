@@ -18,7 +18,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
@@ -195,7 +194,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         final Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         final Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        final MutableGraphTransactionNeo4J tx =  graphDatabase.beginTxMutable();
+        final MutableGraphTransaction tx =  graphDatabase.beginTxMutable();
 
         try {
             final TramDate date = query.getTramDate();

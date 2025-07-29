@@ -25,7 +25,8 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.GraphTestHelper;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
@@ -52,7 +53,7 @@ public class GraphPropsTest {
 
     private static ComponentContainer componentContainer;
     private static UnitTestOfGraphConfig config;
-    private MutableGraphTransactionNeo4J txn;
+    private MutableGraphTransaction txn;
     private MutableGraphNode node;
 
     // See TransportDataFromFilesTramTest for test that gets this number
@@ -432,7 +433,8 @@ public class GraphPropsTest {
 
         GraphTestHelper graphTestHelper = new GraphTestHelper();
 
-        final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(txn, serviceRelationship);
+        MutableGraphTransactionNeo4J neo4 = (MutableGraphTransactionNeo4J) txn;
+        final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(neo4, serviceRelationship);
 
         List<IdFor<Trip>> sortedTripIds = unsortedTripIds.stream().
                 sorted(Comparator.comparing(IdFor::getGraphId)).

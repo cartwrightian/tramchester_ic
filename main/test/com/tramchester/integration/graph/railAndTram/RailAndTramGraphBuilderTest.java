@@ -9,12 +9,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphDirection;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -40,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RailAndTramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 
-    private ImmutableGraphTransactionNeo4J txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
 
     @BeforeAll

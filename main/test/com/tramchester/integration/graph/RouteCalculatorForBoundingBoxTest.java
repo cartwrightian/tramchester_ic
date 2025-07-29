@@ -15,7 +15,7 @@ import com.tramchester.geo.StationBoxFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -46,7 +46,7 @@ class RouteCalculatorForBoundingBoxTest {
 
     private RouteCalculatorForBoxes calculator;
     private final TramDate when = TestEnv.testDay();
-    private MutableGraphTransactionNeo4J txn;
+    private MutableGraphTransaction txn;
     private StationLocations stationLocations;
     private StationRepository stationRepository;
     private StationBoxFactory stationBoxFactory;

@@ -12,13 +12,12 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphDirection;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GetOutgoingServicesMatchingTripIdTest {
     private static GuiceContainerDependencies componentContainer;
-    private ImmutableGraphTransactionNeo4J txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
@@ -58,7 +57,7 @@ public class GetOutgoingServicesMatchingTripIdTest {
         when = TestEnv.testDay();
 
         stationRepository = componentContainer.get(StationRepository.class);
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        //RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(componentContainer);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);

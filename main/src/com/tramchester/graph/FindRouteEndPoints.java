@@ -4,6 +4,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -60,6 +61,7 @@ public class FindRouteEndPoints {
         return stationIds;
     }
 
+    @Deprecated
     @NotNull
     private IdSet<RouteStation> getIdFors(final TransportMode mode, final String query) {
         logger.debug("Query: '" + query + '"');
@@ -68,8 +70,9 @@ public class FindRouteEndPoints {
         params.put("mode", mode.getNumber());
 
         IdSet<RouteStation> stationIds = new IdSet<>();
-        try (MutableGraphTransactionNeo4J txn  = graphDatabase.beginTxMutable()) {
-            final Result result = txn.execute(query, params);
+        try (MutableGraphTransaction txn  = graphDatabase.beginTxMutable()) {
+            MutableGraphTransactionNeo4J neo4J = (MutableGraphTransactionNeo4J) txn;
+            final Result result = neo4J.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
                 String text = (String) row.get("route_station_id");

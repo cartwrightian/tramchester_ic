@@ -12,8 +12,8 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StationLocalityGroupsGraphBuilderTest {
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
-    private static MutableGraphTransactionNeo4J txn;
+    private static MutableGraphTransaction txn;
     private StationGroupsRepository stationGroupsRepository;
 
     @BeforeAll

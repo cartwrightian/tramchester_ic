@@ -3,6 +3,7 @@ package com.tramchester.graph.databaseManagement;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
@@ -23,15 +24,15 @@ import java.util.stream.Stream;
 public class GraphDatabaseMetaInfo {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseMetaInfo.class);
 
-    public boolean isNeighboursEnabled(MutableGraphTransactionNeo4J txn) {
+    public boolean isNeighboursEnabled(GraphTransaction txn) {
         return hasAnyNodeWith(txn, GraphLabel.NEIGHBOURS_ENABLED);
     }
 
-    public boolean hasVersionInfo(MutableGraphTransactionNeo4J txn) {
+    public boolean hasVersionInfo(GraphTransaction txn) {
         return hasAnyNodeWith(txn, GraphLabel.VERSION);
     }
 
-    private boolean hasAnyNodeWith(MutableGraphTransactionNeo4J txn, GraphLabel label) {
+    private boolean hasAnyNodeWith(final GraphTransaction txn, final GraphLabel label) {
         return txn.hasAnyMatching(label);
     }
 
@@ -39,7 +40,7 @@ public class GraphDatabaseMetaInfo {
         txn.createNode(GraphLabel.NEIGHBOURS_ENABLED);
     }
 
-    public Map<String, String> getVersions(final MutableGraphTransactionNeo4J txn) {
+    public Map<String, String> getVersions(final GraphTransaction txn) {
         Stream<ImmutableGraphNode> query = txn.findNodes(GraphLabel.VERSION);
 
         Map<String, String> versions = new HashMap<>();

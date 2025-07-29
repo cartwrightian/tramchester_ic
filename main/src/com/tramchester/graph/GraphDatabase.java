@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import org.slf4j.Logger;
 
@@ -11,17 +11,17 @@ import java.util.concurrent.TimeUnit;
 public interface GraphDatabase {
     boolean isCleanDB();
 
-    ImmutableGraphTransactionNeo4J beginTx();
+    GraphTransaction beginTx();
 
-    ImmutableGraphTransactionNeo4J beginTx(Duration timeout);
+    GraphTransaction beginTx(Duration timeout);
 
-    ImmutableGraphTransactionNeo4J beginTx(int timeout, TimeUnit timeUnit);
+    GraphTransaction beginTx(int timeout, TimeUnit timeUnit);
 
-    MutableGraphTransactionNeo4J beginTxMutable(int timeout, TimeUnit timeUnit);
+    MutableGraphTransaction beginTxMutable(int timeout, TimeUnit timeUnit);
 
-    MutableGraphTransactionNeo4J beginTxMutable();
+    MutableGraphTransaction beginTxMutable();
 
-    MutableGraphTransactionNeo4J beginTxMutable(Duration timeout);
+    MutableGraphTransaction beginTxMutable(Duration timeout);
 
     TimedTransaction beginTimedTxMutable(Logger logger, String text);
 

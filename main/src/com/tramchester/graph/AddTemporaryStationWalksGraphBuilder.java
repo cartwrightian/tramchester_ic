@@ -93,7 +93,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     private void recordDiversionsInPlace() {
-        try (final ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (final GraphTransaction txn = graphDatabase.beginTx()) {
             final Stream<ImmutableGraphNode> haveDiversions = txn.findNodes(GraphLabel.HAS_DIVERSION);
             haveDiversions.forEach(node -> recordDiversionsAtNode(node, txn));
         }
@@ -144,7 +144,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     private boolean hasDBFlag(final GTFSSourceConfig sourceConfig) {
         logger.info("Checking DB if temp walks added for " + sourceConfig.getName());
         final boolean flag;
-        try (final MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (final MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             final String value = sourceConfig.getName();
 
             flag = txn.hasAnyMatching(GraphLabel.TEMP_WALKS_ADDED, SOURCE_NAME_PROP.getText(), value);
@@ -153,7 +153,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     private void addDBFlag(final GTFSSourceConfig sourceConfig) {
-        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             final List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.TEMP_WALKS_ADDED).toList();
 
             final MutableGraphNode node;

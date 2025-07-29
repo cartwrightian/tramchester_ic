@@ -11,7 +11,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -47,7 +47,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     private static TramchesterConfig config;
 
     private RouteCalculatorTestFacade calculator;
-    private ImmutableGraphTransactionNeo4J txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxNumResults;
     private TramDate when;

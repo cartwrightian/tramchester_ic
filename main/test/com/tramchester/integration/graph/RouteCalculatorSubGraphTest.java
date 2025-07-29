@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -47,7 +47,7 @@ class RouteCalculatorSubGraphTest {
             StPetersSquare,
             Deansgate,
             Pomona);
-    private MutableGraphTransactionNeo4J txn;
+    private MutableGraphTransaction txn;
     private TramTime tramTime;
     private Duration maxJourneyDuration;
     private EnumSet<TransportMode> modes;

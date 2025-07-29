@@ -4,13 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.collections.LocationIdPairSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -35,7 +35,7 @@ class RailRouteCalculatorCombinationTests {
     private RouteCalculationCombinations<Station> combinations;
 
     private final TramDate when = TestEnv.testDay();
-    private MutableGraphTransactionNeo4J txn;
+    private MutableGraphTransaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

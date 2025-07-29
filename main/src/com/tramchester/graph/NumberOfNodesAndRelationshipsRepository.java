@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -44,7 +45,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countRelationships() {
         // note cypher does not allow parameters for labels
-        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             for (final TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
                 final String query = "MATCH ()-[relationship:" + relationshipType.name() + "]->() " + "RETURN count(relationship) as count";
                 final long count = getCountFromQuery(txn, query);
@@ -58,7 +59,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countNodeNumbers() {
         // note cypher does not allow parameters for labels
-        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             for (final GraphLabel label : GraphLabel.values()) {
                 final String query = "MATCH (node:" + label.name() + ") " + "RETURN count(node) as count";
                 final long count = getCountFromQuery(txn, query);
@@ -70,8 +71,10 @@ class NumberOfNodesAndRelationshipsRepository {
         }
     }
 
-    private long getCountFromQuery(final MutableGraphTransactionNeo4J txn, final String query) {
-        final Result result = txn.execute(query);
+    @Deprecated
+    private long getCountFromQuery(final MutableGraphTransaction txn, final String query) {
+        MutableGraphTransactionNeo4J neo4J = (MutableGraphTransactionNeo4J) txn;
+        final Result result = neo4J.execute(query);
         final ResourceIterator<Object> rows = result.columnAs("count");
         final long count = (long) rows.next();
         result.close();

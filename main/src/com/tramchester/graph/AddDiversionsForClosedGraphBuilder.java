@@ -103,7 +103,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     }
 
     private void recordDiversionsInPlace() {
-        try (final ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (final GraphTransaction txn = graphDatabase.beginTx()) {
             final Stream<ImmutableGraphNode> haveDiversions = txn.findNodes(GraphLabel.HAS_DIVERSION);
             haveDiversions.forEach(node -> recordDiversionsAtNode(node, txn));
         }
@@ -164,7 +164,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     private boolean hasDBFlag(final GTFSSourceConfig sourceConfig) {
         logger.info("Checking DB if walks added for " + sourceConfig.getName() +  " closed stations");
         final boolean flag;
-        try (final MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (final MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             final String value = sourceConfig.getName();
 
             flag = txn.hasAnyMatching(GraphLabel.WALK_FOR_CLOSED_ENABLED, SOURCE_NAME_PROP.getText(), value);
@@ -173,7 +173,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     }
 
     private void addDBFlag(final GTFSSourceConfig sourceConfig) {
-        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             final List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
 
             final MutableGraphNode node;

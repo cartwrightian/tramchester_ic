@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.TimedTransaction;
@@ -102,14 +103,14 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag() {
         boolean flag;
-        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
     }
 
     private void addDBFlag() {
-        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTxMutable()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             databaseMetaInfo.setNeighboursEnabled(txn);
             txn.commit();
         }

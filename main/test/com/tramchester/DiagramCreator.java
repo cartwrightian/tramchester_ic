@@ -13,7 +13,6 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
@@ -76,7 +75,7 @@ public class DiagramCreator {
 
         final DiagramBuild builder = new DiagramBuild(printStream);
 
-        try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
