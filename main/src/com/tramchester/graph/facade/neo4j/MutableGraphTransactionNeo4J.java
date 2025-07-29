@@ -107,11 +107,16 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
 
     @Override
     public ImmutableGraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
-        final Relationship relationship = graphRelationshipId.getRelationshipFrom(txn);
+        final Relationship relationship = getRelationship(graphRelationshipId);
         if (relationship==null) {
             return null;
         }
         return wrapRelationship(relationship);
+    }
+
+    private Relationship getRelationship(GraphRelationshipId graphRelationshipId) {
+        GraphRelationshipIdNeo4J actualId = (GraphRelationshipIdNeo4J) graphRelationshipId;
+        return actualId.getRelationshipFrom(txn);
     }
 
     @Override

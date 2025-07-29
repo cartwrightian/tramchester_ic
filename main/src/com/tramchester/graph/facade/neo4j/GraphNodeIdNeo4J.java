@@ -1,6 +1,5 @@
 package com.tramchester.graph.facade.neo4j;
 
-import com.tramchester.graph.facade.GraphId;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Node;

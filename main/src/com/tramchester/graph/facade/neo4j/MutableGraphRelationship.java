@@ -25,6 +25,7 @@ import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 

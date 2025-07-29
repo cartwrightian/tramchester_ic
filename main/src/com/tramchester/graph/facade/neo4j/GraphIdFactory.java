@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,7 +60,7 @@ public class GraphIdFactory implements ReportsCacheStats {
 
     GraphRelationshipId getIdFor(final Relationship relationship) {
         final String internalId = relationship.getElementId();
-        return relationshipIds.get(internalId, GraphRelationshipId::new);
+        return relationshipIds.get(internalId, GraphRelationshipIdNeo4J::new);
     }
 
     /***

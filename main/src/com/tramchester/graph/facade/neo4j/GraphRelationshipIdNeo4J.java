@@ -1,15 +1,15 @@
 package com.tramchester.graph.facade.neo4j;
 
-import com.tramchester.graph.facade.GraphId;
+import com.tramchester.graph.facade.GraphRelationshipId;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.util.Objects;
 
-public class GraphRelationshipId implements GraphId {
+public class GraphRelationshipIdNeo4J implements GraphRelationshipId {
     private final String internalId;
 
-    GraphRelationshipId(final String internalId) {
+    GraphRelationshipIdNeo4J(final String internalId) {
         this.internalId = internalId;
     }
 
@@ -17,7 +17,7 @@ public class GraphRelationshipId implements GraphId {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GraphRelationshipId that = (GraphRelationshipId) o;
+        GraphRelationshipIdNeo4J that = (GraphRelationshipIdNeo4J) o;
         return internalId.equals(that.internalId);
     }
 
