@@ -6,8 +6,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.*;
 
@@ -41,7 +41,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
         public RouteStationStateOnTrip fromMinuteState(final JourneyStateUpdate journeyState, final MinuteState minuteState,
                                                        final GraphNode routeStationNode, final Duration cost, final boolean isInterchange,
                                                        final GetOutgoingServicesMatchingTripId getOutgoingServicesMatchingTripId, // TODO Remove this
-                                                       final GraphTransactionNeo4J txn) {
+                                                       final GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = routeStationNode.getTransportMode();
             final IdFor<Trip> tripId = journeyState.getCurrentTrip();

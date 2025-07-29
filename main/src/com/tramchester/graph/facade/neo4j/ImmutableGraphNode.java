@@ -15,10 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
-import com.tramchester.graph.facade.GraphDirection;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
@@ -87,7 +84,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public ImmutableGraphRelationshipNeo4J getSingleRelationship(final GraphTransactionNeo4J txn,
+    public ImmutableGraphRelationshipNeo4J getSingleRelationship(final GraphTransaction txn,
                                                                  final TransportRelationshipTypes transportRelationshipTypes, final GraphDirection direction) {
         return underlying.getSingleRelationship(txn, transportRelationshipTypes,direction);
     }
@@ -148,24 +145,24 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes relationshipType) {
         return underlying.getRelationships(txn, direction, relationshipType);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes... transportRelationshipTypes) {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }
 
     @Override
-    public boolean hasOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
+    public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return underlying.hasOutgoingServiceMatching(txn, tripId);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return underlying.getOutgoingServiceMatching(txn, tripId);
     }
 

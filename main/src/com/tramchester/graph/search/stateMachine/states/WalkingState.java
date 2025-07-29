@@ -2,9 +2,8 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -38,7 +37,7 @@ public class WalkingState extends TraversalState {
             return TraversalStateType.WalkingState;
         }
 
-        public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransactionNeo4J txn) {
+        public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
             final FilterByDestinations<ImmutableGraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
 
@@ -51,7 +50,7 @@ public class WalkingState extends TraversalState {
             }
         }
 
-        public TraversalState fromStation(final StationState station, final GraphNode node, final Duration cost, final GraphTransactionNeo4J txn) {
+        public TraversalState fromStation(final StationState station, final GraphNode node, final Duration cost, final GraphTransaction txn) {
             return new WalkingState(station,
                     filterExcludingNode(txn, node.getRelationships(txn, GraphDirection.Outgoing), station), cost, this, node);
         }

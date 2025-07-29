@@ -3,8 +3,6 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -37,7 +35,7 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
 
     public Stream<ImmutableGraphRelationship> addValidDiversions(final Stream<ImmutableGraphRelationship> existing,
                                                                       final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
-                                                                      final GraphTransactionNeo4J txn) {
+                                                                      final GraphTransaction txn) {
 
         if (journeyStateUpdate.onDiversion()) {
             if (logger.isDebugEnabled()) {
@@ -63,26 +61,26 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryHour;
     }
 
-    protected <R extends ImmutableGraphRelationship> Stream<R> filterExcludingNode(final GraphTransactionNeo4J txn,
+    protected <R extends ImmutableGraphRelationship> Stream<R> filterExcludingNode(final GraphTransaction txn,
                                                                           final Stream<R> relationships,
                                                                           final NodeId hasNodeId) {
         final GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
 
-    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransactionNeo4J txn) {
+    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransaction txn) {
         return towardsDestination.fromRouteStation(txn, node);
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromPlatform(GraphTransactionNeo4J txn, GraphNode node) {
+    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromPlatform(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromPlatform(txn, node);
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransactionNeo4J txn, GraphNode node) {
+    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromStation(txn, node);
     }
 
-    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromWalk(GraphTransactionNeo4J txn, GraphNode node) {
+    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromWalk(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromWalk(txn, node);
     }
 }

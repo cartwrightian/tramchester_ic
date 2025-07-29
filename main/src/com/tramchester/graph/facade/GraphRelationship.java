@@ -17,7 +17,6 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 
 import java.time.Duration;
@@ -34,13 +33,13 @@ public interface GraphRelationship extends GraphEntity {
 
     Duration getCost();
 
-    GraphNode getEndNode(final GraphTransactionNeo4J txn);
+    GraphNode getEndNode(final GraphTransaction txn);
 
-    GraphNode getStartNode(GraphTransactionNeo4J txn);
+    GraphNode getStartNode(GraphTransaction txn);
 
     GraphNodeId getStartNodeId(ImmutableGraphTransactionNeo4J txn);
 
-    GraphNodeId getEndNodeId(GraphTransactionNeo4J txn);
+    GraphNodeId getEndNodeId(GraphTransaction txn);
 
     EnumSet<TransportMode> getTransportModes() ;
 

@@ -3,8 +3,8 @@ package com.tramchester.graph.search.stateMachine;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilder;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
@@ -22,13 +22,13 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         this.interchangesOnly = builderParameters.interchangesOnly();
     }
 
-    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransactionNeo4J txn) {
+    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
         return super.getTowardsDestinationFromRouteStation(node, txn);
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
     protected Stream<ImmutableGraphRelationship> getOutboundsToFollow(final GraphNode node, final boolean isInterchange,
-                                                                           final GraphTransactionNeo4J txn) {
+                                                                           final GraphTransaction txn) {
         final Stream<ImmutableGraphRelationship> outboundsToFollow;
         if (interchangesOnly) {
             if (isInterchange) {
@@ -47,7 +47,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
 
     }
 
-    private Stream<ImmutableGraphRelationship> getActiveDiversions(final GraphNode node, final GraphTransactionNeo4J txn) {
+    private Stream<ImmutableGraphRelationship> getActiveDiversions(final GraphNode node, final GraphTransaction txn) {
         final TramDate queryDate = super.getQueryDate();
 
         final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION_DEPART);

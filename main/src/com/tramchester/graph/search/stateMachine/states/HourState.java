@@ -6,9 +6,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -31,7 +30,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
         }
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
-                                     final IdFor<Station> towardsStationId, final GraphTransactionNeo4J txn) {
+                                     final IdFor<Station> towardsStationId, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, node, towardsStationId, cost, this);
         }
@@ -46,7 +45,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             return TraversalStateType.HourState;
         }
 
-        private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransactionNeo4J txn) {
+        private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
             Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise

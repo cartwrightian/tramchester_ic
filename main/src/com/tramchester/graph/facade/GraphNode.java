@@ -14,8 +14,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -70,13 +68,13 @@ public interface GraphNode extends GraphEntity {
 
     boolean hasRelationship(GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
-    ImmutableGraphRelationship getSingleRelationship(GraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
+    ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
 
-    boolean hasOutgoingServiceMatching(GraphTransactionNeo4J txn, IdFor<Trip> tripId);
+    boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
-    Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransactionNeo4J txn, IdFor<Trip> tripId);
+    Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 }

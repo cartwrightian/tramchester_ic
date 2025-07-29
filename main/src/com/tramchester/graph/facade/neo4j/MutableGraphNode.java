@@ -16,10 +16,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
-import com.tramchester.graph.facade.GraphDirection;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Label;
@@ -37,6 +34,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
+// TODO Rename to MutableGraphNodeNeo4J
 public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     private final Node node;
     private final GraphNodeId graphNodeId;
@@ -180,9 +178,10 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes relationshipType) {
-        return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationship);
+        final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+        return node.getRelationships(map(direction), relationshipType).stream().map(txnNeo4J::wrapRelationship);
     }
 
     private Direction map(final GraphDirection direction) {
@@ -199,19 +198,20 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes... transportRelationshipTypes) {
-        return node.getRelationships(map(direction), transportRelationshipTypes).stream().map(txn::wrapRelationship);
+        GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+        return node.getRelationships(map(direction), transportRelationshipTypes).stream().map(txnNeo4J::wrapRelationship);
     }
 
     @Override
-    public boolean hasOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
+    public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 anyMatch(relationship -> relationship.hasTripIdInList(tripId));
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
@@ -238,13 +238,14 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public ImmutableGraphRelationshipNeo4J getSingleRelationship(GraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipType,
+    public ImmutableGraphRelationshipNeo4J getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
                                                                  GraphDirection direction) {
+        GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
         if (found==null) {
             return null;
         }
-        return txn.wrapRelationship(found);
+        return txnNeo4J.wrapRelationship(found);
     }
 
     public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipType,

@@ -22,10 +22,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 
@@ -40,6 +37,7 @@ import java.util.Objects;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
+// TODO Rename to MutableGraphRelationshipNeo4J
 public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
 
     private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
@@ -291,27 +289,29 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
-    public GraphNode getEndNode(final GraphTransactionNeo4J txn) {
+    public GraphNode getEndNode(final GraphTransaction txn) {
         if (endNode==null) {
-            endNode = txn.getEndNode(relationship);
+            final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+            endNode = txnNeo4J.getEndNode(relationship);
         }
         return endNode;
     }
 
-    public GraphNode getStartNode(final GraphTransactionNeo4J txn) {
-        return txn.getStartNode(relationship);
+    public GraphNode getStartNode(final GraphTransaction txn) {
+        final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+        return txnNeo4J.getStartNode(relationship);
     }
 
     @Override
     public GraphNodeId getStartNodeId(final ImmutableGraphTransactionNeo4J txn) {
         return txn.getStartNodeId(relationship);
-        //return getStartNode(txn).getId();
     }
 
     @Override
-    public GraphNodeId getEndNodeId(final GraphTransactionNeo4J txn) {
+    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
         if (endNode==null) {
-            return txn.getEndNodeId(relationship);
+            final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+            return txnNeo4J.getEndNodeId(relationship);
         } else {
             return endNode.getId();
         }
