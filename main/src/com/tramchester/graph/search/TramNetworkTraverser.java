@@ -51,9 +51,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     public Stream<GraphPath> findPaths(final ImmutableGraphTransactionNeo4J txn, final RouteCalculatorSupport.PathRequest pathRequest,
-                                  final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
-                                  final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations,
-                                  final TowardsDestination towardsDestination, final Running running) {
+                                       final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
+                                       final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations,
+                                       final TowardsDestination towardsDestination, final Running running) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 towardsDestination, config, pathRequest.getRequestedModes());

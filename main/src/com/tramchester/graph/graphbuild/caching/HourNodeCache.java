@@ -1,7 +1,7 @@
 package com.tramchester.graph.graphbuild.caching;
 
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.neo4j.GraphNodeId;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 

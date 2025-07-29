@@ -3,6 +3,7 @@ package com.tramchester.graph.facade.neo4j;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,9 +51,9 @@ public class GraphIdFactory implements ReportsCacheStats {
         if (diagnostics) {
             // add labels to id to aid in diagnostics
             final EnumSet<GraphLabel> labels = GraphLabel.from(node.getLabels());
-            return nodeIds.get(internalId, unused -> new GraphNodeId(internalId, labels));
+            return nodeIds.get(internalId, unused -> new GraphNodeIdNeo4J(internalId, labels));
         } else {
-            return nodeIds.get(internalId, unused -> new GraphNodeId(internalId, NO_LABELS));
+            return nodeIds.get(internalId, unused -> new GraphNodeIdNeo4J(internalId, NO_LABELS));
         }
     }
 

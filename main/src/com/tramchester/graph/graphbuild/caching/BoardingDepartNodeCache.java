@@ -1,6 +1,6 @@
 package com.tramchester.graph.graphbuild.caching;
 
-import com.tramchester.graph.facade.neo4j.GraphNodeId;
+import com.tramchester.graph.facade.GraphNodeId;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class BoardingDepartNodeCache {
         }
     }
 
-    private boolean hasRelationship(Map<GraphNodeId, Set<GraphNodeId>> relationshipCache,  GraphNodeId boardingNodeId, GraphNodeId routeStationNodeId) {
+    private boolean hasRelationship(Map<GraphNodeId, Set<GraphNodeId>> relationshipCache, GraphNodeId boardingNodeId, GraphNodeId routeStationNodeId) {
         if (relationshipCache.containsKey(boardingNodeId)) {
             return relationshipCache.get(boardingNodeId).contains(routeStationNodeId);
         }

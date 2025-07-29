@@ -91,13 +91,18 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
 
     @Override
     public ImmutableGraphNode getNodeById(final GraphNodeId nodeId) {
-        final Node node = nodeId.getNodeFrom(txn);
+        final Node node = getNode(nodeId);
         return wrapNodeAsImmutable(node);
     }
 
     public MutableGraphNode getNodeByIdMutable(final GraphNodeId nodeId) {
-        final Node node = nodeId.getNodeFrom(txn);
+        final Node node = getNode(nodeId);
         return wrapNodeAsMutable(node);
+    }
+
+    private Node getNode(GraphNodeId nodeId) {
+        GraphNodeIdNeo4J actualNodeId = (GraphNodeIdNeo4J) nodeId;
+        return actualNodeId.getNodeFrom(txn);
     }
 
     @Override

@@ -4,11 +4,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.LocationDistances;
-import com.tramchester.graph.facade.neo4j.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.selectors.DestinationDistanceBranchSelector;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -169,7 +168,7 @@ public class DestinationDistanceBranchSelectorQueueTest extends EasyMockSupport 
     @NotNull
     private ImmutableJourneyState createMockJourneyState(int nodeId, TramStations station, boolean begunJourney, TramTime tramTime) {
         ImmutableJourneyState state = createMock(ImmutableJourneyState.class);
-        EasyMock.expect(state.getNodeId()).andStubReturn(GraphNodeId.TestOnly(nodeId));
+        EasyMock.expect(state.getNodeId()).andStubReturn(GraphNodeIdNeo4J.TestOnly(nodeId));
         EasyMock.expect(state.hasBegunJourney()).andStubReturn(begunJourney);
         //EasyMock.expect(state.approxPosition()).andStubReturn(stationId);
         state.approxPosition();

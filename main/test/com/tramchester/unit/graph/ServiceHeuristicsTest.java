@@ -11,7 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.neo4j.GraphNodeId;
+import com.tramchester.graph.facade.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -76,7 +76,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getMaxPathLength()).andStubReturn(maxPathLength);
         //EasyMock.expect(journeyConstraints.getDestinations()).andStubReturn(endStations);
         EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(maxJourneyDuration);
-        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeId.TestOnly(42L));
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeIdNeo4J.TestOnly(42L));
     }
 
     @NotNull
@@ -415,7 +415,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime currentElapsed = queryTime.plusMinutes(9);
 
-        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeId.TestOnly(42L));
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeIdNeo4J.TestOnly(42L));
 
 
         TramTime tramTime = TramTime.ofHourMins(nodeTime);
@@ -446,7 +446,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime currentElapsed = queryTime.plusMinutes(9);
 
-        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeId.TestOnly(42L));
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeIdNeo4J.TestOnly(42L));
 
         TramTime tramTime = TramTime.ofHourMins(nodeTime);
 
@@ -471,7 +471,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         resetAll();
         ////////////////
 
-        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeId.TestOnly(42L));
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeIdNeo4J.TestOnly(42L));
 
         GraphNode node = createMock(GraphNode.class);
 

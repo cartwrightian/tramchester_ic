@@ -4,7 +4,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;

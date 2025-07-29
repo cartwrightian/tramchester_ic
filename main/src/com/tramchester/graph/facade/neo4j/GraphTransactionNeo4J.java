@@ -1,6 +1,7 @@
 package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 

@@ -5,7 +5,6 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.graph.facade.neo4j.GraphNodeId;
 import com.tramchester.graph.facade.neo4j.GraphRelationshipId;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;

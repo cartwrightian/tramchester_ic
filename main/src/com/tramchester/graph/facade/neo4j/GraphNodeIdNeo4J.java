@@ -1,6 +1,7 @@
 package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.graph.facade.GraphId;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -8,22 +9,22 @@ import org.neo4j.graphdb.Transaction;
 import java.util.EnumSet;
 import java.util.Objects;
 
-public class GraphNodeId implements GraphId {
+public class GraphNodeIdNeo4J implements GraphNodeId {
     private final String internalId;
     private final EnumSet<GraphLabel> labels;
     private final int hashCode;
 
     // NOTE: labels not provided unless DB diagnostics set to true
 
-    GraphNodeId(final String internalId, final EnumSet<GraphLabel> labels) {
+    GraphNodeIdNeo4J(final String internalId, final EnumSet<GraphLabel> labels) {
         // todo performance, intern this id?
         this.internalId = internalId;
         this.labels = labels;
         this.hashCode = Objects.hash(internalId);
     }
 
-    public static GraphNodeId TestOnly(final long l) {
-        return new GraphNodeId(Long.toString(l), EnumSet.noneOf(GraphLabel.class));
+    public static GraphNodeIdNeo4J TestOnly(final long l) {
+        return new GraphNodeIdNeo4J(Long.toString(l), EnumSet.noneOf(GraphLabel.class));
     }
 
     // note: the majority of time should be hitting: this == o
@@ -31,7 +32,7 @@ public class GraphNodeId implements GraphId {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final GraphNodeId that = (GraphNodeId) o;
+        final GraphNodeIdNeo4J that = (GraphNodeIdNeo4J) o;
         return internalId.equals(that.internalId);
     }
 
