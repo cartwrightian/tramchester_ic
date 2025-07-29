@@ -18,10 +18,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
@@ -34,7 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class ImmutableGraphRelationship implements GraphRelationship {
+public class ImmutableGraphRelationshipNeo4J implements  ImmutableGraphRelationship {
     private final MutableGraphRelationship underlying;
     private final GraphRelationshipId relationshipId;
 
@@ -42,15 +39,15 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     private final SharedRelationshipCache sharedRelationshipCache;
     private final CostCache costCache;
 
-    public ImmutableGraphRelationship(final MutableGraphRelationship underlying, final SharedRelationshipCache sharedRelationshipCache) {
+    public ImmutableGraphRelationshipNeo4J(final MutableGraphRelationship underlying, final SharedRelationshipCache sharedRelationshipCache) {
         this.underlying = underlying;
         this.sharedRelationshipCache = sharedRelationshipCache;
         costCache = new CostCache();
         relationshipId = underlying.getId();
     }
 
-    public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationship> stream) {
-        final Stream<Relationship> mapped = stream.map(ImmutableGraphRelationship::getRelationship);
+    public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationshipNeo4J> stream) {
+        final Stream<Relationship> mapped = stream.map(ImmutableGraphRelationshipNeo4J::getRelationship);
 
         final Iterable<Relationship> iterable = new Iterable<>() {
             @NotNull
@@ -211,7 +208,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ImmutableGraphRelationship that = (ImmutableGraphRelationship) o;
+        ImmutableGraphRelationshipNeo4J that = (ImmutableGraphRelationshipNeo4J) o;
         return Objects.equals(underlying, that.underlying);
     }
 

@@ -151,12 +151,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
 
         graphState.setState(journeyStateForChildren);
-        final Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds();
+        final Stream<ImmutableGraphRelationshipNeo4J> outbounds = traversalStateForChildren.getOutbounds();
         return convertToIter(outbounds);
     }
 
-    private ResourceIterable<Relationship> convertToIter(final Stream<ImmutableGraphRelationship> resourceIterable) {
-        return ImmutableGraphRelationship.convertIterable(resourceIterable);
+    private ResourceIterable<Relationship> convertToIter(final Stream<ImmutableGraphRelationshipNeo4J> resourceIterable) {
+        return ImmutableGraphRelationshipNeo4J.convertIterable(resourceIterable);
     }
 
     @Override

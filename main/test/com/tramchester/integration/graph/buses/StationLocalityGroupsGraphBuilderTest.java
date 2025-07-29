@@ -11,7 +11,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
@@ -77,10 +77,10 @@ public class StationLocalityGroupsGraphBuilderTest {
         assertFalse(toOthers.isEmpty());
 
         toOthers.forEach(node -> {
-            List<ImmutableGraphRelationship> outbounds = node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_GROUPED).toList();
+            List<ImmutableGraphRelationshipNeo4J> outbounds = node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_GROUPED).toList();
             assertFalse(outbounds.isEmpty(), node.getAllProperties().toString());
 
-            ImmutableGraphRelationship link = outbounds.get(0);
+            ImmutableGraphRelationshipNeo4J link = outbounds.get(0);
             Duration cost = link.getCost();
             assertTrue(cost.compareTo(walkingDuration) <=0, "got " + cost + " more than " + walkingDuration);
 
@@ -102,7 +102,7 @@ public class StationLocalityGroupsGraphBuilderTest {
 
         assertEquals(stationGroupNode.getStationGroupId(), stationGroupId);
 
-        List<ImmutableGraphRelationship> childLinks = stationGroupNode.getRelationships(txn,
+        List<ImmutableGraphRelationshipNeo4J> childLinks = stationGroupNode.getRelationships(txn,
                 GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_CHILD).toList();
 
         StationLocalityGroup group = stationGroupsRepository.getStationGroup(stationGroupId);
@@ -120,7 +120,7 @@ public class StationLocalityGroupsGraphBuilderTest {
 
         childNodes.forEach(childNode -> {
             assertTrue(childNode.hasRelationship(GraphDirection.Outgoing, GROUPED_TO_PARENT), childNode.getStationId().toString());
-            ImmutableGraphRelationship toParent = childNode.getSingleRelationship(txn, GROUPED_TO_PARENT, GraphDirection.Outgoing);
+            ImmutableGraphRelationshipNeo4J toParent = childNode.getSingleRelationship(txn, GROUPED_TO_PARENT, GraphDirection.Outgoing);
             GraphNode endNode = toParent.getEndNode(txn);
             assertEquals(stationGroupNode.getId(), endNode.getId(), "wrong parent for " + childNode.getStationId());
 

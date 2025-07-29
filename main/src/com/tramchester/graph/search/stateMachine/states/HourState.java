@@ -7,7 +7,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -31,7 +31,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
                                      final IdFor<Station> towardsStationId, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, node, towardsStationId, cost, this);
         }
 
@@ -45,8 +45,8 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             return TraversalStateType.HourState;
         }
 
-        private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransactionNeo4J txn) {
-            Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
+        private Stream<ImmutableGraphRelationshipNeo4J> getMinuteRelationships(final GraphNode node, final GraphTransactionNeo4J txn) {
+            Stream<ImmutableGraphRelationshipNeo4J> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
                 // the order here, unlike for HOURS
@@ -60,7 +60,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
 
     private final IdFor<Station> towardsStationId;
 
-    private HourState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+    private HourState(final TraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> relationships,
                       final GraphNode node, IdFor<Station> towardsStationId, final Duration cost, final Towards<HourState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node.getId());
         this.towardsStationId = towardsStationId;

@@ -106,7 +106,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     }
 
     @Override
-    public ImmutableGraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
+    public ImmutableGraphRelationshipNeo4J getRelationshipById(final GraphRelationshipId graphRelationshipId) {
         final Relationship relationship = getRelationship(graphRelationshipId);
         if (relationship==null) {
             return null;
@@ -189,7 +189,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     }
 
     @Override
-    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
+    public List<ImmutableGraphRelationshipNeo4J> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
         final GraphNode routeStationNode = findNode(routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
@@ -212,11 +212,11 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     }
 
     @Override
-    public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
+    public ImmutableGraphRelationshipNeo4J wrapRelationship(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
         final SharedRelationshipCache.InvalidatesCache invalidatesCache = sharedRelationshipCache.invalidatorFor(id);
         final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, id, invalidatesCache);
-        return new ImmutableGraphRelationship(underlying, sharedRelationshipCache);
+        return new ImmutableGraphRelationshipNeo4J(underlying, sharedRelationshipCache);
     }
 
     MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
@@ -280,7 +280,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
         };
     }
 
-    public ImmutableGraphRelationship getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
+    public ImmutableGraphRelationshipNeo4J getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
         final Relationship relationship = (Relationship) row.get(columnName);
         return wrapRelationship(relationship);
     }

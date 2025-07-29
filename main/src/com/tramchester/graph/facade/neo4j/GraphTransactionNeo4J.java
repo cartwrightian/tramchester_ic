@@ -7,7 +7,7 @@ import org.neo4j.graphdb.*;
 
 public interface GraphTransactionNeo4J extends AutoCloseable {
 
-    ImmutableGraphRelationship wrapRelationship(Relationship relationship);
+    ImmutableGraphRelationshipNeo4J wrapRelationship(Relationship relationship);
 
     GraphNode wrapNode(Node node);
 

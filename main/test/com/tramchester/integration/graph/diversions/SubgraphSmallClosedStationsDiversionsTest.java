@@ -24,7 +24,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -318,7 +318,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         try (ImmutableGraphTransactionNeo4J txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
-                Stream<ImmutableGraphRelationship> iterable = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.DIVERSION_DEPART);
+                Stream<ImmutableGraphRelationshipNeo4J> iterable = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });

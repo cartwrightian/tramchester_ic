@@ -62,7 +62,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
+    public List<ImmutableGraphRelationshipNeo4J> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
         return underlying.getRouteStationRelationships(routeStation, direction);
     }
 
@@ -72,7 +72,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
+    public ImmutableGraphRelationshipNeo4J wrapRelationship(final Relationship relationship) {
         return underlying.wrapRelationship(relationship);
     }
 
@@ -82,7 +82,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public ImmutableGraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
+    public ImmutableGraphRelationshipNeo4J getRelationshipById(final GraphRelationshipId graphRelationshipId) {
         return underlying.getRelationshipById(graphRelationshipId);
     }
 

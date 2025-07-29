@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
@@ -25,5 +25,5 @@ public interface ImmutableTraversalState {
 
     TraversalStateFactory getTraversalStateFactory();
 
-    Stream<ImmutableGraphRelationship> getOutbounds();
+    Stream<ImmutableGraphRelationshipNeo4J> getOutbounds();
 }

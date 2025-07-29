@@ -13,7 +13,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -86,7 +86,7 @@ public class TowardsDestinationTest {
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
-        List<ImmutableGraphRelationship> departs = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.DEPART).toList();
+        List<ImmutableGraphRelationshipNeo4J> departs = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.DEPART).toList();
 
         assertFalse(departs.isEmpty());
 
@@ -124,7 +124,7 @@ public class TowardsDestinationTest {
 
         assertNotNull(node);
 
-        List<ImmutableGraphRelationship> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
+        List<ImmutableGraphRelationshipNeo4J> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
 
         assertFalse(towardsGroup.isEmpty());
 
@@ -143,10 +143,10 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((station));
 
-        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        FilterByDestinations<ImmutableGraphRelationshipNeo4J> towards = towardsDestination.fromRouteStation(txn, node);
 
         assertFalse(towards.isEmpty());
-        List<ImmutableGraphRelationship> results = towards.stream().toList();
+        List<ImmutableGraphRelationshipNeo4J> results = towards.stream().toList();
 
         // 2 platforms
         assertEquals(2, results.size());
@@ -170,7 +170,7 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
 
-        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        FilterByDestinations<ImmutableGraphRelationshipNeo4J> towards = towardsDestination.fromRouteStation(txn, node);
 
         assertTrue(towards.isEmpty());
 
@@ -188,11 +188,11 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((stationGroup));
 
-        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromStation(txn, node);
+        FilterByDestinations<ImmutableGraphRelationshipNeo4J> towards = towardsDestination.fromStation(txn, node);
 
         assertFalse(towards.isEmpty());
 
-        Stream<ImmutableGraphRelationship> results = towards.stream();
+        Stream<ImmutableGraphRelationshipNeo4J> results = towards.stream();
 
         results.forEach(relationship -> {
             GraphNode endNode = relationship.getEndNode(txn);
@@ -211,11 +211,11 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
 
-        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        FilterByDestinations<ImmutableGraphRelationshipNeo4J> towards = towardsDestination.fromRouteStation(txn, node);
 
         assertFalse(towards.isEmpty());
 
-        Stream<ImmutableGraphRelationship> results = towards.stream();
+        Stream<ImmutableGraphRelationshipNeo4J> results = towards.stream();
 
         results.forEach(relationship -> {
             GraphNode endNode = relationship.getEndNode(txn);
@@ -252,7 +252,7 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
 
-        FilterByDestinations<ImmutableGraphRelationship> results = towardsDestination.fromStation(txn, node);
+        FilterByDestinations<ImmutableGraphRelationshipNeo4J> results = towardsDestination.fromStation(txn, node);
 
         assertTrue(results.isEmpty());
 

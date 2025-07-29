@@ -5,7 +5,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
@@ -55,9 +55,9 @@ public class NoPlatformStationState extends StationState {
                                                 final JourneyStateUpdate journeyState,
                                                 final GraphTransactionNeo4J txn) {
 
-            final Stream<ImmutableGraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
+            final Stream<ImmutableGraphRelationshipNeo4J> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
 
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(walksAndGroup, node, journeyState, txn);
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = addValidDiversions(walksAndGroup, node, journeyState, txn);
 
             return new NoPlatformStationState(notStartedState, relationships, cost, node,
                     journeyState, getDestination());
@@ -78,29 +78,29 @@ public class NoPlatformStationState extends StationState {
         public NoPlatformStationState fromNeighbour(final StationState noPlatformStation, final GraphNode node, final Duration cost,
                                                     final JourneyStateUpdate journeyState,
                                                     final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> grouped = node.getRelationships(txn, GraphDirection.Outgoing,GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<ImmutableGraphRelationshipNeo4J> grouped = node.getRelationships(txn, GraphDirection.Outgoing,GROUPED_TO_PARENT);
+            final Stream<ImmutableGraphRelationshipNeo4J> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(noPlatformStation, Stream.concat(grouped, boarding), cost, node, journeyState, getDestination());
         }
 
         @Override
         public NoPlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode node, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> neighbour = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<ImmutableGraphRelationshipNeo4J> neighbour = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
+            final Stream<ImmutableGraphRelationshipNeo4J> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(groupedStationState, Stream.concat(neighbour, boarding), cost,  node, journeyState, getDestination());
         }
 
-        Stream<ImmutableGraphRelationship> boardRelationshipsPlus(final GraphNode node, final GraphTransactionNeo4J txn, final TransportRelationshipTypes... others) {
-            final Stream<ImmutableGraphRelationship> other = node.getRelationships(txn, GraphDirection.Outgoing, others);
-            final Stream<ImmutableGraphRelationship> board = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
+        Stream<ImmutableGraphRelationshipNeo4J> boardRelationshipsPlus(final GraphNode node, final GraphTransactionNeo4J txn, final TransportRelationshipTypes... others) {
+            final Stream<ImmutableGraphRelationshipNeo4J> other = node.getRelationships(txn, GraphDirection.Outgoing, others);
+            final Stream<ImmutableGraphRelationshipNeo4J> board = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
             // order matters here, i.e. explore walks first
             return Stream.concat(other, board);
         }
 
     }
 
-    NoPlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+    NoPlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> relationships, final Duration cost,
                            final GraphNode stationNode, final JourneyStateUpdate journeyStateUpdate, final TraversalStateType builderStateTYpe) {
         super(parent, relationships, cost, stationNode, journeyStateUpdate, builderStateTYpe);
     }

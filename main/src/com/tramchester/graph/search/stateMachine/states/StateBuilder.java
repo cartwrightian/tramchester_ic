@@ -4,7 +4,7 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -35,9 +35,9 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryDate;
     }
 
-    public Stream<ImmutableGraphRelationship> addValidDiversions(final Stream<ImmutableGraphRelationship> existing,
-                                                                 final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
-                                                                 final GraphTransactionNeo4J txn) {
+    public Stream<ImmutableGraphRelationshipNeo4J> addValidDiversions(final Stream<ImmutableGraphRelationshipNeo4J> existing,
+                                                                      final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
+                                                                      final GraphTransactionNeo4J txn) {
 
         if (journeyStateUpdate.onDiversion()) {
             if (logger.isDebugEnabled()) {
@@ -48,9 +48,9 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
 
         // TODO Is this ordering the right approach, or require only one diversion from each location (doesn't work either?)
         if (node.hasRelationship(GraphDirection.Outgoing, DIVERSION)) {
-            final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
+            final Stream<ImmutableGraphRelationshipNeo4J> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
                     filter(diversion -> diversion.validOn(queryDate)).
-                    sorted(Comparator.comparing(ImmutableGraphRelationship::getCost));
+                    sorted(Comparator.comparing(ImmutableGraphRelationshipNeo4J::getCost));
 
             // TODO ordering here?
             return Streams.concat(existing, diversions);
@@ -70,19 +70,19 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
 
-    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransactionNeo4J txn) {
+    protected FilterByDestinations<ImmutableGraphRelationshipNeo4J> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransactionNeo4J txn) {
         return towardsDestination.fromRouteStation(txn, node);
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromPlatform(GraphTransactionNeo4J txn, GraphNode node) {
+    public FilterByDestinations<ImmutableGraphRelationshipNeo4J> getTowardsDestinationFromPlatform(GraphTransactionNeo4J txn, GraphNode node) {
         return towardsDestination.fromPlatform(txn, node);
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransactionNeo4J txn, GraphNode node) {
+    public FilterByDestinations<ImmutableGraphRelationshipNeo4J> getTowardsDestinationFromNonPlatformStation(GraphTransactionNeo4J txn, GraphNode node) {
         return towardsDestination.fromStation(txn, node);
     }
 
-    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromWalk(GraphTransactionNeo4J txn, GraphNode node) {
+    protected FilterByDestinations<ImmutableGraphRelationshipNeo4J> getTowardsDestinationFromWalk(GraphTransactionNeo4J txn, GraphNode node) {
         return towardsDestination.fromWalk(txn, node);
     }
 }

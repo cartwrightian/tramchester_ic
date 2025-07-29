@@ -5,7 +5,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -21,7 +21,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     protected final TraversalStateFactory traversalStateFactory;
     protected final GraphTransactionNeo4J txn;
 
-    private final Stream<ImmutableGraphRelationship> outbounds;
+    private final Stream<ImmutableGraphRelationshipNeo4J> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
     private final GraphNodeId graphNodeId;
@@ -43,7 +43,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    protected TraversalState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
+    protected TraversalState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> outbounds, final Duration costForLastEdge,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId) {
         super(stateType);
         this.txn = parent.getTransaction();
@@ -66,7 +66,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return txn;
     }
 
-    public Stream<ImmutableGraphRelationship> getOutbounds() {
+    public Stream<ImmutableGraphRelationshipNeo4J> getOutbounds() {
         return outbounds;
     }
 

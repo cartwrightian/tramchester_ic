@@ -86,8 +86,8 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public ImmutableGraphRelationship getSingleRelationship(final GraphTransactionNeo4J txn,
-                                                            final TransportRelationshipTypes transportRelationshipTypes, final GraphDirection direction) {
+    public ImmutableGraphRelationshipNeo4J getSingleRelationship(final GraphTransactionNeo4J txn,
+                                                                 final TransportRelationshipTypes transportRelationshipTypes, final GraphDirection direction) {
         return underlying.getSingleRelationship(txn, transportRelationshipTypes,direction);
     }
 
@@ -147,14 +147,14 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
-                                                               final TransportRelationshipTypes relationshipType) {
+    public Stream<ImmutableGraphRelationshipNeo4J> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+                                                                    final TransportRelationshipTypes relationshipType) {
         return underlying.getRelationships(txn, direction, relationshipType);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
-                                                               final TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<ImmutableGraphRelationshipNeo4J> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+                                                                    final TransportRelationshipTypes... transportRelationshipTypes) {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }
 
@@ -164,7 +164,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
+    public Stream<ImmutableGraphRelationshipNeo4J> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
         return underlying.getOutgoingServiceMatching(txn, tripId);
     }
 

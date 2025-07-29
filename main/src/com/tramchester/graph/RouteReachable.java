@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
@@ -58,7 +58,7 @@ public class RouteReachable {
                 if (routeStationNode==null) {
                     logger.warn("Missing route station, graph DB rebuild needed?");
                 } else {
-                    Stream<ImmutableGraphRelationship> edges = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE);
+                    Stream<ImmutableGraphRelationshipNeo4J> edges = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE);
 
                     edges.forEach(edge -> {
                         final IdFor<Station> endNodeStationId = edge.getEndStationId();

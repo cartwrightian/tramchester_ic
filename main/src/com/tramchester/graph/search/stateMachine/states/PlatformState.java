@@ -5,7 +5,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -39,7 +39,7 @@ public class PlatformState extends TraversalState implements NodeId {
         }
 
         public PlatformState from(final PlatformStationState stationState, final GraphNode node, final Duration cost, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<ImmutableGraphRelationshipNeo4J> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
 
             return new PlatformState(stationState, boarding, node, cost, this.getDestination());
         }
@@ -60,7 +60,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final GraphNode platformNode;
 
-    protected PlatformState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final GraphNode platformNode,
+    protected PlatformState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> relationships, final GraphNode platformNode,
                             final Duration cost, final TraversalStateType towards) {
         super(parent, relationships, cost, towards, platformNode.getId());
         this.platformNode = platformNode;

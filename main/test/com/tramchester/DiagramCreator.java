@@ -144,8 +144,8 @@ public class DiagramCreator {
         });
     }
 
-    private Stream<ImmutableGraphRelationship> getRelationships(GraphNode targetNode, GraphDirection direction,
-                                                                boolean toplevelOnly, GraphTransactionNeo4J txn) {
+    private Stream<ImmutableGraphRelationshipNeo4J> getRelationships(GraphNode targetNode, GraphDirection direction,
+                                                                     boolean toplevelOnly, GraphTransactionNeo4J txn) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
         return targetNode.getRelationships(txn, direction, types);
     }

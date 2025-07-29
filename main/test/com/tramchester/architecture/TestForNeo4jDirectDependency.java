@@ -16,11 +16,15 @@ public class TestForNeo4jDirectDependency {
                 //.layer("Repository").definedBy("..respository..")
                 .layer("Graph").definedBy("com.tramchester.graph")
                 .layer("Caches").definedBy("com.tramchester.graph.caches")
+                .layer("Search").definedBy("com.tramchester.graph.search..")
+                .layer("DTODiag").definedBy("com.tramchester.domain.presentation.DTO.diagnostics")
+                .layer("Build").definedBy("com.tramchester.graph.graphbuild..")
                 .layer("Facade").definedBy("com.tramchester.graph.facade")
                 .layer("Neo4J").definedBy("com.tramchester.graph.facade.neo4j")
 
 
                 .whereLayer("Neo4J").mayOnlyBeAccessedByLayers("Facade")
-                .whereLayer("Facade").mayOnlyBeAccessedByLayers("Graph", "Caches");
+                .whereLayer("Facade").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4J", "Search",
+                        "DTODiag", "Build");
 
 }

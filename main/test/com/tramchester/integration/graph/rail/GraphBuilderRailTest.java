@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -86,7 +86,7 @@ class GraphBuilderRailTest {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
         GraphNode startNode = txn.findNode(piccadilly);
-        List<ImmutableGraphRelationship> outboundLinks = startNode.getRelationships(txn, GraphDirection.Outgoing, LINKED).toList();
+        List<ImmutableGraphRelationshipNeo4J> outboundLinks = startNode.getRelationships(txn, GraphDirection.Outgoing, LINKED).toList();
 
         assertEquals(25, outboundLinks.size(), outboundLinks.toString());
 

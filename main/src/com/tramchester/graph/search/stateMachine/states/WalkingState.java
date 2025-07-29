@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -38,8 +38,8 @@ public class WalkingState extends TraversalState {
         }
 
         public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
-            final FilterByDestinations<ImmutableGraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
+            final FilterByDestinations<ImmutableGraphRelationshipNeo4J> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
@@ -57,7 +57,7 @@ public class WalkingState extends TraversalState {
 
     }
 
-    private WalkingState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+    private WalkingState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> relationships, final Duration cost,
                          final Towards<WalkingState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
     }

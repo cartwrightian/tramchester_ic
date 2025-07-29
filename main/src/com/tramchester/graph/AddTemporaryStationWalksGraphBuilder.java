@@ -108,9 +108,9 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);
 
-        final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION);
+        final Stream<ImmutableGraphRelationshipNeo4J> outgoingDiversion = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION);
 
-        final Set<DateTimeRange> ranges = outgoingDiversion.map(ImmutableGraphRelationship::getDateTimeRange).collect(Collectors.toSet());
+        final Set<DateTimeRange> ranges = outgoingDiversion.map(ImmutableGraphRelationshipNeo4J::getDateTimeRange).collect(Collectors.toSet());
 
         logger.info("Recording diversion for " + stationId + " for " + ranges);
 

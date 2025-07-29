@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
@@ -81,7 +81,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
         return HasTripId.contains(relationshipType);
     }
 
-    public static boolean goesTo(final ImmutableGraphRelationship relationship) {
+    public static boolean goesTo(final ImmutableGraphRelationshipNeo4J relationship) {
         return GoesTo.contains(relationship.getType());
     }
 

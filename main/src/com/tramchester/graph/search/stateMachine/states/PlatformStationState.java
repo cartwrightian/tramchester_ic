@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
@@ -38,16 +38,16 @@ public class PlatformStationState extends StationState {
         @Override
         public PlatformStationState fromWalking(final WalkingState walkingState, final GraphNode stationNode, final Duration cost,
                                                 final JourneyStateUpdate journeyState, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT,
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromPlatform(final PlatformState platformState, final GraphNode stationNode, final Duration cost,
                                                  final JourneyStateUpdate journeyState, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION, ENTER_PLATFORM,
+            final Stream<ImmutableGraphRelationshipNeo4J> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
 
@@ -58,9 +58,9 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode stationNode, final Duration cost,
                                               final JourneyStateUpdate journeyState,
                                               final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION,
+            final Stream<ImmutableGraphRelationshipNeo4J> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState, this);
@@ -69,22 +69,22 @@ public class PlatformStationState extends StationState {
         @Override
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT);
+            final Stream<ImmutableGraphRelationshipNeo4J> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT);
 
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode stationNode, final Duration cost,
                                                 final JourneyStateUpdate journeyState, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, NEIGHBOUR);
+            final Stream<ImmutableGraphRelationshipNeo4J> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, NEIGHBOUR);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
         }
 
     }
 
-    private PlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+    private PlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> relationships,
                                  final Duration cost, final GraphNode stationNode,
                                  final JourneyStateUpdate journeyState, final TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder.getDestination());
