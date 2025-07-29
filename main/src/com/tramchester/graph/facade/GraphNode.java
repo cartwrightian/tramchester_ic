@@ -70,13 +70,13 @@ public interface GraphNode extends GraphEntity {
 
     boolean hasRelationship(GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
-    ImmutableGraphRelationshipNeo4J getSingleRelationship(GraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
+    ImmutableGraphRelationship getSingleRelationship(GraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
 
-    Stream<ImmutableGraphRelationshipNeo4J> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
 
-    Stream<ImmutableGraphRelationshipNeo4J> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransactionNeo4J txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
 
     boolean hasOutgoingServiceMatching(GraphTransactionNeo4J txn, IdFor<Trip> tripId);
 
-    Stream<ImmutableGraphRelationshipNeo4J> getOutgoingServiceMatching(GraphTransactionNeo4J txn, IdFor<Trip> tripId);
+    Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransactionNeo4J txn, IdFor<Trip> tripId);
 }

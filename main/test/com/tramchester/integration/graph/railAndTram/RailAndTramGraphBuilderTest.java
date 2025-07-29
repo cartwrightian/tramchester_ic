@@ -9,9 +9,11 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphDirection;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -73,9 +75,9 @@ class RailAndTramGraphBuilderTest {
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
         GraphNode cornbrookNode = txn.findNode(cornbrook);
-        Stream<ImmutableGraphRelationshipNeo4J> outboundLinks = cornbrookNode.getRelationships(txn, GraphDirection.Outgoing, LINKED);
+        Stream<ImmutableGraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, GraphDirection.Outgoing, LINKED);
 
-        List<ImmutableGraphRelationshipNeo4J> list = outboundLinks.toList();
+        List<ImmutableGraphRelationship> list = outboundLinks.toList();
         assertEquals(3, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
@@ -119,14 +121,14 @@ class RailAndTramGraphBuilderTest {
         assertNotNull(altyTramNode);
         assertNotNull(altyTrainNode);
 
-        List<ImmutableGraphRelationshipNeo4J> fromTram = altyTramNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
+        List<ImmutableGraphRelationship> fromTram = altyTramNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
         assertEquals(1, fromTram.size(), "Wrong number of neighbours " + fromTram);
 
         GraphRelationship tramNeighbour = fromTram.getFirst();
         assertEquals(altyTrainNode, tramNeighbour.getEndNode(txn)); // GraphNode.fromEnd(tramNeighbour));
         assertEquals(expectedCost, tramNeighbour.getCost());
 
-        List<ImmutableGraphRelationshipNeo4J> fromTrain = altyTrainNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
+        List<ImmutableGraphRelationship> fromTrain = altyTrainNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
         assertEquals(1, fromTrain.size(), "Wrong number of neighbours " + fromTram);
 
         GraphRelationship trainNeighbour = fromTrain.get(0);

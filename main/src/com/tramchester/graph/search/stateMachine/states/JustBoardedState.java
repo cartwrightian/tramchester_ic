@@ -2,8 +2,8 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
@@ -35,7 +35,7 @@ public class JustBoardedState extends RouteStationState {
         public JustBoardedState fromPlatformState(JourneyStateUpdate journeyState, final PlatformState platformState, final GraphNode routeStationNode,
                                                   final Duration cost, final GraphTransactionNeo4J txn) {
 
-            final Stream<ImmutableGraphRelationshipNeo4J> services = getServices(routeStationNode, txn);
+            final Stream<ImmutableGraphRelationship> services = getServices(routeStationNode, txn);
 
             return new JustBoardedState(platformState, services, journeyState, cost, this, routeStationNode);
         }
@@ -43,12 +43,12 @@ public class JustBoardedState extends RouteStationState {
         public JustBoardedState fromNoPlatformStation(JourneyStateUpdate journeyState, final NoPlatformStationState noPlatformStation, final GraphNode routeStationNode,
                                                       final Duration cost, final GraphTransactionNeo4J txn) {
 
-            final Stream<ImmutableGraphRelationshipNeo4J> services = getServices(routeStationNode, txn);
+            final Stream<ImmutableGraphRelationship> services = getServices(routeStationNode, txn);
 
             return new JustBoardedState(noPlatformStation, services, journeyState, cost, this, routeStationNode);
         }
 
-        private static Stream<ImmutableGraphRelationshipNeo4J> getServices(final GraphNode routeStationNode, final GraphTransactionNeo4J txn) {
+        private static Stream<ImmutableGraphRelationship> getServices(final GraphNode routeStationNode, final GraphTransactionNeo4J txn) {
             // not sorted, only see one svc outbound from a route station node
             return routeStationNode.getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE);
         }
@@ -59,7 +59,7 @@ public class JustBoardedState extends RouteStationState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private JustBoardedState(final ImmutableTraversalState traversalState, final Stream<ImmutableGraphRelationshipNeo4J> outbounds,
+    private JustBoardedState(final ImmutableTraversalState traversalState, final Stream<ImmutableGraphRelationship> outbounds,
                              JourneyStateUpdate journeyState, final Duration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
         super(traversalState, outbounds, journeyState, cost, builder, graphNode);
     }

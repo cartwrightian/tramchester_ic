@@ -62,7 +62,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public List<ImmutableGraphRelationshipNeo4J> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
+    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
         return underlying.getRouteStationRelationships(routeStation, direction);
     }
 

@@ -25,5 +25,5 @@ public interface ImmutableTraversalState {
 
     TraversalStateFactory getTraversalStateFactory();
 
-    Stream<ImmutableGraphRelationshipNeo4J> getOutbounds();
+    Stream<ImmutableGraphRelationship> getOutbounds();
 }

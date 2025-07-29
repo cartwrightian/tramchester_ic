@@ -189,7 +189,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     }
 
     @Override
-    public List<ImmutableGraphRelationshipNeo4J> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
+    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
         final GraphNode routeStationNode = findNode(routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();

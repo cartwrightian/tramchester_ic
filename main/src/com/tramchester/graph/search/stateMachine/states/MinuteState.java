@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -40,11 +41,11 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
                                        final GraphTransactionNeo4J txn) {
 
-            final Stream<ImmutableGraphRelationshipNeo4J> allOutboundForMode = minuteNode.getRelationships(txn, GraphDirection.Outgoing, currentModes);
+            final Stream<ImmutableGraphRelationship> allOutboundForMode = minuteNode.getRelationships(txn, GraphDirection.Outgoing, currentModes);
 
             if (journeyState.onTrip()) {
                 final IdFor<Trip> existingTripId = journeyState.getCurrentTrip();
-                final Stream<ImmutableGraphRelationshipNeo4J> filterBySingleTripId = filterBySingleTripId(allOutboundForMode, existingTripId);
+                final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(allOutboundForMode, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, minuteNode, journeyState, towardsStationId, cost, this);
             } else {
                 // since at minute/trip node now have specific tripId to use
@@ -54,14 +55,14 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
             }
         }
 
-        private Stream<ImmutableGraphRelationshipNeo4J> filterBySingleTripId(final Stream<ImmutableGraphRelationshipNeo4J> relationships, final IdFor<Trip> existingTripId) {
+        private Stream<ImmutableGraphRelationship> filterBySingleTripId(final Stream<ImmutableGraphRelationship> relationships, final IdFor<Trip> existingTripId) {
             return relationships.filter(relationship -> relationship.getTripId().equals(existingTripId));
         }
     }
 
     private final IdFor<Station> towardsStationId;
 
-    private MinuteState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> relationships, GraphNode node,
+    private MinuteState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, GraphNode node,
                         final JourneyStateUpdate journeyState, IdFor<Station> towardsStationId, final Duration cost,
                         final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node.getId());

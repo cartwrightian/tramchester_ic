@@ -46,8 +46,10 @@ public class ImmutableGraphRelationshipNeo4J implements  ImmutableGraphRelations
         relationshipId = underlying.getId();
     }
 
-    public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationshipNeo4J> stream) {
-        final Stream<Relationship> mapped = stream.map(ImmutableGraphRelationshipNeo4J::getRelationship);
+    public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationship> stream) {
+        final Stream<Relationship> mapped = stream.
+                map(immutable -> (ImmutableGraphRelationshipNeo4J)immutable).
+                map(ImmutableGraphRelationshipNeo4J::getRelationship);
 
         final Iterable<Relationship> iterable = new Iterable<>() {
             @NotNull

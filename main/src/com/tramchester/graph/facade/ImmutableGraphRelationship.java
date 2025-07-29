@@ -72,4 +72,6 @@ public interface ImmutableGraphRelationship extends GraphRelationship {
     boolean isNode();
 
     boolean isRelationship();
+
+    boolean hasTripIdInList(IdFor<Trip> tripId);
 }

@@ -5,8 +5,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -40,19 +40,19 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
 
         public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final GraphNode serviceNode,
                                                final Duration cost, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationshipNeo4J> hourRelationships = getHourRelationships(serviceNode, txn);
+            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
             return new ServiceState(state, hourRelationships, cost, this, serviceNode, depthFirst,
                     super.getQueryHour());
         }
 
         public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode serviceNode,
                                                final Duration cost, final GraphTransactionNeo4J txn) {
-            final Stream<ImmutableGraphRelationshipNeo4J> hourRelationships = getHourRelationships(serviceNode, txn);
+            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
             return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst,
                     super.getQueryHour());
         }
 
-        private Stream<ImmutableGraphRelationshipNeo4J> getHourRelationships(final GraphNode serviceNode, final GraphTransactionNeo4J txn) {
+        private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode serviceNode, final GraphTransactionNeo4J txn) {
             return serviceNode.getRelationships(txn, GraphDirection.Outgoing, TO_HOUR);
         }
 
@@ -62,7 +62,7 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
     private final int queryHour;
     private final IdFor<Station> towardsStationId;
 
-    private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationshipNeo4J> relationships,
+    private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
                          final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
         super(parent, relationships, cost, builder.getDestination(), serviceNode.getId());
         this.queryHour = queryHour;
@@ -76,7 +76,7 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
     }
 
     @Override
-    public Stream<ImmutableGraphRelationshipNeo4J> getOutbounds() {
+    public Stream<ImmutableGraphRelationship> getOutbounds() {
         if (depthFirst) {
 
             return super.getOutbounds().sorted(TramTime.RollingHourComparator(queryHour,

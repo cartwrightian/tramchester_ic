@@ -27,7 +27,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item);
 
-    List<ImmutableGraphRelationshipNeo4J> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
+    List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
 
     ImmutableGraphRelationshipNeo4J getRelationshipById(GraphRelationshipId graphRelationshipId);
 

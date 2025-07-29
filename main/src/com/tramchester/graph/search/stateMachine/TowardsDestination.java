@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -38,20 +37,20 @@ public class TowardsDestination {
         return locationSet;
     }
 
-    public FilterByDestinations<ImmutableGraphRelationshipNeo4J> fromRouteStation(final GraphTransactionNeo4J txn, final GraphNode node) {
-        final Stream<ImmutableGraphRelationshipNeo4J> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
+    public FilterByDestinations<ImmutableGraphRelationship> fromRouteStation(final GraphTransactionNeo4J txn, final GraphNode node) {
+        final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return getTowardsDestination(relationships);
     }
 
-    public FilterByDestinations<ImmutableGraphRelationshipNeo4J> fromPlatform(final GraphTransactionNeo4J txn, final GraphNode node) {
+    public FilterByDestinations<ImmutableGraphRelationship> fromPlatform(final GraphTransactionNeo4J txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM));
     }
 
-    public FilterByDestinations<ImmutableGraphRelationshipNeo4J> fromStation(final GraphTransactionNeo4J txn, final GraphNode node) {
+    public FilterByDestinations<ImmutableGraphRelationship> fromStation(final GraphTransactionNeo4J txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT));
     }
 
-    public FilterByDestinations<ImmutableGraphRelationshipNeo4J> fromWalk(final GraphTransactionNeo4J txn, final GraphNode node) {
+    public FilterByDestinations<ImmutableGraphRelationship> fromWalk(final GraphTransactionNeo4J txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION));
     }
 

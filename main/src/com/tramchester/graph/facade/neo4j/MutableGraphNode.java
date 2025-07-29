@@ -19,6 +19,7 @@ import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Label;
@@ -179,8 +180,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationshipNeo4J> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
-                                                                    final TransportRelationshipTypes relationshipType) {
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+                                                               final TransportRelationshipTypes relationshipType) {
         return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationship);
     }
 
@@ -198,7 +199,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationshipNeo4J> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
+    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransactionNeo4J txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes... transportRelationshipTypes) {
         return node.getRelationships(map(direction), transportRelationshipTypes).stream().map(txn::wrapRelationship);
     }
@@ -210,7 +211,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationshipNeo4J> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransactionNeo4J txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
