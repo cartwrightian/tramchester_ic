@@ -28,4 +28,6 @@ public interface ImmutableJourneyState extends HasTransportMode {
     //boolean justBoarded();
 
     boolean duplicatedBoardingSeen();
+
+    boolean justBoarded();
 }

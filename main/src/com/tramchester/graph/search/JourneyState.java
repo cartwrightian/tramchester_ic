@@ -265,6 +265,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public boolean justBoarded() {
+        return traversalState.getStateType() == TraversalStateType.JustBoardedState;
+    }
+
+    @Override
     public TransportMode getTransportMode() {
         return coreState.currentMode;
     }

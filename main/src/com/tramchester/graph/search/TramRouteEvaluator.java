@@ -171,12 +171,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // WIP
         // already boarded at this location? TODO only check for certain states
-        //if (journeyState.justBoarded()) {
+        if (journeyState.justBoarded()) {
             if (journeyState.duplicatedBoardingSeen()) {
                 //logger.warn("Already saw boarding at " + nextNodeId);
                 return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
             }
-        //}
+        }
 
         // no journey longer than N nodes
         // TODO check length based on current transport mode??
