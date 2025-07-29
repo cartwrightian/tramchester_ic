@@ -1,6 +1,5 @@
 package com.tramchester.graph.facade;
 
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 
 import java.time.Duration;
@@ -8,10 +7,10 @@ import java.time.Duration;
 public class PathMapper {
 
     private final GraphPath path;
-    private final ImmutableGraphTransactionNeo4J txn;
+    private final GraphTransaction txn;
     private TraversalState currentState;
 
-    public PathMapper(GraphPath path, ImmutableGraphTransactionNeo4J txn) {
+    public PathMapper(GraphPath path, GraphTransaction txn) {
         this.path = path;
         this.txn = txn;
     }

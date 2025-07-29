@@ -15,13 +15,13 @@ public interface GraphTransactionNeo4J extends AutoCloseable {
 
     Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable);
 
-    GraphNodeId getPreviousNodeId(Path path);
+    //GraphNodeId getPreviousNodeId(Path path);
 
     ImmutableGraphNode fromStart(Path path);
 
     ImmutableGraphNode fromEnd(Path path);
 
-    GraphNodeId endNodeNodeId(Path path);
+    //GraphNodeId endNodeNodeId(Path path);
 
     // internal
 

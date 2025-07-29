@@ -167,7 +167,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return;
         }
 
-        try(MutableGraphTransactionNeo4J tx = graphDatabase.beginTxMutable()) {
+        try(MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
             logger.info("Adding version node to the DB");
             databaseMetaInfo.createVersionNode(tx, sourceRepository);
             tx.commit();
@@ -192,7 +192,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         try(Timing ignored = new Timing(logger,"service, hour for " + agency.getId())) {
             // removed the parallel, undefined behaviours with shared txn
             getRoutesForAgency(agency).forEach(route -> {
-                try (MutableGraphTransactionNeo4J tx = graphDatabase.beginTxMutable()) {
+                try (MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
                     createServiceAndHourNodesForRoute(tx, route, routeStationNodeCache, agencyBuilderNodeCache, agencyBuilderNodeCache);
                     tx.commit();
                 }
@@ -231,7 +231,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // time nodes and relationships for trips
         for (final Trip trip : route.getTrips()) {
             strategy.tripBegin(trip);
-            final MutableGraphTransactionNeo4J tx = strategy.currentTxn();
+            final MutableGraphTransaction tx = strategy.currentTxn();
             final Map<StationTime, MutableGraphNode> timeNodes = createMinuteNodes(tx, trip, hourNodeCache, serviceNodeCache);
             createTripRelationships(tx, route, trip, routeStationNodeCache, timeNodes);
             timeNodes.clear();
@@ -239,7 +239,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createTripRelationships(final MutableGraphTransactionNeo4J tx, final Route route, final Trip trip,
+    private void createTripRelationships(final MutableGraphTransaction tx, final Route route, final Trip trip,
                                          final RouteStationNodeCache routeBuilderCache,
                                          final Map<StationTime, MutableGraphNode> timeNodes) {
         final StopCalls stops = trip.getStopCalls();
@@ -263,7 +263,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createServiceAndHourNodesForRoute(final MutableGraphTransactionNeo4J tx, final Route route,
+    private void createServiceAndHourNodesForRoute(final MutableGraphTransaction tx, final Route route,
                                                    final RouteStationNodeCache routeStationNodeCache, final ServiceNodeCache serviceNodeCache,
                                                    final HourNodeCache hourNodeCache) {
         // TODO Create and return hour node cache from
@@ -289,7 +289,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         });
     }
 
-    private MutableGraphNode createServiceNodeAndRelationshipFromRouteStation(final MutableGraphTransactionNeo4J tx, final Route route, final Trip trip,
+    private MutableGraphNode createServiceNodeAndRelationshipFromRouteStation(final MutableGraphTransaction tx, final Route route, final Trip trip,
                                                                               final IdFor<Station> beginId, final IdFor<Station> nextStationId,
                                                                               final RouteStationNodeCache routeStationNodeCache,
                                                                               final ServiceNodeCache serviceNodeCache) {
@@ -549,7 +549,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
 
-    private void createRelationshipTimeNodeToRouteStation(final MutableGraphTransactionNeo4J tx, final Route route, final Trip trip,
+    private void createRelationshipTimeNodeToRouteStation(final MutableGraphTransaction tx, final Route route, final Trip trip,
                                                           final StopCall beginStop, final StopCall endStop,
                                                           final RouteStationNodeCache routeStationNodeCache,
                                                           final Map<StationTime, MutableGraphNode> timeNodes) {
@@ -572,7 +572,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
     }
 
-    private Map<StationTime, MutableGraphNode> createMinuteNodes(final MutableGraphTransactionNeo4J tx, final Trip trip,
+    private Map<StationTime, MutableGraphNode> createMinuteNodes(final MutableGraphTransaction tx, final Trip trip,
                                                                  final HourNodeCache hourNodeCache, ServiceNodeCache serviceNodeCache) {
 
         final Map<StationTime, MutableGraphNode> timeNodes = new HashMap<>();
@@ -591,7 +591,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNodes;
     }
 
-    private MutableGraphNode createTimeNodeAndRelationshipFromHour(final MutableGraphTransactionNeo4J tx, final Trip trip,
+    private MutableGraphNode createTimeNodeAndRelationshipFromHour(final MutableGraphTransaction tx, final Trip trip,
                                                                    final StopCalls.StopLeg leg,
                                                                    final TramTime departureTime,
                                                                    final HourNodeCache hourNodeCache,
@@ -616,7 +616,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNode;
     }
 
-    private void createHourNodeAndRelationshipFromService(final MutableGraphTransactionNeo4J tx, final int hour,
+    private void createHourNodeAndRelationshipFromService(final MutableGraphTransaction tx, final int hour,
                                                           final HourNodeCache hourNodeCache, final MutableGraphNode serviceNode) {
 
 

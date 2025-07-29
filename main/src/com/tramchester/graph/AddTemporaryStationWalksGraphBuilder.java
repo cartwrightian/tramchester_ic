@@ -207,7 +207,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     @NotNull
-    private static MutableGraphNode findNodeFor(final MutableGraphTransactionNeo4J txn, final Station station) {
+    private static MutableGraphNode findNodeFor(final MutableGraphTransaction txn, final Station station) {
         final MutableGraphNode closedNode = txn.findNodeMutable(station);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + station.getId();

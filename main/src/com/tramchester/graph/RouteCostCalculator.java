@@ -8,8 +8,8 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -50,30 +50,30 @@ public class RouteCostCalculator {
         this.routeRepository = routeRepository;
     }
 
-    public Duration getAverageCostBetween(final ImmutableGraphTransactionNeo4J txn, final GraphNode startNode, final GraphNode endNode,
+    public Duration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                           final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(final ImmutableGraphTransactionNeo4J txn, final Location<?> station, final GraphNode endNode, final TramDate date,
+    public Duration getAverageCostBetween(final GraphTransaction txn, final Location<?> station, final GraphNode endNode, final TramDate date,
                                           final EnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     // startNode must have been found within supplied txn
-    public Duration getAverageCostBetween(final ImmutableGraphTransactionNeo4J txn, final GraphNode startNode, final Location<?> endStation,
+    public Duration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final Location<?> endStation,
                                           final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode endNode = txn.findNode(endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(final ImmutableGraphTransactionNeo4J txn, final Location<?> startStation, final Location<?> endStation,
+    public Duration getAverageCostBetween(final GraphTransaction txn, final Location<?> startStation, final Location<?> endStation,
                                           final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date, modes);
     }
 
-    private Duration getCostBetween(final ImmutableGraphTransactionNeo4J txn, final Location<?> startLocation, final Location<?> endLocation,
+    private Duration getCostBetween(final GraphTransaction txn, final Location<?> startLocation, final Location<?> endLocation,
                                     final GraphPropertyKey key, final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
@@ -89,7 +89,7 @@ public class RouteCostCalculator {
     }
 
     // startNode and endNode must have been found within supplied txn
-    private Duration calculateLeastCost(final ImmutableGraphTransactionNeo4J txn, final GraphNode startNode, final GraphNode endNode, final GraphPropertyKey key,
+    private Duration calculateLeastCost(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, final GraphPropertyKey key,
                                         final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
 
         final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date, modes).stream().
@@ -98,7 +98,7 @@ public class RouteCostCalculator {
         final IdSet<Route> available = IdSet.from(routesRunningOn);
         // TODO fetch all the relationshipIds first
 
-        final EvaluationContext context = graphDatabaseService.createContext(txn);
+        final EvaluationContext context = graphDatabaseService.createContext((GraphTransactionNeo4J) txn);
 
         final GraphRelationshipFilter routeFilter = new GraphRelationshipFilter(txn,
                 graphRelationship -> !graphRelationship.isType(ON_ROUTE) ||
@@ -161,6 +161,22 @@ public class RouteCostCalculator {
                 throw new RuntimeException(msg, exception);
             }
         }
+    }
+
+    private static class GraphRelationshipFilter  implements Predicate<Relationship> {
+        private final GraphTransactionNeo4J txn;
+        private final Predicate<GraphRelationship> contained;
+
+        public GraphRelationshipFilter(GraphTransaction txn, Predicate<GraphRelationship> contained) {
+            this.txn = (GraphTransactionNeo4J) txn;
+            this.contained = contained;
+        }
+
+        @Override
+        public boolean test(final Relationship relationship) {
+            return contained.test(txn.wrapRelationship(relationship));
+        }
+
     }
 
 

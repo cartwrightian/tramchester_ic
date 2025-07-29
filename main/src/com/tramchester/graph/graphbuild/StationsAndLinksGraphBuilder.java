@@ -131,7 +131,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void addBoundsNode() {
 
-        try(MutableGraphTransactionNeo4J tx = graphDatabase.beginTxMutable()) {
+        try(MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
             logger.info("Adding bounds to the DB");
             databaseMetaInfo.setBounds(tx, tramchesterConfig.getBounds());
             tx.commit();
@@ -261,7 +261,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         stationsLinked.addTransportMode(mode);
     }
 
-    private void createPlatformsForStation(final MutableGraphTransactionNeo4J txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
+    private void createPlatformsForStation(final MutableGraphTransaction txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
         for (final Platform platform : station.getPlatforms()) {
 
             final MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);

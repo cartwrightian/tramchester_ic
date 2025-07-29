@@ -23,7 +23,9 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphPath;
 import com.tramchester.graph.facade.neo4j.GraphNodeIdNeo4J;
+import com.tramchester.graph.facade.neo4j.GraphPathNeo4j;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -127,6 +129,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
         path = createMock(Path.class);
+        GraphPath graphPath = GraphPathNeo4j.from(path);
         node = createMock(ImmutableGraphNode.class);
 
         final GraphNodeId nodeId = GraphNodeIdNeo4J.TestOnly(42L);
@@ -140,7 +143,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
 
         EasyMock.expect(txn.fromEnd(path)).andReturn(node);
-        EasyMock.expect(txn.getPreviousNodeId(path)).andReturn(previousNodeId);
+        EasyMock.expect(txn.getPreviousNodeId(graphPath)).andReturn(previousNodeId);
 
     }
 

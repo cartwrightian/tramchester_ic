@@ -68,10 +68,11 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     ///// MUTATE ////////////////////////////////////////////////////////////
 
-    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransactionNeo4J txn, final MutableGraphNode end,
+    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNode end,
                                                          final TransportRelationshipTypes relationshipType) {
+        final MutableGraphTransactionNeo4J txnNeo4J = (MutableGraphTransactionNeo4J) txn;
         final Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipType);
-        return txn.wrapRelationshipMutable(relationshipTo);
+        return txnNeo4J.wrapRelationshipMutable(relationshipTo);
     }
 
     public void addLabel(final Label label) {
@@ -240,21 +241,22 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     @Override
     public ImmutableGraphRelationshipNeo4J getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
                                                                  GraphDirection direction) {
-        GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
         if (found==null) {
             return null;
         }
+        final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return txnNeo4J.wrapRelationship(found);
     }
 
-    public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransactionNeo4J txn, TransportRelationshipTypes transportRelationshipType,
+    public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
                                                                  GraphDirection direction) {
         final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
         if (found==null) {
             return null;
         }
-        return txn.wrapRelationshipMutable(found);
+        final MutableGraphTransactionNeo4J txnNeo4J = (MutableGraphTransactionNeo4J) txn;
+        return txnNeo4J.wrapRelationshipMutable(found);
     }
 
 

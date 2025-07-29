@@ -30,7 +30,7 @@ public class CreateNodesAndRelationships {
         numberRelationships = 0;
     }
 
-    protected GraphNode createStationNode(final MutableGraphTransactionNeo4J tx, final Station station) {
+    protected GraphNode createStationNode(final MutableGraphTransaction tx, final Station station) {
 
         final EnumSet<GraphLabel> labels = GraphLabel.forModes(station.getTransportModes());
         labels.add(GraphLabel.STATION);
@@ -43,17 +43,17 @@ public class CreateNodesAndRelationships {
         return stationNode;
     }
 
-    protected MutableGraphNode createGraphNode(final MutableGraphTransactionNeo4J tx, final GraphLabel label) {
+    protected MutableGraphNode createGraphNode(final MutableGraphTransaction tx, final GraphLabel label) {
         numberNodes++;
         return tx.createNode(label);
     }
 
-    public MutableGraphNode createGraphNode(final MutableGraphTransactionNeo4J tx, final EnumSet<GraphLabel> labels) {
+    public MutableGraphNode createGraphNode(final MutableGraphTransaction tx, final EnumSet<GraphLabel> labels) {
         numberNodes++;
         return tx.createNode(labels);
     }
 
-    protected MutableGraphRelationship createRelationship(final MutableGraphTransactionNeo4J txn, final MutableGraphNode start,
+    protected MutableGraphRelationship createRelationship(final MutableGraphTransaction txn, final MutableGraphNode start,
                                                           final MutableGraphNode end, final TransportRelationshipTypes relationshipType) {
         numberRelationships++;
         return start.createRelationshipTo(txn, end, relationshipType);

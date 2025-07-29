@@ -41,16 +41,16 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final TramchesterConfig config;
-    private final GraphTransactionNeo4J txn;
+    private final GraphTransaction txn;
     private final boolean fullLogging;
 
-    public TramNetworkTraverser(ImmutableGraphTransactionNeo4J txn, TramchesterConfig config, boolean fullLogging) {
+    public TramNetworkTraverser(GraphTransaction txn, TramchesterConfig config, boolean fullLogging) {
         this.txn = txn;
         this.fullLogging = fullLogging;
         this.config = config;
     }
 
-    public Stream<GraphPath> findPaths(final ImmutableGraphTransactionNeo4J txn, final RouteCalculatorSupport.PathRequest pathRequest,
+    public Stream<GraphPath> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
                                        final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                        final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations,
                                        final TowardsDestination towardsDestination, final Running running) {
@@ -102,11 +102,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         if (fullLogging) {
             logger.info("Return traversal stream");
         }
-        return stream.filter(path -> {
-            final GraphNodeId endPathNodeId = txn.endNodeNodeId(path);
-
-            return destinationNodeIds.contains(endPathNodeId);
-            }).map(GraphPathNeo4j::from);
+        return stream.
+                map(GraphPathNeo4j::from).
+                filter(path -> {
+                    final GraphNodeId endPathNodeId = txn.endNodeNodeId(path);
+                    return destinationNodeIds.contains(endPathNodeId);
+            });
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 
 public interface TransactionStrategy {
 
@@ -12,6 +12,6 @@ public interface TransactionStrategy {
     void tripBegin(Trip trip);
     void tripDone();
 
-    MutableGraphTransactionNeo4J currentTxn();
+    MutableGraphTransaction currentTxn();
 
 }

@@ -6,12 +6,12 @@ import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphPath;
-import com.tramchester.graph.facade.neo4j.GraphTransactionNeo4J;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-
 import jakarta.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -32,7 +32,7 @@ public class MapPathToLocations {
         this.stationGroupsRepository = stationGroupsRepository;
     }
 
-    public List<Location<?>> mapToLocations(GraphPath path, GraphTransactionNeo4J txn) {
+    public List<Location<?>> mapToLocations(GraphPath path, GraphTransaction txn) {
         Location<?> previous = null;
         List<Location<?>> results = new ArrayList<>();
         //for(GraphNode node : txn.iter(path.nodes())) {

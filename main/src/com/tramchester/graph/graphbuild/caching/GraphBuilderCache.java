@@ -8,8 +8,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class GraphBuilderCache implements RouteStationNodeCache, StationAndPlatf
     }
 
     @Override
-    public MutableGraphNode getRouteStation(MutableGraphTransactionNeo4J txn, Route route, IdFor<Station> stationId) {
+    public MutableGraphNode getRouteStation(MutableGraphTransaction txn, Route route, IdFor<Station> stationId) {
         IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, route.getId());
         if (!routeStations.containsKey(routeStationId)) {
             String message = "Cannot find routestation node in cache " + routeStationId; // + " cache " + routeStations;
@@ -66,7 +66,7 @@ public class GraphBuilderCache implements RouteStationNodeCache, StationAndPlatf
         return txn.getNodeByIdMutable(routeStations.get(routeStationId));
     }
 
-    public MutableGraphNode getRouteStation(MutableGraphTransactionNeo4J txn, IdFor<RouteStation> id) {
+    public MutableGraphNode getRouteStation(MutableGraphTransaction txn, IdFor<RouteStation> id) {
         if (!routeStations.containsKey(id)) {
             String message = "Cannot find routestation node in cache " + id;
             logger.error(message);
@@ -82,7 +82,7 @@ public class GraphBuilderCache implements RouteStationNodeCache, StationAndPlatf
     }
 
     @Override
-    public MutableGraphNode getStation(MutableGraphTransactionNeo4J txn, IdFor<Station> stationId) {
+    public MutableGraphNode getStation(MutableGraphTransaction txn, IdFor<Station> stationId) {
         if (!stationsToNodeId.containsKey(stationId)) {
             String message = "Missing station in cache, station: " + stationId + " Cache: " + stationsToNodeId;
             logger.error(message);
@@ -93,7 +93,7 @@ public class GraphBuilderCache implements RouteStationNodeCache, StationAndPlatf
     }
 
     @Override
-    public MutableGraphNode getPlatform(MutableGraphTransactionNeo4J txn, IdFor<Platform> platformId) {
+    public MutableGraphNode getPlatform(MutableGraphTransaction txn, IdFor<Platform> platformId) {
         if (!platforms.containsKey(platformId)) {
             throw new RuntimeException("Missing platform id " + platformId);
         }

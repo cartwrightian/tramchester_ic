@@ -3,6 +3,7 @@ package com.tramchester.graph.databaseManagement;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
@@ -34,7 +35,7 @@ public class GraphDatabaseMetaInfo {
         return txn.hasAnyMatching(label);
     }
 
-    public void setNeighboursEnabled(MutableGraphTransactionNeo4J txn) {
+    public void setNeighboursEnabled(MutableGraphTransaction txn) {
         txn.createNode(GraphLabel.NEIGHBOURS_ENABLED);
     }
 
@@ -51,7 +52,7 @@ public class GraphDatabaseMetaInfo {
         return versions;
     }
 
-    public void createVersionNode(MutableGraphTransactionNeo4J tx, DataSourceRepository dataSourceRepository) {
+    public void createVersionNode(MutableGraphTransaction tx, DataSourceRepository dataSourceRepository) {
         Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
         logger.info("Setting version data in DB for " + dataSourceInfo);
         MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
@@ -83,7 +84,7 @@ public class GraphDatabaseMetaInfo {
         return match;
     }
 
-    public void setBounds(final MutableGraphTransactionNeo4J transaction, final BoundingBox bounds) {
+    public void setBounds(final MutableGraphTransaction transaction, final BoundingBox bounds) {
         boolean hasBoundsNode = transaction.hasAnyMatching(GraphLabel.BOUNDS);
 
         if (hasBoundsNode) {

@@ -91,13 +91,8 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
         return underlying.fromEnd(path);
     }
 
-//    @Override
-//    public ImmutableGraphRelationship lastFrom(final Path path) {
-//        return underlying.lastFrom(path);
-//    }
-
     @Override
-    public GraphNodeId getPreviousNodeId(final Path path) {
+    public GraphNodeId getPreviousNodeId(final GraphPath path) {
         return underlying.getPreviousNodeId(path);
     }
 
@@ -117,7 +112,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public GraphNodeId endNodeNodeId(final Path path) {
+    public GraphNodeId endNodeNodeId(final GraphPath path) {
         return underlying.endNodeNodeId(path);
     }
 

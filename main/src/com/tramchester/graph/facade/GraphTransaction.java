@@ -6,7 +6,6 @@ import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.List;
@@ -29,6 +28,9 @@ public interface GraphTransaction extends AutoCloseable {
 
     List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
 
-    ImmutableGraphRelationshipNeo4J getRelationshipById(GraphRelationshipId graphRelationshipId);
+    ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
+    GraphNodeId getPreviousNodeId(GraphPath graphPath);
+
+    GraphNodeId endNodeNodeId(GraphPath path);
 }

@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 /***
  * Facade around underlying graph DB Transaction
  */
-public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J, AutoCloseable {
+public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, AutoCloseable, MutableGraphTransaction {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
     private final TransactionObserver transactionObserver;
@@ -73,11 +73,13 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
         transactionObserver.onCommit(this);
     }
 
+    @Override
     public MutableGraphNode createNode(final GraphLabel graphLabel) {
         final Node node = txn.createNode(graphLabel);
         return wrapNodeAsMutable(node);
     }
 
+    @Override
     public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
         final GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
@@ -95,6 +97,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
         return wrapNodeAsImmutable(node);
     }
 
+    @Override
     public MutableGraphNode getNodeByIdMutable(final GraphNodeId nodeId) {
         final Node node = getNode(nodeId);
         return wrapNodeAsMutable(node);
@@ -124,6 +127,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
     }
 
+    @Override
     public Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsMutable);
     }
@@ -170,6 +174,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
+    @Override
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(final ITEM item) {
         return findNodeMutable(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
@@ -244,8 +249,9 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     }
 
     @Override
-    public GraphNodeId endNodeNodeId(final Path path) {
-        final Node endNode = path.endNode();
+    public GraphNodeId endNodeNodeId(final GraphPath path) {
+        GraphPathNeo4j graphPathNeo4j = (GraphPathNeo4j) path;
+        final Node endNode = graphPathNeo4j.endNode();
         return idFactory.getIdFor(endNode);
     }
 
@@ -296,8 +302,9 @@ public class MutableGraphTransactionNeo4J implements GraphTransaction, GraphTran
     }
 
     @Override
-    public GraphNodeId getPreviousNodeId(final Path path) {
-        final Relationship last = path.lastRelationship();
+    public GraphNodeId getPreviousNodeId(final GraphPath path) {
+        final GraphPathNeo4j graphPathNeo4j = (GraphPathNeo4j) path;
+        final Relationship last = graphPathNeo4j.lastRelationship();
         if (last == null) {
             return null;
         } else {

@@ -2,7 +2,10 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -19,7 +22,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphPath;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
@@ -74,7 +77,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRoute(final ImmutableGraphTransactionNeo4J txn, final Location<?> start, final Location<?> destination,
+    public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,
                                           final JourneyRequest journeyRequest, final Running running) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
@@ -118,7 +121,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(ImmutableGraphTransactionNeo4J txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
+    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
                                                    JourneyRequest journeyRequest, int numberOfChanges, Running running)
     {
         final GraphNode startNode = getLocationNodeSafe(txn, start);
@@ -133,7 +136,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(ImmutableGraphTransactionNeo4J txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode,
+    public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode,
                                                      Location<?> destination,
                                                      JourneyRequest journeyRequest, int numberOfChanges, Running running) {
 
@@ -153,7 +156,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(ImmutableGraphTransactionNeo4J txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
                                                            LocationCollection destinations, JourneyRequest journeyRequest,
                                                            int numberOfChanges, Running running) {
 
@@ -169,7 +172,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
 
-    private Stream<Journey> getSingleJourneyStream(final ImmutableGraphTransactionNeo4J txn, final GraphNode startNode, final GraphNode endNode,
+    private Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                                    final JourneyRequest journeyRequest, RunningRoutesAndServices.FilterForDate routesAndServicesFilter, final LocationCollection destinations,
                                                    final Duration maxInitialWait, final Running running) {
 
@@ -231,7 +234,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         return results;
     }
 
-    private Stream<Journey> getJourneyStream(final ImmutableGraphTransactionNeo4J txn, final GraphNode startNode, final GraphNode endNode,
+    private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                              final LocationCollection destinations, final JourneyRequest journeyRequest,
                                              final List<TramTime> queryTimes, RunningRoutesAndServices.FilterForDate runningRoutesAndServicesFilter, final int possibleMinNumChanges,
                                              final Duration maxInitialWait, Running running) {

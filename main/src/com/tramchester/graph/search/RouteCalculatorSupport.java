@@ -18,8 +18,10 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
-import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphPath;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
@@ -118,7 +120,7 @@ public class RouteCalculatorSupport {
         return IntStream.rangeClosed(computedMinChanges, max).boxed();
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(final ImmutableGraphTransactionNeo4J txn, final ServiceReasons reasons, final PathRequest pathRequest,
+    public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                                               final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
                                                               final LocationCollection destinations, TowardsDestination towardsDestination,
                                                               final Set<GraphNodeId> destinationNodeIds, final Running running) {
@@ -140,7 +142,7 @@ public class RouteCalculatorSupport {
     @NotNull
     protected Journey createJourney(final JourneyRequest journeyRequest, final RouteCalculator.TimedPath path,
                                     TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
-                                    final ImmutableGraphTransactionNeo4J txn) {
+                                    final GraphTransaction txn) {
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, towardsDestination, txn, fullLogging);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);

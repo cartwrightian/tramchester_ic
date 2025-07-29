@@ -17,6 +17,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
@@ -107,7 +108,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             journeyRequest.setDiag(true);
         }
 
-        try(final MutableGraphTransactionNeo4J tx = graphDatabase.beginTxMutable() ) {
+        try(final MutableGraphTransaction tx = graphDatabase.beginTxMutable() ) {
 
             final TramDate queryTramDate = query.getTramDate();
             final Stream<Journey> journeyStream = getJourneyStream(tx, start, dest, journeyRequest);
@@ -241,7 +242,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     }
 
     @NotNull
-    private Stream<Journey> getJourneyStream(MutableGraphTransactionNeo4J tx, Location<?> start, Location<?> dest, JourneyRequest journeyRequest) {
+    private Stream<Journey> getJourneyStream(MutableGraphTransaction tx, Location<?> start, Location<?> dest, JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", start.getId(), dest.getId(), journeyRequest));
 
         return locToLocPlanner.quickestRouteForLocation(tx, start, dest, journeyRequest).
