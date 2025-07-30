@@ -286,11 +286,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
         };
     }
 
-    public ImmutableGraphRelationshipNeo4J getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
-        final Relationship relationship = (Relationship) row.get(columnName);
-        return wrapRelationship(relationship);
-    }
-
     @Override
     public GraphNode getStartNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getStartNode());
@@ -310,12 +305,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
         } else {
             return idFactory.getIdFor(last.getStartNode());
         }
-//        final GraphRelationship graphRelationship = result;
-//
-//        if (graphRelationship==null) {
-//            return null;
-//        }
-//        return graphRelationship.getStartNodeId(txn);
     }
 
 

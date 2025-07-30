@@ -9,7 +9,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphDatabase;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;

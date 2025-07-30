@@ -14,7 +14,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationBoxFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;

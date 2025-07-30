@@ -9,7 +9,7 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;

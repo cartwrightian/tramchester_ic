@@ -2,8 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.HasGraphDBConfig;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.facade.GraphDatabase;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
 import org.slf4j.Logger;

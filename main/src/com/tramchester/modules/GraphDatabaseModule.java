@@ -1,8 +1,8 @@
 package com.tramchester.modules;
 
 import com.google.inject.AbstractModule;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.facade.GraphDatabase;
+import com.tramchester.graph.facade.neo4j.GraphDatabaseNeo4J;
 
 public class GraphDatabaseModule extends AbstractModule {
     @Override

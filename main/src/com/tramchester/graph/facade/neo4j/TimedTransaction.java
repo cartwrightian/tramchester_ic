@@ -16,9 +16,7 @@ public class TimedTransaction extends MutableGraphTransactionNeo4J {
     private final String name;
     private final Timing timing;
     private boolean committed;
-
-    // TODO Wrap GraphTransaction instead
-
+    
     TimedTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId, final TransactionObserver transactionObserver,
                      final Logger logger, final String name, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {
         super(txn, idFactory, transactionId, transactionObserver, nodeCache, relationshipCache);

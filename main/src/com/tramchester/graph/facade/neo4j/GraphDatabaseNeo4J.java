@@ -1,13 +1,13 @@
-package com.tramchester.graph;
+package com.tramchester.graph.facade.neo4j;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
-import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.*;
+import com.tramchester.graph.facade.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
@@ -126,7 +126,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     }
 
     @Override
-    public MutableGraphTransaction beginTimedTxMutable(final Logger logger, final String text) {
+    public MutableGraphTransactionNeo4J beginTimedTxMutable(final Logger logger, final String text) {
         return createTimedTransaction(logger, text);
     }
 

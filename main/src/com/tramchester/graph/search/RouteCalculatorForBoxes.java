@@ -18,7 +18,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;

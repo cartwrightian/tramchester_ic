@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.GraphDatabaseNeo4J;
+import com.tramchester.graph.facade.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.GraphTransactionFactory;
 import com.tramchester.repository.DataSourceRepository;

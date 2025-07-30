@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.GraphDatabaseNeo4J;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.*;

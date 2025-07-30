@@ -1,7 +1,5 @@
-package com.tramchester.graph;
+package com.tramchester.graph.facade;
 
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import org.slf4j.Logger;
 
 import java.time.Duration;
