@@ -27,7 +27,6 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphPath;
 import com.tramchester.graph.facade.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.facade.neo4j.GraphPathNeo4j;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
@@ -131,7 +130,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         serviceHeuristics = createMock(ServiceHeuristics.class);
         path = createMock(Path.class);
         GraphPath graphPath = GraphPathNeo4j.from(path);
-        node = createMock(ImmutableGraphNode.class);
+        node = createMock(GraphNode.class);
 
         final GraphNodeId nodeId = GraphNodeIdNeo4J.TestOnly(42L);
         final GraphNodeId previousNodeId = GraphNodeIdNeo4J.TestOnly(21L);

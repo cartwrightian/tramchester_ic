@@ -7,7 +7,6 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
@@ -61,7 +60,7 @@ public class GraphDatabaseMetaInfo {
         logger.info("Set version data");
     }
 
-    public boolean boundsMatch(MutableGraphTransactionNeo4J txn, final BoundingBox boundingBox) {
+    public boolean boundsMatch(final MutableGraphTransaction txn, final BoundingBox boundingBox) {
         final boolean hasBoundsNode = txn.hasAnyMatching(GraphLabel.BOUNDS);
 
         if (!hasBoundsNode) {

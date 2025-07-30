@@ -13,8 +13,6 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.GraphNodeIdNeo4J;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
@@ -85,12 +83,12 @@ public class ServiceReasonsTest extends EasyMockSupport {
         GraphNodeIdNeo4J nodeId = GraphNodeIdNeo4J.TestOnly(42);
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(nodeId);
 
-        GraphNode node = createMock(ImmutableGraphNode.class);
+        GraphNode node = createMock(GraphNode.class);
         EasyMock.expect(node.getLabels()).andStubReturn(EnumSet.of(GraphLabel.STATION));
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
         EasyMock.expect(node.getId()).andStubReturn(nodeId);
 
-        GraphTransaction txn = createMock(ImmutableGraphTransactionNeo4J.class);
+        GraphTransaction txn = createMock(GraphTransaction.class);
         EasyMock.expect(txn.getNodeById(nodeId)).andReturn(node);
 
         RouteCalculatorSupport.PathRequest pathRequest = createMock(RouteCalculatorSupport.PathRequest.class);

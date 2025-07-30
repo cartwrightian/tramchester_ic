@@ -5,9 +5,8 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -20,7 +19,8 @@ import org.neo4j.graphdb.Node;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.DataSourceID.*;
+import static com.tramchester.domain.DataSourceID.naptanxml;
+import static com.tramchester.domain.DataSourceID.tfgm;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
-    private MutableGraphTransactionNeo4J transaction;
+    private MutableGraphTransaction transaction;
     private Node node;
 
     @BeforeEach
     public void beforeAnyTestRuns() {
         node = createMock(Node.class);
-        transaction = createMock(MutableGraphTransactionNeo4J.class);
+        transaction = createMock(MutableGraphTransaction.class);
         databaseMetaInfo = new GraphDatabaseMetaInfo();
     }
 
@@ -92,7 +92,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         versionMap.put("A", "4.2");
         versionMap.put("ZZZ", "81.91");
 
-        GraphNode graphNode = createMock(ImmutableGraphNode.class);
+        GraphNode graphNode = createMock(GraphNode.class);
 
         EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
         EasyMock.expect(graphNode.getAllProperties()).andReturn(versionMap);
@@ -121,7 +121,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     @Test
     void shouldGetBoundsMatch() {
-        GraphNode graphNode = createMock(ImmutableGraphNode.class);
+        GraphNode graphNode = createMock(GraphNode.class);
         BoundingBox bounds = TestEnv.getGreaterManchester();
 
         EasyMock.expect(transaction.hasAnyMatching(GraphLabel.BOUNDS)).andReturn(true);
@@ -137,7 +137,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     @Test
     void shouldGetBoundsMisMatch() {
-        GraphNode graphNode = createMock(ImmutableGraphNode.class);
+        GraphNode graphNode = createMock(GraphNode.class);
         BoundingBox boundsA = TestEnv.getGreaterManchester();
         BoundingBox boundsB = TestEnv.getNationalTrainBounds();
 
