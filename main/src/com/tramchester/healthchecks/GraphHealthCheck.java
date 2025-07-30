@@ -3,7 +3,7 @@ package com.tramchester.healthchecks;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
-import com.tramchester.graph.facade.GraphDatabase;
+import com.tramchester.graph.core.GraphDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

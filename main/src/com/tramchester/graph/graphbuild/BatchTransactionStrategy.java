@@ -4,8 +4,8 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.facade.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.MutableGraphTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

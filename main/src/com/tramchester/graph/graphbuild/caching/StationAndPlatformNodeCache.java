@@ -3,9 +3,9 @@ package com.tramchester.graph.graphbuild.caching;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.MutableGraphNode;
+import com.tramchester.graph.core.MutableGraphTransaction;
 
 public interface StationAndPlatformNodeCache {
     void putStation(IdFor<Station> station, GraphNode stationNode);

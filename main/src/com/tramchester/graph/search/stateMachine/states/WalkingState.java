@@ -1,9 +1,9 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.facade.GraphDirection;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;

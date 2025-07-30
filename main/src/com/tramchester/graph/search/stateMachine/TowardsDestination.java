@@ -6,7 +6,7 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.core.*;
 
 import java.util.List;
 import java.util.stream.Stream;

@@ -7,7 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.core.GraphNode;
 
 import java.time.Duration;
 

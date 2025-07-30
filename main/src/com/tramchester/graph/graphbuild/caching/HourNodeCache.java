@@ -1,9 +1,9 @@
 package com.tramchester.graph.graphbuild.caching;
 
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.core.MutableGraphNode;
+import com.tramchester.graph.core.MutableGraphTransaction;
 
 public interface HourNodeCache {
 

@@ -2,9 +2,9 @@ package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.ImmutableGraphRelationship;
 
 import java.util.stream.Stream;
 

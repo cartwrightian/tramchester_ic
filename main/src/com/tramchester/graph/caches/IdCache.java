@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.graph.facade.GraphId;
+import com.tramchester.graph.core.GraphId;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.concurrent.TimeUnit;

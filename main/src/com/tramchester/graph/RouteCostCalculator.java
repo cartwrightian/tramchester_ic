@@ -5,9 +5,9 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.neo4j.RouteCostCalculatorNeo4J;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.neo4j.RouteCostCalculatorNeo4J;
 
 import java.time.Duration;
 import java.util.EnumSet;

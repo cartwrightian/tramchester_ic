@@ -3,7 +3,7 @@ package com.tramchester.unit.graph.databaseManagement;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.facade.neo4j.GraphDatabaseNeo4J;
+import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;

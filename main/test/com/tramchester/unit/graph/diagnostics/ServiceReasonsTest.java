@@ -11,8 +11,8 @@ import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.GraphNodeIdNeo4J;
+import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;

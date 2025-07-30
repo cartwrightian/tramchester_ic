@@ -1,7 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

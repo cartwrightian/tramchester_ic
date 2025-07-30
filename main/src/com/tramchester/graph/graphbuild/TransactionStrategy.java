@@ -2,7 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.core.MutableGraphTransaction;
 
 public interface TransactionStrategy {
 

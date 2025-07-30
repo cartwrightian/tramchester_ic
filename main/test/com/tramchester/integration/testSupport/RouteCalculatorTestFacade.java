@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.diagnostics.DiagnosticsToGraphViz;
 import com.tramchester.repository.StationGroupsRepository;

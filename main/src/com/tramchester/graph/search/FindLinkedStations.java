@@ -5,7 +5,7 @@ import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.neo4j.FindLinkedStationsNeo4J;
+import com.tramchester.graph.core.neo4j.FindLinkedStationsNeo4J;
 
 import java.util.Set;
 

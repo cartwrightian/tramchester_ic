@@ -3,10 +3,10 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphDirection;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 

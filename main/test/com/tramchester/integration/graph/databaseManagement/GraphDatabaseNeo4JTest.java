@@ -2,7 +2,7 @@ package com.tramchester.integration.graph.databaseManagement;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.graph.facade.neo4j.GraphDatabaseNeo4J;
+import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
