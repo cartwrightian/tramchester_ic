@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
-// TODO Rename to MutableGraphNodeNeo4J
 public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode {
     private final Node node;
     private final GraphNodeId graphNodeId;

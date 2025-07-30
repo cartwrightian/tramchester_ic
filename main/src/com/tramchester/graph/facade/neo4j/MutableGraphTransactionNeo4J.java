@@ -74,13 +74,13 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public MutableGraphNodeNeo4J createNode(final GraphLabel graphLabel) {
+    public MutableGraphNode createNode(final GraphLabel graphLabel) {
         final Node node = txn.createNode(graphLabel);
         return wrapNodeAsMutable(node);
     }
 
     @Override
-    public MutableGraphNodeNeo4J createNode(final EnumSet<GraphLabel> labels) {
+    public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
         final GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
         final Node node = txn.createNode(toApply);
@@ -98,7 +98,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public MutableGraphNodeNeo4J getNodeByIdMutable(final GraphNodeId nodeId) {
+    public MutableGraphNode getNodeByIdMutable(final GraphNodeId nodeId) {
         final Node node = getNode(nodeId);
         return wrapNodeAsMutable(node);
     }
@@ -175,7 +175,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNodeNeo4J findNodeMutable(final ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(final ITEM item) {
         return findNodeMutable(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 

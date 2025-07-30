@@ -200,7 +200,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         final Set<Station> others = closedStation.getDiversionToFromClosure();
 
-        final MutableGraphNodeNeo4J closedNode = txn.findNodeMutable(actualStation);
+        final MutableGraphNode closedNode = txn.findNodeMutable(actualStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + actualStation.getId();
             logger.error(msg);
@@ -215,7 +215,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             logger.info(format("Create diversion to/from %s and %s cost %s", actualStation.getId(), otherStation.getId(), cost));
 
-            final MutableGraphNodeNeo4J otherNode = txn.findNodeMutable(otherStation);
+            final MutableGraphNode otherNode = txn.findNodeMutable(otherStation);
             if (otherNode==null) {
                 String msg = "Could not find database node for to: " + otherStation.getId();
                 logger.error(msg);
@@ -275,7 +275,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
 //            Stream<ImmutableGraphRelationship> alreadyPresent = firstNode.getRelationships(txn, Direction.OUTGOING, DIVERSION);
 
-            final MutableGraphNodeNeo4J secondNode = txn.findNodeMutable(second);
+            final MutableGraphNode secondNode = txn.findNodeMutable(second);
 
             firstNode.addLabel(GraphLabel.HAS_DIVERSION);
 

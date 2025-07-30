@@ -7,7 +7,6 @@ import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -157,7 +156,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     void shouldCreateBoundsNode() {
         BoundingBox bounds = TestEnv.getGreaterManchester();
 
-        MutableGraphNode graphNode = createMock(MutableGraphNodeNeo4J.class);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
         EasyMock.expect(transaction.hasAnyMatching(GraphLabel.BOUNDS)).andReturn(false);
         EasyMock.expect(transaction.createNode(GraphLabel.BOUNDS)).andReturn(graphNode);
         graphNode.setBounds(bounds);
@@ -171,8 +170,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldCreateVersionsNode() {
 
-        MutableGraphNodeNeo4J graphNode = createMock(MutableGraphNodeNeo4J.class);
-        EasyMock.expect(graphNode.getNode()).andStubReturn(node);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
 
         DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", URLStatus.invalidTime, EnumSet.of(Tram));
         DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", URLStatus.invalidTime, EnumSet.of(Bus));
