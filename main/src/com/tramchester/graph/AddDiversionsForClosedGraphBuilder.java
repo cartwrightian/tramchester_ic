@@ -174,9 +174,9 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
     private void addDBFlag(final GTFSSourceConfig sourceConfig) {
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            final List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
+            final List<MutableGraphNodeNeo4J> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
 
-            final MutableGraphNode node;
+            final MutableGraphNodeNeo4J node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
                 node = createGraphNode(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
@@ -200,7 +200,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         final Set<Station> others = closedStation.getDiversionToFromClosure();
 
-        final MutableGraphNode closedNode = txn.findNodeMutable(actualStation);
+        final MutableGraphNodeNeo4J closedNode = txn.findNodeMutable(actualStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + actualStation.getId();
             logger.error(msg);
@@ -215,7 +215,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             logger.info(format("Create diversion to/from %s and %s cost %s", actualStation.getId(), otherStation.getId(), cost));
 
-            final MutableGraphNode otherNode = txn.findNodeMutable(otherStation);
+            final MutableGraphNodeNeo4J otherNode = txn.findNodeMutable(otherStation);
             if (otherNode==null) {
                 String msg = "Could not find database node for to: " + otherStation.getId();
                 logger.error(msg);
@@ -271,11 +271,11 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
 
-            final MutableGraphNode firstNode = txn.findNodeMutable(first);
+            final MutableGraphNodeNeo4J firstNode = txn.findNodeMutable(first);
 
 //            Stream<ImmutableGraphRelationship> alreadyPresent = firstNode.getRelationships(txn, Direction.OUTGOING, DIVERSION);
 
-            final MutableGraphNode secondNode = txn.findNodeMutable(second);
+            final MutableGraphNodeNeo4J secondNode = txn.findNodeMutable(second);
 
             firstNode.addLabel(GraphLabel.HAS_DIVERSION);
 

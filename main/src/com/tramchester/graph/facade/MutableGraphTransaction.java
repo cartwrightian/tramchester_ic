@@ -4,22 +4,22 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.graph.facade.neo4j.MutableGraphNode;
+import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public interface MutableGraphTransaction extends GraphTransaction {
-    MutableGraphNode createNode(GraphLabel graphLabel);
+    MutableGraphNodeNeo4J createNode(GraphLabel graphLabel);
 
-    MutableGraphNode createNode(EnumSet<GraphLabel> labels);
+    MutableGraphNodeNeo4J createNode(EnumSet<GraphLabel> labels);
 
-    MutableGraphNode getNodeByIdMutable(GraphNodeId nodeId);
+    MutableGraphNodeNeo4J getNodeByIdMutable(GraphNodeId nodeId);
 
-    Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel);
+    Stream<MutableGraphNodeNeo4J> findNodesMutable(GraphLabel graphLabel);
 
-    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item);
+    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNodeNeo4J findNodeMutable(ITEM item);
 
     void commit();
 

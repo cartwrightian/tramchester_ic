@@ -154,9 +154,9 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
 
     private void addDBFlag(final GTFSSourceConfig sourceConfig) {
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            final List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.TEMP_WALKS_ADDED).toList();
+            final List<MutableGraphNodeNeo4J> nodes = txn.findNodesMutable(GraphLabel.TEMP_WALKS_ADDED).toList();
 
-            final MutableGraphNode node;
+            final MutableGraphNodeNeo4J node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.TEMP_WALKS_ADDED + " node");
                 node = createGraphNode(txn, GraphLabel.TEMP_WALKS_ADDED);
@@ -179,8 +179,8 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         final Station first = temporaryStationWalk.getStationPair().first();
         final Station second = temporaryStationWalk.getStationPair().second();
 
-        final MutableGraphNode firstNode = findNodeFor(txn, first);
-        final MutableGraphNode secondNode = findNodeFor(txn, second);
+        final MutableGraphNodeNeo4J firstNode = findNodeFor(txn, first);
+        final MutableGraphNodeNeo4J secondNode = findNodeFor(txn, second);
 
         logger.debug("Adding Temp Station Walk to/from " + firstNode.getId() + " and " + second.getId());
 
@@ -207,8 +207,8 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     @NotNull
-    private static MutableGraphNode findNodeFor(final MutableGraphTransaction txn, final Station station) {
-        final MutableGraphNode closedNode = txn.findNodeMutable(station);
+    private static MutableGraphNodeNeo4J findNodeFor(final MutableGraphTransaction txn, final Station station) {
+        final MutableGraphNodeNeo4J closedNode = txn.findNodeMutable(station);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + station.getId();
             logger.error(msg);

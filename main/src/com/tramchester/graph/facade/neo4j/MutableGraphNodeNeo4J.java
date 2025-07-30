@@ -35,12 +35,12 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 // TODO Rename to MutableGraphNodeNeo4J
-public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
+public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode {
     private final Node node;
     private final GraphNodeId graphNodeId;
     private final SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode;
 
-    MutableGraphNode(Node node, GraphNodeId graphNodeId, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
+    MutableGraphNodeNeo4J(Node node, GraphNodeId graphNodeId, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
         this.invalidatesCacheForNode = invalidatesCacheForNode;
         if (node == null) {
             throw new RuntimeException("Null node passed");
@@ -57,6 +57,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return node;
     }
 
+    @Override
     public void delete() {
         invalidateCache();
         node.delete();
@@ -68,75 +69,89 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     ///// MUTATE ////////////////////////////////////////////////////////////
 
-    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNode end,
+    @Override
+    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNodeNeo4J end,
                                                          final TransportRelationshipTypes relationshipType) {
         final MutableGraphTransactionNeo4J txnNeo4J = (MutableGraphTransactionNeo4J) txn;
         final Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipType);
         return txnNeo4J.wrapRelationshipMutable(relationshipTo);
     }
 
+    @Override
     public void addLabel(final Label label) {
         node.addLabel(label);
         invalidateCache();
     }
 
+    @Override
     public void setHourProp(final Integer hour) {
         node.setProperty(HOUR.getText(), hour);
         invalidateCache();
     }
 
+    @Override
     public void setTime(final TramTime tramTime) {
         setTime(tramTime, node);
         invalidateCache();
     }
 
+    @Override
     public void set(final Station station) {
         set(station, node);
         invalidateCache();
     }
 
+    @Override
     public void set(final Platform platform) {
         set(platform, node);
         invalidateCache();
     }
 
+    @Override
     public void set(final Route route) {
         set(route, node);
         invalidateCache();
     }
 
+    @Override
     public void set(final Service service) {
         set(service, node);
         invalidateCache();
     }
 
+    @Override
     public void set(final StationLocalityGroup stationGroup) {
         set(stationGroup, node);
         invalidateCache();
     }
 
+    @Override
     public void set(final RouteStation routeStation) {
         set(routeStation, node);
         invalidateCache();
     }
 
+    @Override
     public void setTransportMode(final TransportMode first) {
         node.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
         invalidateCache();
     }
 
+    @Override
     public void set(final DataSourceInfo nameAndVersion) {
         DataSourceID sourceID = nameAndVersion.getID();
         node.setProperty(sourceID.name(), nameAndVersion.getVersion());
         invalidateCache();
     }
 
+    @Override
     public void setLatLong(final LatLong latLong) {
         node.setProperty(LATITUDE.getText(), latLong.getLat());
         node.setProperty(LONGITUDE.getText(), latLong.getLon());
         invalidateCache();
     }
 
+    @Override
     public void setBounds(final BoundingBox bounds) {
         node.setProperty(MAX_EASTING.getText(), bounds.getMaxEasting());
         node.setProperty(MAX_NORTHING.getText(), bounds.getMaxNorthings());
@@ -145,26 +160,31 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         invalidateCache();
     }
 
+    @Override
     public void setWalkId(final LatLong origin, final UUID uid) {
         node.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
         invalidateCache();
     }
 
+    @Override
     public void setPlatformNumber(final Platform platform) {
         node.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
         invalidateCache();
     }
 
+    @Override
     public void setSourceName(final String sourceName) {
         node.setProperty(SOURCE_NAME_PROP.getText(), sourceName);
         invalidateCache();
     }
 
+    @Override
     public void setAreaId(final IdFor<NPTGLocality> localityId) {
         node.setProperty(AREA_ID.getText(), localityId.getGraphId());
         invalidateCache();
     }
 
+    @Override
     public void setTowards(final IdFor<Station> stationId) {
         node.setProperty(TOWARDS_STATION_ID.getText(), stationId.getGraphId());
         invalidateCache();
@@ -193,6 +213,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         };
     }
 
+    @Override
     public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransactionNeo4J txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes relationshipType) {
         return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationshipMutable);
@@ -268,6 +289,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return getIdFor(Station.class, node);
     }
 
+    @Override
     public void set(final Trip trip) {
         set(trip, node);
     }
@@ -364,7 +386,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MutableGraphNode graphNode = (MutableGraphNode) o;
+        MutableGraphNodeNeo4J graphNode = (MutableGraphNodeNeo4J) o;
         return Objects.equals(graphNodeId, graphNode.graphNodeId);
     }
 

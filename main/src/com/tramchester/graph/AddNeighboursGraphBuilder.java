@@ -7,7 +7,7 @@ import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphNode;
+import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
@@ -117,7 +117,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addNeighbourRelationships(MutableGraphTransactionNeo4J txn, GraphFilter graphFilter, Station from, Set<StationToStationConnection> links) {
-        final MutableGraphNode fromNode = txn.findNodeMutable(from);
+        final MutableGraphNodeNeo4J fromNode = txn.findNodeMutable(from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
             logger.error(msg);
@@ -130,7 +130,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                 filter(link -> graphFilter.shouldInclude(link.getEnd())).
                 forEach(link -> {
                     final Station station = link.getEnd();
-                    final MutableGraphNode toNode = txn.findNodeMutable(station);
+                    final MutableGraphNodeNeo4J toNode = txn.findNodeMutable(station);
                     if (toNode==null) {
                         String msg = "Could not find database node for to: " + link.getEnd().getId();
                         logger.error(msg);

@@ -29,13 +29,13 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ImmutableGraphNode implements GraphNode {
-    private final MutableGraphNode underlying;
+    private final MutableGraphNodeNeo4J underlying;
     private final GraphNodeId nodeId;
 
     // Node properties only, nodes cannot be shared beyond parent transactions
     private final SharedNodeCache sharedNodeCache;
 
-    ImmutableGraphNode(final MutableGraphNode underlying, SharedNodeCache sharedNodeCache) {
+    ImmutableGraphNode(final MutableGraphNodeNeo4J underlying, SharedNodeCache sharedNodeCache) {
         this.underlying = underlying;
         this.nodeId = underlying.getId();
         this.sharedNodeCache = sharedNodeCache;
@@ -51,7 +51,7 @@ public class ImmutableGraphNode implements GraphNode {
         if (graphNode instanceof ImmutableGraphNode) {
             return ((ImmutableGraphNode)graphNode).getNode();
         }
-        return ((MutableGraphNode)graphNode).getNode();
+        return ((MutableGraphNodeNeo4J)graphNode).getNode();
     }
 
     private Node getNode() {

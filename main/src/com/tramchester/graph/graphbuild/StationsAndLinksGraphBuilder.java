@@ -165,7 +165,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         filter(station -> station.servesRouteDropOff(route) || station.servesRoutePickup(route)).
                         map(station -> transportData.getRouteStation(station, route)).
                         forEach(routeStation -> {
-                            final MutableGraphNode routeStationNode = createRouteStationNode(txn, routeStation, routeStationNodeCache);
+                            final MutableGraphNodeNeo4J routeStationNode = createRouteStationNode(txn, routeStation, routeStationNodeCache);
                             linkStationAndRouteStation(txn, routeStation.getStation(), routeStationNode, route.getTransportMode(),
                                     stationAndPlatformNodeCache);
                         });
@@ -178,9 +178,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void linkStationAndRouteStation(final MutableGraphTransactionNeo4J txn, final Station station, final MutableGraphNode routeStationNode,
+    private void linkStationAndRouteStation(final MutableGraphTransactionNeo4J txn, final Station station, final MutableGraphNodeNeo4J routeStationNode,
                                             final TransportMode transportMode, final StationAndPlatformNodeCache cache) {
-        final MutableGraphNode stationNode = cache.getStation(txn, station.getId());
+        final MutableGraphNodeNeo4J stationNode = cache.getStation(txn, station.getId());
 
         final MutableGraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
         final MutableGraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
@@ -220,8 +220,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             });
 
         pairs.keySet().forEach(pair -> {
-            final MutableGraphNode startNode = stationAndPlatformNodeCache.getStation(tx, pair.getBeginId());
-            final MutableGraphNode endNode = stationAndPlatformNodeCache.getStation(tx, pair.getEndId());
+            final MutableGraphNodeNeo4J startNode = stationAndPlatformNodeCache.getStation(tx, pair.getBeginId());
+            final MutableGraphNodeNeo4J endNode = stationAndPlatformNodeCache.getStation(tx, pair.getEndId());
             createLinkRelationship(startNode, endNode, route.getTransportMode(), tx);
         });
 
@@ -231,7 +231,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode to, final TransportMode mode, final MutableGraphTransactionNeo4J txn) {
+    private void createLinkRelationship(final MutableGraphNodeNeo4J from, final MutableGraphNodeNeo4J to, final TransportMode mode, final MutableGraphTransactionNeo4J txn) {
         if (from.hasRelationship(GraphDirection.Outgoing, LINKED)) {
 
             // update existing relationships if not already present
@@ -264,7 +264,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void createPlatformsForStation(final MutableGraphTransaction txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
         for (final Platform platform : station.getPlatforms()) {
 
-            final MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
+            final MutableGraphNodeNeo4J platformNode = txn.createNode(GraphLabel.PLATFORM);
             platformNode.set(platform);
             platformNode.set(station);
             platformNode.setPlatformNumber(platform);
@@ -274,7 +274,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private MutableGraphNode createRouteStationNode(final MutableGraphTransactionNeo4J tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
+    private MutableGraphNodeNeo4J createRouteStationNode(final MutableGraphTransactionNeo4J tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
 
         final boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
 
@@ -292,7 +292,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.ROUTE_STATION, modeLabel);
 
-        final MutableGraphNode routeStationNode = createGraphNode(tx, labels);
+        final MutableGraphNodeNeo4J routeStationNode = createGraphNode(tx, labels);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
         routeStationNode.set(routeStation);
@@ -305,7 +305,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return routeStationNode;
     }
 
-    private void setTransportMode(final Station station, final MutableGraphNode node) {
+    private void setTransportMode(final Station station, final MutableGraphNodeNeo4J node) {
         Set<TransportMode> modes = station.getTransportModes();
         if (modes.isEmpty()) {
             logger.error("No transport modes set for " + station.getId());
