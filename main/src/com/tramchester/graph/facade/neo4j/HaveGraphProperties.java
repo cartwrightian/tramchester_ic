@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.facade.neo4j;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
@@ -8,6 +8,7 @@ import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,6 @@ import java.time.LocalTime;
 import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
-
-
-// TODO Move this
 
 public class HaveGraphProperties {
     private static final Logger logger = LoggerFactory.getLogger(HaveGraphProperties.class);
