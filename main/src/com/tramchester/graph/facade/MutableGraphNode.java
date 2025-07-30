@@ -15,9 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import org.neo4j.graphdb.Label;
 
 import java.util.UUID;
@@ -26,7 +24,7 @@ import java.util.stream.Stream;
 public interface MutableGraphNode extends GraphNode {
     void delete();
 
-    MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn, MutableGraphNodeNeo4J end,
+    MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn, MutableGraphNode end,
                                                   TransportRelationshipTypes relationshipType);
 
     void addLabel(Label label);
@@ -65,8 +63,11 @@ public interface MutableGraphNode extends GraphNode {
 
     void setTowards(IdFor<Station> stationId);
 
-    Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransactionNeo4J txn, GraphDirection direction,
+    void set(Trip trip);
+
+    Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction,
                                                              TransportRelationshipTypes relationshipType);
 
-    void set(Trip trip);
+    MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction tx,
+                                                          TransportRelationshipTypes transportRelationshipTypes, GraphDirection graphDirection);
 }

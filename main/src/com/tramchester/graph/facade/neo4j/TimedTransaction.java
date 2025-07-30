@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import java.time.Duration;
 import java.time.Instant;
 
+// TODO Rework this, push up into facade
 public class TimedTransaction extends MutableGraphTransactionNeo4J implements AutoCloseable {
     private final Logger logger;
     private final String name;

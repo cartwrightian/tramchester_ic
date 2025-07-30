@@ -128,7 +128,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public Stream<MutableGraphNodeNeo4J> findNodesMutable(GraphLabel graphLabel) {
+    public Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsMutable);
     }
 

@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -111,7 +112,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldSetNeighbourNode() {
 
-        MutableGraphNodeNeo4J graphNode = createMock(MutableGraphNodeNeo4J.class);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
         EasyMock.expect(transaction.createNode(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(graphNode);
 
         replayAll();
@@ -156,7 +157,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     void shouldCreateBoundsNode() {
         BoundingBox bounds = TestEnv.getGreaterManchester();
 
-        MutableGraphNodeNeo4J graphNode = createMock(MutableGraphNodeNeo4J.class);
+        MutableGraphNode graphNode = createMock(MutableGraphNodeNeo4J.class);
         EasyMock.expect(transaction.hasAnyMatching(GraphLabel.BOUNDS)).andReturn(false);
         EasyMock.expect(transaction.createNode(GraphLabel.BOUNDS)).andReturn(graphNode);
         graphNode.setBounds(bounds);

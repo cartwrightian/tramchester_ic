@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
@@ -117,7 +118,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addNeighbourRelationships(MutableGraphTransactionNeo4J txn, GraphFilter graphFilter, Station from, Set<StationToStationConnection> links) {
-        final MutableGraphNodeNeo4J fromNode = txn.findNodeMutable(from);
+        final MutableGraphNode fromNode = txn.findNodeMutable(from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
             logger.error(msg);

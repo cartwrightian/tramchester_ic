@@ -6,8 +6,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,7 +29,7 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
 
     // TODO This has to be route station to route Station
     @Override
-    public MutableGraphNodeNeo4J getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service,
+    public MutableGraphNode getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service,
                                                 IdFor<Station> startStation, IdFor<Station> endStation) {
         String id = getServiceKey(routeId, service.getId(), startStation, endStation);
         return txn.getNodeByIdMutable(svcNodes.get(id));
@@ -56,7 +56,7 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
     }
 
     @Override
-    public MutableGraphNodeNeo4J getHourNode(MutableGraphTransaction tx, GraphNodeId serviceNodeId, int hour) {
+    public MutableGraphNode getHourNode(MutableGraphTransaction tx, GraphNodeId serviceNodeId, int hour) {
         GraphNodeIdAndHour key = new GraphNodeIdAndHour(serviceNodeId, hour);
         if (hourNodes.containsKey(key)) {
             return tx.getNodeByIdMutable(hourNodes.get(key));
@@ -76,7 +76,7 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
 
     private record GraphNodeIdAndHour(GraphNodeId graphNodeId, int hour) {
 
-        @Override
+            @Override
             public String toString() {
                 return "GraphNodeIdAndHour{" +
                         "graphNodeId=" + graphNodeId +

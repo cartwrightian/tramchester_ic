@@ -19,8 +19,8 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -114,7 +114,7 @@ public class LocationJourneyPlanner {
         }
 
         final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn);
-        final MutableGraphNodeNeo4J startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
         final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksToStart, config);
@@ -157,7 +157,7 @@ public class LocationJourneyPlanner {
 
         final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn);
 
-        final MutableGraphNodeNeo4J endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
+        final MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
         final List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
@@ -194,12 +194,12 @@ public class LocationJourneyPlanner {
 
         // Add Walk at the Start
         final Set<StationWalk> walksAtStart = getStationWalks(start, journeyRequest.getRequestedModes());
-        final MutableGraphNodeNeo4J startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        final MutableGraphNode startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startNode, walksAtStart);
 
         // Add Walks at the end
         final Set<StationWalk> walksToDest = getStationWalks(dest, journeyRequest.getRequestedModes());
-        final MutableGraphNodeNeo4J endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
+        final MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
         // where destination walks take us
@@ -276,7 +276,7 @@ public class LocationJourneyPlanner {
 
         private final MutableGraphTransaction txn;
         private final List<MutableGraphRelationship> relationships;
-        private final List<MutableGraphNodeNeo4J> nodes;
+        private final List<MutableGraphNode> nodes;
 
         private WalkNodesAndRelationships(MutableGraphTransaction txn) {
             this.txn = txn;
@@ -288,40 +288,40 @@ public class LocationJourneyPlanner {
             logger.info("Removed added walks and walk node(s)");
             // cache is updated by the delete methods
             relationships.forEach(MutableGraphRelationship::delete);
-            nodes.forEach(MutableGraphNodeNeo4J::delete);
+            nodes.forEach(MutableGraphNode::delete);
         }
 
         public void addAll(List<MutableGraphRelationship> relationshipList) {
             relationships.addAll(relationshipList);
         }
 
-        public MutableGraphNodeNeo4J createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
-            final MutableGraphNodeNeo4J walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
+        public MutableGraphNode createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
+            final MutableGraphNode walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
             nodes.add(walkingNode);
             return walkingNode;
         }
 
-        public void createWalksToStart(final MutableGraphNodeNeo4J node, final Set<StationWalk> walks) {
+        public void createWalksToStart(final MutableGraphNode node, final Set<StationWalk> walks) {
             createWalkRelationships(node, walks, WALKS_TO_STATION);
         }
 
-        public void createWalksToDest(final MutableGraphNodeNeo4J node, final Set<StationWalk> walks) {
+        public void createWalksToDest(final MutableGraphNode node, final Set<StationWalk> walks) {
             createWalkRelationships(node, walks, WALKS_FROM_STATION);
         }
 
-        private void createWalkRelationships(final MutableGraphNodeNeo4J node, final Set<StationWalk> walks, final TransportRelationshipTypes direction) {
+        private void createWalkRelationships(final MutableGraphNode node, final Set<StationWalk> walks, final TransportRelationshipTypes direction) {
             List<MutableGraphRelationship> addedRelationships = new ArrayList<>();
             walks.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(node, stationWalk, direction)));
             relationships.addAll(addedRelationships);
         }
 
-        private MutableGraphRelationship createWalkRelationship(final MutableGraphNodeNeo4J walkNode, final StationWalk stationWalk,
+        private MutableGraphRelationship createWalkRelationship(final MutableGraphNode walkNode, final StationWalk stationWalk,
                                                                 final TransportRelationshipTypes direction) {
             final Station walkStation = stationWalk.getStation();
             final Duration cost = stationWalk.getCost();
 
             final MutableGraphRelationship walkingRelationship;
-            final MutableGraphNodeNeo4J stationNode = txn.findNodeMutable(walkStation);
+            final MutableGraphNode stationNode = txn.findNodeMutable(walkStation);
             if (stationNode==null) {
                 throw new RuntimeException("Could not find node for " + walkStation);
             }
@@ -343,8 +343,8 @@ public class LocationJourneyPlanner {
             return walkingRelationship;
         }
 
-        private MutableGraphNodeNeo4J createWalkingNode(final MutableGraphTransaction txn, final LatLong origin, final UUID uniqueId) {
-            final MutableGraphNodeNeo4J startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
+        private MutableGraphNode createWalkingNode(final MutableGraphTransaction txn, final LatLong origin, final UUID uniqueId) {
+            final MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
             startOfWalkNode.setLatLong(origin);
             startOfWalkNode.setWalkId(origin, uniqueId);
             logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));

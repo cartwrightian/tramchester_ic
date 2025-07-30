@@ -5,8 +5,8 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class GraphDatabaseMetaInfo {
     public void createVersionNode(MutableGraphTransaction tx, DataSourceRepository dataSourceRepository) {
         Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
         logger.info("Setting version data in DB for " + dataSourceInfo);
-        MutableGraphNodeNeo4J node = tx.createNode(GraphLabel.VERSION);
+        MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
         dataSourceInfo.forEach(node::set);
         logger.info("Set version data");
     }
@@ -93,7 +93,7 @@ public class GraphDatabaseMetaInfo {
         }
 
         logger.info("Set " + GraphLabel.BOUNDS + " to " + bounds);
-        final MutableGraphNodeNeo4J node = transaction.createNode(GraphLabel.BOUNDS);
+        final MutableGraphNode node = transaction.createNode(GraphLabel.BOUNDS);
 
         node.setBounds(bounds);
     }

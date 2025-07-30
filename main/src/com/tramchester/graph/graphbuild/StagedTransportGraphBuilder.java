@@ -19,10 +19,10 @@ import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
-import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
+import com.tramchester.graph.facade.GraphDirection;
+import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
@@ -232,7 +232,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         for (final Trip trip : route.getTrips()) {
             strategy.tripBegin(trip);
             final MutableGraphTransaction tx = strategy.currentTxn();
-            final Map<StationTime, MutableGraphNodeNeo4J> timeNodes = createMinuteNodes(tx, trip, hourNodeCache, serviceNodeCache);
+            final Map<StationTime, MutableGraphNode> timeNodes = createMinuteNodes(tx, trip, hourNodeCache, serviceNodeCache);
             createTripRelationships(tx, route, trip, routeStationNodeCache, timeNodes);
             timeNodes.clear();
             strategy.tripDone();
@@ -241,7 +241,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createTripRelationships(final MutableGraphTransaction tx, final Route route, final Trip trip,
                                          final RouteStationNodeCache routeBuilderCache,
-                                         final Map<StationTime, MutableGraphNodeNeo4J> timeNodes) {
+                                         final Map<StationTime, MutableGraphNode> timeNodes) {
         final StopCalls stops = trip.getStopCalls();
 
         stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
@@ -253,7 +253,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         });
     }
 
-    private void buildGraphForBoardsAndDeparts(final Route route, final MutableGraphTransactionNeo4J tx, final StationAndPlatformNodeCache stationAndPlatformCache,
+    private void buildGraphForBoardsAndDeparts(final Route route, final MutableGraphTransaction tx, final StationAndPlatformNodeCache stationAndPlatformCache,
                                                final RouteStationNodeCache routeStationNodeCache, final BoardingDepartNodeCache boardingDepartNodeCache) {
         for (final Trip trip : route.getTrips()) {
             trip.getStopCalls().stream().
@@ -280,7 +280,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         final IdFor<Station> beginId = leg.getFirstStation().getId();
                         final IdFor<Station> endId = leg.getSecondStation().getId();
 
-                        final MutableGraphNodeNeo4J serviceNode = createServiceNodeAndRelationshipFromRouteStation(tx, route, trip,
+                        final MutableGraphNode serviceNode = createServiceNodeAndRelationshipFromRouteStation(tx, route, trip,
                                 beginId, endId, routeStationNodeCache, serviceNodeCache);
 
                         createHourNodeAndRelationshipFromService(tx, leg.getDepartureTime().getHourOfDay(), hourNodeCache, serviceNode);
@@ -289,10 +289,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         });
     }
 
-    private MutableGraphNodeNeo4J createServiceNodeAndRelationshipFromRouteStation(final MutableGraphTransaction tx, final Route route, final Trip trip,
-                                                                                   final IdFor<Station> beginId, final IdFor<Station> nextStationId,
-                                                                                   final RouteStationNodeCache routeStationNodeCache,
-                                                                                   final ServiceNodeCache serviceNodeCache) {
+    private MutableGraphNode createServiceNodeAndRelationshipFromRouteStation(final MutableGraphTransaction tx, final Route route, final Trip trip,
+                                                                              final IdFor<Station> beginId, final IdFor<Station> nextStationId,
+                                                                              final RouteStationNodeCache routeStationNodeCache,
+                                                                              final ServiceNodeCache serviceNodeCache) {
 
         final Service service = trip.getService();
 
@@ -300,7 +300,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
 
-        final MutableGraphNodeNeo4J svcNode;
+        final MutableGraphNode svcNode;
         final boolean existing;
         if (serviceNodeCache.hasServiceNode(route.getId(), service, beginId, nextStationId)) {
             svcNode = serviceNodeCache.getServiceNode(tx, route.getId(), service, beginId, nextStationId);
@@ -317,7 +317,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         // start route station -> svc node
-        final MutableGraphNodeNeo4J routeStationNode = routeStationNodeCache.getRouteStation(tx, route, beginId);
+        final MutableGraphNode routeStationNode = routeStationNodeCache.getRouteStation(tx, route, beginId);
         final MutableGraphRelationship svcRelationship;
         if (!existing) {
             svcRelationship = createRelationship(tx, routeStationNode, svcNode, TO_SERVICE);
@@ -335,12 +335,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     }
 
-    private void linkStationAndPlatforms(final MutableGraphTransactionNeo4J txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
+    private void linkStationAndPlatforms(final MutableGraphTransaction txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
-        final MutableGraphNodeNeo4J stationNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
+        final MutableGraphNode stationNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
         if (stationNode!=null) {
             for (final Platform platform : station.getPlatforms()) {
-                final MutableGraphNodeNeo4J platformNode = stationAndPlatformNodeCache.getPlatform(txn, platform.getId());
+                final MutableGraphNode platformNode = stationAndPlatformNodeCache.getPlatform(txn, platform.getId());
                 createPlatformStationRelationships(station, stationNode, platform, platformNode, txn);
             }
         } else {
@@ -348,7 +348,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createOnRouteRelationships(final MutableGraphTransactionNeo4J tx, final Route route, final RouteStationNodeCache routeBuilderCache) {
+    private void createOnRouteRelationships(final MutableGraphTransaction tx, final Route route, final RouteStationNodeCache routeBuilderCache) {
 
         final boolean graphIsFiltered = graphFilter.isFiltered();
         final Stream<StopCalls.StopLeg> legsToInclude = route.getTrips().stream().
@@ -369,8 +369,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         route.getId(), beginId, route, leg.getFirst());
                 throw new RuntimeException(message);
             }
-            final MutableGraphNodeNeo4J startNode = routeBuilderCache.getRouteStation(tx, route, beginId);
-            final MutableGraphNodeNeo4J endNode = routeBuilderCache.getRouteStation(tx, route, endId);
+            final MutableGraphNode startNode = routeBuilderCache.getRouteStation(tx, route, beginId);
+            final MutableGraphNode endNode = routeBuilderCache.getRouteStation(tx, route, endId);
 
             final StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, leg.getFirstStation(), leg.getSecondStation());
 
@@ -382,7 +382,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return graphFilter.shouldInclude(leg.getFirst()) && graphFilter.shouldInclude(leg.getSecond());
     }
 
-    private void createBoardingAndDepart(final MutableGraphTransactionNeo4J tx, final StopCall stopCall,
+    private void createBoardingAndDepart(final MutableGraphTransaction tx, final StopCall stopCall,
                                          final Route route, final Trip trip,
                                          final StationAndPlatformNodeCache stationAndPlatformNodeCache,
                                          final RouteStationNodeCache routeStationNodeCache,
@@ -423,10 +423,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
 
         // If Bus, for example, we board to/from station, for trams it is from the platform
-        final MutableGraphNodeNeo4J platformOrStation = station.hasPlatforms() ? stationAndPlatformNodeCache.getPlatform(tx, stopCall.getPlatform().getId())
+        final MutableGraphNode platformOrStation = station.hasPlatforms() ? stationAndPlatformNodeCache.getPlatform(tx, stopCall.getPlatform().getId())
                 : stationAndPlatformNodeCache.getStation(tx, station.getId());
         final IdFor<RouteStation> routeStationId = RouteStation.createId(station.getId(), route.getId());
-        final MutableGraphNodeNeo4J routeStationNode = routeStationNodeCache.getRouteStation(tx, routeStationId);
+        final MutableGraphNode routeStationNode = routeStationNodeCache.getRouteStation(tx, routeStationId);
 
         if (isInterchange) {
             routeStationNode.addLabel(INTERCHANGE);
@@ -448,8 +448,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createDeparts(final BoardingDepartNodeCache boardingDepartNodeCache, final Station station, final boolean isInterchange,
-                               final MutableGraphNodeNeo4J boardingNode, final IdFor<RouteStation> routeStationId,
-                               final MutableGraphNodeNeo4J routeStationNode, final MutableGraphTransactionNeo4J txn) {
+                               final MutableGraphNode boardingNode, final IdFor<RouteStation> routeStationId,
+                               final MutableGraphNode routeStationNode, final MutableGraphTransaction txn) {
 
         final TransportRelationshipTypes departType;
         if (isInterchange) {
@@ -475,8 +475,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createBoarding(final BoardingDepartNodeCache boardingDepartNodeCache, final StopCall stop, final Route route, final Station station,
-                                final boolean isInterchange, final MutableGraphNodeNeo4J platformOrStation, final IdFor<RouteStation> routeStationId,
-                                final MutableGraphNodeNeo4J routeStationNode, final MutableGraphTransactionNeo4J txn) {
+                                final boolean isInterchange, final MutableGraphNode platformOrStation, final IdFor<RouteStation> routeStationId,
+                                final MutableGraphNode routeStationNode, final MutableGraphTransaction txn) {
         final TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
         final MutableGraphRelationship boardRelationship = createRelationship(txn, platformOrStation, routeStationNode, boardType);
 
@@ -491,29 +491,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boardingDepartNodeCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
-    private void createOnRouteRelationship(final MutableGraphNodeNeo4J from, final MutableGraphNodeNeo4J to, final Route route,
+    private void createOnRouteRelationship(final MutableGraphNode from, final MutableGraphNode to, final Route route,
                                            final StopCallRepository.Costs costs,
-                                           final MutableGraphTransactionNeo4J txn) {
-
-//        final Set<GraphNodeId> endNodesIds;
-//        if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
-//            // diff outbounds for same route actually a normal situation, where (especially) trains go via
-//            // different paths even thought route is the "same", or back to the depot
-//            endNodesIds = from.getRelationships(txn, OUTGOING, ON_ROUTE).
-//                    map(relationship -> relationship.getEndNodeId(txn)).
-//                    collect(Collectors.toSet());
-//        } else {
-//            endNodesIds = Collections.emptySet();
-//        }
-//
-//        if (!endNodesIds.contains(to.getId())) {
-//            MutableGraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
-//            onRoute.set(route);
-//
-//            onRoute.setCost(costs.average());
-////            onRoute.setMaxCost(costs.max());
-//            onRoute.setTransportMode(route.getTransportMode());
-//        }
+                                           final MutableGraphTransaction txn) {
 
         if (from.hasRelationship(GraphDirection.Outgoing, ON_ROUTE)) {
             // diff outbounds for same route actually a normal situation, where (especially) trains go via
@@ -532,8 +512,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         onRoute.setTransportMode(route.getTransportMode());
     }
 
-    private void createPlatformStationRelationships(final Station station, final MutableGraphNodeNeo4J stationNode, final Platform platform,
-                                                    final MutableGraphNodeNeo4J platformNode, final MutableGraphTransactionNeo4J txn) {
+    private void createPlatformStationRelationships(final Station station, final MutableGraphNode stationNode, final Platform platform,
+                                                    final MutableGraphNode platformNode, final MutableGraphTransaction txn) {
 
         // station -> platform
         final Duration enterPlatformCost = station.getMinChangeDuration();
@@ -552,13 +532,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createRelationshipTimeNodeToRouteStation(final MutableGraphTransaction tx, final Route route, final Trip trip,
                                                           final StopCall beginStop, final StopCall endStop,
                                                           final RouteStationNodeCache routeStationNodeCache,
-                                                          final Map<StationTime, MutableGraphNodeNeo4J> timeNodes) {
+                                                          final Map<StationTime, MutableGraphNode> timeNodes) {
         final Station startStation = beginStop.getStation();
         final TramTime departureTime = beginStop.getDepartureTime();
 
         // time node -> end route station
-        final MutableGraphNodeNeo4J routeStationEnd = routeStationNodeCache.getRouteStation(tx, route, endStop.getStation().getId());
-        final MutableGraphNodeNeo4J timeNode = timeNodes.get(StationTime.of(startStation, beginStop.getDepartureTime()));
+        final MutableGraphNode routeStationEnd = routeStationNodeCache.getRouteStation(tx, route, endStop.getStation().getId());
+        final MutableGraphNode timeNode = timeNodes.get(StationTime.of(startStation, beginStop.getDepartureTime()));
         final TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
         final MutableGraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
         // properties on relationship
@@ -572,17 +552,17 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
     }
 
-    private Map<StationTime, MutableGraphNodeNeo4J> createMinuteNodes(final MutableGraphTransaction tx, final Trip trip,
-                                                                      final HourNodeCache hourNodeCache, ServiceNodeCache serviceNodeCache) {
+    private Map<StationTime, MutableGraphNode> createMinuteNodes(final MutableGraphTransaction tx, final Trip trip,
+                                                                 final HourNodeCache hourNodeCache, ServiceNodeCache serviceNodeCache) {
 
-        final Map<StationTime, MutableGraphNodeNeo4J> timeNodes = new HashMap<>();
+        final Map<StationTime, MutableGraphNode> timeNodes = new HashMap<>();
 
         final StopCalls stopCalls = trip.getStopCalls();
         stopCalls.getLegs(graphFilter.isFiltered()).forEach(leg -> {
             if (includeBothStops(leg)) {
                 final Station start = leg.getFirstStation();
                 final TramTime departureTime = leg.getDepartureTime();
-                final MutableGraphNodeNeo4J timeNode = createTimeNodeAndRelationshipFromHour(tx, trip, leg, departureTime,
+                final MutableGraphNode timeNode = createTimeNodeAndRelationshipFromHour(tx, trip, leg, departureTime,
                         hourNodeCache, serviceNodeCache);
                 timeNodes.put(StationTime.of(start, departureTime), timeNode);
             }
@@ -591,13 +571,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNodes;
     }
 
-    private MutableGraphNodeNeo4J createTimeNodeAndRelationshipFromHour(final MutableGraphTransaction tx, final Trip trip,
-                                                                        final StopCalls.StopLeg leg,
-                                                                        final TramTime departureTime,
-                                                                        final HourNodeCache hourNodeCache,
-                                                                        final ServiceNodeCache serviceNodeCache) {
+    private MutableGraphNode createTimeNodeAndRelationshipFromHour(final MutableGraphTransaction tx, final Trip trip,
+                                                                   final StopCalls.StopLeg leg,
+                                                                   final TramTime departureTime,
+                                                                   final HourNodeCache hourNodeCache,
+                                                                   final ServiceNodeCache serviceNodeCache) {
 
-        final MutableGraphNodeNeo4J timeNode = createGraphNode(tx, GraphLabel.MINUTE);
+        final MutableGraphNode timeNode = createGraphNode(tx, GraphLabel.MINUTE);
         timeNode.setTime(departureTime);
         timeNode.set(trip);
 
@@ -605,8 +585,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         IdFor<Station> endId = leg.getSecondStation().getId();
 
         // hour node -> time node
-        MutableGraphNodeNeo4J svcNode = serviceNodeCache.getServiceNode(tx, trip.getRoute().getId(), trip.getService(), startId, endId);
-        final MutableGraphNodeNeo4J hourNode = hourNodeCache.getHourNode(tx, svcNode.getId(),
+        MutableGraphNode svcNode = serviceNodeCache.getServiceNode(tx, trip.getRoute().getId(), trip.getService(), startId, endId);
+        final MutableGraphNode hourNode = hourNodeCache.getHourNode(tx, svcNode.getId(),
                 departureTime.getHourOfDay());
         final MutableGraphRelationship fromPrevious = createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
         fromPrevious.setCost(Duration.ZERO);
@@ -617,12 +597,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createHourNodeAndRelationshipFromService(final MutableGraphTransaction tx, final int hour,
-                                                          final HourNodeCache hourNodeCache, final MutableGraphNodeNeo4J serviceNode) {
+                                                          final HourNodeCache hourNodeCache, final MutableGraphNode serviceNode) {
 
 
         // TODO THIS IS now ambiguous
         if (!hourNodeCache.hasHourNode(serviceNode.getId(), hour)) {
-            final MutableGraphNodeNeo4J hourNode = createGraphNode(tx, GraphLabel.HOUR);
+            final MutableGraphNode hourNode = createGraphNode(tx, GraphLabel.HOUR);
             hourNode.setHourProp(hour);
             hourNode.addLabel(GraphLabel.getHourLabel(hour));
             hourNodeCache.putHour(serviceNode.getId(), hour, hourNode);

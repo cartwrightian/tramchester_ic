@@ -174,9 +174,9 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
     private void addDBFlag(final GTFSSourceConfig sourceConfig) {
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            final List<MutableGraphNodeNeo4J> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
+            final List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
 
-            final MutableGraphNodeNeo4J node;
+            final MutableGraphNode node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
                 node = createGraphNode(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
@@ -271,7 +271,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
 
-            final MutableGraphNodeNeo4J firstNode = txn.findNodeMutable(first);
+            final MutableGraphNode firstNode = txn.findNodeMutable(first);
 
 //            Stream<ImmutableGraphRelationship> alreadyPresent = firstNode.getRelationships(txn, Direction.OUTGOING, DIVERSION);
 

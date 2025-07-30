@@ -12,10 +12,9 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.facade.neo4j.TimedTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
@@ -111,7 +110,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(group -> {
-                    final MutableGraphNodeNeo4J groupNode = createGroupedStationNodes(txn, group);
+                    final MutableGraphNode groupNode = createGroupedStationNodes(txn, group);
                     nodeForGroups.put(group.getId(), groupNode.getId());
                     linkStationsWithGroup(txn, groupNode, group);
             });
@@ -141,8 +140,8 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
     }
 
-    private void createGroupToParentRelationship(final MutableGraphTransactionNeo4J txn, final MutableGraphNodeNeo4J childNode,
-                                                 final MutableGraphNodeNeo4J parentNode, final StationLocalityGroup childGroup) {
+    private void createGroupToParentRelationship(final MutableGraphTransaction txn, final MutableGraphNode childNode,
+                                                 final MutableGraphNode parentNode, final StationLocalityGroup childGroup) {
         // parent group <-> child group
         final Location<?> parentGroup = stationGroupsRepository.getStationGroup(childGroup.getParentId());
         final Duration walkingCost = geography.getWalkingDuration(childGroup, parentGroup);
@@ -158,15 +157,15 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private MutableGraphNodeNeo4J createGroupedStationNodes(final MutableGraphTransaction txn, final StationLocalityGroup stationGroup) {
-        final MutableGraphNodeNeo4J groupNode = createGraphNode(txn, GraphLabel.GROUPED);
+    private MutableGraphNode createGroupedStationNodes(final MutableGraphTransaction txn, final StationLocalityGroup stationGroup) {
+        final MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         final IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
         groupNode.setAreaId(areaId);
         groupNode.set(stationGroup);
         return groupNode;
     }
 
-    private void linkStationsWithGroup(final MutableGraphTransactionNeo4J txn, final MutableGraphNodeNeo4J groupNode, final StationLocalityGroup stationGroup) {
+    private void linkStationsWithGroup(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationLocalityGroup stationGroup) {
         final LocationSet<Station> contained = stationGroup.getAllContained();
 
         contained.stream().
@@ -174,7 +173,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                 forEach(station -> {
                     final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
 
-                    final MutableGraphNodeNeo4J stationNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
+                    final MutableGraphNode stationNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
                     if (stationNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }

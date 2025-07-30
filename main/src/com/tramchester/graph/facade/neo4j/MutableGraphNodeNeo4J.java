@@ -70,10 +70,14 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     ///// MUTATE ////////////////////////////////////////////////////////////
 
     @Override
-    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNodeNeo4J end,
+    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNode end,
                                                          final TransportRelationshipTypes relationshipType) {
+
+        // TODO address casting, here and elsewhere
         final MutableGraphTransactionNeo4J txnNeo4J = (MutableGraphTransactionNeo4J) txn;
-        final Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipType);
+        final MutableGraphNodeNeo4J endNode = (MutableGraphNodeNeo4J) end;
+
+        final Relationship relationshipTo = node.createRelationshipTo(endNode.node, relationshipType);
         return txnNeo4J.wrapRelationshipMutable(relationshipTo);
     }
 
@@ -214,9 +218,10 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     }
 
     @Override
-    public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransactionNeo4J txn, final GraphDirection direction,
+    public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransaction txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes relationshipType) {
-        return node.getRelationships(map(direction), relationshipType).stream().map(txn::wrapRelationshipMutable);
+        MutableGraphTransactionNeo4J txnNeo4J = (MutableGraphTransactionNeo4J) txn;
+        return node.getRelationships(map(direction), relationshipType).stream().map(txnNeo4J::wrapRelationshipMutable);
     }
 
     @Override

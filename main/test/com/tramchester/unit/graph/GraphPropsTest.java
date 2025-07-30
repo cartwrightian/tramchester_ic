@@ -26,9 +26,9 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.GraphTestHelper;
-import com.tramchester.graph.facade.neo4j.MutableGraphNodeNeo4J;
 import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -54,7 +54,7 @@ public class GraphPropsTest {
     private static ComponentContainer componentContainer;
     private static UnitTestOfGraphConfig config;
     private MutableGraphTransaction txn;
-    private MutableGraphNodeNeo4J node;
+    private MutableGraphNode node;
 
     // See TransportDataFromFilesTramTest for test that gets this number
     private static final int maxTripsForService = 1535;
@@ -400,8 +400,8 @@ public class GraphPropsTest {
         IdFor<Trip> tripA = Trip.createId("tripA");
         IdFor<Trip> tripB = Trip.createId("tripB");
 
-        MutableGraphNodeNeo4J nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
-        MutableGraphNodeNeo4J nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
         MutableGraphRelationship serviceA = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.TO_SERVICE);
 
@@ -419,8 +419,8 @@ public class GraphPropsTest {
     @Test
     void shouldPopulateTripIdsForServiceRelationshipsAsExpected() {
 
-        MutableGraphNodeNeo4J nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
-        MutableGraphNodeNeo4J nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
         MutableGraphRelationship serviceRelationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.TO_SERVICE);
 
@@ -455,8 +455,8 @@ public class GraphPropsTest {
     @Disabled("performance testing only")
     @Test
     void shouldTryPerformanceOfOutgoingServiceCheck() {
-        MutableGraphNodeNeo4J nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
-        MutableGraphNodeNeo4J nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
         MutableGraphRelationship serviceRelationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.TO_SERVICE);
 
@@ -562,8 +562,8 @@ public class GraphPropsTest {
 
 
     private MutableGraphRelationship createRelationship() {
-        MutableGraphNodeNeo4J nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
-        MutableGraphNodeNeo4J nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
         return nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
     }
