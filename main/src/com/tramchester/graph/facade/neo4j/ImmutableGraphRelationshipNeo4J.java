@@ -32,14 +32,14 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ImmutableGraphRelationshipNeo4J implements  ImmutableGraphRelationship {
-    private final MutableGraphRelationship underlying;
+    private final MutableGraphRelationshipNeo4J underlying;
     private final GraphRelationshipId relationshipId;
 
     // Node properties only, nodes cannot be shared beyond parent transactions
     private final SharedRelationshipCache sharedRelationshipCache;
     private final CostCache costCache;
 
-    public ImmutableGraphRelationshipNeo4J(final MutableGraphRelationship underlying, final SharedRelationshipCache sharedRelationshipCache) {
+    public ImmutableGraphRelationshipNeo4J(final MutableGraphRelationshipNeo4J underlying, final SharedRelationshipCache sharedRelationshipCache) {
         this.underlying = underlying;
         this.sharedRelationshipCache = sharedRelationshipCache;
         costCache = new CostCache();

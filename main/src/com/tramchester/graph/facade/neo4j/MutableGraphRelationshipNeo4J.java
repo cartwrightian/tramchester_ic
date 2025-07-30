@@ -37,8 +37,7 @@ import java.util.Objects;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
-// TODO Rename to MutableGraphRelationshipNeo4J
-public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
+public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implements MutableGraphRelationship {
 
     private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
             DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
@@ -51,8 +50,8 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private GraphNode endNode;
 
-    MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id,
-                             SharedRelationshipCache.InvalidatesCache invalidatesCacheFor) {
+    MutableGraphRelationshipNeo4J(final Relationship relationship, final GraphRelationshipId id,
+                                  SharedRelationshipCache.InvalidatesCache invalidatesCacheFor) {
         this.relationship = relationship;
         this.id = id;
         this.invalidatesCacheFor = invalidatesCacheFor;
@@ -60,6 +59,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     ///// MUTATE ////////////////////////////////////////////////////////////
 
+    @Override
     public void delete() {
         invalidateCache();
         relationship.delete();
@@ -69,44 +69,52 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         invalidatesCacheFor.remove();
     }
 
+    @Override
     public void setTransportMode(final TransportMode transportMode) {
         relationship.setProperty(TRANSPORT_MODE.getText(), transportMode.getNumber());
         invalidateCache();
     }
 
 
+    @Override
     public void setTime(final TramTime tramTime) {
         setTime(tramTime, relationship);
         invalidateCache();
     }
 
+    @Override
     public void setHour(final int hour) {
         relationship.setProperty(HOUR.getText(), hour);
         invalidateCache();
     }
 
 
+    @Override
     public void setCost(final Duration cost) {
         final long seconds = cost.toSeconds();
         relationship.setProperty(COST.getText(), seconds);
         invalidateCache();
     }
 
+    @Override
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(final C domainItem) {
         super.set(domainItem, relationship);
         invalidateCache();
     }
 
+    @Override
     public void setRouteStationId(final IdFor<RouteStation> routeStationId) {
         relationship.setProperty(ROUTE_STATION_ID.getText(), routeStationId.getGraphId());
         invalidateCache();
     }
 
+    @Override
     public void setStopSeqNum(final int sequenceNumber) {
         relationship.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
         invalidateCache();
     }
 
+    @Override
     public void setDateTimeRange(final DateTimeRange dateTimeRange) {
         final DateRange dateRange = dateTimeRange.getDateRange();
         final TimeRange timeRange = dateTimeRange.getTimeRange();
@@ -115,11 +123,13 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         setTimeRange(timeRange);
     }
 
+    @Override
     public void setDateRange(final DateRange range) {
         setStartDate(range.getStartDate().toLocalDate());
         setEndDate(range.getEndDate().toLocalDate());
     }
 
+    @Override
     public void setTimeRange(final TimeRange timeRange) {
         if (timeRange.allDay()) {
             relationship.setProperty(ALL_DAY.getText(), "");
@@ -133,6 +143,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         invalidateCache();
     }
 
+    @Override
     public void setStartTime(final TramTime tramTime) {
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for start time next");
@@ -141,6 +152,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         invalidateCache();
     }
 
+    @Override
     public void setEndTime(final TramTime tramTime) {
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for end time next");
@@ -149,16 +161,19 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         invalidateCache();
     }
 
+    @Override
     public void setEndDate(final LocalDate localDate) {
         relationship.setProperty(END_DATE.getText(), localDate);
         invalidateCache();
     }
 
+    @Override
     public void setStartDate(final LocalDate localDate) {
         relationship.setProperty(START_DATE.getText(), localDate);
         invalidateCache();
     }
 
+    @Override
     public void addTransportMode(final TransportMode mode) {
         invalidateCache();
 
@@ -181,6 +196,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
 
+    @Override
     public void addTripId(final IdFor<Trip> tripId) {
         invalidateCache();
 
@@ -275,6 +291,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
      * @param tripId The id for a trip
      * @return true if trip id is contained in the list
      */
+    @Override
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
         final String text = tripId.getGraphId();
 
@@ -443,7 +460,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MutableGraphRelationship that = (MutableGraphRelationship) o;
+        MutableGraphRelationshipNeo4J that = (MutableGraphRelationshipNeo4J) o;
         return Objects.equals(id, that.id);
     }
 

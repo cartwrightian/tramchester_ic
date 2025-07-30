@@ -9,7 +9,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -47,7 +46,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     private final StationRepository stationRepository;
 
     @Inject
-    public AddTemporaryStationWalksGraphBuilder(GraphDatabaseNeo4J database, GraphFilter graphFilter,
+    public AddTemporaryStationWalksGraphBuilder(GraphDatabase database, GraphFilter graphFilter,
                                                 TemporaryStationWalksRepository walksRepository,
                                                 TramchesterConfig config,
                                                 @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,

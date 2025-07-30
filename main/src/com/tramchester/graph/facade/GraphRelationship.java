@@ -86,4 +86,7 @@ public interface GraphRelationship extends GraphEntity {
     TramTime getEndTime();
 
     LocationId<?> getLocationId();
+
+    boolean hasTripIdInList(IdFor<Trip> tripId);
+
 }

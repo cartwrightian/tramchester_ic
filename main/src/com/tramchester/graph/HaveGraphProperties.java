@@ -17,6 +17,9 @@ import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
+
+// TODO Move this
+
 public class HaveGraphProperties {
     private static final Logger logger = LoggerFactory.getLogger(HaveGraphProperties.class);
 

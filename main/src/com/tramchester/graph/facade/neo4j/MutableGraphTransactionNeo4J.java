@@ -220,14 +220,14 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     public ImmutableGraphRelationshipNeo4J wrapRelationship(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
         final SharedRelationshipCache.InvalidatesCache invalidatesCache = sharedRelationshipCache.invalidatorFor(id);
-        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, id, invalidatesCache);
+        final MutableGraphRelationshipNeo4J underlying = new MutableGraphRelationshipNeo4J(relationship, id, invalidatesCache);
         return new ImmutableGraphRelationshipNeo4J(underlying, sharedRelationshipCache);
     }
 
     MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
         final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor = sharedRelationshipCache.invalidatorFor(id);
-        return new MutableGraphRelationship(relationship, id, invalidatesCacheFor);
+        return new MutableGraphRelationshipNeo4J(relationship, id, invalidatesCacheFor);
     }
 
     @Override

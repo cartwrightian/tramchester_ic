@@ -6,9 +6,9 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -33,7 +33,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private final GraphFilter filter;
 
     @Inject
-    public AddNeighboursGraphBuilder(GraphDatabaseNeo4J database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter,
+    public AddNeighboursGraphBuilder(GraphDatabase database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter,
                                      StationRepository repository,
                                      TramchesterConfig config,
                                      @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
