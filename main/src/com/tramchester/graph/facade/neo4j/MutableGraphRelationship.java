@@ -49,7 +49,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
-    private ImmutableGraphNode endNode;
+    private GraphNode endNode;
 
     MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id,
                              SharedRelationshipCache.InvalidatesCache invalidatesCacheFor) {

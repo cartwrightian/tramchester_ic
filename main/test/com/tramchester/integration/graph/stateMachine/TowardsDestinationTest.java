@@ -15,7 +15,6 @@ import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
@@ -85,7 +84,7 @@ public class TowardsDestinationTest {
         Station station = NavigationRoad.from(stationRepository);
         Route route = tramRouteHelper.getGreen(when);
 
-        ImmutableGraphNode node = findRouteStation(station, route);
+        GraphNode node = findRouteStation(station, route);
 
         List<ImmutableGraphRelationship> departs = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.DEPART).toList();
 
@@ -101,12 +100,12 @@ public class TowardsDestinationTest {
     }
 
     @NotNull
-    private ImmutableGraphNode findRouteStation(Station station, Route route) {
+    private GraphNode findRouteStation(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
         assertNotNull(routeStation);
 
-        ImmutableGraphNode node = txn.findNode(routeStation);
+        GraphNode node = txn.findNode(routeStation);
 
         assertNotNull(node);
         return node;
@@ -121,7 +120,7 @@ public class TowardsDestinationTest {
 
         LocationCollection destinations = LocationCollectionSingleton.of(stationGroup);
 
-        ImmutableGraphNode node = txn.findNode(station);
+        GraphNode node = txn.findNode(station);
 
         assertNotNull(node);
 
@@ -140,7 +139,7 @@ public class TowardsDestinationTest {
         Station station = NavigationRoad.from(stationRepository);
         Route route = tramRouteHelper.getGreen(when);
 
-        ImmutableGraphNode node = findRouteStation(station, route);
+        GraphNode node = findRouteStation(station, route);
 
         TowardsDestination towardsDestination = new TowardsDestination((station));
 
@@ -167,7 +166,7 @@ public class TowardsDestinationTest {
         Station station = NavigationRoad.from(stationRepository);
         Route route = tramRouteHelper.getGreen(when);
 
-        ImmutableGraphNode node = findRouteStation(station, route);
+        GraphNode node = findRouteStation(station, route);
 
         TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
 
@@ -183,7 +182,7 @@ public class TowardsDestinationTest {
 
         StationLocalityGroup stationGroup = getStationGroup(station);
 
-        ImmutableGraphNode node = txn.findNode(station);
+        GraphNode node = txn.findNode(station);
 
         assertNotNull(node);
 
@@ -208,7 +207,7 @@ public class TowardsDestinationTest {
 
         StationLocalityGroup stationGroup = getStationGroup(station);
 
-        @NotNull ImmutableGraphNode node = findRouteStation(station, route);
+        @NotNull GraphNode node = findRouteStation(station, route);
 
         TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
 
@@ -247,7 +246,7 @@ public class TowardsDestinationTest {
     void shouldNotFindRelationshipsIfNotTowardsDestinationGroup() {
         Station station = StPetersSquare.from(stationRepository);
 
-        ImmutableGraphNode node = txn.findNode(station);
+        GraphNode node = txn.findNode(station);
 
         assertNotNull(node);
 

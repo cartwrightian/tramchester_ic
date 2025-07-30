@@ -7,7 +7,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
@@ -198,7 +197,7 @@ public class ServiceReasons {
                 collect(Collectors.toSet());
 
         // Pair<Node, Number of Visits>
-        final List<Pair<ImmutableGraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
+        final List<Pair<GraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
                 filter(entry -> haveInvalidReasonCode.contains(entry.getKey())).
                 map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
                 sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).

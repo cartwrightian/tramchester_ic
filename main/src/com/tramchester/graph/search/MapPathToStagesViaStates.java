@@ -10,7 +10,6 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -69,7 +68,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
-        final ImmutableGraphNode startOfPath = path.getStartNode(txn); // txn.fromStart(path);
+        final GraphNode startOfPath = path.getStartNode(txn); // txn.fromStart(path);
 
         final TraversalState initial = new NotStartedState(stateFactory, startOfPath.getId(), txn);
 
@@ -109,7 +108,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final TraversalState finalState = pathMapper.getFinalState();
 
-        final ImmutableGraphNode endOfPath = path.getEndNode(txn); // txn.fromEnd(path);
+        final GraphNode endOfPath = path.getEndNode(txn); // txn.fromEnd(path);
 
         finalState.toDestination(finalState, endOfPath, Duration.ZERO, mapStatesToStages);
 

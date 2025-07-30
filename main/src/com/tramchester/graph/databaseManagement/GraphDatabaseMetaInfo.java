@@ -3,9 +3,9 @@ package com.tramchester.graph.databaseManagement;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -41,7 +41,7 @@ public class GraphDatabaseMetaInfo {
     }
 
     public Map<String, String> getVersions(final GraphTransaction txn) {
-        Stream<ImmutableGraphNode> query = txn.findNodes(GraphLabel.VERSION);
+        Stream<GraphNode> query = txn.findNodes(GraphLabel.VERSION);
 
         Map<String, String> versions = new HashMap<>();
         query.forEach(versionNode -> {
@@ -69,12 +69,12 @@ public class GraphDatabaseMetaInfo {
             return false;
         }
 
-        final List<ImmutableGraphNode> nodes = txn.findNodes(GraphLabel.BOUNDS).toList();
+        final List<GraphNode> nodes = txn.findNodes(GraphLabel.BOUNDS).toList();
         if (nodes.size()!=1) {
             throw new RuntimeException("Wrong number of " + GraphLabel.BOUNDS + " nodes: " + nodes.size());
         }
 
-        final ImmutableGraphNode node = nodes.getFirst();
+        final GraphNode node = nodes.getFirst();
 
         final BoundingBox fromNode = node.getBounds();
 

@@ -4,6 +4,7 @@ import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphNode;
 import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
@@ -91,7 +92,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         versionMap.put("A", "4.2");
         versionMap.put("ZZZ", "81.91");
 
-        ImmutableGraphNode graphNode = createMock(ImmutableGraphNode.class);
+        GraphNode graphNode = createMock(ImmutableGraphNode.class);
 
         EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
         EasyMock.expect(graphNode.getAllProperties()).andReturn(versionMap);
@@ -120,7 +121,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     @Test
     void shouldGetBoundsMatch() {
-        ImmutableGraphNode graphNode = createMock(ImmutableGraphNode.class);
+        GraphNode graphNode = createMock(ImmutableGraphNode.class);
         BoundingBox bounds = TestEnv.getGreaterManchester();
 
         EasyMock.expect(transaction.hasAnyMatching(GraphLabel.BOUNDS)).andReturn(true);
@@ -136,7 +137,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     @Test
     void shouldGetBoundsMisMatch() {
-        ImmutableGraphNode graphNode = createMock(ImmutableGraphNode.class);
+        GraphNode graphNode = createMock(ImmutableGraphNode.class);
         BoundingBox boundsA = TestEnv.getGreaterManchester();
         BoundingBox boundsB = TestEnv.getNationalTrainBounds();
 

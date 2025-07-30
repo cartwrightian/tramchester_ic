@@ -92,7 +92,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public ImmutableGraphNode getNodeById(final GraphNodeId nodeId) {
+    public GraphNode getNodeById(final GraphNodeId nodeId) {
         final Node node = getNode(nodeId);
         return wrapNodeAsImmutable(node);
     }
@@ -123,7 +123,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public Stream<ImmutableGraphNode> findNodes(final GraphLabel graphLabel) {
+    public Stream<GraphNode> findNodes(final GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
     }
 
@@ -149,11 +149,11 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
         return findNodeMutable(label, key.getText(), value);
     }
 
-    private ImmutableGraphNode findNode(final GraphLabel label, final GraphPropertyKey key, final String value) {
+    private GraphNode findNode(final GraphLabel label, final GraphPropertyKey key, final String value) {
         return findNode(label, key.getText(), value);
     }
 
-    private ImmutableGraphNode findNode(final GraphLabel label, final String key, final String value) {
+    private GraphNode findNode(final GraphLabel label, final String key, final String value) {
         final Node node = txn.findNode(label, key, value);
         if (node==null) {
             return null;
@@ -170,7 +170,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(final ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(final ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
@@ -206,7 +206,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
         return wrapNodeAsImmutable(node);
     }
 
-    private ImmutableGraphNode wrapNodeAsImmutable(final Node node) {
+    private GraphNode wrapNodeAsImmutable(final Node node) {
         final MutableGraphNode underlying = wrapNodeAsMutable(node);
         return new ImmutableGraphNode(underlying, sharedNodeCache);
     }
@@ -231,7 +231,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public ImmutableGraphNode fromStart(final Path path) {
+    public GraphNode fromStart(final Path path) {
         final Node startNode = path.startNode();
         if (startNode==null) {
             return null;
@@ -240,7 +240,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public ImmutableGraphNode fromEnd(final Path path) {
+    public GraphNode fromEnd(final Path path) {
         final Node endNode = path.endNode();
         if (endNode==null) {
             return null;
@@ -275,11 +275,11 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
 //    }
 
     @Override
-    public Iterable<ImmutableGraphNode> iter(final Iterable<Node> iterable) {
+    public Iterable<GraphNode> iter(final Iterable<Node> iterable) {
         return new Iterable<>() {
             @NotNull
             @Override
-            public Iterator<ImmutableGraphNode> iterator() {
+            public Iterator<GraphNode> iterator() {
                 return Streams.stream(iterable).map(node -> wrapNodeAsImmutable(node)).iterator();
 
             }
@@ -292,12 +292,12 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public ImmutableGraphNode getStartNode(final Relationship relationship) {
+    public GraphNode getStartNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getStartNode());
     }
 
     @Override
-    public ImmutableGraphNode getEndNode(final Relationship relationship) {
+    public GraphNode getEndNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getEndNode());
     }
 

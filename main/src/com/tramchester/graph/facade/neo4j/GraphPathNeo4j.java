@@ -1,9 +1,6 @@
 package com.tramchester.graph.facade.neo4j;
 
-import com.tramchester.graph.facade.GraphEntity;
-import com.tramchester.graph.facade.GraphPath;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
@@ -57,19 +54,19 @@ public class GraphPathNeo4j implements GraphPath {
     }
 
     @Override
-    public ImmutableGraphNode getStartNode(final GraphTransaction txn) {
+    public GraphNode getStartNode(final GraphTransaction txn) {
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return txnNeo4J.fromStart(path);
     }
 
     @Override
-    public ImmutableGraphNode getEndNode(final GraphTransaction txn) {
+    public GraphNode getEndNode(final GraphTransaction txn) {
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return txnNeo4J.fromEnd(path);
     }
 
     @Override
-    public Iterable<ImmutableGraphNode> getNodes(final GraphTransaction txn) {
+    public Iterable<GraphNode> getNodes(final GraphTransaction txn) {
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return txnNeo4J.iter(path.nodes());
     }

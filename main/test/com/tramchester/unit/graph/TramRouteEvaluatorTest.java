@@ -22,6 +22,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphPath;
 import com.tramchester.graph.facade.neo4j.GraphNodeIdNeo4J;
@@ -67,7 +68,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private ServiceHeuristics serviceHeuristics;
     private Path path;
     private HowIGotHere howIGotHere;
-    private ImmutableGraphNode node;
+    private GraphNode node;
     private ServiceReasons reasons;
     private TramchesterConfig config;
     private PreviousVisits previousSuccessfulVisit;

@@ -22,7 +22,6 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -202,7 +201,7 @@ class TramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        Stream<ImmutableGraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
+        Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
         IdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
 
@@ -310,7 +309,7 @@ class TramGraphBuilderTest {
                 final StopCall stopCall = stopCalls.getStopBySequenceNumber(seqNum);
 
                 final RouteStation routeStation = new RouteStation(stopCall.getStation(), route);
-                final ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+                final GraphNode routeStationNode = txn.findNode(routeStation);
                 assertNotNull(routeStationNode,"route station node");
 
                 final List<ImmutableGraphRelationship> inboundLinks = routeStationNode.getRelationships(txn, GraphDirection.Incoming, TRAM_GOES_TO).toList();
@@ -348,7 +347,7 @@ class TramGraphBuilderTest {
 
         callingRoutes.forEach(route -> {
             final RouteStation routeStation = new RouteStation(station, route);
-            ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+            GraphNode routeStationNode = txn.findNode(routeStation);
             assertNotNull(routeStationNode);
 
             IdSet<Route> incomingRoutes = routeStationNode.getRelationships(txn, GraphDirection.Incoming, TRAM_GOES_TO).
@@ -382,7 +381,7 @@ class TramGraphBuilderTest {
 
             callingRoutes.forEach(route -> {
                 final RouteStation routeStation = new RouteStation(station, route);
-                ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+                GraphNode routeStationNode = txn.findNode(routeStation);
                 assertNotNull(routeStationNode);
 
                 final Set<Trip> callingTrips = allCallingTrips.stream().
@@ -456,7 +455,7 @@ class TramGraphBuilderTest {
             Route route = trip.getRoute();
 
             RouteStation routeStation = new RouteStation(station, route);
-            ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+            GraphNode routeStationNode = txn.findNode(routeStation);
 
             assertNotNull(routeStationNode);
 
@@ -488,7 +487,7 @@ class TramGraphBuilderTest {
 
         callingRoutes.forEach(route -> {
             final RouteStation routeStation = new RouteStation(station, route);
-            ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+            GraphNode routeStationNode = txn.findNode(routeStation);
             assertNotNull(routeStationNode);
 
 
@@ -572,7 +571,7 @@ class TramGraphBuilderTest {
                 StopCall stopCall = stopCalls.getStopBySequenceNumber(seqNum);
 
                 RouteStation routeStation = new RouteStation(stopCall.getStation(), route);
-                ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+                GraphNode routeStationNode = txn.findNode(routeStation);
                 assertNotNull(routeStationNode,"route station node");
 
                 List<ImmutableGraphRelationship> toServices = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).toList();
@@ -609,7 +608,7 @@ class TramGraphBuilderTest {
         Station bury = Bury.from(stationRepository);
         Route buryToAlty = tramRouteHelper.getGreen(when);
 
-        ImmutableGraphNode node = txn.findNode(new RouteStation(bury, buryToAlty));
+        GraphNode node = txn.findNode(new RouteStation(bury, buryToAlty));
 
         List<ImmutableGraphRelationship> inboundRelationships = node.getRelationships(txn, GraphDirection.Incoming, TRAM_GOES_TO).toList();
 
@@ -669,9 +668,9 @@ class TramGraphBuilderTest {
     @Test
     void shouldNotHaveHourNodesWithoutServiceRelationship() {
 
-        List<ImmutableGraphNode> hourNodes = txn.findNodes(GraphLabel.HOUR).toList();
+        List<GraphNode> hourNodes = txn.findNodes(GraphLabel.HOUR).toList();
 
-        Set<ImmutableGraphNode> haveLinks = hourNodes.stream().
+        Set<GraphNode> haveLinks = hourNodes.stream().
                 filter(hourNode -> hourNode.getRelationships(txn, GraphDirection.Incoming, TO_HOUR).findAny().isPresent()).
                 collect(Collectors.toSet());
 
@@ -682,9 +681,9 @@ class TramGraphBuilderTest {
     @Test
     void shouldOnlyHaveOneServiceRelationshipInboundForEveryHourNode() {
 
-        Stream<ImmutableGraphNode> hourNodes = txn.findNodes(GraphLabel.HOUR);
+        Stream<GraphNode> hourNodes = txn.findNodes(GraphLabel.HOUR);
 
-        Set<ImmutableGraphNode> tooMany = hourNodes.
+        Set<GraphNode> tooMany = hourNodes.
                 filter(hourNode -> hourNode.getRelationships(txn, GraphDirection.Incoming, TO_HOUR).count()>1).
                 collect(Collectors.toSet());
 
@@ -694,7 +693,7 @@ class TramGraphBuilderTest {
 
     @Test
     void shouldHaveAllTimeNodesWithLinkToRouteStation() {
-        Stream<ImmutableGraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);
+        Stream<GraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);
 
         long missing = timeNodes.filter(timeNode -> !timeNode.hasRelationship(GraphDirection.Outgoing, TRAM_GOES_TO)).count();
 
@@ -704,7 +703,7 @@ class TramGraphBuilderTest {
     @Disabled("no longer have tripid on time nodes")
     @Test
     void shouldHaveAllTimeNodesWithLTripId() {
-        Stream<ImmutableGraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);
+        Stream<GraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);
 
         long missing = timeNodes.filter(timeNode -> !timeNode.hasTripId()).count();
 

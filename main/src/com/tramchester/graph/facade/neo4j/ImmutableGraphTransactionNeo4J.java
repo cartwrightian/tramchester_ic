@@ -32,12 +32,12 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public ImmutableGraphNode getNodeById(final GraphNodeId nodeId) {
+    public GraphNode getNodeById(final GraphNodeId nodeId) {
         return underlying.getNodeById(nodeId);
     }
 
     @Override
-    public Stream<ImmutableGraphNode> findNodes(final GraphLabel graphLabel) {
+    public Stream<GraphNode> findNodes(final GraphLabel graphLabel) {
         return underlying.findNodes(graphLabel);
     }
 
@@ -52,7 +52,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(final ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(final ITEM item) {
         return underlying.findNode(item);
     }
 
@@ -67,7 +67,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public Iterable<ImmutableGraphNode> iter(final Iterable<Node> iterable) {
+    public Iterable<GraphNode> iter(final Iterable<Node> iterable) {
         return underlying.iter(iterable);
     }
 
@@ -87,7 +87,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public ImmutableGraphNode fromEnd(final Path path) {
+    public GraphNode fromEnd(final Path path) {
         return underlying.fromEnd(path);
     }
 
@@ -97,17 +97,17 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public ImmutableGraphNode fromStart(final Path path) {
+    public GraphNode fromStart(final Path path) {
         return underlying.fromStart(path);
     }
 
     @Override
-    public ImmutableGraphNode getStartNode(final Relationship relationship) {
+    public GraphNode getStartNode(final Relationship relationship) {
         return underlying.getStartNode(relationship);
     }
 
     @Override
-    public ImmutableGraphNode getEndNode(final Relationship relationship) {
+    public GraphNode getEndNode(final Relationship relationship) {
         return underlying.getEndNode(relationship);
     }
 

@@ -5,7 +5,6 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.List;
@@ -16,15 +15,15 @@ public interface GraphTransaction extends AutoCloseable {
 
     void close();
 
-    Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel);
+    Stream<GraphNode> findNodes(GraphLabel graphLabel);
 
-    ImmutableGraphNode getNodeById(GraphNodeId nodeId);
+    GraphNode getNodeById(GraphNodeId nodeId);
 
     boolean hasAnyMatching(GraphLabel label, String field, String value);
 
     boolean hasAnyMatching(GraphLabel graphLabel);
 
-    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item);
+    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item);
 
     List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
 

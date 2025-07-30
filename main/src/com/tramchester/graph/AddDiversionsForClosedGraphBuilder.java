@@ -104,7 +104,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
     private void recordDiversionsInPlace() {
         try (final GraphTransaction txn = graphDatabase.beginTx()) {
-            final Stream<ImmutableGraphNode> haveDiversions = txn.findNodes(GraphLabel.HAS_DIVERSION);
+            final Stream<GraphNode> haveDiversions = txn.findNodes(GraphLabel.HAS_DIVERSION);
             haveDiversions.forEach(node -> recordDiversionsAtNode(node, txn));
         }
     }
@@ -114,7 +114,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
      * @param node current node
      * @param txn transaction
      */
-    private void recordDiversionsAtNode(final ImmutableGraphNode node, final GraphTransaction txn) {
+    private void recordDiversionsAtNode(final GraphNode node, final GraphTransaction txn) {
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);
 

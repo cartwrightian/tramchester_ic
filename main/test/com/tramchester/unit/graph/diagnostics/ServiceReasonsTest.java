@@ -85,7 +85,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         GraphNodeIdNeo4J nodeId = GraphNodeIdNeo4J.TestOnly(42);
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(nodeId);
 
-        ImmutableGraphNode node = createMock(ImmutableGraphNode.class);
+        GraphNode node = createMock(ImmutableGraphNode.class);
         EasyMock.expect(node.getLabels()).andStubReturn(EnumSet.of(GraphLabel.STATION));
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
         EasyMock.expect(node.getId()).andStubReturn(nodeId);

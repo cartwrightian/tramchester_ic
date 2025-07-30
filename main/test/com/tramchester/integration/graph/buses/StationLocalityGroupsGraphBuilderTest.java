@@ -13,7 +13,6 @@ import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -70,10 +69,10 @@ public class StationLocalityGroupsGraphBuilderTest {
 
     @Test
     void shouldHaveCostsWithinExpectedBounds() {
-        Stream<ImmutableGraphNode> groupNodes = txn.findNodes(GraphLabel.GROUPED);
+        Stream<GraphNode> groupNodes = txn.findNodes(GraphLabel.GROUPED);
         final Duration walkingDuration = testConfig.getWalkingDuration();
 
-        Set<ImmutableGraphNode> toOthers = groupNodes.filter(node -> node.hasRelationship(GraphDirection.Outgoing, GROUPED_TO_GROUPED)).collect(Collectors.toSet());
+        Set<GraphNode> toOthers = groupNodes.filter(node -> node.hasRelationship(GraphDirection.Outgoing, GROUPED_TO_GROUPED)).collect(Collectors.toSet());
 
         assertFalse(toOthers.isEmpty());
 
@@ -94,12 +93,12 @@ public class StationLocalityGroupsGraphBuilderTest {
         KnownLocality bollington = KnownLocality.Bollington;
         IdFor<StationLocalityGroup> stationGroupId = bollington.getId();
 
-        List<ImmutableGraphNode> nodes = txn.findNodes(GraphLabel.GROUPED).
+        List<GraphNode> nodes = txn.findNodes(GraphLabel.GROUPED).
                 filter(node -> node.getAreaId().equals(bollington.getAreaId())).toList();
 
         assertEquals(1, nodes.size());
 
-        ImmutableGraphNode stationGroupNode = nodes.getFirst();
+        GraphNode stationGroupNode = nodes.getFirst();
 
         assertEquals(stationGroupNode.getStationGroupId(), stationGroupId);
 

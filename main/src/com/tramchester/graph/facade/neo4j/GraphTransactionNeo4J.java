@@ -13,21 +13,21 @@ public interface GraphTransactionNeo4J extends AutoCloseable {
 
     EvaluationContext createEvaluationContext(GraphDatabaseService databaseService);
 
-    Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable);
+    Iterable<GraphNode> iter(Iterable<Node> iterable);
 
     //GraphNodeId getPreviousNodeId(Path path);
 
-    ImmutableGraphNode fromStart(Path path);
+    GraphNode fromStart(Path path);
 
-    ImmutableGraphNode fromEnd(Path path);
+    GraphNode fromEnd(Path path);
 
     //GraphNodeId endNodeNodeId(Path path);
 
     // internal
 
-    ImmutableGraphNode getStartNode(Relationship relationship);
+    GraphNode getStartNode(Relationship relationship);
 
-    ImmutableGraphNode getEndNode(Relationship relationship);
+    GraphNode getEndNode(Relationship relationship);
 
     GraphNodeId getStartNodeId(Relationship relationship);
 

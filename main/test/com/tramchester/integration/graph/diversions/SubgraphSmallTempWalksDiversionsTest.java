@@ -21,10 +21,9 @@ import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.facade.GraphDirection;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -320,16 +319,16 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
-            ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
+            GraphNode piccadillyNode = txn.findNode(piccadilly);
+            GraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
 
             assertTrue(piccadillyNode.hasRelationship(GraphDirection.Incoming, DIVERSION));
-            ImmutableGraphRelationshipNeo4J incomingDiversion = piccadillyNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Incoming);
+            ImmutableGraphRelationship incomingDiversion = piccadillyNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Incoming);
             assertEquals(STPETERS_PICC_WALK, incomingDiversion.getCost());
             assertEquals(stPetersSquareNode, incomingDiversion.getStartNode(txn));
 
             assertTrue(piccadillyNode.hasRelationship(GraphDirection.Outgoing, DIVERSION));
-            ImmutableGraphRelationshipNeo4J outgoingDiversion = piccadillyNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Outgoing);
+            ImmutableGraphRelationship outgoingDiversion = piccadillyNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Outgoing);
             assertEquals(STPETERS_PICC_WALK, outgoingDiversion.getCost());
             assertEquals(stPetersSquareNode, outgoingDiversion.getEndNode(txn));
         }
@@ -343,16 +342,16 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            ImmutableGraphNode piccadillyGardensNode = txn.findNode(piccadillyGardens);
-            ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
+            GraphNode piccadillyGardensNode = txn.findNode(piccadillyGardens);
+            GraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
 
             assertTrue(piccadillyGardensNode.hasRelationship(GraphDirection.Incoming, DIVERSION));
-            ImmutableGraphRelationshipNeo4J incomingDiversion = piccadillyGardensNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Incoming);
+            ImmutableGraphRelationship incomingDiversion = piccadillyGardensNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Incoming);
             assertEquals(STPETERS_PICC_GARDENS_WALK, incomingDiversion.getCost());
             assertEquals(stPetersSquareNode, incomingDiversion.getStartNode(txn));
 
             assertTrue(piccadillyGardensNode.hasRelationship(GraphDirection.Outgoing, DIVERSION));
-            ImmutableGraphRelationshipNeo4J outgoingDiversion = piccadillyGardensNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Outgoing);
+            ImmutableGraphRelationship outgoingDiversion = piccadillyGardensNode.getSingleRelationship(txn, DIVERSION, GraphDirection.Outgoing);
             assertEquals(STPETERS_PICC_GARDENS_WALK, outgoingDiversion.getCost());
             assertEquals(stPetersSquareNode, outgoingDiversion.getEndNode(txn));
         }
@@ -367,9 +366,9 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
-            ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
-            ImmutableGraphNode piccGradensNode = txn.findNode(piccGardens);
+            GraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
+            GraphNode piccadillyNode = txn.findNode(piccadilly);
+            GraphNode piccGradensNode = txn.findNode(piccGardens);
 
             assertTrue(stPetersSquareNode.hasRelationship(GraphDirection.Incoming, DIVERSION));
             List<ImmutableGraphRelationship> incomingDiversions = stPetersSquareNode.
@@ -402,9 +401,9 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            ImmutableGraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
-            ImmutableGraphNode piccadillyNode = txn.findNode(piccadilly);
-            ImmutableGraphNode piccGradensNode = txn.findNode(piccGardens);
+            GraphNode stPetersSquareNode = txn.findNode(stPetersSquare);
+            GraphNode piccadillyNode = txn.findNode(piccadilly);
+            GraphNode piccGradensNode = txn.findNode(piccGardens);
 
             assertTrue(stPetersSquareNode.hasRelationship(GraphDirection.Outgoing, DIVERSION));
             List<ImmutableGraphRelationship> outgoingDiversions = stPetersSquareNode.

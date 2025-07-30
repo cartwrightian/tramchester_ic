@@ -12,9 +12,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphDirection;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.ImmutableGraphNode;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -70,12 +70,12 @@ public class GetOutgoingServicesMatchingTripIdTest {
     }
 
     @NotNull
-    private ImmutableGraphNode findRouteStation(Station station, Route route) {
+    private GraphNode findRouteStation(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
         assertNotNull(routeStation);
 
-        ImmutableGraphNode node = txn.findNode(routeStation);
+        GraphNode node = txn.findNode(routeStation);
 
         assertNotNull(node);
         return node;
@@ -86,7 +86,7 @@ public class GetOutgoingServicesMatchingTripIdTest {
         Station station = NavigationRoad.from(stationRepository);
         Route route = tramRouteHelper.getGreen(when);
 
-        ImmutableGraphNode node = findRouteStation(station, route);
+        GraphNode node = findRouteStation(station, route);
 
         List<Trip> callingTrips = route.getTrips().stream().
                 filter(trip -> trip.callsAt(station.getId())).
