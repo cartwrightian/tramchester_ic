@@ -131,7 +131,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
                 filter(walk -> graphFilter.shouldInclude(walk.getStationPair())).
                 toList();
 
-        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create walks for " +source.getDataSourceId())) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create walks for " +source.getDataSourceId())) {
 
             for(TemporaryStationWalk walk : walks) {
                 addStationWalk(txn, walk);
@@ -175,7 +175,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         }
     }
 
-    private void addStationWalk(final MutableGraphTransactionNeo4J txn, final TemporaryStationWalk temporaryStationWalk) {
+    private void addStationWalk(final MutableGraphTransaction txn, final TemporaryStationWalk temporaryStationWalk) {
         final Station first = temporaryStationWalk.getStationPair().first();
         final Station second = temporaryStationWalk.getStationPair().second();
 

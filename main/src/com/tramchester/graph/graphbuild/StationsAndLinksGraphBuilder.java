@@ -17,7 +17,6 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.RouteStationNodeCache;
@@ -97,7 +96,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         graphDatabase.createIndexes();
 
         try (Timing ignored = new Timing(logger, "graph rebuild")) {
-            try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "Adding stations")) {
+            try(MutableGraphTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "Adding stations")) {
                 for(final Station station : transportData.getStations()) {
                     if (graphFilter.shouldInclude(station)) {
                         if (station.getTransportModes().isEmpty()) {
@@ -158,7 +157,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // nodes will not be created for stations that as 'passed' by services that do not call, which is the
         // case for rail transport data.
 
-        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "Adding routes")){
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "Adding routes")){
             routes.forEach(route -> {
                 final IdFor<Route> asId = route.getId();
                 logger.debug("Adding route " + asId);

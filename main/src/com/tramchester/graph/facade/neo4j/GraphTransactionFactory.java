@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -90,8 +92,8 @@ public class GraphTransactionFactory implements TransactionObserver {
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
-        GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
-        TimedTransaction graphTransaction = new TimedTransaction(graphDatabaseTxn, graphIdFactory,
+        final GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
+        final TimedTransaction graphTransaction = new TimedTransaction(graphDatabaseTxn, graphIdFactory,
                 index,this, logger, text, nodeCache, relationshipCache);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());

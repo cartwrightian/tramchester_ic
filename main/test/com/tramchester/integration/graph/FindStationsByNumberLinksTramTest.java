@@ -9,7 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.FindStationsByNumberLinks;
+import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
@@ -26,10 +26,11 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// TODO Combine with FindLinkedStationsTest
 class FindStationsByNumberLinksTramTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
-    private FindStationsByNumberLinks finder;
+    private FindLinkedStations finder;
     private int threshhold;
 
     @BeforeAll
@@ -48,7 +49,7 @@ class FindStationsByNumberLinksTramTest {
     @BeforeEach
     void beforeEachTestRuns() {
         threshhold = Interchanges.getLinkThreshhold(TransportMode.Tram);
-        finder = componentContainer.get(FindStationsByNumberLinks.class);
+        finder = componentContainer.get(FindLinkedStations.class);
     }
 
     /**

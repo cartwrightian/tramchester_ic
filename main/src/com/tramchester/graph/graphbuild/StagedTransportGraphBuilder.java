@@ -23,7 +23,6 @@ import com.tramchester.graph.facade.GraphDirection;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.MutableGraphRelationship;
-import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
 import com.tramchester.metrics.Timing;
@@ -152,7 +151,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void linkStationsAndPlatforms(final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
-        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "link stations & platforms")) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "link stations & platforms")) {
             transportData.getActiveStationStream().
                     filter(Station::hasPlatforms).
                     filter(graphFilter::shouldInclude).
@@ -184,7 +183,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return;
         }
 
-        try (TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "onRoute for " + agency.getId())) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "onRoute for " + agency.getId())) {
             getRoutesForAgency(agency).forEach(route -> createOnRouteRelationships(txn, route, routeStationNodeCache));
             txn.commit();
         }
@@ -210,7 +209,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             transactionStrategy.close();
         }
 
-        try (TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "boards & departs for " + agency.getId())) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "boards & departs for " + agency.getId())) {
             getRoutesForAgency(agency).forEach(route -> buildGraphForBoardsAndDeparts(route, txn, stationAndPlatformCache, routeStationNodeCache,
                     boardingDepartNodeCache));
             txn.commit();

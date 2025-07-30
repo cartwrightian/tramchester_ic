@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -23,7 +22,7 @@ public interface GraphDatabase {
 
     MutableGraphTransaction beginTxMutable(Duration timeout);
 
-    TimedTransaction beginTimedTxMutable(Logger logger, String text);
+    MutableGraphTransaction beginTimedTxMutable(Logger logger, String text);
 
     boolean isAvailable(long timeoutMillis);
 

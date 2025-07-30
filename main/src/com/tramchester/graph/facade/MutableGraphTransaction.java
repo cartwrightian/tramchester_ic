@@ -10,6 +10,9 @@ import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public interface MutableGraphTransaction extends GraphTransaction {
+
+    void commit();
+
     MutableGraphNode createNode(GraphLabel graphLabel);
 
     MutableGraphNode createNode(EnumSet<GraphLabel> labels);
@@ -19,8 +22,6 @@ public interface MutableGraphTransaction extends GraphTransaction {
     Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel);
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item);
-
-    void commit();
 
     GraphTransaction asImmutable();
 }

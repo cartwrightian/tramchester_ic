@@ -11,9 +11,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public interface GraphTransaction extends AutoCloseable {
-    int getTransactionId();
 
     void close();
+
+    int getTransactionId();
 
     Stream<GraphNode> findNodes(GraphLabel graphLabel);
 

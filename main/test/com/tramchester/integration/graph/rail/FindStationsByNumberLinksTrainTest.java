@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.FindStationsByNumberLinks;
+import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TrainTest
 class FindStationsByNumberLinksTrainTest {
     private static ComponentContainer componentContainer;
-    private FindStationsByNumberLinks discoverer;
+    private FindLinkedStations discoverer;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -40,7 +40,7 @@ class FindStationsByNumberLinksTrainTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        discoverer = componentContainer.get(FindStationsByNumberLinks.class);
+        discoverer = componentContainer.get(FindLinkedStations.class);
     }
 
     @Test

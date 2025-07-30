@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.neo4j.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
@@ -125,7 +126,11 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     }
 
     @Override
-    public TimedTransaction beginTimedTxMutable(final Logger logger, final String text) {
+    public MutableGraphTransaction beginTimedTxMutable(final Logger logger, final String text) {
+        return createTimedTransaction(logger, text);
+    }
+
+    private TimedTransaction createTimedTransaction(Logger logger, String text) {
         return graphTransactionFactory.beginTimedMutable(logger, text, DEFAULT_TXN_TIMEOUT);
     }
 
@@ -133,8 +138,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
 
     public void createIndexes() {
 
-
-        try (TimedTransaction tx = beginTimedTxMutable(logger, "Create DB Constraints & indexes"))
+        try (TimedTransaction tx = createTimedTransaction(logger, "Create DB Constraints & indexes"))
         {
 
             if (indexesCreated.get()) {

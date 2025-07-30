@@ -151,7 +151,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     }
 
     private void createWalks(final ClosedStation closedStation) {
-        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create diversions for " +closedStation.getStationId())) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create diversions for " +closedStation.getStationId())) {
             addDiversionsToAndFromClosed(txn, closedStation);
             final int added = addDiversionsAroundClosed(txn, closedStation);
             if (added==0) {
@@ -195,7 +195,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
     }
 
-    private void addDiversionsToAndFromClosed(final MutableGraphTransactionNeo4J txn, final ClosedStation closedStation) {
+    private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn, final ClosedStation closedStation) {
         final Station actualStation = stationRepository.getStationById(closedStation.getStationId());
 
         final Set<Station> others = closedStation.getDiversionToFromClosure();
@@ -243,7 +243,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
      * @param closedStation station closure details
      * @return number added
      */
-    private int addDiversionsAroundClosed(final MutableGraphTransactionNeo4J txn, final ClosedStation closedStation) {
+    private int addDiversionsAroundClosed(final MutableGraphTransaction txn, final ClosedStation closedStation) {
 
         final Set<Station> stationsToLink = closedStation.getDiversionAroundClosure();
 

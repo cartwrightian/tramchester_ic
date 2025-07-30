@@ -14,7 +14,6 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
@@ -106,7 +105,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
         final Map<IdFor<StationLocalityGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
 
-        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, logMessage)) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, logMessage)) {
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(group -> {
@@ -120,7 +119,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         logger.info("Added " + nodeForGroups.size() + " station groups");
 
         final AtomicInteger parentChildLinks = new AtomicInteger(0);
-        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "add parents for groups")) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "add parents for groups")) {
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                     filter(this::shouldInclude).
                     filter(StationLocalityGroup::hasParent).

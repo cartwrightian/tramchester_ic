@@ -14,9 +14,9 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.graph.search.routes.RouteIndex;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ import static java.lang.String.format;
 public class Interchanges implements InterchangeRepository {
     private static final Logger logger = LoggerFactory.getLogger(Interchanges.class);
 
-    private final FindStationsByNumberLinks findStationsByNumberConnections;
+    private final FindLinkedStations findStationsByNumberConnections;
     private final StationRepository stationRepository;
     private final NeighboursRepository neighboursRepository;
     private final TramchesterConfig config;
@@ -46,7 +46,7 @@ public class Interchanges implements InterchangeRepository {
     private final PairToInterchange pairToInterchange;
 
     @Inject
-    public Interchanges(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
+    public Interchanges(FindLinkedStations findStationsByNumberConnections, StationRepository stationRepository,
                         NeighboursRepository neighboursRepository, TramchesterConfig config, GraphFilter graphFilter,
                         RouteIndex routeIndex, RouteIndexPairFactory pairFactory,
                         @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready) {

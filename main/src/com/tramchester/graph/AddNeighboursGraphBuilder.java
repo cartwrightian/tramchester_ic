@@ -8,8 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.neo4j.MutableGraphTransactionNeo4J;
-import com.tramchester.graph.facade.neo4j.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -89,7 +87,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void createNeighboursInDB() {
-        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create neighbours")) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create neighbours")) {
                 stationRepository.getActiveStationStream().
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
@@ -116,7 +114,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private void addNeighbourRelationships(MutableGraphTransactionNeo4J txn, GraphFilter graphFilter, Station from, Set<StationToStationConnection> links) {
+    private void addNeighbourRelationships(MutableGraphTransaction txn, GraphFilter graphFilter, Station from, Set<StationToStationConnection> links) {
         final MutableGraphNode fromNode = txn.findNodeMutable(from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
