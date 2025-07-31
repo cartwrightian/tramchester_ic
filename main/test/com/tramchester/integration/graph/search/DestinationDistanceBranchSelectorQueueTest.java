@@ -9,7 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.LocationDistances;
 import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.selectors.DestinationDistanceBranchSelector;
+import com.tramchester.graph.search.neo4j.selectors.DestinationDistanceBranchSelector;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;

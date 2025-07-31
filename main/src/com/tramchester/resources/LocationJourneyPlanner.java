@@ -25,7 +25,7 @@ import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
-import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.graph.search.neo4j.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;

@@ -15,16 +15,18 @@ public class TestForNeo4jDirectDependency {
                 .consideringAllDependencies()
                 .layer("Graph").definedBy("com.tramchester.graph")
                 .layer("Caches").definedBy("com.tramchester.graph.caches")
-                .layer("Search").definedBy("com.tramchester.graph.search..")
+                .layer("Search").definedBy("com.tramchester.graph.search")
+                .layer("Neo4JSearch").definedBy("com.tramchester.graph.search.neo4j..")
                 .layer("DTODiag").definedBy("com.tramchester.domain.presentation.DTO.diagnostics")
                 .layer("Build").definedBy("com.tramchester.graph.graphbuild..")
                 .layer("Core").definedBy("com.tramchester.graph.core")
-                .layer("Neo4JCore").definedBy("com.tramchester.graph.facade.neo4j")
+                .layer("Neo4JCore").definedBy("com.tramchester.graph.core.neo4j")
                 .layer("Neo4JImplementation").definedBy("org.neo4j..")
 
-                .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore")
-                .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Core")
-                .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4J", "Search",
-                        "DTODiag", "Build");
+                .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore", "Neo4JSearch")
+                .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Core", "Neo4JSearch")
+                .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Search")
+                .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
+                        "DTODiag", "Build", "Neo4JSearch");
 
 }

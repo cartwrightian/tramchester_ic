@@ -31,7 +31,7 @@ import com.tramchester.graph.core.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
-import com.tramchester.graph.search.TramRouteEvaluator;
+import com.tramchester.graph.search.neo4j.TramRouteEvaluator;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;

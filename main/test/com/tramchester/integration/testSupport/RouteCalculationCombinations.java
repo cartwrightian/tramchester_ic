@@ -16,7 +16,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.graph.search.neo4j.RouteCalculator;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;

@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.selectors;
+package com.tramchester.graph.search.neo4j.selectors;
 
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;

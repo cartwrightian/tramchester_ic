@@ -26,7 +26,7 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.selectors.BreadthFirstBranchSelectorForGridSearch;
+import com.tramchester.graph.search.neo4j.selectors.BreadthFirstBranchSelectorForGridSearch;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;

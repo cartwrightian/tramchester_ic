@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.neo4j;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
@@ -12,6 +12,9 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.neo4j.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
