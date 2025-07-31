@@ -44,14 +44,14 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
 
     private final Relationship relationship;
     private final GraphRelationshipId id;
-    private final RelationshipTypeFactory relationshipTypeFactory;
+    private final GraphReferenceMapper relationshipTypeFactory;
     private final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor;
 
     private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private GraphNode endNode;
 
-    MutableGraphRelationshipNeo4J(final Relationship relationship, final GraphRelationshipId id, RelationshipTypeFactory relationshipTypeFactory,
+    MutableGraphRelationshipNeo4J(final Relationship relationship, final GraphRelationshipId id, GraphReferenceMapper relationshipTypeFactory,
                                   SharedRelationshipCache.InvalidatesCache invalidatesCacheFor) {
         this.relationship = relationship;
         this.id = id;

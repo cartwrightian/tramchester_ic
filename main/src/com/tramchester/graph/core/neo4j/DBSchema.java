@@ -1,7 +1,7 @@
 package com.tramchester.graph.core.neo4j;
 
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +17,8 @@ public class DBSchema {
         this.schema = schema;
     }
 
-    public void createIndex(GraphLabel graphLabel, GraphPropertyKey property) {
-        schema.indexFor(graphLabel).on(property.getText()).create();
+    public void createIndex(Label label, GraphPropertyKey property) {
+        schema.indexFor(label).on(property.getText()).create();
     }
 
     public void waitForIndexes() {

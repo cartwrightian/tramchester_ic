@@ -42,12 +42,12 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
 
     private final GraphDatabaseNeo4J graphDatabaseService;
     private final RouteRepository routeRepository;
-    private final RelationshipTypeFactory relationshipTypeFactory;
+    private final GraphReferenceMapper relationshipTypeFactory;
 
     @Inject
     public RouteCostCalculatorNeo4J(GraphDatabaseNeo4J graphDatabaseService,
                                     @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
-                                    RouteRepository routeRepository, RelationshipTypeFactory relationshipTypeFactory) {
+                                    RouteRepository routeRepository, GraphReferenceMapper relationshipTypeFactory) {
         this.graphDatabaseService = graphDatabaseService;
         this.routeRepository = routeRepository;
         this.relationshipTypeFactory = relationshipTypeFactory;

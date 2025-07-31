@@ -15,7 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
-import org.neo4j.graphdb.Label;
+import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -26,7 +26,7 @@ public interface MutableGraphNode extends GraphNode {
     MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn, MutableGraphNode end,
                                                   TransportRelationshipTypes relationshipType);
 
-    void addLabel(Label label);
+    void addLabel(GraphLabel label);
 
     void setHourProp(Integer hour);
 

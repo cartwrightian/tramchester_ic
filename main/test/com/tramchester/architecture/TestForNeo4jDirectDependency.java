@@ -20,6 +20,8 @@ public class TestForNeo4jDirectDependency {
                 .layer("DTODiag").definedBy("com.tramchester.domain.presentation.DTO.diagnostics")
                 .layer("Build").definedBy("com.tramchester.graph.graphbuild..")
                 .layer("Core").definedBy("com.tramchester.graph.core")
+                .layer("StateMachine").definedBy("com.tramchester.graph.search.stateMachine..")
+
                 .layer("Neo4JCore").definedBy("com.tramchester.graph.core.neo4j")
                 .layer("Neo4JImplementation").definedBy("org.neo4j..")
 
@@ -27,6 +29,6 @@ public class TestForNeo4jDirectDependency {
                 .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Core", "Neo4JSearch")
                 .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Search")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
-                        "DTODiag", "Build", "Neo4JSearch");
+                        "DTODiag", "Build", "Neo4JSearch", "StateMachine");
 
 }

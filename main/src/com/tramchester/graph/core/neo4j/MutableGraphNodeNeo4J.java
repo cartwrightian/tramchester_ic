@@ -33,10 +33,10 @@ import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode {
     private final Node node;
     private final GraphNodeId graphNodeId;
-    private final RelationshipTypeFactory relationshipTypeFactory;
+    private final GraphReferenceMapper relationshipTypeFactory;
     private final SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode;
 
-    MutableGraphNodeNeo4J(Node node, GraphNodeId graphNodeId, RelationshipTypeFactory relationshipTypeFactory, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
+    MutableGraphNodeNeo4J(Node node, GraphNodeId graphNodeId, GraphReferenceMapper relationshipTypeFactory, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
         this.relationshipTypeFactory = relationshipTypeFactory;
         this.invalidatesCacheForNode = invalidatesCacheForNode;
         if (node == null) {
@@ -79,7 +79,8 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     }
 
     @Override
-    public void addLabel(final Label label) {
+    public void addLabel(final GraphLabel graphLabel) {
+        final Label label = relationshipTypeFactory.get(graphLabel);
         node.addLabel(label);
         invalidateCache();
     }
@@ -261,7 +262,8 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
 
     @Override
     public boolean hasLabel(final GraphLabel graphLabel) {
-        return node.hasLabel(graphLabel);
+        Label label = relationshipTypeFactory.get(graphLabel);
+        return node.hasLabel(label);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.core.neo4j.RelationshipTypeFactory;
+import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
@@ -42,7 +42,7 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         GraphDBConfig dbConfig = new GraphDBTestConfig(TestGroupType.unit, TestEnv.GET());
         EasyMock.expect(config.getGraphDBConfig()).andReturn(dbConfig);
 
-        RelationshipTypeFactory relationshipTypeFactory = new RelationshipTypeFactory();
+        GraphReferenceMapper graphReferenceMapper = new GraphReferenceMapper();
 
         graphDatabaseService = createMock(GraphDatabaseService.class);
         serviceFactory = createMock(GraphDatabaseServiceFactory.class);
@@ -51,7 +51,7 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         SharedNodeCache nodeCache = createMock(SharedNodeCache.class);
         SharedRelationshipCache relationshipCache = createMock(SharedRelationshipCache.class);
         graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions,
-                nodeCache, relationshipCache, relationshipTypeFactory);
+                nodeCache, relationshipCache, graphReferenceMapper);
     }
 
     @Test

@@ -31,13 +31,13 @@ public class GraphTransactionFactory implements TransactionObserver {
     private final GraphDatabaseService databaseService;
     private final SharedNodeCache nodeCache;
     private final SharedRelationshipCache relationshipCache;
-    private final RelationshipTypeFactory relationshipTypeFactory;
+    private final GraphReferenceMapper relationshipTypeFactory;
     private final State state;
     private final AtomicInteger transactionCount;
     private final boolean diagnostics;
 
     public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache,
-                                   SharedRelationshipCache relationshipCache, RelationshipTypeFactory relationshipTypeFactory, final boolean diagnostics) {
+                                   SharedRelationshipCache relationshipCache, GraphReferenceMapper relationshipTypeFactory, final boolean diagnostics) {
         this.databaseService = databaseService;
         this.nodeCache = nodeCache;
         this.relationshipCache = relationshipCache;

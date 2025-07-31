@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public enum GraphLabel implements Label {
+public enum GraphLabel { //implements Label {
     GROUPED,  // grouped station node
     ROUTE_STATION,
     STATION, // any station node must have this label
@@ -70,7 +70,7 @@ public enum GraphLabel implements Label {
                 collect(Collectors.toCollection( () -> EnumSet.noneOf(GraphLabel.class)));
     }
 
-    public static Label getHourLabel(final int hour) {
+    public static GraphLabel getHourLabel(final int hour) {
         return hourLabels[hour];
     }
 

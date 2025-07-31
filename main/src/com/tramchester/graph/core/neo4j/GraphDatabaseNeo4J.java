@@ -13,6 +13,7 @@ import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
 import org.slf4j.Logger;
@@ -25,6 +26,9 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.graphbuild.GraphLabel.*;
 
 @LazySingleton
 public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase {
@@ -43,12 +47,12 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     private GraphDatabaseService databaseService;
     private final SharedNodeCache nodeCache;
     private final SharedRelationshipCache relationshipCache;
-    private final RelationshipTypeFactory relationshipTypeFactory;
+    private final GraphReferenceMapper relationshipTypeFactory;
 
     @Inject
     public GraphDatabaseNeo4J(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
                               GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache,
-                              SharedRelationshipCache relationshipCache, RelationshipTypeFactory relationshipTypeFactory) {
+                              SharedRelationshipCache relationshipCache, GraphReferenceMapper relationshipTypeFactory) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
@@ -148,11 +152,11 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
             } else {
                 final DBSchema schema = tx.schema();
 
-                schema.createIndex(GraphLabel.STATION, GraphPropertyKey.STATION_ID);
-                schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
-                schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.STATION_ID);
-                schema.createIndex(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_ID);
-                schema.createIndex(GraphLabel.PLATFORM, GraphPropertyKey.PLATFORM_ID);
+                addIndexFor(schema, STATION, STATION_ID);
+                addIndexFor(schema, ROUTE_STATION, ROUTE_STATION_ID);
+                addIndexFor(schema, ROUTE_STATION, STATION_ID);
+                addIndexFor(schema, ROUTE_STATION, ROUTE_ID);
+                addIndexFor(schema, PLATFORM, PLATFORM_ID);
 
                 tx.commit();
 
@@ -160,6 +164,11 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
             }
 
         }
+    }
+
+    private void addIndexFor(final DBSchema schema, final GraphLabel graphLabel, final GraphPropertyKey key) {
+        final Label label = relationshipTypeFactory.get(graphLabel);
+        schema.createIndex(label, key);
     }
 
     public void waitForIndexes() {

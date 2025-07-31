@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, AutoCloseable, MutableGraphTransaction {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
-    private final RelationshipTypeFactory relationshipTypeFactory;
+    private final GraphReferenceMapper relationshipTypeFactory;
     private final TransactionObserver transactionObserver;
     private final int transactionId;
 
@@ -38,12 +38,12 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     private final SharedRelationshipCache sharedRelationshipCache;
 
     /* GraphIdFactory ownership is passed in */
-    protected MutableGraphTransactionNeo4J(final Transaction txn, final GraphIdFactory idFactory, RelationshipTypeFactory relationshipTypeFactory, final int transactionId,
+    protected MutableGraphTransactionNeo4J(final Transaction txn, final GraphIdFactory idFactory, GraphReferenceMapper graphReferenceMapper, final int transactionId,
                                            final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
                                            SharedRelationshipCache sharedRelationshipCache) {
         this.txn = txn;
         this.idFactory = idFactory;
-        this.relationshipTypeFactory = relationshipTypeFactory;
+        this.relationshipTypeFactory = graphReferenceMapper;
         this.transactionId = transactionId;
         this.transactionObserver = transactionObserver;
         this.sharedNodeCache = sharedNodeCache;
@@ -77,14 +77,15 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
 
     @Override
     public MutableGraphNode createNode(final GraphLabel graphLabel) {
-        final Node node = txn.createNode(graphLabel);
+        final Label label = relationshipTypeFactory.get(graphLabel);
+        final Node node = txn.createNode(label);
         return wrapNodeAsMutable(node);
     }
 
     @Override
     public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
-        final GraphLabel[] toApply = new GraphLabel[labels.size()];
-        labels.toArray(toApply);
+        final Label[] toApply = relationshipTypeFactory.get(labels);
+        //labels.toArray(toApply);
         final Node node = txn.createNode(toApply);
         return wrapNodeAsMutable(node);
     }
@@ -126,23 +127,27 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
 
     @Override
     public Stream<GraphNode> findNodes(final GraphLabel graphLabel) {
-        return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
+        final Label label = relationshipTypeFactory.get(graphLabel);
+        return txn.findNodes(label).stream().map(this::wrapNodeAsImmutable);
     }
 
     @Override
     public Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel) {
-        return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsMutable);
+        final Label label = relationshipTypeFactory.get(graphLabel);
+        return txn.findNodes(label).stream().map(this::wrapNodeAsMutable);
     }
 
     @Override
-    public boolean hasAnyMatching(final GraphLabel label, final String field, final String value) {
+    public boolean hasAnyMatching(final GraphLabel graphLabel, final String field, final String value) {
+        final Label label = relationshipTypeFactory.get(graphLabel);
         Node node = txn.findNode(label, field, value);
         return node != null;
     }
 
     @Override
     public boolean hasAnyMatching(final GraphLabel graphLabel) {
-        final ResourceIterator<Node> found = txn.findNodes(graphLabel);
+        final Label label = relationshipTypeFactory.get(graphLabel);
+        final ResourceIterator<Node> found = txn.findNodes(label);
         final List<Node> nodes = found.stream().toList();
         return !nodes.isEmpty();
     }
@@ -155,7 +160,8 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
         return findNode(label, key.getText(), value);
     }
 
-    private GraphNode findNode(final GraphLabel label, final String key, final String value) {
+    private GraphNode findNode(final GraphLabel graphLabel, final String key, final String value) {
+        final Label label = relationshipTypeFactory.get(graphLabel);
         final Node node = txn.findNode(label, key, value);
         if (node==null) {
             return null;
@@ -163,7 +169,8 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
         return wrapNodeAsImmutable(node);
     }
 
-    private MutableGraphNodeNeo4J findNodeMutable(final GraphLabel label, final String key, final String value) {
+    private MutableGraphNodeNeo4J findNodeMutable(final GraphLabel graphLabel, final String key, final String value) {
+        final Label label = relationshipTypeFactory.get(graphLabel);
         final Node node = txn.findNode(label, key, value);
         if (node==null) {
             return null;

@@ -1,8 +1,10 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Label;
@@ -17,6 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GraphLabelTest {
+
+    GraphReferenceMapper mapper;
+
+    @BeforeEach
+    void onceBeforeEachTest() {
+        mapper = new GraphReferenceMapper();
+        mapper.start();
+    }
+
 
     @Test
     void shouldHaveLabelForEachValidMode() {
@@ -69,15 +80,21 @@ public class GraphLabelTest {
     }
 
     @Test
-    void shouldHaveSetOfValidModeLabels() {
+    void shouldMapToLabels() {
+        EnumSet<GraphLabel> all = EnumSet.allOf(GraphLabel.class);
 
+        all.forEach(graphLabel -> {
+            Label label = mapper.get(graphLabel);
+            assertNotNull(label,"failed for " + graphLabel.name());
+            assertEquals(graphLabel.name(), label.name(), "failed for " + graphLabel.name());
+        });
     }
 
     @Test
     void shouldGetFromIterable() {
         EnumSet<GraphLabel> graphLabels = EnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23);
 
-        Set<Label> labels = graphLabels.stream().map(graphLabel -> (Label)graphLabel).collect(Collectors.toSet());
+        Set<Label> labels = graphLabels.stream().map(mapper::get).collect(Collectors.toSet());
 
         Iterable<Label> iterable = new Iterable<>() {
             @NotNull
@@ -95,7 +112,7 @@ public class GraphLabelTest {
     @Test
     void performanceTestForFromIterable() {
         final Set<Label> labels = EnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23).stream().
-                map(graphLabel -> (Label)graphLabel).
+                map(graphLabel -> mapper.get(graphLabel)).
                 collect(Collectors.toSet());
 
         Iterable<Label> iterable = new Iterable<>() {
