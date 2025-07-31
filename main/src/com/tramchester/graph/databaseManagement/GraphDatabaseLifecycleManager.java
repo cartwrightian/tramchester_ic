@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.neo4j.GraphTransactionFactory;
+import com.tramchester.graph.core.neo4j.RelationshipTypeFactory;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
@@ -31,15 +32,18 @@ public class GraphDatabaseLifecycleManager {
     private boolean cleanDB;
     private final SharedNodeCache nodeCache;
     private final SharedRelationshipCache relationshipCache;
+    private final RelationshipTypeFactory relationshipTypeFactory;
 
     @Inject
     public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory,
-                                         GraphDatabaseStoredVersions storedVersions, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {
+                                         GraphDatabaseStoredVersions storedVersions, SharedNodeCache nodeCache,
+                                         SharedRelationshipCache relationshipCache, RelationshipTypeFactory relationshipTypeFactory) {
         this.configuration = configuration;
         this.serviceFactory = serviceFactory;
         this.storedVersions = storedVersions;
         this.nodeCache = nodeCache;
         this.relationshipCache = relationshipCache;
+        this.relationshipTypeFactory = relationshipTypeFactory;
     }
 
     public GraphDatabaseService startDatabase(final DataSourceRepository dataSourceRepository, final Path graphFile, final boolean fileExists) {
@@ -54,7 +58,9 @@ public class GraphDatabaseLifecycleManager {
 
         cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
-        final GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache, graphDBConfig.enableDiagnostics());
+        final GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache,
+                relationshipTypeFactory,
+                graphDBConfig.enableDiagnostics());
 
         if (fileExists && !storedVersions.upToDate(transactionFactory, dataSourceRepository)) {
             logger.warn("Graph is out of date, rebuild needed");

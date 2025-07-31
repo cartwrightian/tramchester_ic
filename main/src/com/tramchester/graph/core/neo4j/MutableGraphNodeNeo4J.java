@@ -17,10 +17,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
@@ -36,9 +33,11 @@ import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode {
     private final Node node;
     private final GraphNodeId graphNodeId;
+    private final RelationshipTypeFactory relationshipTypeFactory;
     private final SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode;
 
-    MutableGraphNodeNeo4J(Node node, GraphNodeId graphNodeId, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
+    MutableGraphNodeNeo4J(Node node, GraphNodeId graphNodeId, RelationshipTypeFactory relationshipTypeFactory, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
+        this.relationshipTypeFactory = relationshipTypeFactory;
         this.invalidatesCacheForNode = invalidatesCacheForNode;
         if (node == null) {
             throw new RuntimeException("Null node passed");
@@ -75,7 +74,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
         final MutableGraphTransactionNeo4J txnNeo4J = (MutableGraphTransactionNeo4J) txn;
         final MutableGraphNodeNeo4J endNode = (MutableGraphNodeNeo4J) end;
 
-        final Relationship relationshipTo = node.createRelationshipTo(endNode.node, relationshipType);
+        final Relationship relationshipTo = node.createRelationshipTo(endNode.node, relationshipTypeFactory.get(relationshipType));
         return txnNeo4J.wrapRelationshipMutable(relationshipTo);
     }
 
@@ -204,7 +203,9 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                final TransportRelationshipTypes relationshipType) {
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
-        return node.getRelationships(map(direction), relationshipType).stream().map(txnNeo4J::wrapRelationship);
+        return node.getRelationships(map(direction), relationshipTypeFactory.get(relationshipType)).
+                stream().
+                map(txnNeo4J::wrapRelationship);
     }
 
     private Direction map(final GraphDirection direction) {
@@ -219,14 +220,15 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     public Stream<MutableGraphRelationship> getRelationshipsMutable(final MutableGraphTransaction txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes relationshipType) {
         MutableGraphTransactionNeo4J txnNeo4J = (MutableGraphTransactionNeo4J) txn;
-        return node.getRelationships(map(direction), relationshipType).stream().map(txnNeo4J::wrapRelationshipMutable);
+        return node.getRelationships(map(direction), relationshipTypeFactory.get(relationshipType)).stream().map(txnNeo4J::wrapRelationshipMutable);
     }
 
     @Override
     public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                                     final TransportRelationshipTypes... transportRelationshipTypes) {
         GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
-        return node.getRelationships(map(direction), transportRelationshipTypes).stream().map(txnNeo4J::wrapRelationship);
+        RelationshipType[] relationshipTypes =  relationshipTypeFactory.get(transportRelationshipTypes);
+        return node.getRelationships(map(direction), relationshipTypes).stream().map(txnNeo4J::wrapRelationship);
     }
 
     @Override
@@ -254,7 +256,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
 
     @Override
     public boolean hasRelationship(final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
-        return node.hasRelationship(map(direction), transportRelationshipTypes);
+        return node.hasRelationship(map(direction), relationshipTypeFactory.get(transportRelationshipTypes));
     }
 
     @Override
@@ -265,7 +267,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     @Override
     public ImmutableGraphRelationshipNeo4J getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
                                                                  GraphDirection direction) {
-        final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
+        final Relationship found = node.getSingleRelationship(relationshipTypeFactory.get(transportRelationshipType), map(direction));
         if (found==null) {
             return null;
         }
@@ -275,7 +277,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
 
     public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType,
                                                                  GraphDirection direction) {
-        final Relationship found = node.getSingleRelationship(transportRelationshipType, map(direction));
+        final Relationship found = node.getSingleRelationship(relationshipTypeFactory.get(transportRelationshipType), map(direction));
         if (found==null) {
             return null;
         }

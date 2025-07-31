@@ -18,8 +18,9 @@ public class TimedTransaction extends MutableGraphTransactionNeo4J {
     private boolean committed;
 
     TimedTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId, final TransactionObserver transactionObserver,
-                     final Logger logger, final String name, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {
-        super(txn, idFactory, transactionId, transactionObserver, nodeCache, relationshipCache);
+                     final Logger logger, final String name, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache,
+                     RelationshipTypeFactory relationshipTypeFactory) {
+        super(txn, idFactory, relationshipTypeFactory, transactionId, transactionObserver, nodeCache, relationshipCache);
         this.logger = logger;
         this.name = name;
         timing = new Timing(logger, "transaction " + name);

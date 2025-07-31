@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
+import com.tramchester.graph.core.neo4j.RelationshipTypeFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -51,6 +52,7 @@ class GraphDatabaseNeo4JStartStopTest extends EasyMockSupport {
         dbConfig = config.getGraphDBConfig();
         dbPath = dbConfig.getDbPath();
 
+        RelationshipTypeFactory relationshipTypeFactory = new RelationshipTypeFactory();
 
         lifecycleManager = createMock(GraphDatabaseLifecycleManager.class);
         graphDatabaseService = createMock(GraphDatabaseService.class);
@@ -58,8 +60,8 @@ class GraphDatabaseNeo4JStartStopTest extends EasyMockSupport {
 
         SharedNodeCache nodeCache = createMock(SharedNodeCache.class);
         SharedRelationshipCache relationshipCache = createMock(SharedRelationshipCache.class);
-        graphDatabase = new GraphDatabaseNeo4J(config, dataSourceRepository, lifecycleManager, nodeCache, relationshipCache);
-
+        graphDatabase = new GraphDatabaseNeo4J(config, dataSourceRepository, lifecycleManager, nodeCache, relationshipCache,
+                relationshipTypeFactory);
 
         Files.deleteIfExists(dbConfig.getDbPath());
         Files.createDirectories(dbPath.getParent());

@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
@@ -41,13 +42,15 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
 
     private final GraphDatabaseNeo4J graphDatabaseService;
     private final RouteRepository routeRepository;
+    private final RelationshipTypeFactory relationshipTypeFactory;
 
     @Inject
     public RouteCostCalculatorNeo4J(GraphDatabaseNeo4J graphDatabaseService,
                                     @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
-                                    RouteRepository routeRepository) {
+                                    RouteRepository routeRepository, RelationshipTypeFactory relationshipTypeFactory) {
         this.graphDatabaseService = graphDatabaseService;
         this.routeRepository = routeRepository;
+        this.relationshipTypeFactory = relationshipTypeFactory;
     }
 
     @Override
@@ -128,18 +131,22 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
 
     private PathExpander<Double> fullExpanderForCostApproximation(final Predicate<? super Relationship> routeFilter) {
         return PathExpanderBuilder.empty().
-                add(ON_ROUTE, Direction.OUTGOING).
-                add(STATION_TO_ROUTE, Direction.OUTGOING).
-                add(ROUTE_TO_STATION, Direction.OUTGOING).
-                add(WALKS_TO_STATION, Direction.OUTGOING).
-                add(WALKS_FROM_STATION, Direction.OUTGOING).
-                add(NEIGHBOUR, Direction.OUTGOING).
-                add(GROUPED_TO_PARENT, Direction.OUTGOING).
-                add(GROUPED_TO_GROUPED, Direction.OUTGOING).
-                add(GROUPED_TO_CHILD, Direction.OUTGOING).
+                add(map(ON_ROUTE), Direction.OUTGOING).
+                add(map(STATION_TO_ROUTE), Direction.OUTGOING).
+                add(map(ROUTE_TO_STATION), Direction.OUTGOING).
+                add(map(WALKS_TO_STATION), Direction.OUTGOING).
+                add(map(WALKS_FROM_STATION), Direction.OUTGOING).
+                add(map(NEIGHBOUR), Direction.OUTGOING).
+                add(map(GROUPED_TO_PARENT), Direction.OUTGOING).
+                add(map(GROUPED_TO_GROUPED), Direction.OUTGOING).
+                add(map(GROUPED_TO_CHILD), Direction.OUTGOING).
                 addRelationshipFilter(routeFilter).
                 build();
 
+    }
+
+    private RelationshipType map(TransportRelationshipTypes transportRelationshipType) {
+        return relationshipTypeFactory.get(transportRelationshipType);
     }
 
     private static class UsefulLoggingCostEvaluator extends DoubleEvaluator {

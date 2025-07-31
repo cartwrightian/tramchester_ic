@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, AutoCloseable, MutableGraphTransaction {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
+    private final RelationshipTypeFactory relationshipTypeFactory;
     private final TransactionObserver transactionObserver;
     private final int transactionId;
 
@@ -37,11 +38,12 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     private final SharedRelationshipCache sharedRelationshipCache;
 
     /* GraphIdFactory ownership is passed in */
-    protected MutableGraphTransactionNeo4J(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
+    protected MutableGraphTransactionNeo4J(final Transaction txn, final GraphIdFactory idFactory, RelationshipTypeFactory relationshipTypeFactory, final int transactionId,
                                            final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
                                            SharedRelationshipCache sharedRelationshipCache) {
         this.txn = txn;
         this.idFactory = idFactory;
+        this.relationshipTypeFactory = relationshipTypeFactory;
         this.transactionId = transactionId;
         this.transactionObserver = transactionObserver;
         this.sharedNodeCache = sharedNodeCache;
@@ -213,21 +215,21 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
 
     private MutableGraphNodeNeo4J wrapNodeAsMutable(final Node node) {
         final GraphNodeId graphNodeId = idFactory.getIdFor(node);
-        return new MutableGraphNodeNeo4J(node, graphNodeId, sharedNodeCache.invalidatorFor(graphNodeId));
+        return new MutableGraphNodeNeo4J(node, graphNodeId, relationshipTypeFactory, sharedNodeCache.invalidatorFor(graphNodeId));
     }
 
     @Override
     public ImmutableGraphRelationshipNeo4J wrapRelationship(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
         final SharedRelationshipCache.InvalidatesCache invalidatesCache = sharedRelationshipCache.invalidatorFor(id);
-        final MutableGraphRelationshipNeo4J underlying = new MutableGraphRelationshipNeo4J(relationship, id, invalidatesCache);
+        final MutableGraphRelationshipNeo4J underlying = new MutableGraphRelationshipNeo4J(relationship, id, relationshipTypeFactory, invalidatesCache);
         return new ImmutableGraphRelationshipNeo4J(underlying, sharedRelationshipCache);
     }
 
     MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
         final GraphRelationshipId id = idFactory.getIdFor(relationship);
         final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor = sharedRelationshipCache.invalidatorFor(id);
-        return new MutableGraphRelationshipNeo4J(relationship, id, invalidatesCacheFor);
+        return new MutableGraphRelationshipNeo4J(relationship, id, relationshipTypeFactory, invalidatesCacheFor);
     }
 
     @Override

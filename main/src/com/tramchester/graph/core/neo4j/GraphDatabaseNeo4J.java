@@ -43,17 +43,19 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     private GraphDatabaseService databaseService;
     private final SharedNodeCache nodeCache;
     private final SharedRelationshipCache relationshipCache;
+    private final RelationshipTypeFactory relationshipTypeFactory;
 
     @Inject
     public GraphDatabaseNeo4J(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
                               GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache,
-                              SharedRelationshipCache relationshipCache) {
+                              SharedRelationshipCache relationshipCache, RelationshipTypeFactory relationshipTypeFactory) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
         this.nodeCache = nodeCache;
         this.relationshipCache = relationshipCache;
+        this.relationshipTypeFactory = relationshipTypeFactory;
         indexesOnline = new AtomicBoolean(false);
         indexesCreated = new AtomicBoolean(false);
     }
@@ -66,7 +68,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
             graphTransactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache,
-                    graphDBConfig.enableDiagnostics());
+                    relationshipTypeFactory, graphDBConfig.enableDiagnostics());
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");

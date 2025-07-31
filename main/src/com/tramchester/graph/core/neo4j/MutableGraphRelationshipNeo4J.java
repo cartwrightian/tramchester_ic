@@ -24,6 +24,7 @@ import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -43,16 +44,18 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
 
     private final Relationship relationship;
     private final GraphRelationshipId id;
+    private final RelationshipTypeFactory relationshipTypeFactory;
     private final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor;
 
     private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private GraphNode endNode;
 
-    MutableGraphRelationshipNeo4J(final Relationship relationship, final GraphRelationshipId id,
+    MutableGraphRelationshipNeo4J(final Relationship relationship, final GraphRelationshipId id, RelationshipTypeFactory relationshipTypeFactory,
                                   SharedRelationshipCache.InvalidatesCache invalidatesCacheFor) {
         this.relationship = relationship;
         this.id = id;
+        this.relationshipTypeFactory = relationshipTypeFactory;
         this.invalidatesCacheFor = invalidatesCacheFor;
     }
 
@@ -369,8 +372,10 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
         return getIdFor(theClass, relationship);
     }
 
+    @Override
     public boolean isType(TransportRelationshipTypes transportRelationshipType) {
-        return relationship.isType(transportRelationshipType);
+        final RelationshipType theType = relationshipTypeFactory.get(transportRelationshipType);
+        return relationship.isType(theType);
     }
 
     public IdFor<RouteStation> getRouteStationId() {

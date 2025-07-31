@@ -31,15 +31,17 @@ public class GraphTransactionFactory implements TransactionObserver {
     private final GraphDatabaseService databaseService;
     private final SharedNodeCache nodeCache;
     private final SharedRelationshipCache relationshipCache;
+    private final RelationshipTypeFactory relationshipTypeFactory;
     private final State state;
     private final AtomicInteger transactionCount;
     private final boolean diagnostics;
 
     public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache,
-                                   SharedRelationshipCache relationshipCache, final boolean diagnostics) {
+                                   SharedRelationshipCache relationshipCache, RelationshipTypeFactory relationshipTypeFactory, final boolean diagnostics) {
         this.databaseService = databaseService;
         this.nodeCache = nodeCache;
         this.relationshipCache = relationshipCache;
+        this.relationshipTypeFactory = relationshipTypeFactory;
 
         transactionCount = new AtomicInteger(0);
         state = new State();
@@ -80,7 +82,7 @@ public class GraphTransactionFactory implements TransactionObserver {
         final int index = transactionCount.incrementAndGet();
         GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
         final MutableGraphTransactionNeo4J graphTransaction = new MutableGraphTransactionNeo4J(graphDatabaseTxn, graphIdFactory,
-                index,this, nodeCache, relationshipCache);
+                relationshipTypeFactory, index,this, nodeCache, relationshipCache);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());
 
@@ -93,7 +95,7 @@ public class GraphTransactionFactory implements TransactionObserver {
         final int index = transactionCount.incrementAndGet();
         final GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
         final TimedTransaction graphTransaction = new TimedTransaction(graphDatabaseTxn, graphIdFactory,
-                index,this, logger, text, nodeCache, relationshipCache);
+                index,this, logger, text, nodeCache, relationshipCache, relationshipTypeFactory);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());
 
