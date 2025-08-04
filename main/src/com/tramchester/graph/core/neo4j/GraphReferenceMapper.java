@@ -1,8 +1,8 @@
 package com.tramchester.graph.core.neo4j;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.reference.GraphLabel;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.RelationshipType;
 
@@ -57,6 +57,29 @@ public class GraphReferenceMapper {
             dest[count++] = labelMap.get(label);
         }
         return dest;
+    }
+
+    public static EnumSet<GraphLabel> from(final Iterable<Label> iter) {
+        // results from perf test, seconds
+
+        // 1.221
+        final EnumSet<GraphLabel> result = EnumSet.noneOf(GraphLabel.class);
+        for(final Label item : iter) {
+            result.add(GraphLabel.valueOf(item.name()));
+        }
+        return result;
+
+        // 1.284
+//        final EnumSet<GraphLabel> result = EnumSet.noneOf(GraphLabel.class);
+//        iter.forEach(item -> result.add(GraphLabel.valueOf(item.name())));
+//        return result;
+
+        // 1.688
+        // return Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toCollection(() -> EnumSet.noneOf(GraphLabel.class)));
+
+        // 3.849
+        //  final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
+        //  return EnumSet.copyOf(set);
     }
 
     public static class RelationshipContainer implements RelationshipType {

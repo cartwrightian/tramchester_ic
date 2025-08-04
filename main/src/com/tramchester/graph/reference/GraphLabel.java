@@ -1,7 +1,6 @@
-package com.tramchester.graph.graphbuild;
+package com.tramchester.graph.reference;
 
 import com.tramchester.domain.reference.TransportMode;
-import org.neo4j.graphdb.Label;
 
 import java.util.EnumSet;
 import java.util.stream.Collectors;
@@ -84,26 +83,9 @@ public enum GraphLabel { //implements Label {
         throw new RuntimeException("Could not find hour from " + labels);
     }
 
-    public static EnumSet<GraphLabel> from(final Iterable<Label> iter) {
-        // results from perf test, seconds
-
-        // 1.221
-        final EnumSet<GraphLabel> result = EnumSet.noneOf(GraphLabel.class);
-        for(final Label item : iter) {
-            result.add(GraphLabel.valueOf(item.name()));
-        }
-        return result;
-
-        // 1.284
-//        final EnumSet<GraphLabel> result = EnumSet.noneOf(GraphLabel.class);
-//        iter.forEach(item -> result.add(GraphLabel.valueOf(item.name())));
-//        return result;
-
-        // 1.688
-        // return Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toCollection(() -> EnumSet.noneOf(GraphLabel.class)));
-
-        // 3.849
-        //  final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
-        //  return EnumSet.copyOf(set);
+    public static GraphLabel from(final String name) {
+        return valueOf(name);
     }
+
+
 }

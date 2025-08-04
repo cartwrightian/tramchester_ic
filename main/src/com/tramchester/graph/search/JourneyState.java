@@ -4,7 +4,9 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.LocationId;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
@@ -13,13 +15,13 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
-import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
@@ -59,20 +61,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         if (coreState.onBoard()) {
             this.boardingTime = previousState.boardingTime;
         }
-    }
-
-    public static InitialBranchState<JourneyState> initialState(final TramTime queryTime, final TraversalState traversalState) {
-        return new InitialBranchState<>() {
-            @Override
-            public JourneyState initialState(Path path) {
-                return new JourneyState(queryTime, traversalState);
-            }
-
-            @Override
-            public InitialBranchState<JourneyState> reverse() {
-                return null;
-            }
-        };
     }
 
     public void updateTraversalState(final ImmutableTraversalState traversalState) {
@@ -365,7 +353,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 // check if occurred earlier
                 if (!boardingLocations.getLast().equals(lastSeenStation)) {
                     duplicatedBoardingSeen = true;
-                    logger.warn("Duplicated boarding ("+numberOfBoardings+") at " + lastSeenStation + " and boardings " + boardingLocations);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Duplicated boarding (" + numberOfBoardings + ") at " + lastSeenStation + " and boardings " + boardingLocations);
+                    }
                 }
             } else {
                 boardingLocations.add(lastSeenStation);

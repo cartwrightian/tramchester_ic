@@ -102,7 +102,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,13), TramTime.nextDay(0,42)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,31), TramTime.nextDay(0,39)), result);
     }
 
     @Test
@@ -221,14 +221,14 @@ public class StationAvailabilityRepositoryTest {
         Route blueInbound = tramRouteHelper.getPink(when);
         Route greenOutbound = tramRouteHelper.getGreen(when);
 
-        assertEquals(4, dropOffs.size());
+        assertEquals(3, dropOffs.size());
         //assertTrue(dropOffs.contains(yellowInbound));
         assertTrue(dropOffs.contains(blueInbound));
         assertTrue(dropOffs.contains(greenOutbound));
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TramsOnly);
 
-        assertEquals(4, pickups.size());
+        assertEquals(3, pickups.size());
         //assertTrue(pickups.contains(yellowInbound));
         assertTrue(pickups.contains(blueInbound));
         assertTrue(pickups.contains(greenOutbound));

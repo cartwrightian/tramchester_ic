@@ -11,7 +11,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.ReportsCacheStats;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;

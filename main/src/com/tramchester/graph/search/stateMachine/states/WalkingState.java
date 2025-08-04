@@ -12,7 +12,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
 
 public class WalkingState extends TraversalState {
 

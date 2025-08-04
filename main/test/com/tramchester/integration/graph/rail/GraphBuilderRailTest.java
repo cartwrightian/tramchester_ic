@@ -8,7 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
 import static org.junit.jupiter.api.Assertions.*;

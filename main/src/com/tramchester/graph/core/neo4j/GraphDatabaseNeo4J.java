@@ -4,11 +4,8 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.caches.SharedNodeCache;
-import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -28,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
-import static com.tramchester.graph.graphbuild.GraphLabel.*;
+import static com.tramchester.graph.reference.GraphLabel.*;
 
 @LazySingleton
 public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase {
@@ -45,21 +42,20 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
 
     private GraphTransactionFactory graphTransactionFactory;
     private GraphDatabaseService databaseService;
-    private final SharedNodeCache nodeCache;
-    private final SharedRelationshipCache relationshipCache;
-    private final GraphReferenceMapper relationshipTypeFactory;
+    private final GraphReferenceMapper graphReferenceMapper;
+    private final GraphTransactionFactoryFactory graphTransactionFactoryFactory;
 
     @Inject
     public GraphDatabaseNeo4J(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                              GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache,
-                              SharedRelationshipCache relationshipCache, GraphReferenceMapper relationshipTypeFactory) {
+                              GraphDatabaseLifecycleManager lifecycleManager,
+                              GraphReferenceMapper graphReferenceMapper,
+                              GraphTransactionFactoryFactory graphTransactionFactoryFactory) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
-        this.nodeCache = nodeCache;
-        this.relationshipCache = relationshipCache;
-        this.relationshipTypeFactory = relationshipTypeFactory;
+        this.graphReferenceMapper = graphReferenceMapper;
+        this.graphTransactionFactoryFactory = graphTransactionFactoryFactory;
         indexesOnline = new AtomicBoolean(false);
         indexesCreated = new AtomicBoolean(false);
     }
@@ -71,8 +67,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
-            graphTransactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache,
-                    relationshipTypeFactory, graphDBConfig.enableDiagnostics());
+            graphTransactionFactory = graphTransactionFactoryFactory.create(databaseService, graphDBConfig);
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");
@@ -167,7 +162,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     }
 
     private void addIndexFor(final DBSchema schema, final GraphLabel graphLabel, final GraphPropertyKey key) {
-        final Label label = relationshipTypeFactory.get(graphLabel);
+        final Label label = graphReferenceMapper.get(graphLabel);
         schema.createIndex(label, key);
     }
 

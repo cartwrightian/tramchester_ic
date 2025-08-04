@@ -1,8 +1,7 @@
 package com.tramchester.domain;
 
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 
 public interface HasGraphLabel {
     GraphLabel getNodeLabel();
-
 }

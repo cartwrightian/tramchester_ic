@@ -1,14 +1,8 @@
 package com.tramchester.unit.graph.databaseManagement;
 
-import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.caches.SharedNodeCache;
-import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
-import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
-import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
+import com.tramchester.graph.core.neo4j.*;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
-import com.tramchester.graph.core.neo4j.GraphTransactionFactory;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.repository.DataSourceRepository;
@@ -32,6 +26,8 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
 
     private final Path dbFile = Path.of("someFilename");
     private DataSourceRepository dataSourceRepos;
+    private GraphTransactionFactoryFactory graphTransactionFactoryFactory;
+    private GraphDBTestConfig dbConfig;
 
     @BeforeEach
     public void onceBeforeEachTestRuns() {
@@ -39,26 +35,40 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         //TramchesterConfig config = TestEnv.GET();
 
         TramchesterConfig config = createMock(TramchesterConfig.class);
-        GraphDBConfig dbConfig = new GraphDBTestConfig(TestGroupType.unit, TestEnv.GET());
+        dbConfig = new GraphDBTestConfig(TestGroupType.unit, TestEnv.GET());
         EasyMock.expect(config.getGraphDBConfig()).andReturn(dbConfig);
-
-        GraphReferenceMapper graphReferenceMapper = new GraphReferenceMapper();
 
         graphDatabaseService = createMock(GraphDatabaseService.class);
         serviceFactory = createMock(GraphDatabaseServiceFactory.class);
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
         dataSourceRepos = createMock(DataSourceRepository.class);
-        SharedNodeCache nodeCache = createMock(SharedNodeCache.class);
-        SharedRelationshipCache relationshipCache = createMock(SharedRelationshipCache.class);
+
+        graphTransactionFactoryFactory = createStrictMock(GraphTransactionFactoryFactory.class);
+
         graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions,
-                nodeCache, relationshipCache, graphReferenceMapper);
+                graphTransactionFactoryFactory);
+
     }
 
     @Test
     public void startImmediatelyIfExistsAndStoredVersionsOK() {
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
-        EasyMock.expect(storedVersions.upToDate(EasyMock.isA(GraphTransactionFactory.class), EasyMock.eq(dataSourceRepos))).andReturn(true);
+
+        GraphTransactionFactory transactionFactory = createStrictMock(GraphTransactionFactory.class);
+
+        EasyMock.expect(graphTransactionFactoryFactory.create(graphDatabaseService, dbConfig)).andReturn(transactionFactory);
+
+        ImmutableGraphTransactionNeo4J graphTransaction = createStrictMock(ImmutableGraphTransactionNeo4J.class);
+
+        EasyMock.expect(transactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)).andReturn(graphTransaction);
+        graphTransaction.close();
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(storedVersions.upToDate(dataSourceRepos, graphTransaction)).andReturn(true);
+
+        transactionFactory.close();
+        EasyMock.expectLastCall();
 
         replayAll();
         GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceRepos, dbFile, true);
@@ -71,6 +81,11 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
     public void startImmediatelyIfNotExists() {
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
+        GraphTransactionFactory graphTransactionFactory = createMock(GraphTransactionFactory.class);
+        EasyMock.expect(graphTransactionFactoryFactory.create(graphDatabaseService, dbConfig)).andReturn(graphTransactionFactory);
+
+        graphTransactionFactory.close();
+        EasyMock.expectLastCall();
 
         replayAll();
         GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceRepos, dbFile, false);
@@ -84,8 +99,19 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
 
-        EasyMock.expect(storedVersions.upToDate(EasyMock.isA(GraphTransactionFactory.class),
-                EasyMock.eq(dataSourceRepos))).andReturn(false);
+        GraphTransactionFactory graphTransactionFactory = createMock(GraphTransactionFactory.class);
+        EasyMock.expect(graphTransactionFactoryFactory.create(graphDatabaseService, dbConfig)).andReturn(graphTransactionFactory);
+
+        ImmutableGraphTransactionNeo4J transaction = createMock(ImmutableGraphTransactionNeo4J.class);
+        EasyMock.expect(graphTransactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)).andReturn(transaction);
+        transaction.close();
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(storedVersions.upToDate(dataSourceRepos,transaction)).andReturn(false);
+
+        graphTransactionFactory.close();
+        EasyMock.expectLastCall();
+
         serviceFactory.shutdownDatabase();
         EasyMock.expectLastCall();
 

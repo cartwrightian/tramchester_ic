@@ -19,7 +19,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implements MutableGraphRelationship {
 
@@ -349,7 +349,7 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
     }
 
     public TransportRelationshipTypes getType() {
-        return TransportRelationshipTypes.from(relationship);
+        return TransportRelationshipTypes.from(relationship.getType().name());
     }
 
     public IdFor<Route> getRouteId() {

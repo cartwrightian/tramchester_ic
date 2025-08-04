@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;

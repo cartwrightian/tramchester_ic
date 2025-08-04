@@ -118,18 +118,6 @@ public class BoundingBox {
         return true;
     }
 
-//    public GridPosition middle() {
-//        final int left = bottomLeft.getEastings();
-//        final int top = topRight.getNorthings();
-//        final int bottom = bottomLeft.getNorthings();
-//        final int right = topRight.getEastings();
-//
-//        int midEasting = left + ((right - left) / 2);
-//        int midNorthing = bottom +  ((top - bottom) / 2);
-//
-//        return new GridPosition(midEasting, midNorthing);
-//    }
-
     public Set<BoundingBox> quadrants() {
         final Set<BoundingBox> result = new HashSet<>();
 

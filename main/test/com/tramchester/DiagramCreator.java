@@ -11,9 +11,9 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import jakarta.inject.Inject;
@@ -28,8 +28,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphLabel.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.GraphLabel.*;
 import static java.lang.String.format;
 
 
@@ -162,7 +162,7 @@ public class DiagramCreator {
             addNode(builder, startNode);
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
 
-            if (TransportRelationshipTypes.goesTo(awayFrom)) {
+            if (TransportRelationshipTypes.goesTo(awayFrom.getType())) {
                 if (!goesToRelationships.containsKey(awayFrom.getId())) {
                     goesToRelationships.put(awayFrom.getId(), awayFrom);
                 }

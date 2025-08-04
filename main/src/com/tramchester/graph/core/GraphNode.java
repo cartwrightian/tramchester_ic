@@ -13,8 +13,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.reference.GraphLabel;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 

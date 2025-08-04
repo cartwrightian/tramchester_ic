@@ -68,7 +68,7 @@ class StationAdjacencyRepositoryTest {
     @Test
     void shouldGiveCorrectCostForAdjacencyCornbrookDeansgate() {
         Duration duration = getAdjacent(Cornbrook, Deansgate);
-        assertEquals(Duration.ofMinutes(3), duration.truncatedTo(ChronoUnit.MINUTES));
+        assertEquals(Duration.ofMinutes(4), duration.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test

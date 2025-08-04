@@ -7,7 +7,7 @@ import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;

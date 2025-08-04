@@ -17,6 +17,7 @@ import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
 import jakarta.inject.Inject;

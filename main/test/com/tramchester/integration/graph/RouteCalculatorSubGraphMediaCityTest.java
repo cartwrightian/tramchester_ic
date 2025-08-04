@@ -183,6 +183,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSalfordQuayToStPeters() {
         final TramTime time = TramTime.of(8, 5);
@@ -228,6 +229,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveExpectedRouteConnections() {
         Station salfordQuay = SalfordQuay.from(stationRepository);
@@ -291,6 +293,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         return TramsOnly;
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void reproduceMediaCityIssue() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
@@ -302,6 +305,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(9,0), UpcomingDates.nextSaturday());
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, 3,

@@ -11,7 +11,7 @@ import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
 
 public class JustBoardedState extends RouteStationState {
 

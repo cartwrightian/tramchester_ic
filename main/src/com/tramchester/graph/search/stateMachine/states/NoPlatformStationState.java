@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -11,7 +11,7 @@ import com.tramchester.graph.search.stateMachine.TowardsStation;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class NoPlatformStationState extends StationState {
 

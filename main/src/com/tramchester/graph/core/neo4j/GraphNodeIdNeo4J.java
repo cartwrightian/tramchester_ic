@@ -1,7 +1,7 @@
 package com.tramchester.graph.core.neo4j;
 
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 /***
  * NOTE: not under normal lifecycle control as is used during DB startup which happens before main graph DB is created
- * Do not call these directly when GraphDatabase object is available
+ * Do not call these methods directly once GraphDatabase object is available
  */
 public class GraphTransactionFactory implements TransactionObserver {
     private static final Logger logger = LoggerFactory.getLogger(GraphTransactionFactory.class);
@@ -36,7 +36,7 @@ public class GraphTransactionFactory implements TransactionObserver {
     private final AtomicInteger transactionCount;
     private final boolean diagnostics;
 
-    public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache,
+    private GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache,
                                    SharedRelationshipCache relationshipCache, GraphReferenceMapper relationshipTypeFactory, final boolean diagnostics) {
         this.databaseService = databaseService;
         this.nodeCache = nodeCache;
@@ -50,6 +50,14 @@ public class GraphTransactionFactory implements TransactionObserver {
 
         // neo4j docs state id's not guaranteed beyond transaction boundaries
         //graphIdFactory = new GraphIdFactory(diagnostics);
+    }
+
+    /***
+     * Create via GraphTransactionFactoryFactory due to start up dependencies
+     */
+    static GraphTransactionFactory create(final GraphDatabaseService databaseService, SharedNodeCache nodeCache,
+                                          SharedRelationshipCache relationshipCache, GraphReferenceMapper relationshipTypeFactory, final boolean diagnostics) {
+        return new GraphTransactionFactory(databaseService, nodeCache, relationshipCache, relationshipTypeFactory, diagnostics);
     }
 
     public void close() {

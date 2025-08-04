@@ -9,7 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
 /***

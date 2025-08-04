@@ -13,6 +13,7 @@ import java.time.Duration;
 
 public interface ImmutableJourneyState extends HasTransportMode {
     ImmutableTraversalState getTraversalState();
+
     TraversalStateType getTraversalStateType();
     TramTime getJourneyClock();
     int getNumberChanges();
@@ -25,9 +26,6 @@ public interface ImmutableJourneyState extends HasTransportMode {
     GraphNodeId getNodeId();
     LocationId<?> approxPosition();
 
-    //boolean justBoarded();
-
     boolean duplicatedBoardingSeen();
-
     boolean justBoarded();
 }

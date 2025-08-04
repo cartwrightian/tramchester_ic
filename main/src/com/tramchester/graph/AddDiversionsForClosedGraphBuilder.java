@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.HasId.asIds;
 import static com.tramchester.graph.GraphPropertyKey.SOURCE_NAME_PROP;
-import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
 import static java.lang.String.format;
 
 @LazySingleton

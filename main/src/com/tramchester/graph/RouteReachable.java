@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.ON_ROUTE;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.ON_ROUTE;
 
 @LazySingleton
 public class RouteReachable {

@@ -2,7 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -104,7 +104,7 @@ public class GraphLabelTest {
             }
         };
 
-        EnumSet<GraphLabel> result = GraphLabel.from(iterable);
+        EnumSet<GraphLabel> result = GraphReferenceMapper.from(iterable);
         assertEquals(graphLabels, result);
     }
 
@@ -124,7 +124,7 @@ public class GraphLabelTest {
         };
 
         for (int i = 0; i < 10000000; i++) {
-            GraphLabel.from(iterable);
+            GraphReferenceMapper.from(iterable);
         }
     }
 

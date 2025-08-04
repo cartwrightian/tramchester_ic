@@ -47,7 +47,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;

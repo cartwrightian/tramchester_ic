@@ -11,7 +11,7 @@ import com.tramchester.graph.core.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class TowardsDestination {
 

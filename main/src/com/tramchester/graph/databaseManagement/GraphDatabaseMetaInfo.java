@@ -7,7 +7,7 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class GraphDatabaseMetaInfo {
         logger.info("Set version data");
     }
 
-    public boolean boundsMatch(final MutableGraphTransaction txn, final BoundingBox boundingBox) {
+    public boolean boundsMatch(final GraphTransaction txn, final BoundingBox boundingBox) {
         final boolean hasBoundsNode = txn.hasAnyMatching(GraphLabel.BOUNDS);
 
         if (!hasBoundsNode) {

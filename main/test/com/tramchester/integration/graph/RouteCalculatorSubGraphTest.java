@@ -98,26 +98,28 @@ class RouteCalculatorSubGraphTest {
         txn.close();
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void reproduceIssueEdgePerTrip() {
 
-        validateAtLeastOneJourney(StPetersSquare, TramStations.Deansgate,
+        validateAtLeastOneJourney(StPetersSquare, Deansgate,
                 new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Cornbrook, Pomona,
                 new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, 2,
                         maxJourneyDuration, 1, modes));
 
-        validateAtLeastOneJourney(TramStations.Deansgate, Cornbrook,
+        validateAtLeastOneJourney(Deansgate, Cornbrook,
                 new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
                         maxJourneyDuration, 1, modes));
 
-        validateAtLeastOneJourney(TramStations.Deansgate, Pomona,
+        validateAtLeastOneJourney(Deansgate, Pomona,
                 new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
                         maxJourneyDuration, 1, modes));
 
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void reproduceIssueEdgePerTripPomona() {
         validateAtLeastOneJourney(StPetersSquare, Pomona, new JourneyRequest(when, tramTime,
@@ -131,6 +133,7 @@ class RouteCalculatorSubGraphTest {
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveJourneysBetweenAllStations() {
         for (TramStations start: stations) {
@@ -156,12 +159,14 @@ class RouteCalculatorSubGraphTest {
         assertFalse(results.isEmpty());
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSimpleOneStopJourney() {
         List<Journey> results = getJourneys(Cornbrook, Pomona, when, 1);
         assertFalse(results.isEmpty());
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSimpleOneStopJourneyLateNight() {
         // last tram now earlier

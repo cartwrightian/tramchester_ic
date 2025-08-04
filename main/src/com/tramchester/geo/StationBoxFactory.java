@@ -53,7 +53,9 @@ public class StationBoxFactory {
                     final StationsBoxSimpleGrid stationBox = new StationsBoxSimpleGrid(x, y, box, openStations);
                     results.add(stationBox);
                 } else {
-                    logger.info("Excluding " + box + " since no contained stations");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Excluding " + box + " since no contained stations");
+                    }
                 }
 
                 northing = northing + gridSizeInMeters;

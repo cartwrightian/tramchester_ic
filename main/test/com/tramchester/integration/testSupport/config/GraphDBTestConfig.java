@@ -24,7 +24,6 @@ import static java.lang.String.format;
 
 public class GraphDBTestConfig implements GraphDBConfig {
     private final TestGroupType group;
-    private final EnumSet<TransportMode> modesFromConfig;
     private final TramchesterConfig config;
     private final String pathPrefix;
 
@@ -36,19 +35,19 @@ public class GraphDBTestConfig implements GraphDBConfig {
         this.pathPrefix = pathPrefix;
         this.group = group;
         this.config = config;
-        this.modesFromConfig = config.getTransportModes();
     }
 
     public Path getDbPath() {
-        return createGraphDatabasePath(group, config);
+        return createGraphDatabasePath(group);
     }
 
     @Override
     public String getNeo4jPagecacheMemory() {
-        if (this.modesFromConfig.contains(Bus)) {
+        final EnumSet<TransportMode> transportModes = config.getTransportModes();
+        if (transportModes.contains(Bus)) {
             return "300m";
         }
-        if (this.modesFromConfig.contains(Train)) {
+        if (transportModes.contains(Train)) {
             return "1000m";
         }
         return "100m";
@@ -64,7 +63,7 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return false;
     }
 
-    private Path createGraphDatabasePath(final TestGroupType group, final TramchesterConfig config) {
+    private Path createGraphDatabasePath(final TestGroupType group) {
         final Set<DataSourceID> sourcesFromConfig = config.getRemoteDataSourceConfig().stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
                 filter(dataSourceId -> dataSourceId !=DataSourceID.database).
@@ -77,6 +76,7 @@ public class GraphDBTestConfig implements GraphDBConfig {
 
         final boolean hasClosures = gtfsDataSource.stream().anyMatch(gtfsSourceConfig -> !gtfsSourceConfig.getStationClosures().isEmpty());
 
+        final EnumSet<TransportMode> modesFromConfig = config.getTransportModes();
         String modes = modesFromConfig.isEmpty() ? "NoModesEnabled" : asText(modesFromConfig);
 
         String subFolderName = pathPrefix.isEmpty() ? format("%s_%s", group, modes) : format("%s_%s_%s", pathPrefix, group, modes);

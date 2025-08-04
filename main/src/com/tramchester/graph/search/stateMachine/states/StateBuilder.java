@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
 
 public abstract class StateBuilder<T extends TraversalState> implements Towards<T> {
     private static final Logger logger = LoggerFactory.getLogger(StateBuilder.class);

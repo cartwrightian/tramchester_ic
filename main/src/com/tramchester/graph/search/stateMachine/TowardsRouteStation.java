@@ -11,7 +11,7 @@ import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public abstract class TowardsRouteStation<T extends RouteStationState> extends StateBuilder<T> {
 

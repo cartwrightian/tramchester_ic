@@ -17,6 +17,8 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
+import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
@@ -188,6 +190,7 @@ public class JourneyPlannerResourceTest {
                 assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
+    @PiccGardensWorkSummer2025
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 
@@ -221,7 +224,9 @@ public class JourneyPlannerResourceTest {
             assertEquals( "Altrincham platform 1", stategOnePlatform.getName());
             assertEquals( IdForDTO.createFor(firstPlatformAtAlty), stategOnePlatform.getId());
 
-            VehicleStageDTO secondStage = (VehicleStageDTO) journey.getStages().get(1);
+            SimpleStageDTO secondStageRaw = journey.getStages().get(1);
+            assertInstanceOf(VehicleStageDTO.class, secondStageRaw, "Expected vehicle stage but got " + secondStageRaw);
+            VehicleStageDTO secondStage = (VehicleStageDTO) secondStageRaw;
             assertNotNull(secondStage);
 
             PlatformDTO secondStagePlatform = secondStage.getPlatform();
@@ -281,6 +286,7 @@ public class JourneyPlannerResourceTest {
         validateAtLeastOneJourney(Deansgate, Victoria, when, TramTime.of(23,41));
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldFindEndOfDayTwoStageJourney() {
         validateAtLeastOneJourney(TraffordCentre, TraffordBar, when, TramTime.of(23,30));

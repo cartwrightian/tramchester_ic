@@ -1,10 +1,11 @@
-package com.tramchester.graph;
+package com.tramchester.graph.search.neo4j;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import jakarta.inject.Inject;
 import org.neo4j.graphdb.ResourceIterator;

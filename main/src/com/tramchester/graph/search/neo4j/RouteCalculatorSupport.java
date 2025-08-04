@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.neo4j;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
@@ -15,17 +15,14 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphPath;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
-import com.tramchester.graph.search.neo4j.TramNetworkTraverser;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;

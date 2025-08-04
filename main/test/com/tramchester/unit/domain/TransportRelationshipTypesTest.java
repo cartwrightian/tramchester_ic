@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

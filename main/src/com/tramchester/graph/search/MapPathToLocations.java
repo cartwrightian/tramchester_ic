@@ -7,7 +7,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphPath;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
@@ -17,7 +17,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.graph.graphbuild.GraphLabel.*;
+import static com.tramchester.graph.reference.GraphLabel.*;
 import static java.lang.String.format;
 
 @LazySingleton

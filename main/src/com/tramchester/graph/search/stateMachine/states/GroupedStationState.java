@@ -14,8 +14,8 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
-import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_GROUPED;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.GROUPED_TO_CHILD;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.GROUPED_TO_GROUPED;
 
 public class GroupedStationState extends TraversalState {
 

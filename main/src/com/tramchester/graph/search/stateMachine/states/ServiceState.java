@@ -13,7 +13,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.TO_HOUR;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_HOUR;
 
 public class ServiceState extends TraversalState implements HasTowardsStationId {
 

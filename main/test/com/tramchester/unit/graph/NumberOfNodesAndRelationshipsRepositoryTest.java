@@ -2,9 +2,9 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
-import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.neo4j.NumberOfNodesAndRelationshipsRepository;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGroupedGraphConfig;

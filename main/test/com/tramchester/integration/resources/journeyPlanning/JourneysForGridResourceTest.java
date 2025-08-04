@@ -82,7 +82,6 @@ class JourneysForGridResourceTest {
         LatLong nearDestination = KnownLocations.nearStPetersSquare.latLong();
         Station destination = StPetersSquare.from(stationRepository);
 
-
         IdForDTO destinationId = IdForDTO.createFor(destination);
         LocalDate departureDate = when.toLocalDate();
         LocalTime departureTime = LocalTime.of(9,15);
@@ -122,10 +121,13 @@ class JourneysForGridResourceTest {
                 assertTrue(boundingBoxWithCost.getMinutes() <= maxDuration,
                         boundingBoxWithCost.getMinutes() + " more than " + maxDuration + " failed for " + boundingBoxWithCost));
 
-        final int outOfRangeForDuration = 0; // todo compute this?
+        // 0 -> 5 summer 2025 closures
+        final int outOfRangeForDuration = 5; // todo compute this?
 
-        List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
-        assertEquals(outOfRangeForDuration, noResult.size());
+        List<BoxWithCostDTO> noResult = results.stream().
+                filter(result -> result.getMinutes() < 0).
+                toList();
+        assertEquals(outOfRangeForDuration, noResult.size(), "Unexpected number of results without result " + noResult);
 
         Set<BoundingBoxWithStations> withoutDestination = getBoxesNotContaining(destination);
 

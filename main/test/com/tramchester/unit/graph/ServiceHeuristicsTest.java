@@ -31,7 +31,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
 
-import static com.tramchester.graph.graphbuild.GraphLabel.*;
+import static com.tramchester.graph.reference.GraphLabel.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;

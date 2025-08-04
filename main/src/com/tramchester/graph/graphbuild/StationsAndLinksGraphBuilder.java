@@ -20,6 +20,7 @@ import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.RouteStationNodeCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
 import jakarta.inject.Inject;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
 @LazySingleton

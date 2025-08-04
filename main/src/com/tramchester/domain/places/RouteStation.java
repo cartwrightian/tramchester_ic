@@ -6,7 +6,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.EnumSet;
 

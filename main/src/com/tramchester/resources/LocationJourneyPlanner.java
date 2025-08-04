@@ -17,17 +17,17 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphRelationship;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.neo4j.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.graph.search.RouteCalculatorSupport;
+import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
@@ -38,8 +38,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM_STATION;
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_FROM_STATION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
 import static java.lang.String.format;
 
 @LazySingleton

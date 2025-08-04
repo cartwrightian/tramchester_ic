@@ -8,19 +8,14 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.neo4j.*;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
-import com.tramchester.graph.search.stateMachine.states.NotStartedState;
-import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.graph.search.stateMachine.states.*;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
@@ -37,7 +32,7 @@ import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
@@ -51,6 +46,21 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.txn = txn;
         this.fullLogging = fullLogging;
         this.config = config;
+    }
+
+
+    public static InitialBranchState<JourneyState> initialState(final TramTime queryTime, final TraversalState traversalState) {
+        return new InitialBranchState<>() {
+            @Override
+            public JourneyState initialState(Path path) {
+                return new JourneyState(queryTime, traversalState);
+            }
+
+            @Override
+            public InitialBranchState<JourneyState> reverse() {
+                return null;
+            }
+        };
     }
 
     public Stream<GraphPath> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
@@ -74,7 +84,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 startNodeId, txn, running);
 
         final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);
-        final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
+        final InitialBranchState<JourneyState> initialJourneyState = initialState(actualQueryTime, traversalState);
 
         if (fullLogging) {
             logger.info("Create traversal for " + actualQueryTime);
@@ -167,6 +177,5 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public PathExpander<JourneyState> reverse() {
         return null;
     }
-
 
 }

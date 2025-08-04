@@ -8,7 +8,7 @@ import com.tramchester.graph.search.stateMachine.TowardsStation;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class PlatformStationState extends StationState {
 

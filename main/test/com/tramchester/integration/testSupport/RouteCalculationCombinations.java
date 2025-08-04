@@ -196,8 +196,17 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                     flatMap(start -> allStations.stream().
                             map(dest -> LocationIdPair.of(start, dest))).
                     filter(pair -> !UpcomingDates.hasClosure(pair, date)).
+                    filter(pair -> !isolatedSection(pair, date)).
                     filter(pair -> !pair.same()).
                     collect(LocationIdPairSet.collector());
+        }
+
+        private boolean isolatedSection(LocationIdPair<Station> pair, TramDate date) {
+            if (UpcomingDates.EcclesAndTraffordParkLinesSummer2025.contains(date)) {
+                return UpcomingDates.WharfsideTraffordCentreStopsSummer2025.contains(pair.getBeginId()) ||
+                        UpcomingDates.WharfsideTraffordCentreStopsSummer2025.contains(pair.getEndId());
+            }
+            return false;
         }
 
         public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final TransportMode mode) {
@@ -259,7 +268,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 for (IdFor<Station> dest : ends) {
                     if (!dest.equals(start)) {
                         StationIdPair locationIdPair = new StationIdPair(start, dest);
-                        if (!UpcomingDates.hasClosure(locationIdPair, date)) {
+                        if (!UpcomingDates.hasClosure(locationIdPair, date) && !isolatedSection(locationIdPair, date)) {
                             combinations.add(locationIdPair);
                         }
                     }

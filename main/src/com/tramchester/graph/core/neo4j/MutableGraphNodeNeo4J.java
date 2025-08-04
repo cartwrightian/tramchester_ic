@@ -13,10 +13,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -28,7 +28,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
-import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
 
 public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode {
     private final Node node;
@@ -196,8 +196,9 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
 
     // NOTE: Transaction closed exceptions will occur if keep reference to node beyond lifetime of the original transaction
 
+    @Override
     public EnumSet<GraphLabel> getLabels() {
-        return GraphLabel.from(node.getLabels());
+        return GraphReferenceMapper.from(node.getLabels());
     }
 
     @Override

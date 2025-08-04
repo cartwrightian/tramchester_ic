@@ -24,6 +24,7 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -119,11 +120,11 @@ public class TripRepositoryTest {
         Set<Route> routes = trips.stream().map(Trip::getRoute).collect(Collectors.toSet());
 
         assertFalse(routes.isEmpty());
-        // 4->3 picc gardens summer 2025
-        assertEquals(3, routes.size(), HasId.asIds(routes));
+        // 4->2  summer 2025
+        assertEquals(2, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
+        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when)));
 
         // summer 2025
@@ -232,6 +233,7 @@ public class TripRepositoryTest {
 
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);

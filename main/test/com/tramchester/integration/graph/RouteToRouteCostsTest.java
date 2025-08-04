@@ -21,6 +21,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -183,6 +184,7 @@ public class RouteToRouteCostsTest {
 
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldFindMediaCityHops() {
         Station mediaCity = MediaCityUK.from(stationRepository);
@@ -193,6 +195,7 @@ public class RouteToRouteCostsTest {
         assertEquals(1, getMinCost(result));
     }
 
+    @EcclesLineWorkSummer2025
     @Test
     void shouldFindMediaCityToAshtonReproIssueWithCommutedChangesFindingNoResults() {
         int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),

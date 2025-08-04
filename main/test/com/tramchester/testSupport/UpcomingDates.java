@@ -2,21 +2,16 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -49,6 +44,10 @@ public class UpcomingDates {
     public static List<IdFor<Station>> EcclesAndTraffordParkLinesSummer2025Stations = Stream.of(
             "9400ZZMACRN", "9400ZZMAPOM", "9400ZZMAEXC", "9400ZZMASQY", "9400ZZMAANC", "9400ZZMAHCY",
                     "9400ZZMAMCU", "9400ZZMABWY", "9400ZZMALWY", "9400ZZMAWST", "9400ZZMALDY", "9400ZZMAECC").
+            map(Station::createId).toList();
+
+    public static List<IdFor<Station>> WharfsideTraffordCentreStopsSummer2025 = Stream.of(
+                    Wharfside.getRawId(), "9400ZZMAIWM", "9400ZZMAVLG", "9400ZZMAPAR", "9400ZZMAEVC", TraffordCentre.getRawId()).
             map(Station::createId).toList();
 
     public static boolean hasClosure(final Station station, final TramDate date) {

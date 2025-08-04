@@ -6,7 +6,7 @@ import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 

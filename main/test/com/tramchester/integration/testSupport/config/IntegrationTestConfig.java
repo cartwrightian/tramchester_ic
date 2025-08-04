@@ -43,20 +43,20 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.singletonList(piccadillyToMarketStreet);
 
-    private final TestGroupType testGroupType;
+    private final GraphDBTestConfig dbConfig;
 
     protected IntegrationTestConfig(TestGroupType testGroupType) {
-        this.testGroupType = testGroupType;
         final Path naptanLocalDataPath = Path.of("data/naptan");
         remoteNaptanXMLConfig = new NaptanRemoteDataSourceTestConfig(naptanLocalDataPath);
         remoteNPTGconfig = new NPTGDataSourceTestConfig();
         postCodeDatasourceConfig = new PostCodeDatasourceConfig();
         railRemoteDataSource = new RailRemoteDataSourceConfig("data/openRailData");
+        dbConfig = new GraphDBTestConfig(testGroupType, this);
     }
 
     @Override
     public GraphDBConfig getGraphDBConfig() {
-        return new GraphDBTestConfig(testGroupType, this);
+        return dbConfig;
     }
 
     @Override

@@ -1,12 +1,9 @@
-package com.tramchester.graph.databaseManagement;
+package com.tramchester.graph.core.neo4j;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.caches.SharedNodeCache;
-import com.tramchester.graph.caches.SharedRelationshipCache;
-import com.tramchester.graph.core.neo4j.GraphTransactionFactory;
-import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
+import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
@@ -30,25 +27,26 @@ public class GraphDatabaseLifecycleManager {
 
     private GraphDBConfig graphDBConfig;
     private boolean cleanDB;
-    private final SharedNodeCache nodeCache;
-    private final SharedRelationshipCache relationshipCache;
-    private final GraphReferenceMapper graphReferenceMapper;
+    private final GraphTransactionFactoryFactory graphTransactionFactoryFactory;
 
     @Inject
     public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory,
-                                         GraphDatabaseStoredVersions storedVersions, SharedNodeCache nodeCache,
-                                         SharedRelationshipCache relationshipCache, GraphReferenceMapper graphReferenceMapper) {
+                                         GraphDatabaseStoredVersions storedVersions,
+                                         GraphTransactionFactoryFactory graphTransactionFactoryFactory) {
         this.configuration = configuration;
         this.serviceFactory = serviceFactory;
         this.storedVersions = storedVersions;
-        this.nodeCache = nodeCache;
-        this.relationshipCache = relationshipCache;
-        this.graphReferenceMapper = graphReferenceMapper;
+        this.graphTransactionFactoryFactory = graphTransactionFactoryFactory;
     }
 
     public GraphDatabaseService startDatabase(final DataSourceRepository dataSourceRepository, final Path graphFile, final boolean fileExists) {
         logger.info("Create or load graph " + graphFile);
         this.graphDBConfig = configuration.getGraphDBConfig();
+
+        // outside of normal dependency injection due to start up requirements
+        GraphDatabaseService databaseService = serviceFactory.create();
+
+        final GraphTransactionFactory transactionFactory = graphTransactionFactoryFactory.create(databaseService, graphDBConfig);
 
         if (fileExists) {
             logger.info("Graph db file is present at " + graphFile);
@@ -57,12 +55,28 @@ public class GraphDatabaseLifecycleManager {
         }
 
         cleanDB = !fileExists;
-        GraphDatabaseService databaseService = serviceFactory.create();
-        final GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache,
-                graphReferenceMapper,
-                graphDBConfig.enableDiagnostics());
 
-        if (fileExists && !storedVersions.upToDate(transactionFactory, dataSourceRepository)) {
+        databaseService = createGraphDatabaseService(dataSourceRepository, graphFile, fileExists, transactionFactory, databaseService);
+
+        transactionFactory.close();
+
+        logger.info("graph db started at:" + graphFile);
+
+        return databaseService;
+    }
+
+    private GraphDatabaseService createGraphDatabaseService(DataSourceRepository dataSourceRepository, Path graphFile,
+                                                            boolean fileExists, GraphTransactionFactory transactionFactory, GraphDatabaseService databaseService) {
+        boolean upToDate;
+        if (fileExists) {
+            try (ImmutableGraphTransactionNeo4J transaction = transactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)) {
+                upToDate = storedVersions.upToDate(dataSourceRepository, transaction);
+            }
+        } else {
+            upToDate = false;
+        }
+
+        if (fileExists && !upToDate) {
             logger.warn("Graph is out of date, rebuild needed");
             cleanDB = true;
             serviceFactory.shutdownDatabase();
@@ -77,10 +91,6 @@ public class GraphDatabaseLifecycleManager {
             }
             databaseService = serviceFactory.create();
         }
-
-        transactionFactory.close();
-
-        logger.info("graph db started at:" + graphFile);
 
         return databaseService;
     }

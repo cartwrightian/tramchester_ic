@@ -1,8 +1,9 @@
-package com.tramchester.graph.databaseManagement;
+package com.tramchester.graph.core.neo4j;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.databaseManagement.SLF4JLogProvider;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.Timing;
 import jakarta.inject.Inject;

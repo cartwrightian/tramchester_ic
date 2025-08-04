@@ -16,10 +16,12 @@ public class TestForNeo4jDirectDependency {
                 .layer("Graph").definedBy("com.tramchester.graph")
                 .layer("Caches").definedBy("com.tramchester.graph.caches")
                 .layer("Search").definedBy("com.tramchester.graph.search")
+                .layer("Diag").definedBy("com.tramchester.graph.search.diagnostics")
                 .layer("Neo4JSearch").definedBy("com.tramchester.graph.search.neo4j..")
                 .layer("DTODiag").definedBy("com.tramchester.domain.presentation.DTO.diagnostics")
                 .layer("Build").definedBy("com.tramchester.graph.graphbuild..")
                 .layer("Core").definedBy("com.tramchester.graph.core")
+                .layer("DBMgmt").definedBy("com.tramchester.graph.databaseManagement")
                 .layer("StateMachine").definedBy("com.tramchester.graph.search.stateMachine..")
 
                 .layer("Neo4JCore").definedBy("com.tramchester.graph.core.neo4j")
@@ -27,8 +29,8 @@ public class TestForNeo4jDirectDependency {
 
                 .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore", "Neo4JSearch")
                 .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Core", "Neo4JSearch")
-                .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Search")
+                .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Search", "Caches")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
-                        "DTODiag", "Build", "Neo4JSearch", "StateMachine");
+                        "DTODiag", "Build", "Neo4JSearch", "StateMachine", "Diag", "DBMgmt");
 
 }

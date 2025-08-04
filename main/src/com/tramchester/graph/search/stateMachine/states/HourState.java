@@ -16,7 +16,7 @@ import java.time.Duration;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_MINUTE;
 
 public class HourState extends TraversalState implements HasTowardsStationId {
 

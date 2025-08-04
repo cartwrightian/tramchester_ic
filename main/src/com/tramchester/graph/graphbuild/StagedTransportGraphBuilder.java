@@ -22,6 +22,8 @@ import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
+import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;
@@ -35,8 +37,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.GraphLabel.INTERCHANGE;
 import static java.lang.String.format;
 
 @LazySingleton

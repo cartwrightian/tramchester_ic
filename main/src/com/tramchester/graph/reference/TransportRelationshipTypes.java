@@ -1,8 +1,6 @@
-package com.tramchester.graph;
+package com.tramchester.graph.reference;
 
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
-import org.neo4j.graphdb.Relationship;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -53,8 +51,10 @@ public enum TransportRelationshipTypes { //implements RelationshipType {
     }
 
     public static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE);
+
     private static final EnumSet<TransportRelationshipTypes> HasTripId = EnumSet.of(TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO,
             FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE);
+
     private static final EnumSet<TransportRelationshipTypes> GoesTo = EnumSet.of(TRAM_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO,
             TRAIN_GOES_TO, SUBWAY_GOES_TO);
 
@@ -81,13 +81,21 @@ public enum TransportRelationshipTypes { //implements RelationshipType {
         return HasTripId.contains(relationshipType);
     }
 
-    public static boolean goesTo(final ImmutableGraphRelationship relationship) {
-        return GoesTo.contains(relationship.getType());
+    public static boolean goesTo(final TransportRelationshipTypes type) {
+        return GoesTo.contains(type);
     }
 
-    public static TransportRelationshipTypes from(final Relationship relationship) {
-        return valueOf(relationship.getType().name());
+//    public static boolean goesTo(final ImmutableGraphRelationship relationship) {
+//        return GoesTo.contains(relationship.getType());
+//    }
+
+    public static TransportRelationshipTypes from(final String name) {
+        return valueOf(name);
     }
+
+//    public static TransportRelationshipTypes from(final Relationship relationship) {
+//        return valueOf(relationship.getType().name());
+//    }
 
     public static TransportRelationshipTypes[] forModes(final EnumSet<TransportMode> transportModes) {
         final Set<TransportRelationshipTypes> unique = transportModes.stream().

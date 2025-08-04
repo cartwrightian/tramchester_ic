@@ -11,7 +11,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.AfterAll;
@@ -37,7 +36,6 @@ public class RouteCalculatorAllTramJourneysTest {
 
     private TramDate when;
     private RouteCalculationCombinations<Station> combinations;
-    private InterchangeRepository interchangeRepository;
     private EnumSet<TransportMode> modes;
 
     @BeforeAll
@@ -56,7 +54,7 @@ public class RouteCalculatorAllTramJourneysTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         modes = TramsOnly;
-        interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        //InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 

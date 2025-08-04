@@ -8,12 +8,12 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.core.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -32,8 +32,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_GROUPED;
-import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_PARENT;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.GROUPED_TO_GROUPED;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.GROUPED_TO_PARENT;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
