@@ -13,10 +13,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Node;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class ImmutableGraphNode implements GraphNode {
+public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     private final MutableGraphNodeNeo4J underlying;
     private final GraphNodeId nodeId;
 
@@ -66,11 +66,6 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public Map<String, Object> getAllProperties() {
         return underlying.getAllProperties();
-    }
-
-    @Override
-    public Traverser getTraverserFor(TraversalDescription traversalDesc) {
-        return underlying.getTraverserFor(traversalDesc);
     }
 
     @Override
@@ -226,5 +221,10 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public boolean isRelationship() {
         return false;
+    }
+
+    @Override
+    public Traverser getTraverser(TraversalDescription traversalDesc) {
+        return underlying.getTraverser(traversalDesc);
     }
 }

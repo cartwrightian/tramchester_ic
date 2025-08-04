@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.neo4j;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -18,15 +18,14 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
-import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.search.neo4j.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
+import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import com.tramchester.graph.search.neo4j.selectors.BreadthFirstBranchSelectorForGridSearch;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.*;

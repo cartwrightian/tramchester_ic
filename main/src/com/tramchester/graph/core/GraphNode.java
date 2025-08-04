@@ -13,10 +13,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.reference.GraphLabel;
-import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.graphdb.traversal.Traverser;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -26,7 +24,7 @@ public interface GraphNode extends GraphEntity {
 
     GraphNodeId getId();
 
-    Traverser getTraverserFor(TraversalDescription traversalDesc);
+//    Traverser getTraverserFor(TraversalDescription traversalDesc);
 
     IdFor<RouteStation> getRouteStationId();
 

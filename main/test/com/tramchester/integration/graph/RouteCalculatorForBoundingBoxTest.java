@@ -16,7 +16,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
-import com.tramchester.graph.search.RouteCalculatorForBoxes;
+import com.tramchester.graph.search.neo4j.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;

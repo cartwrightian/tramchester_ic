@@ -13,10 +13,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
 
-public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode {
+public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode, CreateGraphTraverser {
     private final Node node;
     private final GraphNodeId graphNodeId;
     private final GraphReferenceMapper relationshipTypeFactory;
@@ -50,7 +50,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
         return graphNodeId;
     }
 
-    public Node getNode() {
+    Node getNode() {
         return node;
     }
 
@@ -306,11 +306,6 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
         return getAllProperties(node);
     }
 
-    @Override
-    public Traverser getTraverserFor(final TraversalDescription traversalDesc) {
-        return traversalDesc.traverse(node);
-    }
-
     public IdFor<RouteStation> getRouteStationId() {
         return getRouteStationId(node);
     }
@@ -412,5 +407,10 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     @Override
     public boolean isRelationship() {
         return false;
+    }
+
+    @Override
+    public Traverser getTraverser(TraversalDescription traversalDesc) {
+        return traversalDesc.traverse(node);
     }
 }

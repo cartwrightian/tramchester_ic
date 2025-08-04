@@ -98,7 +98,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 order(selector).
                 evaluator(tramRouteEvaluator);
 
-        final Traverser traverse = startNode.getTraverserFor(traversalDesc);
+//        final Traverser traverse = startNode.getTraverserFor(traversalDesc);
+        final Traverser traverse = getTraverser(traversalDesc, startNode);
         final Spliterator<Path> spliterator = traverse.spliterator();
 
         final Stream<Path> stream = StreamSupport.stream(spliterator, false);
@@ -121,6 +122,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                     final GraphNodeId endPathNodeId = txn.endNodeNodeId(path);
                     return destinationNodeIds.contains(endPathNodeId);
             });
+    }
+
+    private Traverser getTraverser(final TraversalDescription traversalDesc, final GraphNode graphNode) {
+        if (graphNode instanceof CreateGraphTraverser createGraphTraverser) {
+            return createGraphTraverser.getTraverser(traversalDesc);
+        } else {
+            throw new RuntimeException("GraphNode is not a CreateGraphTraverser, got a " + graphNode.toString());
+        }
     }
 
     @Override
