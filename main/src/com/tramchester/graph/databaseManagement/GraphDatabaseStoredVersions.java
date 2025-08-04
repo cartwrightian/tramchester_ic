@@ -6,8 +6,6 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
-import com.tramchester.graph.core.neo4j.GraphTransactionFactory;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -30,13 +28,6 @@ public class GraphDatabaseStoredVersions {
     public GraphDatabaseStoredVersions(TramchesterConfig config, GraphDatabaseMetaInfo databaseMetaInfo) {
         this.config = config;
         this.databaseMetaInfo = databaseMetaInfo;
-    }
-
-    @Deprecated
-    public boolean upToDate(final GraphTransactionFactory transactionFactory, final DataSourceRepository dataSourceRepository) {
-        try(GraphTransaction transaction = transactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)) {
-            return upToDate(dataSourceRepository, transaction);
-        }
     }
 
     public boolean upToDate(final DataSourceRepository dataSourceRepository, final GraphTransaction transaction) {
