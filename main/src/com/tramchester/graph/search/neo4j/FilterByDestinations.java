@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.stateMachine;
+package com.tramchester.graph.search.neo4j;
 
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.ResourceIterable;

@@ -7,6 +7,7 @@ import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.core.*;
+import com.tramchester.graph.search.neo4j.FilterByDestinations;
 
 import java.util.List;
 import java.util.stream.Stream;

@@ -4,7 +4,7 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.FilterByDestinations;
+import com.tramchester.graph.search.neo4j.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.Towards;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;

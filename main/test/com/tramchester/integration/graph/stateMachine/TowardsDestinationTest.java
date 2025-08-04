@@ -17,7 +17,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.graph.search.stateMachine.FilterByDestinations;
+import com.tramchester.graph.search.neo4j.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
 import com.tramchester.repository.StationGroupsRepository;
