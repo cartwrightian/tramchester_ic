@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.graph.core.GraphNodeId;
-import org.neo4j.graphdb.traversal.Evaluation;
 
 import java.util.Objects;
 
@@ -43,7 +42,7 @@ public class HeuristicReasonWithValidity implements HeuristicsReason {
     }
 
     @Override
-    public Evaluation getEvaluationAction() {
+    public GraphEvaluationAction getEvaluationAction() {
         return code.getEvaluationAction();
     }
 

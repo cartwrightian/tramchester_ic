@@ -13,7 +13,7 @@ import org.neo4j.graphdb.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J, GraphTraverseTransaction {
+public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J { //, GraphTraverseTransaction {
 
     private final MutableGraphTransactionNeo4J underlying;
 

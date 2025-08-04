@@ -176,36 +176,35 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldHaveReasonsThatInclude() {
-        assertEquals(Evaluation.INCLUDE_AND_PRUNE, Arrived.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, ServiceDateOk.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, ServiceTimeOk.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, NumChangesOK.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TimeOk.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, HourOk.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, Reachable.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, ReachableNoCheck.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, DurationOk.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, WalkOk.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, Continue.getEvaluationAction());
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, StationOpen.getEvaluationAction());
-
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_PRUNE, Arrived.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, ServiceDateOk.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, ServiceTimeOk.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, NumChangesOK.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, TimeOk.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, HourOk.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, Reachable.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, ReachableNoCheck.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, DurationOk.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, WalkOk.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, Continue.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.INCLUDE_AND_CONTINUE, StationOpen.getEvaluationAction());
     }
 
     @Test
     void shouldHaveReasonsThatExclude() {
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, HigherCost.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, ReturnedToStart.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, PathTooLong.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TooManyChanges.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, HigherCost.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, ReturnedToStart.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, PathTooLong.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, TooManyChanges.getEvaluationAction());
 //        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, NotReachable.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, NotOnQueryDate.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TookTooLong.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, ServiceNotRunningAtTime.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, NotOnQueryDate.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, TookTooLong.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, ServiceNotRunningAtTime.getEvaluationAction());
 
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, NotAtHour.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, AlreadyDeparted.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, DoesNotOperateOnTime.getEvaluationAction());
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, StationClosed.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, NotAtHour.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, AlreadyDeparted.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, DoesNotOperateOnTime.getEvaluationAction());
+        assertEquals(GraphEvaluationAction.EXCLUDE_AND_PRUNE, StationClosed.getEvaluationAction());
 
     }
 

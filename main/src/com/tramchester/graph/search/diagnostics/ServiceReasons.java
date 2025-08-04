@@ -6,9 +6,10 @@ import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class ServiceReasons {
         nodeVisits = new HashMap<>();
     }
 
-    public void reportReasons(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
+    public void reportReasons(final GraphTransaction txn, int numberChanges,
                               final LocationCollection destinations) {
         if (diagnosticsEnabled) {
             final JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons, destinations);
@@ -72,7 +73,7 @@ public class ServiceReasons {
         }
 
         if (!success.get() || diagnosticsEnabled) {
-            reportStats(txn, pathRequest);
+            reportStats(txn, numberChanges);
         }
 
         reset();
@@ -171,9 +172,9 @@ public class ServiceReasons {
         };
     }
 
-    private void reportStats(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
+    private void reportStats(final GraphTransaction txn, final int numberChanges) {
         if ((!success.get()) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for at " + journeyRequest.getOriginalTime() + " changes " + pathRequest.getNumChanges() +
+            logger.warn("No result found for at " + journeyRequest.getOriginalTime() + " changes " + numberChanges +
                     " for " + journeyRequest );
         }
         logger.info("Service reasons for query time: " + queryTime);

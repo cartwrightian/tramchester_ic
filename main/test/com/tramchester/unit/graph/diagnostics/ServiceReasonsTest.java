@@ -110,7 +110,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         serviceReasons.recordReason(serviceReasonB);
         Map<GraphNodeId, Integer> nodeVisits = serviceReasons.getNodeVisits();
 
-        serviceReasons.reportReasons(txn, pathRequest, destinations);
+        serviceReasons.reportReasons(txn, pathRequest.getNumChanges(), destinations);
         verifyAll();
 
 

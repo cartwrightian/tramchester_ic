@@ -1,7 +1,5 @@
 package com.tramchester.graph.search.diagnostics;
 
-import org.neo4j.graphdb.traversal.Evaluation;
-
 public enum ReasonCode {
 
     ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
@@ -60,20 +58,20 @@ public enum ReasonCode {
 
     Arrived;
 
-    private static Evaluation decideEvaluationAction(ReasonCode code) {
+    private static GraphEvaluationAction decideEvaluationAction(final ReasonCode code) {
         return switch (code) {
             case ServiceDateOk, ServiceTimeOk, NumChangesOK, NumConnectionsOk, TimeOk, HourOk, Reachable, ReachableNoCheck,
                     DurationOk, WalkOk, StationOpen, Continue, ReachableSameRoute, TransportModeOk
-                    -> Evaluation.INCLUDE_AND_CONTINUE;
+                    -> GraphEvaluationAction.INCLUDE_AND_CONTINUE;
             case Arrived
-                    -> Evaluation.INCLUDE_AND_PRUNE;
+                    -> GraphEvaluationAction.INCLUDE_AND_PRUNE;
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, RouteNotOnQueryDate,
                     ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenRouteStation,
                     TransportModeWrong, SameTrip, DestinationUnavailableAtTime, AlreadySeenTime,
                  ArrivedMoreChanges, ArrivedLater, SearchStopped, AlreadyBoarded
-                    -> Evaluation.EXCLUDE_AND_PRUNE;
+                    -> GraphEvaluationAction.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
                     CachedDoesNotOperateOnTime, CachedTooManyRouteChangesRequired, CachedRouteNotOnQueryDate,
@@ -82,7 +80,7 @@ public enum ReasonCode {
         };
     }
 
-    public Evaluation getEvaluationAction() {
+    public GraphEvaluationAction getEvaluationAction() {
         return decideEvaluationAction(this);
     }
 }

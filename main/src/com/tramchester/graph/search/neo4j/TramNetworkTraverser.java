@@ -107,7 +107,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
             if (fullLogging) {
-                reasons.reportReasons(txn, pathRequest, destinations);
+                reasons.reportReasons(txn, pathRequest.getNumChanges(), destinations);
                 previousVisits.reportStats();
             }
             //traversalState.dispose();

@@ -102,7 +102,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final ImmutableJourneyState journeyState = state.getState();
         GraphPath graphPath = GraphPathNeo4j.from(path);
 
-        final GraphNode nextNode = graphPath.getEndNode(txn); // txn.fromEnd(path);
+        final GraphNode nextNode = graphPath.getEndNode(txn);
 
         // reuse these, label operations on nodes are expensive
         final EnumSet<GraphLabel> labels = nextNode.getLabels();
@@ -135,11 +135,19 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         reasons.recordReason(HeuristicsReasons.CacheMiss(howIGotHere));
 
         final HeuristicsReason heuristicsReason = doEvaluate(graphPath, journeyState, nextNode, labels, howIGotHere);
-        final Evaluation result = heuristicsReason.getEvaluationAction();
+        final Evaluation result = mapEvaluation(heuristicsReason.getEvaluationAction());
 
         previousVisits.cacheVisitIfUseful(heuristicsReason, nextNode, journeyState, labels);
 
         return result;
+    }
+
+    private Evaluation mapEvaluation(final GraphEvaluationAction evaluationAction) {
+        return switch (evaluationAction) {
+            case EXCLUDE_AND_PRUNE -> Evaluation.EXCLUDE_AND_PRUNE;
+            case INCLUDE_AND_PRUNE -> Evaluation.INCLUDE_AND_PRUNE;
+            case INCLUDE_AND_CONTINUE -> Evaluation.INCLUDE_AND_CONTINUE;
+        };
     }
 
     private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
