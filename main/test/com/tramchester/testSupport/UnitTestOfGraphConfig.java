@@ -19,7 +19,14 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 
 public class UnitTestOfGraphConfig extends TestConfig {
 
+    private final boolean inMemory;
+
     public UnitTestOfGraphConfig() {
+        this(false);
+    }
+
+    public UnitTestOfGraphConfig(boolean inMemory) {
+        this.inMemory = inMemory;
     }
 
     @Override
@@ -29,6 +36,11 @@ public class UnitTestOfGraphConfig extends TestConfig {
                 EnumSet.of(Tram), IdSet.emptySet(), EnumSet.noneOf(TransportMode.class), Collections.emptyList(),
                 Duration.ofMinutes(13), Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);
+    }
+
+    @Override
+    public boolean getInMemoryGraph() {
+        return inMemory;
     }
 
     @Override

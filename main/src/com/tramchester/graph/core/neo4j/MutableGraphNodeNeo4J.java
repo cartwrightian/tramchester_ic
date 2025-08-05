@@ -141,7 +141,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
 
     @Override
     public void set(final DataSourceInfo nameAndVersion) {
-        DataSourceID sourceID = nameAndVersion.getID();
+        final DataSourceID sourceID = nameAndVersion.getID();
         node.setProperty(sourceID.name(), nameAndVersion.getVersion());
         invalidateCache();
     }

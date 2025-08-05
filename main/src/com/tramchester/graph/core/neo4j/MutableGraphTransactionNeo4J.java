@@ -59,6 +59,11 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
+    public MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public int getTransactionId() {
         return transactionId;
     }

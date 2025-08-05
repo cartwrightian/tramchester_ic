@@ -250,7 +250,7 @@ public class ImmutableGraphRelationshipNeo4J implements  ImmutableGraphRelations
     }
 
     @Override
-    public GraphNodeId getStartNodeId(ImmutableGraphTransactionNeo4J txn) {
+    public GraphNodeId getStartNodeId(GraphTransaction txn) {
         return underlying.getStartNodeId(txn);
     }
 

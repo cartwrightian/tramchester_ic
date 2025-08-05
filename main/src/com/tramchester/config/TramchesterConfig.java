@@ -184,6 +184,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public abstract boolean getCachingDisabled();
 
+    public abstract boolean getInMemoryGraph();
+
     public boolean hasRailConfig() {
         return getRailConfig()!=null;
     }
@@ -267,6 +269,5 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         }
         return longestWait.get();
     }
-
 
 }

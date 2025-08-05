@@ -4,7 +4,9 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.EnumSet;
 import java.util.stream.Stream;
@@ -24,4 +26,6 @@ public interface MutableGraphTransaction extends GraphTransaction {
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item);
 
     GraphTransaction asImmutable();
+
+    MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType);
 }

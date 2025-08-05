@@ -239,9 +239,13 @@ public class TestEnv {
     }
 
     public static void clearDataCache(ComponentContainer componentContainer) {
-        FileDataCache cache = componentContainer.get(FileDataCache.class);
-        logger.warn("Clearing cache");
-        cache.clearFiles();
+        if (componentContainer!=null) {
+            FileDataCache cache = componentContainer.get(FileDataCache.class);
+            logger.warn("Clearing cache");
+            cache.clearFiles();
+        } else {
+            logger.error("Missing container. Failed on init?");
+        }
     }
 
     public static Duration calcCostInMinutes(Location<?> locationA, Location<?> locationB, final double mph) {

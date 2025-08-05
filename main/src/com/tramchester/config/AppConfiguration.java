@@ -166,6 +166,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("depthFirst")
     private Boolean depthFirst;
 
+    @NotNull
+    @JsonProperty("inMemoryGraph")
+    private Boolean inMemoryGraph;
+
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -222,6 +226,11 @@ public class AppConfiguration extends TramchesterConfig {
             return false;
         }
         return cachingDisabled;
+    }
+
+    @Override
+    public boolean getInMemoryGraph() {
+        return inMemoryGraph;
     }
 
     @Override

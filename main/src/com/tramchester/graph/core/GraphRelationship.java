@@ -37,7 +37,7 @@ public interface GraphRelationship extends GraphEntity {
 
     GraphNode getStartNode(GraphTransaction txn);
 
-    GraphNodeId getStartNodeId(ImmutableGraphTransactionNeo4J txn);
+    GraphNodeId getStartNodeId(GraphTransaction txn);
 
     GraphNodeId getEndNodeId(GraphTransaction txn);
 

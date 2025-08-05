@@ -29,7 +29,7 @@ public class ComponentsBuilder {
                 new TransportDataFactoryModule<>(transportDataFactoryType),
                 new GraphFilterModule(deferredGraphFilterSetup),
                 new LiveDataModule(config),
-                new GraphDatabaseModule()
+                new GraphDatabaseModule(config)
         );
 
         return new GuiceContainerDependencies(modules);

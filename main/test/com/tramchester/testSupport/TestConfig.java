@@ -220,4 +220,9 @@ public abstract class TestConfig extends AppConfiguration {
         }
         return Integer.parseInt(build);
     }
+
+    @Override
+    public boolean getInMemoryGraph() {
+        return false;
+    }
 }
