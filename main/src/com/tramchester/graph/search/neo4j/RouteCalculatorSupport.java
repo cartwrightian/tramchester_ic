@@ -119,10 +119,10 @@ public class RouteCalculatorSupport {
         return IntStream.rangeClosed(computedMinChanges, max).boxed();
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
-                                                              final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
-                                                              final LocationCollection destinations, TowardsDestination towardsDestination,
-                                                              final Set<GraphNodeId> destinationNodeIds, final Running running) {
+    public Stream<RouteCalculatorNeo4J.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
+                                                                   final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
+                                                                   final LocationCollection destinations, TowardsDestination towardsDestination,
+                                                                   final Set<GraphNodeId> destinationNodeIds, final Running running) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -135,11 +135,11 @@ public class RouteCalculatorSupport {
 
         final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
                 destinationNodeIds, destinations, towardsDestination, running);
-        return paths.map(path -> new RouteCalculator.TimedPath(path, pathRequest));
+        return paths.map(path -> new RouteCalculatorNeo4J.TimedPath(path, pathRequest));
     }
 
     @NotNull
-    protected Journey createJourney(final JourneyRequest journeyRequest, final RouteCalculator.TimedPath path,
+    protected Journey createJourney(final JourneyRequest journeyRequest, final RouteCalculatorNeo4J.TimedPath path,
                                     TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
                                     final GraphTransaction txn) {
 

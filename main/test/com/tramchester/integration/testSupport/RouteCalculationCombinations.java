@@ -16,7 +16,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
+import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RouteCalculationCombinations<T extends Location<T>> {
 
     private final GraphDatabase database;
-    private final RouteCalculator calculator;
+    private final TramRouteCalculator calculator;
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
     private final TripEndsRepository routeEndRepository;
@@ -41,7 +42,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public RouteCalculationCombinations(ComponentContainer componentContainer, ChecksOpen<T> checksOpen) {
         this.database = componentContainer.get(GraphDatabase.class);
-        this.calculator = componentContainer.get(RouteCalculator.class);
+        this.calculator = componentContainer.get(RouteCalculatorNeo4J.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.locationRepository = componentContainer.get(LocationRepository.class);
         this.interchangeRepository = componentContainer.get(InterchangeRepository.class);

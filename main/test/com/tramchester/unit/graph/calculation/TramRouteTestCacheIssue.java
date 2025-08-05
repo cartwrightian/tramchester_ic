@@ -8,7 +8,8 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
+import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
@@ -34,7 +35,7 @@ class TramRouteTestCacheIssue {
     private static UnitTestOfGraphConfig config;
 
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
-    private RouteCalculator calculator;
+    private TramRouteCalculator calculator;
 
     private TramDate queryDate;
     private GraphTransaction txn;
@@ -51,7 +52,7 @@ class TramRouteTestCacheIssue {
 
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        calculator = componentContainer.get(RouteCalculator.class);
+        calculator = componentContainer.get(RouteCalculatorNeo4J.class);
 
         queryDate = TramDate.of(2014,6,30);
 

@@ -12,7 +12,8 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.neo4j.ImmutableGraphTransactionNeo4J;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
+import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class RouteCalculatorArriveByTest extends EasyMockSupport {
 
     private RouteCalculatorArriveBy routeCalculatorArriveBy;
-    private RouteCalculator routeCalculator;
+    private TramRouteCalculator routeCalculator;
     private RouteCostCalculator costCalculator;
     private int costBetweenStartDest;
     private TramchesterConfig config;
@@ -41,7 +42,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     void onceBeforeEachTestRuns() {
         txn = createStrictMock(ImmutableGraphTransactionNeo4J.class);
         costCalculator = createStrictMock(RouteCostCalculator.class);
-        routeCalculator = createStrictMock(RouteCalculator.class);
+        routeCalculator = createStrictMock(RouteCalculatorNeo4J.class);
         config = createStrictMock(TramchesterConfig.class);
         routeCalculatorArriveBy = new RouteCalculatorArriveBy(costCalculator, routeCalculator, config);
         costBetweenStartDest = 15;

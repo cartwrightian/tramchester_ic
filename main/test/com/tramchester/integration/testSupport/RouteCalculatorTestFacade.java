@@ -11,7 +11,8 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
+import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.graph.search.diagnostics.DiagnosticsToGraphViz;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -34,14 +35,14 @@ import static java.lang.String.format;
 public class RouteCalculatorTestFacade {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorTestFacade.class);
 
-    private final RouteCalculator routeCalculator;
+    private final TramRouteCalculator routeCalculator;
     private final StationRepository stationRepository;
     private final GraphTransaction txn;
     private final StationGroupsRepository stationGroupsRepository;
     private final DiagnosticsToGraphViz diagnosticsToGraphViz;
 
     public  RouteCalculatorTestFacade(ComponentContainer componentContainer, GraphTransaction txn) {
-        this.routeCalculator = componentContainer.get(RouteCalculator.class);
+        this.routeCalculator = componentContainer.get(RouteCalculatorNeo4J.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         this.txn = txn;

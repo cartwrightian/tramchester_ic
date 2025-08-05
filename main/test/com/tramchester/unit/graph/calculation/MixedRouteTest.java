@@ -15,7 +15,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
+import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -37,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MixedRouteTest {
 
     private static MixedTransportTestDataFactory.MixedTransportTestData transportData;
-    private static RouteCalculator calculator;
+    private static TramRouteCalculator calculator;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SimpleMixedRouteGraphConfig config;
@@ -59,7 +60,7 @@ class MixedRouteTest {
 
         transportData = (MixedTransportTestDataFactory.MixedTransportTestData) componentContainer.get(TransportData.class);
         database = componentContainer.get(GraphDatabase.class);
-        calculator = componentContainer.get(RouteCalculator.class);
+        calculator = componentContainer.get(RouteCalculatorNeo4J.class);
     }
 
     @AfterAll

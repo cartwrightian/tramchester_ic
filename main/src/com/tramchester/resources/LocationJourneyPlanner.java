@@ -25,7 +25,7 @@ import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
+import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -49,14 +49,14 @@ public class LocationJourneyPlanner {
     private final StationLocationsRepository stationLocations;
     private final GraphFilter graphFilter;
     private final TramchesterConfig config;
-    private final RouteCalculator routeCalculator;
+    private final TramRouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final MarginInMeters margin;
     private final BetweenRoutesCostRepository routeToRouteCosts;
     private final Geography geography;
 
     @Inject
-    public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
+    public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, TramRouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, GraphFilter graphFilter,
                                   RouteToRouteCosts routeToRouteCosts, Geography geography) {
         logger.info("created");

@@ -13,7 +13,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.neo4j.RouteCalculator;
 import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     private final TramchesterConfig config;
 
     @Inject
-    public RouteCalculatorArriveBy(RouteCostCalculator costCalculator, RouteCalculator routeCalculator, TramchesterConfig config) {
+    public RouteCalculatorArriveBy(RouteCostCalculator costCalculator, TramRouteCalculator routeCalculator, TramchesterConfig config) {
         this.costCalculator = costCalculator;
         this.routeCalculator = routeCalculator;
         this.config = config;

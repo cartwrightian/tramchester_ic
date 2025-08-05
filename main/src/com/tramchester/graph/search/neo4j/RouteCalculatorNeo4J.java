@@ -42,8 +42,8 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class RouteCalculator extends RouteCalculatorSupport implements TramRouteCalculator {
-    private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
+public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements TramRouteCalculator {
+    private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorNeo4J.class);
     private final TramchesterConfig config;
     private final CreateQueryTimes createQueryTimes;
     private final ClosedStationsRepository closedStationsRepository;
@@ -55,15 +55,15 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     // TODO Refactoring here, way too messy and confusing constructor
 
     @Inject
-    public RouteCalculator(TransportData transportData, PathToStages pathToStages,
-                           TramchesterConfig config, CreateQueryTimes createQueryTimes,
-                           GraphDatabase graphDatabaseService,
-                           ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
-                           BetweenRoutesCostRepository routeToRouteCosts,
-                           ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
-                           CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
-                           StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
-                           NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
+    public RouteCalculatorNeo4J(TransportData transportData, PathToStages pathToStages,
+                                TramchesterConfig config, CreateQueryTimes createQueryTimes,
+                                GraphDatabase graphDatabaseService,
+                                ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
+                                BetweenRoutesCostRepository routeToRouteCosts,
+                                ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
+                                CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
+                                StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
+                                NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations, transportData, config, routeToRouteCosts,
                 failedJourneyDiagnostics, stationAvailabilityRepository, true, countsNodes);
