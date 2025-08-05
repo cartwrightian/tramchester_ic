@@ -5,7 +5,7 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.ImmutableGraphRelationship;
-import com.tramchester.graph.search.neo4j.FilterByDestinations;
+import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilder;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
@@ -23,7 +23,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         this.interchangesOnly = builderParameters.interchangesOnly();
     }
 
-    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
+    protected ResourceIterableEnhanced<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
         return super.getTowardsDestinationFromRouteStation(node, txn);
     }
 

@@ -28,7 +28,7 @@ public class TestForNeo4jDirectDependency {
                 .layer("Neo4JImplementation").definedBy("org.neo4j..")
 
                 .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore", "Neo4JSearch", "StateMachine")
-                .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Core", "Neo4JSearch")
+                .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Core", "Neo4JSearch", "StateMachine")
                 .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Search", "Caches")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
                         "DTODiag", "Build", "Neo4JSearch", "StateMachine", "Diag", "DBMgmt");

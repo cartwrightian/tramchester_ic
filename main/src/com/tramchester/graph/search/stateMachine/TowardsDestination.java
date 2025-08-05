@@ -7,7 +7,7 @@ import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.search.neo4j.FilterByDestinations;
+import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -37,28 +37,28 @@ public class TowardsDestination {
         return locationSet;
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> fromRouteStation(final GraphTransaction txn, final GraphNode node) {
+    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromRouteStation(final GraphTransaction txn, final GraphNode node) {
         final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return getTowardsDestination(relationships);
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> fromPlatform(final GraphTransaction txn, final GraphNode node) {
+    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromPlatform(final GraphTransaction txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM));
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> fromStation(final GraphTransaction txn, final GraphNode node) {
+    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromStation(final GraphTransaction txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT));
     }
 
-    public FilterByDestinations<ImmutableGraphRelationship> fromWalk(final GraphTransaction txn, final GraphNode node) {
+    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromWalk(final GraphTransaction txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION));
     }
 
-    private <R extends GraphRelationship> FilterByDestinations<R> getTowardsDestination(final Stream<R> outgoing) {
+    private <R extends GraphRelationship> ResourceIterableEnhanced<R> getTowardsDestination(final Stream<R> outgoing) {
         final List<R> filtered = outgoing.
                 filter(depart -> expanded.contains(depart.getLocationId())).
                 toList();
-        return FilterByDestinations.from(filtered);
+        return ResourceIterableEnhanced.from(filtered);
     }
 
 //    public LocationId<?> getLocationIdFor(final GraphRelationship depart) {

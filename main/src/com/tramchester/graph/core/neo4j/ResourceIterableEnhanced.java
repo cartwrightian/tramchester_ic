@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.neo4j;
+package com.tramchester.graph.core.neo4j;
 
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.ResourceIterable;
@@ -7,16 +7,20 @@ import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.util.Collection;
 
-public class FilterByDestinations<T> implements ResourceIterable<T> {
+/***
+ * ResourceIterable with simple 'empty' check
+ * @param <T>
+ */
+public class ResourceIterableEnhanced<T> implements ResourceIterable<T> {
 
     private final ResourceIterable<T> contained;
     private final boolean empty;
 
-    public static <T> FilterByDestinations<T> from(final Collection<T> collection) {
-        return new FilterByDestinations<>(collection);
+    public static <T> ResourceIterableEnhanced<T> from(final Collection<T> collection) {
+        return new ResourceIterableEnhanced<>(collection);
     }
 
-    public FilterByDestinations(final Collection<T> collection) {
+    public ResourceIterableEnhanced(final Collection<T> collection) {
         empty = collection.isEmpty();
         contained = Iterables.asResourceIterable(collection);
     }

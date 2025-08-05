@@ -9,7 +9,7 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.neo4j.FilterByDestinations;
+import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.*;
 
 import java.time.Duration;
@@ -47,7 +47,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             final TransportMode transportMode = routeStationNode.getTransportMode();
             final IdFor<Trip> tripId = journeyState.getCurrentTrip();
 
-            final FilterByDestinations<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
+            final ResourceIterableEnhanced<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateOnTrip(journeyState, minuteState, towardsDestination.stream(), cost,
