@@ -17,6 +17,7 @@ server:
 secureHost: tramchester.com
 redirectToSecure: true
 staticAssetCacheTimeSeconds: 300
+inMemoryGraph: false
 graphDBConfig:
   graphName: databases/tramchester.db
   neo4jPagecacheMemory: 100m

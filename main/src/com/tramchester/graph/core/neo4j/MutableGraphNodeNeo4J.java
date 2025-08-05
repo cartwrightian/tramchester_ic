@@ -30,11 +30,12 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
 
-public class MutableGraphNodeNeo4J extends HaveGraphProperties implements MutableGraphNode, CreateGraphTraverser {
+public class MutableGraphNodeNeo4J extends HaveGraphProperties<KeyValuePropsNeo4J> implements MutableGraphNode, CreateGraphTraverser {
     private final Node node;
     private final GraphNodeId graphNodeId;
     private final GraphReferenceMapper relationshipTypeFactory;
     private final SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode;
+    private final KeyValuePropsNeo4J entity;
 
     MutableGraphNodeNeo4J(Node node, GraphNodeId graphNodeId, GraphReferenceMapper relationshipTypeFactory, SharedNodeCache.InvalidatesCacheForNode invalidatesCacheForNode) {
         this.relationshipTypeFactory = relationshipTypeFactory;
@@ -44,6 +45,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
         }
         this.node = node;
         this.graphNodeId = graphNodeId;
+        this.entity = KeyValuePropsNeo4J.wrap(node);
     }
 
     public GraphNodeId getId() {
@@ -93,43 +95,43 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
 
     @Override
     public void setTime(final TramTime tramTime) {
-        setTime(tramTime, node);
+        setTime(tramTime, entity);
         invalidateCache();
     }
 
     @Override
     public void set(final Station station) {
-        set(station, node);
+        set(station, entity);
         invalidateCache();
     }
 
     @Override
     public void set(final Platform platform) {
-        set(platform, node);
+        set(platform, entity);
         invalidateCache();
     }
 
     @Override
     public void set(final Route route) {
-        set(route, node);
+        set(route, entity);
         invalidateCache();
     }
 
     @Override
     public void set(final Service service) {
-        set(service, node);
+        set(service, entity);
         invalidateCache();
     }
 
     @Override
     public void set(final StationLocalityGroup stationGroup) {
-        set(stationGroup, node);
+        set(stationGroup, entity);
         invalidateCache();
     }
 
     @Override
     public void set(final RouteStation routeStation) {
-        set(routeStation, node);
+        set(routeStation, entity);
         invalidateCache();
     }
 
@@ -247,7 +249,7 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
 
     @Override
     public TransportMode getTransportMode() {
-        short number = (short) super.getProperty(TRANSPORT_MODE, node);
+        short number = (short) super.getProperty(TRANSPORT_MODE, entity);
         return TransportMode.fromNumber(number);
     }
 
@@ -294,52 +296,52 @@ public class MutableGraphNodeNeo4J extends HaveGraphProperties implements Mutabl
     }
 
     public IdFor<Station> getStationId() {
-        return getIdFor(Station.class, node);
+        return getIdFor(Station.class, entity);
     }
 
     @Override
     public void set(final Trip trip) {
-        set(trip, node);
+        set(trip, entity);
     }
 
     public Map<String,Object> getAllProperties() {
-        return getAllProperties(node);
+        return getAllProperties(entity);
     }
 
     public IdFor<RouteStation> getRouteStationId() {
-        return getRouteStationId(node);
+        return getRouteStationId(entity);
     }
 
     public IdFor<Service> getServiceId() {
-        return getIdFor(Service.class, node);
+        return getIdFor(Service.class, entity);
     }
 
     @Override
     public IdFor<Route> getRouteId() {
-        return getIdFor(Route.class, node);
+        return getIdFor(Route.class, entity);
     }
 
     @Override
     public IdFor<StationLocalityGroup> getStationGroupId() {
-        return getIdFor(StationLocalityGroup.class, node);
+        return getIdFor(StationLocalityGroup.class, entity);
     }
 
     @Override
     public IdFor<NPTGLocality> getAreaId() {
-        return getIdFor(NPTGLocality.class, node);
+        return getIdFor(NPTGLocality.class, entity);
     }
 
     public IdFor<Trip> getTripId() {
-        return getIdFor(Trip.class, node);
+        return getIdFor(Trip.class, entity);
     }
 
     public TramTime getTime() {
-        return getTime(node);
+        return getTime(entity);
     }
 
     public LatLong getLatLong() {
-        final double lat = (double) super.getProperty(LATITUDE, node);
-        final double lon = (double) super.getProperty(LONGITUDE, node);
+        final double lat = (double) super.getProperty(LATITUDE, entity);
+        final double lon = (double) super.getProperty(LONGITUDE, entity);
         return new LatLong(lat, lon);
     }
 

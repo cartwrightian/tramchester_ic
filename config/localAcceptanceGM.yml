@@ -16,6 +16,7 @@ graphDBConfig:
 distributionBucket: tramchesternewdist
 environmentName: ${PLACE}
 buildNumber: ${BUILD:- 0}
+inMemoryGraph: false
 gtfsSourceConfig:
   -
     name: tfgm

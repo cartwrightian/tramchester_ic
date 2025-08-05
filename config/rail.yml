@@ -17,6 +17,7 @@ redirectToSecure: true
 environmentName: ${PLACE}
 buildNumber: ${BUILD:- 0}
 staticAssetCacheTimeSeconds: 300
+inMemoryGraph: false
 graphDBConfig:
   graphName: databases/naional_rail.db
   neo4jPagecacheMemory: 1000m

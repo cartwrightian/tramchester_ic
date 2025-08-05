@@ -23,6 +23,7 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
@@ -37,12 +38,13 @@ import java.util.Objects;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
-public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implements MutableGraphRelationship {
+public class MutableGraphRelationshipNeo4J extends HaveGraphProperties<KeyValuePropsNeo4J> implements MutableGraphRelationship {
 
     private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
             DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
 
     private final Relationship relationship;
+    private final KeyValuePropsNeo4J entity;
     private final GraphRelationshipId id;
     private final GraphReferenceMapper relationshipTypeFactory;
     private final SharedRelationshipCache.InvalidatesCache invalidatesCacheFor;
@@ -57,6 +59,7 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
         this.id = id;
         this.relationshipTypeFactory = relationshipTypeFactory;
         this.invalidatesCacheFor = invalidatesCacheFor;
+        this.entity = KeyValuePropsNeo4J.wrap(relationship);
     }
 
     ///// MUTATE ////////////////////////////////////////////////////////////
@@ -80,7 +83,7 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
 
     @Override
     public void setTime(final TramTime tramTime) {
-        setTime(tramTime, relationship);
+        setTime(tramTime, entity);
         invalidateCache();
     }
 
@@ -100,7 +103,7 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
 
     @Override
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(final C domainItem) {
-        super.set(domainItem, relationship);
+        super.set(domainItem, entity);
         invalidateCache();
     }
 
@@ -257,7 +260,7 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
 
     @Override
     public TramTime getTime() {
-        return getTime(relationship);
+        return getTime(entity);
     }
 
     @Override
@@ -370,7 +373,7 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
     }
 
     <T extends CoreDomain> IdFor<T> getId(Class<T> theClass) {
-        return getIdFor(theClass, relationship);
+        return getIdFor(theClass, entity);
     }
 
     @Override
@@ -380,11 +383,11 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
     }
 
     public IdFor<RouteStation> getRouteStationId() {
-        return getRouteStationId(relationship);
+        return getRouteStationId(entity);
     }
 
     public Map<String,Object> getAllProperties() {
-        return getAllProperties(relationship);
+        return getAllProperties(entity);
     }
 
     public boolean isDayOffset() {
@@ -444,17 +447,17 @@ public class MutableGraphRelationshipNeo4J extends HaveGraphProperties implement
 
     @Override
     public IdFor<Station> getEndStationId() {
-        return getIdFor(Station.class, relationship.getEndNode());
+        return getIdFor(Station.class, KeyValuePropsNeo4J.wrap(relationship.getEndNode()));
     }
 
     @Override
     public IdFor<Station> getStartStationId() {
-        return getIdFor(Station.class, relationship.getStartNode());
+        return getIdFor(Station.class, KeyValuePropsNeo4J.wrap(relationship.getStartNode()));
     }
 
     @Override
     public IdFor<StationLocalityGroup> getStationGroupId() {
-        return getIdFor(StationLocalityGroup.class, relationship.getEndNode());
+        return getIdFor(StationLocalityGroup.class, KeyValuePropsNeo4J.wrap(relationship.getEndNode()));
     }
 
     Relationship getRelationship() {

@@ -17,6 +17,7 @@ secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 environmentName: ${PLACE}
 buildNumber: ${BUILD:- 0}
+inMemoryGraph: false
 graphDBConfig:
   graphName: ''
   neo4jPagecacheMemory: 0m
