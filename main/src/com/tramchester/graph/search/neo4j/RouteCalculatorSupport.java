@@ -197,7 +197,7 @@ public class RouteCalculatorSupport {
 
     public PathRequest createPathRequest(final JourneyRequest journeyRequest, final NodeAndStation nodeAndStation, final int numChanges,
                                          final JourneyConstraints journeyConstraints, final BranchOrderingPolicy selector) {
-        final Duration maxInitialWait = getMaxInitialWaitFor(nodeAndStation.location, config);
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(nodeAndStation.location, config);
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
                 journeyRequest.getOriginalTime(), numChanges);
         return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait, selector,
@@ -304,7 +304,7 @@ public class RouteCalculatorSupport {
     public static Duration getMaxInitialWaitFor(List<? extends BoundingBoxWithStations> startingBoxes, TramchesterConfig config) {
         Optional<Duration> findMaxInitialWait = startingBoxes.stream().
                 flatMap(box -> box.getStations().stream()).
-                map(station -> getMaxInitialWaitFor(station, config))
+                map(station -> TramchesterConfig.getMaxInitialWaitFor(station, config))
                 .max(Duration::compareTo);
         if (findMaxInitialWait.isEmpty()) {
             throw new RuntimeException("Could not find max initial wait from " + startingBoxes);
@@ -312,20 +312,7 @@ public class RouteCalculatorSupport {
         return findMaxInitialWait.get();
     }
 
-    public static Duration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
-        return config.getInitialMaxWaitFor(location.getDataSourceID());
-    }
 
-    public static Duration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
-        final Optional<Duration> longestWait = stationWalks.stream().
-                map(StationWalk::getStation).
-                map(station -> getMaxInitialWaitFor(station, config)).
-                max(Duration::compareTo);
-        if (longestWait.isEmpty()) {
-            throw new RuntimeException("Could not compute initial max wait for " + stationWalks);
-        }
-        return longestWait.get();
-    }
 
     public static class InitialWalksFinished {
 

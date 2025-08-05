@@ -29,6 +29,7 @@ public class TestForNeo4jDirectDependency {
                 .layer("DBMgmt").definedBy("com.tramchester.graph.databaseManagement")
                 .layer("StateMachine").definedBy("com.tramchester.graph.search.stateMachine..")
                 .layer("Resources").definedBy("com.tramchester.resources")
+                .layer("Healthchecks").definedBy("com.tramchester.healthchecks")
 
                 .layer("Neo4JCore").definedBy("com.tramchester.graph.core.neo4j")
                 .layer("Neo4JImplementation").definedBy("org.neo4j..")
@@ -37,7 +38,7 @@ public class TestForNeo4jDirectDependency {
                 .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Core", "Neo4JSearch", "StateMachine")
                 .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Search", "Caches")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
-                        "Build", "Neo4JSearch", "StateMachine", "Diag", "DBMgmt", "Resources", "DTODiag");
+                        "Build", "Neo4JSearch", "StateMachine", "Diag", "DBMgmt", "Resources", "DTODiag", "Healthchecks");
 
     static class IgnoreTests implements ImportOption {
 

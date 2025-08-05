@@ -1,7 +1,9 @@
 package com.tramchester.config;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
@@ -16,10 +18,7 @@ import javax.measure.quantity.Time;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.ZoneId;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -252,6 +251,21 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public boolean inProdEnv() {
         // TODO env name into an enum
         return getEnvironmentName().startsWith("Prod");
+    }
+
+    public static Duration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
+        return config.getInitialMaxWaitFor(location.getDataSourceID());
+    }
+
+    public static Duration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
+        final Optional<Duration> longestWait = stationWalks.stream().
+                map(StationWalk::getStation).
+                map(station -> getMaxInitialWaitFor(station, config)).
+                max(Duration::compareTo);
+        if (longestWait.isEmpty()) {
+            throw new RuntimeException("Could not compute initial max wait for " + stationWalks);
+        }
+        return longestWait.get();
     }
 
 

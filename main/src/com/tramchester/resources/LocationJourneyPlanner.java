@@ -27,7 +27,7 @@ import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
+//import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
@@ -117,7 +117,7 @@ public class LocationJourneyPlanner {
         final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
-        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksToStart, config);
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksToStart, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
@@ -166,7 +166,7 @@ public class LocationJourneyPlanner {
 
         final LocationSet<Station> destinationStations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest, timeRange);
@@ -206,7 +206,7 @@ public class LocationJourneyPlanner {
         final LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksAtStart, config);
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksAtStart, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest, timeRange);

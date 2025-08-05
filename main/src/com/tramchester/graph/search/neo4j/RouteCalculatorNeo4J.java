@@ -87,7 +87,7 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
 
         final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, maxInitialWait);
 
@@ -129,7 +129,7 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
-        final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
 
         return getJourneyStream(txn, startNode, endOfWalk, destinations, journeyRequest, queryTimes, routesAndServicesFilter, numberOfChanges, maxInitialWait, running).
                 limit(journeyRequest.getMaxNumberOfJourneys());
@@ -144,7 +144,7 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
+        Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
@@ -165,7 +165,7 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
-        Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
+        Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
         return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,
                 numberOfChanges, maxInitialWait, running).
                 takeWhile(finished::notDoneYet);

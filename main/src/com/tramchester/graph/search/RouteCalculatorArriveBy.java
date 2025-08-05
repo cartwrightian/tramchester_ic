@@ -13,7 +13,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running) {
         try {
             final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
             final JourneyRequest updatedRequest = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, updatedRequest));
             return routeCalculator.calculateRoute(txn, start, destination, updatedRequest, running);
@@ -60,7 +59,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                    JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
             final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, possibleMinChanges, running);
@@ -76,7 +75,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                      JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             final Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
+            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
             final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, possibleMinChanges, running);
@@ -93,7 +92,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                            JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             final Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
+            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
             final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, possibleMinChanges, running);
