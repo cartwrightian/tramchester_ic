@@ -23,7 +23,6 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 

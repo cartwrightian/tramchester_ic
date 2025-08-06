@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.neo4j;
 
+import com.tramchester.graph.core.HaveGraphProperties;
 import org.neo4j.graphdb.Entity;
 
 import java.util.Map;

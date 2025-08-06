@@ -1,4 +1,4 @@
-package com.tramchester.graph.core.neo4j;
+package com.tramchester.graph.core;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
@@ -78,7 +78,7 @@ public class HaveGraphProperties<E extends HaveGraphProperties.KeyValueProps> {
         return entity.getProperty(graphPropertyKey.getText());
     }
 
-    interface KeyValueProps {
+    public interface KeyValueProps {
 
         void setProperty(String key, Object value);
 
