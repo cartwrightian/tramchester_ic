@@ -31,7 +31,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class ImmutableGraphRelationshipNeo4J implements  ImmutableGraphRelationship {
+
+// TODO given other changes could now collapse this into MutableGraphRelationshipNeo4J
+
+public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     private final MutableGraphRelationshipNeo4J underlying;
     private final GraphRelationshipId relationshipId;
 
@@ -46,7 +49,7 @@ public class ImmutableGraphRelationshipNeo4J implements  ImmutableGraphRelations
         relationshipId = underlying.getId();
     }
 
-    public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationship> stream) {
+    public static ResourceIterable<Relationship> convertIterable(final Stream<GraphRelationship> stream) {
         final Stream<Relationship> mapped = stream.
                 map(immutable -> (ImmutableGraphRelationshipNeo4J)immutable).
                 map(ImmutableGraphRelationshipNeo4J::getRelationship);

@@ -37,20 +37,20 @@ public class TowardsDestination {
         return locationSet;
     }
 
-    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromRouteStation(final GraphTransaction txn, final GraphNode node) {
-        final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
+    public ResourceIterableEnhanced<GraphRelationship> fromRouteStation(final GraphTransaction txn, final GraphNode node) {
+        final Stream<GraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return getTowardsDestination(relationships);
     }
 
-    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromPlatform(final GraphTransaction txn, final GraphNode node) {
+    public ResourceIterableEnhanced<GraphRelationship> fromPlatform(final GraphTransaction txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM));
     }
 
-    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromStation(final GraphTransaction txn, final GraphNode node) {
+    public ResourceIterableEnhanced<GraphRelationship> fromStation(final GraphTransaction txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT));
     }
 
-    public ResourceIterableEnhanced<ImmutableGraphRelationship> fromWalk(final GraphTransaction txn, final GraphNode node) {
+    public ResourceIterableEnhanced<GraphRelationship> fromWalk(final GraphTransaction txn, final GraphNode node) {
         return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION));
     }
 

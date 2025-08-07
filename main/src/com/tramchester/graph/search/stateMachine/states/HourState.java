@@ -4,10 +4,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -31,7 +28,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
                                      final IdFor<Station> towardsStationId, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
+            final Stream<GraphRelationship> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, node, towardsStationId, cost, this);
         }
 
@@ -45,8 +42,8 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             return TraversalStateType.HourState;
         }
 
-        private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
+        private Stream<GraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
+            Stream<GraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
                 // the order here, unlike for HOURS
@@ -60,7 +57,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
 
     private final IdFor<Station> towardsStationId;
 
-    private HourState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+    private HourState(final TraversalState parent, final Stream<GraphRelationship> relationships,
                       final GraphNode node, IdFor<Station> towardsStationId, final Duration cost, final Towards<HourState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node.getId());
         this.towardsStationId = towardsStationId;

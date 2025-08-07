@@ -7,13 +7,11 @@ import com.tramchester.graph.core.inMemory.Graph;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.core.inMemory.RelationshipIdInMemory;
 import com.tramchester.graph.core.inMemory.TransactionManager;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
@@ -128,7 +126,7 @@ public class TransactionManagerTest {
                 assertNotNull(singleIncoming);
                 assertEquals(relationshipA.getId(), singleIncoming.getId());
 
-                List<ImmutableGraphRelationship> atStart = start.getRelationships(txn, GraphDirection.Both, FERRY_GOES_TO, TRAIN_GOES_TO).toList();
+                List<GraphRelationship> atStart = start.getRelationships(txn, GraphDirection.Both, FERRY_GOES_TO, TRAIN_GOES_TO).toList();
                 assertEquals(2, atStart.size());
                 assertTrue(atStart.contains(relationshipA));
                 assertTrue(atStart.contains(relationshipB));

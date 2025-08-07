@@ -15,7 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import java.time.Duration;
 import java.time.LocalDate;
 
-public interface MutableGraphRelationship extends ImmutableGraphRelationship {
+public interface MutableGraphRelationship extends GraphRelationship {
 
     void delete();
 

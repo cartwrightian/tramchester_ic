@@ -14,11 +14,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -123,7 +120,7 @@ public class TraversalStateTest extends EasyMockSupport {
                 txn);
         verifyAll();
 
-        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
+        List<GraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
 
         assertEquals(cornbrook.getPlatforms().size(), outbounds.size(), outbounds.toString());
 
@@ -164,7 +161,7 @@ public class TraversalStateTest extends EasyMockSupport {
                 cost, isInterchange, txn);
         verifyAll();
 
-        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
+        List<GraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
 
         assertEquals(cornbrook.getPlatforms().size(), outbounds.size(), outbounds.toString());
 
@@ -212,14 +209,14 @@ public class TraversalStateTest extends EasyMockSupport {
                 txn);
         verifyAll();
 
-        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
+        List<GraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
 
         int numberOfPlatforms = cornbrook.getPlatforms().size();
 
         // todo should actually only be one of the platofmrs??
         assertEquals(numberOfPlatforms +1, outbounds.size(), displayAllProps(outbounds));
 
-        List<ImmutableGraphRelationship> towardsStation = outbounds.stream().
+        List<GraphRelationship> towardsStation = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.INTERCHANGE_DEPART)).
                 filter(relationship -> relationship.getEndStationId().equals(cornbrook.getId())).
                 toList();
@@ -228,7 +225,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         IdFor<Service> serviceId = trip.getService().getId();
 
-        List<ImmutableGraphRelationship> towardsService = outbounds.stream().
+        List<GraphRelationship> towardsService = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 filter(relationship -> relationship.getServiceId().equals(serviceId)).
                 toList();
@@ -236,12 +233,12 @@ public class TraversalStateTest extends EasyMockSupport {
         // routes are bi-driectional, exclude the one that just goes back where we came from
         assertEquals(1, towardsService.size(), displayTowardsService(towardsService));
 
-        ImmutableGraphRelationship towardsTrip = towardsService.getFirst();
+        GraphRelationship towardsTrip = towardsService.getFirst();
 
         assertTrue(towardsTrip.hasTripIdInList(trip.getId()));
     }
 
-    private String displayAllProps(final List<ImmutableGraphRelationship> relationships) {
+    private String displayAllProps(final List<GraphRelationship> relationships) {
         StringBuilder stringBuilder = new StringBuilder();
         relationships.forEach(relationship -> {
             stringBuilder.
@@ -252,7 +249,7 @@ public class TraversalStateTest extends EasyMockSupport {
         return stringBuilder.toString();
     }
 
-    private String displayTowardsService(final List<ImmutableGraphRelationship> towardsService) {
+    private String displayTowardsService(final List<GraphRelationship> towardsService) {
         StringBuilder stringBuilder = new StringBuilder();
         towardsService.forEach(relationship -> {
             stringBuilder.

@@ -1,10 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilder;
@@ -23,14 +20,14 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         this.interchangesOnly = builderParameters.interchangesOnly();
     }
 
-    protected ResourceIterableEnhanced<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
+    protected ResourceIterableEnhanced<GraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
         return super.getTowardsDestinationFromRouteStation(node, txn);
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
-    protected Stream<ImmutableGraphRelationship> getOutboundsToFollow(final GraphNode node, final boolean isInterchange,
-                                                                           final GraphTransaction txn) {
-        final Stream<ImmutableGraphRelationship> outboundsToFollow;
+    protected Stream<GraphRelationship> getOutboundsToFollow(final GraphNode node, final boolean isInterchange,
+                                                             final GraphTransaction txn) {
+        final Stream<GraphRelationship> outboundsToFollow;
         if (interchangesOnly) {
             if (isInterchange) {
                 outboundsToFollow = node.getRelationships(txn, GraphDirection.Outgoing, INTERCHANGE_DEPART);
@@ -43,15 +40,15 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         }
 
         // also follow any active diversions
-        final Stream<ImmutableGraphRelationship> diversions = getActiveDiversions(node, txn);
+        final Stream<GraphRelationship> diversions = getActiveDiversions(node, txn);
         return Stream.concat(outboundsToFollow, diversions);
 
     }
 
-    private Stream<ImmutableGraphRelationship> getActiveDiversions(final GraphNode node, final GraphTransaction txn) {
+    private Stream<GraphRelationship> getActiveDiversions(final GraphNode node, final GraphTransaction txn) {
         final TramDate queryDate = super.getQueryDate();
 
-        final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION_DEPART);
+        final Stream<GraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION_DEPART);
         return diversions.filter(relationship -> relationship.validOn(queryDate));
     }
 

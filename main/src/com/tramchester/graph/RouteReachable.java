@@ -56,7 +56,7 @@ public class RouteReachable {
                 if (routeStationNode==null) {
                     logger.warn("Missing route station, graph DB rebuild needed?");
                 } else {
-                    Stream<ImmutableGraphRelationship> edges = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE);
+                    Stream<GraphRelationship> edges = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE);
 
                     edges.forEach(edge -> {
                         final IdFor<Station> endNodeStationId = edge.getEndStationId();

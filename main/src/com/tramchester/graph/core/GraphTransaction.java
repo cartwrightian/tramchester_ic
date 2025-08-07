@@ -26,9 +26,9 @@ public interface GraphTransaction extends AutoCloseable {
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item);
 
-    List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
+    List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction);
 
-    ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
+    GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
     GraphNodeId getPreviousNodeId(GraphPath graphPath);
 

@@ -33,9 +33,9 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryDate;
     }
 
-    public Stream<ImmutableGraphRelationship> addValidDiversions(final Stream<ImmutableGraphRelationship> existing,
-                                                                      final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
-                                                                      final GraphTransaction txn) {
+    public Stream<GraphRelationship> addValidDiversions(final Stream<GraphRelationship> existing,
+                                                        final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
+                                                        final GraphTransaction txn) {
 
         if (journeyStateUpdate.onDiversion()) {
             if (logger.isDebugEnabled()) {
@@ -46,9 +46,9 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
 
         // TODO Is this ordering the right approach, or require only one diversion from each location (doesn't work either?)
         if (node.hasRelationship(txn, GraphDirection.Outgoing, DIVERSION)) {
-            final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
+            final Stream<GraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
                     filter(diversion -> diversion.validOn(queryDate)).
-                    sorted(Comparator.comparing(ImmutableGraphRelationship::getCost));
+                    sorted(Comparator.comparing(GraphRelationship::getCost));
 
             // TODO ordering here?
             return Streams.concat(existing, diversions);
@@ -61,26 +61,26 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryHour;
     }
 
-    protected <R extends ImmutableGraphRelationship> Stream<R> filterExcludingNode(final GraphTransaction txn,
+    protected <R extends GraphRelationship> Stream<R> filterExcludingNode(final GraphTransaction txn,
                                                                           final Stream<R> relationships,
                                                                           final NodeId hasNodeId) {
         final GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
 
-    protected ResourceIterableEnhanced<ImmutableGraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransaction txn) {
+    protected ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransaction txn) {
         return towardsDestination.fromRouteStation(txn, node);
     }
 
-    public ResourceIterableEnhanced<ImmutableGraphRelationship> getTowardsDestinationFromPlatform(GraphTransaction txn, GraphNode node) {
+    public ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromPlatform(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromPlatform(txn, node);
     }
 
-    public ResourceIterableEnhanced<ImmutableGraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransaction txn, GraphNode node) {
+    public ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromStation(txn, node);
     }
 
-    protected ResourceIterableEnhanced<ImmutableGraphRelationship> getTowardsDestinationFromWalk(GraphTransaction txn, GraphNode node) {
+    protected ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromWalk(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromWalk(txn, node);
     }
 }

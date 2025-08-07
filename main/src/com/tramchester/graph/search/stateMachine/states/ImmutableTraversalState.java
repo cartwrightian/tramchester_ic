@@ -1,9 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
@@ -26,5 +23,5 @@ public interface ImmutableTraversalState {
 
     TraversalStateFactory getTraversalStateFactory();
 
-    Stream<ImmutableGraphRelationship> getOutbounds();
+    Stream<GraphRelationship> getOutbounds();
 }

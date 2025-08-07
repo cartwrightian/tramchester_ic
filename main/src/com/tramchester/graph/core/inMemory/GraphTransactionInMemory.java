@@ -103,12 +103,12 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction) {
+    public List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
+    public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
         throw new RuntimeException("Not implemented");
     }
 

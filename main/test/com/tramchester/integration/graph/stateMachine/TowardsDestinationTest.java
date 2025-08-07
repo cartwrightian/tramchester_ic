@@ -9,12 +9,8 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
@@ -86,7 +82,7 @@ public class TowardsDestinationTest {
 
         GraphNode node = findRouteStation(station, route);
 
-        List<ImmutableGraphRelationship> departs = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.DEPART).toList();
+        List<GraphRelationship> departs = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.DEPART).toList();
 
         assertFalse(departs.isEmpty());
 
@@ -124,7 +120,7 @@ public class TowardsDestinationTest {
 
         assertNotNull(node);
 
-        List<ImmutableGraphRelationship> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
+        List<GraphRelationship> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
 
         assertFalse(towardsGroup.isEmpty());
 
@@ -143,10 +139,10 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((station));
 
-        ResourceIterableEnhanced<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        ResourceIterableEnhanced<GraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
 
         assertFalse(towards.isEmpty());
-        List<ImmutableGraphRelationship> results = towards.stream().toList();
+        List<GraphRelationship> results = towards.stream().toList();
 
         // 2 platforms
         assertEquals(2, results.size());
@@ -170,7 +166,7 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
 
-        ResourceIterableEnhanced<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        ResourceIterableEnhanced<GraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
 
         assertTrue(towards.isEmpty());
 
@@ -188,11 +184,11 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((stationGroup));
 
-        ResourceIterableEnhanced<ImmutableGraphRelationship> towards = towardsDestination.fromStation(txn, node);
+        ResourceIterableEnhanced<GraphRelationship> towards = towardsDestination.fromStation(txn, node);
 
         assertFalse(towards.isEmpty());
 
-        Stream<ImmutableGraphRelationship> results = towards.stream();
+        Stream<GraphRelationship> results = towards.stream();
 
         results.forEach(relationship -> {
             GraphNode endNode = relationship.getEndNode(txn);
@@ -211,11 +207,11 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
 
-        ResourceIterableEnhanced<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        ResourceIterableEnhanced<GraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
 
         assertFalse(towards.isEmpty());
 
-        Stream<ImmutableGraphRelationship> results = towards.stream();
+        Stream<GraphRelationship> results = towards.stream();
 
         results.forEach(relationship -> {
             GraphNode endNode = relationship.getEndNode(txn);
@@ -252,7 +248,7 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
 
-        ResourceIterableEnhanced<ImmutableGraphRelationship> results = towardsDestination.fromStation(txn, node);
+        ResourceIterableEnhanced<GraphRelationship> results = towardsDestination.fromStation(txn, node);
 
         assertTrue(results.isEmpty());
 

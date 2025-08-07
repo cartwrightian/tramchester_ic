@@ -40,7 +40,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
                 ", labels=" + labels +
                 '}';
     }
-    
+
     @Override
     protected void invalidateCache() {
         // no-op
@@ -68,19 +68,19 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
+    public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
         GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getSingleRelationship(id, direction, transportRelationshipTypes);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes relationshipType) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes relationshipType) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getRelationships(id, direction, EnumSet.of(relationshipType)).map(item -> item);
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes... transportRelationshipTypes) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         final List<TransportRelationshipTypes> list = Arrays.asList(transportRelationshipTypes);
         final EnumSet<TransportRelationshipTypes> types = EnumSet.copyOf(list);

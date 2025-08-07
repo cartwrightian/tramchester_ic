@@ -3,8 +3,8 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -37,13 +37,13 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                                         final Duration cost, final boolean isInterchange, final GraphTransaction txn) {
             final TransportMode transportMode = node.getTransportMode();
 
-            final ResourceIterableEnhanced<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(node, txn);
+            final ResourceIterableEnhanced<GraphRelationship> towardsDestination = getTowardsDestination(node, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(journeyState, minuteState, towardsDestination.stream(), cost, transportMode, node, this);
             }
 
-            final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, txn);
+            final Stream<GraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, txn);
 
             return new RouteStationStateEndTrip(journeyState, minuteState, outboundsToFollow, cost, transportMode, node, this);
         }
@@ -54,7 +54,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final GraphNode routeStationNode;
 
     private RouteStationStateEndTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState minuteState,
-                                     final Stream<ImmutableGraphRelationship> routeStationOutbound, final Duration cost,
+                                     final Stream<GraphRelationship> routeStationOutbound, final Duration cost,
                                      final TransportMode mode, final GraphNode routeStationNode,
                                      final TowardsRouteStation<RouteStationStateEndTrip> builder) {
         super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode);

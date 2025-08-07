@@ -84,7 +84,7 @@ class GraphBuilderRailTest {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
         GraphNode startNode = txn.findNode(piccadilly);
-        List<ImmutableGraphRelationship> outboundLinks = startNode.getRelationships(txn, GraphDirection.Outgoing, LINKED).toList();
+        List<GraphRelationship> outboundLinks = startNode.getRelationships(txn, GraphDirection.Outgoing, LINKED).toList();
 
         assertEquals(25, outboundLinks.size(), outboundLinks.toString());
 

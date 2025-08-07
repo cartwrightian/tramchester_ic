@@ -316,7 +316,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
-                Stream<ImmutableGraphRelationship> iterable = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.DIVERSION_DEPART);
+                Stream<GraphRelationship> iterable = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });

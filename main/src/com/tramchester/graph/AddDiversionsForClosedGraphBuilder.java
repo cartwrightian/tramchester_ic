@@ -117,7 +117,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);
 
-        final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn,GraphDirection.Outgoing, DIVERSION);
+        final Stream<GraphRelationship> outgoingDiversion = node.getRelationships(txn,GraphDirection.Outgoing, DIVERSION);
 
         final Set<DateTimeRange> ranges = outgoingDiversion.map(GraphRelationship::getDateTimeRange).collect(Collectors.toSet());
 

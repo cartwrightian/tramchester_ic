@@ -251,7 +251,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     //public abstract Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes transportRelationshipTypes);
 
     @Override
-    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
+    public Stream<GraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE).
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }

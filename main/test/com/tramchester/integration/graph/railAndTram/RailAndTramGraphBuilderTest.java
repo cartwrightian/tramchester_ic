@@ -70,9 +70,9 @@ class RailAndTramGraphBuilderTest {
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
         GraphNode cornbrookNode = txn.findNode(cornbrook);
-        Stream<ImmutableGraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, GraphDirection.Outgoing, LINKED);
+        Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, GraphDirection.Outgoing, LINKED);
 
-        List<ImmutableGraphRelationship> list = outboundLinks.toList();
+        List<GraphRelationship> list = outboundLinks.toList();
         assertEquals(3, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
@@ -116,14 +116,14 @@ class RailAndTramGraphBuilderTest {
         assertNotNull(altyTramNode);
         assertNotNull(altyTrainNode);
 
-        List<ImmutableGraphRelationship> fromTram = altyTramNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
+        List<GraphRelationship> fromTram = altyTramNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
         assertEquals(1, fromTram.size(), "Wrong number of neighbours " + fromTram);
 
         GraphRelationship tramNeighbour = fromTram.getFirst();
         assertEquals(altyTrainNode, tramNeighbour.getEndNode(txn)); // GraphNode.fromEnd(tramNeighbour));
         assertEquals(expectedCost, tramNeighbour.getCost());
 
-        List<ImmutableGraphRelationship> fromTrain = altyTrainNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
+        List<GraphRelationship> fromTrain = altyTrainNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
         assertEquals(1, fromTrain.size(), "Wrong number of neighbours " + fromTram);
 
         GraphRelationship trainNeighbour = fromTrain.get(0);

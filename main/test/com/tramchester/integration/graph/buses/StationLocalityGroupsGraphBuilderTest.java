@@ -7,12 +7,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
-import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -77,10 +73,10 @@ public class StationLocalityGroupsGraphBuilderTest {
         assertFalse(toOthers.isEmpty());
 
         toOthers.forEach(node -> {
-            List<ImmutableGraphRelationship> outbounds = node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_GROUPED).toList();
+            List<GraphRelationship> outbounds = node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_GROUPED).toList();
             assertFalse(outbounds.isEmpty(), node.getAllProperties().toString());
 
-            ImmutableGraphRelationship link = outbounds.getFirst();
+            GraphRelationship link = outbounds.getFirst();
             Duration cost = link.getCost();
             assertTrue(cost.compareTo(walkingDuration) <=0, "got " + cost + " more than " + walkingDuration);
 
@@ -102,7 +98,7 @@ public class StationLocalityGroupsGraphBuilderTest {
 
         assertEquals(stationGroupNode.getStationGroupId(), stationGroupId);
 
-        List<ImmutableGraphRelationship> childLinks = stationGroupNode.getRelationships(txn,
+        List<GraphRelationship> childLinks = stationGroupNode.getRelationships(txn,
                 GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_CHILD).toList();
 
         StationLocalityGroup group = stationGroupsRepository.getStationGroup(stationGroupId);
@@ -120,7 +116,7 @@ public class StationLocalityGroupsGraphBuilderTest {
 
         childNodes.forEach(childNode -> {
             assertTrue(childNode.hasRelationship(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT), childNode.getStationId().toString());
-            ImmutableGraphRelationship toParent = childNode.getSingleRelationship(txn, GROUPED_TO_PARENT, GraphDirection.Outgoing);
+            GraphRelationship toParent = childNode.getSingleRelationship(txn, GROUPED_TO_PARENT, GraphDirection.Outgoing);
             GraphNode endNode = toParent.getEndNode(txn);
             assertEquals(stationGroupNode.getId(), endNode.getId(), "wrong parent for " + childNode.getStationId());
 

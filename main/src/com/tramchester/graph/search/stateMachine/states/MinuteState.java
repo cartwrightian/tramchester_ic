@@ -3,11 +3,8 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -40,11 +37,11 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
                                        final GraphTransaction txn) {
 
-            final Stream<ImmutableGraphRelationship> allOutboundForMode = minuteNode.getRelationships(txn, GraphDirection.Outgoing, currentModes);
+            final Stream<GraphRelationship> allOutboundForMode = minuteNode.getRelationships(txn, GraphDirection.Outgoing, currentModes);
 
             if (journeyState.onTrip()) {
                 final IdFor<Trip> existingTripId = journeyState.getCurrentTrip();
-                final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(allOutboundForMode, existingTripId);
+                final Stream<GraphRelationship> filterBySingleTripId = filterBySingleTripId(allOutboundForMode, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, minuteNode, journeyState, towardsStationId, cost, this);
             } else {
                 // since at minute/trip node now have specific tripId to use
@@ -54,14 +51,14 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
             }
         }
 
-        private Stream<ImmutableGraphRelationship> filterBySingleTripId(final Stream<ImmutableGraphRelationship> relationships, final IdFor<Trip> existingTripId) {
+        private Stream<GraphRelationship> filterBySingleTripId(final Stream<GraphRelationship> relationships, final IdFor<Trip> existingTripId) {
             return relationships.filter(relationship -> relationship.getTripId().equals(existingTripId));
         }
     }
 
     private final IdFor<Station> towardsStationId;
 
-    private MinuteState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, GraphNode node,
+    private MinuteState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, GraphNode node,
                         final JourneyStateUpdate journeyState, IdFor<Station> towardsStationId, final Duration cost,
                         final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node.getId());

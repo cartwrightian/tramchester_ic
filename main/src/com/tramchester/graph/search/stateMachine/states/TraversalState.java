@@ -2,10 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -21,7 +18,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     protected final TraversalStateFactory traversalStateFactory;
     protected final GraphTransaction txn;
 
-    private final Stream<ImmutableGraphRelationship> outbounds;
+    private final Stream<GraphRelationship> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
     private final GraphNodeId graphNodeId;
@@ -43,7 +40,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    protected TraversalState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
+    protected TraversalState(final ImmutableTraversalState parent, final Stream<GraphRelationship> outbounds, final Duration costForLastEdge,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId) {
         super(stateType);
         this.txn = parent.getTransaction();
@@ -66,7 +63,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return txn;
     }
 
-    public Stream<ImmutableGraphRelationship> getOutbounds() {
+    public Stream<GraphRelationship> getOutbounds() {
         return outbounds;
     }
 

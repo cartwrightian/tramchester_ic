@@ -4,10 +4,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.*;
@@ -47,7 +44,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             final TransportMode transportMode = routeStationNode.getTransportMode();
             final IdFor<Trip> tripId = journeyState.getCurrentTrip();
 
-            final ResourceIterableEnhanced<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
+            final ResourceIterableEnhanced<GraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateOnTrip(journeyState, minuteState, towardsDestination.stream(), cost,
@@ -55,20 +52,20 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             }
 
             // outbound service relationships that continue the current trip
-            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = getOutgoingServicesMatchingTripId.apply(txn, routeStationNode);
+            final Stream<GraphRelationship> towardsServiceForTrip = getOutgoingServicesMatchingTripId.apply(txn, routeStationNode);
 
             // now add outgoing to platforms/stations
-            final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(routeStationNode, isInterchange, txn);
+            final Stream<GraphRelationship> outboundsToFollow = getOutboundsToFollow(routeStationNode, isInterchange, txn);
 
             // NOTE: order of the concatenation matters here for depth first, need to do departs first to
             // explore routes including changes over continuing on possibly much longer trip
-            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
+            final Stream<GraphRelationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
             return new RouteStationStateOnTrip(journeyState, minuteState, relationships, cost, routeStationNode, tripId, transportMode, this);
         }
 
     }
 
-    private RouteStationStateOnTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+    private RouteStationStateOnTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships,
                                     final Duration cost, final GraphNode routeStationNode, final IdFor<Trip> tripId, final TransportMode transportMode,
                                     final TowardsRouteStation<RouteStationStateOnTrip> builder) {
         super(parent, relationships, journeyState, cost, builder, routeStationNode);

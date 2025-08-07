@@ -9,12 +9,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -100,15 +96,15 @@ public class GetOutgoingServicesMatchingTripIdTest {
 
         GetOutgoingServicesMatchingTripId filter = new GetOutgoingServicesMatchingTripId(tripId);
 
-        List<ImmutableGraphRelationship> results = filter.apply(txn, node).toList();
+        List<GraphRelationship> results = filter.apply(txn, node).toList();
 
         assertEquals(1, results.size());
 
         // should have a corresponding inbound relationship for the trip id
 
-        Stream<ImmutableGraphRelationship> inbounds = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.TRAM_GOES_TO);
+        Stream<GraphRelationship> inbounds = node.getRelationships(txn, GraphDirection.Incoming, TransportRelationshipTypes.TRAM_GOES_TO);
 
-        List<ImmutableGraphRelationship> matchingInbound = inbounds.
+        List<GraphRelationship> matchingInbound = inbounds.
                 filter(inbound -> inbound.getTripId().equals(tripId)).toList();
 
         assertEquals(1, matchingInbound.size());

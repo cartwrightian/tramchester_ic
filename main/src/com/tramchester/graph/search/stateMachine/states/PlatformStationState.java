@@ -36,16 +36,16 @@ public class PlatformStationState extends StationState {
         @Override
         public PlatformStationState fromWalking(final WalkingState walkingState, final GraphNode stationNode, final Duration cost,
                                                 final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT,
+            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromPlatform(final PlatformState platformState, final GraphNode stationNode, final Duration cost,
                                                  final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION, ENTER_PLATFORM,
+            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
+            final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
 
@@ -56,9 +56,9 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode stationNode, final Duration cost,
                                               final JourneyStateUpdate journeyState,
                                               final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION,
+            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
+            final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState, this);
@@ -67,22 +67,22 @@ public class PlatformStationState extends StationState {
         @Override
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT);
+            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, GROUPED_TO_PARENT);
 
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
+            final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode stationNode, final Duration cost,
                                                 final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, NEIGHBOUR);
+            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, ENTER_PLATFORM, NEIGHBOUR);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
         }
 
     }
 
-    private PlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+    private PlatformStationState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships,
                                  final Duration cost, final GraphNode stationNode,
                                  final JourneyStateUpdate journeyState, final TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder.getDestination());

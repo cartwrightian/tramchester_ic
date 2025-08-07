@@ -2,10 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -39,7 +36,7 @@ public class PlatformState extends TraversalState implements NodeId {
         }
 
         public PlatformState from(final PlatformStationState stationState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<GraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
 
             return new PlatformState(stationState, boarding, node, cost, this.getDestination());
         }
@@ -60,7 +57,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final GraphNode platformNode;
 
-    protected PlatformState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final GraphNode platformNode,
+    protected PlatformState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final GraphNode platformNode,
                             final Duration cost, final TraversalStateType towards) {
         super(parent, relationships, cost, towards, platformNode.getId());
         this.platformNode = platformNode;

@@ -1,9 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.ImmutableGraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -38,8 +35,8 @@ public class WalkingState extends TraversalState {
         }
 
         public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
-            final ResourceIterableEnhanced<ImmutableGraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
+            final Stream<GraphRelationship> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
+            final ResourceIterableEnhanced<GraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
@@ -57,7 +54,7 @@ public class WalkingState extends TraversalState {
 
     }
 
-    private WalkingState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+    private WalkingState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final Duration cost,
                          final Towards<WalkingState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
     }

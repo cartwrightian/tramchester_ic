@@ -53,9 +53,9 @@ public class NoPlatformStationState extends StationState {
                                                 final JourneyStateUpdate journeyState,
                                                 final GraphTransaction txn) {
 
-            final Stream<ImmutableGraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
+            final Stream<GraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
 
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(walksAndGroup, node, journeyState, txn);
+            final Stream<GraphRelationship> relationships = addValidDiversions(walksAndGroup, node, journeyState, txn);
 
             return new NoPlatformStationState(notStartedState, relationships, cost, node,
                     journeyState, getDestination());
@@ -76,29 +76,29 @@ public class NoPlatformStationState extends StationState {
         public NoPlatformStationState fromNeighbour(final StationState noPlatformStation, final GraphNode node, final Duration cost,
                                                     final JourneyStateUpdate journeyState,
                                                     final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> grouped = node.getRelationships(txn, GraphDirection.Outgoing,GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<GraphRelationship> grouped = node.getRelationships(txn, GraphDirection.Outgoing,GROUPED_TO_PARENT);
+            final Stream<GraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(noPlatformStation, Stream.concat(grouped, boarding), cost, node, journeyState, getDestination());
         }
 
         @Override
         public NoPlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode node, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> neighbour = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<GraphRelationship> neighbour = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
+            final Stream<GraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(groupedStationState, Stream.concat(neighbour, boarding), cost,  node, journeyState, getDestination());
         }
 
-        Stream<ImmutableGraphRelationship> boardRelationshipsPlus(final GraphNode node, final GraphTransaction txn, final TransportRelationshipTypes... others) {
-            final Stream<ImmutableGraphRelationship> other = node.getRelationships(txn, GraphDirection.Outgoing, others);
-            final Stream<ImmutableGraphRelationship> board = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
+        Stream<GraphRelationship> boardRelationshipsPlus(final GraphNode node, final GraphTransaction txn, final TransportRelationshipTypes... others) {
+            final Stream<GraphRelationship> other = node.getRelationships(txn, GraphDirection.Outgoing, others);
+            final Stream<GraphRelationship> board = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
             // order matters here, i.e. explore walks first
             return Stream.concat(other, board);
         }
 
     }
 
-    NoPlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+    NoPlatformStationState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final Duration cost,
                            final GraphNode stationNode, final JourneyStateUpdate journeyStateUpdate, final TraversalStateType builderStateTYpe) {
         super(parent, relationships, cost, stationNode, journeyStateUpdate, builderStateTYpe);
     }

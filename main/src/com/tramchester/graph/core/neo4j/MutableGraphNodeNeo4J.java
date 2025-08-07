@@ -73,8 +73,8 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
-                                                               final TransportRelationshipTypes relationshipType) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+                                                      final TransportRelationshipTypes relationshipType) {
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return node.getRelationships(map(direction), relationshipTypeFactory.get(relationshipType)).
                 stream().
@@ -97,8 +97,8 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
-                                                                    final TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+                                                      final TransportRelationshipTypes... transportRelationshipTypes) {
         GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         RelationshipType[] relationshipTypes =  relationshipTypeFactory.get(transportRelationshipTypes);
         return node.getRelationships(map(direction), relationshipTypes).stream().map(txnNeo4J::wrapRelationship);

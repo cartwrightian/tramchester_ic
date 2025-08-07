@@ -66,13 +66,13 @@ public interface GraphNode extends GraphEntity {
 
     boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
-    ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
+    GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
+    Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
+    Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
 
     boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
-    Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
+    Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 }
