@@ -64,7 +64,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
-        return graph.createRelationship(relationshipType, begin, end);
+        return graph.createRelationship(relationshipType, (GraphNodeInMemory) begin, (GraphNodeInMemory) end);
     }
 
     @Override
@@ -79,46 +79,68 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
-        return Stream.empty();
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public GraphNode getNodeById(GraphNodeId nodeId) {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public boolean hasAnyMatching(GraphLabel label, String field, String value) {
-        return false;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public boolean hasAnyMatching(GraphLabel graphLabel) {
-        return false;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction) {
-        return List.of();
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public GraphNodeId getPreviousNodeId(GraphPath graphPath) {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public GraphNodeId endNodeNodeId(GraphPath path) {
-        return null;
+        throw new RuntimeException("Not implemented");
+    }
+
+    public Stream<GraphRelationshipInMemory> getRelationships(GraphNodeId id, GraphDirection direction, EnumSet<TransportRelationshipTypes> relationshipTypes) {
+        Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
+        return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
+    }
+
+    public boolean hasRelationship(GraphNodeId id, GraphDirection direction, TransportRelationshipTypes transportRelationshipType) {
+        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
+        return relationships.anyMatch(relationship -> relationship.getType().equals(transportRelationshipType));
+    }
+
+    public GraphRelationshipInMemory getSingleRelationship(GraphNodeId id, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes) {
+        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
+        final List<GraphRelationshipInMemory> result = relationships.
+                filter(relationship -> relationship.getType().equals(transportRelationshipTypes)).
+                toList();
+        if (result.size()==1) {
+            return result.getFirst();
+        }
+        throw new RuntimeException("Wrong number of relationships " + result.size());
+
     }
 }

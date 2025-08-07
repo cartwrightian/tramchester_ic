@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.MISSING_ROUTE_ID;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 

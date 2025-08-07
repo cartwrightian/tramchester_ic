@@ -45,7 +45,7 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         }
 
         // TODO Is this ordering the right approach, or require only one diversion from each location (doesn't work either?)
-        if (node.hasRelationship(GraphDirection.Outgoing, DIVERSION)) {
+        if (node.hasRelationship(txn, GraphDirection.Outgoing, DIVERSION)) {
             final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
                     filter(diversion -> diversion.validOn(queryDate)).
                     sorted(Comparator.comparing(ImmutableGraphRelationship::getCost));

@@ -101,7 +101,7 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        int expectedPlatforms = 201;
+        int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 
@@ -446,7 +446,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1692, maximumNumberOfTrips);
+        assertEquals(1541, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

@@ -118,13 +118,13 @@ class GraphBuilderRailTest {
 
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
-            if (node.hasRelationship(GraphDirection.Outgoing, BOARD)) {
+            if (node.hasRelationship(txn, GraphDirection.Outgoing, BOARD)) {
                 GraphRelationship board = node.getSingleRelationship(txn, BOARD, GraphDirection.Outgoing);
                 Duration boardCost = board.getCost(); // GraphProps.getCost(board);
                 assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
             }
 
-            if (node.hasRelationship(GraphDirection.Incoming, DEPART)) {
+            if (node.hasRelationship(txn, GraphDirection.Incoming, DEPART)) {
                 GraphRelationship depart = node.getSingleRelationship(txn, DEPART, GraphDirection.Incoming);
                 Duration enterCost = depart.getCost(); //GraphProps.getCost(depart);
                 assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());

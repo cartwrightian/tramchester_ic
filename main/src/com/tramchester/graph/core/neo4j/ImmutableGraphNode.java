@@ -69,8 +69,8 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     }
 
     @Override
-    public boolean hasRelationship(final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
-        return underlying.hasRelationship(direction, transportRelationshipTypes);
+    public boolean hasRelationship(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
+        return underlying.hasRelationship(txn, direction, transportRelationshipTypes);
     }
 
     @Override

@@ -24,8 +24,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.neo4j.GraphTestHelper;
-import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.core.inMemory.GraphRelationshipInMemory;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -34,7 +33,6 @@ import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -69,8 +67,10 @@ public class GraphPropsInMemoryTest {
 
     @AfterAll
     static void onceAfterAllTestsRun() throws IOException {
-        TestEnv.clearDataCache(componentContainer);
-        componentContainer.close();
+        if (componentContainer!=null) {
+            TestEnv.clearDataCache(componentContainer);
+            componentContainer.close();
+        }
         TestEnv.deleteDBIfPresent(config);
     }
 
@@ -428,16 +428,13 @@ public class GraphPropsInMemoryTest {
         assertEquals(maxTripsForService, fromService.size());
         assertTrue(unsortedTripIds.containsAll(fromService));
 
-        GraphTestHelper graphTestHelper = new GraphTestHelper();
-
-        MutableGraphTransactionNeo4J neo4 = (MutableGraphTransactionNeo4J) txn;
-        final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(neo4, serviceRelationship);
+        final GraphRelationshipInMemory underlying = (GraphRelationshipInMemory) serviceRelationship;
 
         List<IdFor<Trip>> sortedTripIds = unsortedTripIds.stream().
                 sorted(Comparator.comparing(IdFor::getGraphId)).
                 toList();
 
-        String[] directFromRelationship = (String[]) relationship.getProperty(TRIP_ID_LIST.getText());
+        String[] directFromRelationship = (String[]) underlying.getPropertyForTesting(TRIP_ID_LIST);
         assertEquals(maxTripsForService, directFromRelationship.length);
 
         // check sorted as expected

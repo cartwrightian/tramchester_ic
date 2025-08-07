@@ -20,58 +20,90 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import java.time.Duration;
 import java.util.EnumSet;
 
+
+// TODO just use GraphRelationship
+
+@Deprecated
 public interface ImmutableGraphRelationship extends GraphRelationship {
-    GraphRelationshipId getId();
 
-    TramTime getTime();
-
-    int getHour();
-
-    Duration getCost();
-
-    EnumSet<TransportMode> getTransportModes();
-
-    TransportRelationshipTypes getType();
-
-    IdFor<Route> getRouteId();
-
-    IdFor<Service> getServiceId();
-
-    IdFor<Trip> getTripId();
-
-    boolean isType(TransportRelationshipTypes transportRelationshipType);
-
-    IdFor<RouteStation> getRouteStationId();
-
-    boolean validOn(TramDate tramDate);
-
-    IdFor<Station> getStationId();
-
-    int getStopSeqNumber();
-
-    IdFor<Station> getEndStationId();
-
-    IdFor<Station> getStartStationId();
-
-    IdFor<StationLocalityGroup> getStationGroupId();
-
-    IdSet<Trip> getTripIds();
-
-    DateRange getDateRange();
-
-    TimeRange getTimeRange();
-
-    DateTimeRange getDateTimeRange();
-
-    TramTime getStartTime();
-
-    TramTime getEndTime();
-
-    LocationId<?> getLocationId();
-
-    boolean isNode();
-
-    boolean isRelationship();
-
-    boolean hasTripIdInList(IdFor<Trip> tripId);
+//    @Override
+//    GraphRelationshipId getId();
+//
+//    @Override
+//    TramTime getTime();
+//
+//    @Override
+//    int getHour();
+//
+//    @Override
+//    Duration getCost();
+//
+//    @Override
+//    EnumSet<TransportMode> getTransportModes();
+//
+//    @Override
+//    TransportRelationshipTypes getType();
+//
+//    @Override
+//    IdFor<Route> getRouteId();
+//
+//    @Override
+//    IdFor<Service> getServiceId();
+//
+//    @Override
+//    IdFor<Trip> getTripId();
+//
+//    @Override
+//    boolean isType(TransportRelationshipTypes transportRelationshipType);
+//
+//    @Override
+//    IdFor<RouteStation> getRouteStationId();
+//
+//    @Override
+//    boolean validOn(TramDate tramDate);
+//
+//    @Override
+//    IdFor<Station> getStationId();
+//
+//    @Override
+//    int getStopSeqNumber();
+//
+//    @Override
+//    IdFor<Station> getEndStationId();
+//
+//    @Override
+//    IdFor<Station> getStartStationId();
+//
+//    @Override
+//    IdFor<StationLocalityGroup> getStationGroupId();
+//
+//    @Override
+//    IdSet<Trip> getTripIds();
+//
+//    @Override
+//    DateRange getDateRange();
+//
+//    @Override
+//    TimeRange getTimeRange();
+//
+//    @Override
+//    DateTimeRange getDateTimeRange();
+//
+//    @Override
+//    TramTime getStartTime();
+//
+//    @Override
+//    TramTime getEndTime();
+//
+//    @Override
+//    LocationId<?> getLocationId();
+//
+//    @Override
+//    boolean isNode();
+//
+//    @Override
+//    boolean isRelationship();
+//
+//    @Override
+//    boolean hasTripIdInList(IdFor<Trip> tripId);
 }

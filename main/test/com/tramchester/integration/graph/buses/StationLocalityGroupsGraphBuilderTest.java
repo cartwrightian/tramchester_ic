@@ -72,7 +72,7 @@ public class StationLocalityGroupsGraphBuilderTest {
         Stream<GraphNode> groupNodes = txn.findNodes(GraphLabel.GROUPED);
         final Duration walkingDuration = testConfig.getWalkingDuration();
 
-        Set<GraphNode> toOthers = groupNodes.filter(node -> node.hasRelationship(GraphDirection.Outgoing, GROUPED_TO_GROUPED)).collect(Collectors.toSet());
+        Set<GraphNode> toOthers = groupNodes.filter(node -> node.hasRelationship(txn, GraphDirection.Outgoing, GROUPED_TO_GROUPED)).collect(Collectors.toSet());
 
         assertFalse(toOthers.isEmpty());
 
@@ -119,7 +119,7 @@ public class StationLocalityGroupsGraphBuilderTest {
         assertEquals(containedIds, childLocationIds);
 
         childNodes.forEach(childNode -> {
-            assertTrue(childNode.hasRelationship(GraphDirection.Outgoing, GROUPED_TO_PARENT), childNode.getStationId().toString());
+            assertTrue(childNode.hasRelationship(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT), childNode.getStationId().toString());
             ImmutableGraphRelationship toParent = childNode.getSingleRelationship(txn, GROUPED_TO_PARENT, GraphDirection.Outgoing);
             GraphNode endNode = toParent.getEndNode(txn);
             assertEquals(stationGroupNode.getId(), endNode.getId(), "wrong parent for " + childNode.getStationId());

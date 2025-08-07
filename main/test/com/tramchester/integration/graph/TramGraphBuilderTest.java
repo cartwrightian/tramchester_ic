@@ -695,7 +695,7 @@ class TramGraphBuilderTest {
     void shouldHaveAllTimeNodesWithLinkToRouteStation() {
         Stream<GraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);
 
-        long missing = timeNodes.filter(timeNode -> !timeNode.hasRelationship(GraphDirection.Outgoing, TRAM_GOES_TO)).count();
+        long missing = timeNodes.filter(timeNode -> !timeNode.hasRelationship(txn, GraphDirection.Outgoing, TRAM_GOES_TO)).count();
 
         assertEquals(0, missing);
     }

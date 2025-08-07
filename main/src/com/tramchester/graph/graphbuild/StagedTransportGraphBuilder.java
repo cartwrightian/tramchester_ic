@@ -493,7 +493,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                            final StopCallRepository.Costs costs,
                                            final MutableGraphTransaction txn) {
 
-        if (from.hasRelationship(GraphDirection.Outgoing, ON_ROUTE)) {
+        if (from.hasRelationship(txn, GraphDirection.Outgoing, ON_ROUTE)) {
             // diff outbounds for same route actually a normal situation, where (especially) trains go via
             // different paths even thought route is the "same", or back to the depot
             final boolean alreadyHasRelationship = from.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE).

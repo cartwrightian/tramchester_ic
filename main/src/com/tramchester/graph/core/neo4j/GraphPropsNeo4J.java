@@ -1,19 +1,20 @@
 package com.tramchester.graph.core.neo4j;
 
-import com.tramchester.graph.core.HaveGraphProperties;
+import com.tramchester.graph.core.GraphEntityProperties;
+import com.tramchester.graph.core.GraphId;
 import org.neo4j.graphdb.Entity;
 
 import java.util.Map;
 
-public class KeyValuePropsNeo4J implements HaveGraphProperties.KeyValueProps {
+public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps {
     private final Entity entity;
 
-    private KeyValuePropsNeo4J(final Entity entity) {
+    private GraphPropsNeo4J(final Entity entity) {
         this.entity = entity;
     }
 
-    public static KeyValuePropsNeo4J wrap(final Entity entity) {
-        return new KeyValuePropsNeo4J(entity);
+    public static GraphPropsNeo4J wrap(final Entity entity) {
+        return new GraphPropsNeo4J(entity);
     }
 
     @Override
@@ -27,11 +28,6 @@ public class KeyValuePropsNeo4J implements HaveGraphProperties.KeyValueProps {
     }
 
     @Override
-    public String getId() {
-        return entity.getElementId();
-    }
-
-    @Override
     public Map<String, Object> getAllProperties() {
         return entity.getAllProperties();
     }
@@ -39,5 +35,10 @@ public class KeyValuePropsNeo4J implements HaveGraphProperties.KeyValueProps {
     @Override
     public boolean hasProperty(final String key) {
         return entity.hasProperty(key);
+    }
+
+    @Override
+    public void removeProperty(String key) {
+        entity.removeProperty(key);
     }
 }

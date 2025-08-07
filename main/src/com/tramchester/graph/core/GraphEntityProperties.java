@@ -17,8 +17,8 @@ import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
-public class HaveGraphProperties<E extends HaveGraphProperties.KeyValueProps> {
-    private static final Logger logger = LoggerFactory.getLogger(HaveGraphProperties.class);
+public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
+    private static final Logger logger = LoggerFactory.getLogger(GraphEntityProperties.class);
 
     protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(final C domainItem, final E entity) {
         entity.setProperty(domainItem.getProp().getText(), domainItem.getId().getGraphId());
@@ -36,8 +36,7 @@ public class HaveGraphProperties<E extends HaveGraphProperties.KeyValueProps> {
             }
         }
         catch (org.neo4j.graphdb.NotFoundException notFound) {
-            String msg = String.format("Failed to get property %s for element id %s properties %s", key, entity.getId(),
-                    entity.getAllProperties());
+            String msg = String.format("Failed to get property %s from properties %s", key, entity.getAllProperties());
             logger.error(msg);
             throw new RuntimeException(msg, notFound);
         }
@@ -51,10 +50,6 @@ public class HaveGraphProperties<E extends HaveGraphProperties.KeyValueProps> {
     protected RouteStationId getRouteStationId(final E entity) {
         final String value = entity.getProperty(ROUTE_STATION_ID.getText()).toString();
         return RouteStationId.parse(value);
-    }
-
-    protected Map<String, Object> getAllProperties(final E entity) {
-        return entity.getAllProperties();
     }
 
     protected void setTime(final TramTime tramTime, final E entity) {
@@ -73,22 +68,26 @@ public class HaveGraphProperties<E extends HaveGraphProperties.KeyValueProps> {
         return TramTime.of(localTime.getHour(), localTime.getMinute());
     }
 
-
+    // public to support testing
     protected Object getProperty(final GraphPropertyKey graphPropertyKey, final E entity) {
         return entity.getProperty(graphPropertyKey.getText());
     }
 
-    public interface KeyValueProps {
+    protected Map<String, Object> getAllProperties(final E entity) {
+        return entity.getAllProperties();
+    }
+
+    public interface GraphProps {
 
         void setProperty(String key, Object value);
 
         Object getProperty(String text);
 
-        String getId();
-
         Map<String, Object> getAllProperties();
 
         boolean hasProperty(String key);
+
+        void removeProperty(String key);
     }
 
 }

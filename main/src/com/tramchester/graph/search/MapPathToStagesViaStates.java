@@ -117,8 +117,8 @@ public class MapPathToStagesViaStates implements PathToStages {
         if (stages.isEmpty()) {
             if (path.length()==2) {
                 /// child -> parent, end <- parent => startOfPath is station, endOfPath is station
-                if (startOfPath.hasRelationship(GraphDirection.Outgoing, GROUPED_TO_PARENT) &&
-                        (endOfPath.hasRelationship(GraphDirection.Incoming, GROUPED_TO_CHILD))) {
+                if (startOfPath.hasRelationship(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT) &&
+                        (endOfPath.hasRelationship(txn, GraphDirection.Incoming, GROUPED_TO_CHILD))) {
                     stages.add(getDirectConnectionFor(startOfPath, endOfPath, journeyRequest));
                 }
             } else {

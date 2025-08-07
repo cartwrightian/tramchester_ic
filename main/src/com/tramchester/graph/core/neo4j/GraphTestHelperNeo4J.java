@@ -3,7 +3,7 @@ package com.tramchester.graph.core.neo4j;
 import com.tramchester.graph.core.GraphRelationship;
 import org.neo4j.graphdb.Relationship;
 
-public class GraphTestHelper {
+public class GraphTestHelperNeo4J {
 
     /***
      * Test support only

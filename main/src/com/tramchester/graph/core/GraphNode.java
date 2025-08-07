@@ -64,7 +64,7 @@ public interface GraphNode extends GraphEntity {
 
     Map<String, Object> getAllProperties();
 
-    boolean hasRelationship(GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
+    boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
     ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
 

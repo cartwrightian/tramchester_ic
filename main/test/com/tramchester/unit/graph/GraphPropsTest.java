@@ -25,7 +25,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.neo4j.GraphTestHelper;
+import com.tramchester.graph.core.neo4j.GraphTestHelperNeo4J;
 import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -427,7 +427,7 @@ public class GraphPropsTest {
         assertEquals(maxTripsForService, fromService.size());
         assertTrue(unsortedTripIds.containsAll(fromService));
 
-        GraphTestHelper graphTestHelper = new GraphTestHelper();
+        GraphTestHelperNeo4J graphTestHelper = new GraphTestHelperNeo4J();
 
         MutableGraphTransactionNeo4J neo4 = (MutableGraphTransactionNeo4J) txn;
         final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(neo4, serviceRelationship);

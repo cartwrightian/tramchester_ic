@@ -233,7 +233,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode to, final TransportMode mode,
                                         final MutableGraphTransaction txn) {
-        if (from.hasRelationship(GraphDirection.Outgoing, LINKED)) {
+        if (from.hasRelationship(txn, GraphDirection.Outgoing, LINKED)) {
 
             // update existing relationships if not already present
 

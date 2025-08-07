@@ -79,7 +79,7 @@ class RouteResourceTest {
     @Test
     void shouldHaveExpectedFirstLastForAirportRoute() {
         IdForDTO manAirportIdForDTO = ManAirport.getIdForDTO();
-        IdForDTO finalStationDTOId =  Crumpsal.getIdForDTO();
+        IdForDTO finalStationDTOId =  Victoria.getIdForDTO();
 
         List<RouteDTO> routes = getRouteResponse();
 
@@ -107,7 +107,7 @@ class RouteResourceTest {
             airportDTO = stations.getLast();
             assertEquals(manAirportIdForDTO, airportDTO.getId());
         } else {
-            fail("first and/or last incorrect for airport route " + airRoute);
+            fail(first + "Did not match "+manAirportIdForDTO+" or "+finalStationDTOId+" for airport route " + airRoute.getId());
         }
 
         TestEnv.assertLatLongEquals(ManAirport.getLatLong(), airportDTO.getLatLong(), 0.00001, "lat long");
