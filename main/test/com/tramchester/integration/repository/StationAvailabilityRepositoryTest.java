@@ -102,7 +102,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,31), TramTime.nextDay(0,39)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,12), TramTime.nextDay(0,48)), result);
     }
 
     @Test
@@ -157,8 +157,7 @@ public class StationAvailabilityRepositoryTest {
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
-        // 2->1 picc gardens closure 2025
-        assertEquals(1, results.size(),
+        assertEquals(2, results.size(),
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
@@ -216,20 +215,19 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TramsOnly);
 
-        // Picc gardens closure
-        //Route yellowInbound = tramRouteHelper.getYellow(when);
+        Route yellowInbound = tramRouteHelper.getYellow(when);
         Route blueInbound = tramRouteHelper.getPink(when);
         Route greenOutbound = tramRouteHelper.getGreen(when);
 
-        assertEquals(3, dropOffs.size());
-        //assertTrue(dropOffs.contains(yellowInbound));
+        assertEquals(5, dropOffs.size());
+        assertTrue(dropOffs.contains(yellowInbound));
         assertTrue(dropOffs.contains(blueInbound));
         assertTrue(dropOffs.contains(greenOutbound));
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TramsOnly);
 
-        assertEquals(3, pickups.size());
-        //assertTrue(pickups.contains(yellowInbound));
+        assertEquals(5, pickups.size());
+        assertTrue(pickups.contains(yellowInbound));
         assertTrue(pickups.contains(blueInbound));
         assertTrue(pickups.contains(greenOutbound));
 
