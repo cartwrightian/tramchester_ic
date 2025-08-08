@@ -32,15 +32,15 @@ public class MapPathToLocations {
         this.stationGroupsRepository = stationGroupsRepository;
     }
 
-    public List<Location<?>> mapToLocations(GraphPath path, GraphTransaction txn) {
+    public List<Location<?>> mapToLocations(final GraphPath path, final GraphTransaction txn) {
         Location<?> previous = null;
-        List<Location<?>> results = new ArrayList<>();
+        final List<Location<?>> results = new ArrayList<>();
         //for(GraphNode node : txn.iter(path.nodes())) {
         for(GraphNode node : path.getNodes(txn)) {
             Optional<Location<?>> maybeLocation = mapNode(node);
             maybeLocation.ifPresent(location -> {});
             if (maybeLocation.isPresent()) {
-                Location<?> location = maybeLocation.get();
+                final Location<?> location = maybeLocation.get();
                 if (results.isEmpty()) {
                     results.add(location);
                 } else  {

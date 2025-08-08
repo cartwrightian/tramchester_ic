@@ -14,7 +14,7 @@ import org.neo4j.graphdb.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J { //, GraphTraverseTransaction {
+public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTransactionNeo4J {
 
     private final MutableGraphTransactionNeo4J underlying;
 
@@ -93,11 +93,6 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public GraphNodeId getPreviousNodeId(final GraphPath path) {
-        return underlying.getPreviousNodeId(path);
-    }
-
-    @Override
     public GraphNode fromStart(final Path path) {
         return underlying.fromStart(path);
     }
@@ -113,11 +108,6 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public GraphNodeId endNodeNodeId(final GraphPath path) {
-        return underlying.endNodeNodeId(path);
-    }
-
-    @Override
     public GraphNodeId getStartNodeId(final Relationship relationship) {
         return underlying.getStartNodeId(relationship);
     }
@@ -125,6 +115,11 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     @Override
     public GraphNodeId getEndNodeId(final Relationship relationship) {
         return underlying.getEndNodeId(relationship);
+    }
+
+    @Override
+    public GraphNodeId getGraphIdFor(Node node) {
+        return underlying.getGraphIdFor(node);
     }
 
 

@@ -13,4 +13,6 @@ public interface GraphPath {
     Iterable<GraphNode> getNodes(GraphTransaction txn);
 
     GraphRelationship getLastRelationship(GraphTransaction txn);
+
+    GraphNodeId getPreviousNodeId(GraphTransaction txn);
 }

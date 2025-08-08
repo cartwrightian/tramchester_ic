@@ -19,6 +19,7 @@ import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
@@ -107,7 +108,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // reuse these, label operations on nodes are expensive
         final EnumSet<GraphLabel> labels = nextNode.getLabels();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), txn.getPreviousNodeId(graphPath));
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), graphPath.getPreviousNodeId(txn));
 
         // TODO WIP Spike
 //        if (journeyState.alreadyVisited(nextNode, labels)) {

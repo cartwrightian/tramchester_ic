@@ -24,9 +24,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.search.neo4j.PreviousVisits;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphPath;
 import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
-import com.tramchester.graph.core.neo4j.GraphPathNeo4j;
 import com.tramchester.graph.core.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
@@ -48,7 +46,9 @@ import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 
@@ -102,7 +102,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         providesNow = createMock(ProvidesNow.class);
 
-
         config = new TestConfig() {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
@@ -129,7 +128,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
         path = createMock(Path.class);
-        GraphPath graphPath = GraphPathNeo4j.from(path);
+        //GraphPath graphPath = GraphPathNeo4j.from(path);
         node = createMock(GraphNode.class);
 
         final GraphNodeId nodeId = GraphNodeIdNeo4J.TestOnly(42L);
@@ -143,7 +142,13 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
 
         EasyMock.expect(txn.fromEnd(path)).andReturn(node);
-        EasyMock.expect(txn.getPreviousNodeId(graphPath)).andReturn(previousNodeId);
+
+        Relationship previousRelationship = createMock(Relationship.class);
+        Node previousNode = createMock(Node.class);
+        EasyMock.expect(previousRelationship.getStartNode()).andReturn(previousNode);
+        EasyMock.expect(path.lastRelationship()).andReturn(previousRelationship);
+                        //EasyMock.expect(txn.getPreviousNodeId(graphPath)).andReturn(previousNodeId);
+        EasyMock.expect(txn.getGraphIdFor(previousNode)).andReturn(previousNodeId);
 
     }
 
@@ -720,7 +725,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(journeyState.getTotalDurationSoFar()).andReturn(duration);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
         EasyMock.expect(journeyState.getTraversalStateType()).andStubReturn(TraversalStateType.PlatformState);
-        //EasyMock.expect(journeyState.approxPosition()).andStubReturn(TramStations.ExchangeSquare.getId());
         journeyState.approxPosition();
         EasyMock.expectLastCall().andStubReturn(TramStations.ExchangeSquare.getLocationId());
 
@@ -730,7 +734,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).
                 andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
 
-//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
         EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(lowestCostSeen.everArrived()).andReturn(true);

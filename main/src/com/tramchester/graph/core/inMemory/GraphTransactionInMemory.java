@@ -145,16 +145,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         return graph.getRelationship(graphRelationshipId);
     }
 
-    @Override
-    public GraphNodeId getPreviousNodeId(final GraphPath graphPath) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public GraphNodeId endNodeNodeId(final GraphPath path) {
-        throw new RuntimeException("Not implemented");
-    }
-
     public Stream<GraphRelationshipInMemory> getRelationships(final GraphNodeId id, final GraphDirection direction,
                                                               final EnumSet<TransportRelationshipTypes> relationshipTypes) {
         Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
@@ -174,7 +164,9 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         if (result.size()==1) {
             return result.getFirst();
         }
-        throw new RuntimeException("Wrong number of relationships " + result.size());
+        String msg = "Wrong number of relationships " + result.size();
+        logger.error(msg);
+        throw new GraphException(msg);
 
     }
 

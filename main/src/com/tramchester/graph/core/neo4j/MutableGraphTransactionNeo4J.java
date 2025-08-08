@@ -263,13 +263,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public GraphNodeId endNodeNodeId(final GraphPath path) {
-        GraphPathNeo4j graphPathNeo4j = (GraphPathNeo4j) path;
-        final Node endNode = graphPathNeo4j.endNode();
-        return idFactory.getIdFor(endNode);
-    }
-
-    @Override
     public GraphNodeId getStartNodeId(final Relationship relationship) {
         return idFactory.getIdFor(relationship.getStartNode());
     }
@@ -277,6 +270,11 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     @Override
     public GraphNodeId getEndNodeId(final Relationship relationship) {
         return idFactory.getIdFor(relationship.getEndNode());
+    }
+
+    @Override
+    public GraphNodeId getGraphIdFor(final Node node) {
+        return idFactory.getIdFor(node);
     }
 
 //    @Override
@@ -310,17 +308,16 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
         return wrapNodeAsImmutable(relationship.getEndNode());
     }
 
-    @Override
-    public GraphNodeId getPreviousNodeId(final GraphPath path) {
-        final GraphPathNeo4j graphPathNeo4j = (GraphPathNeo4j) path;
-        final Relationship last = graphPathNeo4j.lastRelationship();
-        if (last == null) {
-            return null;
-        } else {
-            return idFactory.getIdFor(last.getStartNode());
-        }
-    }
-
+//    @Override
+//    public GraphNodeId getPreviousNodeId(final GraphPath path) {
+//        final GraphPathNeo4j graphPathNeo4j = (GraphPathNeo4j) path;
+//        final Relationship last = graphPathNeo4j.lastRelationship();
+//        if (last == null) {
+//            return null;
+//        } else {
+//            return idFactory.getIdFor(last.getStartNode());
+//        }
+//    }
 
     /***
      * Diagnostic support only @See GraphTestHelper

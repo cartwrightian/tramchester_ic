@@ -20,7 +20,7 @@ public class GraphPathNeo4j implements GraphPath {
     }
 
     // TODO into factory?
-    public static GraphPath from(Path path) {
+    public static GraphPathNeo4j from(final Path path) {
         return new GraphPathNeo4j(path);
     }
 
@@ -80,8 +80,22 @@ public class GraphPathNeo4j implements GraphPath {
         return txnNeo4J.wrapRelationship(relationship);
     }
 
-    public Relationship lastRelationship() {
-        return path.lastRelationship();
+    @Override
+    public GraphNodeId getPreviousNodeId(final GraphTransaction txn) {
+        final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+        final Relationship last = path.lastRelationship();
+        if (last == null) {
+            return null;
+        } else {
+            final Node previousNode = last.getStartNode();
+            return txnNeo4J.getGraphIdFor(previousNode);
+        }
+    }
+
+    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
+        final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+        final Node node = path.endNode();
+        return txnNeo4J.getGraphIdFor(node);
     }
 
     public Node endNode() {

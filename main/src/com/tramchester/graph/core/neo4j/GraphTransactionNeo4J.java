@@ -15,13 +15,9 @@ public interface GraphTransactionNeo4J extends AutoCloseable {
 
     Iterable<GraphNode> iter(Iterable<Node> iterable);
 
-    //GraphNodeId getPreviousNodeId(Path path);
-
     GraphNode fromStart(Path path);
 
     GraphNode fromEnd(Path path);
-
-    //GraphNodeId endNodeNodeId(Path path);
 
     // internal
 
@@ -33,5 +29,5 @@ public interface GraphTransactionNeo4J extends AutoCloseable {
 
     GraphNodeId getEndNodeId(Relationship relationship);
 
-
+    GraphNodeId getGraphIdFor(Node node);
 }
