@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public interface MutableGraphNode extends GraphNode {
-    void delete();
+    void delete(MutableGraphTransaction txn);
 
     MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn, MutableGraphNode end,
                                                   TransportRelationshipTypes relationshipType);

@@ -3,7 +3,6 @@ package com.tramchester.graph.core.neo4j;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
@@ -12,8 +11,6 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Objects;
-
-import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class MutableGraphRelationshipNeo4J extends GraphRelationshipProperties<GraphPropsNeo4J> {
 
@@ -39,7 +36,7 @@ public class MutableGraphRelationshipNeo4J extends GraphRelationshipProperties<G
     }
 
     @Override
-    public void delete() {
+    public void delete(MutableGraphTransaction txn) {
         invalidateCache();
         relationship.delete();
     }

@@ -143,9 +143,9 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
     }
 
     @Override
-    public boolean hasAnyMatching(final GraphLabel graphLabel, final String field, final String value) {
+    public boolean hasAnyMatching(final GraphLabel graphLabel, final GraphPropertyKey key, final String value) {
         final Label label = relationshipTypeFactory.get(graphLabel);
-        Node node = txn.findNode(label, field, value);
+        final Node node = txn.findNode(label, key.getText(), value);
         return node != null;
     }
 

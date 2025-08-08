@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -42,7 +43,7 @@ public class ImmutableGraphTransactionNeo4J implements GraphTransaction, GraphTr
     }
 
     @Override
-    public boolean hasAnyMatching(final GraphLabel label, final String field, final String value) {
+    public boolean hasAnyMatching(final GraphLabel label, final GraphPropertyKey field, final String value) {
         return underlying.hasAnyMatching(label, field, value);
     }
 

@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -33,6 +34,11 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
+    public void close() {
+        // TODO
+    }
+
+    @Override
     public MutableGraphNode createNode(final GraphLabel graphLabel) {
         return createNode(EnumSet.of(graphLabel));
     }
@@ -43,33 +49,28 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public MutableGraphNode getNodeByIdMutable(GraphNodeId nodeId) {
-        return null;
+    public MutableGraphNode getNodeByIdMutable(final GraphNodeId nodeId) {
+        return graph.getNode(nodeId);
     }
 
     @Override
-    public Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel) {
-        return Stream.empty();
+    public Stream<MutableGraphNode> findNodesMutable(final GraphLabel graphLabel) {
+        return graph.findNodes(graphLabel).map(item -> item);
     }
 
     @Override
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
-        return null;
+        throw new RuntimeException("not implemented");
     }
 
     @Override
     public GraphTransaction asImmutable() {
-        return null;
+        throw new RuntimeException("not implemented");
     }
 
     @Override
     public MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
         return graph.createRelationship(relationshipType, (GraphNodeInMemory) begin, (GraphNodeInMemory) end);
-    }
-
-    @Override
-    public void close() {
-
     }
 
     @Override
@@ -79,27 +80,43 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
-        throw new RuntimeException("Not implemented");
+        return graph.findNodes(graphLabel).map(item -> item);
     }
 
     @Override
-    public GraphNode getNodeById(GraphNodeId nodeId) {
-        throw new RuntimeException("Not implemented");
+    public GraphNode getNodeById(final GraphNodeId nodeId) {
+        return graph.getNode(nodeId);
     }
 
     @Override
-    public boolean hasAnyMatching(GraphLabel label, String field, String value) {
-        throw new RuntimeException("Not implemented");
+    public boolean hasAnyMatching(GraphLabel label, GraphPropertyKey key, String value) {
+        return graph.findNodes(label).
+                filter(node -> node.hasProperty(key)).
+                anyMatch(node -> node.getPropery(key).equals(value));
     }
 
     @Override
     public boolean hasAnyMatching(GraphLabel graphLabel) {
-        throw new RuntimeException("Not implemented");
+        return graph.findNodes(graphLabel).findAny().isPresent();
     }
 
     @Override
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {
-        throw new RuntimeException("Not implemented");
+        return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
+    }
+
+    private GraphNode findNode(final GraphLabel label, final GraphPropertyKey propertyKey, final String itemId) {
+        final List<GraphNodeInMemory> found = graph.findNodes(label).
+                filter(node -> node.hasProperty(propertyKey)).
+                filter(node -> node.getPropery(propertyKey).equals(itemId)).
+                toList();
+        if (found.isEmpty()) {
+            return null;
+        }
+        if (found.size()==1) {
+            return found.getFirst();
+        }
+        throw new RuntimeException("Unexpected number found " + found.getFirst());
     }
 
     @Override
@@ -142,5 +159,13 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         }
         throw new RuntimeException("Wrong number of relationships " + result.size());
 
+    }
+
+    public void delete(final GraphRelationshipId id) {
+        graph.delete(id);
+    }
+
+    public void delete(final GraphNodeId id) {
+        graph.delete(id);
     }
 }

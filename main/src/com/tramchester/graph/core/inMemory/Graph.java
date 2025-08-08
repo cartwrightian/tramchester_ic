@@ -77,6 +77,48 @@ public class Graph {
         }
     }
 
+    public synchronized void delete(GraphRelationshipId id) {
+        if (!relationships.containsKey(id)) {
+            throw new GraphException("Missing id " + id);
+        }
+        final GraphRelationshipInMemory relationship = relationships.get(id);
+        GraphNodeId begin = relationship.getStartId();
+        GraphNodeId end = relationship.getEndId();
+
+        deleteRelationshipFrom(begin, id);
+        deleteRelationshipFrom(end, id);
+    }
+
+    public synchronized void delete(GraphNodeId id) {
+        if (!nodes.containsKey(id)) {
+            throw new GraphException("Missing id " + id);
+        }
+        if (relationshipsForNodes.containsKey(id)) {
+            final RelationshipsForNode forNode = relationshipsForNodes.get(id);
+            if (!forNode.isEmpty()) {
+                throw new GraphException("Node " + id + " still has relationships " + relationshipsForNodes);
+            }
+        }
+        nodes.remove(id);
+    }
+
+    private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final GraphRelationshipId relationshipId) {
+        if (relationshipsForNodes.containsKey(graphNodeId)) {
+            relationshipsForNodes.get(graphNodeId).remove(relationshipId);
+        }
+    }
+
+    public GraphNodeInMemory getNode(final GraphNodeId nodeId) {
+        if (!nodes.containsKey(nodeId)) {
+            throw new GraphException("No such node " + nodeId);
+        }
+        return nodes.get(nodeId);
+    }
+
+    public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
+        return nodes.values().stream().filter(node -> node.hasLabel(graphLabel));
+    }
+
     private static class RelationshipsForNode {
         private final Set<GraphRelationshipId> outbound;
         private final Set<GraphRelationshipId> inbound;
@@ -95,11 +137,36 @@ public class Graph {
         }
 
         public void addOutbound(GraphRelationshipId relationshipId) {
-            outbound.add(relationshipId);
+            synchronized (outbound) {
+                outbound.add(relationshipId);
+            }
         }
 
         public void addInbound(GraphRelationshipId relationshipId) {
-            inbound.add(relationshipId);
+            synchronized (inbound) {
+                inbound.add(relationshipId);
+            }
+        }
+
+        public void remove(GraphRelationshipId relationshipId) {
+            synchronized (outbound) {
+                outbound.remove(relationshipId);
+            }
+            synchronized (inbound) {
+                inbound.remove(relationshipId);
+            }
+        }
+
+        public boolean isEmpty() {
+            return outbound.isEmpty() && inbound.isEmpty();
+        }
+
+        @Override
+        public String toString() {
+            return "RelationshipsForNode{" +
+                    "outbound=" + outbound +
+                    ", inbound=" + inbound +
+                    '}';
         }
     }
 }

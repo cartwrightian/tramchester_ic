@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphNode getNodeById(GraphNodeId nodeId);
 
-    boolean hasAnyMatching(GraphLabel label, String field, String value);
+    boolean hasAnyMatching(GraphLabel label, GraphPropertyKey key, String value);
 
     boolean hasAnyMatching(GraphLabel graphLabel);
 

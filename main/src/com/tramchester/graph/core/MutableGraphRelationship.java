@@ -17,7 +17,7 @@ import java.time.LocalDate;
 
 public interface MutableGraphRelationship extends GraphRelationship {
 
-    void delete();
+    void delete(MutableGraphTransaction txn);
 
     void setTransportMode(TransportMode transportMode);
 

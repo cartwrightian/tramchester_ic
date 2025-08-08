@@ -166,7 +166,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         try (final MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             final String value = sourceConfig.getName();
 
-            flag = txn.hasAnyMatching(GraphLabel.WALK_FOR_CLOSED_ENABLED, SOURCE_NAME_PROP.getText(), value);
+            flag = txn.hasAnyMatching(GraphLabel.WALK_FOR_CLOSED_ENABLED, SOURCE_NAME_PROP, value);
         }
         return flag;
     }

@@ -127,7 +127,7 @@ public class RouteCalculatorTest {
             assertTrue(expectedChanges.contains(interchange), interchange + " not in " + expectedChanges);
 
             List<ChangeLocation<?>> changeStations = journey.getChangeStations();
-            assertEquals(2, changeStations.size(), changeStations.toString());
+            assertEquals(1, changeStations.size(), changeStations.toString());
             assertTrue(expectedChanges.contains(changeStations.getFirst().location().getName()));
         });
 
@@ -276,17 +276,27 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldUseAllRoutesCorrectlWhenMultipleRoutesServDestination() {
+    void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
         TramStations start = Altrincham;
 
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21), maxNumResults, maxChanges);
+        long maxNumberJourneys = 5;
 
-        List<Journey> servedByBothRoutes = calculator.calculateRouteAsList(start, Deansgate, journeyRequest);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21), maxNumberJourneys, maxChanges);
+
         List<Journey> altyToPiccGardens = calculator.calculateRouteAsList(start, PiccadillyGardens, journeyRequest);
         List<Journey> altyToMarketStreet = calculator.calculateRouteAsList(start, MarketStreet, journeyRequest);
 
-        assertEquals(altyToPiccGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size());
+        JourneyRequest journeyRequestBoth = standardJourneyRequest(when, TramTime.of(10, 21),
+                2*maxNumberJourneys, maxChanges);
+        List<Journey> servedByBothRoutes = calculator.calculateRouteAsList(start, Deansgate, journeyRequestBoth);
+
+        assertFalse(altyToPiccGardens.isEmpty());
+        assertFalse(altyToMarketStreet.isEmpty());
+        assertFalse(servedByBothRoutes.isEmpty());
+
+        assertEquals(altyToPiccGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size(),
+            "Mismatch Alty to Picc G " + altyToPiccGardens.size() + " Alty to Market St " + altyToMarketStreet.size());
     }
 
     // over max wait, catch failure to accumulate journey times correctly

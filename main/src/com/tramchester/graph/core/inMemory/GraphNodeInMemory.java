@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     private final GraphNodeId id;
+
+    // push labels into graph, so can do the validation check etc
     private final EnumSet<GraphLabel> labels;
 
     public GraphNodeInMemory(final GraphNodeId id, final EnumSet<GraphLabel> labels) {
@@ -89,8 +91,9 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public void delete() {
-        throw new RuntimeException("Not implemented yet");
+    public void delete(final MutableGraphTransaction txn) {
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        inMemory.delete(id);
     }
 
     @Override
@@ -126,4 +129,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public boolean isRelationship() {
         return false;
     }
+
+
 }

@@ -277,7 +277,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private MutableGraphNode createRouteStationNode(final MutableGraphTransaction tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
 
-        final boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
+        final boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID, routeStation.getId().getGraphId());
 
         if (hasAlready) {
             final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();

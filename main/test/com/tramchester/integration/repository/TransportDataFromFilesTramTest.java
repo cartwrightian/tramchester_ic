@@ -149,8 +149,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // 2->1 picc gardens summer 2025
-        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -207,10 +206,9 @@ public class TransportDataFromFilesTramTest {
                         map(routeStation -> routeStation.getRoute().getShortName()).
                         collect(Collectors.toSet());
 
-        // 2->1 picc gardens summer 2025
-        assertEquals(1, lines.size(), lines.toString());
+        assertEquals(2, lines.size(), lines.toString());
 
-        //assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()));
+        assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()));
         assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()));
 
     }

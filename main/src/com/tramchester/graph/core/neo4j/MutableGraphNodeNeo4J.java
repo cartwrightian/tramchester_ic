@@ -38,7 +38,7 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public void delete() {
+    public void delete(MutableGraphTransaction txn) {
         invalidateCache();
         node.delete();
     }

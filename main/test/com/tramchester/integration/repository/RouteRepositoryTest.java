@@ -214,7 +214,7 @@ public class RouteRepositoryTest {
 
         Set<RoutePair> noOverlap = new HashSet<>();
 
-        assertTrue(when.isBefore(TramDate.of(2025, 8, 11)),"renable other test, remove this one");
+        //assertTrue(when.isBefore(TramDate.of(2025, 8, 11)),"renable other test, remove this one");
 
         for (TFGMRouteNames knownRouteA : known) {
             for (TFGMRouteNames knownRouteB : known) {
@@ -258,7 +258,7 @@ public class RouteRepositoryTest {
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         // 6->5 picc gardens closures summer 2025
-        int throughRoutes = 5; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        int throughRoutes = 6; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 

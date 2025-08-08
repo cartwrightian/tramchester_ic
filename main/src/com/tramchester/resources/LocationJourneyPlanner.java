@@ -278,7 +278,7 @@ public class LocationJourneyPlanner {
         private final List<MutableGraphRelationship> relationships;
         private final List<MutableGraphNode> nodes;
 
-        private WalkNodesAndRelationships(MutableGraphTransaction txn) {
+        private WalkNodesAndRelationships(final MutableGraphTransaction txn) {
             this.txn = txn;
             this.relationships = new ArrayList<>();
             this.nodes = new ArrayList<>();
@@ -287,8 +287,8 @@ public class LocationJourneyPlanner {
         public void delete() {
             logger.info("Removed added walks and walk node(s)");
             // cache is updated by the delete methods
-            relationships.forEach(MutableGraphRelationship::delete);
-            nodes.forEach(MutableGraphNode::delete);
+            relationships.forEach(relationship -> relationship.delete(txn));
+            nodes.forEach(node -> node.delete(txn));
         }
 
         public void addAll(List<MutableGraphRelationship> relationshipList) {

@@ -146,7 +146,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         try (final MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             final String value = sourceConfig.getName();
 
-            flag = txn.hasAnyMatching(GraphLabel.TEMP_WALKS_ADDED, SOURCE_NAME_PROP.getText(), value);
+            flag = txn.hasAnyMatching(GraphLabel.TEMP_WALKS_ADDED, SOURCE_NAME_PROP, value);
         }
         return flag;
     }

@@ -22,8 +22,9 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     }
 
     @Override
-    public void delete() {
-
+    public void delete(MutableGraphTransaction txn) {
+        GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        inMemory.delete(id);
     }
 
     @Override
@@ -48,11 +49,19 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @Override
     public GraphNodeId getStartNodeId(GraphTransaction txn) {
+        return getStartId();
+    }
+
+    GraphNodeId getStartId() {
         return start.getId();
     }
 
     @Override
     public GraphNodeId getEndNodeId(GraphTransaction txn) {
+        return getEndId();
+    }
+
+    GraphNodeId getEndId() {
         return end.getId();
     }
 
@@ -63,7 +72,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @Override
     public boolean isType(TransportRelationshipTypes transportRelationshipType) {
-        return false;
+        return relationshipType.equals(transportRelationshipType);
     }
 
     @Override
