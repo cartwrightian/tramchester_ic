@@ -18,7 +18,6 @@ import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphRelationship;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -27,7 +26,6 @@ import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-//import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
@@ -89,11 +87,10 @@ public class LocationJourneyPlanner {
 
         // station => station
         final Running running = () -> true;
-        final GraphTransaction immutableTxn = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
-            return routeCalculatorArriveBy.calculateRoute(immutableTxn, start, destination, journeyRequest, running);
+            return routeCalculatorArriveBy.calculateRoute(txn, start, destination, journeyRequest, running);
         } else {
-            return routeCalculator.calculateRoute(immutableTxn, start, destination, journeyRequest, running);
+            return routeCalculator.calculateRoute(txn, start, destination, journeyRequest, running);
         }
     }
 
@@ -123,11 +120,10 @@ public class LocationJourneyPlanner {
         final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
         final Stream<Journey> journeys;
         Running running = () -> true;
-        final GraphTransaction immutable = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(immutable, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(immutable, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -173,11 +169,10 @@ public class LocationJourneyPlanner {
 
         final Stream<Journey> journeys;
         final Running running = () -> true;
-        final GraphTransaction immutable = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(immutable, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(immutable, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
+            journeys = routeCalculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -214,12 +209,12 @@ public class LocationJourneyPlanner {
         /// CALC
         Stream<Journey> journeys;
         Running running = () -> true;
-        final GraphTransaction immutable = txn.asImmutable();
+//        final GraphTransaction immutable = txn.asImmutable();
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(immutable, walksAtStart, startNode,  endWalk, destinationStations,
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
                     journeyRequest, numberOfChanges, running);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(immutable, walksAtStart, startNode, endWalk, destinationStations,
+            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
                     journeyRequest, numberOfChanges, running);
         }
 

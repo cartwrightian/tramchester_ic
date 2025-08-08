@@ -64,12 +64,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public GraphTransaction asImmutable() {
-        // todo once neo4j Immutable moved into main impl likely no longer needed
-        return this;
-    }
-
-    @Override
     public MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
         return graph.createRelationship(relationshipType, (GraphNodeInMemory) begin, (GraphNodeInMemory) end);
     }

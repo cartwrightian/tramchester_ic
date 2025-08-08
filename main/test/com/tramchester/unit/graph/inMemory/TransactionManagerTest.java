@@ -132,20 +132,6 @@ public class TransactionManagerTest {
     }
 
     @Test
-    void shouldConvertToImmutable() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
-
-            MutableGraphNode nodeA = txn.createNode(BUS);
-            GraphNodeId id = nodeA.getId();
-
-            GraphTransaction immutable = txn.asImmutable();
-
-            GraphNode find = immutable.getNodeById(id);
-            assertEquals(id, find.getId());
-        }
-    }
-
-    @Test
     void shouldFindNodesByDomainItem() {
         try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
             Station station = Victoria.fake();

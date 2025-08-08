@@ -50,17 +50,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
         this.sharedRelationshipCache = sharedRelationshipCache;
     }
 
-    /***
-     * Use with care, this original transaction must not be used any further but must be closed
-     * @return GraphTransaction
-     */
-    @Deprecated
-    @Override
-    public GraphTransaction asImmutable() {
-        return this;
-        //return new ImmutableGraphTransactionNeo4J(this);
-    }
-
     @Override
     public MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
         throw new RuntimeException("Not implemented");

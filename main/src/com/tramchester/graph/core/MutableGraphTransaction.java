@@ -25,7 +25,5 @@ public interface MutableGraphTransaction extends GraphTransaction {
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item);
 
-    GraphTransaction asImmutable();
-
     MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType);
 }

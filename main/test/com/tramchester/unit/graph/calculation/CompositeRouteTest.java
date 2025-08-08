@@ -99,7 +99,7 @@ class CompositeRouteTest {
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepository, txn);
 
-        calculator = new RouteCalculatorTestFacade(componentContainer, txn.asImmutable());
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
     }
 
@@ -206,15 +206,14 @@ class CompositeRouteTest {
     @Test
     void shouldHaveRouteCosts() throws InvalidDurationException {
         EnumSet<TransportMode> modes = TramsOnly;
-        GraphTransaction immutable = txn.asImmutable();
 
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(immutable, startGroup, transportData.getLast(), queryDate, modes));
-        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(immutable, transportData.getFirst(),
+        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate, modes));
+        assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(),
                 transportData.getLast(), queryDate, modes));
 
-        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(immutable, transportData.getFirst(), startGroup, queryDate, modes));
-        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(immutable, startGroup, transportData.getFirst(), queryDate, modes));
+        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(txn, transportData.getFirst(), startGroup, queryDate, modes));
+        assertMinutesEquals(0, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getFirst(), queryDate, modes));
     }
 
     @Test

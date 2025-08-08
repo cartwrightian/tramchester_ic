@@ -81,7 +81,7 @@ class RouteCalculatorSubGraphTest {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTxMutable();
-        calculator = new RouteCalculatorTestFacade(componentContainer, txn.asImmutable());
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
         LocationJourneyPlanner planner = componentContainer.get(LocationJourneyPlanner.class);
         stationRepository = componentContainer.get(StationRepository.class);
