@@ -14,12 +14,8 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphPath;
-import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
@@ -119,10 +115,10 @@ public class RouteCalculatorSupport {
         return IntStream.rangeClosed(computedMinChanges, max).boxed();
     }
 
-    public Stream<RouteCalculatorNeo4J.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
-                                                                   final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
-                                                                   final LocationCollection destinations, TowardsDestination towardsDestination,
-                                                                   final Set<GraphNodeId> destinationNodeIds, final Running running) {
+    public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
+                                              final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
+                                              final LocationCollection destinations, TowardsDestination towardsDestination,
+                                              final Set<GraphNodeId> destinationNodeIds, final Running running) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -135,11 +131,11 @@ public class RouteCalculatorSupport {
 
         final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
                 destinationNodeIds, destinations, towardsDestination, running);
-        return paths.map(path -> new RouteCalculatorNeo4J.TimedPath(path, pathRequest));
+        return paths.map(path -> new TimedPath(path, pathRequest));
     }
 
     @NotNull
-    protected Journey createJourney(final JourneyRequest journeyRequest, final RouteCalculatorNeo4J.TimedPath path,
+    protected Journey createJourney(final JourneyRequest journeyRequest, final TimedPath path,
                                     TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
                                     final GraphTransaction txn) {
 

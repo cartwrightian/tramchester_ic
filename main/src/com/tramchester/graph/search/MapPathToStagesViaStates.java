@@ -11,7 +11,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
-import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
@@ -53,7 +52,7 @@ public class MapPathToStagesViaStates implements PathToStages {
     }
 
     @Override
-    public List<TransportStage<?, ?>> mapDirect(final RouteCalculatorNeo4J.TimedPath timedPath, final JourneyRequest journeyRequest,
+    public List<TransportStage<?, ?>> mapDirect(final TimedPath timedPath, final JourneyRequest journeyRequest,
                                                 final TowardsDestination towardsDestination, final GraphTransaction txn, boolean fullLogging) {
         final GraphPath path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();

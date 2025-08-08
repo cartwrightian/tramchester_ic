@@ -1,12 +1,16 @@
 package com.tramchester.unit.graph.inMemory;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -95,6 +99,53 @@ public class TransactionManagerTest {
     }
 
     @Test
+    void shouldGetRelationships() {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+
+            MutableGraphNode nodeA = txn.createNode(ROUTE_STATION);
+            MutableGraphNode nodeB = txn.createNode(STATION);
+
+            Station station = Victoria.fake();
+            Route route = TestEnv.getTramTestRoute();
+            RouteStation routeStation = new RouteStation(station, route);
+            nodeA.set(routeStation);
+
+            GraphNode check = txn.findNode(routeStation);
+            assertNotNull(check);
+
+            List<GraphRelationship> initialSearch = txn.getRouteStationRelationships(routeStation, Outgoing);
+            assertTrue(initialSearch.isEmpty());
+
+            MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.DEPART);
+
+            List<GraphRelationship> result = txn.getRouteStationRelationships(routeStation, Outgoing);
+            assertFalse(result.isEmpty());
+
+            assertTrue(result.contains(relationship));
+
+            GraphRelationshipId id = relationship.getId();
+            GraphRelationship viaTransaction = txn.getRelationshipById(id);
+            assertNotNull(viaTransaction);
+            assertEquals(id, viaTransaction.getId());
+        }
+
+    }
+
+    @Test
+    void shouldConvertToImmutable() {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+
+            MutableGraphNode nodeA = txn.createNode(BUS);
+            GraphNodeId id = nodeA.getId();
+
+            GraphTransaction immutable = txn.asImmutable();
+
+            GraphNode find = immutable.getNodeById(id);
+            assertEquals(id, find.getId());
+        }
+    }
+
+    @Test
     void shouldFindNodesByDomainItem() {
         try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
             Station station = Victoria.fake();
@@ -107,6 +158,9 @@ public class TransactionManagerTest {
 
             GraphNode findByItem = txn.findNode(station);
             assertEquals(id, findByItem.getId());
+
+            MutableGraphNode findMutable = txn.findNodeMutable(station);
+            assertEquals(id, findMutable.getId());
 
             assertTrue(txn.hasAnyMatching(station.getNodeLabel(), station.getProp(), station.getId().getGraphId()));
 

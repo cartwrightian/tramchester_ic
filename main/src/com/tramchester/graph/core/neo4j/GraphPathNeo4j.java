@@ -13,7 +13,6 @@ import java.util.Objects;
 
 public class GraphPathNeo4j implements GraphPath {
 
-
     private final Path path;
 
     GraphPathNeo4j(Path path) {

@@ -9,13 +9,18 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class GraphTransactionInMemory implements MutableGraphTransaction {
+    private static final Logger logger = LoggerFactory.getLogger(GraphTransactionInMemory.class);
+
     private final int id;
     private final TransactionObserver parent;
     private final Instant createdAt;
@@ -59,13 +64,9 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public GraphTransaction asImmutable() {
-        throw new RuntimeException("not implemented");
+        // todo once neo4j Immutable moved into main impl likely no longer needed
+        return this;
     }
 
     @Override
@@ -105,51 +106,67 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
-    private GraphNode findNode(final GraphLabel label, final GraphPropertyKey propertyKey, final String itemId) {
+    @Override
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
+        return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
+    }
+
+    private GraphNodeInMemory findNode(final GraphLabel label, final GraphPropertyKey propertyKey, final String itemId) {
         final List<GraphNodeInMemory> found = graph.findNodes(label).
                 filter(node -> node.hasProperty(propertyKey)).
                 filter(node -> node.getPropery(propertyKey).equals(itemId)).
                 toList();
         if (found.isEmpty()) {
+            logger.info("Did not match " + label + " " + propertyKey + " " + itemId);
             return null;
         }
         if (found.size()==1) {
             return found.getFirst();
         }
-        throw new RuntimeException("Unexpected number found " + found.getFirst());
+        final String message = "Unexpected number found " + found.getFirst();
+        logger.error(message);
+        throw new GraphException(message);
     }
 
     @Override
-    public List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction) {
+    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
+        final GraphNode node = findNode(routeStation);
+        if (node==null) {
+            logger.info("Did not find node for " + routeStation.getId());
+            return Collections.emptyList();
+        }
+        final Stream<GraphRelationship> results = graph.getRelationshipsFor(node.getId(), direction).
+                map(item ->item);
+        return results.toList();
+    }
+
+    @Override
+    public GraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
+        return graph.getRelationship(graphRelationshipId);
+    }
+
+    @Override
+    public GraphNodeId getPreviousNodeId(final GraphPath graphPath) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
+    public GraphNodeId endNodeNodeId(final GraphPath path) {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
-    public GraphNodeId getPreviousNodeId(GraphPath graphPath) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public GraphNodeId endNodeNodeId(GraphPath path) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public Stream<GraphRelationshipInMemory> getRelationships(GraphNodeId id, GraphDirection direction, EnumSet<TransportRelationshipTypes> relationshipTypes) {
+    public Stream<GraphRelationshipInMemory> getRelationships(final GraphNodeId id, final GraphDirection direction,
+                                                              final EnumSet<TransportRelationshipTypes> relationshipTypes) {
         Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
         return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
     }
 
-    public boolean hasRelationship(GraphNodeId id, GraphDirection direction, TransportRelationshipTypes transportRelationshipType) {
+    public boolean hasRelationship(final GraphNodeId id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipType) {
         final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
         return relationships.anyMatch(relationship -> relationship.getType().equals(transportRelationshipType));
     }
 
-    public GraphRelationshipInMemory getSingleRelationship(GraphNodeId id, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes) {
+    public GraphRelationshipInMemory getSingleRelationship(final GraphNodeId id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
         final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
         final List<GraphRelationshipInMemory> result = relationships.
                 filter(relationship -> relationship.getType().equals(transportRelationshipTypes)).

@@ -4,6 +4,8 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -15,6 +17,8 @@ import java.util.stream.Stream;
 
 @LazySingleton
 public class Graph {
+    private static final Logger logger = LoggerFactory.getLogger(Graph.class);
+
     private final AtomicInteger nextGraphNodeId;
     private final AtomicInteger nextRelationshipId;
     private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
@@ -65,6 +69,11 @@ public class Graph {
     }
 
     public Stream<GraphRelationshipInMemory> getRelationshipsFor(final GraphNodeId id, final GraphDirection direction) {
+        if (!nodes.containsKey(id)) {
+            String msg = "No such node " + id;
+            logger.error(msg);
+            throw new GraphException(msg);
+        }
         if (relationshipsForNodes.containsKey(id)) {
             RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
             return switch (direction) {
@@ -73,13 +82,16 @@ public class Graph {
                 case Both -> Stream.concat(relationshipsForNode.getOutbound(relationships), relationshipsForNode.getInbound(relationships));
             };
         } else {
+            logger.info("node " + id + " has not relationships");
             return Stream.empty();
         }
     }
 
     public synchronized void delete(GraphRelationshipId id) {
         if (!relationships.containsKey(id)) {
-            throw new GraphException("Missing id " + id);
+            String msg = "Cannot delete relationship, missing id " + id;
+            logger.error(msg);
+            throw new GraphException(msg);
         }
         final GraphRelationshipInMemory relationship = relationships.get(id);
         GraphNodeId begin = relationship.getStartId();
@@ -91,12 +103,16 @@ public class Graph {
 
     public synchronized void delete(GraphNodeId id) {
         if (!nodes.containsKey(id)) {
-            throw new GraphException("Missing id " + id);
+            String msg = "Missing id " + id;
+            logger.error(msg);
+            throw new GraphException(msg);
         }
         if (relationshipsForNodes.containsKey(id)) {
             final RelationshipsForNode forNode = relationshipsForNodes.get(id);
             if (!forNode.isEmpty()) {
-                throw new GraphException("Node " + id + " still has relationships " + relationshipsForNodes);
+                String msg = "Node " + id + " still has relationships " + relationshipsForNodes;
+                logger.error(msg);
+                throw new GraphException(msg);
             }
         }
         nodes.remove(id);
@@ -110,13 +126,25 @@ public class Graph {
 
     public GraphNodeInMemory getNode(final GraphNodeId nodeId) {
         if (!nodes.containsKey(nodeId)) {
-            throw new GraphException("No such node " + nodeId);
+            String msg = "No such node " + nodeId;
+            logger.error(msg);
+            throw new GraphException(msg);
         }
         return nodes.get(nodeId);
     }
 
     public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
         return nodes.values().stream().filter(node -> node.hasLabel(graphLabel));
+    }
+
+    public GraphRelationship getRelationship(final GraphRelationshipId graphRelationshipId) {
+        if (relationships.containsKey(graphRelationshipId)) {
+            return relationships.get(graphRelationshipId);
+        } else {
+            String msg = "No such relationship " + graphRelationshipId;
+            logger.error(msg);
+            throw new GraphException(msg);
+        }
     }
 
     private static class RelationshipsForNode {
