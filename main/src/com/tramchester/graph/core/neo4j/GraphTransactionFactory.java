@@ -110,8 +110,9 @@ public class GraphTransactionFactory implements TransactionObserver {
         return graphTransaction;
     }
 
-    public ImmutableGraphTransactionNeo4J begin(final Duration timeout) {
-        return new ImmutableGraphTransactionNeo4J(beginMutable(timeout));
+    public GraphTransaction begin(final Duration timeout) {
+        return beginMutable(timeout);
+        //return new ImmutableGraphTransactionNeo4J(beginMutable(timeout));
     }
 
     @Override

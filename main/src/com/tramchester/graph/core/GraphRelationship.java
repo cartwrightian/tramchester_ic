@@ -17,7 +17,6 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.neo4j.ImmutableGraphTransactionNeo4J;
 
 import java.time.Duration;
 import java.util.EnumSet;

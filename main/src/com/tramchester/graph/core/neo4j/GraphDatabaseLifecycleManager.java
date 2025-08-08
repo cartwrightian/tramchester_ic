@@ -3,6 +3,7 @@ package com.tramchester.graph.core.neo4j;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
@@ -69,7 +70,7 @@ public class GraphDatabaseLifecycleManager {
                                                             boolean fileExists, GraphTransactionFactory transactionFactory, GraphDatabaseService databaseService) {
         boolean upToDate;
         if (fileExists) {
-            try (ImmutableGraphTransactionNeo4J transaction = transactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)) {
+            try (GraphTransaction transaction = transactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)) {
                 upToDate = storedVersions.upToDate(dataSourceRepository, transaction);
             }
         } else {

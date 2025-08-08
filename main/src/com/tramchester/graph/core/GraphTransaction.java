@@ -31,7 +31,4 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
-    //GraphNodeId getPreviousNodeId(GraphPath graphPath);
-
-    //GraphNodeId endNodeNodeId(GraphPath path);
 }

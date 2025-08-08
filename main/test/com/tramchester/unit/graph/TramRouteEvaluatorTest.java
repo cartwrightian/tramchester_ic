@@ -21,11 +21,11 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.caches.LowestCostSeen;
+import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.search.neo4j.PreviousVisits;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
-import com.tramchester.graph.core.neo4j.ImmutableGraphTransactionNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -76,7 +76,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
     private Duration maxInitialWait;
-    private ImmutableGraphTransactionNeo4J txn;
+    private MutableGraphTransactionNeo4J txn;
     private LocationCollection destinationStations;
     private TramTime queryTime;
 
@@ -114,7 +114,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         maxInitialWait = config.getInitialMaxWaitFor(DataSourceID.tfgm);
 
-        txn = createMock(ImmutableGraphTransactionNeo4J.class);
+        txn = createMock(MutableGraphTransactionNeo4J.class);
 
         destinationNodeId = GraphNodeIdNeo4J.TestOnly(88L);
         startNodeId = GraphNodeIdNeo4J.TestOnly(128L);

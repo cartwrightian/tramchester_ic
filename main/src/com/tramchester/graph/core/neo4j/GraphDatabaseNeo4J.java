@@ -5,6 +5,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
@@ -95,17 +96,17 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     // immutable transactions
 
     @Override
-    public ImmutableGraphTransactionNeo4J beginTx() {
+    public GraphTransaction beginTx() {
         return beginTx(DEFAULT_TXN_TIMEOUT);
     }
 
     @Override
-    public ImmutableGraphTransactionNeo4J beginTx(final Duration timeout) {
+    public GraphTransaction beginTx(final Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 
     @Override
-    public ImmutableGraphTransactionNeo4J beginTx(int timeout, TimeUnit timeUnit) {
+    public GraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
         return beginTx(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 

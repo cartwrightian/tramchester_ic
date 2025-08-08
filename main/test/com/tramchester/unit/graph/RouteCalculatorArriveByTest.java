@@ -11,7 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.core.neo4j.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
@@ -36,11 +36,11 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     private RouteCostCalculator costCalculator;
     private int costBetweenStartDest;
     private TramchesterConfig config;
-    private ImmutableGraphTransactionNeo4J txn;
+    private GraphTransaction txn;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        txn = createStrictMock(ImmutableGraphTransactionNeo4J.class);
+        txn = createStrictMock(GraphTransaction.class);
         costCalculator = createStrictMock(RouteCostCalculator.class);
         routeCalculator = createStrictMock(RouteCalculatorNeo4J.class);
         config = createStrictMock(TramchesterConfig.class);

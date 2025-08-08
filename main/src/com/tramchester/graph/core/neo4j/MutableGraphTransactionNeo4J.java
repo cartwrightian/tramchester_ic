@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 /***
  * Facade around underlying graph DB Transaction
  */
-public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, AutoCloseable, MutableGraphTransaction {
+public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, MutableGraphTransaction {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
     private final GraphReferenceMapper relationshipTypeFactory;
@@ -54,8 +54,11 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Auto
      * Use with care, this original transaction must not be used any further but must be closed
      * @return GraphTransaction
      */
-    public ImmutableGraphTransactionNeo4J asImmutable() {
-        return new ImmutableGraphTransactionNeo4J(this);
+    @Deprecated
+    @Override
+    public GraphTransaction asImmutable() {
+        return this;
+        //return new ImmutableGraphTransactionNeo4J(this);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.neo4j.*;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -59,7 +60,7 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
 
         EasyMock.expect(graphTransactionFactoryFactory.create(graphDatabaseService, dbConfig)).andReturn(transactionFactory);
 
-        ImmutableGraphTransactionNeo4J graphTransaction = createStrictMock(ImmutableGraphTransactionNeo4J.class);
+        GraphTransaction graphTransaction = createStrictMock(GraphTransaction.class);
 
         EasyMock.expect(transactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)).andReturn(graphTransaction);
         graphTransaction.close();
@@ -102,7 +103,7 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         GraphTransactionFactory graphTransactionFactory = createMock(GraphTransactionFactory.class);
         EasyMock.expect(graphTransactionFactoryFactory.create(graphDatabaseService, dbConfig)).andReturn(graphTransactionFactory);
 
-        ImmutableGraphTransactionNeo4J transaction = createMock(ImmutableGraphTransactionNeo4J.class);
+        GraphTransaction transaction = createMock(GraphTransaction.class);
         EasyMock.expect(graphTransactionFactory.begin(GraphDatabaseNeo4J.DEFAULT_TXN_TIMEOUT)).andReturn(transaction);
         transaction.close();
         EasyMock.expectLastCall();

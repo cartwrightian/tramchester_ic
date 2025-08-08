@@ -4,7 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.core.neo4j.ImmutableGraphTransactionNeo4J;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.repository.DataSourceRepository;
@@ -27,7 +27,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
     private GraphDatabaseStoredVersions storedVersions;
-    private ImmutableGraphTransactionNeo4J transaction;
+    private GraphTransaction transaction;
     private TramchesterConfig config;
     private DataSourceRepository dataSourceRepository;
 
@@ -36,7 +36,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         config = TestEnv.GET();
         databaseMetaInfo = createMock(GraphDatabaseMetaInfo.class);
-        transaction = createMock(ImmutableGraphTransactionNeo4J.class);
+        transaction = createMock(GraphTransaction.class);
         storedVersions = new GraphDatabaseStoredVersions(config, databaseMetaInfo);
         dataSourceRepository = createMock(DataSourceRepository.class);
     }
