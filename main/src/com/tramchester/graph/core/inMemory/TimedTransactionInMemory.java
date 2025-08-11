@@ -1,30 +1,25 @@
-package com.tramchester.graph.core.neo4j;
+package com.tramchester.graph.core.inMemory;
 
-import com.tramchester.graph.caches.SharedNodeCache;
-import com.tramchester.graph.caches.SharedRelationshipCache;
+import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.TransactionObserver;
 import com.tramchester.metrics.Timing;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransientTransactionFailureException;
 import org.slf4j.Logger;
 
 import java.time.Duration;
 import java.time.Instant;
 
-public class TimedTransaction extends MutableGraphTransactionNeo4J {
+public class TimedTransactionInMemory extends GraphTransactionInMemory {
     private final Logger logger;
     private final String name;
     private final Timing timing;
     private boolean committed;
 
-    TimedTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId, final TransactionObserver transactionObserver,
-                     final Logger logger, final String name, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache,
-                     GraphReferenceMapper relationshipTypeFactory) {
-        super(txn, idFactory, relationshipTypeFactory, transactionId, transactionObserver, nodeCache, relationshipCache);
+    public TimedTransactionInMemory(int id, TransactionObserver parent, Instant createdAt, Graph graph, Logger logger, String name) {
+        super(id, parent, createdAt, graph);
         this.logger = logger;
         this.name = name;
-        timing = new Timing(logger, "transaction " + name);
-        committed = false;
+        timing = new Timing(logger, name);
     }
 
     @Override

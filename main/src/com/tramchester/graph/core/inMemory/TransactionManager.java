@@ -6,6 +6,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.TransactionObserver;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,9 +27,16 @@ public class TransactionManager implements TransactionObserver {
     }
 
     public synchronized MutableGraphTransaction createTransaction(final Duration timeout) {
+        // TODO implement timeout
         final int index = transactionId.getAndIncrement();
         final Instant createdAt = providesNow.getInstant();
         return new GraphTransactionInMemory(index, this, createdAt, graph);
+    }
+
+    public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text) {
+        final int index = transactionId.getAndIncrement();
+        final Instant createdAt = providesNow.getInstant();
+        return new TimedTransactionInMemory(index, this, createdAt, graph, logger, text);
     }
 
     @Override
@@ -40,4 +48,6 @@ public class TransactionManager implements TransactionObserver {
     public void onCommit(final GraphTransaction graphTransaction) {
 
     }
+
+
 }

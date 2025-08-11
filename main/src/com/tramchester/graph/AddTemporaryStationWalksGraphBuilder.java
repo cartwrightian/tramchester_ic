@@ -197,8 +197,8 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         fromSecond.set(first);
 
         // might be an existing label but that is fine
-        firstNode.addLabel(GraphLabel.HAS_DIVERSION);
-        secondNode.addLabel(GraphLabel.HAS_DIVERSION);
+        firstNode.addLabel(txn, GraphLabel.HAS_DIVERSION);
+        secondNode.addLabel(txn, GraphLabel.HAS_DIVERSION);
 
         final DateTimeRange dateTimeRange = DateTimeRange.of(temporaryStationWalk.getDateRange(), temporaryStationWalk.getTimeRange());
         stationsWithDiversions.add(first, dateTimeRange);

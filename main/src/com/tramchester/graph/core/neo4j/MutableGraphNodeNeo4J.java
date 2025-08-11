@@ -66,7 +66,7 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public void addLabel(final GraphLabel graphLabel) {
+    public void addLabel(final MutableGraphTransaction txn, final GraphLabel graphLabel) {
         final Label label = relationshipTypeFactory.get(graphLabel);
         node.addLabel(label);
         invalidateCache();

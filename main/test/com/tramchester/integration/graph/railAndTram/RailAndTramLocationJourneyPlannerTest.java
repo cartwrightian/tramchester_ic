@@ -21,7 +21,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
@@ -104,7 +103,6 @@ class RailAndTramLocationJourneyPlannerTest {
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveDirectWalkFromPiccadily() {
 

@@ -36,6 +36,7 @@ import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +65,7 @@ class TramGraphBuilderTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(); //new InMemoryConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -946,4 +947,15 @@ class TramGraphBuilderTest {
         assertEquals(0, tripIdsFromFile.size());
     }
 
+    private static class InMemoryConfig extends IntegrationTramTestConfig {
+        @Override
+        public Path getCacheFolder() {
+            return super.getCacheFolder();
+        }
+
+        @Override
+        public boolean getInMemoryGraph() {
+            return true;
+        }
+    }
 }

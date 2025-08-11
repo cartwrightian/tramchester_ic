@@ -97,12 +97,12 @@ public class GraphTransactionFactory implements TransactionObserver {
         return graphTransaction;
     }
 
-    public TimedTransaction beginTimedMutable(Logger logger, String text, Duration timeout) {
+    TimedTransactionNeo4J beginTimedMutable(Logger logger, String text, Duration timeout) {
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
         final GraphIdFactory graphIdFactory = new GraphIdFactory(diagnostics);
-        final TimedTransaction graphTransaction = new TimedTransaction(graphDatabaseTxn, graphIdFactory,
+        final TimedTransactionNeo4J graphTransaction = new TimedTransactionNeo4J(graphDatabaseTxn, graphIdFactory,
                 index,this, logger, text, nodeCache, relationshipCache, relationshipTypeFactory);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());

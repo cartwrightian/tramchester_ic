@@ -427,9 +427,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final MutableGraphNode routeStationNode = routeStationNodeCache.getRouteStation(tx, routeStationId);
 
         if (isInterchange) {
-            routeStationNode.addLabel(INTERCHANGE);
+            routeStationNode.addLabel(tx, INTERCHANGE);
             final EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(station);
-            GraphLabel.forModes(interchangeModes).forEach(routeStationNode::addLabel);
+            GraphLabel.forModes(interchangeModes).forEach(label -> routeStationNode.addLabel(tx, label));
         }
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
@@ -602,7 +602,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (!hourNodeCache.hasHourNode(serviceNode.getId(), hour)) {
             final MutableGraphNode hourNode = createGraphNode(tx, GraphLabel.HOUR);
             hourNode.setHourProp(hour);
-            hourNode.addLabel(GraphLabel.getHourLabel(hour));
+            hourNode.addLabel(tx, GraphLabel.getHourLabel(hour));
             hourNodeCache.putHour(serviceNode.getId(), hour, hourNode);
 
             // service node -> time node

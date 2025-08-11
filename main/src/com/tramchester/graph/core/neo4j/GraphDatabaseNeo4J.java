@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
@@ -113,26 +114,30 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
     // mutable transactions
 
     @Override
-    public MutableGraphTransactionNeo4J beginTxMutable(int timeout, TimeUnit timeUnit) {
+    public MutableGraphTransaction beginTxMutable(int timeout, TimeUnit timeUnit) {
         return beginTxMutable(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 
     @Override
-    public MutableGraphTransactionNeo4J beginTxMutable() {
-        return graphTransactionFactory.beginMutable(DEFAULT_TXN_TIMEOUT);
+    public MutableGraphTransaction beginTxMutable() {
+        return beginMutableNeo4J(DEFAULT_TXN_TIMEOUT);
     }
 
     @Override
-    public MutableGraphTransactionNeo4J beginTxMutable(final Duration timeout) {
+    public MutableGraphTransaction beginTxMutable(final Duration timeout) {
+        return beginMutableNeo4J(timeout);
+    }
+
+    private MutableGraphTransactionNeo4J beginMutableNeo4J(final Duration timeout) {
         return graphTransactionFactory.beginMutable(timeout);
     }
 
     @Override
-    public MutableGraphTransactionNeo4J beginTimedTxMutable(final Logger logger, final String text) {
-        return createTimedTransaction(logger, text);
+    public MutableGraphTransaction beginTimedTxMutable(final Logger logger, final String text) {
+        return beginTimedTxMutableNeo4J(logger, text);
     }
 
-    private TimedTransaction createTimedTransaction(Logger logger, String text) {
+    TimedTransactionNeo4J beginTimedTxMutableNeo4J(Logger logger, String text) {
         return graphTransactionFactory.beginTimedMutable(logger, text, DEFAULT_TXN_TIMEOUT);
     }
 
@@ -140,7 +145,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
 
     public void createIndexes() {
 
-        try (TimedTransaction tx = createTimedTransaction(logger, "Create DB Constraints & indexes"))
+        try (TimedTransactionNeo4J tx = beginTimedTxMutableNeo4J(logger, "Create DB Constraints & indexes"))
         {
 
             if (indexesCreated.get()) {
@@ -182,7 +187,7 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
         if (databaseService==null) {
             throw new RuntimeException("Database service was not started");
         }
-        try(MutableGraphTransactionNeo4J tx = beginTxMutable()) {
+        try(MutableGraphTransactionNeo4J tx = beginMutableNeo4J(DEFAULT_TXN_TIMEOUT)) {
             waitForIndexesReady(tx.schema());
             indexesOnline.set(true);
         }

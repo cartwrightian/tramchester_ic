@@ -30,7 +30,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -228,7 +227,6 @@ public class RouteCalculatorTest {
                 + " cuttoff " + cutoffInterval + " earliest journey " + earliest) ;
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveSameResultWithinReasonableTime() {
         final TramTime queryTimeA = TramTime.of(8, 50);
@@ -602,7 +600,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void reproduceIssueEdgePerTrip() {
 

@@ -26,7 +26,7 @@ public interface MutableGraphNode extends GraphNode {
     MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn, MutableGraphNode end,
                                                   TransportRelationshipTypes relationshipType);
 
-    void addLabel(GraphLabel label);
+    void addLabel(MutableGraphTransaction tx, GraphLabel label);
 
     void setHourProp(Integer hour);
 

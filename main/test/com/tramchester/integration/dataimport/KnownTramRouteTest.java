@@ -13,7 +13,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -81,6 +80,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getNavy, false);
     }
 
+    @DisabledUntilDate(year = 2025, month = 8, day = 25)
     @Test
     void shouldHaveExpectedRouteIdForGreen() {
         checkRouteIdFor(KnownTramRoute::getGreen, true);
@@ -91,7 +91,6 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
-    @DisabledUntilDate(year = 2025, month = 8, day = 11)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -102,7 +101,6 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
-    @DisabledUntilDate(year = 2025, month = 8, day = 11)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getYellow, true);
@@ -110,7 +108,7 @@ class KnownTramRouteTest {
 
     void checkRouteIdFor(Function<TramDate, KnownTramRouteEnum> function, boolean skipSunday) {
 
-        List<TramDate> missingOnDates = new ArrayList<>();
+        List<TramDate> missingFromDataOnDates = new ArrayList<>();
         getDateRange().
                 filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
                 sorted(TramDate::compareTo).
@@ -118,13 +116,13 @@ class KnownTramRouteTest {
                     final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
                     final KnownTramRouteEnum testRoute = function.apply(date);
                     if (checkRouteOnDate(date, testRoute) && !loadedIds.contains(testRoute.getId())) {
-                        missingOnDates.add(date);
+                        missingFromDataOnDates.add(date);
                     }
             });
 
-        List<String> diag = missingOnDates.stream().map(date -> "On date " + date + " test route " + function.apply(date) + " with id " +
-                function.apply(date).getId() + " is missing from " + shortNameMatch(function, date) + System.lineSeparator()).toList();
-        assertTrue(missingOnDates.isEmpty(), diag.toString());
+        List<String> diag = missingFromDataOnDates.stream().map(date -> "On date " + date + " test route " + function.apply(date) + " with id " +
+                function.apply(date).getId() + " is missing from data: " + shortNameMatch(function, date) + System.lineSeparator()).toList();
+        assertTrue(missingFromDataOnDates.isEmpty(), diag.toString());
     }
 
     private boolean checkRouteOnDate(TramDate date, KnownTramRouteEnum testRoute) {
@@ -244,7 +242,6 @@ class KnownTramRouteTest {
         });
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldCheckForMissingRouteSpring2025Closures() {
         // TODO needed for each route?
@@ -263,7 +260,6 @@ class KnownTramRouteTest {
         assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);

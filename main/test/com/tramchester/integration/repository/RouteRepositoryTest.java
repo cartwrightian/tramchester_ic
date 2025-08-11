@@ -18,7 +18,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -178,7 +177,6 @@ public class RouteRepositoryTest {
 
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldOverlapAsExpected() {
 
@@ -230,7 +228,6 @@ public class RouteRepositoryTest {
 
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 

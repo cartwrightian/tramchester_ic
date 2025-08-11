@@ -65,13 +65,13 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @Override
     public boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes) {
-        GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.hasRelationship(id, direction, transportRelationshipTypes);
     }
 
     @Override
     public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
-        GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getSingleRelationship(id, direction, transportRelationshipTypes);
     }
 
@@ -91,7 +91,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public void delete(final MutableGraphTransaction txn) {
+    public synchronized void delete(final MutableGraphTransaction txn) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         inMemory.delete(id);
     }
@@ -103,8 +103,11 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public void addLabel(final GraphLabel label) {
+    public synchronized void addLabel(final MutableGraphTransaction txn, final GraphLabel label) {
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         labels.add(label);
+        inMemory.addLabel(id, label);
+
     }
 
     @Override

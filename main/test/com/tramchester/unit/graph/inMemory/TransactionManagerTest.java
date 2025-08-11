@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.core.GraphDirection.*;
 import static com.tramchester.graph.reference.GraphLabel.*;
@@ -59,6 +60,28 @@ public class TransactionManagerTest {
 
             GraphNodeId id = node.getId();
             assertEquals(new NodeIdInMemory(0), id);
+
+        }
+    }
+
+    @Test
+    void shouldUpdateLabel() {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+            final MutableGraphNode node = txn.createNode(FERRY);
+            final GraphNodeId id = node.getId();
+
+            List<GraphNode> findFerry = txn.findNodes(FERRY).toList();
+            assertEquals(1, findFerry.size());
+            assertEquals(id, findFerry.getFirst().getId());
+
+            List<GraphNode> findTrain = txn.findNodes(TRAIN).toList();
+            assertTrue(findTrain.isEmpty());
+
+            node.addLabel(txn, TRAIN);
+
+            List<GraphNode> findTrainAfter = txn.findNodes(TRAIN).toList();
+            assertEquals(1, findTrainAfter.size());
+            assertEquals(id, findTrainAfter.getFirst().getId());
         }
     }
 

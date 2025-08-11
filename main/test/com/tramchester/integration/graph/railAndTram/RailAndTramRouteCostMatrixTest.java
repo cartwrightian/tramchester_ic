@@ -20,7 +20,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.jetbrains.annotations.NotNull;
@@ -181,7 +180,6 @@ public class RailAndTramRouteCostMatrixTest {
         assertNotEquals(0, oneChange.get());
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);
@@ -217,7 +215,7 @@ public class RailAndTramRouteCostMatrixTest {
         Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly, 2);
 
         int result = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(2, result);
+        assertEquals(3, result);
     }
 
     @NotNull

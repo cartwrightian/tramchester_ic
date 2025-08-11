@@ -33,10 +33,10 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
-            TramDate.of(2025, 8, 10));
-
-    public static TramDate AfterPiccGardensWorksummer2025 = PiccGardensWorksummer2025.getEndDate().plusDays(1);
+//    public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
+//            TramDate.of(2025, 8, 10));
+//
+//    public static TramDate AfterPiccGardensWorksummer2025 = PiccGardensWorksummer2025.getEndDate().plusDays(1);
 
     public static DateRange EcclesAndTraffordParkLinesSummer2025 = DateRange.of(TramDate.of(2025, 8, 2),
             TramDate.of(2025, 8, 11));
@@ -50,6 +50,8 @@ public class UpcomingDates {
                     Wharfside.getRawId(), "9400ZZMAIWM", "9400ZZMAVLG", "9400ZZMAPAR", "9400ZZMAEVC", TraffordCentre.getRawId()).
             map(Station::createId).toList();
 
+    public static final TramDate BankHolAugust2025 = TramDate.of(2025,8,25);
+
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
@@ -61,18 +63,17 @@ public class UpcomingDates {
         return false;
     }
 
-
     public static boolean hasClosure(TramStations station, TramDate date) {
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
 
-        if (PiccadillyGardens.getId().equals(stationId)) {
-            if (PiccGardensWorksummer2025.contains(date)) {
-                return true;
-            }
-        }
+//        if (PiccadillyGardens.getId().equals(stationId)) {
+//            if (PiccGardensWorksummer2025.contains(date)) {
+//                return true;
+//            }
+//        }
         if (EcclesAndTraffordParkLinesSummer2025.contains(date)) {
             if (EcclesAndTraffordParkLinesSummer2025Stations.contains(stationId)) {
                 return true;

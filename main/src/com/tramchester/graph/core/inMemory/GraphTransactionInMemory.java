@@ -74,7 +74,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
+    public Stream<GraphNode> findNodes(final GraphLabel graphLabel) {
         return graph.findNodes(graphLabel).map(item -> item);
     }
 
@@ -96,7 +96,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(final ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
@@ -170,5 +170,9 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     public void delete(final GraphNodeId id) {
         graph.delete(id);
+    }
+
+    public void addLabel(final GraphNodeId id, final GraphLabel label) {
+        graph.addLabel(id, label);
     }
 }

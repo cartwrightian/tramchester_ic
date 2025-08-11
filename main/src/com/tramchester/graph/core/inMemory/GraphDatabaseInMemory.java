@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class GraphDatabaseInMemory implements GraphDatabase {
 
     private final TransactionManager transactionManager;
-    private Duration DEFAULT_TIMEOUT = Duration.ofMinutes(1);
+    static Duration DEFAULT_TIMEOUT = Duration.ofMinutes(1);
 
     @Inject
     public GraphDatabaseInMemory(TransactionManager transactionManager) {
@@ -33,6 +33,10 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @Override
     public GraphTransaction beginTx(final Duration timeout) {
+        return beginTxInMemory(timeout);
+    }
+
+    private MutableGraphTransaction beginTxInMemory(final Duration timeout) {
         return transactionManager.createTransaction(timeout);
     }
 
@@ -53,12 +57,12 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @Override
     public MutableGraphTransaction beginTxMutable(Duration timeout) {
-        return transactionManager.createTransaction(timeout);
+        return beginTxInMemory(timeout);
     }
 
     @Override
     public MutableGraphTransaction beginTimedTxMutable(Logger logger, String text) {
-        return null;
+        return transactionManager.createTimedTransaction(logger, text);
     }
 
     @Override

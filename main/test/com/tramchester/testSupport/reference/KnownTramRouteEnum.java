@@ -13,7 +13,6 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.AfterPiccGardensWorksummer2025;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 
 /*
@@ -38,13 +37,13 @@ public enum KnownTramRouteEnum implements TestRoute {
     RochdaleManchesterEastDidisburyNew(Pink, "Rochdale - Manchester - East Didsbury", "845", latestCutoverDate),
 
     // Purple
-    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", AfterPiccGardensWorksummer2025),
+    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", latestCutoverDate),
 
     // Red
     CornbrookTheTraffordCentreNew(Red, "Etihad Campus - The Trafford Centre", "849", latestCutoverDate),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", AfterPiccGardensWorksummer2025);
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", latestCutoverDate);
 
     private final TFGMRouteNames line;
     private final String longName; // diagnostics only

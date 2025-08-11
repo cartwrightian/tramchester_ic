@@ -15,7 +15,6 @@ import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
@@ -267,13 +266,11 @@ class JourneyPlannerLocationResourceTest {
         });
     }
 
-
     @NotNull
     private LocalDateTime getDateTimeFor(TramDate when, int hour, int minute) {
         return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 

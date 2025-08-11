@@ -230,7 +230,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             fromClosed.set(otherStation);
             fromOther.set(actualStation);
 
-            otherNode.addLabel(GraphLabel.HAS_DIVERSION);
+            otherNode.addLabel(txn, GraphLabel.HAS_DIVERSION);
             stationsWithDiversions.add(otherStation, closedStation.getDateTimeRange());
 
         });
@@ -276,7 +276,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             final MutableGraphNode secondNode = txn.findNodeMutable(second);
 
-            firstNode.addLabel(GraphLabel.HAS_DIVERSION);
+            firstNode.addLabel(txn, GraphLabel.HAS_DIVERSION);
 
             final MutableGraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closedStation);

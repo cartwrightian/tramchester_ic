@@ -19,7 +19,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
@@ -216,7 +215,6 @@ public class RailAndTramRouteToRouteCostsTest {
 
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldReproduceErrorWithPinkAndYellowRoutesTramOnly() {
         // error was due to handling of linked interchange stations in StationAvailabilityRepository

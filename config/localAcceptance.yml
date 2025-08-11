@@ -39,21 +39,8 @@ gtfsSourceConfig:
     additionalInterchanges: []
     groupedStationModes: []
     addWalksForClosed: true
-    stationClosures:
-      - stations:
-          ids: [ "9400ZZMAPGD" ]
-        dateRange:
-          begin: 2025-06-03
-          end: 2025-08-10
-        fullyClosed: true
-        diversionsAroundClosure: [ ]
-        diversionsToFromClosure: [ ]
-    temporaryStationsWalks:
-      - stations:
-          first: 9400ZZMAPIC
-          second: 9400ZZMAMKT
-        begin: 2025-06-03
-        end: 2025-08-10
+    stationClosures: []
+    temporaryStationsWalks: []
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}

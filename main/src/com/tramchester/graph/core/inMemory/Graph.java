@@ -24,6 +24,7 @@ public class Graph {
     private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
     private final ConcurrentMap<GraphNodeId, GraphNodeInMemory> nodes;
     private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
+    private final ConcurrentMap<GraphLabel, Set<GraphNodeId>> labelsToNodes;
 
     // todo proper transaction handling, rollbacks etc
 
@@ -33,6 +34,10 @@ public class Graph {
         relationships = new ConcurrentHashMap<>();
         nodes = new ConcurrentHashMap<>();
         relationshipsForNodes = new ConcurrentHashMap<>();
+        labelsToNodes = new ConcurrentHashMap<>();
+        for(GraphLabel label : GraphLabel.values()) {
+            labelsToNodes.put(label, new HashSet<>());
+        }
     }
 
     public synchronized GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
@@ -40,6 +45,7 @@ public class Graph {
         final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(new NodeIdInMemory(id), labels);
         final GraphNodeId graphNodeId = graphNodeInMemory.getId();
         nodes.put(graphNodeId, graphNodeInMemory);
+        labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
         return graphNodeInMemory;
     }
 
@@ -87,7 +93,7 @@ public class Graph {
         }
     }
 
-    public synchronized void delete(GraphRelationshipId id) {
+    public synchronized void delete(final GraphRelationshipId id) {
         if (!relationships.containsKey(id)) {
             String msg = "Cannot delete relationship, missing id " + id;
             logger.error(msg);
@@ -101,12 +107,13 @@ public class Graph {
         deleteRelationshipFrom(end, id);
     }
 
-    public synchronized void delete(GraphNodeId id) {
+    public synchronized void delete(final GraphNodeId id) {
         if (!nodes.containsKey(id)) {
             String msg = "Missing id " + id;
             logger.error(msg);
             throw new GraphException(msg);
         }
+        // relationships
         if (relationshipsForNodes.containsKey(id)) {
             final RelationshipsForNode forNode = relationshipsForNodes.get(id);
             if (!forNode.isEmpty()) {
@@ -115,6 +122,10 @@ public class Graph {
                 throw new GraphException(msg);
             }
         }
+        // label map
+        final EnumSet<GraphLabel> labels = nodes.get(id).getLabels();
+        labels.forEach(label -> labelsToNodes.get(label).remove(id));
+        // the node
         nodes.remove(id);
     }
 
@@ -134,7 +145,9 @@ public class Graph {
     }
 
     public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
-        return nodes.values().stream().filter(node -> node.hasLabel(graphLabel));
+        final Set<GraphNodeId> matchingIds = labelsToNodes.get(graphLabel);
+        return matchingIds.stream().map(nodes::get);
+        //return nodes.values().stream().filter(node -> node.hasLabel(graphLabel));
     }
 
     public GraphRelationship getRelationship(final GraphRelationshipId graphRelationshipId) {
@@ -145,6 +158,10 @@ public class Graph {
             logger.error(msg);
             throw new GraphException(msg);
         }
+    }
+
+    public synchronized void addLabel(final GraphNodeId id, final GraphLabel label) {
+        labelsToNodes.get(label).add(id);
     }
 
     private static class RelationshipsForNode {
@@ -164,19 +181,19 @@ public class Graph {
             return inbound.stream().map(relationships::get);
         }
 
-        public void addOutbound(GraphRelationshipId relationshipId) {
+        public void addOutbound(final GraphRelationshipId relationshipId) {
             synchronized (outbound) {
                 outbound.add(relationshipId);
             }
         }
 
-        public void addInbound(GraphRelationshipId relationshipId) {
+        public void addInbound(final GraphRelationshipId relationshipId) {
             synchronized (inbound) {
                 inbound.add(relationshipId);
             }
         }
 
-        public void remove(GraphRelationshipId relationshipId) {
+        public void remove(final GraphRelationshipId relationshipId) {
             synchronized (outbound) {
                 outbound.remove(relationshipId);
             }

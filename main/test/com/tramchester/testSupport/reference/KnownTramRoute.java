@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,8,2);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,8,11);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -119,18 +119,14 @@ public class KnownTramRoute {
             if (date.isBefore(TramDate.of(2025,8,24))) {
                 routes.add(getGreen(date));
             }
-        } else {
-            if (!date.equals(TramDate.of(2025,8,25))) {
+        } else { // rest of week
+            if (!date.equals(UpcomingDates.BankHolAugust2025)) {
                 routes.add(getGreen(date));
             }
         }
 
-        if (!UpcomingDates.PiccGardensWorksummer2025.contains(date) ) {
-            //if (!UpcomingDates.PiccGardensWorksummer2025RoutesMissing.contains(date)) {
-                routes.add(getPurple(date));
-                routes.add(getYellow(date));
-            //}
-        }
+        routes.add(getPurple(date));
+        routes.add(getYellow(date));
 
         routes.add(getBlue(date));
         routes.add(getRed(date));

@@ -18,7 +18,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
@@ -190,7 +189,6 @@ public class JourneyPlannerResourceTest {
                 assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
-    @PiccGardensWorkSummer2025
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 
@@ -250,8 +248,7 @@ public class JourneyPlannerResourceTest {
 
             List<ChangeStationRefWithPosition> changeStations = journey.getChangeStations();
 
-            // 1->3 picc gardens closure
-            assertEquals(3, changeStations.size());
+            assertEquals(1, changeStations.size());
             ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertTrue(expectedSecondStationNames.contains(changeStation.getName()), "did not expect " + changeStation.getName());
             assertEquals(TransportMode.Tram, changeStation.getFromMode());

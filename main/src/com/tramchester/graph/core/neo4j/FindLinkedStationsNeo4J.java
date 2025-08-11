@@ -22,20 +22,19 @@ import java.util.*;
 
 import static java.lang.String.format;
 
-public class FindLinkedStationsNeo4J implements FindLinkedStations {
+public class FindLinkedStationsNeo4J extends FindLinkedStations {
     private static final Logger logger = LoggerFactory.getLogger(FindLinkedStationsNeo4J.class);
 
     private final GraphDatabaseNeo4J graphDatabase;
-    private final StationRepository stationRepository;
-    private final Geography geography;
+//    private final StationRepository stationRepository;
+//    private final Geography geography;
 
     @Inject
     public FindLinkedStationsNeo4J(GraphDatabaseNeo4J graphDatabase,
                                    @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready readyToken,
                                    StationRepository stationRepository, Geography geography) {
+        super(stationRepository, geography);
         this.graphDatabase = graphDatabase;
-        this.stationRepository = stationRepository;
-        this.geography = geography;
     }
 
     // supports visualisation of the transport network
@@ -98,7 +97,7 @@ public class FindLinkedStationsNeo4J implements FindLinkedStations {
     private <R> Set<R> doQueryWithMapping(String query, Map<String, Object> params, ProcessResult<R> mapper) {
         Set<R> results = new HashSet<>();
         logger.info("Query: '" + query + '"');
-        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTimedTxMutable(logger, "doQuery") ) {
+        try (MutableGraphTransactionNeo4J txn = graphDatabase.beginTimedTxMutableNeo4J(logger, "doQuery") ) {
             final Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 final Map<String, Object> row = result.next();
@@ -110,18 +109,7 @@ public class FindLinkedStationsNeo4J implements FindLinkedStations {
         return results;
     }
 
-    private StationToStationConnection createConnection(final GraphRelationship relationship) {
 
-        final IdFor<Station> startId = relationship.getStartStationId();
-        final IdFor<Station> endId = relationship.getEndStationId();
-
-        final Station start = stationRepository.getStationById(startId);
-        final Station end = stationRepository.getStationById(endId);
-
-        final EnumSet<TransportMode> modes = relationship.getTransportModes();
-
-        return StationToStationConnection.createForWalk(start, end, modes, StationToStationConnection.LinkType.Linked, geography);
-    }
 
     private interface ProcessResult<R> {
         R map(MutableGraphTransactionNeo4J txn, Map<String, Object> row);
