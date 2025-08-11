@@ -7,6 +7,7 @@ import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.search.NumberOfNodesAndRelationshipsRepository;
 import jakarta.inject.Inject;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
@@ -21,15 +22,15 @@ import java.util.Map;
 
 @LazySingleton
 public
-class NumberOfNodesAndRelationshipsRepository {
-    private static final Logger logger = LoggerFactory.getLogger(NumberOfNodesAndRelationshipsRepository.class);
+class NumberOfNodesAndRelationshipsRepositoryNeo4J implements NumberOfNodesAndRelationshipsRepository {
+    private static final Logger logger = LoggerFactory.getLogger(NumberOfNodesAndRelationshipsRepositoryNeo4J.class);
 
     private final Map<GraphLabel, Long> nodeCounts;
     private final Map<TransportRelationshipTypes, Long> relationshipCounts;
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public NumberOfNodesAndRelationshipsRepository(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+    public NumberOfNodesAndRelationshipsRepositoryNeo4J(final GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
         this.graphDatabase = graphDatabase;
         nodeCounts = new HashMap<>(GraphLabel.values().length);
         relationshipCounts = new HashMap<>(TransportRelationshipTypes.values().length);
@@ -89,6 +90,7 @@ class NumberOfNodesAndRelationshipsRepository {
         relationshipCounts.clear();
     }
 
+    @Override
     public Long numberOf(final GraphLabel label) {
         if (!nodeCounts.containsKey(label)) {
             return 0L;
@@ -96,6 +98,7 @@ class NumberOfNodesAndRelationshipsRepository {
         return nodeCounts.get(label);
     }
 
+    @Override
     public long numberOf(final TransportRelationshipTypes relationshipType) {
         return relationshipCounts.get(relationshipType);
     }

@@ -1,6 +1,7 @@
 package com.tramchester.graph.core.neo4j;
 
 import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.MutableGraphTransaction;
 import org.neo4j.graphdb.Relationship;
 
 public class GraphTestHelperNeo4J {
@@ -11,7 +12,11 @@ public class GraphTestHelperNeo4J {
      * @param graphRelationship the facaded relationship
      * @return underlying relationship
      */
-    public Relationship getUnderlyingUnsafe(MutableGraphTransactionNeo4J txn, final GraphRelationship graphRelationship) {
-        return txn.unwrap(graphRelationship);
+    public Relationship getUnderlyingUnsafe(MutableGraphTransaction txn, final GraphRelationship graphRelationship) {
+        if (txn instanceof MutableGraphTransactionNeo4J neo4J) {
+            return neo4J.unwrap(graphRelationship);
+        } else {
+            throw new RuntimeException("not implemented");
+        }
     }
 }

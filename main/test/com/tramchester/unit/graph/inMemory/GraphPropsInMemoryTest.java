@@ -41,10 +41,7 @@ import java.util.*;
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
 public class GraphPropsInMemoryTest {
-
-    // Spike
 
     private static ComponentContainer componentContainer;
     private static UnitTestOfGraphConfig config;

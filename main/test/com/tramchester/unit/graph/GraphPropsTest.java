@@ -22,12 +22,11 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.core.*;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.neo4j.GraphTestHelperNeo4J;
-import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
@@ -427,25 +426,30 @@ public class GraphPropsTest {
         assertEquals(maxTripsForService, fromService.size());
         assertTrue(unsortedTripIds.containsAll(fromService));
 
-        GraphTestHelperNeo4J graphTestHelper = new GraphTestHelperNeo4J();
+        if (config.getInMemoryGraph()) {
+            // TODO do we care about ordering for in memory?
+        } else {
 
-        MutableGraphTransactionNeo4J neo4 = (MutableGraphTransactionNeo4J) txn;
-        final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(neo4, serviceRelationship);
+            GraphTestHelperNeo4J graphTestHelper = new GraphTestHelperNeo4J();
 
-        List<IdFor<Trip>> sortedTripIds = unsortedTripIds.stream().
-                sorted(Comparator.comparing(IdFor::getGraphId)).
-                toList();
+            //MutableGraphTransaction neo4 = (MutableGraphTransactionNeo4J) txn;
+            final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(txn, serviceRelationship);
 
-        String[] directFromRelationship = (String[]) relationship.getProperty(TRIP_ID_LIST.getText());
-        assertEquals(maxTripsForService, directFromRelationship.length);
+            List<IdFor<Trip>> sortedTripIds = unsortedTripIds.stream().
+                    sorted(Comparator.comparing(IdFor::getGraphId)).
+                    toList();
 
-        // check sorted as expected
-        for (int i = 0; i < directFromRelationship.length; i++) {
-            final String tripIdText = sortedTripIds.get(i).getGraphId();
-            assertEquals(tripIdText, directFromRelationship[i], "mismatch on " + i);
+            String[] directFromRelationship = (String[]) relationship.getProperty(TRIP_ID_LIST.getText());
+            assertEquals(maxTripsForService, directFromRelationship.length);
+
+            // check sorted as expected
+            for (int i = 0; i < directFromRelationship.length; i++) {
+                final String tripIdText = sortedTripIds.get(i).getGraphId();
+                assertEquals(tripIdText, directFromRelationship[i], "mismatch on " + i);
+            }
+
+            unsortedTripIds.forEach(tripId -> assertTrue(nodeA.hasOutgoingServiceMatching(txn, tripId), "Failed for " + tripId));
         }
-
-        unsortedTripIds.forEach(tripId -> assertTrue(nodeA.hasOutgoingServiceMatching(txn, tripId), "Failed for " + tripId));
     }
 
     @Disabled("performance testing only")

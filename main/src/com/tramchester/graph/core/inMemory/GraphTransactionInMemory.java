@@ -79,6 +79,11 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
+    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
+        return graph.findRelationships(relationshipType);
+    }
+
+    @Override
     public GraphNode getNodeById(final GraphNodeId nodeId) {
         return graph.getNode(nodeId);
     }

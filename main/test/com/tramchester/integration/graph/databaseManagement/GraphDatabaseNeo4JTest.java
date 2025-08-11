@@ -21,7 +21,7 @@ class GraphDatabaseNeo4JTest {
 
     @BeforeAll
     static void beforeEachTest() throws IOException {
-        config = new UnitTestOfGraphConfig(false);
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

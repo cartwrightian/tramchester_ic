@@ -31,7 +31,7 @@ class GraphQueriesTests {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new UnitTestOfGraphConfig(false);
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

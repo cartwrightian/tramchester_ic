@@ -7,6 +7,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -18,6 +19,8 @@ public interface GraphTransaction extends AutoCloseable {
     int getTransactionId();
 
     Stream<GraphNode> findNodes(GraphLabel graphLabel);
+
+    Stream<GraphRelationship> findRelationships(TransportRelationshipTypes relationshipType);
 
     GraphNode getNodeById(GraphNodeId nodeId);
 

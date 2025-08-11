@@ -1,7 +1,10 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphRelationshipId;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.slf4j.Logger;
@@ -162,6 +165,13 @@ public class Graph {
 
     public synchronized void addLabel(final GraphNodeId id, final GraphLabel label) {
         labelsToNodes.get(label).add(id);
+    }
+
+    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
+        // TODO inefficient
+        return relationships.values().stream().
+                filter(graphRelationshipInMemory -> graphRelationshipInMemory.isType(relationshipType)).
+                map(item -> item);
     }
 
     private static class RelationshipsForNode {

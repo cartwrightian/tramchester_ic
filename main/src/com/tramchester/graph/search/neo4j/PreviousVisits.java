@@ -8,6 +8,7 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.search.diagnostics.HeuristicsReason;
 import com.tramchester.graph.search.diagnostics.HeuristicsReasons;
 import com.tramchester.graph.search.diagnostics.HowIGotHere;

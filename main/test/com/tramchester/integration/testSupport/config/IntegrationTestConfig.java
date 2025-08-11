@@ -11,13 +11,10 @@ import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfi
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -27,16 +24,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    private static final List<TramStations> closedStations = List.of(PiccadillyGardens);
-
-//    public static final StationClosures marketStreetApril2025 = new StationClosuresListForTest(closedStations,
-//        UpcomingDates.PiccGardensWorksummer2025,
-//        true, Collections.emptySet(), Collections.emptySet());
-
-    public static final List<StationClosures> CurrentClosures = Collections.emptyList(); //List.of(marketStreetApril2025);
-
-//    private static final TemporaryStationsWalkIds piccadillyToMarketStreet = new TemporaryStationsWalkConfigForTest(
-//            StationIdPair.of(Piccadilly.getId(), MarketStreet.getId()), UpcomingDates.PiccGardensWorksummer2025);
+    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
     /**
      * examples

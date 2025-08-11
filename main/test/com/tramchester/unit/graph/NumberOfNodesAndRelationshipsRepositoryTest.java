@@ -2,13 +2,13 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.graph.search.neo4j.NumberOfNodesAndRelationshipsRepository;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.search.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGroupedGraphConfig;
-import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
