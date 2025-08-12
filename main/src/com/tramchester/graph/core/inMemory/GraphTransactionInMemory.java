@@ -92,7 +92,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     public boolean hasAnyMatching(GraphLabel label, GraphPropertyKey key, String value) {
         return graph.findNodes(label).
                 filter(node -> node.hasProperty(key)).
-                anyMatch(node -> node.getPropery(key).equals(value));
+                anyMatch(node -> node.getProperty(key).equals(value));
     }
 
     @Override
@@ -113,7 +113,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     private GraphNodeInMemory findNode(final GraphLabel label, final GraphPropertyKey propertyKey, final String itemId) {
         final List<GraphNodeInMemory> found = graph.findNodes(label).
                 filter(node -> node.hasProperty(propertyKey)).
-                filter(node -> node.getPropery(propertyKey).equals(itemId)).
+                filter(node -> node.getProperty(propertyKey).equals(itemId)).
                 toList();
         if (found.isEmpty()) {
             logger.info("Did not match " + label + " " + propertyKey + " " + itemId);
@@ -142,6 +142,10 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public GraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
         return graph.getRelationship(graphRelationshipId);
+    }
+
+    public Stream<GraphRelationship> getRelationships(final GraphNodeId id, final GraphDirection direction) {
+        return graph.getRelationshipsFor(id, direction).map(item -> item);
     }
 
     public Stream<GraphRelationshipInMemory> getRelationships(final GraphNodeId id, final GraphDirection direction,
@@ -180,4 +184,5 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     public void addLabel(final GraphNodeId id, final GraphLabel label) {
         graph.addLabel(id, label);
     }
+
 }

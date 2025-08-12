@@ -22,8 +22,12 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
 
     @Override
     public Object getProperty(final String key) {
-        return props.get(key);
+        if (props.containsKey(key)) {
+            return props.get(key);
+        }
+        throw new RuntimeException("No such property " + key);
     }
+
 
     @Override
     public Map<String, Object> getAllProperties() {

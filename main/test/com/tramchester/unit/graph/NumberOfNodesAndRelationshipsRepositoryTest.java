@@ -26,7 +26,7 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig();
+        config = new SimpleGroupedGraphConfig(false);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

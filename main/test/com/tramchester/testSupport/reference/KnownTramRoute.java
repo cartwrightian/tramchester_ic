@@ -116,9 +116,9 @@ public class KnownTramRoute {
         final Set<TestRoute> routes = new HashSet<>();
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.isBefore(TramDate.of(2025,8,24))) {
+//            if (date.isBefore(TramDate.of(2025,8,24))) {
                 routes.add(getGreen(date));
-            }
+//            }
         } else { // rest of week
             if (!date.equals(UpcomingDates.BankHolAugust2025)) {
                 routes.add(getGreen(date));

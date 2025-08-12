@@ -5,7 +5,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.core.NodeId;
 
 import java.time.Duration;
 import java.util.EnumSet;

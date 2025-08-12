@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+// TODO remove
 public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     private final MutableGraphNodeNeo4J underlying;
     private final GraphNodeId nodeId;
@@ -159,6 +160,11 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     @Override
     public Stream<GraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return underlying.getOutgoingServiceMatching(txn, tripId);
+    }
+
+    @Override
+    public Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction) {
+        return underlying.getAllRelationships(txn, direction);
     }
 
     @Override

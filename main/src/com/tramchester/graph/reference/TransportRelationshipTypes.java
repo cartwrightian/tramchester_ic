@@ -50,7 +50,7 @@ public enum TransportRelationshipTypes { //implements RelationshipType {
         values.toArray(forPlanning);
     }
 
-    public static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE);
+    public static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE, LINKED);
 
     private static final EnumSet<TransportRelationshipTypes> HasTripId = EnumSet.of(TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO,
             FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE);

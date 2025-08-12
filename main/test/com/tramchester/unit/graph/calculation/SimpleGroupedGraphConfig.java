@@ -18,8 +18,8 @@ import java.util.Set;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 
 public class SimpleGroupedGraphConfig extends UnitTestOfGraphConfig {
-    public SimpleGroupedGraphConfig() {
-        super();
+    public SimpleGroupedGraphConfig(boolean inMemory) {
+        super(inMemory);
     }
 
     @Override

@@ -14,9 +14,8 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -62,7 +61,7 @@ class CompositeRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig();
+        config = new SimpleGroupedGraphConfig(false);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

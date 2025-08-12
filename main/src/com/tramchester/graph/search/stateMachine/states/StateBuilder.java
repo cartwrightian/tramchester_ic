@@ -5,7 +5,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
-import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.core.NodeId;
 import com.tramchester.graph.search.stateMachine.Towards;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import org.slf4j.Logger;

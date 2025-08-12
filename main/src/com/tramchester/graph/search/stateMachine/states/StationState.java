@@ -5,7 +5,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.core.NodeId;
 
 import java.time.Duration;
 import java.util.stream.Stream;

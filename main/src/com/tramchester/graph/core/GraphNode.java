@@ -24,8 +24,6 @@ public interface GraphNode extends GraphEntity {
 
     GraphNodeId getId();
 
-//    Traverser getTraverserFor(TraversalDescription traversalDesc);
-
     IdFor<RouteStation> getRouteStationId();
 
     IdFor<Service> getServiceId();
@@ -75,4 +73,7 @@ public interface GraphNode extends GraphEntity {
     boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
     Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
+
+    Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction);
+
 }

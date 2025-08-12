@@ -208,10 +208,14 @@ public class TestEnv {
     }
 
     public static void deleteDBIfPresent(final TramchesterConfig config) throws IOException {
-        final Path dbPath = config.getGraphDBConfig().getDbPath();
-        if (Files.exists(dbPath)) {
-            logger.warn("deleting database file: " + dbPath.toAbsolutePath());
-            FileUtils.deleteDirectory(dbPath.toFile());
+        if (config.getInMemoryGraph()) {
+            logger.info("In memory, no files to delete");
+        } else {
+            final Path dbPath = config.getGraphDBConfig().getDbPath();
+            if (Files.exists(dbPath)) {
+                logger.warn("deleting database file: " + dbPath.toAbsolutePath());
+                FileUtils.deleteDirectory(dbPath.toFile());
+            }
         }
     }
 

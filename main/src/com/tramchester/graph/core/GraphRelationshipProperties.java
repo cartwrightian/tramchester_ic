@@ -218,8 +218,11 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     public Duration getCost() {
         final TransportRelationshipTypes relationshipType = getType();
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
-            final long seconds = (long) relationship.getProperty(COST.getText());
-            return Duration.ofSeconds(seconds);
+            if (relationship.hasProperty(COST.getText())) {
+                final long seconds = (long) relationship.getProperty(COST.getText());
+                return Duration.ofSeconds(seconds);
+            }
+            throw new RuntimeException("Cost is missing for " + this);
         } else {
             return Duration.ZERO;
         }

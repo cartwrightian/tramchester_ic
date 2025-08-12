@@ -100,4 +100,14 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "GraphRelationshipInMemory{" +
+                "relationshipType=" + relationshipType +
+                ", id=" + id +
+                ", start=" + start.getId() +
+                ", end=" + end.getId() +
+                '}';
+    }
+
 }

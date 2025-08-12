@@ -4,7 +4,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.core.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 
 import java.time.Duration;

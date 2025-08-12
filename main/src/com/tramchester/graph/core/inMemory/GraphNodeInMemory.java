@@ -91,6 +91,12 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
+    public Stream<GraphRelationship> getAllRelationships(final GraphTransaction txn, final GraphDirection direction) {
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        return inMemory.getRelationships(id, direction);
+    }
+
+    @Override
     public synchronized void delete(final MutableGraphTransaction txn) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         inMemory.delete(id);

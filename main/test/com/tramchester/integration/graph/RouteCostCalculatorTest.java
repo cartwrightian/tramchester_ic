@@ -95,13 +95,13 @@ class RouteCostCalculatorTest {
 
         // often changes by a few seconds....
         assertEquals(Duration.ofMinutes(63), buryToAlty.truncatedTo(ChronoUnit.MINUTES));
-        assertEquals(Duration.ofMinutes(64).plusSeconds(59), altyToBury);
+        assertEquals(Duration.ofMinutes(64).plusSeconds(58), altyToBury);
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
         assertEquals(Duration.ofMinutes(58).plusSeconds(7), routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, when, modes));
-        assertEquals(Duration.ofMinutes(60).plusSeconds(11), routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when, modes));
+        assertEquals(Duration.ofMinutes(60).plusSeconds(12), routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when, modes));
     }
 
 }

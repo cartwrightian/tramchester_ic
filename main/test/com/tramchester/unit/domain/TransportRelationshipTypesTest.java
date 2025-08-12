@@ -46,7 +46,8 @@ class TransportRelationshipTypesTest {
         List<TransportRelationshipTypes> expectedNoCost = Arrays.asList(
                 TransportRelationshipTypes.TO_MINUTE,
                 TransportRelationshipTypes.TO_HOUR,
-                TransportRelationshipTypes.TO_SERVICE);
+                TransportRelationshipTypes.TO_SERVICE,
+                TransportRelationshipTypes.LINKED);
 
         expectedNoCost.forEach(expected -> assertFalse(TransportRelationshipTypes.hasCost(expected), expected.name()));
 

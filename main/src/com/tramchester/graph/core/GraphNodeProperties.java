@@ -258,7 +258,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         return graphProps.hasProperty(propertyKey.getText());
     }
 
-    public Object getPropery(final GraphPropertyKey propertyKey) {
+    public Object getProperty(final GraphPropertyKey propertyKey) {
         return graphProps.getProperty(propertyKey.getText());
     }
 }

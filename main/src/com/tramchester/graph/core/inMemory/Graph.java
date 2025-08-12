@@ -150,7 +150,6 @@ public class Graph {
     public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
         final Set<GraphNodeId> matchingIds = labelsToNodes.get(graphLabel);
         return matchingIds.stream().map(nodes::get);
-        //return nodes.values().stream().filter(node -> node.hasLabel(graphLabel));
     }
 
     public GraphRelationship getRelationship(final GraphRelationshipId graphRelationshipId) {

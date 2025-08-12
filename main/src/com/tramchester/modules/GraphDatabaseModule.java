@@ -13,6 +13,8 @@ import com.tramchester.graph.core.neo4j.RouteCostCalculatorNeo4J;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.graph.search.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.graph.search.inMemory.RouteCalculatorInMemory;
+import com.tramchester.graph.search.inMemory.RouteCostCalculatorInMemory;
 import com.tramchester.graph.search.neo4j.NumberOfNodesAndRelationshipsRepositoryNeo4J;
 import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 
@@ -29,6 +31,8 @@ public class GraphDatabaseModule extends AbstractModule {
             bind(GraphDatabase.class).to(GraphDatabaseInMemory.class);
             bind(FindLinkedStations.class).to(FindLinkedStationsInMemory.class);
             bind(NumberOfNodesAndRelationshipsRepository.class).to(NumberOfNodesAndRelationshipsRepositoryInMemory.class);
+            bind(TramRouteCalculator.class).to(RouteCalculatorInMemory.class);
+            bind(RouteCostCalculator.class).to(RouteCostCalculatorInMemory.class);
         } else {
             bind(GraphDatabase.class).to(GraphDatabaseNeo4J.class);
             bind(FindLinkedStations.class).to(FindLinkedStationsNeo4J.class);
