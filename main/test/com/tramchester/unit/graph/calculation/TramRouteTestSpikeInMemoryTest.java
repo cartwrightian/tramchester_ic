@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Disabled("SPIKE")
+@Disabled("WIP")
 class TramRouteTestSpikeInMemoryTest {
 
     private static ComponentContainer componentContainer;

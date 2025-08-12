@@ -24,7 +24,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -231,7 +230,6 @@ public class TripRepositoryTest {
 
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);

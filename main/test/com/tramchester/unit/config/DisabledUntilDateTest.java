@@ -9,7 +9,6 @@ import com.tramchester.testSupport.conditional.DisabledUntilDateCondition;
 import javassist.NotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
@@ -36,7 +35,6 @@ public class DisabledUntilDateTest {
         findMethodLineNumber = new FindMethodLineNumber();
     }
 
-    @Disabled("WIP")
     @Test
     void shouldNotHaveAnyExpiredDisabledTests() throws NotFoundException {
 

@@ -37,7 +37,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.PiccGardensWorkSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -55,7 +54,6 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@PiccGardensWorkSummer2025
 class SubgraphSmallClosedStationsDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;

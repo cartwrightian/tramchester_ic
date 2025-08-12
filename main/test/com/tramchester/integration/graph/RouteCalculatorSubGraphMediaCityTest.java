@@ -36,7 +36,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -127,7 +126,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         txn.close();
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveMediaCityToExchangeSquareSaturday() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
@@ -135,7 +133,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday);
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
@@ -183,7 +180,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSalfordQuayToStPeters() {
         final TramTime time = TramTime.of(8, 5);
@@ -229,7 +225,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveExpectedRouteConnections() {
         Station salfordQuay = SalfordQuay.from(stationRepository);
@@ -293,19 +288,16 @@ class RouteCalculatorSubGraphMediaCityTest {
         return TramsOnly;
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void reproduceMediaCityIssue() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void reproduceMediaCityIssueSaturdays() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(9,0), UpcomingDates.nextSaturday());
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, 3,

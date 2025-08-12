@@ -18,7 +18,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -204,7 +203,6 @@ public class StopCallRepositoryTest {
         assertEquals(stopsBetween, RochdaleLineStations);
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveExpectedEcclesLinesClosures() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());

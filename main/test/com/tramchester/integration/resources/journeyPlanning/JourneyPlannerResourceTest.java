@@ -17,7 +17,6 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
@@ -283,7 +282,6 @@ public class JourneyPlannerResourceTest {
         validateAtLeastOneJourney(Deansgate, Victoria, when, TramTime.of(23,41));
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldFindEndOfDayTwoStageJourney() {
         validateAtLeastOneJourney(TraffordCentre, TraffordBar, when, TramTime.of(23,30));

@@ -20,7 +20,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.EcclesLineWorkSummer2025;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -98,7 +97,6 @@ class RouteCalculatorSubGraphTest {
         txn.close();
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void reproduceIssueEdgePerTrip() {
 
@@ -119,7 +117,6 @@ class RouteCalculatorSubGraphTest {
 
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void reproduceIssueEdgePerTripPomona() {
         validateAtLeastOneJourney(StPetersSquare, Pomona, new JourneyRequest(when, tramTime,
@@ -133,7 +130,6 @@ class RouteCalculatorSubGraphTest {
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveJourneysBetweenAllStations() {
         for (TramStations start: stations) {
@@ -159,14 +155,12 @@ class RouteCalculatorSubGraphTest {
         assertFalse(results.isEmpty());
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSimpleOneStopJourney() {
         List<Journey> results = getJourneys(Cornbrook, Pomona, when, 1);
         assertFalse(results.isEmpty());
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSimpleOneStopJourneyLateNight() {
         // last tram now earlier
@@ -178,7 +172,6 @@ class RouteCalculatorSubGraphTest {
         assertFalse(results.isEmpty());
     }
 
-    @EcclesLineWorkSummer2025
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
         List<Journey> results = getJourneys(Cornbrook, Pomona, UpcomingDates.nextSaturday(), 1);
