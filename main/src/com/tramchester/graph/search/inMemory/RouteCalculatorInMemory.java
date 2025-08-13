@@ -16,6 +16,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -38,9 +39,9 @@ public class RouteCalculatorInMemory implements TramRouteCalculator {
 
         SpikeAlgo spikeAlgo = new SpikeAlgo(txn, startNode, destinationNode, config);
 
-        GraphPath path = spikeAlgo.findRoute();
+        List<GraphPath> paths = spikeAlgo.findRoute();
 
-        return Stream.empty();
+        throw new RuntimeException("Not finished yet");
     }
 
     @Override

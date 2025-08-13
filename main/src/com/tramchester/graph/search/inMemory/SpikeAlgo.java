@@ -31,72 +31,81 @@ public class SpikeAlgo {
         this.config = config;
     }
 
-    public GraphPath findRoute() {
-        State state = new State(startNode.getId());
+    public List<GraphPath> findRoute() {
+        final State state = new State(startNode.getId(), new GraphPathInMemory());
+
+        final List<GraphPathInMemory> paths = new ArrayList<>();
 
         while (state.hasNodes()) {
-            final NodePair pair = state.getNext();
-            final GraphNodeId nextId = pair.getNodeId();
-            visitNode(nextId, state);
+            final NodeState nodeState = state.getNext();
+            final GraphNodeId nextId = nodeState.getNodeId();
+            visitNode(nextId, state, nodeState.pathToHere, paths);
         }
 
-        return new GraphPathInMemory();
+        return paths.stream().map(item -> (GraphPath) item).toList();
     }
 
     // TODO the path to here
-    private void visitNode(final GraphNodeId nodeId, final State state) {
+    private void visitNode(final GraphNodeId nodeId, final State state, GraphPathInMemory pathSoFar, List<GraphPathInMemory> reachedDest) {
 
-        final GraphNode next = txn.getNodeById(nodeId);
-        if (next.equals(destinationNode)) {
-            // done
+        final GraphNode currentNode = txn.getNodeById(nodeId);
+
+        final GraphPathInMemory pathToCurrentNode = pathSoFar.duplicateWith(txn, currentNode);
+
+        if (currentNode.equals(destinationNode)) {
+            // done, return current path up the stack
             logger.info("Found destination");
-            return;
+            reachedDest.add(pathToCurrentNode);
         }
 
         final Duration currentCostToNode = state.getCurrentCost(nodeId); //pair.getDuration();
 
-        final Stream<GraphRelationship> outgoing = next.getRelationships(txn, GraphDirection.Outgoing,
+        final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing,
                 TransportRelationshipTypes.forPlanning());
 
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
-            final GraphNode endNode = graphRelationship.getEndNode(txn);
-            final GraphNodeId endNodeId = endNode.getId();
+            final GraphNode endRelationshipNode = graphRelationship.getEndNode(txn);
+            final GraphNodeId endRelationshipNodeId = endRelationshipNode.getId();
             final Duration newCost = relationshipCost.plus(currentCostToNode);
 
             boolean updated = false;
-            if (state.hasSeen(endNodeId)) {
-                final Duration currentDurationForEnd = state.getCurrentCost(endNodeId);
+            final GraphPathInMemory continuePath = pathToCurrentNode.duplicateWith(txn, graphRelationship);
+            if (state.hasSeen(endRelationshipNodeId)) {
+                final Duration currentDurationForEnd = state.getCurrentCost(endRelationshipNodeId);
                 if (newCost.compareTo(currentDurationForEnd) < 0) {
                     updated = true;
-                    state.updateCostFor(endNodeId, newCost);
                 }
             } else {
                 updated = true;
-                state.addCostFor(endNodeId, newCost);
+                state.addCostFor(endRelationshipNodeId, newCost, continuePath);
             }
 
             if (updated) {
+
                 if (config.getDepthFirst()) {
                     // TODO ordering of which neighbours to visit first
-                    visitNode(endNodeId, state);
-                } // else fallback to global ordering??
+                    visitNode(endRelationshipNodeId, state, continuePath, reachedDest);
+                }
+                 else {
+                    state.updateCostFor(endRelationshipNodeId, newCost, continuePath);
+                }
             }
 
         });
     }
 
     private static class State {
-        private final PriorityQueue<NodePair> nodeQueue;
+        private final PriorityQueue<NodeState> nodeQueue;
         private final Map<GraphNodeId, Duration> currentCost;
 
-        private State(GraphNodeId startNodeId) {
+        private State(GraphNodeId startNodeId, GraphPathInMemory pathToHere) {
             nodeQueue = new PriorityQueue<>();
-            nodeQueue.add(new NodePair(startNodeId, Duration.ZERO));
+            nodeQueue.add(new NodeState(startNodeId, Duration.ZERO, pathToHere));
             currentCost = new HashMap<>();
         }
 
-        public NodePair getNext() {
+        public NodeState getNext() {
             return nodeQueue.poll();
         }
 
@@ -104,8 +113,8 @@ public class SpikeAlgo {
             return currentCost.getOrDefault(nodeId, maxDuration);
         }
 
-        public void updateCostFor(GraphNodeId nodeId, Duration duration) {
-            final NodePair update = new NodePair(nodeId, duration);
+        public void updateCostFor(GraphNodeId nodeId, Duration duration, GraphPathInMemory graphPath) {
+            final NodeState update = new NodeState(nodeId, duration, graphPath);
             synchronized (nodeQueue) {
                 nodeQueue.remove(update);
                 nodeQueue.add(update);
@@ -113,8 +122,8 @@ public class SpikeAlgo {
             }
         }
 
-        public void addCostFor(GraphNodeId nodeId, Duration duration) {
-            final NodePair update = new NodePair(nodeId, duration);
+        public void addCostFor(GraphNodeId nodeId, Duration duration, GraphPathInMemory continuePath) {
+            final NodeState update = new NodeState(nodeId, duration, continuePath);
             synchronized (nodeQueue) {
                 nodeQueue.add(update);
                 currentCost.put(nodeId, duration);
@@ -131,21 +140,23 @@ public class SpikeAlgo {
 
     }
 
-    private static class NodePair implements Comparable<NodePair> {
+    private static class NodeState implements Comparable<NodeState> {
         private final GraphNodeId nodeId;
         private final Duration duration;
+        private final GraphPathInMemory pathToHere;
 
-        private NodePair(GraphNodeId nodeId, Duration duration) {
+        private NodeState(GraphNodeId nodeId, Duration duration, GraphPathInMemory pathToHere) {
             this.nodeId = nodeId;
             this.duration = duration;
+            this.pathToHere = pathToHere;
         }
 
-        public NodePair(GraphNodeId id) {
-            this(id, maxDuration);
+        public NodeState(GraphNodeId id, GraphPathInMemory pathTodHere) {
+            this(id, maxDuration, pathTodHere);
         }
 
         @Override
-        public int compareTo(NodePair other) {
+        public int compareTo(NodeState other) {
             return this.duration.compareTo(other.duration);
         }
 
@@ -156,8 +167,8 @@ public class SpikeAlgo {
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
-            NodePair nodePair = (NodePair) o;
-            return Objects.equals(nodeId, nodePair.nodeId);
+            NodeState nodeState = (NodeState) o;
+            return Objects.equals(nodeId, nodeState.nodeId);
         }
 
         @Override

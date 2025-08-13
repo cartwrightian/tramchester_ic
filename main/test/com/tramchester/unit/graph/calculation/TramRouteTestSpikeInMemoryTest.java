@@ -16,8 +16,10 @@ import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Disabled("WIP")
 class TramRouteTestSpikeInMemoryTest {
@@ -78,12 +80,16 @@ class TramRouteTestSpikeInMemoryTest {
 
         SpikeAlgo spikeAlgo = new SpikeAlgo(txn, beginNode, destNode, config);
 
-        GraphPath result = spikeAlgo.findRoute();
+        List<GraphPath> results = spikeAlgo.findRoute();
+        assertFalse(results.isEmpty());
 
-        assertEquals(beginNode, result.getStartNode(txn));
-        assertEquals(destNode, result.getEndNode(txn));
+        results.forEach(result -> {
+            assertEquals(beginNode, result.getStartNode(txn), "wrong start node for " + result);
+            assertEquals(destNode, result.getEndNode(txn), "wrong destination node for " + result);
 
-        assertEquals(3,result.length());
+            //assertEquals(3,result.length(), result.toString());
+        });
+
     }
 
 }

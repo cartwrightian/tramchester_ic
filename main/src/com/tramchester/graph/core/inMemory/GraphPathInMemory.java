@@ -3,10 +3,7 @@ package com.tramchester.graph.core.inMemory;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class GraphPathInMemory implements GraphPath {
@@ -19,18 +16,26 @@ public class GraphPathInMemory implements GraphPath {
         entityList = new ArrayList<>();
     }
 
-    public void addNode(GraphTransaction txn, GraphNode node) {
+    public GraphPathInMemory(final GraphPathInMemory original) {
+        entityList = new ArrayList<>(original.entityList);
+        lastAddedNode = original.lastAddedNode;
+        lastAddedRelationship = original.lastAddedRelationship;
+    }
+
+    public GraphPathInMemory addNode(GraphTransaction txn, GraphNode node) {
         synchronized (entityList) {
             lastAddedNode = node;
             entityList.add(node);
         }
+        return this;
     }
 
-    public void addRelationship(GraphTransaction txn, GraphRelationship graphRelationship) {
+    public GraphPathInMemory addRelationship(GraphTransaction txn, GraphRelationship graphRelationship) {
         synchronized (entityList) {
             lastAddedRelationship = graphRelationship;
             entityList.add(graphRelationship);
         }
+        return this;
     }
 
     @Override
@@ -87,5 +92,36 @@ public class GraphPathInMemory implements GraphPath {
     @Override
     public GraphNodeId getPreviousNodeId(final GraphTransaction txn) {
         return getLastRelationship(txn).getStartNodeId(txn);
+    }
+
+    public GraphPathInMemory duplicateWith(GraphTransaction txn, GraphRelationship graphRelationship) {
+        return duplicateThis().addRelationship(txn, graphRelationship);
+    }
+
+    private GraphPathInMemory duplicateThis() {
+        return new GraphPathInMemory(this);
+    }
+
+    public GraphPathInMemory duplicateWith(GraphTransactionInMemory txn, GraphNode currentNode) {
+        return duplicateThis().addNode(txn, currentNode);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        GraphPathInMemory that = (GraphPathInMemory) o;
+        return Objects.equals(entityList, that.entityList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(entityList);
+    }
+
+    @Override
+    public String toString() {
+        return "GraphPathInMemory{" +
+                "entityList=" + entityList +
+                '}';
     }
 }
