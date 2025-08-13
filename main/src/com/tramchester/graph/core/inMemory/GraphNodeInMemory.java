@@ -82,6 +82,12 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
+    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, EnumSet<TransportRelationshipTypes> types) {
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        return inMemory.getRelationships(id, direction, types).map(item -> item);
+    }
+
+    @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes... transportRelationshipTypes) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         final List<TransportRelationshipTypes> list = Arrays.asList(transportRelationshipTypes);
@@ -90,11 +96,11 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         return inMemory.getRelationships(id, direction, types).map(item -> item);
     }
 
-    @Override
-    public Stream<GraphRelationship> getAllRelationships(final GraphTransaction txn, final GraphDirection direction) {
-        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationships(id, direction);
-    }
+//    @Override
+//    public Stream<GraphRelationship> getAllRelationships(final GraphTransaction txn, final GraphDirection direction) {
+//        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+//        return inMemory.getRelationships(id, direction);
+//    }
 
     @Override
     public synchronized void delete(final MutableGraphTransaction txn) {

@@ -43,6 +43,11 @@ public class GraphReferenceMapper {
         return result;
     }
 
+    public RelationshipType[] get(final EnumSet<TransportRelationshipTypes> types) {
+        final TransportRelationshipTypes[] transportRelationshipTypes = new TransportRelationshipTypes[types.size()];
+        return get(types.toArray(transportRelationshipTypes));
+    }
+
     public Label get(final GraphLabel graphLabel) {
         if (!labelMap.containsKey(graphLabel)) {
             throw new RuntimeException("Missing for " + graphLabel);
@@ -50,7 +55,7 @@ public class GraphReferenceMapper {
         return labelMap.get(graphLabel);
     }
 
-    public Label[] get(final EnumSet<GraphLabel> labels) {
+    public Label[] getLabels(final EnumSet<GraphLabel> labels) {
         final Label[] dest = new Label[labels.size()];
         int count = 0;
         for (final GraphLabel label : labels) {

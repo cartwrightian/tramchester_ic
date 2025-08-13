@@ -81,6 +81,8 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
                 map(txnNeo4J::wrapRelationship);
     }
 
+
+
     private Direction map(final GraphDirection direction) {
         return switch (direction) {
             case Outgoing -> Direction.OUTGOING;
@@ -105,10 +107,18 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction) {
-        GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
-        return node.getRelationships(map(direction)).stream().map(txnNeo4J::wrapRelationship);
+    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction,
+                                                      EnumSet<TransportRelationshipTypes> types) {
+        final RelationshipType[] relationshipTypes =  relationshipTypeFactory.get(types);
+        final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+        return node.getRelationships(map(direction), relationshipTypes).stream().map(txnNeo4J::wrapRelationship);
     }
+
+//    @Override
+//    public Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction) {
+//        GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
+//        return node.getRelationships(map(direction)).stream().map(txnNeo4J::wrapRelationship);
+//    }
 
     @Override
     public boolean hasRelationship(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {

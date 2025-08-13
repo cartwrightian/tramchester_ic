@@ -81,7 +81,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
 
     @Override
     public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
-        final Label[] toApply = relationshipTypeFactory.get(labels);
+        final Label[] toApply = relationshipTypeFactory.getLabels(labels);
         //labels.toArray(toApply);
         final Node node = txn.createNode(toApply);
         return wrapNodeAsMutable(node);

@@ -5,12 +5,18 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
 public class SpikeAlgo {
+
+    private static final Logger logger = LoggerFactory.getLogger(SpikeAlgo.class);
+
     private final GraphTransactionInMemory txn;
     private final GraphNode startNode;
     private final GraphNode destinationNode;
@@ -43,12 +49,14 @@ public class SpikeAlgo {
         final GraphNode next = txn.getNodeById(nodeId);
         if (next.equals(destinationNode)) {
             // done
+            logger.info("Found destination");
             return;
         }
 
         final Duration currentCostToNode = state.getCurrentCost(nodeId); //pair.getDuration();
 
-        final Stream<GraphRelationship> outgoing = next.getAllRelationships(txn, GraphDirection.Outgoing);
+        final Stream<GraphRelationship> outgoing = next.getRelationships(txn, GraphDirection.Outgoing,
+                TransportRelationshipTypes.forPlanning());
 
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
@@ -64,7 +72,7 @@ public class SpikeAlgo {
                     state.updateCostFor(endNodeId, newCost);
                 }
             } else {
-                updated= true;
+                updated = true;
                 state.addCostFor(endNodeId, newCost);
             }
 

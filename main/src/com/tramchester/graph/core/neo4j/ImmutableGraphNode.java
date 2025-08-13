@@ -147,6 +147,11 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     }
 
     @Override
+    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, EnumSet<TransportRelationshipTypes> types) {
+        return underlying.getRelationships(txn, direction, types);
+    }
+
+    @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                       final TransportRelationshipTypes... transportRelationshipTypes) {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
@@ -162,10 +167,10 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
         return underlying.getOutgoingServiceMatching(txn, tripId);
     }
 
-    @Override
-    public Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction) {
-        return underlying.getAllRelationships(txn, direction);
-    }
+//    @Override
+//    public Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction) {
+//        return underlying.getAllRelationships(txn, direction);
+//    }
 
     @Override
     public TransportMode getTransportMode() {
