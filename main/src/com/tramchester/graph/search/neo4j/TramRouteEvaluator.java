@@ -16,10 +16,10 @@ import com.tramchester.graph.core.neo4j.GraphPathNeo4j;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
@@ -54,7 +54,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Set<GraphNodeId> seenTimeNode;
     private final EnumSet<GraphLabel> destinationLabels;
 
-    public TramRouteEvaluator(final RouteCalculatorSupport.PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
+    public TramRouteEvaluator(final PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
                               final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId,

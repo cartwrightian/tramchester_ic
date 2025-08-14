@@ -1,8 +1,7 @@
 package com.tramchester.graph.core;
 
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
-import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
+import com.tramchester.graph.search.PathRequest;
 
 import java.util.Objects;
 
@@ -17,7 +16,7 @@ public final class TimedPath {
         this.numChanges = numChanges;
     }
 
-    public TimedPath(final GraphPath path, final RouteCalculatorSupport.PathRequest pathRequest) {
+    public TimedPath(final GraphPath path, final PathRequest pathRequest) {
         this(path, pathRequest.getActualQueryTime(), pathRequest.getNumChanges());
     }
 

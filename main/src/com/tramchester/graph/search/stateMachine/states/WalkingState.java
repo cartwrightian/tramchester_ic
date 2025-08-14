@@ -1,8 +1,11 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.core.*;
+import com.tramchester.domain.collections.IterableWithEmptyCheck;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -36,7 +39,7 @@ public class WalkingState extends TraversalState {
 
         public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
             final Stream<GraphRelationship> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
-            final ResourceIterableEnhanced<GraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
+            final IterableWithEmptyCheck<GraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {

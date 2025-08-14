@@ -1,8 +1,11 @@
 package com.tramchester.graph.search.stateMachine;
 
+import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilder;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
@@ -20,7 +23,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         this.interchangesOnly = builderParameters.interchangesOnly();
     }
 
-    protected ResourceIterableEnhanced<GraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
+    protected IterableWithEmptyCheck getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
         return super.getTowardsDestinationFromRouteStation(node, txn);
     }
 

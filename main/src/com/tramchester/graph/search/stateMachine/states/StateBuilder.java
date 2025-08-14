@@ -1,11 +1,10 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
-import com.tramchester.graph.core.NodeId;
 import com.tramchester.graph.search.stateMachine.Towards;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import org.slf4j.Logger;
@@ -68,19 +67,19 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
 
-    protected ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransaction txn) {
+    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransaction txn) {
         return towardsDestination.fromRouteStation(txn, node);
     }
 
-    public ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromPlatform(GraphTransaction txn, GraphNode node) {
+    public IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromPlatform(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromPlatform(txn, node);
     }
 
-    public ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransaction txn, GraphNode node) {
+    public IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromStation(txn, node);
     }
 
-    protected ResourceIterableEnhanced<GraphRelationship> getTowardsDestinationFromWalk(GraphTransaction txn, GraphNode node) {
+    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromWalk(GraphTransaction txn, GraphNode node) {
         return towardsDestination.fromWalk(txn, node);
     }
 }

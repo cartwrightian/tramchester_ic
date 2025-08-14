@@ -206,14 +206,14 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
 
         final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), requestedModes,
                 journeyRequest.getMaxChanges().get(),
-                journeyConstraints, maxInitialWait, selector);
+                journeyConstraints, maxInitialWait);
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
         final Stream<Journey> results = findShortestPath(txn, serviceReasons, singlePathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, destinations, towardsDestination, destinationNodeIds, running).
+                        createPreviousVisits(journeyRequest), lowestCostSeen, destinations, towardsDestination, destinationNodeIds, running, selector).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
@@ -279,10 +279,10 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
         final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
-                                journeyConstraints, maxInitialWait, selector))).
+                                journeyConstraints, maxInitialWait))).
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
                         createPreviousVisits(journeyRequest), lowestCostSeen, destinations, towardsDestination, destinationNodeIds,
-                        running)).
+                        running, selector)).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored

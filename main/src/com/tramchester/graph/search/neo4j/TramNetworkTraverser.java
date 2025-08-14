@@ -13,6 +13,7 @@ import com.tramchester.graph.core.neo4j.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.*;
@@ -63,17 +64,18 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         };
     }
 
-    public Stream<GraphPath> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
+    public Stream<GraphPath> findPaths(final GraphTransaction txn, final PathRequest pathRequest,
                                        final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                        final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations,
-                                       final TowardsDestination towardsDestination, final Running running) {
+                                       final TowardsDestination towardsDestination, final Running running,
+                                       BranchOrderingPolicy selector) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 towardsDestination, config, pathRequest.getRequestedModes());
 
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
-        final BranchOrderingPolicy selector = pathRequest.getSelector();
+        //final BranchOrderingPolicy selector = pathRequest.getSelector();
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
         final GraphNode startNode = pathRequest.getStartNode();

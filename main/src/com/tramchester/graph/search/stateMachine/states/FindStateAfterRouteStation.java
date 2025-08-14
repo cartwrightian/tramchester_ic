@@ -1,8 +1,11 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.core.*;
+import com.tramchester.domain.collections.IterableWithEmptyCheck;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -14,7 +17,7 @@ public class FindStateAfterRouteStation  {
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate,
                                                 final GraphTransaction txn, StateBuilder<?> stateBuilder) {
-        final ResourceIterableEnhanced<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
+        final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, false);
         if (!towardsDest.isEmpty()) {
             return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, towardsDest.stream(), destination);
@@ -29,7 +32,7 @@ public class FindStateAfterRouteStation  {
 
     public TraversalState endTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateEndTrip routeStationState,
                                                  final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
-        final ResourceIterableEnhanced<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
+        final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, true);
         if (!towardsDest.isEmpty()) {
             return createPlatformState(towardsState, routeStationState, node, cost, towardsDest.stream());
@@ -43,7 +46,7 @@ public class FindStateAfterRouteStation  {
     public TraversalState onTripTowardsStation(final TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
                                                final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn,
                                                StateBuilder<?> stateBuilder) {
-        final ResourceIterableEnhanced<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, false);
+        final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, false);
         if (!towardsDest.isEmpty()) {
             return createNoPlatformStationState(onTrip, node, cost, journeyState, towardsDest.stream(), destination);
         }
@@ -56,7 +59,7 @@ public class FindStateAfterRouteStation  {
 
     public TraversalState onTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateOnTrip routeStationStateOnTrip,
                                                 final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
-        final ResourceIterableEnhanced<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, true);
+        final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, true);
         if (!towardsDest.isEmpty()) {
             return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, towardsState);
         }
@@ -93,9 +96,9 @@ public class FindStateAfterRouteStation  {
         return node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
     }
 
-    private ResourceIterableEnhanced<GraphRelationship> getTowardsDestination(final StateBuilder<?> stateBuilder,
-                                                                              final GraphNode node, final GraphTransaction txn,
-                                                                              boolean isPlatform) {
+    private IterableWithEmptyCheck<GraphRelationship> getTowardsDestination(final StateBuilder<?> stateBuilder,
+                                                                            final GraphNode node, final GraphTransaction txn,
+                                                                            boolean isPlatform) {
         if (isPlatform) {
             return stateBuilder.getTowardsDestinationFromPlatform(txn, node);
         } else {

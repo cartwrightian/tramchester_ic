@@ -118,7 +118,8 @@ public class RouteCalculatorSupport {
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                               final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
                                               final LocationCollection destinations, TowardsDestination towardsDestination,
-                                              final Set<GraphNodeId> destinationNodeIds, final Running running) {
+                                              final Set<GraphNodeId> destinationNodeIds, final Running running,
+                                              BranchOrderingPolicy selector) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -130,7 +131,7 @@ public class RouteCalculatorSupport {
         final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, config, fullLogging);
 
         final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
-                destinationNodeIds, destinations, towardsDestination, running);
+                destinationNodeIds, destinations, towardsDestination, running, selector);
         return paths.map(path -> new TimedPath(path, pathRequest));
     }
 
@@ -188,113 +189,29 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected ServiceReasons createServiceReasons(final JourneyRequest journeyRequest, final PathRequest pathRequest) {
-        return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow, failedJourneyDiagnostics);
+        return new ServiceReasons(journeyRequest, pathRequest.getActualQueryTime(), providesNow, failedJourneyDiagnostics);
     }
 
     public PathRequest createPathRequest(final JourneyRequest journeyRequest, final NodeAndStation nodeAndStation, final int numChanges,
-                                         final JourneyConstraints journeyConstraints, final BranchOrderingPolicy selector) {
+                                         final JourneyConstraints journeyConstraints) {
         final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(nodeAndStation.location, config);
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
                 journeyRequest.getOriginalTime(), numChanges);
-        return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait, selector,
+        return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait,
                 journeyConstraints.getDestinationModes());
     }
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
                                          EnumSet<TransportMode> requestedModes, int numChanges,
-                                         JourneyConstraints journeyConstraints, Duration maxInitialWait,
-                                         BranchOrderingPolicy selector) {
+                                         JourneyConstraints journeyConstraints, Duration maxInitialWait) {
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
                 actualQueryTime, numChanges);
-        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector,
+        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait,
                 journeyConstraints.getDestinationModes());
     }
 
     protected TimeRange getDestinationsAvailable(LocationCollection destinations, TramDate tramDate) {
         return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
-    }
-
-    public static class PathRequest {
-        private final GraphNode startNode;
-        private final TramTime queryTime;
-        private final int numChanges;
-        private final ServiceHeuristics serviceHeuristics;
-        private final TramDate queryDate;
-        private final EnumSet<TransportMode> requestedModes;
-        private final Duration maxInitialWait;
-        private final BranchOrderingPolicy selector;
-        private final EnumSet<TransportMode> destinationModes;
-
-        public PathRequest(JourneyRequest journeyRequest, GraphNode startNode, int numChanges, ServiceHeuristics serviceHeuristics,
-                           Duration maxInitialWait, BranchOrderingPolicy selector, EnumSet<TransportMode> desintationModes) {
-            this(startNode, journeyRequest.getDate(), journeyRequest.getOriginalTime(), numChanges, serviceHeuristics,
-                    journeyRequest.getRequestedModes(),
-                    maxInitialWait, selector, desintationModes);
-
-        }
-
-        public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
-                           ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
-                           Duration maxInitialWait, BranchOrderingPolicy selector, EnumSet<TransportMode> destinationModes) {
-            this.startNode = startNode;
-            this.queryDate = queryDate;
-            this.queryTime = queryTime;
-            this.numChanges = numChanges;
-            this.serviceHeuristics = serviceHeuristics;
-            this.requestedModes = requestedModes;
-            this.maxInitialWait = maxInitialWait;
-            this.selector = selector;
-            this.destinationModes = destinationModes;
-        }
-
-        public ServiceHeuristics getServiceHeuristics() {
-            return serviceHeuristics;
-        }
-
-        public TramTime getActualQueryTime() {
-            return queryTime;
-        }
-
-        public int getNumChanges() {
-            return numChanges;
-        }
-
-        @Override
-        public String toString() {
-            return "PathRequest{" +
-                    "startNode=" + startNode +
-                    ", queryTime=" + queryTime +
-                    ", numChanges=" + numChanges +
-                    ", serviceHeuristics=" + serviceHeuristics +
-                    ", queryDate=" + queryDate +
-                    ", requestedModes=" + requestedModes +
-                    ", maxInitialWait=" + maxInitialWait +
-                    '}';
-        }
-
-        public TramDate getQueryDate() {
-            return queryDate;
-        }
-
-        public EnumSet<TransportMode> getRequestedModes() {
-            return requestedModes;
-        }
-
-        public Duration getMaxInitialWait() {
-            return maxInitialWait;
-        }
-
-        public GraphNode getStartNode() {
-            return startNode;
-        }
-
-        public BranchOrderingPolicy getSelector() {
-            return selector;
-        }
-
-        public EnumSet<TransportMode> getDesintationModes() {
-            return destinationModes;
-        }
     }
 
     public static Duration getMaxInitialWaitFor(List<? extends BoundingBoxWithStations> startingBoxes, TramchesterConfig config) {

@@ -15,7 +15,7 @@ import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.neo4j.RouteCalculatorSupport;
+import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import com.tramchester.testSupport.reference.TramStations;
@@ -91,7 +91,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         GraphTransaction txn = createMock(GraphTransaction.class);
         EasyMock.expect(txn.getNodeById(nodeId)).andReturn(node);
 
-        RouteCalculatorSupport.PathRequest pathRequest = createMock(RouteCalculatorSupport.PathRequest.class);
+        PathRequest pathRequest = createMock(PathRequest.class);
         EasyMock.expect(pathRequest.getNumChanges()).andReturn(3);
 
         HeuristicsReason serviceReasonA = HeuristicsReasons.AlreadyDeparted(TramTime.of(15, 33), howIGotHere);

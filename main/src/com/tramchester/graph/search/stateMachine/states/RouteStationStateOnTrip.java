@@ -1,13 +1,15 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
-import com.tramchester.graph.search.stateMachine.*;
+import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -44,7 +46,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             final TransportMode transportMode = routeStationNode.getTransportMode();
             final IdFor<Trip> tripId = journeyState.getCurrentTrip();
 
-            final ResourceIterableEnhanced<GraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
+            final IterableWithEmptyCheck<GraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateOnTrip(journeyState, minuteState, towardsDestination.stream(), cost,

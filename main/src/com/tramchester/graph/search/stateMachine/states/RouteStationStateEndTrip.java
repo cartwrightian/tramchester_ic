@@ -1,12 +1,12 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.core.neo4j.ResourceIterableEnhanced;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 
@@ -37,7 +37,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                                         final Duration cost, final boolean isInterchange, final GraphTransaction txn) {
             final TransportMode transportMode = node.getTransportMode();
 
-            final ResourceIterableEnhanced<GraphRelationship> towardsDestination = getTowardsDestination(node, txn);
+            final IterableWithEmptyCheck<GraphRelationship> towardsDestination = getTowardsDestination(node, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(journeyState, minuteState, towardsDestination.stream(), cost, transportMode, node, this);
