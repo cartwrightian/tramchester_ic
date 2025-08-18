@@ -9,12 +9,11 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.neo4j.*;
+import com.tramchester.graph.core.neo4j.CreateGraphTraverser;
+import com.tramchester.graph.core.neo4j.GraphPathNeo4j;
+import com.tramchester.graph.core.neo4j.ImmutableGraphRelationshipNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
-import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.PathRequest;
-import com.tramchester.graph.search.PreviousVisits;
+import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.*;
@@ -37,17 +36,22 @@ import java.util.stream.StreamSupport;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 
-public class TramNetworkTraverser implements PathExpander<JourneyState> {
-    private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
+public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, TramNetworkTraverser {
+    private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverserNeo4J.class);
 
     private final TramchesterConfig config;
+    private final BranchOrderingPolicy orderingPolicy;
     private final GraphTransaction txn;
     private final boolean fullLogging;
+    private final LocationCollection destinations;
 
-    public TramNetworkTraverser(GraphTransaction txn, TramchesterConfig config, boolean fullLogging) {
+    public TramNetworkTraverserNeo4J(GraphTransaction txn, TramchesterConfig config, boolean fullLogging, BranchOrderingPolicy orderingPolicy,
+                                     LocationCollection destinations) {
         this.txn = txn;
         this.fullLogging = fullLogging;
         this.config = config;
+        this.orderingPolicy = orderingPolicy;
+        this.destinations = destinations;
     }
 
 
@@ -65,11 +69,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         };
     }
 
-    public Stream<GraphPath> findPaths(final GraphTransaction txn, final PathRequest pathRequest,
+    @Override
+    public Stream<GraphPath> findPaths(final PathRequest pathRequest,
                                        final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
-                                       final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations,
-                                       final TowardsDestination towardsDestination, final Running running,
-                                       BranchOrderingPolicy selector) {
+                                       final TowardsDestination towardsDestination,
+                                       final Set<GraphNodeId> destinationNodeIds,
+                                       final Running running) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 towardsDestination, config, pathRequest.getRequestedModes());
@@ -97,7 +102,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                         // api updated, the call to expand overrides any calls to relationships
                 uniqueness(NONE).
                 expand(this, initialJourneyState).
-                order(selector).
+                order(orderingPolicy).
                 evaluator(tramRouteEvaluator);
 
 //        final Traverser traverse = startNode.getTraverserFor(traversalDesc);

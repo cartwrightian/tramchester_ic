@@ -64,15 +64,4 @@ public class TowardsDestination {
         return IterableWithEmptyCheck.from(filtered);
     }
 
-//    public LocationId<?> getLocationIdFor(final GraphRelationship depart) {
-//        return depart.getLocationId();
-////        final TransportRelationshipTypes departType = depart.getType();
-////        if (HAS_STATION_ID.contains(departType)) {
-////            return new LocationId<>(depart.getStationId());
-////        } else if (departType==GROUPED_TO_PARENT) {
-////            return new LocationId<>(depart.getStationGroupId());
-////        } else {
-////            throw new RuntimeException("Unsupported relationship type " + departType);
-////        }
-//    }
 }

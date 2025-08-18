@@ -54,16 +54,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final InterchangeRepository interchangeRepository;
 
     @Inject
-    public RouteCalculatorForBoxes(TramchesterConfig config,
-                                   TransportData transportData,
-                                   GraphDatabase graphDatabaseService,
-                                   PathToStages pathToStages,
-                                   ProvidesNow providesNow,
-                                   MapPathToLocations mapPathToLocations,
-                                   BetweenRoutesCostRepository routeToRouteCosts,
-                                   ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
-                                   @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
+    public RouteCalculatorForBoxes(TramchesterConfig config, TransportData transportData, GraphDatabase graphDatabaseService,
+                                   PathToStages pathToStages, ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
+                                   BetweenRoutesCostRepository routeToRouteCosts, ClosedStationsRepository closedStationsRepository,
+                                   RunningRoutesAndServices runningRoutesAndService, @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
+                                   StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
+                                   NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, routeToRouteCosts, failedJourneyDiagnostics,
@@ -103,6 +99,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest);
 
+        final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations);
+
         scheduleLogging(result, serviceReasons);
 
         final Stream<JourneysForBox> stream = startingBoxes.parallelStream().
@@ -127,7 +125,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
                         filter(item -> result.isRunning()).
                         flatMap(pathRequest -> findShortestPath(txn, serviceReasons, pathRequest, createPreviousVisits(journeyRequest),
-                                lowestCostSeenForBox, destinations, towardsDestination, destinationNodeIds, result, selector)).
+                                lowestCostSeenForBox, destinationNodeIds, result, traverserFactory, towardsDestination)).
                         filter(item -> result.isRunning()).
                         map(timedPath -> createJourney(journeyRequest, timedPath, towardsDestination, journeyIndex, txn));
 

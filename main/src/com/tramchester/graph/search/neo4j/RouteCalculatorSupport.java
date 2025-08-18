@@ -14,8 +14,8 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.graph.core.*;
 import com.tramchester.graph.caches.LowestCostSeen;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
@@ -23,7 +23,6 @@ import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,9 +116,8 @@ public class RouteCalculatorSupport {
 
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                               final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
-                                              final LocationCollection destinations, TowardsDestination towardsDestination,
                                               final Set<GraphNodeId> destinationNodeIds, final Running running,
-                                              BranchOrderingPolicy selector) {
+                                              final TramNetworkTraverserFactory factory, TowardsDestination towardsDestination) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -128,16 +126,18 @@ public class RouteCalculatorSupport {
             }
         }
 
-        final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, config, fullLogging);
+        final TramNetworkTraverser tramNetworkTraverser = factory.get(txn);
 
-        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
-                destinationNodeIds, destinations, towardsDestination, running, selector);
+        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
+                towardsDestination,
+                destinationNodeIds, running);
+
         return paths.map(path -> new TimedPath(path, pathRequest));
     }
 
     @NotNull
     protected Journey createJourney(final JourneyRequest journeyRequest, final TimedPath path,
-                                    TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
+                                    final TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
                                     final GraphTransaction txn) {
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, towardsDestination, txn, fullLogging);
