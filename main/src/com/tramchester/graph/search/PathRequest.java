@@ -27,6 +27,7 @@ public class PathRequest {
                 maxInitialWait, desintationModes);
     }
 
+    // query time here can range over the series of times
     public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                        ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
                        Duration maxInitialWait, EnumSet<TransportMode> destinationModes) {
@@ -45,6 +46,7 @@ public class PathRequest {
     }
 
     public TramTime getActualQueryTime() {
+        // not always the same as original query time from JourneyRequest
         return queryTime;
     }
 

@@ -22,14 +22,14 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
-import com.tramchester.graph.search.neo4j.PreviousVisits;
+import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
-import com.tramchester.graph.search.neo4j.TramRouteEvaluator;
+import com.tramchester.graph.search.neo4j.TramRouteEvaluatorNeo4J;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -166,14 +166,14 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @NotNull
-    private TramRouteEvaluator getEvaluatorForTest(GraphNodeId destinationNodeId, final boolean isRunning) {
+    private TramRouteEvaluatorNeo4J getEvaluatorForTest(GraphNodeId destinationNodeId, final boolean isRunning) {
         Set<GraphNodeId> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
 
         // todo into mock
         Running running = () -> isRunning;
         final EnumSet<TransportMode> destinationModes = TramsOnly;
-        return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds,
+        return new TramRouteEvaluatorNeo4J(serviceHeuristics, destinationNodeIds,
                 reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, TramsOnly,
                 destinationModes,
                 maxInitialWait, txn, running);
@@ -249,7 +249,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -273,7 +273,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, false);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, false);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -311,7 +311,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -347,7 +347,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -373,7 +373,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, state);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -400,7 +400,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, state);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -431,7 +431,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -476,7 +476,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -570,7 +570,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         verifyAll();
 
@@ -628,7 +628,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
@@ -670,7 +670,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
@@ -710,7 +710,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -744,7 +744,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -777,7 +777,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -821,7 +821,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -867,7 +867,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -917,7 +917,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
@@ -958,7 +958,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
 
         replayAll();
-        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, true);
+        TramRouteEvaluatorNeo4J evaluator = getEvaluatorForTest(destinationNodeId, true);
         Evaluation result = evaluator.evaluate(path, branchState);
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();

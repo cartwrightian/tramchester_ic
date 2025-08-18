@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.neo4j;
+package com.tramchester.graph.search;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -7,8 +7,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
-import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.search.diagnostics.HeuristicsReason;
 import com.tramchester.graph.search.diagnostics.HeuristicsReasons;
 import com.tramchester.graph.search.diagnostics.HowIGotHere;

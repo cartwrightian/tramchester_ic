@@ -14,6 +14,7 @@ import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.PathRequest;
+import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.*;
@@ -75,13 +76,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
-        //final BranchOrderingPolicy selector = pathRequest.getSelector();
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
         final GraphNode startNode = pathRequest.getStartNode();
         final GraphNodeId startNodeId = startNode.getId();
 
-        final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest,
+        final TramRouteEvaluatorNeo4J tramRouteEvaluator = new TramRouteEvaluatorNeo4J(pathRequest,
                 destinationNodeIds, reasons, previousVisits, lowestCostSeen, config,
                 startNodeId, txn, running);
 
