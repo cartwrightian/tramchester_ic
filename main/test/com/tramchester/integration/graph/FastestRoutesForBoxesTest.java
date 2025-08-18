@@ -133,6 +133,6 @@ class FastestRoutesForBoxesTest {
                 toList();
 
         assertEquals(1, destinationBox.size());
-        assertTrue(destinationBox.get(0).contained(destination.getGridPosition()));
+        assertTrue(destinationBox.getFirst().contained(destination.getGridPosition()));
     }
 }

@@ -116,7 +116,7 @@ public class RouteCalculatorSupport {
 
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                               final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
-                                              final Set<GraphNodeId> destinationNodeIds, final Running running,
+                                              final Running running,
                                               final TramNetworkTraverserFactory factory, TowardsDestination towardsDestination) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
@@ -129,8 +129,7 @@ public class RouteCalculatorSupport {
         final TramNetworkTraverser tramNetworkTraverser = factory.get(txn);
 
         final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
-                towardsDestination,
-                destinationNodeIds, running);
+                towardsDestination, running);
 
         return paths.map(path -> new TimedPath(path, pathRequest));
     }

@@ -44,14 +44,16 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
     private final GraphTransaction txn;
     private final boolean fullLogging;
     private final LocationCollection destinations;
+    private final Set<GraphNodeId> destinationNodeIds;
 
     public TramNetworkTraverserNeo4J(GraphTransaction txn, TramchesterConfig config, boolean fullLogging, BranchOrderingPolicy orderingPolicy,
-                                     LocationCollection destinations) {
+                                     LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {
         this.txn = txn;
         this.fullLogging = fullLogging;
         this.config = config;
         this.orderingPolicy = orderingPolicy;
         this.destinations = destinations;
+        this.destinationNodeIds = destinationNodeIds;
     }
 
 
@@ -73,7 +75,6 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
     public Stream<GraphPath> findPaths(final PathRequest pathRequest,
                                        final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                        final TowardsDestination towardsDestination,
-                                       final Set<GraphNodeId> destinationNodeIds,
                                        final Running running) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),

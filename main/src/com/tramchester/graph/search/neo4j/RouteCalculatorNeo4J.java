@@ -212,10 +212,10 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
 
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
-        TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations);
+        TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations, destinationNodeIds);
 
         final Stream<Journey> results = findShortestPath(txn, serviceReasons, singlePathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, destinationNodeIds, running, traverserFactory, towardsDestination).
+                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
@@ -278,15 +278,14 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
 
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
-        TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations);
+        TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations, destinationNodeIds);
 
         final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
                                 journeyConstraints, maxInitialWait))).
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, destinationNodeIds,
-                        running, traverserFactory, towardsDestination)).
+                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination)).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored

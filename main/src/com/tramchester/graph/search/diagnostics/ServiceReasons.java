@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -39,8 +38,8 @@ public class ServiceReasons {
 
     private final List<HeuristicsReason> reasons;
     // stats
-    private final EnumMap<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
-    private final EnumMap<TraversalStateType, AtomicInteger> stateStats; // State -> num visits
+    private final EnumCounter<ReasonCode> reasonCodeStats; // reason -> count
+    private final EnumCounter<TraversalStateType> stateStats; // State -> num visits
     private final Map<GraphNodeId, AtomicInteger> nodeVisits; // count of visits to nodes
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
@@ -57,11 +56,9 @@ public class ServiceReasons {
         success = new AtomicBoolean(false);
         diagnosticsEnabled = journeyRequest.getDiagnosticsEnabled();
 
-        reasonCodeStats = new EnumMap<>(ReasonCode.class);
-        Arrays.stream(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
+        reasonCodeStats = new EnumCounter<>(ReasonCode.class);
+        stateStats = new EnumCounter<>(TraversalStateType.class);
 
-        stateStats = new EnumMap<>(TraversalStateType.class);
-        Arrays.stream(TraversalStateType.values()).forEach(type -> stateStats.put(type, new AtomicInteger(0)));
         nodeVisits = new HashMap<>();
     }
 
@@ -79,7 +76,6 @@ public class ServiceReasons {
         reset();
     }
 
-
     public void recordVisit(final HowIGotHere howIGotHere) {
         if (diagnosticsEnabled) {
             recordEndNodeVisit(howIGotHere);
@@ -88,11 +84,9 @@ public class ServiceReasons {
 
     private void reset() {
         reasons.clear();
-        reasonCodeStats.clear();
-        stateStats.clear();
         nodeVisits.clear();
         reasonCodeStats.clear();
-        Arrays.stream(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
+        stateStats.clear();
     }
 
     public HeuristicsReason recordReason(final HeuristicsReason serviceReason) {
@@ -106,16 +100,6 @@ public class ServiceReasons {
         if (diagnosticsEnabled) {
             addReason(serviceReason);
         }
-
-        // was over-counting node visits
-//        if (diagnosticsEnabled) {
-//            addReason(serviceReason);
-//            recordEndNodeVisit(serviceReason.getHowIGotHere());
-//        } else {
-//            if (!serviceReason.isValid()) {
-//                recordEndNodeVisit(serviceReason.getHowIGotHere());
-//            }
-//        }
 
         incrementReasonCode(reasonCode);
         return serviceReason;
@@ -150,11 +134,11 @@ public class ServiceReasons {
     }
 
     private void recordStateType(final TraversalStateType stateType) {
-        stateStats.get(stateType).incrementAndGet();
+        stateStats.increment(stateType);
     }
 
     private void incrementReasonCode(final ReasonCode reasonCode) {
-        reasonCodeStats.get(reasonCode).incrementAndGet();
+        reasonCodeStats.increment(reasonCode);
     }
 
     //***********
@@ -186,8 +170,8 @@ public class ServiceReasons {
 
     public void logCounters() {
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
-        logStats("reasoncodes", reasonCodeStats, AtomicInteger::get);
-        logStats("states", stateStats, AtomicInteger::get);
+        reasonCodeStats.log(logger);
+        stateStats.log(logger);
         logger.info("Visited " + nodeVisits.size() + " nodes");
     }
 
@@ -262,14 +246,6 @@ public class ServiceReasons {
         return labels + " " + node.getAllProperties().toString();
     }
 
-    private <T>  void logStats(final String prefix, final Map<?, T> stats, Function<T, Integer> getCount) {
-        stats.entrySet().stream().
-                filter(entry -> getCount.apply(entry.getValue()) > 0).
-                sorted(Comparator.comparingInt(entry -> getCount.apply(entry.getValue()))).
-                forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), getCount.apply(entry.getValue()))));
-    }
-
-
     @Override
     public String toString() {
         return "ServiceReasons{" +
@@ -291,13 +267,11 @@ public class ServiceReasons {
     }
 
     public Map<ReasonCode, Integer> getReasons() {
-        return reasonCodeStats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
-//        return new EnumMap<>(reasonCodeStats);
+        return reasonCodeStats.getCounters();
     }
 
     public Map<TraversalStateType, Integer> getStates() {
-        return stateStats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
-//        return new EnumMap<>(stateStats);
+        return stateStats.getCounters();
     }
 
     public Map<GraphNodeId, Integer> getNodeVisits() {
@@ -307,6 +281,52 @@ public class ServiceReasons {
 
     public boolean getDiagnosticsEnabled() {
         return diagnosticsEnabled;
+    }
+
+    private static class EnumCounter<T extends Enum<T>> {
+        private final EnumMap<T,AtomicInteger> counters;
+        private final Class<T> theEnum;
+
+        private EnumCounter(final Class<T> theEnum) {
+            this.theEnum = theEnum;
+            counters = new EnumMap<>(getInit());
+        }
+
+        private Map<T, AtomicInteger> getInit() {
+            return Arrays.stream(theEnum.getEnumConstants()).collect(Collectors.toMap(type -> type, type -> new AtomicInteger(0)));
+        }
+
+        public void clear() {
+            synchronized (counters) {
+                counters.clear();
+                counters.putAll(getInit());
+            }
+        }
+
+        public void increment(final T item) {
+            synchronized (counters) {
+                counters.get(item).getAndIncrement();
+            }
+        }
+
+        public void log(final Logger logger) {
+            getCounters().entrySet().stream().
+                    filter(entry -> entry.getValue() > 0).
+                    sorted(Comparator.comparingInt(Map.Entry::getValue)).
+                    forEach(entry -> logger.info(format("%s => %s: %s", theEnum.getName(), entry.getKey(), entry.getValue())));
+        }
+
+        public Map<T, Integer> getCounters() {
+            return counters.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, item -> item.getValue().get()));
+        }
+
+        @Override
+        public String toString() {
+            return "EnumCounter{" +
+                    "counters=" + counters +
+                    ", theEnum=" + theEnum +
+                    '}';
+        }
     }
 
 }

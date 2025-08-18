@@ -26,7 +26,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.neo4j.selectors.BreadthFirstBranchSelectorForGridSearch;
+import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;
@@ -52,6 +52,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndService;
     private final InterchangeRepository interchangeRepository;
+    private final BranchSelectorFactory branchSelectorFactory;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config, TransportData transportData, GraphDatabase graphDatabaseService,
@@ -59,7 +60,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts, ClosedStationsRepository closedStationsRepository,
                                    RunningRoutesAndServices runningRoutesAndService, @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
                                    StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
-                                   NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
+                                   NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository, BranchSelectorFactory branchSelectorFactory) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, routeToRouteCosts, failedJourneyDiagnostics,
@@ -69,6 +70,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
         this.interchangeRepository = interchangeRepository;
+        this.branchSelectorFactory = branchSelectorFactory;
     }
 
     public RequestStopStream<JourneysForBox> calculateRoutes(final StationsBoxSimpleGrid destinationBox, final JourneyRequest journeyRequest,
@@ -76,9 +78,15 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         logger.info("Finding routes from " + startingBoxes.size() + " bounding boxes");
 
         // TODO Compute over a range of times??
-
         final LocationSet<Station> destinations = destinationBox.getStations();
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
+
+        // share selector across queries, to allow caching of station to station distances
+        // TODO Optimise using box based distance calculation? -- avoid doing per station per box
+        final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
+
+        final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true,
+                selector, destinations, destinationNodeIds);
 
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
@@ -89,17 +97,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest, timeRange);
 
-        // share selector across queries, to allow caching of station to station distances
-        // TODO Optimise using box based distance calculation? -- avoid doing per station per box
-        final BranchOrderingPolicy selector = getBranchOrderingPolicy(destinationBox, startingBoxes);
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
 
         final ChangesForDestinations changesForDestinations = new ChangesForDestinations(destinations, journeyRequest);
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest);
-
-        final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations);
 
         scheduleLogging(result, serviceReasons);
 
@@ -125,7 +128,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
                         filter(item -> result.isRunning()).
                         flatMap(pathRequest -> findShortestPath(txn, serviceReasons, pathRequest, createPreviousVisits(journeyRequest),
-                                lowestCostSeenForBox, destinationNodeIds, result, traverserFactory, towardsDestination)).
+                                lowestCostSeenForBox, result, traverserFactory, towardsDestination)).
                         filter(item -> result.isRunning()).
                         map(timedPath -> createJourney(journeyRequest, timedPath, towardsDestination, journeyIndex, txn));
 
@@ -142,11 +145,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         return result.setStream(stream);
     }
 
-    @SuppressWarnings("unchecked")
-    private static @NotNull BranchOrderingPolicy getBranchOrderingPolicy(final StationsBoxSimpleGrid destinationBox, final List<StationsBoxSimpleGrid> boxes) {
-        return (startBranch, expander) -> new BreadthFirstBranchSelectorForGridSearch(startBranch, expander,
-                destinationBox, boxes);
-    }
+//    @SuppressWarnings("unchecked")
+//    private static @NotNull BranchOrderingPolicy getBranchOrderingPolicy(final StationsBoxSimpleGrid destinationBox, final List<StationsBoxSimpleGrid> boxes) {
+//        return (startBranch, expander) -> new BreadthFirstBranchSelectorForGridSearch(startBranch, expander,
+//                destinationBox, boxes);
+//    }
 
     private static void scheduleLogging(final Running results, final ServiceReasons serviceReasons) {
         final Timer timer = new Timer("GridSearchLoggingTimer");
