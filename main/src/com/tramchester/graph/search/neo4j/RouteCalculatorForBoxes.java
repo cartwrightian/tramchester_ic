@@ -4,10 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.JourneysForBox;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.collections.Running;
@@ -28,6 +25,7 @@ import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
@@ -60,11 +58,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts, ClosedStationsRepository closedStationsRepository,
                                    RunningRoutesAndServices runningRoutesAndService, @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
                                    StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
-                                   NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository, BranchSelectorFactory branchSelectorFactory) {
+                                   NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository, BranchSelectorFactory branchSelectorFactory,
+                                   CacheMetrics cacheMetrics) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, routeToRouteCosts, failedJourneyDiagnostics,
-                stationAvailabilityRepository, false, countsNodes);
+                stationAvailabilityRepository, false, countsNodes, closedStationsRepository, cacheMetrics, branchSelectorFactory, interchangeRepository);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
@@ -75,18 +74,35 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     public RequestStopStream<JourneysForBox> calculateRoutes(final StationsBoxSimpleGrid destinationBox, final JourneyRequest journeyRequest,
                                                              final List<StationsBoxSimpleGrid> startingBoxes) {
-        logger.info("Finding routes from " + startingBoxes.size() + " bounding boxes");
 
-        // TODO Compute over a range of times??
         final LocationSet<Station> destinations = destinationBox.getStations();
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
-        // share selector across queries, to allow caching of station to station distances
-        // TODO Optimise using box based distance calculation? -- avoid doing per station per box
         final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
 
         final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true,
                 selector, destinations, destinationNodeIds);
+
+        return calculateRoutes(journeyRequest, startingBoxes, traverserFactory, destinations);
+    }
+
+
+    @Override
+    protected TramNetworkTraverserFactoryNeo4J getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {
+        // TODO more refactoring needed
+        throw new RuntimeException("Not implemented for grid searches");
+    }
+
+    private RequestStopStream<JourneysForBox> calculateRoutes(final JourneyRequest journeyRequest,
+                                                             final List<StationsBoxSimpleGrid> startingBoxes, final TramNetworkTraverserFactory tramNetworkTraverserFactory,
+                                                             final LocationSet<Station> destinations) {
+        logger.info("Finding routes from " + startingBoxes.size() + " bounding boxes");
+
+        // TODO Compute over a range of times??
+
+        // share selector across queries, to allow caching of station to station distances
+        // TODO Optimise using box based distance calculation? -- avoid doing per station per box
+
 
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
@@ -128,7 +144,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
                         filter(item -> result.isRunning()).
                         flatMap(pathRequest -> findShortestPath(txn, serviceReasons, pathRequest, createPreviousVisits(journeyRequest),
-                                lowestCostSeenForBox, result, traverserFactory, towardsDestination)).
+                                lowestCostSeenForBox, result, tramNetworkTraverserFactory, towardsDestination)).
                         filter(item -> result.isRunning()).
                         map(timedPath -> createJourney(journeyRequest, timedPath, towardsDestination, journeyIndex, txn));
 
@@ -167,6 +183,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         };
         timer.scheduleAtFixedRate(loggingTask, logFrequency, logFrequency);
     }
+
 
     private class ChangesForDestinations {
         private final LocationSet<Station> destinations;

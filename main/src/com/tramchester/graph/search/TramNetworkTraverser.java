@@ -9,8 +9,6 @@ import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import java.util.stream.Stream;
 
 public interface TramNetworkTraverser {
-    Stream<GraphPath> findPaths(PathRequest pathRequest,
-                                PreviousVisits previousVisits, ServiceReasons reasons, LowestCostSeen lowestCostSeen,
-                                TowardsDestination towardsDestination,
-                                Running running);
+    Stream<GraphPath> findPaths(PathRequest pathRequest, PreviousVisits previousVisits, ServiceReasons reasons,
+                                LowestCostSeen lowestCostSeen, TowardsDestination towardsDestination, Running running);
 }

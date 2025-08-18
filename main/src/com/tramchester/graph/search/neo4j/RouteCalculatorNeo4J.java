@@ -6,26 +6,19 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationCollectionSingleton;
-import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.Running;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
-import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
-import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;
@@ -34,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -43,13 +36,8 @@ import static java.lang.String.format;
 @LazySingleton
 public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorNeo4J.class);
-    private final TramchesterConfig config;
     private final CreateQueryTimes createQueryTimes;
-    private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndServices;
-    private final CacheMetrics cacheMetrics;
-    private final BranchSelectorFactory branchSelectorFactory;
-    private final InterchangeRepository interchangeRepository;
 
     // TODO Refactoring here, way too messy and confusing constructor
 
@@ -65,14 +53,10 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
                                 NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations, transportData, config, routeToRouteCosts,
-                failedJourneyDiagnostics, stationAvailabilityRepository, true, countsNodes);
-        this.config = config;
+                failedJourneyDiagnostics, stationAvailabilityRepository, true, countsNodes,
+                closedStationsRepository, cacheMetrics, branchSelectorFactory, interchangeRepository);
         this.createQueryTimes = createQueryTimes;
-        this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndServices = runningRoutesAndServices;
-        this.cacheMetrics = cacheMetrics;
-        this.branchSelectorFactory = branchSelectorFactory;
-        this.interchangeRepository = interchangeRepository;
     }
 
     @Override
@@ -164,137 +148,18 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
-        Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
         return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,
                 numberOfChanges, maxInitialWait, running).
                 takeWhile(finished::notDoneYet);
     }
 
 
-    private Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                                   final JourneyRequest journeyRequest, RunningRoutesAndServices.FilterForDate routesAndServicesFilter, final LocationCollection destinations,
-                                                   final Duration maxInitialWait, final Running running) {
-
-        final TramDate tramDate = journeyRequest.getDate();
-        final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
-
-        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
-        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest, timeRange);
-
-        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
-
-        final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
-
-        final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
-
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
-
-        final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
-
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routesAndServicesFilter,
-                closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
-
+    @Override
+    protected TramNetworkTraverserFactoryNeo4J getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {
         // share selector across queries, to allow caching of station to station distances
         final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
-
-        logger.info("Journey Constraints: " + journeyConstraints);
-
-        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
-
-        final AtomicInteger journeyIndex = new AtomicInteger(0);
-
-        final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), requestedModes,
-                journeyRequest.getMaxChanges().get(),
-                journeyConstraints, maxInitialWait);
-
-        final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
-
-        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
-
-        TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations, destinationNodeIds);
-
-        final Stream<Journey> results = findShortestPath(txn, serviceReasons, singlePathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination).
-                map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
-
-        //noinspection ResultOfMethodCallIgnored
-        results.onClose(() -> {
-            cacheMetrics.report();
-            logger.info("Journey stream closed");
-        });
-
-        return results;
-    }
-
-    private EnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
-        // need to take into account if a location is an interchange
-        final EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
-        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
-        results.addAll(interchangeModes);
-        return results;
-    }
-
-    private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                             final LocationCollection destinations, final JourneyRequest journeyRequest,
-                                             final List<TramTime> queryTimes, RunningRoutesAndServices.FilterForDate runningRoutesAndServicesFilter, final int possibleMinNumChanges,
-                                             final Duration maxInitialWait, Running running) {
-
-        if (possibleMinNumChanges==Integer.MAX_VALUE) {
-            logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
-            // todo fall back to requested max changes in journeyRequest ?
-            return Stream.empty();
-        }
-
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
-
-        final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
-        final TramDate tramDate = journeyRequest.getDate();
-
-        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
-
-        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest, timeRange);
-
-        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
-
-        final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
-
-        final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
-
-        final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
-                closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
-
-        // share selector across queries, to allow caching of station to station distances
-        final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
-
-        logger.info("Journey Constraints: " + journeyConstraints);
-        logger.info("Query times: " + queryTimes);
-
-        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
-
-        final AtomicInteger journeyIndex = new AtomicInteger(0);
-
-        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
-
-        TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations, destinationNodeIds);
-
-        final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
-                flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
-                                journeyConstraints, maxInitialWait))).
-                flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination)).
-                map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
-
-        //noinspection ResultOfMethodCallIgnored
-        results.onClose(() -> {
-            cacheMetrics.report();
-            logger.info("Journey stream closed");
-        });
-
-        return results;
+        return new TramNetworkTraverserFactoryNeo4J(config, true, selector, destinations, destinationNodeIds);
     }
 
 }
