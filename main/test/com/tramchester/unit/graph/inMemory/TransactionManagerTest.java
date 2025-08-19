@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.tramchester.graph.core.GraphDirection.*;
 import static com.tramchester.graph.reference.GraphLabel.*;
@@ -136,12 +135,12 @@ public class TransactionManagerTest {
             GraphNode check = txn.findNode(routeStation);
             assertNotNull(check);
 
-            List<GraphRelationship> initialSearch = txn.getRouteStationRelationships(routeStation, Outgoing);
+            List<GraphRelationship> initialSearch = txn.getRouteStationRelationships(routeStation, Outgoing, TransportRelationshipTypes.forPlanning());
             assertTrue(initialSearch.isEmpty());
 
             MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.DEPART);
 
-            List<GraphRelationship> result = txn.getRouteStationRelationships(routeStation, Outgoing);
+            List<GraphRelationship> result = txn.getRouteStationRelationships(routeStation, Outgoing, TransportRelationshipTypes.forPlanning());
             assertFalse(result.isEmpty());
 
             assertTrue(result.contains(relationship));

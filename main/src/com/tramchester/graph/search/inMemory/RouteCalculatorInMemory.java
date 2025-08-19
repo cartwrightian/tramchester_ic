@@ -2,71 +2,37 @@ package com.tramchester.graph.search.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.collections.Running;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.StationWalk;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphPath;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.domain.time.CreateQueryTimes;
+import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.search.*;
+import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
+import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
+import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.repository.*;
 import jakarta.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 @LazySingleton
-public class RouteCalculatorInMemory implements TramRouteCalculator {
-    private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorInMemory.class);
-
-    private final TramchesterConfig config;
+public class RouteCalculatorInMemory extends RouteCalculatorSupport implements TramRouteCalculator {
+    //private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorInMemory.class);
 
     @Inject
-    public RouteCalculatorInMemory(TramchesterConfig config) {
-        this.config = config;
+    public RouteCalculatorInMemory(PathToStages pathToStages, GraphDatabase graphDatabaseService, ProvidesNow providesNow,
+                                   MapPathToLocations mapPathToLocations, StationRepository stationRepository, TramchesterConfig config,
+                                   BetweenRoutesCostRepository routeToRouteCosts, CreateJourneyDiagnostics failedJourneyDiagnostics,
+                                   StationAvailabilityRepository stationAvailabilityRepository, NumberOfNodesAndRelationshipsRepository countsNodes,
+                                   ClosedStationsRepository closedStationsRepository, CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory, InterchangeRepository interchangeRepository, CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
+        super(pathToStages, graphDatabaseService, providesNow, mapPathToLocations, stationRepository, config, routeToRouteCosts,
+                failedJourneyDiagnostics, stationAvailabilityRepository, countsNodes, closedStationsRepository,
+                cacheMetrics, branchSelectorFactory, interchangeRepository, createQueryTimes, runningRoutesAndServices);
     }
 
     @Override
-    public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,
-                                          final JourneyRequest journeyRequest, Running running) {
-        GraphNode startNode = getLocationNodeSafe(txn, start);
-        GraphNode destinationNode = getLocationNodeSafe(txn, destination);
-
-        SpikeAlgo spikeAlgo = new SpikeAlgo(txn, startNode, destinationNode, config);
-
-        List<GraphPath> paths = spikeAlgo.findRoute();
-
-        throw new RuntimeException("Not finished yet");
-    }
-
-    @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode destination, LocationCollection destStations, JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination, JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode, LocationCollection destinationStations, JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    protected GraphNode getLocationNodeSafe(final GraphTransaction txn, final Location<?> location) {
-        final GraphNode findNode = txn.findNode(location);
-        if (findNode == null) {
-            String msg = "Unable to find node for " + location.getId();
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
-        logger.info("found node " + findNode.getId() + " for " + location.getId());
-        return findNode;
+    protected TramNetworkTraverserFactory getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {
+        return txn -> new TramNetworkTraverserInMemory(config, destinationNodeIds, txn, destinations);
     }
 }

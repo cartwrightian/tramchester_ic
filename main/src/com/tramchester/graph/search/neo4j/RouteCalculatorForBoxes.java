@@ -11,6 +11,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -59,11 +60,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    RunningRoutesAndServices runningRoutesAndService, @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
                                    StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
                                    NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository, BranchSelectorFactory branchSelectorFactory,
-                                   CacheMetrics cacheMetrics) {
+                                   CacheMetrics cacheMetrics, CreateQueryTimes createQueryTimes) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, routeToRouteCosts, failedJourneyDiagnostics,
-                stationAvailabilityRepository, false, countsNodes, closedStationsRepository, cacheMetrics, branchSelectorFactory, interchangeRepository);
+                stationAvailabilityRepository, countsNodes, closedStationsRepository, cacheMetrics,
+                branchSelectorFactory, interchangeRepository, createQueryTimes, runningRoutesAndService);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;

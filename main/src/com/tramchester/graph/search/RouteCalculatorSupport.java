@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -11,6 +12,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -19,13 +21,12 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.neo4j.TramNetworkTraverserFactoryNeo4J;
+import com.tramchester.graph.search.neo4j.RouteCalculatorForBoxes;
 import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
 import org.jetbrains.annotations.NotNull;
-//import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,8 @@ public abstract class RouteCalculatorSupport {
     protected final CacheMetrics cacheMetrics;
     protected final BranchSelectorFactory branchSelectorFactory;
     protected final InterchangeRepository interchangeRepository;
+    protected final CreateQueryTimes createQueryTimes;
+    protected final RunningRoutesAndServices runningRoutesAndServices;
 
     private final PathToStages pathToStages;
     private final GraphDatabase graphDatabaseService;
@@ -64,7 +67,7 @@ public abstract class RouteCalculatorSupport {
                                      StationRepository stationRepository, TramchesterConfig config,
                                      BetweenRoutesCostRepository routeToRouteCosts,
                                      CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository,
-                                     boolean fullLogging, NumberOfNodesAndRelationshipsRepository countsNodes, ClosedStationsRepository closedStationsRepository, CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory, InterchangeRepository interchangeRepository) {
+                                     NumberOfNodesAndRelationshipsRepository countsNodes, ClosedStationsRepository closedStationsRepository, CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory, InterchangeRepository interchangeRepository, CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
         this.pathToStages = pathToStages;
         this.graphDatabaseService = graphDatabaseService;
         this.providesNow = providesNow;
@@ -73,13 +76,15 @@ public abstract class RouteCalculatorSupport {
         this.routeToRouteCosts = routeToRouteCosts;
         this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         this.stationAvailabilityRepository = stationAvailabilityRepository;
-        this.fullLogging = fullLogging;
+        this.fullLogging = this instanceof RouteCalculatorForBoxes;
         this.countsNodes = countsNodes;
         this.config = config;
         this.closedStationsRepository = closedStationsRepository;
         this.cacheMetrics = cacheMetrics;
         this.branchSelectorFactory = branchSelectorFactory;
         this.interchangeRepository = interchangeRepository;
+        this.createQueryTimes = createQueryTimes;
+        this.runningRoutesAndServices = runningRoutesAndServices;
     }
 
 
@@ -355,7 +360,98 @@ public abstract class RouteCalculatorSupport {
         return results;
     }
 
-    protected abstract TramNetworkTraverserFactoryNeo4J getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds);
+    public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,
+                                          final JourneyRequest journeyRequest, final Running running) {
+        logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
+                start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
+
+        final GraphNode startNode = getLocationNodeSafe(txn, start);
+        final GraphNode endNode = getLocationNodeSafe(txn, destination);
+
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+
+        final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, maxInitialWait);
+
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
+        final LocationCollection destinations = LocationCollectionSingleton.of(destination);
+        if (journeyRequest.getDiagnosticsEnabled()) {
+            logger.warn("Diagnostics enabled, will only query for single result");
+
+            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, routesAndServicesFilter, destinations, maxInitialWait, running).
+                    limit(journeyRequest.getMaxNumberOfJourneys());
+        } else {
+            return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,
+                    numberOfChanges, maxInitialWait, running).
+                    limit(journeyRequest.getMaxNumberOfJourneys());
+        }
+    }
+
+    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination,
+                                              final JourneyRequest journeyRequest, Duration maxInitialWait) {
+        /*
+         * Route change calc issue: for example media city is on the Eccles route but trams terminate at Etihad or
+         * don't go on towards Eccles depending on the time of day
+         * SO only use the possible min value for number of changes, no way to safely compute a max number
+         */
+
+        // TODO Closure handling??
+
+        return routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest,
+                journeyRequest.getJourneyTimeRange(maxInitialWait));
+    }
+
+    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
+                                                   JourneyRequest journeyRequest, int numberOfChanges, Running running)
+    {
+        final GraphNode startNode = getLocationNodeSafe(txn, start);
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+
+        return getJourneyStream(txn, startNode, endOfWalk, destinations, journeyRequest, queryTimes, routesAndServicesFilter, numberOfChanges, maxInitialWait, running).
+                limit(journeyRequest.getMaxNumberOfJourneys());
+    }
+
+    public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode,
+                                                     Location<?> destination,
+                                                     JourneyRequest journeyRequest, int numberOfChanges, Running running) {
+
+        final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
+        final GraphNode endNode = getLocationNodeSafe(txn, destination);
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+
+        Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
+
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
+        final LocationCollection destinations = LocationCollectionSingleton.of(destination);
+
+        return getJourneyStream(txn, startOfWalkNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter, numberOfChanges, maxInitialWait, running).
+                limit(journeyRequest.getMaxNumberOfJourneys()).
+                takeWhile(finished::notDoneYet);
+    }
+
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
+                                                           LocationCollection destinations, JourneyRequest journeyRequest,
+                                                           int numberOfChanges, Running running) {
+
+        final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+
+        final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
+
+        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
+        return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,
+                numberOfChanges, maxInitialWait, running).
+                takeWhile(finished::notDoneYet);
+    }
+
+    protected abstract TramNetworkTraverserFactory getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds);
 
 
     public static class InitialWalksFinished {

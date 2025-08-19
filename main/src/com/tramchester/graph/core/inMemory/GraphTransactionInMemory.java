@@ -128,7 +128,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction) {
+    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction, TransportRelationshipTypes[] transportRelationshipTypes) {
         final GraphNode node = findNode(routeStation);
         if (node==null) {
             logger.info("Did not find node for " + routeStation.getId());

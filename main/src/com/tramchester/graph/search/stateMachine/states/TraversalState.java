@@ -179,7 +179,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 return TraversalStateType.RouteStationStateEndTrip;
             }
         } else {
-            throw new RuntimeException("Unexpected from state " + currentStateType);
+            throw new RuntimeException("No way to get route station state from " + currentStateType);
         }
     }
 

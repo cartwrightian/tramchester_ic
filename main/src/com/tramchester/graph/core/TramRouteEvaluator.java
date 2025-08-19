@@ -304,4 +304,8 @@ public abstract class TramRouteEvaluator {
             return reasons.recordReason(HeuristicsReasons.ArrivedMoreChanges(howIGotHere, numberChanges, totalCostSoFar));
         }
     }
+
+    public boolean matchesDestination(final GraphNode node) {
+        return destinationNodeIds.contains(node.getId());
+    }
 }

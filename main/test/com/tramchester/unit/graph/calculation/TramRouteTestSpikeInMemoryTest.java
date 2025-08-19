@@ -2,30 +2,34 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.Running;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphPath;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.graph.search.inMemory.SpikeAlgo;
+import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.EnumSet;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@Disabled("WIP")
 class TramRouteTestSpikeInMemoryTest {
 
     private static ComponentContainer componentContainer;
-    private static UnitTestOfGraphConfig config;
+    private static TramchesterConfig config;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
 
     private MutableGraphTransaction txn;
@@ -58,6 +62,8 @@ class TramRouteTestSpikeInMemoryTest {
         // force DB build
         StagedTransportGraphBuilder transportGraphBuilder = componentContainer.get(StagedTransportGraphBuilder.class);
         transportGraphBuilder.getReady();
+
+        config = componentContainer.get(TramchesterConfig.class);
     }
 
     @AfterEach
@@ -69,27 +75,29 @@ class TramRouteTestSpikeInMemoryTest {
     }
 
     @Test
-    void shouldTestSimpleJourneyIsPossible() {
-        //JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+    void shouldDoInMemoryRouteCalc() {
+        TramRouteCalculator tramRouteCalculator = componentContainer.get(TramRouteCalculator.class);
 
         Station begin = transportData.getFirst();
-        Station destination = transportData.getInterchange();
+        Station dest = transportData.getFifthStation();
 
-        GraphNode beginNode = txn.findNode(begin);
-        GraphNode destNode = txn.findNode(destination);
+        TramDate queryDate = TramTransportDataForTestFactory.startDate; //   TramDate.of(2014,6,30);
+        TramTime queryTime = TramTime.of(7, 57);
 
-        SpikeAlgo spikeAlgo = new SpikeAlgo(txn, beginNode, destNode, config);
+        JourneyRequest request = standardJourneyRequest(queryDate, queryTime, 3,1);
+        Running running = () -> true;
 
-        List<GraphPath> results = spikeAlgo.findRoute();
-        assertFalse(results.isEmpty());
+        request.setDiag(true);
 
-        results.forEach(result -> {
-            assertEquals(beginNode, result.getStartNode(txn), "wrong start node for " + result);
-            assertEquals(destNode, result.getEndNode(txn), "wrong destination node for " + result);
+        List<Journey> result = tramRouteCalculator.calculateRoute(txn, begin, dest, request, running).toList();
 
-            //assertEquals(3,result.length(), result.toString());
-        });
+        assertFalse(result.isEmpty());
 
+    }
+
+    private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
+        Duration maxDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        return new JourneyRequest(date, time, false, maxNumberChanges, maxDuration, maxNumberJourneys, EnumSet.of(Tram));
     }
 
 }

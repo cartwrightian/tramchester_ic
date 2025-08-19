@@ -18,6 +18,10 @@ public class GraphPathInMemory implements GraphPath {
 
     public GraphPathInMemory(final GraphPathInMemory original) {
         entityList = new ArrayList<>(original.entityList);
+        // TODO require start node for constructor so we can add this check back
+//        if (original.lastAddedNode==null) {
+//            throw new RuntimeException("Cannot duplicate a a path if never added a node");
+//        }
         lastAddedNode = original.lastAddedNode;
         lastAddedRelationship = original.lastAddedRelationship;
     }
@@ -57,7 +61,7 @@ public class GraphPathInMemory implements GraphPath {
     public GraphNode getStartNode(final GraphTransaction txn) {
         final Optional<GraphEntity> found = entityList.stream().filter(GraphEntity::isNode).findFirst();
         if (found.isEmpty()) {
-            throw new RuntimeException("Could not find a node");
+            throw new RuntimeException("Could not find a start node");
         }
         return (GraphNode) found.get();
     }
@@ -91,7 +95,11 @@ public class GraphPathInMemory implements GraphPath {
 
     @Override
     public GraphNodeId getPreviousNodeId(final GraphTransaction txn) {
-        return getLastRelationship(txn).getStartNodeId(txn);
+        final GraphRelationship lastRelationship = getLastRelationship(txn);
+        if (lastRelationship==null) {
+            return null;
+        }
+        return lastRelationship.getStartNodeId(txn);
     }
 
     public GraphPathInMemory duplicateWith(GraphTransaction txn, GraphRelationship graphRelationship) {

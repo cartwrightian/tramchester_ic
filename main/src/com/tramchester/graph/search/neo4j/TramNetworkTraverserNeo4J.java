@@ -57,7 +57,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
     }
 
 
-    public static InitialBranchState<JourneyState> initialState(final TramTime queryTime, final TraversalState traversalState) {
+    public InitialBranchState<JourneyState> initialState(final TramTime queryTime, final TraversalState traversalState) {
         return new InitialBranchState<>() {
             @Override
             public JourneyState initialState(Path path) {
@@ -106,7 +106,6 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
                 order(orderingPolicy).
                 evaluator(tramRouteEvaluator);
 
-//        final Traverser traverse = startNode.getTraverserFor(traversalDesc);
         final Traverser traverse = getTraverser(traversalDesc, startNode);
         final Spliterator<Path> spliterator = traverse.spliterator();
 

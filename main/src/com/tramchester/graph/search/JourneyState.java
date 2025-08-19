@@ -288,7 +288,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 '}';
     }
 
-
     private static class CoreState {
 
         private boolean hasBegun;
