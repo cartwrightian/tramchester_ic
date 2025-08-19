@@ -24,19 +24,19 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
 
-public class SpikeAlgo {
+public class SearchAlgo {
 
     private static final Duration notVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
 
-    private static final Logger logger = LoggerFactory.getLogger(SpikeAlgo.class);
+    private static final Logger logger = LoggerFactory.getLogger(SearchAlgo.class);
 
     private final GraphTransactionInMemory txn;
     private final GraphNode startNode;
     private final TramchesterConfig config;
     private final TramRouteEvaluator evaluator;
 
-    public SpikeAlgo(GraphTransaction txn, GraphNode startNode, TramchesterConfig config,
-                     TramRouteEvaluator evaluator) {
+    public SearchAlgo(GraphTransaction txn, GraphNode startNode, TramchesterConfig config,
+                      TramRouteEvaluator evaluator) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.config = config;

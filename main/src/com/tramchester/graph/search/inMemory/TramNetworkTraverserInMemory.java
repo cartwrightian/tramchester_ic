@@ -55,9 +55,9 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
 
         final JourneyState journeyState = new JourneyState(actualQueryTime, traversalState);
 
-        SpikeAlgo spikeAlgo = new SpikeAlgo(txn, startNode, config, tramRouteEvaluator);
+        SearchAlgo searchAlgo = new SearchAlgo(txn, startNode, config, tramRouteEvaluator);
 
-        Stream<GraphPath> results = spikeAlgo.findRoute(journeyState).stream();
+        Stream<GraphPath> results = searchAlgo.findRoute(journeyState).stream();
 
         reasons.reportReasons(txn, pathRequest.getNumChanges(), destinations);
 
