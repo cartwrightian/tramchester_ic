@@ -89,11 +89,15 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes... transportRelationshipTypes) {
-        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         final List<TransportRelationshipTypes> list = Arrays.asList(transportRelationshipTypes);
-        final EnumSet<TransportRelationshipTypes> types = EnumSet.copyOf(list);
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
 
-        return inMemory.getRelationships(id, direction, types).map(item -> item);
+        if (list.isEmpty()) {
+            return inMemory.getRelationships(id, direction);
+        } else {
+            final EnumSet<TransportRelationshipTypes> types = EnumSet.copyOf(list);
+            return inMemory.getRelationships(id, direction, types).map(item -> item);
+        }
     }
 
 //    @Override

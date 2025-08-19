@@ -81,8 +81,6 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
                 map(txnNeo4J::wrapRelationship);
     }
 
-
-
     private Direction map(final GraphDirection direction) {
         return switch (direction) {
             case Outgoing -> Direction.OUTGOING;
@@ -103,12 +101,19 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
                                                       final TransportRelationshipTypes... transportRelationshipTypes) {
         GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         RelationshipType[] relationshipTypes =  relationshipTypeFactory.get(transportRelationshipTypes);
-        return node.getRelationships(map(direction), relationshipTypes).stream().map(txnNeo4J::wrapRelationship);
+        if (relationshipTypes.length==0) {
+            return node.getRelationships(map(direction)).stream().map(txnNeo4J::wrapRelationship);
+        } else {
+            return node.getRelationships(map(direction), relationshipTypes).stream().map(txnNeo4J::wrapRelationship);
+        }
     }
 
     @Override
     public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction,
                                                       EnumSet<TransportRelationshipTypes> types) {
+        if (types.isEmpty()) {
+            throw new RuntimeException("Empty set of types");
+        }
         final RelationshipType[] relationshipTypes =  relationshipTypeFactory.get(types);
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return node.getRelationships(map(direction), relationshipTypes).stream().map(txnNeo4J::wrapRelationship);

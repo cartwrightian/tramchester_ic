@@ -26,7 +26,6 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSI
 
 public class SpikeAlgo {
 
-    @Deprecated
     private static final Duration notVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
 
     private static final Logger logger = LoggerFactory.getLogger(SpikeAlgo.class);
@@ -47,8 +46,6 @@ public class SpikeAlgo {
     public List<GraphPath> findRoute(final JourneyState journeyState) {
 
         GraphPathInMemory initialPath = new GraphPathInMemory();
-
-        //initialPath.addNode(txn, startNode);
 
         final SearchState searchState = new SearchState(startNode.getId(), initialPath);
 
@@ -91,9 +88,6 @@ public class SpikeAlgo {
             logger.info("Include and prune");
             return;
         }
-
-//        final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing,
-//                TransportRelationshipTypes.forPlanning());
 
         final HasJourneyState graphStateForChildren = graphState.duplicate();
         Stream<GraphRelationship> outgoing = expand(pathToCurrentNode, graphStateForChildren);
@@ -141,7 +135,7 @@ public class SpikeAlgo {
 
         if (currentTraversalState.getStateType() == TraversalStateType.NotStartedState) {
 
-            // point to 'real' start node
+            // point to 'real' start node -> mirroring the way the existing implementation works
             final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
             final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(startNode.getLabels(), startNode,
                     journeyStateForChildren, Duration.ZERO);
@@ -152,7 +146,7 @@ public class SpikeAlgo {
 
         } else {
             final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
-            final GraphRelationship lastRelationship = path.getLastRelationship(txn); //txn.lastFrom(path);
+            final GraphRelationship lastRelationship = path.getLastRelationship(txn);
 
             final Duration cost = lastRelationship.getCost();
 
@@ -167,7 +161,7 @@ public class SpikeAlgo {
                 journeyStateForChildren.beginDiversion(stationId);
             }
 
-            final GraphNode endPathNode =  path.getEndNode(txn); // txn.fromEnd(path);
+            final GraphNode endPathNode =  path.getEndNode(txn);
             final EnumSet<GraphLabel> labels = endPathNode.getLabels();
 
             final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
@@ -179,88 +173,6 @@ public class SpikeAlgo {
 
             return traversalStateForChildren.getOutbounds();
         }
-
-
-//        final Duration cost;
-//        if (lastRelationship != null) {
-//            cost = lastRelationship.getCost();
-//
-//            if (Durations.greaterThan(cost, Duration.ZERO)) {
-//                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
-//                final Duration total = totalCost.plus(cost);
-//                journeyStateForChildren.updateTotalCost(total);
-//            }
-//
-//            if (lastRelationship.isType(DIVERSION)) {
-//                final IdFor<Station> stationId = lastRelationship.getStartStationId();
-//                journeyStateForChildren.beginDiversion(stationId);
-//            }
-//        } else {
-//            cost = Duration.ZERO;
-//        }
-
-//
-//        if (endPathNode==null) {
-//
-//        } else {
-//
-//        }
-
-
-    }
-
-    private Stream<GraphRelationship> expand_OLD(final GraphPath path, final HasJourneyState graphState) {
-        // TODO correct relationship types here
-
-        final ImmutableJourneyState currentJourneyState = graphState.getJourneyState();
-        final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
-        final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
-
-//        if (currentTraversalState.getStateType()== TraversalStateType.NotStartedState) {
-//            final ImmutableJourneyState journeyStateForChildren = currentJourneyState;
-//        } else {
-//            final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
-//        }
-
-        final GraphRelationship lastRelationship = path.getLastRelationship(txn); //txn.lastFrom(path);
-
-        final Duration cost;
-        if (lastRelationship != null) {
-            cost = lastRelationship.getCost();
-
-            if (Durations.greaterThan(cost, Duration.ZERO)) {
-                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
-                final Duration total = totalCost.plus(cost);
-                journeyStateForChildren.updateTotalCost(total);
-            }
-
-            if (lastRelationship.isType(DIVERSION)) {
-                final IdFor<Station> stationId = lastRelationship.getStartStationId();
-                journeyStateForChildren.beginDiversion(stationId);
-            }
-        } else {
-            cost = Duration.ZERO;
-        }
-
-        final GraphNode endPathNode =  path.getEndNode(txn); // txn.fromEnd(path);
-
-        if (endPathNode==null) {
-            // at the start
-            final GraphNode begin = startNode;
-            return begin.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.forPlanning());
-        } else {
-            final EnumSet<GraphLabel> labels = endPathNode.getLabels();
-
-            final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
-                    journeyStateForChildren, cost);
-
-            journeyStateForChildren.updateTraversalState(traversalStateForChildren);
-
-            graphState.setState(journeyStateForChildren);
-
-            return traversalStateForChildren.getOutbounds();
-        }
-
 
     }
 

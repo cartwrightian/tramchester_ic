@@ -18,7 +18,6 @@ import java.util.Set;
 
 @LazySingleton
 public class RouteCalculatorInMemory extends RouteCalculatorSupport implements TramRouteCalculator {
-    //private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorInMemory.class);
 
     @Inject
     public RouteCalculatorInMemory(PathToStages pathToStages, GraphDatabase graphDatabaseService, ProvidesNow providesNow,
