@@ -45,7 +45,7 @@ public class SearchAlgo {
 
     public List<GraphPath> findRoute(final JourneyState journeyState) {
 
-        GraphPathInMemory initialPath = new GraphPathInMemory();
+        final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         final SearchState searchState = new SearchState(startNode.getId(), initialPath);
 
@@ -62,10 +62,10 @@ public class SearchAlgo {
         return results.stream().map(item -> (GraphPath) item).toList();
     }
 
-    private void visitNode(final GraphNodeId nodeId, final HasJourneyState graphState, GraphPathInMemory existingPath,
+    private void visitNode(final GraphNodeId currentNodeId, final HasJourneyState graphState, GraphPathInMemory existingPath,
                            List<GraphPathInMemory> reachedDest) {
 
-        final GraphNode currentNode = txn.getNodeById(nodeId);
+        final GraphNode currentNode = txn.getNodeById(currentNodeId);
 
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
 
@@ -78,7 +78,7 @@ public class SearchAlgo {
             return;
         }
 
-        if (evaluator.matchesDestination(currentNode)) {
+        if (evaluator.matchesDestination(currentNodeId)) {
             logger.info("Found destination");
             reachedDest.add(pathToCurrentNode);
         }
@@ -93,7 +93,7 @@ public class SearchAlgo {
         Stream<GraphRelationship> outgoing = expand(pathToCurrentNode, graphStateForChildren);
 
         SearchState searchState = graphStateForChildren.getSearchState();
-        final Duration currentCostToNode = searchState.getCurrentCost(nodeId); //pair.getDuration();
+        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
 
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
@@ -110,7 +110,9 @@ public class SearchAlgo {
                 }
             } else {
                 updated = true;
-                searchState.addCostFor(endRelationshipNodeId, newCost, continuePath);
+                if (!evaluator.matchesDestination(endRelationshipNodeId)) {
+                    searchState.addCostFor(endRelationshipNodeId, newCost, continuePath);
+                }
             }
 
             if (updated) {

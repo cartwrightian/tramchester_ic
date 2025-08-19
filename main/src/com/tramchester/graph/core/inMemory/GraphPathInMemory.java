@@ -18,10 +18,6 @@ public class GraphPathInMemory implements GraphPath {
 
     public GraphPathInMemory(final GraphPathInMemory original) {
         entityList = new ArrayList<>(original.entityList);
-        // TODO require start node for constructor so we can add this check back
-//        if (original.lastAddedNode==null) {
-//            throw new RuntimeException("Cannot duplicate a a path if never added a node");
-//        }
         lastAddedNode = original.lastAddedNode;
         lastAddedRelationship = original.lastAddedRelationship;
     }

@@ -305,7 +305,7 @@ public abstract class TramRouteEvaluator {
         }
     }
 
-    public boolean matchesDestination(final GraphNode node) {
-        return destinationNodeIds.contains(node.getId());
+    public boolean matchesDestination(final GraphNodeId graphNodeId) {
+        return destinationNodeIds.contains(graphNodeId);
     }
 }

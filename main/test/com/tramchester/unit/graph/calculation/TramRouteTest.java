@@ -64,7 +64,7 @@ class TramRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig(false);
+        config = new SimpleGroupedGraphConfig(true);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -221,7 +221,7 @@ class TramRouteTest {
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
                 journeyRequest, 2);
 
-        assertEquals(1, journeys.size());
+        assertEquals(1, journeys.size(), "wrong number " + journeys);
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
             TransportStage<?, ?> walk = journey.getStages().getFirst();

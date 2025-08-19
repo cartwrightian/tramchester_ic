@@ -26,7 +26,7 @@ import java.util.List;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class TramRouteTestSpikeInMemoryTest {
+class RouteCalculatorWithTestRouteInMemoryTest {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
