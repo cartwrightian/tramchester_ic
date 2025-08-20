@@ -26,7 +26,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSI
 
 public class FindPathsForJourney {
 
-    private static final Duration notVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
+    public static final Duration notVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
 
     private static final Logger logger = LoggerFactory.getLogger(FindPathsForJourney.class);
 
@@ -41,6 +41,10 @@ public class FindPathsForJourney {
     }
 
     public Duration findShortestPathsTo(final GraphNode destNode) {
+        return findShortestPathsTo(destNode, relationship -> true);
+    }
+
+    public Duration findShortestPathsTo(final GraphNode destNode, final GraphRelationshipFilter filter) {
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         final SearchState searchState = new SearchState(startNode.getId(), initialPath);
@@ -50,7 +54,7 @@ public class FindPathsForJourney {
         while (searchState.hasNodes()) {
             final NodeSearchState nodeSearchState = searchState.getNext();
             final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNode(nextId, searchState, nodeSearchState.getPathToHere(), results, destNode.getId());
+            visitNode(nextId, searchState, nodeSearchState.getPathToHere(), results, destNode.getId(), filter);
         }
 
         Optional<Duration> minimum = results.stream().
@@ -62,7 +66,7 @@ public class FindPathsForJourney {
     }
 
     private void visitNode(final GraphNodeId nodeId, final SearchState searchState, final GraphPathInMemory pathToHere,
-                           final List<GraphPathInMemory> results, final GraphNodeId destNodeId) {
+                           final List<GraphPathInMemory> results, final GraphNodeId destNodeId, final GraphRelationshipFilter filter) {
 
         if (nodeId.equals(destNodeId)) {
             results.add(pathToHere);
@@ -71,7 +75,8 @@ public class FindPathsForJourney {
 
         final GraphNode currentNode = txn.getNodeById(nodeId);
         final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing,
-                TransportRelationshipTypes.forPlanning());
+                TransportRelationshipTypes.forPlanning()).
+                filter(filter::include);
 
         final Duration currentCostToNode = searchState.getCurrentCost(nodeId); //pair.getDuration();
 
@@ -94,12 +99,12 @@ public class FindPathsForJourney {
             }
 
             if (updated) {
-                visitNode(endRelationshipNodeId, searchState, continuePath, results, destNodeId);
+                visitNode(endRelationshipNodeId, searchState, continuePath, results, destNodeId, filter);
             }
         });
     }
 
-    public List<GraphPath> findPaths(final JourneyState journeyState,  final TramRouteEvaluator evaluator) {
+    public List<GraphPath> findPaths(final JourneyState journeyState, final TramRouteEvaluator evaluator) {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
@@ -340,6 +345,10 @@ public class FindPathsForJourney {
         public GraphPathInMemory getPathToHere() {
             return pathToHere;
         }
+    }
+
+    public interface GraphRelationshipFilter {
+        boolean include(GraphRelationship relationship);
     }
 
 }
