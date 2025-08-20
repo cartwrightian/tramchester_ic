@@ -8,11 +8,15 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.TramRouteCalculator;
+import com.tramchester.graph.search.inMemory.FindPathsForJourney;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -24,6 +28,8 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RouteCalculatorWithTestRouteInMemoryTest {
@@ -72,6 +78,34 @@ class RouteCalculatorWithTestRouteInMemoryTest {
         if (txn!=null) {
             txn.close();
         }
+    }
+
+    @Test
+    void shouldHaveRouteCostCalculationAsExpected() throws InvalidDurationException {
+        TramDate queryDate = TramTransportDataForTestFactory.startDate;
+
+        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
+        assertMinutesEquals(41, costCalculator.getAverageCostBetween(txn,
+                transportData.getFirst(), transportData.getLast(), queryDate, EnumSet.of(Tram)));
+
+//        assertEquals(-1, costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
+    }
+
+    @Test
+    void shouldFindShortestPaths() {
+
+        Station begin = transportData.getFirst();
+        Station dest = transportData.getLast();
+
+        GraphNode beginNode = txn.findNode(begin);
+        GraphNode destNode = txn.findNode(dest);
+
+        FindPathsForJourney findPathsForJourney = new FindPathsForJourney(txn, beginNode, config);
+
+        final Duration result = findPathsForJourney.findShortestPathsTo(destNode);
+
+        assertEquals(Duration.ofMinutes(41), result);
+
     }
 
     @Test

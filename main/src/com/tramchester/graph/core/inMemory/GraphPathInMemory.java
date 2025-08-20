@@ -3,6 +3,7 @@ package com.tramchester.graph.core.inMemory;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -127,5 +128,16 @@ public class GraphPathInMemory implements GraphPath {
         return "GraphPathInMemory{" +
                 "entityList=" + entityList +
                 '}';
+    }
+
+    public Duration getTotalCost() {
+        // todo accumulate cost as we go instead
+        final Optional<Duration> total = entityList.stream().
+                filter(GraphEntity::isRelationship).
+                map(entity -> (GraphRelationship) entity).
+                map(GraphRelationship::getCost).
+                reduce(Duration::plus);
+        return total.orElse(Duration.ofSeconds(Integer.MAX_VALUE));
+
     }
 }

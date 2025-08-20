@@ -24,26 +24,82 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
 
-public class SearchAlgo {
+public class FindPathsForJourney {
 
     private static final Duration notVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
 
-    private static final Logger logger = LoggerFactory.getLogger(SearchAlgo.class);
+    private static final Logger logger = LoggerFactory.getLogger(FindPathsForJourney.class);
 
     private final GraphTransactionInMemory txn;
     private final GraphNode startNode;
     private final TramchesterConfig config;
-    private final TramRouteEvaluator evaluator;
 
-    public SearchAlgo(GraphTransaction txn, GraphNode startNode, TramchesterConfig config,
-                      TramRouteEvaluator evaluator) {
+    public FindPathsForJourney(GraphTransaction txn, GraphNode startNode, TramchesterConfig config) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.config = config;
-        this.evaluator = evaluator;
     }
 
-    public List<GraphPath> findRoute(final JourneyState journeyState) {
+    public Duration findShortestPathsTo(final GraphNode destNode) {
+        final GraphPathInMemory initialPath = new GraphPathInMemory();
+
+        final SearchState searchState = new SearchState(startNode.getId(), initialPath);
+
+        final List<GraphPathInMemory> results = new ArrayList<>();
+
+        while (searchState.hasNodes()) {
+            final NodeSearchState nodeSearchState = searchState.getNext();
+            final GraphNodeId nextId = nodeSearchState.getNodeId();
+            visitNode(nextId, searchState, nodeSearchState.getPathToHere(), results, destNode.getId());
+        }
+
+        Optional<Duration> minimum = results.stream().
+                map(GraphPathInMemory::getTotalCost).
+                min(Duration::compareTo);
+
+        return minimum.orElse(notVisitiedDuration);
+
+    }
+
+    private void visitNode(final GraphNodeId nodeId, final SearchState searchState, final GraphPathInMemory pathToHere,
+                           final List<GraphPathInMemory> results, final GraphNodeId destNodeId) {
+
+        if (nodeId.equals(destNodeId)) {
+            results.add(pathToHere);
+            return;
+        }
+
+        final GraphNode currentNode = txn.getNodeById(nodeId);
+        final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing,
+                TransportRelationshipTypes.forPlanning());
+
+        final Duration currentCostToNode = searchState.getCurrentCost(nodeId); //pair.getDuration();
+
+        outgoing.forEach(graphRelationship -> {
+            final Duration relationshipCost = graphRelationship.getCost();
+            final GraphNode endRelationshipNode = graphRelationship.getEndNode(txn);
+            final GraphNodeId endRelationshipNodeId = endRelationshipNode.getId();
+            final Duration newCost = relationshipCost.plus(currentCostToNode);
+
+            boolean updated = false;
+            final GraphPathInMemory continuePath = pathToHere.duplicateWith(txn, graphRelationship);
+            if (searchState.hasSeen(endRelationshipNodeId)) {
+                final Duration currentDurationForEnd = searchState.getCurrentCost(endRelationshipNodeId);
+                if (newCost.compareTo(currentDurationForEnd) < 0) {
+                    updated = true;
+                }
+            } else {
+                updated = true;
+                searchState.addCostFor(endRelationshipNodeId, newCost, continuePath);
+            }
+
+            if (updated) {
+                visitNode(endRelationshipNodeId, searchState, continuePath, results, destNodeId);
+            }
+        });
+    }
+
+    public List<GraphPath> findPaths(final JourneyState journeyState,  final TramRouteEvaluator evaluator) {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
@@ -56,20 +112,20 @@ public class SearchAlgo {
         while (searchState.hasNodes()) {
             final NodeSearchState nodeSearchState = searchState.getNext();
             final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNode(nextId, hasJourneyState, nodeSearchState.getPathToHere(), results);
+            visitNodeOnPath(nextId, hasJourneyState, nodeSearchState.getPathToHere(), results, evaluator);
         }
 
         return results.stream().map(item -> (GraphPath) item).toList();
     }
 
-    private void visitNode(final GraphNodeId currentNodeId, final HasJourneyState graphState, GraphPathInMemory existingPath,
-                           List<GraphPathInMemory> reachedDest) {
+    private void visitNodeOnPath(final GraphNodeId currentNodeId, final HasJourneyState graphState, final GraphPathInMemory existingPath,
+                                 final List<GraphPathInMemory> reachedDest, final TramRouteEvaluator evaluator) {
 
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
 
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
 
-        ImmutableJourneyState existingState = graphState.getJourneyState();
+        final ImmutableJourneyState existingState = graphState.getJourneyState();
 
         final GraphEvaluationAction result = evaluator.evaluate(pathToCurrentNode, existingState);
 
@@ -90,9 +146,9 @@ public class SearchAlgo {
         }
 
         final HasJourneyState graphStateForChildren = graphState.duplicate();
-        Stream<GraphRelationship> outgoing = expand(pathToCurrentNode, graphStateForChildren);
+        final Stream<GraphRelationship> outgoing = expand(pathToCurrentNode, graphStateForChildren);
 
-        SearchState searchState = graphStateForChildren.getSearchState();
+        final SearchState searchState = graphStateForChildren.getSearchState();
         final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
 
         outgoing.forEach(graphRelationship -> {
@@ -119,7 +175,7 @@ public class SearchAlgo {
 
                 if (config.getDepthFirst()) {
                     // TODO ordering of which neighbours to visit first
-                    visitNode(endRelationshipNodeId, graphStateForChildren, continuePath, reachedDest);
+                    visitNodeOnPath(endRelationshipNodeId, graphStateForChildren, continuePath, reachedDest, evaluator);
                 }
                  else {
                     searchState.updateCostFor(endRelationshipNodeId, newCost, continuePath);
@@ -130,7 +186,6 @@ public class SearchAlgo {
     }
 
     private Stream<GraphRelationship> expand(final GraphPath path, final HasJourneyState graphState) {
-        // TODO correct relationship types here
 
         final ImmutableJourneyState currentJourneyState = graphState.getJourneyState();
         final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
@@ -261,10 +316,6 @@ public class SearchAlgo {
             this.pathToHere = pathToHere;
         }
 
-//        public NodeState(GraphNodeId id, GraphPathInMemory pathTodHere) {
-//            this(id, maxDuration, pathTodHere);
-//        }
-
         @Override
         public int compareTo(NodeSearchState other) {
             return this.duration.compareTo(other.duration);
@@ -284,10 +335,6 @@ public class SearchAlgo {
         @Override
         public int hashCode() {
             return Objects.hashCode(nodeId);
-        }
-
-        public Duration getDuration() {
-            return duration;
         }
 
         public GraphPathInMemory getPathToHere() {
