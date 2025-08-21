@@ -5,15 +5,16 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
-import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;
 
+import java.util.List;
 import java.util.Set;
 
 @LazySingleton
@@ -24,10 +25,17 @@ public class RouteCalculatorInMemory extends RouteCalculatorSupport implements T
                                    MapPathToLocations mapPathToLocations, StationRepository stationRepository, TramchesterConfig config,
                                    BetweenRoutesCostRepository routeToRouteCosts, CreateJourneyDiagnostics failedJourneyDiagnostics,
                                    StationAvailabilityRepository stationAvailabilityRepository, NumberOfNodesAndRelationshipsRepository countsNodes,
-                                   ClosedStationsRepository closedStationsRepository, CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory, InterchangeRepository interchangeRepository, CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
+                                   ClosedStationsRepository closedStationsRepository, CacheMetrics cacheMetrics, InterchangeRepository interchangeRepository,
+                                   CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
         super(pathToStages, graphDatabaseService, providesNow, mapPathToLocations, stationRepository, config, routeToRouteCosts,
                 failedJourneyDiagnostics, stationAvailabilityRepository, countsNodes, closedStationsRepository,
-                cacheMetrics, branchSelectorFactory, interchangeRepository, createQueryTimes, runningRoutesAndServices);
+                cacheMetrics, interchangeRepository, createQueryTimes, runningRoutesAndServices);
+    }
+
+    @Override
+    protected TramNetworkTraverserFactory getTraverserFactoryForGrids(StationsBoxSimpleGrid destinationBox, List<StationsBoxSimpleGrid> startingBoxes) {
+        // TODO Can route calc for boxes implementations depend on this instead of own super class??
+        throw new RuntimeException("Not implemented for calculator");
     }
 
     @Override

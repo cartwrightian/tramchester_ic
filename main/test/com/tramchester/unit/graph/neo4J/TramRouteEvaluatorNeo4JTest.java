@@ -1,4 +1,4 @@
-package com.tramchester.unit.graph;
+package com.tramchester.unit.graph.neo4J;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -62,7 +62,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TramRouteEvaluatorTest extends EasyMockSupport {
+class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
 
     private ServiceHeuristics serviceHeuristics;
     private Path path;

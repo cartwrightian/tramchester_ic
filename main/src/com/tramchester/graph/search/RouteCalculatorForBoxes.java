@@ -1,8 +1,7 @@
-package com.tramchester.graph.search.neo4j;
+package com.tramchester.graph.search;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
@@ -21,16 +20,12 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
-import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,55 +37,53 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@LazySingleton
-public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
+public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorForBoxes.class);
 
-    private final TramchesterConfig config;
+    protected final TramchesterConfig config;
     private final GraphDatabase graphDatabaseService;
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndService;
     private final InterchangeRepository interchangeRepository;
-    private final BranchSelectorFactory branchSelectorFactory;
 
-    @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config, TransportData transportData, GraphDatabase graphDatabaseService,
                                    PathToStages pathToStages, ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ClosedStationsRepository closedStationsRepository,
                                    RunningRoutesAndServices runningRoutesAndService, @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
                                    StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
-                                   NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository, BranchSelectorFactory branchSelectorFactory,
+                                   NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository,
                                    CacheMetrics cacheMetrics, CreateQueryTimes createQueryTimes) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, routeToRouteCosts, failedJourneyDiagnostics,
                 stationAvailabilityRepository, countsNodes, closedStationsRepository, cacheMetrics,
-                branchSelectorFactory, interchangeRepository, createQueryTimes, runningRoutesAndService);
+                interchangeRepository, createQueryTimes, runningRoutesAndService);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
         this.interchangeRepository = interchangeRepository;
-        this.branchSelectorFactory = branchSelectorFactory;
     }
 
     public RequestStopStream<JourneysForBox> calculateRoutes(final StationsBoxSimpleGrid destinationBox, final JourneyRequest journeyRequest,
                                                              final List<StationsBoxSimpleGrid> startingBoxes) {
 
         final LocationSet<Station> destinations = destinationBox.getStations();
-        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
-        final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
+//        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
-        final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true,
-                selector, destinations, destinationNodeIds);
+//        final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
+//
+//        final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true,
+//                selector, destinations, destinationNodeIds);
+
+        TramNetworkTraverserFactory traverserFactory = getTraverserFactoryForGrids(destinationBox, startingBoxes);
 
         return calculateRoutes(journeyRequest, startingBoxes, traverserFactory, destinations);
     }
 
-
     @Override
-    protected TramNetworkTraverserFactoryNeo4J getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {
+    protected TramNetworkTraverserFactory getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {
         // TODO more refactoring needed
         throw new RuntimeException("Not implemented for grid searches");
     }

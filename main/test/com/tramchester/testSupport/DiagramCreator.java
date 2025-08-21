@@ -1,4 +1,4 @@
-package com.tramchester;
+package com.tramchester.testSupport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;

@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.search.*;
@@ -14,14 +15,13 @@ import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
 import jakarta.inject.Inject;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 
 @LazySingleton
 public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements TramRouteCalculator {
-    private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorNeo4J.class);
+    private final BranchSelectorFactory branchSelectorFactory;
 
     // TODO Refactoring here, way too messy and confusing constructor
 
@@ -38,9 +38,15 @@ public class RouteCalculatorNeo4J extends RouteCalculatorSupport implements Tram
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations, transportData, config, routeToRouteCosts,
                 failedJourneyDiagnostics, stationAvailabilityRepository, countsNodes,
-                closedStationsRepository, cacheMetrics, branchSelectorFactory, interchangeRepository, createQueryTimes, runningRoutesAndServices);
+                closedStationsRepository, cacheMetrics, interchangeRepository, createQueryTimes, runningRoutesAndServices);
+        this.branchSelectorFactory = branchSelectorFactory;
     }
 
+
+    @Override
+    protected TramNetworkTraverserFactory getTraverserFactoryForGrids(StationsBoxSimpleGrid destinationBox, List<StationsBoxSimpleGrid> startingBoxes) {
+        throw new RuntimeException("Not implemented for normal calculations");
+    }
 
     @Override
     protected TramNetworkTraverserFactoryNeo4J getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
-@AnalyzeClasses(packages = { "com.tramchester", "org.neo4j.graphdb" }, importOptions = { TestForNeo4jDirectDependency.IgnoreTests.class })
+@AnalyzeClasses(packages = { "com.tramchester", "org.neo4j.graphdb" })
 public class TestForNeo4jDirectDependency {
 
     @ArchTest
@@ -36,13 +36,16 @@ public class TestForNeo4jDirectDependency {
                 .layer("Neo4JCore").definedBy("com.tramchester.graph.core.neo4j")
                 .layer("Neo4JImplementation").definedBy("org.neo4j..")
 
-                .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore", "Neo4JSearch")
+                .layer("UnitTestNeo4J").definedBy("com.tramchester.unit.graph.neo4J")
+                .layer("UnitTest").definedBy("com.tramchester.unit..")
+
+                .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore", "Neo4JSearch", "UnitTestNeo4J")
                 .whereLayer("InMemory").mayOnlyBeAccessedByLayers("InMemorySearch", "Modules")
                 .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Neo4JSearch",  "Modules")
                 .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Caches", "Modules")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
                         "Build", "Neo4JSearch", "StateMachine", "Diag", "DBMgmt", "Resources", "DTODiag", "Healthchecks",
-                        "Modules", "InMemory", "InMemorySearch");
+                        "Modules", "InMemory", "InMemorySearch", "UnitTest");
 
     static class IgnoreTests implements ImportOption {
 

@@ -9,7 +9,7 @@ import com.tramchester.graph.search.stateMachine.TowardsDestination;
 
 import java.util.List;
 
-// TODO remove, only one implementation now
+// TODO remove, only one implementation now?
 @ImplementedBy(MapPathToStagesViaStates.class)
 public interface PathToStages {
     List<TransportStage<?, ?>> mapDirect(TimedPath timedPath, JourneyRequest journeyRequest,

@@ -17,12 +17,12 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
+import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.neo4j.RouteCalculatorForBoxes;
-import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
+//import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
@@ -45,7 +45,6 @@ public abstract class RouteCalculatorSupport {
     protected final TramchesterConfig config;
     protected final ClosedStationsRepository closedStationsRepository;
     protected final CacheMetrics cacheMetrics;
-    protected final BranchSelectorFactory branchSelectorFactory;
     protected final InterchangeRepository interchangeRepository;
     protected final CreateQueryTimes createQueryTimes;
     protected final RunningRoutesAndServices runningRoutesAndServices;
@@ -67,7 +66,8 @@ public abstract class RouteCalculatorSupport {
                                      StationRepository stationRepository, TramchesterConfig config,
                                      BetweenRoutesCostRepository routeToRouteCosts,
                                      CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository,
-                                     NumberOfNodesAndRelationshipsRepository countsNodes, ClosedStationsRepository closedStationsRepository, CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory, InterchangeRepository interchangeRepository, CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
+                                     NumberOfNodesAndRelationshipsRepository countsNodes, ClosedStationsRepository closedStationsRepository,
+                                     CacheMetrics cacheMetrics, InterchangeRepository interchangeRepository, CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
         this.pathToStages = pathToStages;
         this.graphDatabaseService = graphDatabaseService;
         this.providesNow = providesNow;
@@ -81,7 +81,7 @@ public abstract class RouteCalculatorSupport {
         this.config = config;
         this.closedStationsRepository = closedStationsRepository;
         this.cacheMetrics = cacheMetrics;
-        this.branchSelectorFactory = branchSelectorFactory;
+//        this.branchSelectorFactory = branchSelectorFactory;
         this.interchangeRepository = interchangeRepository;
         this.createQueryTimes = createQueryTimes;
         this.runningRoutesAndServices = runningRoutesAndServices;
@@ -451,8 +451,10 @@ public abstract class RouteCalculatorSupport {
                 takeWhile(finished::notDoneYet);
     }
 
-    protected abstract TramNetworkTraverserFactory getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds);
+    protected abstract TramNetworkTraverserFactory getTraverserFactoryForGrids(StationsBoxSimpleGrid destinationBox,
+                                                                               List<StationsBoxSimpleGrid> startingBoxes);
 
+    protected abstract TramNetworkTraverserFactory getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds);
 
     public static class InitialWalksFinished {
 

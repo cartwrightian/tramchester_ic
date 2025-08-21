@@ -2,7 +2,7 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.DiagramCreator;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;

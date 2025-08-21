@@ -1,4 +1,4 @@
-package com.tramchester.unit.graph;
+package com.tramchester.unit.graph.neo4J;
 
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
