@@ -5,19 +5,25 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.NumberOfNodesAndRelationshipsRepository;
+import com.tramchester.testSupport.GraphDBType;
+import com.tramchester.testSupport.GraphTypeConfigResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.testSupport.testTags.MultiDB;
 import com.tramchester.unit.graph.calculation.SimpleGroupedGraphConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@MultiDB
+@ExtendWith(GraphTypeConfigResolver.class)
 class NumberOfNodesAndRelationshipsRepositoryTest {
 
     private static UnitTestOfGraphConfig config;
@@ -25,8 +31,8 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
     private NumberOfNodesAndRelationshipsRepository repository;
 
     @BeforeAll
-    static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig(false);
+    static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
+        config = new SimpleGroupedGraphConfig(graphDBType);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

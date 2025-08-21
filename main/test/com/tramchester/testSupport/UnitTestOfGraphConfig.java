@@ -19,14 +19,16 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 
 public class UnitTestOfGraphConfig extends TestConfig {
 
-    private final boolean inMemory;
+//    private final GraphDBType graphDBType;
 
     public UnitTestOfGraphConfig() {
-        this(false);
+        this(GraphDBType.Neo4J);
     }
 
-    public UnitTestOfGraphConfig(boolean inMemory) {
-        this.inMemory = inMemory;
+    public UnitTestOfGraphConfig(GraphDBType graphDBType) {
+        super(graphDBType);
+
+//        this.graphDBType = graphDBType;
     }
 
     @Override
@@ -38,10 +40,10 @@ public class UnitTestOfGraphConfig extends TestConfig {
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 
-    @Override
-    public boolean getInMemoryGraph() {
-        return inMemory;
-    }
+//    @Override
+//    public boolean getInMemoryGraph() {
+//        return graphDBType==GraphDBType.InMemory;
+//    }
 
     @Override
     public int getNumberQueries() {

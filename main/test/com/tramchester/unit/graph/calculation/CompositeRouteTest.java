@@ -23,12 +23,12 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
-import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UnitTestOfGraphConfig;
+import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.testSupport.testTags.MultiDB;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -43,6 +43,8 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincha
 import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsfordBusStation;
 import static org.junit.jupiter.api.Assertions.*;
 
+@MultiDB
+@ExtendWith(GraphTypeConfigResolver.class)
 @Disabled("Need way to inject naptan test data here")
 class CompositeRouteTest {
 
@@ -60,8 +62,8 @@ class CompositeRouteTest {
     private RouteCalculatorTestFacade calculator;
 
     @BeforeAll
-    static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig(false);
+    static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
+        config = new SimpleGroupedGraphConfig(graphDBType);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

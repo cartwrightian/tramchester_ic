@@ -19,7 +19,7 @@ import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.MultiMode;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
-@DualTest
+@MultiMode
 public class RouteIndexTest extends EasyMockSupport {
 
     private static Path cacheFile;

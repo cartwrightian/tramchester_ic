@@ -9,9 +9,9 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGroupedGraphConfig;
-import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class StationLocationsFromTestDataTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig(false);
+        config = new SimpleGroupedGraphConfig(TestEnv.getDefaultDBTYpe());
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

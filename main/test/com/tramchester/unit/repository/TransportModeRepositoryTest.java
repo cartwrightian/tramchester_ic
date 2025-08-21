@@ -10,6 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -98,6 +99,7 @@ class TransportModeRepositoryTest {
         private final List<GTFSSourceConfig> dataSources;
 
         private ModeConfig(List<GTFSSourceConfig> dataSources) {
+            super(TestEnv.getDefaultDBTYpe());
             this.dataSources = dataSources;
         }
 

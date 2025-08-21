@@ -7,13 +7,17 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.GraphDBType;
+import com.tramchester.testSupport.GraphTypeConfigResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.testSupport.testTags.MultiDB;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -23,6 +27,8 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@MultiDB
+@ExtendWith(GraphTypeConfigResolver.class)
 class GraphQueriesTests {
 
     private static ComponentContainer componentContainer;
@@ -30,8 +36,8 @@ class GraphQueriesTests {
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
 
     @BeforeAll
-    static void onceBeforeAllTestRuns() throws IOException {
-        config = new UnitTestOfGraphConfig();
+    static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
+        config = new UnitTestOfGraphConfig(graphDBType);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

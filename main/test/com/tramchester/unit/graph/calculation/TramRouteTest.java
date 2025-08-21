@@ -15,8 +15,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
-import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -25,13 +25,13 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
-import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UnitTestOfGraphConfig;
+import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.testSupport.testTags.MultiDB;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -47,6 +47,8 @@ import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@MultiDB
+@ExtendWith(GraphTypeConfigResolver.class)
 class TramRouteTest {
 
     private static ComponentContainer componentContainer;
@@ -63,8 +65,8 @@ class TramRouteTest {
     private EnumSet<TransportMode> modes;
 
     @BeforeAll
-    static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig(false);
+    static void onceBeforeAllTestRuns(GraphDBType graphType) throws IOException {
+        config = new SimpleGroupedGraphConfig(graphType);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -166,8 +168,8 @@ class TramRouteTest {
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size(), "stages: " + stages);
-            assertEquals(stages.get(0).getMode(), TransportMode.Walk);
-            assertEquals(stages.get(1).getMode(), Tram);
+            assertEquals(TransportMode.Walk, stages.get(0).getMode());
+            assertEquals(Tram, stages.get(1).getMode());
         });
     }
 

@@ -27,7 +27,7 @@ import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -48,7 +48,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
-@DualTest
+@MultiMode
 @DataUpdateTest
 public class RouteInterconnectRepositoryTest {
     private static ComponentContainer componentContainer;

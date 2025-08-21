@@ -3,7 +3,7 @@ package com.tramchester.unit.meta;
 import com.tramchester.App;
 import com.tramchester.integration.repository.StationAvailabilityRepositoryTest;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
-import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.MultiMode;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class UseOfTestTagsTest {
     @Test
     void shouldNotHaveGMTestAndDualTestOnOneTest() {
         Set<String> withGMTest = getClassNamesWithAnnotation(GMTest.class);
-        Set<String> withDualTest = getClassNamesWithAnnotation(DualTest.class);
+        Set<String> withDualTest = getClassNamesWithAnnotation(MultiMode.class);
 
         SetUtils.SetView<String> intersection = SetUtils.intersection(withGMTest, withDualTest);
 
@@ -47,7 +47,7 @@ public class UseOfTestTagsTest {
 
     @Test
     void shouldHaveConfigResolverPresentForAllDualTests() {
-        Set<Class<?>> withDualTest = reflections.getTypesAnnotatedWith(DualTest.class);
+        Set<Class<?>> withDualTest = reflections.getTypesAnnotatedWith(MultiMode.class);
 
         Set<String> missingResolver = withDualTest.stream().
                 filter(klass -> !extendedWithConfigResolver(klass)).
@@ -70,7 +70,7 @@ public class UseOfTestTagsTest {
 
         assertFalse(haveConfigResolver.isEmpty());
 
-        List<Class<? extends Annotation>> expected = List.of(GMTest.class, DualTest.class);
+        List<Class<? extends Annotation>> expected = List.of(GMTest.class, MultiMode.class);
 
         Set<Class<?>> missingTestTag = haveConfigResolver.stream().
                 filter(klass -> !hasAnyOf(klass, expected)).

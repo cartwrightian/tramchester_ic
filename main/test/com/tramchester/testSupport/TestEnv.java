@@ -79,7 +79,7 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     public static AppConfiguration GET() {
-        return new TestConfig() {
+        return new TestConfig(getDefaultDBTYpe()) {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.emptyList();
@@ -87,10 +87,14 @@ public class TestEnv {
         };
     }
 
+    public static GraphDBType getDefaultDBTYpe() {
+        return GraphDBType.Neo4J;
+    }
+
 //    public static final DateRange cornbrookClosed = new DateRange(TramDate.of(2024,10,5), TramDate.of(2024, 10,6));
 
     public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
-        return new TestConfig() {
+        return new TestConfig(getDefaultDBTYpe()) {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return null;
@@ -342,6 +346,8 @@ public class TestEnv {
     public static TramDate nextMonday() {
         return UpcomingDates.nextMonday();
     }
+
+
 
     public static class Modes {
 

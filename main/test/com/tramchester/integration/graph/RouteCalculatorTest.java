@@ -31,7 +31,7 @@ import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.MultiMode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +50,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 @ExtendWith(ConfigParameterResolver.class)
-@DualTest
+@MultiMode
 @DataUpdateTest
 public class RouteCalculatorTest {
 

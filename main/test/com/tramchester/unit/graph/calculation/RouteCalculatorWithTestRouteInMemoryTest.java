@@ -18,6 +18,7 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.inMemory.FindPathsForJourney;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.*;
@@ -42,7 +43,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig(true);
+        config = new SimpleGroupedGraphConfig(GraphDBType.InMemory);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

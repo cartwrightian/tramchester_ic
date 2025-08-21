@@ -9,6 +9,7 @@ import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTest
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
+import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 
@@ -51,6 +52,11 @@ public abstract class IntegrationTestConfig extends TestConfig {
     private final GraphDBTestConfig dbConfig;
 
     protected IntegrationTestConfig(TestGroupType testGroupType) {
+        this(testGroupType, TestEnv.getDefaultDBTYpe());
+    }
+
+    protected IntegrationTestConfig(TestGroupType testGroupType, GraphDBType graphDBTtype) {
+        super(graphDBTtype);
         final Path naptanLocalDataPath = Path.of("data/naptan");
         remoteNaptanXMLConfig = new NaptanRemoteDataSourceTestConfig(naptanLocalDataPath);
         remoteNPTGconfig = new NPTGDataSourceTestConfig();

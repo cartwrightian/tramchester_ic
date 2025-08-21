@@ -27,7 +27,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
     private RailRemoteDataSourceConfig remoteDataRailConfig;
 
     public AllModesTestConfig() {
-        super(TestGroupType.integration);
+        super(TestGroupType.integration, TestEnv.getDefaultDBTYpe());
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.tramchester.graph.core.neo4j.*;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
+import com.tramchester.testSupport.GraphDBType;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterEach;
@@ -39,7 +40,7 @@ class GraphDatabaseNeo4JStartStopTest extends EasyMockSupport {
 
         dataSourceConfigs = new ArrayList<>();
 
-        TramchesterConfig config = new IntegrationTestConfig(TestGroupType.unit) {
+        TramchesterConfig config = new IntegrationTestConfig(TestGroupType.unit, GraphDBType.Neo4J) {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return dataSourceConfigs;

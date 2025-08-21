@@ -28,6 +28,7 @@ import com.tramchester.graph.core.inMemory.GraphRelationshipInMemory;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.*;
@@ -53,7 +54,7 @@ public class GraphPropsInMemoryTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new UnitTestOfGraphConfig(true);
+        config = new UnitTestOfGraphConfig(GraphDBType.InMemory);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

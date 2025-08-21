@@ -69,7 +69,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalkIds> tempWalks,
                                         Caching caching) {
-        super(TestGroupType.integration);
+        super(TestGroupType.integration, TestEnv.getDefaultDBTYpe());
         this.liveData = liveData;
         this.caching = caching;
 

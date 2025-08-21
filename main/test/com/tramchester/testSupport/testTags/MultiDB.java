@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Tag("DualTest")
-public @interface DualTest {
-    // test is run with both Tram and Tram/Train config
+@Tag("MultiDB")
+public @interface MultiDB {
 }

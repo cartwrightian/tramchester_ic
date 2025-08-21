@@ -3,7 +3,7 @@ package com.tramchester.integration.testSupport.config;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.MultiMode;
 import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ import static java.lang.String.format;
 public class ConfigParameterResolver implements ParameterResolver {
 
     public static final String PARAMETER_KEY = "com.tramchester.config";
-    private static final String dualTest = getTagName(DualTest.class);
+    private static final String dualTest = getTagName(MultiMode.class);
 
     private static final String trainTest = getTagName(TrainTest.class);
     private static final String gmTest = getTagName(GMTest.class);
@@ -39,6 +39,8 @@ public class ConfigParameterResolver implements ParameterResolver {
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         final Set<String> testTags = extensionContext.getTags();
 
+        // check if config is set via, for example
+        //     systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
         final Optional<String> haveOverride = extensionContext.getConfigurationParameter(PARAMETER_KEY);
 
         final TramchesterConfig config;
@@ -53,7 +55,9 @@ public class ConfigParameterResolver implements ParameterResolver {
             throw new ExtensionConfigurationException("ConfigParameterResolver and overrides not defined for tags " + testTags);
         }
 
+        // TODO is this used ??
         extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put("tramchester.config", config);
+
         return config;
     }
 
@@ -68,14 +72,16 @@ public class ConfigParameterResolver implements ParameterResolver {
         }
     }
 
-    private static <T> String getTagName(Class<T> theClass) {
-        List<Annotation> annotations = Arrays.asList(theClass.getAnnotations());
-        List<Annotation> tags = annotations.stream().filter(annotation -> annotation.annotationType().equals(Tag.class)).toList();
+    public static <T> String getTagName(final Class<T> theClass) {
+        final List<Annotation> annotations = Arrays.asList(theClass.getAnnotations());
+        final List<Annotation> tags = annotations.stream().
+                filter(annotation -> annotation.annotationType().equals(Tag.class)).
+                toList();
         if (tags.size()!=1) {
             throw new ExtensionConfigurationException(format("Unexpected number (%s) of Tag attributes for %s", tags.size(), theClass.getSimpleName()));
         }
-        Annotation tagAnnotation = tags.get(0);
-        Tag tag = (Tag) tagAnnotation;
+        final Annotation tagAnnotation = tags.getFirst();
+        final Tag tag = (Tag) tagAnnotation;
 
         return tag.value();
 
