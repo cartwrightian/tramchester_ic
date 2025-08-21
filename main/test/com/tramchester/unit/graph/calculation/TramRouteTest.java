@@ -66,6 +66,8 @@ class TramRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns(GraphDBType graphType) throws IOException {
+
+
         config = new SimpleGroupedGraphConfig(graphType);
         TestEnv.deleteDBIfPresent(config);
 

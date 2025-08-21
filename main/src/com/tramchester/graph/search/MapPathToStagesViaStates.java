@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.search.stateMachine.NextStateNotFoundException;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
@@ -78,11 +79,16 @@ public class MapPathToStagesViaStates implements PathToStages {
             @Override
             public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final Duration currentCost) {
                 final EnumSet<GraphLabel> labels = node.getLabels();
-                final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
+                try {
+                    final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
+                    logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
+                    return next;
+                }
+                catch (NextStateNotFoundException stateNotFoundException) {
+                    logger.error("Unable to find next state for node " + node + " during path " +path, stateNotFoundException);
+                    throw new RuntimeException(stateNotFoundException);
+                }
 
-                logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
-
-                return next;
             }
         }, new PathMapper.ForGraphRelationship() {
             @Override

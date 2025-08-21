@@ -436,6 +436,20 @@ tasks.register('busTest', Test) {
     }
 }
 
+tasks.register('unitInMem', Test) {
+    dependsOn 'compileJava'
+    useJUnitPlatform {
+        includeTags "MultiDB"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.unit.*"
+    }
+    systemProperty("com.tramchester.dbType", "InMemory")
+    testLogging {
+        exceptionFormat "full" // default is "short"
+    }
+}
+
 tasks.register('integrationGM', Test) {
     dependsOn 'compileJava'
     minHeapSize = "1g"

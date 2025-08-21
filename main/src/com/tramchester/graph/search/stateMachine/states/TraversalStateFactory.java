@@ -40,8 +40,7 @@ public class TraversalStateFactory {
     }
 
 
-    private <S extends TraversalState, T extends Towards<S>> T  getFor(TraversalStateType from, TraversalStateType to) {
-
+    private <S extends TraversalState, T extends Towards<S>> T  getFor(final TraversalStateType from, final TraversalStateType to) {
         return registersStates.getBuilderFor(from,to);
     }
 
