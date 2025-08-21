@@ -76,12 +76,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logger.info("start");
         logger.info("Data source name " + transportData.getSourceName());
         if (graphDatabase.isCleanDB()) {
-            logger.info("Rebuild of Stations, RouteStations and Links graph DB for " + graphDBConfig.getDbPath());
+            logger.info("Rebuild of Stations, RouteStations and Links graph DB");
             if (graphFilter.isFiltered()) {
                 logger.warn("Graph is filtered " + graphFilter);
             }
             buildGraphwithFilter(graphDatabase, super.getStationAndPlatformNodeCache(), super.getRouteStationNodeCache());
-            logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
+            logger.info("Rebuild is finished");
         } else {
             logger.info("No rebuild of graph, using existing data");
             graphDatabase.waitForIndexes();
@@ -285,7 +285,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             throw new RuntimeException(msg);
         }
 
-        /*** NOTE: when we apply INTERCHANGE LABEL we update the modes
+        /* NOTE: when we apply INTERCHANGE LABEL we update the modes
          * @see StagedTransportGraphBuilder#createBoardingAndDepart
          */
         final TransportMode mode = routeStation.getRoute().getTransportMode();

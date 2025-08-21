@@ -93,13 +93,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     public void start() {
         logger.info("start");
         if (graphDatabase.isCleanDB()) {
-            logger.info("Rebuild of TimeTable graph DB for " + graphDBConfig.getDbPath());
+            logger.info("Rebuild of TimeTable graph DB");
             if (graphFilter.isFiltered()) {
                 logger.warn("Graph is filtered " + graphFilter);
             }
             buildGraphWithFilter(graphDatabase);
             graphDatabase.waitForIndexes();
-            logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
+            logger.info("Graph rebuild is finished");
         } else {
             logger.info("No rebuild of graph");
             graphDatabase.waitForIndexes();

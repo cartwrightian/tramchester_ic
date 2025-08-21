@@ -37,6 +37,7 @@ class GraphQueriesTests {
 
     @BeforeAll
     static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
+
         config = new UnitTestOfGraphConfig(graphDBType);
         TestEnv.deleteDBIfPresent(config);
 
