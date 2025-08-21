@@ -13,8 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
-import com.tramchester.graph.core.neo4j.MutableGraphTransactionNeo4J;
+import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -61,9 +60,10 @@ class JourneyStateTest extends EasyMockSupport {
                 towardsDestination, config, TramsOnly);
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
-        MutableGraphTransactionNeo4J txn = createMock(MutableGraphTransactionNeo4J.class);
+        MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
 
-        GraphNodeId startNodeId = GraphNodeIdNeo4J.TestOnly(88842L);
+        GraphNodeId startNodeId =  createMock(GraphNodeId.class); //GraphNodeIdNeo4J.TestOnly(88842L);
+        //EasyMock.expect(startNodeId)
 
         traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);
     }

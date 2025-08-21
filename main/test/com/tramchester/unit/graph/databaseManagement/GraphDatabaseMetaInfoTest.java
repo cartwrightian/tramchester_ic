@@ -3,10 +3,10 @@ package com.tramchester.unit.graph.databaseManagement;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -14,7 +14,6 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.Node;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -29,11 +28,9 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
     private MutableGraphTransaction transaction;
-    private Node node;
 
     @BeforeEach
     public void beforeAnyTestRuns() {
-        node = createMock(Node.class);
         transaction = createMock(MutableGraphTransaction.class);
         databaseMetaInfo = new GraphDatabaseMetaInfo();
     }

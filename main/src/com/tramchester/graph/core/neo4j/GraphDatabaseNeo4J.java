@@ -32,7 +32,6 @@ import static com.tramchester.graph.reference.GraphLabel.*;
 @LazySingleton
 public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseNeo4J.class);
-    public static final Duration DEFAULT_TXN_TIMEOUT = Duration.ofMinutes(5);
 
     private final DataSourceRepository dataSourceRepository;
     private final GraphDBConfig graphDBConfig;

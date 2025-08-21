@@ -1,12 +1,8 @@
 package com.tramchester.architecture;
 
-import com.tngtech.archunit.core.importer.ImportOption;
-import com.tngtech.archunit.core.importer.Location;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
-
-import java.util.regex.Pattern;
 
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
@@ -36,24 +32,22 @@ public class TestForNeo4jDirectDependency {
                 .layer("Neo4JCore").definedBy("com.tramchester.graph.core.neo4j")
                 .layer("Neo4JImplementation").definedBy("org.neo4j..")
 
-                .layer("UnitTestNeo4J").definedBy("com.tramchester.unit.graph.neo4J")
                 .layer("UnitTest").definedBy("com.tramchester.unit..")
+                .layer("UnitTestNeo4J").definedBy("com.tramchester.unit.graph.neo4J..")
+                .layer("IntegrationTest").definedBy("com.tramchester.integration..")
+                .layer("IntegrationTestNeo4J").definedBy("com.tramchester.integration.graph.neo4J..")
 
-                .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore", "Neo4JSearch", "UnitTestNeo4J")
-                .whereLayer("InMemory").mayOnlyBeAccessedByLayers("InMemorySearch", "Modules")
-                .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Neo4JSearch",  "Modules")
-                .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Caches", "Modules")
+                .layer("TestSupport").definedBy("com.tramchester.testSupport")
+
+                .whereLayer("Neo4JImplementation").mayOnlyBeAccessedByLayers("Neo4JCore", "Neo4JSearch",
+                        "UnitTestNeo4J", "IntegrationTestNeo4J")
+                .whereLayer("InMemory").mayOnlyBeAccessedByLayers("InMemorySearch", "Modules", "UnitTest")
+                .whereLayer("Neo4JCore").mayOnlyBeAccessedByLayers("Neo4JSearch",  "Modules",
+                        "UnitTestNeo4J", "IntegrationTestNeo4J")
+                .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Caches", "Modules", "IntegrationTestNeo4J",
+                        "UnitTestNeo4J")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
                         "Build", "Neo4JSearch", "StateMachine", "Diag", "DBMgmt", "Resources", "DTODiag", "Healthchecks",
-                        "Modules", "InMemory", "InMemorySearch", "UnitTest");
+                        "Modules", "InMemory", "InMemorySearch", "UnitTest", "IntegrationTest", "TestSupport");
 
-    static class IgnoreTests implements ImportOption {
-
-        private final Pattern pattern = Pattern.compile(".*/test/com/tramchester/.*");
-
-        @Override
-        public boolean includes(Location location) {
-            return !location.matches(pattern);
-        }
-    }
 }

@@ -24,7 +24,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.neo4j.GraphTestHelperNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -37,13 +36,14 @@ import com.tramchester.testSupport.testTags.MultiDB;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
-import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MultiDB
@@ -432,30 +432,7 @@ public class GraphPropsTest {
         assertEquals(maxTripsForService, fromService.size());
         assertTrue(unsortedTripIds.containsAll(fromService));
 
-        if (config.getInMemoryGraph()) {
-            // TODO do we care about ordering for in memory?
-        } else {
-
-            GraphTestHelperNeo4J graphTestHelper = new GraphTestHelperNeo4J();
-
-            //MutableGraphTransaction neo4 = (MutableGraphTransactionNeo4J) txn;
-            final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(txn, serviceRelationship);
-
-            List<IdFor<Trip>> sortedTripIds = unsortedTripIds.stream().
-                    sorted(Comparator.comparing(IdFor::getGraphId)).
-                    toList();
-
-            String[] directFromRelationship = (String[]) relationship.getProperty(TRIP_ID_LIST.getText());
-            assertEquals(maxTripsForService, directFromRelationship.length);
-
-            // check sorted as expected
-            for (int i = 0; i < directFromRelationship.length; i++) {
-                final String tripIdText = sortedTripIds.get(i).getGraphId();
-                assertEquals(tripIdText, directFromRelationship[i], "mismatch on " + i);
-            }
-
-            unsortedTripIds.forEach(tripId -> assertTrue(nodeA.hasOutgoingServiceMatching(txn, tripId), "Failed for " + tripId));
-        }
+        // TODO do we care about ordering for in memory?
     }
 
     @Disabled("performance testing only")
@@ -507,9 +484,9 @@ public class GraphPropsTest {
     void shouldAddSingleTransportMode() {
         node.setTransportMode(TransportMode.Train);
 
-        TransportMode result = ((GraphNode) node).getTransportMode();
+        TransportMode result = node.getTransportMode();
 
-        assertEquals(result, TransportMode.Train);
+        assertEquals(TransportMode.Train, result);
     }
     
     @Test
@@ -519,7 +496,7 @@ public class GraphPropsTest {
         Station station = TramStations.PiccadillyGardens.fakeWithPlatform(2, TestEnv.testDay());
 
         List<Platform> platforms = new ArrayList<>(station.getPlatforms());
-        Platform platform = platforms.get(0);
+        Platform platform = platforms.getFirst();
 
         node.set(station);
         node.set(platform);
@@ -574,7 +551,7 @@ public class GraphPropsTest {
         return nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
     }
 
-    private @NotNull IdSet<Trip> addRandomTripIdsToRelationship(MutableGraphRelationship serviceRelationship) {
+    public static @NotNull IdSet<Trip> addRandomTripIdsToRelationship(MutableGraphRelationship serviceRelationship) {
         IdSet<Trip> unsortedTripIds = IdSet.emptySet();
         Random random = new Random();
         random.ints(0, 100000).

@@ -1,4 +1,4 @@
-package com.tramchester.unit.graph.databaseManagement;
+package com.tramchester.unit.graph.neo4J.databaseManagement;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;

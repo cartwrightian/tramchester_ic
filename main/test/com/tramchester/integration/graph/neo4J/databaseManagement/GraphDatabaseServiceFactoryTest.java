@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph.databaseManagement;
+package com.tramchester.integration.graph.neo4J.databaseManagement;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;

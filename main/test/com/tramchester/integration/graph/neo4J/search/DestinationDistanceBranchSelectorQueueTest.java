@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph.search;
+package com.tramchester.integration.graph.neo4J.search;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;

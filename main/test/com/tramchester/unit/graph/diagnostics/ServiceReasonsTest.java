@@ -12,7 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
+//import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.PathRequest;
@@ -80,7 +80,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         final HowIGotHere howIGotHere = createMock(HowIGotHere.class);
 
-        GraphNodeIdNeo4J nodeId = GraphNodeIdNeo4J.TestOnly(42);
+        GraphNodeId nodeId = createMock(GraphNodeId.class); //GraphNodeIdNeo4J.TestOnly(42);
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(nodeId);
 
         GraphNode node = createMock(GraphNode.class);
@@ -140,9 +140,8 @@ public class ServiceReasonsTest extends EasyMockSupport {
         HowIGotHere howIGotHereA = createMock(HowIGotHere.class);
         HowIGotHere howIGotHereB = createMock(HowIGotHere.class);
 
-
-        GraphNodeId idA = GraphNodeIdNeo4J.TestOnly(42);
-        GraphNodeId idB = GraphNodeIdNeo4J.TestOnly(98);
+        GraphNodeId idA = createMock(GraphNodeId.class); //GraphNodeIdNeo4J.TestOnly(42);
+        GraphNodeId idB = createMock(GraphNodeId.class); //GraphNodeIdNeo4J.TestOnly(98);
 
         EasyMock.expect(howIGotHereA.getEndNodeId()).andStubReturn(idA);
         EasyMock.expect(howIGotHereB.getEndNodeId()).andStubReturn(idB);
