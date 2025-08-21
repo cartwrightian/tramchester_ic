@@ -42,7 +42,7 @@ public class StationGroupsRepository {
     private final StationRepository stationRepository;
     private final GraphFilter graphFilter;
 
-    private final boolean enabled;
+    //private final boolean enabled;
 
     private final Map<IdFor<StationLocalityGroup>, StationLocalityGroup> stationGroups;
     private final Map<String, StationLocalityGroup> stationGroupsByName;
@@ -53,7 +53,7 @@ public class StationGroupsRepository {
                                    GraphFilter graphFilter) {
         this.config = config;
         this.nptgRepository = nptgRepository;
-        this.enabled = naptanRepository.isEnabled();
+        //this.enabled = naptanRepository.isEnabled();
 
         this.stationRepository = stationRepository;
         this.naptanRepository = naptanRepository;
@@ -73,7 +73,7 @@ public class StationGroupsRepository {
 
     @PostConstruct
     public void start() {
-        if (!enabled) {
+        if (!naptanRepository.isEnabled()) {
             logger.warn("Naptan is disabled, cannot find grouped stations, need areaId and areaName from naptan");
             return;
         }
@@ -185,7 +185,7 @@ public class StationGroupsRepository {
     }
 
     private void guardIsEnabled() {
-        if (enabled) {
+        if (naptanRepository.isEnabled()) {
             return;
         }
         String msg = "Station Group Repository is disabled";
@@ -234,7 +234,7 @@ public class StationGroupsRepository {
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return naptanRepository.isEnabled();
     }
 
 

@@ -19,16 +19,8 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 
 public class UnitTestOfGraphConfig extends TestConfig {
 
-//    private final GraphDBType graphDBType;
-
-    public UnitTestOfGraphConfig() {
-        this(GraphDBType.Neo4J);
-    }
-
     public UnitTestOfGraphConfig(GraphDBType graphDBType) {
         super(graphDBType);
-
-//        this.graphDBType = graphDBType;
     }
 
     @Override
@@ -39,11 +31,6 @@ public class UnitTestOfGraphConfig extends TestConfig {
                 Duration.ofMinutes(13), Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
-
-//    @Override
-//    public boolean getInMemoryGraph() {
-//        return graphDBType==GraphDBType.InMemory;
-//    }
 
     @Override
     public int getNumberQueries() {
