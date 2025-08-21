@@ -154,13 +154,15 @@ public class LocationJourneyPlanner {
         final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn);
 
         final MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
-        final List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
+        //final List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
-        nodesAndRelationships.addAll(addedRelationships);
+        //nodesAndRelationships.addAll(addedRelationships);
 
-        final LocationSet<Station> destinationStations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
+        final LocationSet<Station> destinationStations = walksToDest.stream().
+                map(StationWalk::getStation).
+                collect(LocationSet.stationCollector());
 
         final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
@@ -319,6 +321,9 @@ public class LocationJourneyPlanner {
             final MutableGraphNode stationNode = txn.findNodeMutable(walkStation);
             if (stationNode==null) {
                 throw new RuntimeException("Could not find node for " + walkStation);
+            }
+            if (!stationNode.hasLabel(GraphLabel.STATION)) {
+                throw new RuntimeException("Not a STATION node " + stationNode);
             }
 
             if (direction == WALKS_FROM_STATION) {

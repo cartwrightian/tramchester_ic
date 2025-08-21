@@ -54,7 +54,7 @@ public class FindPathsForJourney {
         while (searchState.hasNodes()) {
             final NodeSearchState nodeSearchState = searchState.getNext();
             final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNode(nextId, searchState, nodeSearchState.getPathToHere(), results, destNode.getId(), filter);
+            visitNodeForShortestPath(nextId, searchState, nodeSearchState.getPathToHere(), results, destNode.getId(), filter);
         }
 
         Optional<Duration> minimum = results.stream().
@@ -65,15 +65,20 @@ public class FindPathsForJourney {
 
     }
 
-    private void visitNode(final GraphNodeId nodeId, final SearchState searchState, final GraphPathInMemory pathToHere,
-                           final List<GraphPathInMemory> results, final GraphNodeId destNodeId, final GraphRelationshipFilter filter) {
+    private void visitNodeForShortestPath(final GraphNodeId nodeId, final SearchState searchState,
+                                          final GraphPathInMemory incomingPath,
+                                          final List<GraphPathInMemory> results, final GraphNodeId destNodeId,
+                                          final GraphRelationshipFilter filter) {
 
         if (nodeId.equals(destNodeId)) {
-            results.add(pathToHere);
+            results.add(incomingPath);
             return;
         }
 
         final GraphNode currentNode = txn.getNodeById(nodeId);
+
+        GraphPathInMemory pathToHere = incomingPath.duplicateWith(txn, currentNode);
+
         final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing,
                 TransportRelationshipTypes.forPlanning()).
                 filter(filter::include);
@@ -99,7 +104,7 @@ public class FindPathsForJourney {
             }
 
             if (updated) {
-                visitNode(endRelationshipNodeId, searchState, continuePath, results, destNodeId, filter);
+                visitNodeForShortestPath(endRelationshipNodeId, searchState, continuePath, results, destNodeId, filter);
             }
         });
     }
@@ -125,33 +130,38 @@ public class FindPathsForJourney {
 
     private void visitNodeOnPath(final GraphNodeId currentNodeId, final HasJourneyState graphState, final GraphPathInMemory existingPath,
                                  final List<GraphPathInMemory> reachedDest, final TramRouteEvaluator evaluator) {
+        final boolean debugEnabled = logger.isDebugEnabled();
 
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
 
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
-
         final ImmutableJourneyState existingState = graphState.getJourneyState();
-
         final GraphEvaluationAction result = evaluator.evaluate(pathToCurrentNode, existingState);
 
         if (result==GraphEvaluationAction.EXCLUDE_AND_PRUNE) {
-            logger.info("Exclude and prune");
+            if (debugEnabled) {
+                logger.debug("Exclude and prune");
+            }
             return;
         }
 
         if (evaluator.matchesDestination(currentNodeId)) {
-            logger.info("Found destination");
+            if (debugEnabled) {
+                logger.debug("Found destination");
+            }
             reachedDest.add(pathToCurrentNode);
         }
 
         if (result==GraphEvaluationAction.INCLUDE_AND_PRUNE) {
             // have now added to reached dest if needed
-            logger.info("Include and prune");
+            if (debugEnabled) {
+                logger.info("Include and prune");
+            }
             return;
         }
 
         final HasJourneyState graphStateForChildren = graphState.duplicate();
-        final Stream<GraphRelationship> outgoing = expand(pathToCurrentNode, graphStateForChildren);
+        final Stream<GraphRelationship> outgoing = expand(pathToCurrentNode, graphStateForChildren, currentNode);
 
         final SearchState searchState = graphStateForChildren.getSearchState();
         final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
@@ -190,7 +200,7 @@ public class FindPathsForJourney {
         });
     }
 
-    private Stream<GraphRelationship> expand(final GraphPath path, final HasJourneyState graphState) {
+    private Stream<GraphRelationship> expand(final GraphPath path, final HasJourneyState graphState, final GraphNode currentNode) {
 
         final ImmutableJourneyState currentJourneyState = graphState.getJourneyState();
         final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
@@ -224,6 +234,9 @@ public class FindPathsForJourney {
             }
 
             final GraphNode endPathNode =  path.getEndNode(txn);
+            if (!endPathNode.getId().equals(currentNode.getId())) {
+                throw new RuntimeException("end node mismatch " + path + " current node " + currentNode);
+            }
             final EnumSet<GraphLabel> labels = endPathNode.getLabels();
 
             final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
@@ -292,10 +305,10 @@ public class FindPathsForJourney {
             }
         }
 
-        public void addCostFor(GraphNodeId nodeId, Duration duration, GraphPathInMemory continuePath) {
-            final NodeSearchState update = new NodeSearchState(nodeId, duration, continuePath);
+        public void addCostFor(final GraphNodeId nodeId, final Duration duration, final GraphPathInMemory continuePath) {
+            //final NodeSearchState update = new NodeSearchState(nodeId, duration, continuePath);
             synchronized (nodeQueue) {
-                nodeQueue.add(update);
+                //nodeQueue.add(update);
                 currentCost.put(nodeId, duration);
             }
         }
@@ -318,7 +331,7 @@ public class FindPathsForJourney {
         private NodeSearchState(GraphNodeId nodeId, Duration duration, GraphPathInMemory pathToHere) {
             this.nodeId = nodeId;
             this.duration = duration;
-            this.pathToHere = pathToHere;
+            this.pathToHere = pathToHere.duplicateThis();
         }
 
         @Override
@@ -343,7 +356,19 @@ public class FindPathsForJourney {
         }
 
         public GraphPathInMemory getPathToHere() {
+//            if (pathToHere.isEmpty()) {
+//                throw new RuntimeException("No path to here for " + this);
+//            }
             return pathToHere;
+        }
+
+        @Override
+        public String toString() {
+            return "NodeSearchState{" +
+                    "nodeId=" + nodeId +
+                    ", duration=" + duration +
+                    ", pathToHere=" + pathToHere +
+                    '}';
         }
     }
 

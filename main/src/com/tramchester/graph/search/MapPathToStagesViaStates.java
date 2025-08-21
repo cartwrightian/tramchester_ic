@@ -85,7 +85,8 @@ public class MapPathToStagesViaStates implements PathToStages {
                     return next;
                 }
                 catch (NextStateNotFoundException stateNotFoundException) {
-                    logger.error("Unable to find next state for node " + node + " during path " +path, stateNotFoundException);
+                    logger.error("Unable to find next state for node " + node + " previous " + previous +
+                            " during path " +path, stateNotFoundException);
                     throw new RuntimeException(stateNotFoundException);
                 }
 

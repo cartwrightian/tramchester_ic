@@ -23,7 +23,7 @@ public class GraphPathInMemory implements GraphPath {
         lastAddedRelationship = original.lastAddedRelationship;
     }
 
-    public GraphPathInMemory addNode(GraphTransaction txn, GraphNode node) {
+    public GraphPathInMemory addNode(final GraphTransaction txn, final GraphNode node) {
         synchronized (entityList) {
             lastAddedNode = node;
             entityList.add(node);
@@ -31,8 +31,15 @@ public class GraphPathInMemory implements GraphPath {
         return this;
     }
 
-    public GraphPathInMemory addRelationship(GraphTransaction txn, GraphRelationship graphRelationship) {
+    public GraphPathInMemory addRelationship(final GraphTransaction txn, final GraphRelationship graphRelationship) {
         synchronized (entityList) {
+            if (lastAddedNode==null) {
+                throw new RuntimeException("No last added node for " + this + " trying to add " + graphRelationship);
+            }
+            if (!graphRelationship.getStartNodeId(txn).equals(lastAddedNode.getId())) {
+                throw new RuntimeException("Consistency check failure, last node was " + lastAddedNode + " but start does not match " + graphRelationship);
+            }
+
             lastAddedRelationship = graphRelationship;
             entityList.add(graphRelationship);
         }
@@ -103,7 +110,7 @@ public class GraphPathInMemory implements GraphPath {
         return duplicateThis().addRelationship(txn, graphRelationship);
     }
 
-    private GraphPathInMemory duplicateThis() {
+    public GraphPathInMemory duplicateThis() {
         return new GraphPathInMemory(this);
     }
 
@@ -139,5 +146,9 @@ public class GraphPathInMemory implements GraphPath {
                 reduce(Duration::plus);
         return total.orElse(Duration.ofSeconds(Integer.MAX_VALUE));
 
+    }
+
+    public boolean isEmpty() {
+        return entityList.isEmpty();
     }
 }
