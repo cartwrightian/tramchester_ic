@@ -103,7 +103,8 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
         FindPathsForJourney findPathsForJourney = new FindPathsForJourney(txn, beginNode, config);
 
-        final Duration result = findPathsForJourney.findShortestPathsTo(destNode);
+        FindPathsForJourney.GraphRelationshipFilter filter = relationship -> RouteCostCalculator.costApproxTypes.contains(relationship.getType());
+        final Duration result = findPathsForJourney.findShortestPathsTo(destNode, filter);
 
         assertEquals(Duration.ofMinutes(41), result);
 

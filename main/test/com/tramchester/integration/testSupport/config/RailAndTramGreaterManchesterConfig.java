@@ -7,6 +7,7 @@ import com.tramchester.integration.testSupport.rail.OpenRailDataTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestOpenLdbConfig;
@@ -21,7 +22,12 @@ import java.util.List;
 public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfig {
 
     public RailAndTramGreaterManchesterConfig() {
-        super(LiveData.Enabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
+        this(TestEnv.getDefaultDBTYpe());
+    }
+
+    public RailAndTramGreaterManchesterConfig(GraphDBType graphDBType) {
+        super(LiveData.Enabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled,
+                graphDBType);
     }
 
     @Override

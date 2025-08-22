@@ -12,6 +12,7 @@ import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
+import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
@@ -45,7 +46,12 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private final Caching caching;
 
     public IntegrationTramTestConfig() {
-       this(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
+        this(TestEnv.getDefaultDBTYpe());
+    }
+
+    public IntegrationTramTestConfig(GraphDBType graphDBType) {
+        this(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled,
+                graphDBType);
     }
 
     public IntegrationTramTestConfig(LiveData liveData) {
@@ -69,7 +75,12 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalkIds> tempWalks,
                                         Caching caching) {
-        super(TestGroupType.integration, TestEnv.getDefaultDBTYpe());
+        this(liveData, closedStations, tempWalks, caching, TestEnv.getDefaultDBTYpe());
+    }
+
+    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalkIds> tempWalks,
+                                        Caching caching, GraphDBType graphDBType) {
+        super(TestGroupType.integration, graphDBType);
         this.liveData = liveData;
         this.caching = caching;
 

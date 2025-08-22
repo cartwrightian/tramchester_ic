@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -130,18 +131,14 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
     }
 
     private PathExpander<Double> fullExpanderForCostApproximation(final Predicate<? super Relationship> routeFilter) {
-        return PathExpanderBuilder.empty().
-                add(map(ON_ROUTE), Direction.OUTGOING).
-                add(map(STATION_TO_ROUTE), Direction.OUTGOING).
-                add(map(ROUTE_TO_STATION), Direction.OUTGOING).
-                add(map(WALKS_TO_STATION), Direction.OUTGOING).
-                add(map(WALKS_FROM_STATION), Direction.OUTGOING).
-                add(map(NEIGHBOUR), Direction.OUTGOING).
-                add(map(GROUPED_TO_PARENT), Direction.OUTGOING).
-                add(map(GROUPED_TO_GROUPED), Direction.OUTGOING).
-                add(map(GROUPED_TO_CHILD), Direction.OUTGOING).
-                addRelationshipFilter(routeFilter).
-                build();
+        PathExpanderBuilder builder = PathExpanderBuilder.empty();
+
+        final List<RelationshipType> mapped = costApproxTypes.stream().map(type -> map(type)).toList();
+
+        for (RelationshipType relationshipType : mapped) {
+            builder = builder.add(relationshipType, Direction.OUTGOING);
+        }
+        return builder.addRelationshipFilter(routeFilter).build();
 
     }
 

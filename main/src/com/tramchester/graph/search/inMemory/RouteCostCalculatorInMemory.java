@@ -34,7 +34,6 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
 
     @Inject
     public RouteCostCalculatorInMemory(StagedTransportGraphBuilder.Ready ready, RouteRepository routeRepository, TramchesterConfig config) {
-
         this.routeRepository = routeRepository;
         this.config = config;
     }
@@ -87,11 +86,15 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
 
         final FindPathsForJourney findPathsForJourney = new FindPathsForJourney(txn, startNode, config);
 
-        FindPathsForJourney.GraphRelationshipFilter routeAvailableFilter = relationship -> {
-            if (relationship.isType(TransportRelationshipTypes.ON_ROUTE)) {
-                return available.contains(relationship.getRouteId());
+        final FindPathsForJourney.GraphRelationshipFilter routeAvailableFilter = relationship -> {
+            final TransportRelationshipTypes relationshipType = relationship.getType();
+            if (RouteCostCalculator.costApproxTypes.contains(relationshipType)) {
+                if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
+                    return available.contains(relationship.getRouteId());
+                }
+                return true;
             }
-            return true;
+            return false;
         };
 
         final Duration result = findPathsForJourney.findShortestPathsTo(endNode, routeAvailableFilter);

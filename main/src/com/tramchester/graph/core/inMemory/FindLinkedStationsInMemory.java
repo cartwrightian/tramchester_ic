@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
-import static com.tramchester.graph.reference.GraphLabel.ROUTE_STATION;
 import static com.tramchester.graph.reference.GraphLabel.STATION;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.LINKED;
 
@@ -54,7 +53,7 @@ public class FindLinkedStationsInMemory extends FindLinkedStations {
         final GraphLabel forMode = GraphLabel.forMode(mode);
 
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            final Stream<GraphNode> nodes = txn.findNodes(ROUTE_STATION).
+            final Stream<GraphNode> nodes = txn.findNodes(STATION).
                     filter(node -> node.hasLabel(forMode)).
                     filter(node -> node.hasRelationship(txn, Outgoing, LINKED)).
                     filter(node -> node.getRelationships(txn, Outgoing, LINKED).count()>=threshhold);

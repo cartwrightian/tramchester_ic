@@ -18,12 +18,11 @@ import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.ServiceRepository;
@@ -36,7 +35,6 @@ import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +63,7 @@ class TramGraphBuilderTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(); //new InMemoryConfig();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -952,15 +950,4 @@ class TramGraphBuilderTest {
         assertEquals(0, tripIdsFromFile.size());
     }
 
-    private static class InMemoryConfig extends IntegrationTramTestConfig {
-        @Override
-        public Path getCacheFolder() {
-            return super.getCacheFolder();
-        }
-
-        @Override
-        public boolean getInMemoryGraph() {
-            return true;
-        }
-    }
 }
