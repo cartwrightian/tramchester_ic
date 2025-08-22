@@ -11,6 +11,9 @@ import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.UpcomingDates.MosleyStreetWorkSummer2025;
+import static com.tramchester.testSupport.UpcomingDates.PiccAndAshtonLineWorksSummery2025;
+
 public class KnownTramRoute {
 
     public static final TramDate latestCutoverDate = TramDate.of(2025,8,18);
@@ -116,17 +119,29 @@ public class KnownTramRoute {
         final Set<TestRoute> routes = new HashSet<>();
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-//            if (date.isBefore(TramDate.of(2025,8,24))) {
                 routes.add(getGreen(date));
-//            }
         } else { // rest of week
             if (!date.equals(UpcomingDates.BankHolAugust2025)) {
                 routes.add(getGreen(date));
             }
         }
 
-        routes.add(getPurple(date));
-        routes.add(getYellow(date));
+        if ((!PiccAndAshtonLineWorksSummery2025.contains(date) && !MosleyStreetWorkSummer2025.getStartDate().equals(date))) {
+            routes.add(getPurple(date));
+        }
+
+        if (!PiccAndAshtonLineWorksSummery2025.contains(date)) {
+            routes.add(getYellow(date));
+        }
+
+        if (date.equals(TramDate.of(2025, 9, 7))) {
+            routes.add(getYellow(date));
+        }
+
+        if (date.equals(TramDate.of(2025, 9, 8))) {
+            routes.add(getYellow(date));
+            routes.add(getPurple(date));
+        }
 
         routes.add(getBlue(date));
         routes.add(getRed(date));

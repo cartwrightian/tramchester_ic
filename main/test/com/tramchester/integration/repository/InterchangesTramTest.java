@@ -86,6 +86,7 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook,
                 MarketStreet,
                 PiccadillyGardens,
+                Piccadilly,
                 StPetersSquare,
                 Broadway,
                 Victoria

@@ -28,19 +28,19 @@ public enum KnownTramRouteEnum implements TestRoute {
     EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", latestCutoverDate),
 
     // Green
-    BuryManchesterAltrinchamNew(Green, "Bury - Manchester - Altrincham", "841", latestCutoverDate),
+    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "841", latestCutoverDate),
 
     // Navy
-    VictoriaManchesterAirportNew(Navy, "Victoria - Wythenshawe - Manchester Airport", "2120", latestCutoverDate),
+    VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "2120", latestCutoverDate),
 
     // Pink
-    RochdaleManchesterEastDidisburyNew(Pink, "Rochdale - Manchester - East Didsbury", "845", latestCutoverDate),
+    RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "845", latestCutoverDate),
 
     // Purple
-    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", latestCutoverDate),
+    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", latestCutoverDate),
 
     // Red
-    CornbrookTheTraffordCentreNew(Red, "Etihad Campus - The Trafford Centre", "849", latestCutoverDate),
+    CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "849", latestCutoverDate),
 
     // Yellow
     AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", latestCutoverDate);

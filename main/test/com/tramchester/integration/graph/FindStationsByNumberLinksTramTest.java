@@ -81,6 +81,7 @@ class FindStationsByNumberLinksTramTest {
         List<IdFor<Station>> expectedList = Stream.of(
                 StPetersSquare,
                 PiccadillyGardens,
+                Piccadilly,
                 MarketStreet,
                 TraffordBar,
                 Cornbrook,

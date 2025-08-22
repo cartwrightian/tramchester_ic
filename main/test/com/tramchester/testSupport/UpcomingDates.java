@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
-
 public class UpcomingDates {
 
     private static final TramDate sunday;
@@ -33,22 +31,11 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-//    public static DateRange PiccGardensWorksummer2025 = DateRange.of(TramDate.of(2025, 6, 3),
-//            TramDate.of(2025, 8, 10));
-//
-//    public static TramDate AfterPiccGardensWorksummer2025 = PiccGardensWorksummer2025.getEndDate().plusDays(1);
+    public static DateRange MosleyStreetWorkSummer2025 = DateRange.of(TramDate.of(2025, 8, 31),
+            TramDate.of(2025, 9, 2));
 
-    public static DateRange EcclesAndTraffordParkLinesSummer2025 = DateRange.of(TramDate.of(2025, 8, 2),
-            TramDate.of(2025, 8, 11));
-
-    public static List<IdFor<Station>> EcclesAndTraffordParkLinesSummer2025Stations = Stream.of(
-            "9400ZZMACRN", "9400ZZMAPOM", "9400ZZMAEXC", "9400ZZMASQY", "9400ZZMAANC", "9400ZZMAHCY",
-                    "9400ZZMAMCU", "9400ZZMABWY", "9400ZZMALWY", "9400ZZMAWST", "9400ZZMALDY", "9400ZZMAECC").
-            map(Station::createId).toList();
-
-    public static List<IdFor<Station>> WharfsideTraffordCentreStopsSummer2025 = Stream.of(
-                    Wharfside.getRawId(), "9400ZZMAIWM", "9400ZZMAVLG", "9400ZZMAPAR", "9400ZZMAEVC", TraffordCentre.getRawId()).
-            map(Station::createId).toList();
+    public static DateRange PiccAndAshtonLineWorksSummery2025 = DateRange.of(TramDate.of(2025, 9,5),
+            TramDate.of(2025, 9, 8));
 
     public static final TramDate BankHolAugust2025 = TramDate.of(2025,8,25);
 
@@ -68,18 +55,12 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-
-//        if (PiccadillyGardens.getId().equals(stationId)) {
-//            if (PiccGardensWorksummer2025.contains(date)) {
-//                return true;
-//            }
-//        }
-        if (EcclesAndTraffordParkLinesSummer2025.contains(date)) {
-            if (EcclesAndTraffordParkLinesSummer2025Stations.contains(stationId)) {
-                return true;
-            }
+        if (MosleyStreetWorkSummer2025.contains(date)) {
+            return true;
         }
-
+        if (PiccAndAshtonLineWorksSummery2025.contains(date)) {
+            return true;
+        }
         return false;
     }
 

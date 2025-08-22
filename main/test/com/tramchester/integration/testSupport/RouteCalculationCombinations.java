@@ -201,10 +201,10 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         private boolean isolatedSection(LocationIdPair<Station> pair, TramDate date) {
-            if (UpcomingDates.EcclesAndTraffordParkLinesSummer2025.contains(date)) {
-                return UpcomingDates.WharfsideTraffordCentreStopsSummer2025.contains(pair.getBeginId()) ||
-                        UpcomingDates.WharfsideTraffordCentreStopsSummer2025.contains(pair.getEndId());
-            }
+//            if (UpcomingDates.EcclesAndTraffordParkLinesSummer2025.contains(date)) {
+//                return UpcomingDates.WharfsideTraffordCentreStopsSummer2025.contains(pair.getBeginId()) ||
+//                        UpcomingDates.WharfsideTraffordCentreStopsSummer2025.contains(pair.getEndId());
+//            }
             return false;
         }
 

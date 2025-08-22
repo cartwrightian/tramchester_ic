@@ -91,6 +91,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
+    @DisabledUntilDate(year = 2025, month = 9, day = 8)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -101,6 +102,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
+    @DisabledUntilDate(year = 2025, month = 9, day = 8)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getYellow, true);
@@ -202,6 +204,7 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
+    @DisabledUntilDate(year = 2025, month = 9)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
