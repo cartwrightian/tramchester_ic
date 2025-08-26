@@ -32,12 +32,13 @@ public class FindPathsForJourney {
 
     private final GraphTransactionInMemory txn;
     private final GraphNode startNode;
-    private final TramchesterConfig config;
+    private final boolean depthFirst;
 
     public FindPathsForJourney(GraphTransaction txn, GraphNode startNode, TramchesterConfig config) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
-        this.config = config;
+        this.depthFirst = config.getDepthFirst();
+
     }
 
 //    public Duration findShortestPathsTo(final GraphNode destNode) {
@@ -171,7 +172,11 @@ public class FindPathsForJourney {
                 final Duration currentDurationForEnd = searchState.getCurrentCost(endRelationshipNodeId);
                 if (newCost.compareTo(currentDurationForEnd) < 0) {
                     updated = true;
-                    searchState.setNewCostFor(endRelationshipNodeId, newCost, continuePath);
+                    if (depthFirst) {
+                        searchState.storeCostOnly(endRelationshipNodeId, newCost);
+                    } else {
+                        searchState.setNewCostFor(endRelationshipNodeId, newCost, continuePath);
+                    }
                 }
             } else {
                 updated = true;
@@ -182,7 +187,7 @@ public class FindPathsForJourney {
 
             if (updated) {
 
-                if (config.getDepthFirst()) {
+                if (depthFirst) {
                     // TODO ordering of which neighbours to visit first
                     // TODO update with the new cost
                     visitNodeOnPath(endRelationshipNodeId, graphStateForChildren, continuePath, reachedDest, evaluator);

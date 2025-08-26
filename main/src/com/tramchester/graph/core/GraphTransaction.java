@@ -9,6 +9,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -30,7 +31,8 @@ public interface GraphTransaction extends AutoCloseable {
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item);
 
-    List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction, TransportRelationshipTypes[] transportRelationshipTypes);
+    List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction,
+                                                         EnumSet<TransportRelationshipTypes> relationshipTypes);
 
     GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 

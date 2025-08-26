@@ -207,12 +207,13 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
     }
 
     @Override
-    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction, TransportRelationshipTypes[] transportRelationshipTypes) {
+    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction,
+                                                                EnumSet<TransportRelationshipTypes> relationshipTypes) {
         final GraphNode routeStationNode = findNode(routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
-        return routeStationNode.getRelationships(this, direction, transportRelationshipTypes).toList();
+        return routeStationNode.getRelationships(this, direction, relationshipTypes).toList();
     }
 
     public GraphNode wrapNode(final Node node) {

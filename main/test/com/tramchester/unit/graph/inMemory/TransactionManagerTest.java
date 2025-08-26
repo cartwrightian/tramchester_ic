@@ -15,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.graph.core.GraphDirection.*;
@@ -135,12 +137,14 @@ public class TransactionManagerTest {
             GraphNode check = txn.findNode(routeStation);
             assertNotNull(check);
 
-            List<GraphRelationship> initialSearch = txn.getRouteStationRelationships(routeStation, Outgoing, TransportRelationshipTypes.forPlanning());
+            EnumSet<TransportRelationshipTypes> relationshipTypes = EnumSet.copyOf(Arrays.asList(TransportRelationshipTypes.forPlanning()));
+
+            List<GraphRelationship> initialSearch = txn.getRouteStationRelationships(routeStation, Outgoing, relationshipTypes);
             assertTrue(initialSearch.isEmpty());
 
             MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.DEPART);
 
-            List<GraphRelationship> result = txn.getRouteStationRelationships(routeStation, Outgoing, TransportRelationshipTypes.forPlanning());
+            List<GraphRelationship> result = txn.getRouteStationRelationships(routeStation, Outgoing, relationshipTypes);
             assertFalse(result.isEmpty());
 
             assertTrue(result.contains(relationship));

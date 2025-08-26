@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -27,7 +28,7 @@ public class ConfigParameterResolver implements ParameterResolver {
     private static final String trainTest = getTagName(TrainTest.class);
     private static final String gmTest = getTagName(GMTest.class);
 
-    private static final GraphDBType graphDBType = GraphDBType.Neo4J; //TestEnv.getDefaultDBTYpe();
+    private static final GraphDBType graphDBType = TestEnv.getDefaultDBTYpe();
 
     private static final TramchesterConfig tramOnly = new IntegrationTramTestConfig(graphDBType);
     private static final TramchesterConfig tramAndTrain =  new RailAndTramGreaterManchesterConfig(graphDBType);

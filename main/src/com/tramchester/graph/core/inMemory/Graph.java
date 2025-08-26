@@ -84,7 +84,7 @@ public class Graph {
             throw new GraphException(msg);
         }
         if (relationshipsForNodes.containsKey(id)) {
-            RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
+            final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
             return switch (direction) {
                 case Outgoing -> relationshipsForNode.getOutbound(relationships);
                 case Incoming -> relationshipsForNode.getInbound(relationships);

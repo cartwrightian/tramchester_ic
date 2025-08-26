@@ -128,13 +128,15 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction, TransportRelationshipTypes[] transportRelationshipTypes) {
+    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction,
+                                                                EnumSet<TransportRelationshipTypes> relationshipTypes) {
         final GraphNode node = findNode(routeStation);
         if (node==null) {
             logger.info("Did not find node for " + routeStation.getId());
             return Collections.emptyList();
         }
         final Stream<GraphRelationship> results = graph.getRelationshipsFor(node.getId(), direction).
+                filter(relationship -> relationshipTypes.contains(relationship.getType())).
                 map(item ->item);
         return results.toList();
     }

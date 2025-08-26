@@ -80,7 +80,6 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getNavy, false);
     }
 
-    @DisabledUntilDate(year = 2025, month = 8, day = 25)
     @Test
     void shouldHaveExpectedRouteIdForGreen() {
         checkRouteIdFor(KnownTramRoute::getGreen, true);
