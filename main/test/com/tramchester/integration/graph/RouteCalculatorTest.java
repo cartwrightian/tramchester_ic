@@ -292,7 +292,7 @@ public class RouteCalculatorTest {
         assertFalse(servedByBothRoutes.isEmpty());
 
         assertEquals(altyToPiccGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size(),
-            "Mismatch Alty to Picc G " + altyToPiccGardens.size() + " Alty to Market St " + altyToMarketStreet.size());
+            "Mismatch Alty to Picc G " + altyToPiccGardens.size() + " Alty to Market St " + altyToMarketStreet.size() + " both " + servedByBothRoutes.size());
     }
 
     // over max wait, catch failure to accumulate journey times correctly

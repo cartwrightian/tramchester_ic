@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-// TODO remove
+
 public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     private final MutableGraphNodeNeo4J underlying;
     private final GraphNodeId nodeId;

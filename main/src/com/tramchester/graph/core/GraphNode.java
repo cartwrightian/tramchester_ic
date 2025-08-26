@@ -17,7 +17,6 @@ import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.stream.Stream;
 
 public interface GraphNode extends GraphEntity {
@@ -60,8 +59,6 @@ public interface GraphNode extends GraphEntity {
 
     EnumSet<GraphLabel> getLabels();
 
-    Map<String, Object> getAllProperties();
-
     boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
     GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
@@ -76,6 +73,6 @@ public interface GraphNode extends GraphEntity {
 
     Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
-//    Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction);
+
 
 }

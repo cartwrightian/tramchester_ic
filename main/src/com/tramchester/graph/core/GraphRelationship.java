@@ -20,7 +20,6 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Map;
 
 public interface GraphRelationship extends GraphEntity {
 
@@ -53,8 +52,6 @@ public interface GraphRelationship extends GraphEntity {
     boolean isType(TransportRelationshipTypes transportRelationshipType);
 
     IdFor<RouteStation> getRouteStationId();
-
-    Map<String,Object> getAllProperties();
 
     boolean isDayOffset();
 

@@ -172,7 +172,9 @@ public class ServiceReasons {
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
         reasonCodeStats.log(logger);
         stateStats.log(logger);
-        logger.info("Visited " + nodeVisits.size() + " nodes");
+        if (diagnosticsEnabled) {
+            logger.info("Visited " + nodeVisits.size() + " nodes");
+        }
     }
 
     private void logVisits(final GraphTransaction txn) {
