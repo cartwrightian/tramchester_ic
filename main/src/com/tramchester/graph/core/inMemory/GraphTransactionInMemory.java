@@ -122,7 +122,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         if (found.size()==1) {
             return found.getFirst();
         }
-        final String message = "Unexpected number found " + found.getFirst();
+        final String message = "Unexpected number found " + found.size();
         logger.error(message);
         throw new GraphException(message);
     }

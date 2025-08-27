@@ -1,5 +1,6 @@
 package com.tramchester.graph.core;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -17,6 +18,7 @@ import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.stream.Stream;
 
 public interface GraphNode extends GraphEntity {
@@ -74,5 +76,25 @@ public interface GraphNode extends GraphEntity {
     Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
 
+    default IdFor<? extends CoreDomain> getCoreDomainId() {
+        final EnumSet<GraphLabel> labels = getLabels();
+        final List<GraphLabel> matched = labels.stream().filter(GraphLabel.CoreDomain::contains).distinct().toList();
+        if (matched.size()==1) {
+            GraphLabel label = matched.getFirst();
+            return switch (label) {
+                case GROUPED -> getStationGroupId();
+                case ROUTE_STATION -> getRouteStationId();
+                case STATION -> getStationId();
+                case PLATFORM -> getPlatformId();
+                case SERVICE -> getServiceId();
+                //case HOUR -> null; // TODO Does this need a corresponding domain id ? i.e. TripId
+                case MINUTE -> getTripId();
 
+                default ->  throw new RuntimeException("Unexpected label " + label);
+            };
+
+        } else {
+            throw new RuntimeException("Could not match (or too many) " + labels + " with core domain " + GraphLabel.CoreDomain);
+        }
+    }
 }

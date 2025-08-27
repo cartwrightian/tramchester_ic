@@ -579,11 +579,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         timeNode.setTime(departureTime);
         timeNode.set(trip);
 
-        IdFor<Station> startId = leg.getFirstStation().getId();
-        IdFor<Station> endId = leg.getSecondStation().getId();
+        final IdFor<Station> startId = leg.getFirstStation().getId();
+        final IdFor<Station> endId = leg.getSecondStation().getId();
 
         // hour node -> time node
-        MutableGraphNode svcNode = serviceNodeCache.getServiceNode(tx, trip.getRoute().getId(), trip.getService(), startId, endId);
+        final MutableGraphNode svcNode = serviceNodeCache.getServiceNode(tx, trip.getRoute().getId(), trip.getService(), startId, endId);
         final MutableGraphNode hourNode = hourNodeCache.getHourNode(tx, svcNode.getId(),
                 departureTime.getHourOfDay());
         final MutableGraphRelationship fromPrevious = createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);

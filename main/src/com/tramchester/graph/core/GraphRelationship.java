@@ -1,5 +1,6 @@
 package com.tramchester.graph.core;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
@@ -85,4 +86,13 @@ public interface GraphRelationship extends GraphEntity {
 
     boolean hasTripIdInList(IdFor<Trip> tripId);
 
+    default IdFor<? extends CoreDomain> getStart(final GraphTransaction txn) {
+        final GraphNode node = getStartNode(txn);
+        return node.getCoreDomainId();
+    }
+
+    default IdFor<? extends CoreDomain> getEnd(final GraphTransaction txn) {
+        final GraphNode node = getEndNode(txn);
+        return node.getCoreDomainId();
+    }
 }

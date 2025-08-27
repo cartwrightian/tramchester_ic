@@ -169,12 +169,15 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         invalidateCache();
 
         final short modeNumber = mode.getNumber();
-        if (!(relationship.hasProperty(TRANSPORT_MODES.getText()))) {
-            relationship.setProperty(TRANSPORT_MODES.getText(), new short[]{modeNumber});
-            return;
-        }
+        final String key = TRANSPORT_MODES.getText();
 
-        final short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
+        if (!(relationship.hasProperty(key))) {
+            // INIT
+            relationship.setProperty(key, new short[]{modeNumber});
+            return;
+        } //else UPDATE
+
+        final short[] existing = (short[]) relationship.getProperty(key);
         // note: not sorted, hence not binary search here
         for (short value : existing) {
             if (value == modeNumber) {
@@ -184,7 +187,8 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
         final short[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = modeNumber;
-        relationship.setProperty(TRANSPORT_MODES.getText(), replacement);
+        //Arrays.sort(replacement);
+        relationship.setProperty(key, replacement);
     }
 
     @Override

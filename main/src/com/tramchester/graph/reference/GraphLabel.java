@@ -44,6 +44,9 @@ public enum GraphLabel { //implements Label {
 
     public static final EnumSet<GraphLabel> TransportModes = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
 
+    // TODO validate these with a test
+    public static final EnumSet<GraphLabel> CoreDomain = EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE);
+
     static {
         hourLabels = new GraphLabel[24];
         for (int hour = 0; hour < 24; hour++) {

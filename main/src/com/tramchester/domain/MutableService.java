@@ -169,4 +169,5 @@ public class MutableService implements Service {
     public boolean anyOverlapWith(final EnumSet<TransportMode> other) {
         return TransportMode.anyIntersection(this.modes, other);
     }
+
 }
