@@ -7,7 +7,6 @@ import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -118,22 +117,16 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-                routes.add(getGreen(date));
-        } else { // rest of week
-            if (!date.equals(UpcomingDates.BankHolAugust2025)) {
-                routes.add(getGreen(date));
-            }
-        }
-
-        if ((!PiccAndAshtonLineWorksSummery2025.contains(date) && !MosleyStreetWorkSummer2025.getStartDate().equals(date))) {
+        if ((!PiccAndAshtonLineWorksSummery2025.contains(date) && !MosleyStreetWorkSummer2025.getStartDate().equals(date))
+                && (!UpcomingDates.NotOnWebSite12Sept2025.equals(date))) {
             routes.add(getPurple(date));
         }
 
-        if (!PiccAndAshtonLineWorksSummery2025.contains(date)) {
+        if (!PiccAndAshtonLineWorksSummery2025.contains(date) && (!UpcomingDates.NotOnWebSite12Sept2025.equals(date))) {
             routes.add(getYellow(date));
         }
 
+        // Undocumented on tfgm site
         if (date.equals(TramDate.of(2025, 9, 7))) {
             routes.add(getYellow(date));
         }
@@ -143,6 +136,7 @@ public class KnownTramRoute {
             routes.add(getPurple(date));
         }
 
+        routes.add(getGreen(date));
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));

@@ -3,13 +3,13 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.HasGraphLabel;
+import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.GraphDatabaseInMemory;
 import com.tramchester.graph.core.inMemory.NumberOfNodesAndRelationshipsRepositoryInMemory;
@@ -17,39 +17,48 @@ import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.neo4j.NumberOfNodesAndRelationshipsRepositoryNeo4J;
+import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.TRANSPORT_MODES;
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_PLATFORM;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
 public class CompareNeo4JWithInMemoryTest {
 
     private static GuiceContainerDependencies componentContainerInMemory;
     private static GuiceContainerDependencies componentContainerNeo4J;
+    private static TramchesterConfig config;
 
     private NumberOfNodesAndRelationshipsRepositoryInMemory inMemoryCounts;
     private NumberOfNodesAndRelationshipsRepositoryNeo4J neo4JCounts;
     private StationRepository stationRepository;
     private GraphTransaction txnInMem;
     private GraphTransaction txnNeo4J;
+    private Duration maxJourneyDuration;
+    private int maxNumResults;
+
+    private RouteCalculatorTestFacade calculatorInMem;
+    private RouteCalculatorTestFacade calculatorNeo4J;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig configInMemory = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        config = new IntegrationTramTestConfig(GraphDBType.InMemory);
         TramchesterConfig configNeo4J = new IntegrationTramTestConfig(GraphDBType.Neo4J);
 
-        componentContainerInMemory = new ComponentsBuilder().create(configInMemory, TestEnv.NoopRegisterMetrics());
+        componentContainerInMemory = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainerInMemory.initialise();
 
         componentContainerNeo4J = new ComponentsBuilder().create(configNeo4J, TestEnv.NoopRegisterMetrics());
@@ -68,6 +77,11 @@ public class CompareNeo4JWithInMemoryTest {
 
         GraphDatabaseNeo4J dbNeo4J = componentContainerNeo4J.get(GraphDatabaseNeo4J.class);
         txnNeo4J = dbNeo4J.beginTx();
+
+        calculatorInMem = new RouteCalculatorTestFacade(componentContainerInMemory, txnInMem);
+        calculatorNeo4J = new RouteCalculatorTestFacade(componentContainerNeo4J, txnNeo4J);
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxNumResults = config.getMaxNumResults();
 
     }
 
@@ -129,9 +143,31 @@ public class CompareNeo4JWithInMemoryTest {
         checkForType(platformRepository.getPlatforms(EnumSet.of(TransportMode.Tram)));
     }
 
+    @Disabled("slow...")
     @Test
     void shouldHaveRelationshipsAtRouteStationNodes() {
         checkForType(stationRepository.getRouteStations());
+    }
+
+    @Test
+    void shouldCompareSameJourney() {
+
+        TramDate when = TestEnv.testDay();
+        TramTime time = TramTime.of(17,45);
+        EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
+                maxJourneyDuration, maxNumResults, requestedModes);
+
+        TramStations begin = Altrincham;
+        TramStations dest = OldTrafford;
+
+        List<Journey> journeysInMem = calculatorInMem.calculateRouteAsList(begin, dest, journeyRequest);
+        assertFalse(journeysInMem.isEmpty(), journeyRequest.toString());
+
+        List<Journey> journeysNeo4J = calculatorNeo4J.calculateRouteAsList(begin, dest, journeyRequest);
+        assertFalse(journeysNeo4J.isEmpty(), journeyRequest.toString());
+
+        assertEquals(journeysNeo4J, journeysInMem);
     }
 
     private <T extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> void checkForType(Collection<T> items) {

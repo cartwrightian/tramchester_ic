@@ -84,7 +84,7 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
 
         final IdSet<Route> available = IdSet.from(routesRunningOn);
 
-        final FindPathsForJourney findPathsForJourney = new FindPathsForJourney(txn, startNode, config);
+        final ShortestPath findPathsForJourney = new ShortestPath(txn, startNode);
 
         final FindPathsForJourney.GraphRelationshipFilter routeAvailableFilter = relationship -> {
             final TransportRelationshipTypes relationshipType = relationship.getType();
@@ -99,7 +99,7 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
 
         final Duration result = findPathsForJourney.findShortestPathsTo(endNode, routeAvailableFilter);
 
-        if (result.equals(FindPathsForJourney.notVisitiedDuration)) {
+        if (result.equals(FindPathsForJourney.NotVisitiedDuration)) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
                     startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
             logger.error(message);

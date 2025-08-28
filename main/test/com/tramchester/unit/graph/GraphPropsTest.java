@@ -533,15 +533,6 @@ public class GraphPropsTest {
         assertEquals(duration, result);
     }
 
-    @Disabled("WIP")
-    @Test
-    void shouldHaveEntityIdsForExpectedLabels() {
-        GraphLabel.CoreDomain.forEach(graphLabel -> {
-            fail("todo");
-        });
-    }
-
-
     @NotNull
     private IdFor<Route> getRailRouteId() {
         IdFor<Station> begin = RailStationIds.Macclesfield.getId();

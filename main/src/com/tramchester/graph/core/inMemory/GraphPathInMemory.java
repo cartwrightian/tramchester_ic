@@ -114,7 +114,8 @@ public class GraphPathInMemory implements GraphPath {
         return new GraphPathInMemory(this);
     }
 
-    public GraphPathInMemory duplicateWith(GraphTransactionInMemory txn, GraphNode currentNode) {
+    @Override
+    public GraphPathInMemory duplicateWith(GraphTransaction txn, GraphNode currentNode) {
         return duplicateThis().addNode(txn, currentNode);
     }
 
@@ -137,6 +138,7 @@ public class GraphPathInMemory implements GraphPath {
                 '}';
     }
 
+    @Override
     public Duration getTotalCost() {
         // todo accumulate cost as we go instead
         final Optional<Duration> total = entityList.stream().

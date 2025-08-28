@@ -76,6 +76,8 @@ public interface GraphNode extends GraphEntity {
     Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
 
+    // TODO this isn't a unique ID for all CoreDomain types i.e. there can be multiple Service Nodes with the same ServiceId
+    // but different RouteIds
     default IdFor<? extends CoreDomain> getCoreDomainId() {
         final EnumSet<GraphLabel> labels = getLabels();
         final List<GraphLabel> matched = labels.stream().filter(GraphLabel.CoreDomain::contains).distinct().toList();

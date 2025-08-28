@@ -26,7 +26,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSI
 
 public class FindPathsForJourney {
 
-    public static final Duration notVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
+    public static final Duration NotVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
 
     private static final Logger logger = LoggerFactory.getLogger(FindPathsForJourney.class);
 
@@ -39,68 +39,6 @@ public class FindPathsForJourney {
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();
 
-    }
-
-//    public Duration findShortestPathsTo(final GraphNode destNode) {
-//        return findShortestPathsTo(destNode, relationship -> true);
-//    }
-
-    public Duration findShortestPathsTo(final GraphNode destNode, final GraphRelationshipFilter filter) {
-        final GraphPathInMemory initialPath = new GraphPathInMemory();
-
-        final SearchState searchState = new SearchState(startNode.getId(), initialPath);
-
-        final List<GraphPathInMemory> results = new ArrayList<>();
-
-        while (searchState.hasNodes()) {
-            final NodeSearchState nodeSearchState = searchState.getNext();
-            final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNodeForShortestPath(nextId, searchState, nodeSearchState.getPathToHere(), results, destNode.getId(), filter);
-        }
-
-        Optional<Duration> minimum = results.stream().
-                map(GraphPathInMemory::getTotalCost).
-                min(Duration::compareTo);
-
-        return minimum.orElse(notVisitiedDuration);
-
-    }
-
-    private void visitNodeForShortestPath(final GraphNodeId currentNodeId, final SearchState searchState,
-                                          final GraphPathInMemory incomingPath,
-                                          final List<GraphPathInMemory> results, final GraphNodeId destNodeId,
-                                          final GraphRelationshipFilter filter) {
-
-        if (currentNodeId.equals(destNodeId)) {
-            results.add(incomingPath);
-            return;
-        }
-
-        final GraphNode currentNode = txn.getNodeById(currentNodeId);
-        final GraphPathInMemory pathToHere = incomingPath.duplicateWith(txn, currentNode);
-        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
-
-        final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing).
-                filter(filter::include);
-
-        outgoing.forEach(graphRelationship -> {
-            final Duration relationshipCost = graphRelationship.getCost();
-            final GraphNode nextNode = graphRelationship.getEndNode(txn);
-            final GraphNodeId nextNodeId = nextNode.getId();
-            final Duration updatedCost = relationshipCost.plus(currentCostToNode);
-
-            final GraphPathInMemory continuePath = pathToHere.duplicateWith(txn, graphRelationship);
-            if (searchState.hasSeen(nextNodeId)) {
-                final Duration currentDurationForEnd = searchState.getCurrentCost(nextNodeId);
-                if (updatedCost.compareTo(currentDurationForEnd) < 0) {
-                    searchState.setNewCostFor(nextNodeId, updatedCost, continuePath);
-                }
-            } else {
-                searchState.add(nextNodeId, updatedCost, continuePath);
-                //searchState.storeCostOnly(endRelationshipNodeId, newCost);
-            }
-
-        });
     }
 
     public List<GraphPath> findPaths(final JourneyState journeyState, final TramRouteEvaluator evaluator) {
@@ -297,20 +235,10 @@ public class FindPathsForJourney {
         }
 
         public Duration getCurrentCost(final GraphNodeId nodeId) {
-            return currentCost.getOrDefault(nodeId, notVisitiedDuration);
+            return currentCost.getOrDefault(nodeId, NotVisitiedDuration);
         }
 
-//        public void updateQueueAndCost(GraphNodeId nodeId, Duration duration, GraphPathInMemory graphPath) {
-//            final NodeSearchState update = new NodeSearchState(nodeId, duration, graphPath);
-//            synchronized (nodeQueue) {
-//                nodeQueue.remove(update);
-//                nodeQueue.add(update);
-//                currentCost.put(nodeId, duration);
-//            }
-//        }
-
         public void storeCostOnly(final GraphNodeId nodeId, final Duration duration) {
-            //final NodeSearchState update = new NodeSearchState(nodeId, duration, continuePath);
             synchronized (nodeQueue) {
                 //nodeQueue.add(update);
                 currentCost.put(nodeId, duration);
@@ -351,13 +279,6 @@ public class FindPathsForJourney {
             }
         }
 
-//        public void addNode(GraphNodeId graphNodeId, Duration duration, GraphPathInMemory graphPath) {
-//            synchronized (nodeQueue) {
-//                final NodeSearchState toAdd = new NodeSearchState(graphNodeId, duration, graphPath);
-//                nodeQueue.add(toAdd);
-//                currentCost.put(graphNodeId, duration);
-//            }
-//        }
     }
 
     private static class NodeSearchState implements Comparable<NodeSearchState> {
@@ -393,9 +314,6 @@ public class FindPathsForJourney {
         }
 
         public GraphPathInMemory getPathToHere() {
-//            if (pathToHere.isEmpty()) {
-//                throw new RuntimeException("No path to here for " + this);
-//            }
             return pathToHere;
         }
 

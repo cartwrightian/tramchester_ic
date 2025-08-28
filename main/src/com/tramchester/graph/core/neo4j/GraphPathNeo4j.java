@@ -1,12 +1,15 @@
 package com.tramchester.graph.core.neo4j;
 
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -27,6 +30,22 @@ public class GraphPathNeo4j implements GraphPath {
     @Override
     public int length() {
         return path.length();
+    }
+
+    @Override
+    public Duration getTotalCost() {
+        final String key = GraphPropertyKey.COST.getText();
+
+        Iterator<Relationship> iter = path.relationships().iterator();
+        Duration total = Duration.ZERO;
+        while (iter.hasNext()) {
+            final Relationship relationship = iter.next();
+            if (relationship.hasProperty(key)) {
+                final int costSeconds = (int) relationship.getProperty(key);
+                total = total.plus(Duration.ofSeconds(costSeconds));
+            }
+        }
+        return total;
     }
 
     @Override
@@ -90,6 +109,11 @@ public class GraphPathNeo4j implements GraphPath {
             final Node previousNode = last.getStartNode();
             return txnNeo4J.getGraphIdFor(previousNode);
         }
+    }
+
+    @Override
+    public GraphPathInMemory duplicateWith(GraphTransaction txn, GraphNode node) {
+        throw new RuntimeException("Not implemented");
     }
 
     public GraphNodeId getEndNodeId(final GraphTransaction txn) {

@@ -17,6 +17,7 @@ import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.inMemory.FindPathsForJourney;
+import com.tramchester.graph.search.inMemory.ShortestPath;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
@@ -101,10 +102,11 @@ class RouteCalculatorWithTestRouteInMemoryTest {
         GraphNode beginNode = txn.findNode(begin);
         GraphNode destNode = txn.findNode(dest);
 
-        FindPathsForJourney findPathsForJourney = new FindPathsForJourney(txn, beginNode, config);
+        ShortestPath shortestPath = new ShortestPath(txn, beginNode);
 
-        FindPathsForJourney.GraphRelationshipFilter filter = relationship -> RouteCostCalculator.costApproxTypes.contains(relationship.getType());
-        final Duration result = findPathsForJourney.findShortestPathsTo(destNode, filter);
+        final FindPathsForJourney.GraphRelationshipFilter filter = relationship ->
+                RouteCostCalculator.costApproxTypes.contains(relationship.getType());
+        final Duration result = shortestPath.findShortestPathsTo(destNode, filter);
 
         assertEquals(Duration.ofMinutes(41), result);
 

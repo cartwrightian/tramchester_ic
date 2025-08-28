@@ -1,8 +1,14 @@
 package com.tramchester.graph.core;
 
+import com.tramchester.graph.core.inMemory.GraphPathInMemory;
+
+import java.time.Duration;
+
 public interface GraphPath {
 
     int length();
+
+    Duration getTotalCost();
 
     Iterable<GraphEntity> getEntities(GraphTransaction txn);
 
@@ -15,4 +21,7 @@ public interface GraphPath {
     GraphRelationship getLastRelationship(GraphTransaction txn);
 
     GraphNodeId getPreviousNodeId(GraphTransaction txn);
+
+    GraphPathInMemory duplicateWith(GraphTransaction txn, GraphNode node);
+
 }

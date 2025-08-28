@@ -44,7 +44,7 @@ public enum GraphLabel { //implements Label {
 
     public static final EnumSet<GraphLabel> TransportModes = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
 
-    // TODO validate these with a test
+    // Currently here to support testing and deriving a Id<CoreDomain> for Nodes
     public static final EnumSet<GraphLabel> CoreDomain = EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE);
 
     static {
