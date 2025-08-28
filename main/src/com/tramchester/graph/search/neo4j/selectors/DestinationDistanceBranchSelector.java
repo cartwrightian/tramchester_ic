@@ -65,6 +65,11 @@ public class DestinationDistanceBranchSelector implements BranchSelector {
                 final ImmutableJourneyState journeyStateA = (ImmutableJourneyState) branchA.state();
                 final ImmutableJourneyState journeyStateB = (ImmutableJourneyState) branchB.state();
 
+                return compareJourneyState(journeyStateA, journeyStateB);
+
+            }
+
+            private int compareJourneyState(final ImmutableJourneyState journeyStateA, final ImmutableJourneyState journeyStateB) {
                 // only worth comparing on distance if not already at the same node
                 if (journeyStateA.getNodeId().equals(journeyStateB.getNodeId())) {
                     // arbitrarily pick the earliest time
@@ -81,9 +86,7 @@ public class DestinationDistanceBranchSelector implements BranchSelector {
                 } else {
                     return journeyStateA.getJourneyClock().compareTo(journeyStateB.getJourneyClock());
                 }
-
             }
-
         }
     }
 
