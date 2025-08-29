@@ -98,8 +98,8 @@ public class FindPathsForJourney {
         final SearchState searchState = graphStateForChildren.getSearchState();
         final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
 
-        Set<NodeSearchState> updatedNodes = new HashSet<>();
-        Set<NodeSearchState> notVisitedYet = new HashSet<>();
+        final PriorityQueue<NodeSearchState> updatedNodes = new PriorityQueue<>();
+        final PriorityQueue<NodeSearchState> notVisitedYet = new PriorityQueue<>();
 
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
@@ -107,55 +107,41 @@ public class FindPathsForJourney {
             final GraphNodeId endRelationshipNodeId = endRelationshipNode.getId();
             final Duration newCost = relationshipCost.plus(currentCostToNode);
 
-            //boolean updated = false;
             final boolean alreadySeen = searchState.hasSeen(endRelationshipNodeId);
-            final GraphPathInMemory continuePath = pathToCurrentNode.duplicateWith(txn, graphRelationship);
+
+            final GraphPathInMemory continuePath;
+            if (depthFirst) {
+                continuePath = pathToCurrentNode.duplicateWith(txn, graphRelationship);
+            } else {
+                continuePath = pathToCurrentNode.duplicateThis();
+            }
 
             if (alreadySeen) {
                 final Duration currentDurationForEnd = searchState.getCurrentCost(endRelationshipNodeId);
                 if (newCost.compareTo(currentDurationForEnd) < 0) {
-                    //updated = true;
                     updatedNodes.add(new NodeSearchState(endRelationshipNodeId, newCost, continuePath));
                     if (depthFirst) {
                         searchState.updateCost(endRelationshipNodeId, newCost);
-                        // need to visit now
                     } else {
                         searchState.updateCostAndQueue(endRelationshipNodeId, newCost, continuePath);
-                        // just update position in queue
                     }
                 } // else no update, not lower cost
             } else {
-                // not visited yet
-                //updated = true;
                 searchState.updateCost(endRelationshipNodeId, newCost);
                 notVisitedYet.add(new NodeSearchState(endRelationshipNodeId, newCost, continuePath));
-//                if (!depthFirst) {
-//                    searchState.addCostAndQueue(endRelationshipNodeId, newCost, continuePath);
-//                }
             }
-
-//            if (updated) {
-//                if (depthFirst) {
-//                    // TODO ordering of which neighbours to visit first
-//                    // TODO update with the new cost
-//                        //visitNodeOnPath(endRelationshipNodeId, graphStateForChildren, continuePath, reachedDest, evaluator);
-//                } else {
-//                        searchState.updateCostAndQueue(endRelationshipNodeId, newCost, continuePath);
-//                }
-//            }
-
-
         });
 
         if (depthFirst) {
+            notVisitedYet.forEach(state -> {
+                visitNodeOnPath(state.getNodeId(), graphStateForChildren, state.getPathToHere(), reachedDest, evaluator);
+            });
             updatedNodes.forEach(state -> {
                 visitNodeOnPath(state.getNodeId(), graphStateForChildren, state.getPathToHere(), reachedDest, evaluator);
             });
-            notVisitedYet.forEach(state -> {
-                visitNodeOnPath(state.getNodeId(), graphStateForChildren, state.getPathToHere(), reachedDest, evaluator);
-            });
         } else {
-            notVisitedYet.forEach(state -> {
+            //throw new RuntimeException("Not implemented/tested yet");
+            updatedNodes.forEach(state -> {
                 searchState.updateCostAndQueue(state.getNodeId(), state.duration, state.getPathToHere());
             });
             notVisitedYet.forEach(state -> {

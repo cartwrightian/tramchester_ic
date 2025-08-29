@@ -118,11 +118,11 @@ public class KnownTramRoute {
         final Set<TestRoute> routes = new HashSet<>();
 
         if ((!PiccAndAshtonLineWorksSummery2025.contains(date) && !MosleyStreetWorkSummer2025.getStartDate().equals(date))
-                && (!UpcomingDates.NotOnWebSite12Sept2025.equals(date))) {
+                && (!UpcomingDates.NotOnWebSite12Sept2025.contains(date))) {
             routes.add(getPurple(date));
         }
 
-        if (!PiccAndAshtonLineWorksSummery2025.contains(date) && (!UpcomingDates.NotOnWebSite12Sept2025.equals(date))) {
+        if (!PiccAndAshtonLineWorksSummery2025.contains(date) && (!UpcomingDates.NotOnWebSite12Sept2025.contains(date))) {
             routes.add(getYellow(date));
         }
 

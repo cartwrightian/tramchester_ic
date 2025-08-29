@@ -37,7 +37,8 @@ public class GraphPathInMemory implements GraphPath {
                 throw new RuntimeException("No last added node for " + this + " trying to add " + graphRelationship);
             }
             if (!graphRelationship.getStartNodeId(txn).equals(lastAddedNode.getId())) {
-                throw new RuntimeException("Consistency check failure, last node was " + lastAddedNode + " but start does not match " + graphRelationship);
+                throw new RuntimeException("Consistency check failure, last node was " + lastAddedNode +
+                        " but start does not match " + entityList);
             }
 
             lastAddedRelationship = graphRelationship;
@@ -106,7 +107,7 @@ public class GraphPathInMemory implements GraphPath {
         return lastRelationship.getStartNodeId(txn);
     }
 
-    public GraphPathInMemory duplicateWith(GraphTransaction txn, GraphRelationship graphRelationship) {
+    public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphRelationship graphRelationship) {
         return duplicateThis().addRelationship(txn, graphRelationship);
     }
 

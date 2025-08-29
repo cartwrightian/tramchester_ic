@@ -38,7 +38,7 @@ public class UpcomingDates {
             TramDate.of(2025, 9, 8));
 
     // no yellow or purple, but not on website
-    public static final TramDate NotOnWebSite12Sept2025 = TramDate.of(2025, 9, 12);
+    public static final DateRange NotOnWebSite12Sept2025 = DateRange.of(TramDate.of(2025, 9, 12),1);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -62,7 +62,7 @@ public class UpcomingDates {
         if (PiccAndAshtonLineWorksSummery2025.contains(date)) {
             return true;
         }
-        if (date.equals(NotOnWebSite12Sept2025)) {
+        if (NotOnWebSite12Sept2025.contains(date)) {
             return true;
         }
         return false;

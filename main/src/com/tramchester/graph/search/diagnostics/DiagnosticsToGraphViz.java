@@ -30,7 +30,7 @@ public class DiagnosticsToGraphViz {
 
     public void appendTo(final StringBuilder builder, final JourneyDiagnostics diagnostics) {
         final DiagramState diagramState = new DiagramState();
-        List<StationDiagnosticsDTO> stationDiagnostics = diagnostics.getDtoList();
+        final List<StationDiagnosticsDTO> stationDiagnostics = diagnostics.getDtoList();
         stationDiagnostics.forEach(diag -> add(diag, builder, diagramState));
         diagramState.clear();
     }
@@ -38,16 +38,15 @@ public class DiagnosticsToGraphViz {
     private void add(final StationDiagnosticsDTO diagnostic, final StringBuilder builder,
                      final DiagramState diagramState) {
 
-        LocationRefWithPosition begin = diagnostic.getBegin();
+        final LocationRefWithPosition begin = diagnostic.getBegin();
 
-        IdForDTO locationId = addNodeToDiagram(begin, diagnostic.getReasons(), builder, diagramState);
+        final IdForDTO locationId = addNodeToDiagram(begin, diagnostic.getReasons(), builder, diagramState);
 
-        List<StationDiagnosticsLinkDTO> links = diagnostic.getLinks();
-
+        final List<StationDiagnosticsLinkDTO> links = diagnostic.getLinks();
 
         links.forEach(link -> {
 
-            LocationRefWithPosition towards = link.getTowards();
+            final LocationRefWithPosition towards = link.getTowards();
 
             builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]\n", locationId,
                     towards.getId(), "towards"));
@@ -55,30 +54,30 @@ public class DiagnosticsToGraphViz {
             link.getReasons().forEach(reason -> {
                 final boolean valid = reason.isValid();
 
-                String beginNodeId = reason.getBeginId();
-                String endNodeId = reason.getEndId();
+                final String beginNodeId = reason.getBeginId();
+                final String endNodeId = reason.getEndId();
 
-                String reasonNodeId = reason.getStateType().name() + "_" + reason.getCode() + "_" + endNodeId;
+                final String reasonNodeId = reason.getStateType().name() + "_" + reason.getCode() + "_" + endNodeId;
 
                 // location -> begin node
-                Pair<IdForDTO, String> locationToNodeKey = Pair.of(locationId, beginNodeId);
+                final Pair<IdForDTO, String> locationToNodeKey = Pair.of(locationId, beginNodeId);
                 if (!locationToNode.contains(locationToNodeKey)) {
                     builder.append(format("\"%s\"->\"%s\"\n", locationId, beginNodeId));
                     locationToNode.add(locationToNodeKey);
                 }
 
-                String reasonLinkText = valid ? "yes" : "no";
-                String reasonColor = valid ? "green" : "red";
+                final String reasonLinkText = valid ? "yes" : "no";
+                final String reasonColor = valid ? "green" : "red";
 
                 // begin node -> reason node
-                Pair<String, String> nodeToReasonKey = Pair.of(beginNodeId, reasonNodeId);
+                final Pair<String, String> nodeToReasonKey = Pair.of(beginNodeId, reasonNodeId);
                 if (!nodeToReason.contains(nodeToReasonKey)) {
                     builder.append(format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"]\n", beginNodeId,
                             reasonNodeId, reasonLinkText, reasonColor));
                     nodeToReason.add(nodeToReasonKey);
                 }
 
-                String reasonShape = valid ? "oval" : "octagon";
+                final String reasonShape = valid ? "oval" : "octagon";
 
                 builder.append(format("\"%s\" [label=\"%s\"] [shape=\"%s\" style=\"filled\" color=\"%s\"]\n",
                         reasonNodeId, reason.getText(), reasonShape, reasonColor));
@@ -105,12 +104,12 @@ public class DiagnosticsToGraphViz {
         if (reasons.isEmpty()) {
             nodeColor = "yellow";
         } else {
-            boolean allInvalid = reasons.stream().noneMatch(DiagnosticReasonDTO::isValid);
+            final boolean allInvalid = reasons.stream().noneMatch(DiagnosticReasonDTO::isValid);
             nodeColor = allInvalid ? "red" : "white";
         }
         if (!diagramState.stationDiagnostics.contains(location)) {
             diagramState.stationDiagnostics.add(location);
-            String label = "\n" + id.getActualId() + "\n" + name + "\n" +
+            final String label = "\n" + id.getActualId() + "\n" + name + "\n" +
                     display(reasons);
             builder.append(format("\"%s\" [label=\"%s\"] [shape=%s style=\"filled\" fillcolor=\"%s\"];\n", id, label,
                     "hexagon", nodeColor));

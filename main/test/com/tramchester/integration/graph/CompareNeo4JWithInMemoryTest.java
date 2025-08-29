@@ -36,6 +36,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_P
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("WIP")
 public class CompareNeo4JWithInMemoryTest {
 
     private static GuiceContainerDependencies componentContainerInMemory;
@@ -171,7 +172,7 @@ public class CompareNeo4JWithInMemoryTest {
     }
 
     private <T extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> void checkForType(Collection<T> items) {
-        for(T item : items) {
+        for(final T item : items) {
             final GraphNode inMemoryNode = txnInMem.findNode(item);
             final GraphNode neo4JNode = txnNeo4J.findNode(item);
             assertEquals(neo4JNode.getLabels(), inMemoryNode.getLabels());

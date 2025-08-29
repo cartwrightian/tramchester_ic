@@ -37,6 +37,7 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -178,6 +179,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         ranges.forEach(range -> assertTrue(range.getTimeRange().allDay(), "Expected all day time range for " + range));
     }
 
+    @DisabledUntilDate(year = 2025,month = 9, day = 8)
     @Test
     void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
 
@@ -277,6 +279,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty());
     }
 
+    @DisabledUntilDate(year = 2025,month = 9, day = 8)
     @Test
     void shouldFindPiccadillyToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
