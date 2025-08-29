@@ -46,7 +46,7 @@ version = buildNumber
 
 ext {
     dropwizardVersion = '4.0.14'
-    jacksonVersion = '2.19.2'
+    jacksonVersion = '2.20.0'
     awsSdkVersion = '2.32.4'
     allureVersion = '2.29.1'
     //allure.results.directory=build/reports/allure
