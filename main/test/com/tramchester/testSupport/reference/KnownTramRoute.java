@@ -4,18 +4,15 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
-import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.UpcomingDates.MosleyStreetWorkSummer2025;
-import static com.tramchester.testSupport.UpcomingDates.PiccAndAshtonLineWorksSummery2025;
-
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,8,18);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,9,8);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -117,26 +114,12 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        if ((!PiccAndAshtonLineWorksSummery2025.contains(date) && !MosleyStreetWorkSummer2025.getStartDate().equals(date))
-                && (!UpcomingDates.NotOnWebSite12Sept2025.contains(date))) {
-            routes.add(getPurple(date));
-        }
+        routes.add(getPurple(date));
+        routes.add(getYellow(date));
 
-        if (!PiccAndAshtonLineWorksSummery2025.contains(date) && (!UpcomingDates.NotOnWebSite12Sept2025.contains(date))) {
-            routes.add(getYellow(date));
+        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            routes.add(getGreen(date));
         }
-
-        // Undocumented on tfgm site
-        if (date.equals(TramDate.of(2025, 9, 7))) {
-            routes.add(getYellow(date));
-        }
-
-        if (date.equals(TramDate.of(2025, 9, 8))) {
-            routes.add(getYellow(date));
-            routes.add(getPurple(date));
-        }
-
-        routes.add(getGreen(date));
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));

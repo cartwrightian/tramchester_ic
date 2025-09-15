@@ -83,7 +83,7 @@ public class StationRepositoryTest {
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
         // summer 2025 closures
-        int expectedNumStations = 27 - 1;
+        int expectedNumStations = 27 - 2;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 

@@ -2,7 +2,6 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
@@ -20,13 +19,12 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
-import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.StationsWithDiversion;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
@@ -36,8 +34,8 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -179,7 +177,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         ranges.forEach(range -> assertTrue(range.getTimeRange().allDay(), "Expected all day time range for " + range));
     }
 
-    @DisabledUntilDate(year = 2025,month = 9, day = 8)
     @Test
     void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
 
@@ -279,7 +276,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2025,month = 9, day = 8)
     @Test
     void shouldFindPiccadillyToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
