@@ -33,15 +33,16 @@ public class FindPathsForJourney {
     private final GraphTransactionInMemory txn;
     private final GraphNode startNode;
     private final boolean depthFirst;
+    private final TramRouteEvaluator evaluator;
 
-    public FindPathsForJourney(GraphTransaction txn, GraphNode startNode, TramchesterConfig config) {
+    public FindPathsForJourney(GraphTransaction txn, GraphNode startNode, TramchesterConfig config,  final TramRouteEvaluator evaluator) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();
-
+        this.evaluator = evaluator;
     }
 
-    public List<GraphPath> findPaths(final JourneyState journeyState, final TramRouteEvaluator evaluator) {
+    public List<GraphPath> findPaths(final JourneyState journeyState) {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
@@ -53,20 +54,24 @@ public class FindPathsForJourney {
 
         while (searchState.hasNodes()) {
             final NodeSearchState nodeSearchState = searchState.getNext();
-            final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNodeOnPath(nextId, hasJourneyState, nodeSearchState.getPathToHere(), results, evaluator);
+//            final GraphNodeId nextId = nodeSearchState.getNodeId();
+            visitNodeOnPath(nodeSearchState, hasJourneyState, results);
         }
 
         return results.stream().map(item -> (GraphPath) item).toList();
     }
 
-    private void visitNodeOnPath(final GraphNodeId currentNodeId, final HasJourneyState graphState, final GraphPathInMemory existingPath,
-                                 final List<GraphPathInMemory> reachedDest, final TramRouteEvaluator evaluator) {
+    private void visitNodeOnPath(final NodeSearchState nodeSearchState, final HasJourneyState graphState, final List<GraphPathInMemory> reachedDest) {
         final boolean debugEnabled = logger.isDebugEnabled();
 
+        final GraphNodeId currentNodeId = nodeSearchState.getNodeId();
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
 
+        // TODO should include the node
+        final GraphPathInMemory existingPath = nodeSearchState.getPathToHere();
+
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
+
         final ImmutableJourneyState existingState = graphState.getJourneyState();
         final GraphEvaluationAction result = evaluator.evaluate(pathToCurrentNode, existingState);
 
@@ -134,10 +139,10 @@ public class FindPathsForJourney {
 
         if (depthFirst) {
             notVisitedYet.forEach(state -> {
-                visitNodeOnPath(state.getNodeId(), graphStateForChildren, state.getPathToHere(), reachedDest, evaluator);
+                visitNodeOnPath(state, graphStateForChildren, reachedDest);
             });
             updatedNodes.forEach(state -> {
-                visitNodeOnPath(state.getNodeId(), graphStateForChildren, state.getPathToHere(), reachedDest, evaluator);
+                visitNodeOnPath(state, graphStateForChildren, reachedDest);
             });
         } else {
             //throw new RuntimeException("Not implemented/tested yet");
