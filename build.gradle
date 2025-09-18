@@ -358,7 +358,8 @@ tasks.register('unit', Test) {
         includeTestsMatching "com.tramchester.unit.*"
     }
     testLogging {
-        exceptionFormat "full" // default is "short"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -373,8 +374,8 @@ tasks.register('liveMessages', Test) {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -399,7 +400,8 @@ def integrationTestConfiguration = {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        events "passed", "failed", "standardError"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -414,7 +416,8 @@ def integrationRailConfig = {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        events "passed", "failed", "standardError"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -431,8 +434,8 @@ tasks.register('busTest', Test) {
     }
     maxHeapSize = "3g"
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "failed", "standardError"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -446,7 +449,8 @@ tasks.register('unitInMem', Test) {
     }
     systemProperty("com.tramchester.dbType", "InMemory")
     testLogging {
-        exceptionFormat "full" // default is "short"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -464,8 +468,8 @@ tasks.register('integrationGM', Test) {
     }
     systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "failed", "standardError"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -509,8 +513,8 @@ tasks.register('integrationBus', Test) {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -530,8 +534,8 @@ tasks.register('graphTests', Test) {
         includeTestsMatching "com.tramchester.integration.graph.*"
     }
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -544,8 +548,8 @@ tasks.register('buildGraphTest', Test) {
         includeTestsMatching "com.tramchester.integration.graph.GraphBuildAndStartTest"
     }
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started" //, "standardError", "standardOut"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
@@ -559,8 +563,8 @@ def acceptanceTestConfiguration = {
         includeTestsMatching "com.tramchester.acceptance.*"
     }
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
+        events("failed")
+        exceptionFormat = "full" // default is "short"
     }
 }
 
