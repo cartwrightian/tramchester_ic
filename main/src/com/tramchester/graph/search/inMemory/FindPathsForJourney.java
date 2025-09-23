@@ -14,7 +14,6 @@ import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,11 +145,11 @@ public class FindPathsForJourney {
             });
         } else {
             //throw new RuntimeException("Not implemented/tested yet");
-            updatedNodes.forEach(state -> {
-                searchState.updateCostAndQueue(state.getNodeId(), state.duration, state.getPathToHere());
-            });
             notVisitedYet.forEach(state -> {
                 searchState.addCostAndQueue(state.getNodeId(), state.duration, state.getPathToHere());
+            });
+            updatedNodes.forEach(state -> {
+                searchState.updateCostAndQueue(state.getNodeId(), state.duration, state.getPathToHere());
             });
         }
     }
@@ -160,13 +159,15 @@ public class FindPathsForJourney {
         final ImmutableJourneyState currentJourneyState = graphState.getJourneyState();
         final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
 
-        if (currentTraversalState.getStateType() == TraversalStateType.NotStartedState) {
+        if (currentNode.getId().equals(startNode.getId())) {
+        //if (currentTraversalState.getStateType() == TraversalStateType.NotStartedState) {
 
             // point to 'real' start node -> mirroring the way the existing implementation works
             final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
             final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(startNode.getLabels(), startNode,
                     journeyStateForChildren, Duration.ZERO);
             journeyStateForChildren.updateTraversalState(traversalStateForChildren);
+
             graphState.setState(journeyStateForChildren);
             
             return startNode.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.forPlanning());

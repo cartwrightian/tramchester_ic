@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,9,8);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,9,23);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
