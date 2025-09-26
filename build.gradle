@@ -26,6 +26,11 @@ def candidate = System.getenv("CIRCLE_BUILD_NUM") ?: "0"
 def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
+// CIRCLECI
+def isCI  = System.getenv("CIRCLECI") == 'true' ?: false
+
+// to avoid timeouts due to 'no output from build'
+def logEvents = isCI ? ['PASSED','FAILED'] : ['FAILED']
 
 // NOTE: TestEnv also depends on the environment
 // this profiling set upis only useful when doing full profiling, not sampling, in visualvm
@@ -358,7 +363,7 @@ tasks.register('unit', Test) {
         includeTestsMatching "com.tramchester.unit.*"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -374,7 +379,7 @@ tasks.register('liveMessages', Test) {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -400,7 +405,7 @@ def integrationTestConfiguration = {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -416,7 +421,7 @@ def integrationRailConfig = {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -434,7 +439,7 @@ tasks.register('busTest', Test) {
     }
     maxHeapSize = "3g"
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -449,7 +454,7 @@ tasks.register('unitInMem', Test) {
     }
     systemProperty("com.tramchester.dbType", "InMemory")
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -468,7 +473,7 @@ tasks.register('integrationGM', Test) {
     }
     systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -497,7 +502,7 @@ tasks.register('s3Test', Test) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "failed", "standardError"
+        events logEvents
     }
 }
 
@@ -513,7 +518,7 @@ tasks.register('integrationBus', Test) {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -534,7 +539,7 @@ tasks.register('graphTests', Test) {
         includeTestsMatching "com.tramchester.integration.graph.*"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -548,7 +553,7 @@ tasks.register('buildGraphTest', Test) {
         includeTestsMatching "com.tramchester.integration.graph.GraphBuildAndStartTest"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
@@ -563,7 +568,7 @@ def acceptanceTestConfiguration = {
         includeTestsMatching "com.tramchester.acceptance.*"
     }
     testLogging {
-        events("failed")
+        events = logEvents
         exceptionFormat = "full" // default is "short"
     }
 }
