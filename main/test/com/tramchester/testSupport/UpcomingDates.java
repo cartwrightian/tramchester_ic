@@ -1,7 +1,6 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -12,11 +11,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -34,14 +30,7 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange RochdaleLineWorkSummer2025 = DateRange.of(TramDate.of(2025, 9, 20),
-            TramDate.of(2025, 9, 22));
-
-    public static List<IdFor<Station>> RochdaleLineStations = Arrays.asList(Station.createId("9400ZZMAFRE"),
-            Station.createId("9400ZZMAWWD"), OldhamKingStreet.getId(), OldhamCentral.getId(), OldhamMumps.getId(),
-            Station.createId("9400ZZMADER"), ShawAndCrompton.getId(), Station.createId("9400ZZMANHY"),
-            Station.createId("9400ZZMAMIL"), Station.createId("9400ZZMAKNY"), Station.createId("9400ZZMANBD"),
-            RochdaleRail.getId(), Rochdale.getId());
+    public static TramDate AshtonBuryLinesOctober2025 = TramDate.of(2025,10,5);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -59,8 +48,12 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (RochdaleLineWorkSummer2025.contains(date)) {
-            return RochdaleLineStations.contains(stationId);
+        return anyClosedOnDate(date);
+    }
+
+    public static boolean anyClosedOnDate(TramDate date) {
+        if (date.isEqual(AshtonBuryLinesOctober2025)) {
+            return true;
         }
         return false;
     }

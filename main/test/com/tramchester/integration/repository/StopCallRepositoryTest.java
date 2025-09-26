@@ -209,8 +209,6 @@ public class StopCallRepositoryTest {
 
         IdSet<Station> unique = new IdSet<>(stopsBetween);
         assertEquals(unique.size(), stopsBetween.size());
-
-//        assertEquals(UpcomingDates.EcclesAndTraffordParkLinesSummer2025Stations, stopsBetween);
     }
 
     @Test
@@ -218,7 +216,5 @@ public class StopCallRepositoryTest {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Wharfside.getId(), TraffordCentre.getId(), when);
 
         assertEquals(6, stopsBetween.size());
-
-//        assertEquals(UpcomingDates.WharfsideTraffordCentreStopsSummer2025, stopsBetween);
     }
 }

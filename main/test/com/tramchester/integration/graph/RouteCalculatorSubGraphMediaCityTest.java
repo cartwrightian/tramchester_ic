@@ -267,7 +267,14 @@ class RouteCalculatorSubGraphMediaCityTest {
                 filter(station -> !closedStationRepository.isClosed(station, date)).
                 collect(Collectors.toSet());
 
-        assertFalse(stations.isEmpty(), "No stations for " + date);
+        if (stations.isEmpty()) {
+            if (UpcomingDates.anyClosedOnDate(date)) {
+                return new LocationIdsAndNames<>();
+            } else {
+                fail("No stations for " + date);
+
+            }
+        }
 
         LocationIdPairSet<Station> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
                         filter(dest -> !dest.getId().equals(start.getId())).
