@@ -19,8 +19,8 @@ class FetchInstanceMetadataTest {
         String data = fetcher.getUserData();
         server.stopServer();
 
-        assertEquals(data, "someSimpleMetaData");
-        assertEquals(server.getCalledUrl(), "http://localhost:8080/latest/user-data");
+        assertEquals("someSimpleMetaData", data);
+        assertEquals("http://localhost:8080/latest/user-data", server.getCalledUrl());
     }
 
     @Test
@@ -35,8 +35,8 @@ class FetchInstanceMetadataTest {
         server.stopServer();
 
         assertEquals("21600", server.getPutData());
-        assertEquals(data, "someSimpleMetaData");
-        assertEquals(server.getCalledUrl(), "http://localhost:8080/latest/user-data");
+        assertEquals("someSimpleMetaData", data);
+        assertEquals("http://localhost:8080/latest/user-data", server.getCalledUrl());
     }
 
     @Test

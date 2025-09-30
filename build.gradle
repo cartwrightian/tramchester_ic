@@ -50,9 +50,9 @@ s3 {
 version = buildNumber
 
 ext {
-    dropwizardVersion = '4.0.14'
+    dropwizardVersion = '5.0.0'
     jacksonVersion = '2.20.0'
-    awsSdkVersion = '2.34.4'
+    awsSdkVersion = '2.34.6'
     allureVersion = '2.29.1'
     //allure.results.directory=build/reports/allure
 }
@@ -79,7 +79,7 @@ dependencies {
     implementation 'com.google.inject:guice:7.0.0'
     // note: exclude of org.glassfish.jersey.inject needed as it clashed with version in DropWizard causing a
     // failure to load the DynamicServiceLocator in glassfish
-    implementation('org.neo4j:neo4j:5.26.9') {
+    implementation('org.neo4j:neo4j:5.26.12') {
         // seem to cause issue with logging on every release, sigh
         exclude group: 'org.neo4j', module:'neo4j-slf4j-provider'
         exclude group: 'org.glassfish.jersey.inject'

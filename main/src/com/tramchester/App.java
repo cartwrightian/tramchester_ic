@@ -36,10 +36,10 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,7 +233,7 @@ public class App extends Application<AppConfiguration>  {
 
         // TODO Check this
         logger.info("Set samesite cookie attribute");
-        applicationContext.getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
+        applicationContext.getServletContext().setAttribute(HttpCookie.SAME_SITE_ATTRIBUTE,
                 HttpCookie.SameSite.STRICT);
 
         // only enable live data present in config

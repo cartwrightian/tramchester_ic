@@ -10,9 +10,11 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
-import org.eclipse.jetty.util.Utf8Appendable;
+//import org.eclipse.jetty.util.Utf8Appendable;
+import org.eclipse.jetty.util.Utf8StringBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -22,6 +24,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+//import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class EncodingCheckResourceTest {
@@ -98,12 +101,20 @@ public class EncodingCheckResourceTest {
         assertEquals("search_string=%E8.0", query);
     }
 
+    @Disabled("just used to id new exception class in omove to Jetty 12.x")
+    @Test
+    void checkIfExceptionIsStillThrown() {
+        MultiMap<String> queryParameters = new MultiMap<>();
+
+        UrlEncoded.decodeTo("routes?search_string=%E8.0", queryParameters, UrlEncoded.ENCODING);
+    }
+
     @Test
     void checkBehaviourOfUrlDecoder() {
 
         MultiMap<String> queryParameters = new MultiMap<>();
 
-        assertThrows(Utf8Appendable.NotUtf8Exception.class,
+        assertThrows(Utf8StringBuilder.Utf8IllegalArgumentException.class,
                 () -> UrlEncoded.decodeTo("routes?search_string=%E8.0", queryParameters, UrlEncoded.ENCODING));
     }
 

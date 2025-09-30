@@ -1,19 +1,22 @@
 package com.tramchester.unit.dataimport;
 
 import com.tramchester.dataimport.DoesPostRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.io.Content;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -96,33 +99,40 @@ public class DoesPostRequestTest {
         }
     }
 
-    private static class StubbedHandler extends AbstractHandler {
+    private static class StubbedHandler extends Handler.Abstract {
 
         private String calledUrl;
         private String contentHeader;
         private String postedData;
 
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-            calledUrl = request.getRequestURL().toString();
-            contentHeader = request.getHeader("Content-Type");
-            if (request.getMethod().equals("POST")) {
-                processPut(baseRequest, response);
+        public boolean handle(Request baseRequest, Response response, Callback callback) throws Exception {
+            calledUrl = baseRequest.getHttpURI().toString(); //.getRequestURL().toString();
+            contentHeader = baseRequest.getHeaders().get("Content-Type");
+            final boolean result;
+            if (baseRequest.getMethod().equals("POST")) {
+                result = processPut(baseRequest, response);
+                callback.succeeded();
+            } else {
+                result = false;
             }
+            return result;
         }
 
-        private void processPut(Request baseRequest, HttpServletResponse response) throws IOException {
-            BufferedReader reader = baseRequest.getReader();
-            StringBuilder incoming = new StringBuilder();
-            reader.lines().forEach(incoming::append);
-            postedData = incoming.toString();
+        private boolean processPut(Request baseRequest, Response response) throws IOException {
+            postedData = Content.Source.asString(baseRequest, UTF_8);
+
             if (PLEASE_FAIL.equals(postedData)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
-                response.getWriter().write("someResponseText");
-                response.setStatus(HttpServletResponse.SC_OK);
+                try (OutputStream sink = Content.Sink.asOutputStream(response)) {
+                    sink.write("someResponseText".getBytes());
+                    response.setStatus(HttpServletResponse.SC_OK);
+                }
             }
-            baseRequest.setHandled(true);
+            return true;
         }
+
+
     }
 }

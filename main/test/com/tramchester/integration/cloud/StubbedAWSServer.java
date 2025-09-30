@@ -1,13 +1,16 @@
 package com.tramchester.integration.cloud;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class StubbedAWSServer  {
     public static final String ACCESS_TOKEN_HEADER = "X-aws-ec2-metadata-token-ttl-seconds";
@@ -60,56 +63,65 @@ public class StubbedAWSServer  {
         return contentHeader;
     }
 
-    private class Handler extends AbstractHandler{
+    private class Handler extends org.eclipse.jetty.server.Handler.Abstract {
+
+
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-            calledUrl = request.getRequestURL().toString();
-            contentHeader = request.getHeader("Content-Type");
-            if (request.getMethod().equals("GET")) {
-                processGet(baseRequest, response);
-            } else if (request.getMethod().equals("PUT")) {
-                processPut(baseRequest, response);
+        public boolean handle(Request baseRequest, Response response, Callback callback) throws Exception {
+            calledUrl = baseRequest.getHttpURI().toString();
+            contentHeader = baseRequest.getHeaders().get("Content-Type");
+            final String method = baseRequest.getMethod();
+            final boolean result;
+            if (method.equals("GET")) {
+                result = processGet(baseRequest, response);
+            } else if (method.equals("PUT")) {
+                result = processPut(baseRequest, response);
+            } else {
+                result = false;
             }
+            callback.succeeded();
+            return result;
         }
 
-        private void processPut(Request request, HttpServletResponse response) throws IOException {
-            final String metaDataAccessTokenRequest = request.getHeader(ACCESS_TOKEN_HEADER);
+        private boolean processPut(Request request, Response response) throws IOException {
+            final String metaDataAccessTokenRequest = request.getHeaders().get(ACCESS_TOKEN_HEADER);
             if (metaDataAccessTokenRequest!=null) {
                 if (metaDataAccessToken.isEmpty()) {
                     throw new RuntimeException(ACCESS_TOKEN_HEADER + " was set but no token is set");
                 }
-                response.getWriter().write(metaDataAccessToken);
+                try (OutputStream sink = Content.Sink.asOutputStream(response)) {
+                    sink.write(metaDataAccessToken.getBytes());
+                }
                 postedData = metaDataAccessTokenRequest;
             } else {
-                BufferedReader reader = request.getReader();
-                StringBuilder incoming = new StringBuilder();
-                reader.lines().forEach(incoming::append);
-                postedData = incoming.toString();
+                postedData = Content.Source.asString(request);
             }
             response.setStatus(HttpServletResponse.SC_OK);
-            request.setHandled(true);
+            return true;
         }
 
-        private void processGet(Request baseRequest, HttpServletResponse response) throws IOException {
-            response.setContentType("text/html;charset=utf-8");
+        private boolean processGet(Request baseRequest, Response response) throws IOException {
+            HttpFields.Mutable headers = response.getHeaders();
+            headers.add(HttpHeader.CONTENT_TYPE, "text/html;charset=utf-8");
 
             if (!metaDataAccessToken.isEmpty()) {
-                final String token = baseRequest.getHeader("X-aws-ec2-metadata-token");
+                final String token = baseRequest.getHeaders().get("X-aws-ec2-metadata-token");
                 if (token==null) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    baseRequest.setHandled(true);
-                    return;
+                    return true;
                 }
                 if (!token.equals(metaDataAccessToken)) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    baseRequest.setHandled(true);
-                    return;
+                    return true;
                 }
             }
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(metadata);
-            baseRequest.setHandled(true);
+            try (OutputStream sink = Content.Sink.asOutputStream(response)) {
+                sink.write(metadata.getBytes());
+            }
+            return true;
         }
+
     }
 
 }

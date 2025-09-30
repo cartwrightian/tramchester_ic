@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
-import org.eclipse.jetty.util.Utf8Appendable;
+import org.eclipse.jetty.util.Utf8StringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class RejectInvalidEncodingFilter implements Filter {
                 final MultiMap<String> queryParameters = new MultiMap<>();
                 UrlEncoded.decodeTo(query, queryParameters, UrlEncoded.ENCODING);
                 queryParameters.clear();
-            } catch (Utf8Appendable.NotUtf8Exception unableToDecode) {
+            } catch (Utf8StringBuilder.Utf8IllegalArgumentException unableToDecode) {
                 logger.warn("Unable to decode a query to " + ENCODING_NAME + " from " + httpServletRequest.getRemoteAddr());
                 final HttpServletResponse servletResponse = (HttpServletResponse) response;
                 servletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
