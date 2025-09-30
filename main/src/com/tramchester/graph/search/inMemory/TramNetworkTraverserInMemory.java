@@ -6,13 +6,11 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.search.TramNetworkTraverser;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 
@@ -42,8 +40,6 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
 
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
-        final TramTime actualQueryTime = pathRequest.getActualQueryTime();
-
         final GraphNode startNode = pathRequest.getStartNode();
         final GraphNodeId startNodeId = startNode.getId();
 
@@ -51,13 +47,12 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
                 destinationNodeIds, reasons, previousVisits, lowestCostSeen, config,
                 startNodeId, txn, running);
 
-        final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);
 
-        final JourneyState journeyState = new JourneyState(actualQueryTime, traversalState);
+        final FindPathsForJourney searchAlgo = new FindPathsForJourney(txn, startNode, config, tramRouteEvaluator, traversalStateFactory);
 
-        final FindPathsForJourney searchAlgo = new FindPathsForJourney(txn, startNode, config, tramRouteEvaluator);
+        final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
-        Stream<GraphPath> results = searchAlgo.findPaths(journeyState).stream();
+        Stream<GraphPath> results = searchAlgo.findPaths(actualQueryTime).stream();
 
         reasons.reportReasons(txn, pathRequest.getNumChanges(), destinations);
 

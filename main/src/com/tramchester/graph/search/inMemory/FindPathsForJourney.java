@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
@@ -14,6 +15,8 @@ import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
+import com.tramchester.graph.search.stateMachine.states.NotStartedState;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,15 +36,22 @@ public class FindPathsForJourney {
     private final GraphNode startNode;
     private final boolean depthFirst;
     private final TramRouteEvaluator evaluator;
+    private final TraversalStateFactory traversalStateFactory;
 
-    public FindPathsForJourney(GraphTransaction txn, GraphNode startNode, TramchesterConfig config,  final TramRouteEvaluator evaluator) {
+    public FindPathsForJourney(GraphTransaction txn, GraphNode startNode, TramchesterConfig config,
+                               final TramRouteEvaluator evaluator, TraversalStateFactory traversalStateFactory) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();
         this.evaluator = evaluator;
+        this.traversalStateFactory = traversalStateFactory;
     }
 
-    public List<GraphPath> findPaths(final JourneyState journeyState) {
+    public List<GraphPath> findPaths(final TramTime actualQueryTime) {
+
+        final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
+
+        final JourneyState journeyState = new JourneyState(actualQueryTime, initialTraversalState);
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
@@ -60,7 +70,9 @@ public class FindPathsForJourney {
         return results.stream().map(item -> (GraphPath) item).toList();
     }
 
-    private void visitNodeOnPath(final NodeSearchState nodeSearchState, final HasJourneyState graphState, final List<GraphPathInMemory> reachedDest) {
+    private void visitNodeOnPath(final NodeSearchState nodeSearchState, final HasJourneyState graphState,
+                                 final List<GraphPathInMemory> reachedDest) {
+
         final boolean debugEnabled = logger.isDebugEnabled();
 
         final GraphNodeId currentNodeId = nodeSearchState.getNodeId();
@@ -96,8 +108,9 @@ public class FindPathsForJourney {
             return;
         }
 
-        final HasJourneyState graphStateForChildren = graphState.duplicate();
-        final Stream<GraphRelationship> outgoing = expand(pathToCurrentNode, graphStateForChildren, currentNode);
+        final HasJourneyState graphStateForChildren = getNextState(pathToCurrentNode, graphState.duplicate(), currentNode);
+
+        final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
 
         final SearchState searchState = graphStateForChildren.getSearchState();
         final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
@@ -154,7 +167,113 @@ public class FindPathsForJourney {
         }
     }
 
-    private Stream<GraphRelationship> expand(final GraphPath path, final HasJourneyState graphState, final GraphNode currentNode) {
+    HasJourneyState getNextState(final GraphPath path, final HasJourneyState graphState, final GraphNode currentNode) {
+        final ImmutableJourneyState currentJourneyState = graphState.getJourneyState();
+        final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
+
+        if (currentNode.getId().equals(startNode.getId())) {
+
+            // point to 'real' start node -> mirroring the way the existing implementation works
+            final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
+
+            final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(startNode.getLabels(), startNode,
+                    journeyStateForChildren, Duration.ZERO);
+
+            journeyStateForChildren.updateTraversalState(traversalStateForChildren);
+
+            graphState.setState(journeyStateForChildren);
+
+            return graphState;
+
+        } else {
+            final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
+            final GraphRelationship lastRelationship = path.getLastRelationship(txn);
+
+            final Duration cost = lastRelationship.getCost();
+
+            if (Durations.greaterThan(cost, Duration.ZERO)) {
+                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
+                final Duration total = totalCost.plus(cost);
+                journeyStateForChildren.updateTotalCost(total);
+            }
+
+            if (lastRelationship.isType(DIVERSION)) {
+                final IdFor<Station> stationId = lastRelationship.getStartStationId();
+                journeyStateForChildren.beginDiversion(stationId);
+            }
+
+            final GraphNode endPathNode =  path.getEndNode(txn);
+            if (!endPathNode.getId().equals(currentNode.getId())) {
+                throw new RuntimeException("end node mismatch " + path + " current node " + currentNode);
+            }
+            final EnumSet<GraphLabel> labels = endPathNode.getLabels();
+
+            final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
+                    journeyStateForChildren, cost);
+
+            journeyStateForChildren.updateTraversalState(traversalStateForChildren);
+
+            graphState.setState(journeyStateForChildren);
+
+            return graphState;
+
+        }
+    }
+
+    private Stream<GraphRelationship> expand(final HasJourneyState currentState, final GraphNode currentNode) {
+
+        if (currentNode.getId().equals(startNode.getId())) {
+            //if (currentTraversalState.getStateType() == TraversalStateType.NotStartedState) {
+//
+//            // point to 'real' start node -> mirroring the way the existing implementation works
+//            final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
+//            final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(startNode.getLabels(), startNode,
+//                    journeyStateForChildren, Duration.ZERO);
+//            journeyStateForChildren.updateTraversalState(traversalStateForChildren);
+//
+//            graphState.setState(journeyStateForChildren);
+
+            return startNode.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.forPlanning());
+
+        } else {
+            final ImmutableJourneyState currentJourneyState = currentState.getJourneyState();
+            final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
+//
+//            final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
+//            final GraphRelationship lastRelationship = path.getLastRelationship(txn);
+//
+//            final Duration cost = lastRelationship.getCost();
+//
+//            if (Durations.greaterThan(cost, Duration.ZERO)) {
+//                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
+//                final Duration total = totalCost.plus(cost);
+//                journeyStateForChildren.updateTotalCost(total);
+//            }
+//
+//            if (lastRelationship.isType(DIVERSION)) {
+//                final IdFor<Station> stationId = lastRelationship.getStartStationId();
+//                journeyStateForChildren.beginDiversion(stationId);
+//            }
+//
+//            final GraphNode endPathNode =  path.getEndNode(txn);
+//            if (!endPathNode.getId().equals(currentNode.getId())) {
+//                throw new RuntimeException("end node mismatch " + path + " current node " + currentNode);
+//            }
+//            final EnumSet<GraphLabel> labels = endPathNode.getLabels();
+
+//            final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
+//                    journeyStateForChildren, cost);
+
+            //journeyStateForChildren.updateTraversalState(traversalStateForChildren);
+
+            //graphState.setState(journeyStateForChildren);
+
+            return currentTraversalState.getOutbounds();
+        }
+    }
+
+
+    private Stream<GraphRelationship> expand_old(final GraphPath path, final HasJourneyState graphState, final GraphNode currentNode) {
 
         final ImmutableJourneyState currentJourneyState = graphState.getJourneyState();
         final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
@@ -204,7 +323,6 @@ public class FindPathsForJourney {
 
             return traversalStateForChildren.getOutbounds();
         }
-
     }
 
     private static class HasJourneyState {
@@ -224,7 +342,7 @@ public class FindPathsForJourney {
             return searchState;
         }
 
-        public void setState(JourneyState replacementState) {
+        public void setState(final JourneyState replacementState) {
             this.journeyState = replacementState;
         }
 
