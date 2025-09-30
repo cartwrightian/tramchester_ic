@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.html5.Location;
+import org.openqa.selenium.devtools.DevTools;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -79,8 +79,16 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
 
             driver = chromeDriver;
 
+            final DevTools devTools = chromeDriver.getDevTools();
+            devTools.createSession();
+            
             if (location.isValid()) {
-                chromeDriver.setLocation(new Location(location.getLat(), location.getLon(), 0));
+                //chromeDriver.setLocation(new Location(location.getLat(), location.getLon(), 0));
+                Map<String, Object> parameters = new HashMap<>();
+                parameters.put("latitude", location.getLat());
+                parameters.put("longitude", location.getLon());
+                //parameters.put("accuracy", 100D);
+                chromeDriver.executeCdpCommand("Emulation.setGeolocationOverride", parameters);
             }
         }
      }
