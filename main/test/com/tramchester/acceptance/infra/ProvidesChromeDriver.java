@@ -81,9 +81,8 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
 
             final DevTools devTools = chromeDriver.getDevTools();
             devTools.createSession();
-            
+
             if (location.isValid()) {
-                //chromeDriver.setLocation(new Location(location.getLat(), location.getLon(), 0));
                 Map<String, Object> parameters = new HashMap<>();
                 parameters.put("latitude", location.getLat());
                 parameters.put("longitude", location.getLon());
