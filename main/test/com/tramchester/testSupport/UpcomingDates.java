@@ -1,6 +1,7 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -31,6 +32,9 @@ public class UpcomingDates {
     static final int DAYS_AHEAD = 14;
 
     public static TramDate AshtonBuryLinesOctober2025 = TramDate.of(2025,10,5);
+    public static TramDate VictoriaBuryLinesOctober2025 = TramDate.of(2025,10,19);
+    public static DateRange BuryLinesOctober2025 = DateRange.of(TramDate.of(2025,10,25),
+            TramDate.of(2025,10,31));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);

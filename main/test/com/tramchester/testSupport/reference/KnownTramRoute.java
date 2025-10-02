@@ -10,11 +10,11 @@ import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.UpcomingDates.AshtonBuryLinesOctober2025;
+import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,9,23);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,9,29);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -122,22 +122,25 @@ public class KnownTramRoute {
         final Set<TestRoute> routes = new HashSet<>();
 
         routes.add(getPurple(date));
-        //routes.add(getYellow(date));
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.isAfter(TramDate.of(2025,9,28)) && !AshtonBuryLinesOctober2025.isEqual(date)) {
+            if (date.equals(TramDate.of(2025,10,12))) {
                 routes.add(getGreen(date));
             }
-            if (date.isBefore(TramDate.of(2025,10,12))) {
+            if (date.isBefore(TramDate.of(2025,10,12)) ||
+                    VictoriaBuryLinesOctober2025.equals(date) ||
+                    BuryLinesOctober2025.contains(date)) {
                 routes.add(getYellow(date));
+            }
+            if (BuryLinesOctober2025.contains(date)) {
+                routes.add(getBusOne(date));
             }
         } else {
             routes.add(getGreen(date));
             routes.add(getYellow(date));
         }
 
-
-        if (AshtonBuryLinesOctober2025.equals(date)) {
+        if (AshtonBuryLinesOctober2025.equals(date)  || VictoriaBuryLinesOctober2025.equals(date)) {
             routes.add(getBusOne(date));
             routes.add(getBusTwo(date));
         }

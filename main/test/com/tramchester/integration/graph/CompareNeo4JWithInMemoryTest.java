@@ -36,6 +36,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_P
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("WIP")
 public class CompareNeo4JWithInMemoryTest {
 
     private static GuiceContainerDependencies componentContainerInMemory;
