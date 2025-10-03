@@ -55,23 +55,25 @@ public class FindPathsForJourney {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
+        // todo results into searchState
         final SearchState searchState = new SearchState(startNode.getId(), initialPath);
 
-        final HasJourneyState hasJourneyState = new HasJourneyState(searchState, journeyState);
+        final HasJourneyState hasJourneyState = new HasJourneyState(journeyState);
 
-        final List<GraphPathInMemory> results = new ArrayList<>();
+        //final List<GraphPathInMemory> results = new ArrayList<>();
 
         while (searchState.hasNodes()) {
             final NodeSearchState nodeSearchState = searchState.getNext();
 //            final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNodeOnPath(nodeSearchState, hasJourneyState, results);
+            visitNodeOnPath(nodeSearchState, hasJourneyState, searchState);
         }
 
+        final List<GraphPathInMemory> results = searchState.getFoundPaths();
         return results.stream().map(item -> (GraphPath) item).toList();
     }
 
     private void visitNodeOnPath(final NodeSearchState nodeSearchState, final HasJourneyState hasJourneyState,
-                                 final List<GraphPathInMemory> reachedDest) {
+                                 final SearchState searchState) {
 
         final boolean debugEnabled = logger.isDebugEnabled();
 
@@ -98,7 +100,7 @@ public class FindPathsForJourney {
             if (debugEnabled) {
                 logger.debug("Found destination");
             }
-            reachedDest.add(pathToCurrentNode);
+            searchState.addFoundPath(pathToCurrentNode);
         }
 
         if (result==GraphEvaluationAction.INCLUDE_AND_PRUNE) {
@@ -113,7 +115,7 @@ public class FindPathsForJourney {
 
         final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
 
-        final SearchState searchState = graphStateForChildren.getSearchState();
+        //final SearchState searchState = graphStateForChildren.getSearchState();
         final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
 
         final PriorityQueue<NodeSearchState> updatedNodes = new PriorityQueue<>();
@@ -152,10 +154,10 @@ public class FindPathsForJourney {
 
         if (depthFirst) {
             notVisitedYet.forEach(state -> {
-                visitNodeOnPath(state, graphStateForChildren, reachedDest);
+                visitNodeOnPath(state, graphStateForChildren, searchState);
             });
             updatedNodes.forEach(state -> {
-                visitNodeOnPath(state, graphStateForChildren, reachedDest);
+                visitNodeOnPath(state, graphStateForChildren, searchState);
             });
         } else {
             //throw new RuntimeException("Not implemented/tested yet");
@@ -240,40 +242,43 @@ public class FindPathsForJourney {
 
 
     private static class HasJourneyState {
-        private final SearchState searchState;
+        //private final SearchState searchState;
         private JourneyState journeyState;
 
-        private HasJourneyState(SearchState searchState, JourneyState journeyState) {
+        private HasJourneyState(JourneyState journeyState) {
             this.journeyState = journeyState;
-            this.searchState = searchState;
+            //this.searchState = searchState;
         }
 
         public ImmutableJourneyState getJourneyState() {
             return journeyState;
         }
 
-        public SearchState getSearchState() {
-            return searchState;
-        }
+//        public SearchState getSearchState() {
+//            //return searchState;
+//        }
 
         public void setState(final JourneyState replacementState) {
             this.journeyState = replacementState;
         }
 
         public HasJourneyState duplicate() {
-            return new HasJourneyState(searchState, JourneyState.fromPrevious(journeyState));
+            return new HasJourneyState(JourneyState.fromPrevious(journeyState));
         }
     }
 
     private static class SearchState {
         private final PriorityQueue<NodeSearchState> nodeQueue;
         private final Map<GraphNodeId, Duration> currentCost;
+        final List<GraphPathInMemory> foundPaths;
+
 
         private SearchState(GraphNodeId startNodeId, GraphPathInMemory pathToHere) {
             nodeQueue = new PriorityQueue<>();
             nodeQueue.add(new NodeSearchState(startNodeId, Duration.ZERO, pathToHere));
             currentCost = new HashMap<>();
             currentCost.put(startNodeId, Duration.ZERO);
+             foundPaths = new ArrayList<>();
         }
 
         public NodeSearchState getNext() {
@@ -324,6 +329,15 @@ public class FindPathsForJourney {
             }
         }
 
+        public List<GraphPathInMemory> getFoundPaths() {
+            return foundPaths;
+        }
+
+        public void addFoundPath(final GraphPathInMemory path) {
+            synchronized (foundPaths) {
+                foundPaths.add(path);
+            }
+        }
     }
 
     private static class NodeSearchState implements Comparable<NodeSearchState> {

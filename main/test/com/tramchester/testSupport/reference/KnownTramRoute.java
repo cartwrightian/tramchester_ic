@@ -135,6 +135,10 @@ public class KnownTramRoute {
             if (BuryLinesOctober2025.contains(date)) {
                 routes.add(getBusOne(date));
             }
+            if (TraffordBar2025.contains(date)) {
+                routes.add(getYellow(date));
+                routes.add(getBusOne(date));
+            }
         } else {
             routes.add(getGreen(date));
             routes.add(getYellow(date));
