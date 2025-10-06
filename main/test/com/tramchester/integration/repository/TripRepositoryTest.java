@@ -154,7 +154,7 @@ public class TripRepositoryTest {
     void shouldHaveTripsOnDateForEachStation() {
 
         List<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
-                flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
+                flatMap(date -> getOpenStations(date).map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> tripRepository.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
@@ -186,7 +186,7 @@ public class TripRepositoryTest {
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         UpcomingDates.getUpcomingDates().
-                forEach(date -> getStations(date).
+                forEach(date -> getOpenStations(date).
                         forEach(station -> {
                             final Set<Trip> trips = tripRepository.getTripsCallingAt(station, date);
                             final List<TramTime> timesToCheck = getTimesFor(times, station, date);
@@ -285,7 +285,7 @@ public class TripRepositoryTest {
         assertFalse(sundayTrips.isEmpty());
     }
 
-    private Stream<Station> getStations(final TramDate date) {
+    private Stream<Station> getOpenStations(final TramDate date) {
         return stationRepository.getStations(TramsOnly).stream().
                 filter(station -> !UpcomingDates.hasClosure(station, date));
     }

@@ -11,7 +11,6 @@ import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
@@ -58,21 +57,21 @@ public class FindPathsForJourney {
         // todo results into searchState
         final SearchState searchState = new SearchState(startNode.getId(), initialPath);
 
-        final HasJourneyState hasJourneyState = new HasJourneyState(journeyState);
+        //final HasJourneyState hasJourneyState = new HasJourneyState(journeyState);
 
         //final List<GraphPathInMemory> results = new ArrayList<>();
 
         while (searchState.hasNodes()) {
             final NodeSearchState nodeSearchState = searchState.getNext();
 //            final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNodeOnPath(nodeSearchState, hasJourneyState, searchState);
+            visitNodeOnPath(nodeSearchState, journeyState, searchState);
         }
 
         final List<GraphPathInMemory> results = searchState.getFoundPaths();
         return results.stream().map(item -> (GraphPath) item).toList();
     }
 
-    private void visitNodeOnPath(final NodeSearchState nodeSearchState, final HasJourneyState hasJourneyState,
+    private void visitNodeOnPath(final NodeSearchState nodeSearchState, final JourneyState existingState,
                                  final SearchState searchState) {
 
         final boolean debugEnabled = logger.isDebugEnabled();
@@ -85,7 +84,7 @@ public class FindPathsForJourney {
 
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
 
-        final ImmutableJourneyState existingState = hasJourneyState.getJourneyState();
+        //final ImmutableJourneyState existingState = hasJourneyState;
 
         final GraphEvaluationAction result = evaluator.evaluate(pathToCurrentNode, existingState);
 
@@ -111,7 +110,7 @@ public class FindPathsForJourney {
             return;
         }
 
-        final HasJourneyState graphStateForChildren = getNextState(pathToCurrentNode, hasJourneyState, currentNode);
+        final JourneyState graphStateForChildren = getNextState(pathToCurrentNode, existingState, currentNode);
 
         final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
 
@@ -170,9 +169,9 @@ public class FindPathsForJourney {
         }
     }
 
-    HasJourneyState getNextState(final GraphPath path, final HasJourneyState original, final GraphNode currentNode) {
+    JourneyState getNextState(final GraphPath path, final JourneyState currentJourneyState, final GraphNode currentNode) {
 
-        final ImmutableJourneyState currentJourneyState = original.getJourneyState();
+        //final ImmutableJourneyState currentJourneyState = original.getJourneyState();
         final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
 
         if (currentNode.getId().equals(startNode.getId())) {
@@ -185,9 +184,10 @@ public class FindPathsForJourney {
 
             journeyStateForChildren.updateTraversalState(nextTraversalState);
 
-            final HasJourneyState result = original.duplicate();
-            result.setState(journeyStateForChildren);
-            return result;
+            //final HasourneyState result = currentJourneyState.duplicate();
+            //result.setState(journeyStateForChildren);
+
+            return journeyStateForChildren;
 
         } else {
             final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
@@ -217,55 +217,48 @@ public class FindPathsForJourney {
 
             journeyStateForChildren.updateTraversalState(traversalStateForChildren);
 
-            final HasJourneyState result = original.duplicate();
+            //final JourneyState result = original.duplicate();
+            //result.setState(journeyStateForChildren);
 
-            result.setState(journeyStateForChildren);
-
-            return result;
+            return journeyStateForChildren;
 
         }
     }
 
-    private Stream<GraphRelationship> expand(final HasJourneyState currentState, final GraphNode currentNode) {
+    private Stream<GraphRelationship> expand(final JourneyState currentState, final GraphNode currentNode) {
 
         if (currentNode.getId().equals(startNode.getId())) {
 
             return startNode.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.forPlanning());
 
         } else {
-            final ImmutableJourneyState currentJourneyState = currentState.getJourneyState();
-            final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
+            //final ImmutableJourneyState currentJourneyState = currentState.getJourneyState();
+            final ImmutableTraversalState currentTraversalState = currentState.getTraversalState();
 
             return currentTraversalState.getOutbounds();
         }
     }
 
 
-    private static class HasJourneyState {
-        //private final SearchState searchState;
-        private JourneyState journeyState;
-
-        private HasJourneyState(JourneyState journeyState) {
-            this.journeyState = journeyState;
-            //this.searchState = searchState;
-        }
-
-        public ImmutableJourneyState getJourneyState() {
-            return journeyState;
-        }
-
-//        public SearchState getSearchState() {
-//            //return searchState;
+//    private static class HasJourneyState {
+//        private JourneyState journeyState;
+//
+//        private HasJourneyState(JourneyState journeyState) {
+//            this.journeyState = journeyState;
 //        }
-
-        public void setState(final JourneyState replacementState) {
-            this.journeyState = replacementState;
-        }
-
-        public HasJourneyState duplicate() {
-            return new HasJourneyState(JourneyState.fromPrevious(journeyState));
-        }
-    }
+//
+//        public ImmutableJourneyState getJourneyState() {
+//            return journeyState;
+//        }
+//
+//        public void setState(final JourneyState replacementState) {
+//            this.journeyState = replacementState;
+//        }
+//
+//        public HasJourneyState duplicate() {
+//            return new HasJourneyState(JourneyState.fromPrevious(journeyState));
+//        }
+//    }
 
     private static class SearchState {
         private final PriorityQueue<NodeSearchState> nodeQueue;

@@ -144,7 +144,7 @@ public class KnownTramRoute {
             routes.add(getYellow(date));
         }
 
-        if (AshtonBuryLinesOctober2025.equals(date)  || VictoriaBuryLinesOctober2025.equals(date)) {
+        if (VictoriaBuryLinesOctober2025.equals(date)) {
             routes.add(getBusOne(date));
             routes.add(getBusTwo(date));
         }

@@ -31,7 +31,7 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate AshtonBuryLinesOctober2025 = TramDate.of(2025,10,5);
+    //public static TramDate AshtonBuryLinesOctober2025 = TramDate.of(2025,10,5);
     public static TramDate VictoriaBuryLinesOctober2025 = TramDate.of(2025,10,19);
     public static DateRange BuryLinesOctober2025 = DateRange.of(TramDate.of(2025,10,25),
             TramDate.of(2025,10,31));
@@ -57,7 +57,10 @@ public class UpcomingDates {
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-        if (date.isEqual(AshtonBuryLinesOctober2025)) {
+//        if (date.isEqual(AshtonBuryLinesOctober2025)) {
+//            return true;
+//        }
+        if (date.isEqual(UpcomingDates.VictoriaBuryLinesOctober2025)) {
             return true;
         }
         return false;
