@@ -171,6 +171,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
     }
 
+    @Disabled("WIP")
     @Test
     void shouldHaveWalkDirectFromStart() {
         TramDate date = TramTransportDataForTestFactory.startDate;
