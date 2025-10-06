@@ -87,9 +87,8 @@ class TramRouteTest {
     void beforeEachTestRuns() {
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        //calculator = componentContainer.get(RouteCalculator.class);
 
-        queryDate = TramTransportDataForTestFactory.startDate; //   TramDate.of(2014,6,30);
+        queryDate = TramTransportDataForTestFactory.startDate;
         queryTime = TramTime.of(7, 57);
         StationRepository stationRepo = componentContainer.get(StationRepository.class);
 
@@ -237,7 +236,6 @@ class TramRouteTest {
 
     private Duration getWalkCost(Location<?> start, Station destination) {
         return geography.getWalkingDuration(start, destination);
-        //return (int) Math.ceil(duration.getSeconds()/60D);
     }
 
     @Test

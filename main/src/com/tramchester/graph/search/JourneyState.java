@@ -280,11 +280,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public String toString() {
         return "JourneyState{" +
-                "coreState=" + coreState +
+                "traversalState=" + traversalState +
+                ", coreState=" + coreState +
                 ", journeyOffset=" + journeyOffset +
                 ", boardingTime=" + boardingTime +
                 ", currentTrip=" + currentTrip +
-                ", traversalState=" + traversalState +
                 '}';
     }
 

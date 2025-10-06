@@ -16,6 +16,7 @@ import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,24 +55,19 @@ public class FindPathsForJourney {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
-        // todo results into searchState
         final SearchState searchState = new SearchState(startNode.getId(), initialPath);
-
-        //final HasJourneyState hasJourneyState = new HasJourneyState(journeyState);
-
-        //final List<GraphPathInMemory> results = new ArrayList<>();
+        searchState.setJourneyState(startNode.getId(), journeyState);
 
         while (searchState.hasNodes()) {
             final NodeSearchState nodeSearchState = searchState.getNext();
-//            final GraphNodeId nextId = nodeSearchState.getNodeId();
-            visitNodeOnPath(nodeSearchState, journeyState, searchState);
+            visitNodeOnPath(nodeSearchState, searchState);
         }
 
         final List<GraphPathInMemory> results = searchState.getFoundPaths();
         return results.stream().map(item -> (GraphPath) item).toList();
     }
 
-    private void visitNodeOnPath(final NodeSearchState nodeSearchState, final JourneyState existingState,
+    private void visitNodeOnPath(final NodeSearchState nodeSearchState,
                                  final SearchState searchState) {
 
         final boolean debugEnabled = logger.isDebugEnabled();
@@ -81,10 +77,11 @@ public class FindPathsForJourney {
 
         // TODO should include the node
         final GraphPathInMemory existingPath = nodeSearchState.getPathToHere();
-
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
 
-        //final ImmutableJourneyState existingState = hasJourneyState;
+        final JourneyState existingState = searchState.getJourneyStateFor(currentNodeId);
+
+        final JourneyState graphStateForChildren = getNextState(existingPath, existingState, currentNode);
 
         final GraphEvaluationAction result = evaluator.evaluate(pathToCurrentNode, existingState);
 
@@ -110,15 +107,20 @@ public class FindPathsForJourney {
             return;
         }
 
-        final JourneyState graphStateForChildren = getNextState(pathToCurrentNode, existingState, currentNode);
 
         final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
 
-        //final SearchState searchState = graphStateForChildren.getSearchState();
-        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
+        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId);
 
         final PriorityQueue<NodeSearchState> updatedNodes = new PriorityQueue<>();
         final PriorityQueue<NodeSearchState> notVisitedYet = new PriorityQueue<>();
+
+        if (existingState.getTraversalStateType().equals(TraversalStateType.NotStartedState)) {
+            final NodeSearchState state = new NodeSearchState(currentNodeId, Duration.ZERO, existingPath);
+            searchState.addCostAndQueue(state.getNodeId(), state.duration, state.getPathToHere());
+            searchState.setJourneyState(currentNodeId, graphStateForChildren);
+            return;
+        }
 
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
@@ -151,47 +153,40 @@ public class FindPathsForJourney {
             }
         });
 
-        if (depthFirst) {
-            notVisitedYet.forEach(state -> {
-                visitNodeOnPath(state, graphStateForChildren, searchState);
-            });
-            updatedNodes.forEach(state -> {
-                visitNodeOnPath(state, graphStateForChildren, searchState);
-            });
-        } else {
-            //throw new RuntimeException("Not implemented/tested yet");
+//        if (depthFirst) {
+//            notVisitedYet.forEach(state -> {
+//                visitNodeOnPath(state, graphStateForChildren, searchState);
+//            });
+//            updatedNodes.forEach(state -> {
+//                visitNodeOnPath(state, graphStateForChildren, searchState);
+//            });
+//        } else {
             notVisitedYet.forEach(state -> {
                 searchState.addCostAndQueue(state.getNodeId(), state.duration, state.getPathToHere());
+                searchState.setJourneyState(state.getNodeId(), graphStateForChildren);
             });
             updatedNodes.forEach(state -> {
                 searchState.updateCostAndQueue(state.getNodeId(), state.duration, state.getPathToHere());
+                searchState.setJourneyState(state.getNodeId(), graphStateForChildren);
             });
-        }
+//        }
     }
 
-    JourneyState getNextState(final GraphPath path, final JourneyState currentJourneyState, final GraphNode currentNode) {
+    JourneyState getNextState(final GraphPath pathToHere, final JourneyState currentJourneyState, final GraphNode currentNode) {
 
-        //final ImmutableJourneyState currentJourneyState = original.getJourneyState();
         final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
 
+        final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
+
         if (currentNode.getId().equals(startNode.getId())) {
-
             // point to 'real' start node -> mirroring the way the existing implementation works
-            final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
-
             final ImmutableTraversalState nextTraversalState = currentTraversalState.nextState(startNode.getLabels(), startNode,
                     journeyStateForChildren, Duration.ZERO);
-
             journeyStateForChildren.updateTraversalState(nextTraversalState);
 
-            //final HasourneyState result = currentJourneyState.duplicate();
-            //result.setState(journeyStateForChildren);
-
-            return journeyStateForChildren;
-
         } else {
-            final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
-            final GraphRelationship lastRelationship = path.getLastRelationship(txn);
+            //final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
+            final GraphRelationship lastRelationship = pathToHere.getLastRelationship(txn);
 
             final Duration cost = lastRelationship.getCost();
 
@@ -206,23 +201,22 @@ public class FindPathsForJourney {
                 journeyStateForChildren.beginDiversion(stationId);
             }
 
-            final GraphNode endPathNode =  path.getEndNode(txn);
-            if (!endPathNode.getId().equals(currentNode.getId())) {
-                throw new RuntimeException("end node mismatch " + path + " current node " + currentNode);
+            // sanity check
+            //final GraphRelationship lastRelationship =  pathToHere.getLastRelationship(txn);
+            if (!lastRelationship.getEndNodeId(txn).equals(currentNode.getId())) {
+                throw new RuntimeException("end node mismatch " + pathToHere + " current node " + currentNode);
             }
-            final EnumSet<GraphLabel> labels = endPathNode.getLabels();
+            //GraphNode endPathNode = lastRelationship.getEndNode(txn);
 
-            final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
+            final EnumSet<GraphLabel> labels = currentNode.getLabels();
+            final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, currentNode,
                     journeyStateForChildren, cost);
 
             journeyStateForChildren.updateTraversalState(traversalStateForChildren);
-
-            //final JourneyState result = original.duplicate();
-            //result.setState(journeyStateForChildren);
-
-            return journeyStateForChildren;
-
         }
+
+        return journeyStateForChildren;
+
     }
 
     private Stream<GraphRelationship> expand(final JourneyState currentState, final GraphNode currentNode) {
@@ -239,39 +233,20 @@ public class FindPathsForJourney {
         }
     }
 
-
-//    private static class HasJourneyState {
-//        private JourneyState journeyState;
-//
-//        private HasJourneyState(JourneyState journeyState) {
-//            this.journeyState = journeyState;
-//        }
-//
-//        public ImmutableJourneyState getJourneyState() {
-//            return journeyState;
-//        }
-//
-//        public void setState(final JourneyState replacementState) {
-//            this.journeyState = replacementState;
-//        }
-//
-//        public HasJourneyState duplicate() {
-//            return new HasJourneyState(JourneyState.fromPrevious(journeyState));
-//        }
-//    }
-
     private static class SearchState {
         private final PriorityQueue<NodeSearchState> nodeQueue;
         private final Map<GraphNodeId, Duration> currentCost;
-        final List<GraphPathInMemory> foundPaths;
+        private final Map<GraphNodeId, JourneyState> journeyStates;
 
+        final List<GraphPathInMemory> foundPaths;
 
         private SearchState(GraphNodeId startNodeId, GraphPathInMemory pathToHere) {
             nodeQueue = new PriorityQueue<>();
             nodeQueue.add(new NodeSearchState(startNodeId, Duration.ZERO, pathToHere));
             currentCost = new HashMap<>();
             currentCost.put(startNodeId, Duration.ZERO);
-             foundPaths = new ArrayList<>();
+            foundPaths = new ArrayList<>();
+            journeyStates = new HashMap<>();
         }
 
         public NodeSearchState getNext() {
@@ -296,7 +271,7 @@ public class FindPathsForJourney {
             return currentCost.containsKey(endNodeId);
         }
 
-        public void updateCostAndQueue(GraphNodeId graphNodeId, Duration duration, GraphPathInMemory graphPath) {
+        public void updateCostAndQueue(final GraphNodeId graphNodeId, final Duration duration, final GraphPathInMemory graphPath) {
             final NodeSearchState update = new NodeSearchState(graphNodeId, duration, graphPath);
 
             synchronized (nodeQueue) {
@@ -313,12 +288,16 @@ public class FindPathsForJourney {
         public void addCostAndQueue(GraphNodeId graphNodeId, Duration duration, GraphPathInMemory graphPath) {
             final NodeSearchState update = new NodeSearchState(graphNodeId, duration, graphPath);
 
+            addCostAndQueue(update);
+        }
+
+        private void addCostAndQueue(NodeSearchState update) {
             synchronized (nodeQueue) {
                 if (nodeQueue.contains(update)) {
-                    throw new RuntimeException("Already in queue " + graphNodeId);
+                    throw new RuntimeException("Already in queue " + update.getNodeId());
                 }
                 nodeQueue.add(update);
-                currentCost.put(graphNodeId, duration);
+                currentCost.put(update.getNodeId(), update.duration);
             }
         }
 
@@ -330,6 +309,26 @@ public class FindPathsForJourney {
             synchronized (foundPaths) {
                 foundPaths.add(path);
             }
+        }
+
+        @Override
+        public String toString() {
+            return "SearchState{" +
+                    "nodeQueue=" + nodeQueue +
+                    ", currentCost=" + currentCost +
+                    ", foundPaths=" + foundPaths +
+                    '}';
+        }
+
+        public void setJourneyState(final GraphNodeId id, final JourneyState journeyState) {
+            journeyStates.put(id, journeyState);
+        }
+
+        public JourneyState getJourneyStateFor(final GraphNodeId nodeId) {
+            if (!journeyStates.containsKey(nodeId)) {
+                throw new RuntimeException("No journey state for " + nodeId);
+            }
+            return journeyStates.get(nodeId);
         }
     }
 
