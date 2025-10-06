@@ -129,7 +129,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4',
             'org.junit.platform:junit-platform-launcher:1.13.4',
             'org.easymock:easymock:5.6.0',
-            'org.seleniumhq.selenium:selenium-java:4.35.0',
+            'org.seleniumhq.selenium:selenium-java:4.36.0',
             'org.hamcrest:hamcrest:3.0'
 
     testImplementation("org.javassist:javassist:3.30.2-GA")
