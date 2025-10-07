@@ -67,7 +67,7 @@ class PathSearchState {
         addCostAndQueue(update);
     }
 
-    private void addCostAndQueue(NodeSearchState update) {
+    private void addCostAndQueue(final NodeSearchState update) {
         synchronized (nodeQueue) {
             if (nodeQueue.contains(update)) {
                 throw new RuntimeException("Already in queue " + update.getNodeId());
@@ -119,8 +119,11 @@ class PathSearchState {
         }
 
         @Override
-        public int compareTo(NodeSearchState other) {
-            return this.duration.compareTo(other.duration);
+        public int compareTo(final NodeSearchState other) {
+            // depth first
+            return Integer.compare(other.pathToHere.length(), pathToHere.length());
+
+            //return this.duration.compareTo(other.duration);
         }
 
         public GraphNodeId getNodeId() {

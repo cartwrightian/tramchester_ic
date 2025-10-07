@@ -155,7 +155,7 @@ public class CompareNeo4JWithInMemoryTest {
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
         EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0,
                 maxJourneyDuration, maxNumResults, requestedModes);
 
         TramStations begin = Altrincham;
