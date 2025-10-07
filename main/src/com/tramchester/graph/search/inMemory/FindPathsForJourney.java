@@ -16,12 +16,13 @@ import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
@@ -112,12 +113,12 @@ public class FindPathsForJourney {
         final PriorityQueue<PathSearchState.NodeSearchState> updatedNodes = new PriorityQueue<>();
         final PriorityQueue<PathSearchState.NodeSearchState> notVisitedYet = new PriorityQueue<>();
 
-        if (existingState.getTraversalStateType().equals(TraversalStateType.NotStartedState)) {
-            final PathSearchState.NodeSearchState state = new PathSearchState.NodeSearchState(currentNodeId, Duration.ZERO, existingPath);
-            searchState.addCostAndQueue(state.getNodeId(), state.getDuration(), state.getPathToHere());
-            searchState.setJourneyState(currentNodeId, graphStateForChildren);
-            return;
-        }
+//        if (existingState.getTraversalStateType().equals(TraversalStateType.NotStartedState)) {
+//            final PathSearchState.NodeSearchState state = new PathSearchState.NodeSearchState(currentNodeId, Duration.ZERO, existingPath);
+//            searchState.addCostAndQueue(state.getNodeId(), state.getDuration(), state.getPathToHere());
+//            searchState.setJourneyState(currentNodeId, graphStateForChildren);
+//            return;
+//        }
 
         final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId);
         outgoing.forEach(graphRelationship -> {

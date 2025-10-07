@@ -161,13 +161,19 @@ public class CompareNeo4JWithInMemoryTest {
         TramStations begin = Altrincham;
         TramStations dest = OldTrafford;
 
-        List<Journey> journeysInMem = calculatorInMem.calculateRouteAsList(begin, dest, journeyRequest);
+        List<Journey> journeysInMem = sortedByArrivalTime(calculatorInMem.calculateRouteAsList(begin, dest, journeyRequest));
         assertFalse(journeysInMem.isEmpty(), journeyRequest.toString());
 
-        List<Journey> journeysNeo4J = calculatorNeo4J.calculateRouteAsList(begin, dest, journeyRequest);
+        List<Journey> journeysNeo4J = sortedByArrivalTime(calculatorNeo4J.calculateRouteAsList(begin, dest, journeyRequest));
         assertFalse(journeysNeo4J.isEmpty(), journeyRequest.toString());
 
         assertEquals(journeysNeo4J, journeysInMem);
+    }
+
+    private List<Journey> sortedByArrivalTime(final List<Journey> journeys) {
+        List<Journey> result = new ArrayList<>(journeys);
+        result.sort(Comparator.comparing(Journey::getArrivalTime));
+        return result;
     }
 
     private <T extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> void checkForType(Collection<T> items) {
