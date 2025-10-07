@@ -76,6 +76,7 @@ public class FindPathsForJourney {
 
         // TODO should include the node
         final GraphPathInMemory existingPath = nodeSearchState.getPathToHere();
+
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
 
         final JourneyState existingState = searchState.getJourneyStateFor(currentNodeId);
@@ -106,10 +107,7 @@ public class FindPathsForJourney {
             return;
         }
 
-
         final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
-
-        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId);
 
         final PriorityQueue<PathSearchState.NodeSearchState> updatedNodes = new PriorityQueue<>();
         final PriorityQueue<PathSearchState.NodeSearchState> notVisitedYet = new PriorityQueue<>();
@@ -121,6 +119,7 @@ public class FindPathsForJourney {
             return;
         }
 
+        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId);
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
             final GraphNode endRelationshipNode = graphRelationship.getEndNode(txn);

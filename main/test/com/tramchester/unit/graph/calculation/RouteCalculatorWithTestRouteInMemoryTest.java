@@ -155,6 +155,27 @@ class RouteCalculatorWithTestRouteInMemoryTest {
         TramRouteCalculator tramRouteCalculator = componentContainer.get(TramRouteCalculator.class);
 
         Station begin = transportData.getFirst();
+        Station dest = transportData.getLast();
+
+        TramDate queryDate = TramTransportDataForTestFactory.startDate;
+        TramTime queryTime = TramTime.of(7, 57);
+
+        JourneyRequest request = standardJourneyRequest(queryDate, queryTime, 1);
+        Running running = () -> true;
+
+        request.setDiag(true);
+
+        List<Journey> result = tramRouteCalculator.calculateRoute(txn, begin, dest, request, running).toList();
+
+        assertFalse(result.isEmpty());
+
+    }
+
+    @Test
+    void shouldDoInMemoryRouteCalcWithChange() {
+        TramRouteCalculator tramRouteCalculator = componentContainer.get(TramRouteCalculator.class);
+
+        Station begin = transportData.getFirst();
         Station dest = transportData.getFifthStation();
 
         TramDate queryDate = TramTransportDataForTestFactory.startDate;
