@@ -131,11 +131,7 @@ public class FindPathsForJourney {
                 final Duration currentDurationForEnd = searchState.getCurrentCost(endRelationshipNodeId);
                 if (newCost.compareTo(currentDurationForEnd) < 0) {
                     updatedNodes.add(new PathSearchState.NodeSearchState(endRelationshipNodeId, newCost, continuePath));
-                    if (depthFirst) {
-                        searchState.updateCost(endRelationshipNodeId, newCost);
-                    } else {
-                        searchState.updateCostAndQueue(endRelationshipNodeId, newCost, continuePath);
-                    }
+
                 } // else no update, not lower cost
             } else {
                 searchState.updateCost(endRelationshipNodeId, newCost);
@@ -151,6 +147,12 @@ public class FindPathsForJourney {
 
         updatedNodes.forEach(toUpdate -> {
             final GraphNodeId nodeId = toUpdate.getNodeId();
+            if (depthFirst) {
+                searchState.updateCost(nodeId, toUpdate.getDuration());
+            } else {
+                searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(),  toUpdate.getPathToHere());
+            }
+
             searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(), toUpdate.getPathToHere());
             searchState.setJourneyState(nodeId, graphStateForChildren);
         });

@@ -44,18 +44,22 @@ class PathSearchState {
     }
 
     public boolean hasSeen(final GraphNodeId endNodeId) {
-        return currentCost.containsKey(endNodeId);
+        // can this get out of sink with the nodeQueue? i.e. have a cost but not corresponding node in the queue?
+        synchronized (nodeQueue) {
+            return currentCost.containsKey(endNodeId);
+        }
     }
 
     public void updateCostAndQueue(final GraphNodeId graphNodeId, final Duration duration, final GraphPathInMemory graphPath) {
         final NodeSearchState update = new NodeSearchState(graphNodeId, duration, graphPath);
 
         synchronized (nodeQueue) {
+            // clunky, relies on NodeSearchState defining equals to be on NodeId only
             if (nodeQueue.contains(update)) {
                 nodeQueue.remove(update);
                 nodeQueue.add(update);
             } else {
-                throw new RuntimeException("Node was not in the queue " + graphNodeId);
+                throw new RuntimeException("Node was not in the queue " + graphNodeId + " for " + update);
             }
             currentCost.put(graphNodeId, duration);
         }
