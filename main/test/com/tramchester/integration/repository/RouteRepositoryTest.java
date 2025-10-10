@@ -183,6 +183,7 @@ public class RouteRepositoryTest {
         EnumSet<TFGMRouteNames> known = EnumSet.allOf(TFGMRouteNames.class);
         known.remove(TFGMRouteNames.BusOne);
         known.remove(TFGMRouteNames.BusTwo);
+        known.remove(TFGMRouteNames.BusThree);
 
         Set<RoutePair> noOverlap = new HashSet<>();
 
@@ -206,6 +207,7 @@ public class RouteRepositoryTest {
         EnumSet<TFGMRouteNames> known = EnumSet.allOf(TFGMRouteNames.class);
         known.remove(TFGMRouteNames.BusOne);
         known.remove(TFGMRouteNames.BusTwo);
+        known.remove(TFGMRouteNames.BusThree);
 
         known.remove(TFGMRouteNames.Purple);
         known.remove(TFGMRouteNames.Yellow);

@@ -153,7 +153,7 @@ public class FindPathsForJourney {
                 searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(),  toUpdate.getPathToHere());
             }
 
-            searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(), toUpdate.getPathToHere());
+            //searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(), toUpdate.getPathToHere());
             searchState.setJourneyState(nodeId, graphStateForChildren);
         });
     }

@@ -1,6 +1,7 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
@@ -10,11 +11,12 @@ import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,9,29);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,10,4);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -23,11 +25,15 @@ public class KnownTramRoute {
      * @return Replacement Buses
      */
     public static @NotNull KnownTramRouteEnum getBusOne(TramDate date) {
-        return findFor(TFGMRouteNames.BusOne, date);
+        return findFor(BusOne, date);
     }
 
     public static @NotNull KnownTramRouteEnum getBusTwo(TramDate date) {
-        return findFor(TFGMRouteNames.BusTwo, date);
+        return findFor(BusTwo, date);
+    }
+
+    public static @NotNull KnownTramRouteEnum getBusThree(TramDate date) {
+        return findFor(BusThree, date);
     }
 
 
@@ -35,49 +41,49 @@ public class KnownTramRoute {
      * @return Yellow route
      */
     public static @NotNull KnownTramRouteEnum getYellow(TramDate date) {
-        return findFor(TFGMRouteNames.Yellow, date);
+        return findFor(Yellow, date);
     }
 
     /***
      * @return Red route
      */
     public static @NotNull KnownTramRouteEnum getRed(TramDate date) {
-        return findFor(TFGMRouteNames.Red, date);
+        return findFor(Red, date);
     }
 
     /***
      * @return Purple route
      */
     public static @NotNull KnownTramRouteEnum getPurple(TramDate date) {
-        return findFor(TFGMRouteNames.Purple, date);
+        return findFor(Purple, date);
     }
 
     /***
      * @return Pink route
      */
     public static @NotNull KnownTramRouteEnum getPink(TramDate date) {
-        return findFor(TFGMRouteNames.Pink, date);
+        return findFor(Pink, date);
     }
 
     /***
      * @return Navy route
      */
     public static @NotNull KnownTramRouteEnum getNavy(TramDate date) {
-        return findFor(TFGMRouteNames.Navy, date);
+        return findFor(Navy, date);
     }
 
     /***
      * @return Green route
      */
     public static @NotNull KnownTramRouteEnum getGreen(TramDate date) {
-        return findFor(TFGMRouteNames.Green, date);
+        return findFor(Green, date);
     }
 
     /***
      * @return Blue route
      */
     public static @NotNull KnownTramRouteEnum getBlue(TramDate date) {
-        return findFor(TFGMRouteNames.Blue, date);
+        return findFor(Blue, date);
     }
 
     public static KnownTramRouteEnum findFor(final TFGMRouteNames line, final TramDate date) {
@@ -132,12 +138,16 @@ public class KnownTramRoute {
                     BuryLinesOctober2025.contains(date)) {
                 routes.add(getYellow(date));
             }
-            if (BuryLinesOctober2025.contains(date)) {
+            if (VictoriaBuryLinesOctober2025.equals(date)) {
                 routes.add(getBusOne(date));
+                routes.add(getBusThree(date));
             }
             if (TraffordBar2025.contains(date)) {
                 routes.add(getYellow(date));
                 routes.add(getBusOne(date));
+            }
+            if (date.equals(TramDate.of(2025, 11, 9))) {
+                routes.add(getYellow(date));
             }
         } else {
             routes.add(getGreen(date));
@@ -147,6 +157,11 @@ public class KnownTramRoute {
         if (VictoriaBuryLinesOctober2025.equals(date)) {
             routes.add(getBusOne(date));
             routes.add(getBusTwo(date));
+        }
+
+        DateRange busOneStillInData = DateRange.of(TraffordBar2025.getEndDate(), 10);
+        if (BuryLinesOctober2025.contains(date) || TraffordBar2025.contains(date) || busOneStillInData.contains(date)) {
+            routes.add(getBusOne(date));
         }
 
         routes.add(getBlue(date));

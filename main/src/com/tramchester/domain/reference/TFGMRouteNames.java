@@ -6,6 +6,7 @@ import java.util.Map;
 public enum TFGMRouteNames {
     BusOne("Replacement Bus 1"),
     BusTwo("Replacement Bus 2"),
+    BusThree("Replacement Bus 3"),
     Red("Red Line"),
     Pink("Pink Line"),
     Purple("Purple Line"),
