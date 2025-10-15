@@ -114,7 +114,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
             if (fullLogging) {
-                reasons.reportReasons(txn, pathRequest.getNumChanges(), destinations);
+                reasons.reportReasons(txn, pathRequest, destinations);
                 previousVisits.reportStats();
             }
             //traversalState.dispose();

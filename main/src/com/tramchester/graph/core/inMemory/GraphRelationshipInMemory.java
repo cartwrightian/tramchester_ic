@@ -6,6 +6,8 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
+import java.util.Objects;
+
 public class GraphRelationshipInMemory extends GraphRelationshipProperties<PropertyContainer> {
     private final TransportRelationshipTypes relationshipType;
     private final GraphRelationshipId id;
@@ -110,4 +112,16 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        GraphRelationshipInMemory that = (GraphRelationshipInMemory) o;
+        return relationshipType == that.relationshipType && Objects.equals(id, that.id)
+                && Objects.equals(start, that.start) && Objects.equals(end, that.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(relationshipType, id, start, end);
+    }
 }

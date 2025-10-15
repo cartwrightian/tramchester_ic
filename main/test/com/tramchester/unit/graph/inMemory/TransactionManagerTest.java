@@ -35,6 +35,7 @@ public class TransactionManagerTest {
     void onceBeforeEachTestRuns() {
         ProvidesNow providesNow = new ProvidesLocalNow();
         Graph graph = new Graph();
+        graph.start();
         transactionManager = new TransactionManager(providesNow, graph);
     }
 

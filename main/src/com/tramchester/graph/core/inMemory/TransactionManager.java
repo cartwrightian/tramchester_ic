@@ -7,6 +7,7 @@ import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.TransactionObserver;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @LazySingleton
 public class TransactionManager implements TransactionObserver {
+    private static final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
     private final AtomicInteger transactionId;
     private final ProvidesNow providesNow;

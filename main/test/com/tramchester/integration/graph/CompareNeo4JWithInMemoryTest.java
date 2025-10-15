@@ -149,7 +149,7 @@ public class CompareNeo4JWithInMemoryTest {
         checkForType(stationRepository.getRouteStations());
     }
 
-    @Disabled("WIP")
+    //@Disabled("WIP")
     @Test
     void shouldCompareSameJourney() {
 

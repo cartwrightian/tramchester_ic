@@ -10,8 +10,11 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -38,9 +41,29 @@ public class Graph {
         nodes = new ConcurrentHashMap<>();
         relationshipsForNodes = new ConcurrentHashMap<>();
         labelsToNodes = new ConcurrentHashMap<>();
+
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.info("Starting");
         for(GraphLabel label : GraphLabel.values()) {
             labelsToNodes.put(label, new HashSet<>());
         }
+        logger.info("started");
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stop");
+        logger.error("reinstate");
+//        nextGraphNodeId.set(0);
+//        nextRelationshipId.set(0);
+//        relationships.clear();
+//        nodes.clear();
+//        relationshipsForNodes.clear();
+//        labelsToNodes.clear();
+        logger.info("stopped");
     }
 
     public synchronized GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
@@ -52,10 +75,12 @@ public class Graph {
         return graphNodeInMemory;
     }
 
-    public synchronized GraphRelationshipInMemory createRelationship(TransportRelationshipTypes relationshipType,
-                                                                     GraphNodeInMemory begin, GraphNodeInMemory end) {
+    public synchronized GraphRelationshipInMemory createRelationship(final TransportRelationshipTypes relationshipType,
+                                                                     final GraphNodeInMemory begin,
+                                                                     final GraphNodeInMemory end) {
         final int id = nextRelationshipId.getAndIncrement();
-        final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType, new RelationshipIdInMemory(id), begin, end);
+        final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
+                new RelationshipIdInMemory(id), begin, end);
         final GraphRelationshipId relationshipId = relationship.getId();
         relationships.put(relationshipId, relationship);
         addOutboundTo(begin.getId(), relationshipId);
@@ -63,14 +88,14 @@ public class Graph {
         return relationship;
     }
 
-    private void addInboundTo(GraphNodeId id, GraphRelationshipId relationshipId) {
+    private void addInboundTo(final GraphNodeId id, final GraphRelationshipId relationshipId) {
         if (!relationshipsForNodes.containsKey(id)) {
             relationshipsForNodes.put(id, new RelationshipsForNode());
         }
         relationshipsForNodes.get(id).addInbound(relationshipId);
     }
 
-    private void addOutboundTo(GraphNodeId id, GraphRelationshipId relationshipId) {
+    private void addOutboundTo(final GraphNodeId id, final GraphRelationshipId relationshipId) {
         if (!relationshipsForNodes.containsKey(id)) {
             relationshipsForNodes.put(id, new RelationshipsForNode());
         }
@@ -88,7 +113,8 @@ public class Graph {
             return switch (direction) {
                 case Outgoing -> relationshipsForNode.getOutbound(relationships);
                 case Incoming -> relationshipsForNode.getInbound(relationships);
-                case Both -> Stream.concat(relationshipsForNode.getOutbound(relationships), relationshipsForNode.getInbound(relationships));
+                case Both -> Stream.concat(relationshipsForNode.getOutbound(relationships),
+                        relationshipsForNode.getInbound(relationships));
             };
         } else {
             logger.info("node " + id + " has not relationships");
@@ -103,8 +129,8 @@ public class Graph {
             throw new GraphException(msg);
         }
         final GraphRelationshipInMemory relationship = relationships.get(id);
-        GraphNodeId begin = relationship.getStartId();
-        GraphNodeId end = relationship.getEndId();
+        final GraphNodeId begin = relationship.getStartId();
+        final GraphNodeId end = relationship.getEndId();
 
         deleteRelationshipFrom(begin, id);
         deleteRelationshipFrom(end, id);
@@ -173,6 +199,35 @@ public class Graph {
                 map(item -> item);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Graph graph = (Graph) o;
+        return Objects.equals(nextGraphNodeId.get(), graph.nextGraphNodeId.get()) &&
+                Objects.equals(nextRelationshipId.get(), graph.nextRelationshipId.get()) &&
+                Objects.equals(relationships, graph.relationships) &&
+                Objects.equals(nodes, graph.nodes) &&
+                Objects.equals(relationshipsForNodes, graph.relationshipsForNodes) &&
+                Objects.equals(labelsToNodes, graph.labelsToNodes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nextGraphNodeId, nextRelationshipId, relationships, nodes, relationshipsForNodes, labelsToNodes);
+    }
+
+    @Override
+    public String toString() {
+        return "Graph{" +
+                "nextGraphNodeId=" + nextGraphNodeId +
+                ", nextRelationshipId=" + nextRelationshipId +
+                ", relationships=" + relationships +
+                ", nodes=" + nodes +
+                ", relationshipsForNodes=" + relationshipsForNodes +
+                ", labelsToNodes=" + labelsToNodes +
+                '}';
+    }
+
     private static class RelationshipsForNode {
         private final Set<GraphRelationshipId> outbound;
         private final Set<GraphRelationshipId> inbound;
@@ -182,11 +237,11 @@ public class Graph {
             inbound = new HashSet<>();
         }
 
-        public Stream<GraphRelationshipInMemory> getOutbound(ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
+        public Stream<GraphRelationshipInMemory> getOutbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
             return outbound.stream().map(relationships::get);
         }
 
-        public Stream<GraphRelationshipInMemory> getInbound(ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
+        public Stream<GraphRelationshipInMemory> getInbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
             return inbound.stream().map(relationships::get);
         }
 
@@ -221,6 +276,18 @@ public class Graph {
                     "outbound=" + outbound +
                     ", inbound=" + inbound +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            RelationshipsForNode that = (RelationshipsForNode) o;
+            return Objects.equals(outbound, that.outbound) && Objects.equals(inbound, that.inbound);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(outbound, inbound);
         }
     }
 }

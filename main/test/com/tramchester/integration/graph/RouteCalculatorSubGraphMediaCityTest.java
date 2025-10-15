@@ -153,6 +153,26 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
+    // repro in memory failure
+    // org.opentest4j.AssertionFailedError: [(TramDate{epochDays=20379, dayOfWeek=SATURDAY, date=2025-10-18},
+    // LocationIdsAndNames{items=[StationIdAndNamePair{Exchange Quay[Id{'Station:9400ZZMAEXC'}],
+    // MediaCityUK[Id{'Station:9400ZZMAMCU'}]}]})]
+    // NOTES
+    // fails immediately or passes for many repeats
+    @Test
+    void reproduceInMemoryFailureForExchangeQuayToMediaCity() {
+        TramDate date = TramDate.of(2025,10,16);
+        TramTime queryTime = TramTime.of(8, 15);
+
+        JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, 1,
+                maxJourneyDuration, 1, getRequestedModes());
+
+        List<Journey> results = calculator.calculateRouteAsList(ExchangeQuay, MediaCityUK, journeyRequest);
+
+        assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", ExchangeQuay, MediaCityUK, date, queryTime));
+
+    }
+
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 

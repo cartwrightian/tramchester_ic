@@ -6,19 +6,52 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @LazySingleton
 public class GraphDatabaseInMemory implements GraphDatabase {
+    private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseInMemory.class);
 
     private final TransactionManager transactionManager;
     static Duration DEFAULT_TIMEOUT = Duration.ofMinutes(1);
 
+    private final AtomicBoolean started = new AtomicBoolean(false);
+
     @Inject
     public GraphDatabaseInMemory(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.warn("EXPERIMENTAL");
+        if (started.get()) {
+            throw new RuntimeException("Already started");
+        }
+        logger.info("starting");
+        started.set(true);
+        logger.info("started");
+    }
+
+    @PreDestroy
+    public void stop() {
+        if (started.get()) {
+            logger.info("stopped");
+        } else {
+            logger.warn("Not running");
+        }
+    }
+
+    void guardForNotStarted() {
+        if (!started.get()) {
+            throw new RuntimeException("Not started");
+        }
     }
 
     @Override
@@ -37,6 +70,7 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     }
 
     private MutableGraphTransaction beginTxInMemory(final Duration timeout) {
+        guardForNotStarted();
         return transactionManager.createTransaction(timeout);
     }
 
@@ -62,12 +96,13 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @Override
     public MutableGraphTransaction beginTimedTxMutable(Logger logger, String text) {
+        guardForNotStarted();
         return transactionManager.createTimedTransaction(logger, text);
     }
 
     @Override
     public boolean isAvailable(long timeoutMillis) {
-        return true;
+        return started.get();
     }
 
     @Override

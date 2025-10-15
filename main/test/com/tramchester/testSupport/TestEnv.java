@@ -78,6 +78,10 @@ public class TestEnv {
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
+    public static GraphDBType getDefaultDBTYpe() {
+        return GraphDBType.Neo4J;
+    }
+
     public static AppConfiguration GET() {
         return new TestConfig(getDefaultDBTYpe()) {
             @Override
@@ -87,9 +91,7 @@ public class TestEnv {
         };
     }
 
-    public static GraphDBType getDefaultDBTYpe() {
-        return GraphDBType.Neo4J;
-    }
+
 
 //    public static final DateRange cornbrookClosed = new DateRange(TramDate.of(2024,10,5), TramDate.of(2024, 10,6));
 

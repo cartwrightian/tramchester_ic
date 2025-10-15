@@ -93,13 +93,14 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         PathRequest pathRequest = createMock(PathRequest.class);
         EasyMock.expect(pathRequest.getNumChanges()).andReturn(3);
+        EasyMock.expect(pathRequest.getActualQueryTime()).andReturn(time);
 
         HeuristicsReason serviceReasonA = HeuristicsReasons.AlreadyDeparted(TramTime.of(15, 33), howIGotHere);
         HeuristicsReason serviceReasonB = HeuristicsReasons.DoesNotOperateAtHour(TramTime.of(16,32),
                 howIGotHere, 13);
 
         List<StationDiagnosticsDTO> dtos = new ArrayList<>();
-        List<LocationRefWithPosition> destinationDTOs = Arrays.asList(new LocationRefWithPosition(dest));
+        List<LocationRefWithPosition> destinationDTOs = List.of(new LocationRefWithPosition(dest));
         JourneyDiagnostics someDiags = new JourneyDiagnostics(dtos, destinationDTOs, 1, 1);
         List<HeuristicsReason> reasons = Arrays.asList(serviceReasonA, serviceReasonB);
         EasyMock.expect(failedJourneyDiagnostics.recordFailedJourneys(reasons, destinations)).andReturn(someDiags);
@@ -110,7 +111,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         serviceReasons.recordReason(serviceReasonB);
         Map<GraphNodeId, Integer> nodeVisits = serviceReasons.getNodeVisits();
 
-        serviceReasons.reportReasons(txn, pathRequest.getNumChanges(), destinations);
+        serviceReasons.reportReasons(txn, pathRequest, destinations);
         verifyAll();
 
 

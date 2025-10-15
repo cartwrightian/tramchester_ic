@@ -10,6 +10,7 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -62,15 +63,14 @@ public class ServiceReasons {
         nodeVisits = new HashMap<>();
     }
 
-    public void reportReasons(final GraphTransaction txn, int numberChanges,
-                              final LocationCollection destinations) {
+    public void reportReasons(final GraphTransaction txn, final PathRequest pathRequest, final LocationCollection destinations) {
         if (diagnosticsEnabled) {
             final JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons, destinations);
             journeyRequest.injectDiag(diagnostics);
         }
 
         if (!success.get() || diagnosticsEnabled) {
-            reportStats(txn, numberChanges);
+            reportStats(txn, pathRequest);
         }
 
         reset();
@@ -156,10 +156,11 @@ public class ServiceReasons {
         };
     }
 
-    private void reportStats(final GraphTransaction txn, final int numberChanges) {
+    private void reportStats(final GraphTransaction txn, final PathRequest pathRequest) {
+        int numberOfChanges = pathRequest.getNumChanges();
+        TramTime actualTime = pathRequest.getActualQueryTime();
         if ((!success.get()) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for at " + journeyRequest.getOriginalTime() + " changes " + numberChanges +
-                    " for " + journeyRequest );
+            logger.warn("No result found at " + actualTime + " changes " + numberOfChanges + " for " + journeyRequest );
         }
         logger.info("Service reasons for query time: " + queryTime);
         logCounters();
