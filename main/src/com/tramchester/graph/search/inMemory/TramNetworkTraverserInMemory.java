@@ -23,8 +23,8 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
     private final GraphTransaction txn;
     private final LocationCollection destinations;
 
-    public TramNetworkTraverserInMemory(TramchesterConfig config, Set<GraphNodeId> destinationNodeIds,
-                                        GraphTransaction txn, LocationCollection destinations) {
+    public TramNetworkTraverserInMemory(final TramchesterConfig config, final Set<GraphNodeId> destinationNodeIds,
+                                        final GraphTransaction txn, final LocationCollection destinations) {
         this.config = config;
         this.destinationNodeIds = destinationNodeIds;
         this.txn = txn;
@@ -32,13 +32,11 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
     }
 
     @Override
-    public Stream<GraphPath> findPaths(PathRequest pathRequest, PreviousVisits previousVisits, ServiceReasons reasons,
-                                       LowestCostSeen lowestCostSeen, TowardsDestination towardsDestination, Running running) {
+    public Stream<GraphPath> findPaths(final PathRequest pathRequest, final PreviousVisits previousVisits, final ServiceReasons reasons,
+                                       final LowestCostSeen lowestCostSeen, final TowardsDestination towardsDestination, final Running running) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 towardsDestination, config, pathRequest.getRequestedModes());
-
-        final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
         final GraphNode startNode = pathRequest.getStartNode();
         final GraphNodeId startNodeId = startNode.getId();
@@ -47,12 +45,12 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
                 destinationNodeIds, reasons, previousVisits, lowestCostSeen, config,
                 startNodeId, txn, running);
 
-
+        final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
         final FindPathsForJourney searchAlgo = new FindPathsForJourney(txn, startNode, config, tramRouteEvaluator, traversalStateFactory);
 
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
-        Stream<GraphPath> results = searchAlgo.findPaths(actualQueryTime).stream();
+        Stream<GraphPath> results = searchAlgo.findPaths(actualQueryTime);
 
         reasons.reportReasons(txn, pathRequest, destinations);
 

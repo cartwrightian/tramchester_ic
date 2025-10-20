@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.*;
 
 class PathSearchState {
-    // remaing working
+    // remaining working
     private final PriorityQueue<NodeSearchState> nodeQueue;
     // state
     private final Map<GraphNodeId, Duration> currentCost;
@@ -16,11 +16,13 @@ class PathSearchState {
     // results
     final List<GraphPathInMemory> foundPaths;
 
-    PathSearchState(GraphNodeId startNodeId, GraphPathInMemory pathToHere) {
+    PathSearchState(final GraphNodeId startNodeId, final GraphPathInMemory pathToHere) {
         nodeQueue = new PriorityQueue<>();
         nodeQueue.add(new NodeSearchState(startNodeId, Duration.ZERO, pathToHere));
+
         currentCost = new HashMap<>();
         currentCost.put(startNodeId, Duration.ZERO);
+
         foundPaths = new ArrayList<>();
         journeyStates = new HashMap<>();
     }

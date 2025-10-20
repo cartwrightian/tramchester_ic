@@ -33,13 +33,14 @@ public class RouteCalculatorInMemory extends RouteCalculatorSupport implements T
     }
 
     @Override
-    protected TramNetworkTraverserFactory getTraverserFactoryForGrids(StationsBoxSimpleGrid destinationBox, List<StationsBoxSimpleGrid> startingBoxes) {
+    protected TramNetworkTraverserFactory getTraverserFactoryForGrids(StationsBoxSimpleGrid destinationBox,
+                                                                      List<StationsBoxSimpleGrid> startingBoxes) {
         // TODO Can route calc for boxes implementations depend on this instead of own super class??
         throw new RuntimeException("Not implemented for calculator");
     }
 
     @Override
-    protected TramNetworkTraverserFactory getTraverserFactory(LocationCollection destinations, Set<GraphNodeId> destinationNodeIds) {
+    protected TramNetworkTraverserFactory getTraverserFactory(final LocationCollection destinations, final Set<GraphNodeId> destinationNodeIds) {
         return txn -> new TramNetworkTraverserInMemory(config, destinationNodeIds, txn, destinations);
     }
 }

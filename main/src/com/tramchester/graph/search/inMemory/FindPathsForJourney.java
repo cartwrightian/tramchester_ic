@@ -39,8 +39,8 @@ public class FindPathsForJourney {
     private final TramRouteEvaluator evaluator;
     private final TraversalStateFactory traversalStateFactory;
 
-    public FindPathsForJourney(GraphTransaction txn, GraphNode startNode, TramchesterConfig config,
-                               final TramRouteEvaluator evaluator, TraversalStateFactory traversalStateFactory) {
+    public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
+                               final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();
@@ -48,7 +48,7 @@ public class FindPathsForJourney {
         this.traversalStateFactory = traversalStateFactory;
     }
 
-    public List<GraphPath> findPaths(final TramTime actualQueryTime) {
+    public Stream<GraphPath> findPaths(final TramTime actualQueryTime) {
 
         final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
 
@@ -65,7 +65,9 @@ public class FindPathsForJourney {
         }
 
         final List<GraphPathInMemory> results = searchState.getFoundPaths();
-        return results.stream().map(item -> (GraphPath) item).toList();
+
+        // downcast
+        return results.stream().map(item -> item);
     }
 
     private void visitNodeOnPath(final PathSearchState.NodeSearchState nodeSearchState, final PathSearchState searchState) {
@@ -108,6 +110,7 @@ public class FindPathsForJourney {
 
         final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
 
+        // todo combine these
         final List<PathSearchState.NodeSearchState> updatedNodes = new LinkedList<>();
         final List<PathSearchState.NodeSearchState> notVisitedYet = new LinkedList<>();
 
@@ -152,8 +155,6 @@ public class FindPathsForJourney {
             } else {
                 searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(),  toUpdate.getPathToHere());
             }
-
-            //searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(), toUpdate.getPathToHere());
             searchState.setJourneyState(nodeId, graphStateForChildren);
         });
     }

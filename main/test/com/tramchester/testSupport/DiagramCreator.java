@@ -46,6 +46,14 @@ public class DiagramCreator {
 
     private static final Path diagramsFolder = Path.of("diagrams");
 
+    enum Shape {
+        oval, house, octagon, box
+    }
+
+    enum Color {
+        black, blue, darkgreen, red
+    }
+
     @Inject
     public DiagramCreator(GraphDatabase graphDatabase, StationRepository stationRepository,
                           NPTGRepository nptgRepository) {
@@ -121,8 +129,7 @@ public class DiagramCreator {
         }
         nodeSeen.add(node.getId());
 
-        addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(node),
-                getLabelFor(node), getShapeFor(node)));
+        addLine(builder, format("\"%s\" %s;\n", createNodeId(node), getAttributesFor(node)));
 
         visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel, txn);
         visitInbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel, txn);
@@ -155,9 +162,7 @@ public class DiagramCreator {
 
         getRelationships(startNode, GraphDirection.Outgoing, topLevel, txn).forEach(awayFrom -> {
 
-            TransportRelationshipTypes relationshipType = awayFrom.getType(); // TransportRelationshipTypes.valueOf(awayFrom.getType().name());
-
-            GraphNode rawEndNode = awayFrom.getEndNode(txn); //txn.fromEnd(awayFrom);
+            GraphNode rawEndNode = awayFrom.getEndNode(txn);
 
             addNode(builder, startNode);
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
@@ -175,7 +180,8 @@ public class DiagramCreator {
     }
 
 
-    private void addEdge(DiagramBuild builder, GraphRelationship edge, String startNodeId, String endNodeId, Set<GraphRelationshipId> relationshipSeen) {
+    private void addEdge(DiagramBuild builder, GraphRelationship edge, String startNodeId, String endNodeId,
+                         Set<GraphRelationshipId> relationshipSeen) {
 
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
 
@@ -185,59 +191,85 @@ public class DiagramCreator {
         relationshipSeen.add(edge.getId());
 
         if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
-            String routeId = edge.getRouteId().getGraphId();
-            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "R:"+routeId));
+            addLine(builder, format("\"%s\"->\"%s\" [color=\"%s\"];\n", startNodeId, endNodeId,
+                    getColorFor(relationshipType)));
         } else if (relationshipType== LINKED) {
             Set<TransportMode> modes = edge.getTransportModes();
-            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes));
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes,
+                    getColorFor(relationshipType)));
         } else {
             String shortForm = createShortForm(relationshipType, edge);
-            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, shortForm));
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, shortForm,
+                    getColorFor(relationshipType)));
         }
     }
 
+    private Color getColorFor(TransportRelationshipTypes relationshipType) {
+        return switch (relationshipType) {
+            case ON_ROUTE -> Color.red;
+            case LINKED -> Color.blue;
+            case ENTER_PLATFORM, LEAVE_PLATFORM -> Color.darkgreen;
+            default -> Color.black;
+        };
+    }
+
     private void addNode(final DiagramBuild builder, final GraphNode sourceNode) {
-        addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(sourceNode),
-                getLabelFor(sourceNode), getShapeFor(sourceNode)));
+        addLine(builder, format("\"%s\" %s;\n", createNodeId(sourceNode),
+                getAttributesFor(sourceNode)));
     }
 
     private String createNodeId(final GraphNode node) {
         return node.getId().toString();
     }
 
-    private String getShapeFor(final GraphNode node) {
-        if (node.hasLabel(GraphLabel.PLATFORM)) {
-            return "box";
-        }
-        if (node.hasLabel(GraphLabel.ROUTE_STATION)) {
-            return "oval";
+    private String getAttributesFor(final GraphNode node) {
+        return format("[label=\"%s\" shape=\"%s\" color=\"%s\"]", getLabelFor(node), getShapeFor(node).name(),
+                getColorFor(node).name());
+    }
+
+    private Color getColorFor(GraphNode node) {
+        if (node.hasLabel(ROUTE_STATION)) {
+            return Color.red;
         }
         if (node.hasLabel(STATION)) {
-            return "house";
+            return Color.blue;
         }
-        if (node.hasLabel(GraphLabel.SERVICE)) {
-            return "octagon";
+        if (node.hasLabel(PLATFORM)) {
+            return Color.darkgreen;
+        }
+        return Color.black;
+    }
+
+    private Shape getShapeFor(final GraphNode node) {
+        if (node.hasLabel(PLATFORM)) {
+            return Shape.box;
+        }
+        if (node.hasLabel(ROUTE_STATION)) {
+            return Shape.oval;
+        }
+        if (node.hasLabel(STATION)) {
+            return Shape.house;
+        }
+        if (node.hasLabel(SERVICE)) {
+            return Shape.octagon;
         }
         if (node.hasLabel(HOUR)) {
-            return "box";
+            return Shape.box;
         }
         if (node.hasLabel(GraphLabel.MINUTE)) {
-            return "box";
+            return Shape.box;
         }
-        return "box";
+        return Shape.box;
     }
 
     private String getLabelFor(final GraphNode node) {
         if (node.hasLabel(PLATFORM)) {
             return node.getPlatformId().getGraphId();
-            //return node.getProperty(PLATFORM_ID.getText()).toString();
         }
         if (node.hasLabel(ROUTE_STATION)) {
-            // TODO Look up station name from the ID?
-            //return getStationIdFrom(node.getNode());
+
             String stationId = node.getStationId().getGraphId();
             TransportMode mode = node.getTransportMode();
-            //return getRouteIdFrom(graphNode.getNode());
             String routeId = node.getRouteId().getGraphId();
             return format("%s\n%s\n%s", routeId, stationId, mode.name());
         }

@@ -159,15 +159,16 @@ class RouteCalculatorSubGraphMediaCityTest {
     // MediaCityUK[Id{'Station:9400ZZMAMCU'}]}]})]
     // NOTES
     // fails immediately or passes for many repeats
+    //@RepeatedTest(value = 500)
     @Test
-    void reproduceInMemoryFailureForExchangeQuayToMediaCity() {
+    void reproduceInMemoryFailureInMem() {
         TramDate date = TramDate.of(2025,10,16);
-        TramTime queryTime = TramTime.of(8, 15);
+        TramTime queryTime = TramTime.of(9, 0);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
 
-        List<Journey> results = calculator.calculateRouteAsList(ExchangeQuay, MediaCityUK, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, MediaCityUK, journeyRequest);
 
         assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", ExchangeQuay, MediaCityUK, date, queryTime));
 

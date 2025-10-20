@@ -31,10 +31,12 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate VictoriaBuryLinesOctober2025 = TramDate.of(2025,10,19);
+    //public static TramDate VictoriaBuryLinesOctober2025 = TramDate.of(2025,10,19);
     public static DateRange BuryLinesOctober2025 = DateRange.of(TramDate.of(2025,10,25),
             TramDate.of(2025,10,31));
     public static DateRange TraffordBar2025 = DateRange.of(TramDate.of(2025,11,1), 2);
+
+    public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -56,9 +58,9 @@ public class UpcomingDates {
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-        if (date.isEqual(UpcomingDates.VictoriaBuryLinesOctober2025)) {
-            return true;
-        }
+//        if (date.isEqual(UpcomingDates.VictoriaBuryLinesOctober2025)) {
+//            return true;
+//        }
         return false;
     }
 

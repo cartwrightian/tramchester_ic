@@ -126,7 +126,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
         return stream.
                 map(GraphPathNeo4j::from).
                 filter(path -> {
-                    final GraphNodeId endPathNodeId = path.getEndNodeId(txn); //txn.endNodeNodeId(path);
+                    final GraphNodeId endPathNodeId = path.getEndNodeId(txn);
                     return destinationNodeIds.contains(endPathNodeId);
             }).map(item -> item);
     }

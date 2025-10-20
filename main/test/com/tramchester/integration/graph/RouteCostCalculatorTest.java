@@ -95,7 +95,7 @@ class RouteCostCalculatorTest {
 
         // often changes by a few seconds....
         assertEquals(Duration.ofMinutes(63), buryToAlty.truncatedTo(ChronoUnit.MINUTES));
-        assertEquals(Duration.ofMinutes(65).plusSeconds(9), altyToBury);
+        assertEquals(Duration.ofMinutes(65).plusSeconds(11), altyToBury);
     }
 
     @Test

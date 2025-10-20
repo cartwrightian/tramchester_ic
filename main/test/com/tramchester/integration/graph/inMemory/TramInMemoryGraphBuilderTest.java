@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 // SEE ALSO TramGraphBulderTest with TestEnv graph DB set to in memory......
 // Not duplicating those tests here
 
-@Disabled("WIP trying to repro a bug")
+@Disabled("To check for inconsistency in in mem graph rebuild, but seems ok")
 class TramInMemoryGraphBuilderTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
