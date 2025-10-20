@@ -82,9 +82,6 @@ public class InterchangesTramTest {
     void shouldHaveExpectedTramInterchanges() {
 
         Stream<TramStations> expectedTramStations = Stream.of(
-                // during closures
-                HoltTown, VeloPark,
-
                 StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook,
                 MarketStreet,
