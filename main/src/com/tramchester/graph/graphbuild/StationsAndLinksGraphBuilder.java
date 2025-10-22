@@ -60,7 +60,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
                                         TransportData transportData, GraphBuilderCache builderCache,
                                         GraphDatabaseMetaInfo databaseMetaInfo) {
-        super(graphDatabase, graphFilter, config, builderCache);
+        super(graphDatabase, graphFilter, builderCache);
         this.tramchesterConfig = config;
         this.transportData = transportData;
         this.databaseMetaInfo = databaseMetaInfo;

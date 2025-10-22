@@ -162,15 +162,17 @@ class RouteCalculatorSubGraphMediaCityTest {
     //@RepeatedTest(value = 500)
     @Test
     void reproduceInMemoryFailureInMem() {
-        TramDate date = TramDate.of(2025,10,16);
+        TramDate date = TestEnv.testDay();
         TramTime queryTime = TramTime.of(9, 0);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
 
-        List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, MediaCityUK, journeyRequest);
+        TramStations start = ExchangeSquare;
+        TramStations end = MediaCityUK;
 
-        assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", ExchangeQuay, MediaCityUK, date, queryTime));
+        List<Journey> results = calculator.calculateRouteAsList(start, end, journeyRequest);
+        assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", start, end, date, queryTime));
 
     }
 

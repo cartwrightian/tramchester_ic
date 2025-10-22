@@ -92,9 +92,6 @@ public class TestEnv {
     }
 
 
-
-//    public static final DateRange cornbrookClosed = new DateRange(TramDate.of(2024,10,5), TramDate.of(2024, 10,6));
-
     public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
         return new TestConfig(getDefaultDBTYpe()) {
             @Override

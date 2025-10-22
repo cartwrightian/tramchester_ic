@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,7 +27,9 @@ public class Graph {
     private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
     private final ConcurrentMap<GraphNodeId, GraphNodeInMemory> nodes;
     private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
+
     private final ConcurrentMap<GraphLabel, Set<GraphNodeId>> labelsToNodes;
+    private final ConcurrentMap<TransportRelationshipTypes, AtomicInteger> relationshipTypeCounts;
 
     // todo proper transaction handling, rollbacks etc
 
@@ -41,7 +40,7 @@ public class Graph {
         nodes = new ConcurrentHashMap<>();
         relationshipsForNodes = new ConcurrentHashMap<>();
         labelsToNodes = new ConcurrentHashMap<>();
-
+        relationshipTypeCounts = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
@@ -49,6 +48,9 @@ public class Graph {
         logger.info("Starting");
         for(GraphLabel label : GraphLabel.values()) {
             labelsToNodes.put(label, new HashSet<>());
+        }
+        for(TransportRelationshipTypes type : TransportRelationshipTypes.values()) {
+            relationshipTypeCounts.put(type, new AtomicInteger(0));
         }
         logger.info("started");
     }
@@ -67,7 +69,7 @@ public class Graph {
     }
 
     public synchronized GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
-        int id = nextGraphNodeId.getAndIncrement();
+        final int id = nextGraphNodeId.getAndIncrement();
         final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(new NodeIdInMemory(id), labels);
         final GraphNodeId graphNodeId = graphNodeInMemory.getId();
         nodes.put(graphNodeId, graphNodeInMemory);
@@ -85,6 +87,7 @@ public class Graph {
         relationships.put(relationshipId, relationship);
         addOutboundTo(begin.getId(), relationshipId);
         addInboundTo(end.getId(), relationshipId);
+        relationshipTypeCounts.get(relationshipType).getAndIncrement();
         return relationship;
     }
 
@@ -134,6 +137,8 @@ public class Graph {
 
         deleteRelationshipFrom(begin, id);
         deleteRelationshipFrom(end, id);
+
+        relationshipTypeCounts.get(relationship.getType()).getAndDecrement();
     }
 
     public synchronized void delete(final GraphNodeId id) {
@@ -160,7 +165,8 @@ public class Graph {
 
     private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final GraphRelationshipId relationshipId) {
         if (relationshipsForNodes.containsKey(graphNodeId)) {
-            relationshipsForNodes.get(graphNodeId).remove(relationshipId);
+            RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(graphNodeId);
+            relationshipsForNode.remove(relationshipId);
         }
     }
 
@@ -192,13 +198,6 @@ public class Graph {
         labelsToNodes.get(label).add(id);
     }
 
-    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
-        // TODO inefficient
-        return relationships.values().stream().
-                filter(graphRelationshipInMemory -> graphRelationshipInMemory.isType(relationshipType)).
-                map(item -> item);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -226,6 +225,10 @@ public class Graph {
                 ", relationshipsForNodes=" + relationshipsForNodes +
                 ", labelsToNodes=" + labelsToNodes +
                 '}';
+    }
+
+    public long getNumberOf(TransportRelationshipTypes relationshipType) {
+        return relationshipTypeCounts.get(relationshipType).get();
     }
 
     private static class RelationshipsForNode {

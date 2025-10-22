@@ -79,8 +79,8 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
-        return graph.findRelationships(relationshipType);
+    public long numberOf(final TransportRelationshipTypes relationshipType) {
+        return graph.getNumberOf(relationshipType);
     }
 
     @Override

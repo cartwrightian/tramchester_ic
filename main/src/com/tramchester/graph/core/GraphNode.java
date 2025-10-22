@@ -82,7 +82,7 @@ public interface GraphNode extends GraphEntity {
         final EnumSet<GraphLabel> labels = getLabels();
         final List<GraphLabel> matched = labels.stream().filter(GraphLabel.CoreDomain::contains).distinct().toList();
         if (matched.size()==1) {
-            GraphLabel label = matched.getFirst();
+            final GraphLabel label = matched.getFirst();
             return switch (label) {
                 case GROUPED -> getStationGroupId();
                 case ROUTE_STATION -> getRouteStationId();

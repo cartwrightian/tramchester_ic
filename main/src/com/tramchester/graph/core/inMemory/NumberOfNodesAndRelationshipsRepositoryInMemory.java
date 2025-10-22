@@ -48,7 +48,7 @@ public class NumberOfNodesAndRelationshipsRepositoryInMemory implements NumberOf
     private void countRelationships() {
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             for(TransportRelationshipTypes key : TransportRelationshipTypes.values()) {
-                final long count = txn.findRelationships(key).count();
+                final long count = txn.numberOf(key);
                 relationshipCounts.put(key, count);
                 if (count>0) {
                     logger.info(count + " relationships of type " + key);

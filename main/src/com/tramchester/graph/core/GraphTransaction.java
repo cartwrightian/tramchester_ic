@@ -21,7 +21,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     Stream<GraphNode> findNodes(GraphLabel graphLabel);
 
-    Stream<GraphRelationship> findRelationships(TransportRelationshipTypes relationshipType);
+    //Stream<GraphRelationship> findRelationships(TransportRelationshipTypes relationshipType);
 
     GraphNode getNodeById(GraphNodeId nodeId);
 
@@ -36,4 +36,5 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
+    long numberOf(TransportRelationshipTypes relationshipType);
 }

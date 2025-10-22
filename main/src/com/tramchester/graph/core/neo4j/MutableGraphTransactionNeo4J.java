@@ -128,11 +128,15 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
         return txn.findNodes(label).stream().map(this::wrapNodeAsImmutable);
     }
 
-    @Override
-    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
+    private Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
         final RelationshipType actual = relationshipTypeFactory.get(relationshipType);
         final ResourceIterator<Relationship> found = txn.findRelationships(actual);
         return found.stream().map(this::wrapRelationship);
+    }
+
+    @Override
+    public long numberOf(TransportRelationshipTypes relationshipType) {
+        return findRelationships(relationshipType).count();
     }
 
     @Override

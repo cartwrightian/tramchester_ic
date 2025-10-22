@@ -35,7 +35,7 @@ public class GraphIdFactory implements ReportsCacheStats {
 
         nodeIds = createCache();
         relationshipIds = createCache();
-        logger.info("created");
+        logger.info("created (txn scoped)");
     }
 
     private <K, V> Cache<K, V>  createCache() {

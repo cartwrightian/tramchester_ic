@@ -1,7 +1,6 @@
 package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -71,7 +70,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     @Inject
-    public StagedTransportGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
+    public StagedTransportGraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter,
                                        TransportData transportData, InterchangeRepository interchangeRepository,
                                        GraphBuilderCache builderCache,
                                        @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
@@ -81,7 +80,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        @SuppressWarnings("unused") StationGroupsGraphBuilder.Ready groupsReady,
                                        GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository,
                                        StationsWithDiversionRepository stationsWithDiversionRepository) {
-        super(graphDatabase, graphFilter, config, builderCache);
+        super(graphDatabase, graphFilter, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
         this.databaseMetaInfo = databaseMetaInfo;
@@ -244,8 +243,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
             if (includeBothStops(leg)) {
-                StopCall first = leg.getFirst();
-                StopCall second = leg.getSecond();
+                final StopCall first = leg.getFirst();
+                final StopCall second = leg.getSecond();
                 createRelationshipTimeNodeToRouteStation(tx, route, trip, first, second, routeBuilderCache, timeNodes);
             }
         });
