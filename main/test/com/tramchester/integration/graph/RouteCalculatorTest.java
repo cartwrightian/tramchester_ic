@@ -55,7 +55,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RouteCalculatorTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After
-    private static final int TXN_TIMEOUT = 5*60;
+    public static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;

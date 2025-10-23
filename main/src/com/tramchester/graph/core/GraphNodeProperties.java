@@ -1,5 +1,7 @@
 package com.tramchester.graph.core;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
@@ -143,18 +145,20 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     // NOTE: Transaction closed exceptions will occur if keep reference to node beyond lifetime of the original transaction
 
-
+    @JsonIgnore
     @Override
     public TransportMode getTransportMode() {
         short number = (short) getProperty(TRANSPORT_MODE, graphProps);
         return TransportMode.fromNumber(number);
     }
 
+    @JsonIgnore
     @Override
     public int getHour() {
         return GraphLabel.getHourFrom(getLabels());
     }
 
+    @JsonIgnore
     public IdFor<Station> getStationId() {
         return getIdFor(Station.class, graphProps);
     }
@@ -164,37 +168,45 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         set(trip, graphProps);
     }
 
+    @JsonIgnore
     public IdFor<RouteStation> getRouteStationId() {
         return getRouteStationId(graphProps);
     }
 
+    @JsonIgnore
     public IdFor<Service> getServiceId() {
         return getIdFor(Service.class, graphProps);
     }
 
+    @JsonIgnore
     @Override
     public IdFor<Route> getRouteId() {
         return getIdFor(Route.class, graphProps);
     }
 
+    @JsonIgnore
     @Override
     public IdFor<StationLocalityGroup> getStationGroupId() {
         return getIdFor(StationLocalityGroup.class, graphProps);
     }
 
+    @JsonIgnore
     @Override
     public IdFor<NPTGLocality> getAreaId() {
         return getIdFor(NPTGLocality.class, graphProps);
     }
 
+    @JsonIgnore
     public IdFor<Trip> getTripId() {
         return getIdFor(Trip.class, graphProps);
     }
 
+    @JsonIgnore
     public TramTime getTime() {
         return getTime(graphProps);
     }
 
+    @JsonIgnore
     public LatLong getLatLong() {
         final double lat = (double) getProperty(LATITUDE, graphProps);
         final double lon = (double) getProperty(LONGITUDE, graphProps);
@@ -205,6 +217,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         return hasIdFor(Trip.class);
     }
 
+    @JsonIgnore
     public PlatformId getPlatformId() {
         final IdFor<Station> stationId = getStationId();
         final String platformNumber =  graphProps.getProperty(PLATFORM_NUMBER.getText()).toString();
@@ -219,6 +232,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         return graphProps.hasProperty(GraphPropertyKey.getFor(theClass).getText());
     }
 
+    @JsonIgnore
     @Override
     public IdFor<Station> getTowardsStationId() {
         String text = (String) graphProps.getProperty(TOWARDS_STATION_ID.getText());
@@ -228,6 +242,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         return Station.createId(text);
     }
 
+    @JsonIgnore
     @Override
     public BoundingBox getBounds() {
         int minEasting = (int) graphProps.getProperty(MIN_EASTING.getText());
@@ -250,6 +265,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
 
+    @JsonGetter("properties")
     public Map<String,Object> getAllProperties() {
         return getAllProperties(graphProps);
     }

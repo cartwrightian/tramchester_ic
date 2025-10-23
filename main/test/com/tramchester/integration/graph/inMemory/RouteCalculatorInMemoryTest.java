@@ -21,42 +21,50 @@ import org.junit.jupiter.api.*;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import static com.tramchester.integration.graph.RouteCalculatorTest.TXN_TIMEOUT;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
 public class RouteCalculatorInMemoryTest {
-    private ComponentContainer componentContainer;
-    private static TramchesterConfig testConfig;
+    private static EnumSet<TransportMode> requestedModes;
+    private static ComponentContainer componentContainer;
+    private static TramchesterConfig config;
+    private static GraphDatabase database;
+
+    private final TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
     private RouteCalculatorTestFacade calculator;
+    private Duration maxJourneyDuration;
+    private int maxNumResults;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        config = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        requestedModes = TramsOnly;
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer.initialise();
+        database = componentContainer.get(GraphDatabase.class);
+    }
+
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
-        componentContainer.initialise();
-
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-
-        txn = graphDatabase.beginTx();
-
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxNumResults = config.getMaxNumResults();
     }
 
     @AfterEach
     void afterEachTestRuns() {
         txn.close();
-        componentContainer.close();
-    }
-
-    @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
     }
 
     @Test
@@ -64,18 +72,12 @@ public class RouteCalculatorInMemoryTest {
         testForConsistency(NavigationRoad, TraffordBar);
     }
 
-    @RepeatedTest(5)
+    @Test
     void shouldHaveJourney() {
-        TramDate when = TestEnv.testDay();
-        TramTime time = TramTime.of(17,45);
-        EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
-        Duration maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        long maxNumResults = 3;
-
-        final JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
-                maxNumResults, requestedModes);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
+
         if (journeys.isEmpty()) {
             journeyRequest.setDiag(true);
             journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
@@ -102,14 +104,18 @@ public class RouteCalculatorInMemoryTest {
         }
     }
 
-    private static @NotNull JourneyRequest getJourneyRequest() {
+    private @NotNull JourneyRequest getJourneyRequest() {
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
-        EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
-        Duration maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        long maxNumResults = 3;
 
-        return new JourneyRequest(when, time, false, 1, maxJourneyDuration,
-                maxNumResults, requestedModes);
+//        return new JourneyRequest(when, time, false, 1, maxJourneyDuration,
+//                maxNumResults, requestedModes);
+
+        return standardJourneyRequest(when, time, maxNumResults, 1);
+    }
+
+    @NotNull
+    private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
+        return new JourneyRequest(date, time, false, maxNumberChanges, maxJourneyDuration, maxNumberJourneys, requestedModes);
     }
 }

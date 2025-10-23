@@ -1,11 +1,23 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.tramchester.graph.core.GraphNodeId;
 
 import java.util.Objects;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
 public class NodeIdInMemory implements GraphNodeId {
     private final int id;
+
+    public NodeIdInMemory(final int id) {
+        this.id = id;
+    }
+
+    @JsonGetter("id")
+    public int getIdForSave() {
+        return id;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -24,9 +36,5 @@ public class NodeIdInMemory implements GraphNodeId {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    public NodeIdInMemory(int id) {
-        this.id = id;
     }
 }

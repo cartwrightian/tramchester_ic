@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -77,16 +78,19 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         return relationshipType.equals(transportRelationshipType);
     }
 
+    @JsonIgnore
     @Override
     public IdFor<Station> getEndStationId() {
         return end.getStationId();
     }
 
+    @JsonIgnore
     @Override
     public IdFor<Station> getStartStationId() {
         return start.getStationId();
     }
 
+    @JsonIgnore
     @Override
     public IdFor<StationLocalityGroup> getStationGroupId() {
         return end.getStationGroupId();

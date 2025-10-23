@@ -1,5 +1,6 @@
 package com.tramchester.graph.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Route;
@@ -109,6 +110,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         setTimeRange(timeRange);
     }
 
+    @JsonIgnore
     @Override
     public int getStopSeqNumber() {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
@@ -218,6 +220,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     }
 
+    @JsonIgnore
     @Override
     public Duration getCost() {
         final TransportRelationshipTypes relationshipType = getType();
@@ -232,6 +235,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         }
     }
 
+    @JsonIgnore
     @Override
     public DateRange getDateRange() {
         final LocalDate start = getStartDate();
@@ -240,16 +244,19 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     }
 
 
+    @JsonIgnore
     @Override
     public int getHour() {
         return (int) relationship.getProperty(HOUR.getText());
     }
 
+    @JsonIgnore
     @Override
     public TramTime getTime() {
         return getTime(relationship);
     }
 
+    @JsonIgnore
     @Override
     public TimeRange getTimeRange() {
         if (relationship.hasProperty(ALL_DAY.getText())) {
@@ -261,6 +268,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         }
     }
 
+    @JsonIgnore
     @Override
     public DateTimeRange getDateTimeRange() {
         final DateRange dateRange = getDateRange();
@@ -268,7 +276,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return DateTimeRange.of(dateRange, timeRange);
     }
 
-
+    @JsonIgnore
     public IdSet<Trip> getTripIds() {
         if (!relationship.hasProperty(tripIdListProperty)) {
             return IdSet.emptySet();
@@ -297,6 +305,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return (String[]) relationship.getProperty(tripIdListProperty);
     }
 
+    @JsonIgnore
     @Override
     public EnumSet<TransportMode> getTransportModes() {
         // todo can this be stored direct now?
@@ -308,18 +317,22 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return TransportMode.fromNumbers(existing);
     }
 
+    @JsonIgnore
     public IdFor<Route> getRouteId() {
         return getId(Route.class);
     }
 
+    @JsonIgnore
     public IdFor<Service> getServiceId() {
         return getId(Service.class);
     }
 
+    @JsonIgnore
     public IdFor<Trip> getTripId() {
         return getId(Trip.class);
     }
 
+    @JsonIgnore
     public IdFor<Station> getStationId() {
         return getId(Station.class);
     }
@@ -328,6 +341,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return getIdFor(theClass, relationship);
     }
 
+    @JsonIgnore
     public IdFor<RouteStation> getRouteStationId() {
         return getRouteStationId(relationship);
     }
@@ -336,6 +350,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return getAllProperties(relationship);
     }
 
+    @JsonIgnore
     public boolean isDayOffset() {
         // todo should this be checking if set instead?
         return (Boolean) relationship.getProperty(DAY_OFFSET.getText());
@@ -351,26 +366,31 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return !localDate.isAfter(endDate);
     }
 
+    @JsonIgnore
     private LocalDate getEndDate() {
         return (LocalDate) relationship.getProperty(END_DATE.getText());
     }
 
+    @JsonIgnore
     private LocalDate getStartDate() {
         return (LocalDate) relationship.getProperty(START_DATE.getText());
     }
 
+    @JsonIgnore
     @Override
     public TramTime getStartTime() {
         final LocalTime localTime = (LocalTime) relationship.getProperty(START_TIME.getText());
         return TramTime.ofHourMins(localTime);
     }
 
+    @JsonIgnore
     @Override
     public TramTime getEndTime() {
         final LocalTime localTime = (LocalTime) relationship.getProperty(END_TIME.getText());
         return TramTime.ofHourMins(localTime);
     }
 
+    @JsonIgnore
     @Override
     public LocationId<?> getLocationId() {
         final TransportRelationshipTypes transportRelationshipTypes = getType();

@@ -1,5 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNodeId;
@@ -227,8 +229,21 @@ public class Graph {
                 '}';
     }
 
+    @JsonIgnore
     public long getNumberOf(TransportRelationshipTypes relationshipType) {
         return relationshipTypeCounts.get(relationshipType).get();
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    //@JsonAnyGetter
+    public HashMap<GraphNodeId, GraphNodeInMemory> getNodes() {
+        return new HashMap<>(nodes);
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    //@JsonAnyGetter
+    public HashMap<GraphRelationshipId, GraphRelationshipInMemory> getRelationships() {
+        return new HashMap<>(relationships);
     }
 
     private static class RelationshipsForNode {

@@ -1,5 +1,6 @@
 package com.tramchester.graph.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -78,6 +79,7 @@ public interface GraphNode extends GraphEntity {
 
     // TODO this isn't a unique ID for all CoreDomain types i.e. there can be multiple Service Nodes with the same ServiceId
     // but different RouteIds
+    @JsonIgnore
     default IdFor<? extends CoreDomain> getCoreDomainId() {
         final EnumSet<GraphLabel> labels = getLabels();
         final List<GraphLabel> matched = labels.stream().filter(GraphLabel.CoreDomain::contains).distinct().toList();
