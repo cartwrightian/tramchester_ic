@@ -34,9 +34,12 @@ public class UpcomingDates {
     //public static TramDate VictoriaBuryLinesOctober2025 = TramDate.of(2025,10,19);
     public static DateRange BuryLinesOctober2025 = DateRange.of(TramDate.of(2025,10,25),
             TramDate.of(2025,10,31));
+
     public static DateRange TraffordBar2025 = DateRange.of(TramDate.of(2025,11,1), 2);
 
     public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
+
+    public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);

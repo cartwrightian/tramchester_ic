@@ -9,7 +9,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -146,7 +145,9 @@ public class StopCallRepository  {
 
     public List<IdFor<Station>> getStopcallsBetween(final IdFor<Station> beginId, final IdFor<Station> endId, final DateRange dateRange) {
         final Set<List<IdFor<Station>>> uniqueSequencesForDateRange = dateRange.stream().
-                map(date -> getStopcallsBetween(beginId, endId, date)).collect(Collectors.toSet());
+                map(date -> getStopcallsBetween(beginId, endId, date)).
+                filter(list -> !list.isEmpty()).
+                collect(Collectors.toSet());
         if (uniqueSequencesForDateRange.isEmpty()) {
             logger.warn(format("Found no call stop calls between %s and %s for %s", beginId, endId, dateRange));
             return Collections.emptyList();
@@ -189,8 +190,11 @@ public class StopCallRepository  {
 
         if (allStopCalls.isEmpty()) {
             String message = format("Found no call stop calls between %s and %s for %s", beginId, endId, date);
-            logger.error(message);
-            throw new RuntimeException(message);
+            logger.warn(message);
+            return Collections.emptyList();
+            // this can happen, for example over Christmas period
+//            logger.error(message);
+//            throw new RuntimeException(message);
         }
 
         final Set<List<IdFor<Station>>> uniqueSequences = allStopCalls.stream().

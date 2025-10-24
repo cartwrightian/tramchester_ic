@@ -36,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +107,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() {
+    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() throws IOException {
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
@@ -113,6 +115,11 @@ public class RouteCalculatorTest {
                 map(TramStations::getName).collect(Collectors.toSet());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
+
+        if (journeys.isEmpty() && config.getInMemoryGraph()) {
+            TestEnv.SaveInMemoryGraph(componentContainer, Path.of("RouteCalculatorTest.json"));
+        }
+
         assertFalse(journeys.isEmpty(), journeyRequest.toString());
 
         Set<Integer> indexes = new HashSet<>();

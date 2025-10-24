@@ -85,6 +85,7 @@ public class ClosedStationsRepository {
                 final StationIdPair pair = stationPairConfig.getStationPair();
                 final List<IdFor<Station>> stationIdsBetween = stopCallRepository.
                         getStopcallsBetween(pair.getBeginId(), pair.getEndId(), dateRange);
+
                 final IdSet<Station> closedStationsIds = stationIdsBetween.stream().collect(IdSet.idCollector());
 
                 final Closure closure = closedStationFactory.createFor(closureConfig, closedStationsIds);

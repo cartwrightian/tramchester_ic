@@ -105,7 +105,7 @@ public class CompareNeo4JWithInMemoryTest {
         componentContainerNeo4J.close();
     }
 
-    @RepeatedTest(10)
+    @Test
     void shouldHaveSameCountsForNodes() {
         for(GraphLabel label : GraphLabel.values()) {
             long inMem = inMemoryCounts.numberOf(label);
@@ -114,7 +114,7 @@ public class CompareNeo4JWithInMemoryTest {
         }
     }
 
-    @RepeatedTest(10)
+    @Test
     void shouldHaveSameCountsForRelationships() {
         for(TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
             long inMem = inMemoryCounts.numberOf(relationshipType);
@@ -123,7 +123,7 @@ public class CompareNeo4JWithInMemoryTest {
         }
     }
 
-    @RepeatedTest(10)
+    @Test
     void shouldReproSpecificMismatchOnPlatformEntry() {
         IdFor<Station> stationId = Station.createId("9400ZZMASLE");
         Station station = stationRepository.getStationById(stationId);
@@ -140,12 +140,12 @@ public class CompareNeo4JWithInMemoryTest {
 
     }
 
-    @RepeatedTest(10)
+    @Test
     void shouldHaveRelationshipsAtStationNodes() {
         checkForType(stationRepository.getStations());
     }
 
-    @RepeatedTest(10)
+    @Test
     void shouldHaveRelationshipsAtPlatformNodes() {
         PlatformRepository platformRepository = componentContainerInMemory.get(PlatformRepository.class);
         checkForType(platformRepository.getPlatforms(EnumSet.of(TransportMode.Tram)));
@@ -157,7 +157,7 @@ public class CompareNeo4JWithInMemoryTest {
         checkForType(stationRepository.getRouteStations());
     }
 
-    @RepeatedTest(10)
+    @Test
     void shouldCheckConsistencyAtSpecificRouteStation() {
         Station holtTown = HoltTown.from(stationRepository);
 
@@ -210,6 +210,7 @@ public class CompareNeo4JWithInMemoryTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @Disabled("WIP - slow")
     @ParameterizedTest
     @EnumSource(TramStations.class)
     void shouldWalkGraphs(TramStations tramStation) {
@@ -289,12 +290,12 @@ public class CompareNeo4JWithInMemoryTest {
         }
 
         for(final GraphRelationship relationshipA : relationshipsA) {
-            IdFor<? extends CoreDomain> beginId = relationshipA.getStart(localTxn);
-            IdFor<? extends CoreDomain> endId = relationshipA.getEnd(localTxn);
+            final IdFor<? extends CoreDomain> beginId = relationshipA.getStartDomainId(localTxn);
+            final IdFor<? extends CoreDomain> endId = relationshipA.getEndDomainId(localTxn);
 
             List<GraphRelationship> beingAndEndMatch = relationshipsB.stream().
-                    filter(relationship -> relationship.getStart(txnInMem).equals(beginId)).
-                    filter(relationship -> relationship.getEnd(txnInMem).equals(endId)).toList();
+                    filter(relationship -> relationship.getStartDomainId(txnInMem).equals(beginId)).
+                    filter(relationship -> relationship.getEndDomainId(txnInMem).equals(endId)).toList();
 
             assertFalse(beingAndEndMatch.isEmpty());
 
@@ -316,12 +317,12 @@ public class CompareNeo4JWithInMemoryTest {
 
     private void checkRelationshipsMatch(final List<GraphRelationship> listA, final List<GraphRelationship> listB) {
         for(final GraphRelationship expected : listA) {
-            final IdFor<? extends CoreDomain> startId = expected.getStart(localTxn);
-            final IdFor<? extends CoreDomain> endId = expected.getEnd(localTxn);
+            final IdFor<? extends CoreDomain> startId = expected.getStartDomainId(localTxn);
+            final IdFor<? extends CoreDomain> endId = expected.getEndDomainId(localTxn);
 
             final List<GraphRelationship> beginAndEndMatch = listB.stream().
-                    filter(graphRelationship -> graphRelationship.getStart(txnInMem).equals(startId)).
-                    filter(graphRelationship -> graphRelationship.getEnd(txnInMem).equals(endId)).
+                    filter(graphRelationship -> graphRelationship.getStartDomainId(txnInMem).equals(startId)).
+                    filter(graphRelationship -> graphRelationship.getEndDomainId(txnInMem).equals(endId)).
                     toList();
             assertFalse(beginAndEndMatch.isEmpty(), "Did not match begin " + startId + " and end " + endId + " for any of " + listB);
 

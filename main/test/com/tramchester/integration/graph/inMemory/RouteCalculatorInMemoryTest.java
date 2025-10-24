@@ -15,9 +15,13 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
@@ -29,6 +33,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteCalculatorInMemoryTest {
+    public static final Path GRAPH_FILENAME = Path.of("RouteCalcInMemoryTest.json");
     private static EnumSet<TransportMode> requestedModes;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -41,12 +46,16 @@ public class RouteCalculatorInMemoryTest {
     private int maxNumResults;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
+    static void onceBeforeAnyTestsRun() throws IOException {
         config = new IntegrationTramTestConfig(GraphDBType.InMemory);
         requestedModes = TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
+
+        if (Files.exists(GRAPH_FILENAME)) {
+            FileUtils.delete(GRAPH_FILENAME.toFile());
+        }
     }
 
     @AfterAll
@@ -73,7 +82,7 @@ public class RouteCalculatorInMemoryTest {
     }
 
     @Test
-    void shouldHaveJourney() {
+    void shouldHaveJourney() throws IOException {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
@@ -83,6 +92,8 @@ public class RouteCalculatorInMemoryTest {
             journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
             assertTrue(journeys.isEmpty());
             fail("failed, diag was on");
+        } else {
+            TestEnv.SaveInMemoryGraph(componentContainer, GRAPH_FILENAME);
         }
     }
 
@@ -92,7 +103,8 @@ public class RouteCalculatorInMemoryTest {
     }
 
     private void testForConsistency(TramStations start, TramStations end) {
-        final JourneyRequest journeyRequest = getJourneyRequest();
+        TramTime time = TramTime.of(17,45);
+        final JourneyRequest journeyRequest = standardJourneyRequest(when, time, maxNumResults, 1);
         List<Journey> journeys = calculator.calculateRouteAsList(start, end, journeyRequest);
         assertFalse(journeys.isEmpty(), "no journeys found");
 
@@ -102,16 +114,6 @@ public class RouteCalculatorInMemoryTest {
             List<Journey> again = calculator.calculateRouteAsList(start, end, journeyRequest);
             assertEquals(journeys, again);
         }
-    }
-
-    private @NotNull JourneyRequest getJourneyRequest() {
-        TramDate when = TestEnv.testDay();
-        TramTime time = TramTime.of(17,45);
-
-//        return new JourneyRequest(when, time, false, 1, maxJourneyDuration,
-//                maxNumResults, requestedModes);
-
-        return standardJourneyRequest(when, time, maxNumResults, 1);
     }
 
     @NotNull

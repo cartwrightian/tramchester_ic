@@ -130,7 +130,8 @@ public class KnownTramRoute {
         routes.add(getPurple(date));
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (VictoriaAndRochdaleLineWorks.equals(date) || BuryLinesOctober2025.contains(date)) {
+            if (VictoriaAndRochdaleLineWorks.equals(date) || BuryLinesOctober2025.contains(date) ||
+                    VictoriaNov2025.equals(date)) {
                 routes.add(getYellow(date));
             }
 
@@ -148,10 +149,10 @@ public class KnownTramRoute {
 
         if (VictoriaAndRochdaleLineWorks.equals(date)) {
             routes.add(getBusOne(date));
-            //routes.add(getBusTwo(date));
         }
 
-        DateRange busOneStillInData = DateRange.of(TraffordBar2025.getEndDate(), 18);
+        DateRange busOneStillInData = DateRange.of(TraffordBar2025.getEndDate(), 26);
+
         if (BuryLinesOctober2025.contains(date) || TraffordBar2025.contains(date) || busOneStillInData.contains(date)) {
             routes.add(getBusOne(date));
         }

@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -35,6 +36,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         // no-op
     }
 
+    @JsonIgnore
     @Override
     public GraphRelationshipId getId() {
         return id;
@@ -55,7 +57,8 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         return getStartId();
     }
 
-    GraphNodeId getStartId() {
+    @JsonGetter("startId")
+    public GraphNodeId getStartId() {
         return start.getId();
     }
 
@@ -64,7 +67,8 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         return getEndId();
     }
 
-    GraphNodeId getEndId() {
+    @JsonGetter("endId")
+    public GraphNodeId getEndId() {
         return end.getId();
     }
 

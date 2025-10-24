@@ -3,11 +3,12 @@ package com.tramchester.graph.core.inMemory;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.tramchester.graph.core.GraphNodeId;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
-public class NodeIdInMemory implements GraphNodeId {
+public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
 
     public NodeIdInMemory(final int id) {
@@ -36,5 +37,10 @@ public class NodeIdInMemory implements GraphNodeId {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public int compareTo(@NotNull NodeIdInMemory other) {
+        return Integer.compare(this.id, other.id);
     }
 }

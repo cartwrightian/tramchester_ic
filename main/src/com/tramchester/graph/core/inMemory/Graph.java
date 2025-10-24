@@ -235,15 +235,13 @@ public class Graph {
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    //@JsonAnyGetter
-    public HashMap<GraphNodeId, GraphNodeInMemory> getNodes() {
-        return new HashMap<>(nodes);
+    public Map<GraphNodeId, GraphNodeInMemory> getNodes() {
+        return new TreeMap<>(nodes);
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    //@JsonAnyGetter
-    public HashMap<GraphRelationshipId, GraphRelationshipInMemory> getRelationships() {
-        return new HashMap<>(relationships);
+    public Map<GraphRelationshipId, GraphRelationshipInMemory> getRelationships() {
+        return new TreeMap<>(relationships);
     }
 
     private static class RelationshipsForNode {

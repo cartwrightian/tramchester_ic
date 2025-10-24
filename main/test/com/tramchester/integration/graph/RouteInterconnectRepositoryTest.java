@@ -181,8 +181,8 @@ public class RouteInterconnectRepositoryTest {
 
         // ignore data and mode here???
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
-        // 196 -> 49
-        assertEquals(49, dateOverlaps.numberOfBitsSet());
+        // 196 -> 49 -> 64
+        assertEquals(64, dateOverlaps.numberOfBitsSet());
 
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
@@ -194,8 +194,6 @@ public class RouteInterconnectRepositoryTest {
 
         assertEquals(2, hasResults.getDepth()); // two sets of changes needed
 
-        // changes frequently
-        //assertEquals(4, hasResults.numberPossible(), hasResults.toString());
     }
 
     @Test

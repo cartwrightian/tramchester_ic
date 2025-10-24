@@ -86,12 +86,12 @@ public interface GraphRelationship extends GraphEntity {
 
     boolean hasTripIdInList(IdFor<Trip> tripId);
 
-    default IdFor<? extends CoreDomain> getStart(final GraphTransaction txn) {
+    default IdFor<? extends CoreDomain> getStartDomainId(final GraphTransaction txn) {
         final GraphNode node = getStartNode(txn);
         return node.getCoreDomainId();
     }
 
-    default IdFor<? extends CoreDomain> getEnd(final GraphTransaction txn) {
+    default IdFor<? extends CoreDomain> getEndDomainId(final GraphTransaction txn) {
         final GraphNode node = getEndNode(txn);
         return node.getCoreDomainId();
     }

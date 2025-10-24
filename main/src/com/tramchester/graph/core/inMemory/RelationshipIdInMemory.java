@@ -2,10 +2,11 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.tramchester.graph.core.GraphRelationshipId;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class RelationshipIdInMemory implements GraphRelationshipId {
+public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<RelationshipIdInMemory> {
     private final int id;
 
     public RelationshipIdInMemory(int id) {
@@ -34,5 +35,10 @@ public class RelationshipIdInMemory implements GraphRelationshipId {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public int compareTo(@NotNull RelationshipIdInMemory other) {
+        return Integer.compare(this.id, other.id);
     }
 }

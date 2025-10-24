@@ -1,14 +1,16 @@
 package com.tramchester.graph.core;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Map;
 
 public interface GraphEntity {
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonIgnore
     boolean isNode();
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+
+    @JsonIgnore
     boolean isRelationship();
+
     Map<String, Object> getAllProperties();
 
 }

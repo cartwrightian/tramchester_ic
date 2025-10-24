@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
@@ -64,11 +65,13 @@ public class JourneyPlannerResourceTest {
         firstPlatformAtAlty = platforms.getFirst();
     }
 
+    @DisabledUntilDate(year = 2025, month = 10, day = 31)
     @Test
     void shouldPlanSimpleJourneyFromAltyToCornbrook() {
         checkAltyToCornbrook(TramTime.of(8, 15), false);
     }
 
+    @DisabledUntilDate(year = 2025, month = 10, day = 31)
     @Test
     void shouldPlanSimpleJourneyFromAltyToCornbrookArriveBy() {
         TramTime arriveByTime = TramTime.of(8, 15);

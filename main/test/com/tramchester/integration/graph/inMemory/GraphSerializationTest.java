@@ -1,12 +1,7 @@
 package com.tramchester.integration.graph.inMemory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.graph.core.inMemory.Graph;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
@@ -17,15 +12,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.tramchester.testSupport.TestEnv.SaveInMemoryGraph;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class GraphSerializationTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
-    private ObjectMapper mapper;
+    
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -44,23 +41,16 @@ public class GraphSerializationTest {
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
-        mapper = JsonMapper.builder().addModule(new AfterburnerModule()).
-                addModule(new JavaTimeModule()).
-                build();
         if (Files.exists(GRAPH_FILENAME)) {
             FileUtils.delete(GRAPH_FILENAME.toFile());
         }
     }
 
     @Test
-    void shouldSerlialiseToFileWithoutError() throws IOException {
-        Graph graph = componentContainer.get(Graph.class);
-        writeFile(graph);
+    void shouldSerialiseToFileWithoutError() throws IOException {
+        SaveInMemoryGraph(componentContainer, GRAPH_FILENAME);
+        assertTrue(Files.exists(GRAPH_FILENAME));
     }
 
-    private void writeFile(Object example) throws IOException {
-        FileWriter output = new FileWriter(GRAPH_FILENAME.toFile());
-        mapper.writeValue(output, example);
-        //output.flush();
-    }
+
 }
