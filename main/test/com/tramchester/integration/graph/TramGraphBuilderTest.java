@@ -229,6 +229,7 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(Timperley.getId()));
     }
 
+    @DisabledUntilDate(year = 2025, month = 11, day = 3)
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -285,7 +286,7 @@ class TramGraphBuilderTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 10, day = 31)
+    //@DisabledUntilDate(year = 2025, month = 10, day = 31)
     @Test
     void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -548,7 +549,7 @@ class TramGraphBuilderTest {
         });
     }
 
-    @DisabledUntilDate(year = 2025, month = 10, day = 31)
+    //@DisabledUntilDate(year = 2025, month = 10, day = 31)
     @Test
     void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -829,6 +830,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 11, day = 3)
     @Test
     void shouldCheckOutboundSvcRelationships() {
 

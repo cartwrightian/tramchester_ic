@@ -1,7 +1,6 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
@@ -16,7 +15,7 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,10,11);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,10,25);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -127,11 +126,8 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        routes.add(getPurple(date));
-
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (VictoriaAndRochdaleLineWorks.equals(date) || BuryLinesOctober2025.contains(date) ||
-                    VictoriaNov2025.equals(date)) {
+            if (VictoriaAndRochdaleLineWorks.equals(date) || VictoriaNov2025.equals(date)) {
                 routes.add(getYellow(date));
             }
 
@@ -139,28 +135,32 @@ public class KnownTramRoute {
                 routes.add(getYellow(date));
                 routes.add(getBusOne(date));
             }
-            if (date.equals(TramDate.of(2025, 11, 9))) {
+
+            if (date.equals(TramDate.of(2025, 11, 9)) || date.equals(TramDate.of(2025, 11, 30))) {
                 routes.add(getYellow(date));
             }
         } else {
-            routes.add(getGreen(date));
+            if (!TraffordBar2025.contains(date)) {
+                routes.add(getGreen(date));
+            }
             routes.add(getYellow(date));
         }
 
-        if (VictoriaAndRochdaleLineWorks.equals(date)) {
-            routes.add(getBusOne(date));
-        }
+//        if (VictoriaAndRochdaleLineWorks.equals(date)) {
+//            routes.add(getBusOne(date));
+//        }
 
-        DateRange busOneStillInData = DateRange.of(TraffordBar2025.getEndDate(), 26);
-
-        if (BuryLinesOctober2025.contains(date) || TraffordBar2025.contains(date) || busOneStillInData.contains(date)) {
+        if (TraffordBar2025.contains(date)) {
             routes.add(getBusOne(date));
+            routes.add(getBusTwo(date));
+            routes.add(getBusThree(date));
         }
 
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));
         routes.add(getPink(date));
+        routes.add(getPurple(date));
 
         return routes;
     }

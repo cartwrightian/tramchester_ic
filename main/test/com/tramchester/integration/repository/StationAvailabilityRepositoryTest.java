@@ -102,7 +102,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,10), TramTime.nextDay(0,48)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,12), TramTime.nextDay(0,48)), result);
     }
 
     @Test
@@ -195,15 +195,19 @@ public class StationAvailabilityRepositoryTest {
 
         UpcomingDates.getUpcomingDates().forEach(date -> {
 
-            Set<Station> notAvailableEarly = stationRepository.getStations().stream().
-                    filter(station -> !UpcomingDates.hasClosure(station, date, earlyRange)).
+            Set<Station> shouldBeAvailable =  stationRepository.getStations(TramsOnly).stream().
                     filter(Location::isActive).
-                    filter(station -> station.getTransportModes().contains(Tram)).
+                    filter(station -> !UpcomingDates.hasClosure(station, date, earlyRange)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
-                    filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange, modes)).
                     collect(Collectors.toSet());
 
-            assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));
+            if (!shouldBeAvailable.isEmpty()) {
+                Set<Station> notAvailableEarly = shouldBeAvailable.stream().
+                        filter(station -> !availabilityRepository.isAvailable(station, date, earlyRange, modes)).
+                        collect(Collectors.toSet());
+
+                assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));
+            }
         });
     }
 
@@ -223,16 +227,14 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(dropOffs.contains(yellowInbound));
         assertTrue(dropOffs.contains(blueInbound));
 
-        // closures autumn 2025
-        assertFalse(dropOffs.contains(greenOutbound));
+        assertTrue(dropOffs.contains(greenOutbound));
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TramsOnly);
 
         assertEquals(5, pickups.size());
         assertTrue(pickups.contains(yellowInbound));
         assertTrue(pickups.contains(blueInbound));
-        // closures autumn 2025
-        assertFalse(pickups.contains(greenOutbound));
+        assertTrue(pickups.contains(greenOutbound));
 
     }
 

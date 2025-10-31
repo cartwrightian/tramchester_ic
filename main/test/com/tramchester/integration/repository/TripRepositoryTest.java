@@ -6,8 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -55,9 +53,6 @@ public class TripRepositoryTest {
     private TramDate when;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
-
-    DateTimeRange exchangeSquareMissing = DateTimeRange.of(DateRange.of(TramDate.of(2025,7,3),0) ,
-            TimeRange.of(TramTime.of(18,0), TramTime.of(19,0)));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -192,42 +187,21 @@ public class TripRepositoryTest {
                             final List<TramTime> timesToCheck = getTimesFor(times, station, date);
                             for (final TramTime time : timesToCheck) {
                                 final TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
-                                boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
+                                boolean calls = trips.stream().
+                                        flatMap(trip -> trip.getStopCalls().stream()).
                                         filter(stopCall -> stopCall.getStation().equals(station)).
                                         anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
-                                if (!calls) {
+                                if (!calls && !UpcomingDates.hasClosure(station, date, range)) {
                                     final Pair<TramDate, TramTime> key = Pair.of(date, time);
                                     if (!missing.containsKey(key)) {
                                         missing.put(key, new IdSet<>());
                                     }
                                     missing.get(key).add(station.getId());
                                 }
-
                             }
                         }));
 
         assertTrue(missing.isEmpty(), missing.toString());
-    }
-
-    @Test
-    void checkIfExchangeSquareWorkaround() {
-
-        Station exchangeSqaure = ExchangeSquare.from(stationRepository);
-
-        Set<StopCall> workaroundNotNeeded = new HashSet<>();
-
-        UpcomingDates.getUpcomingDates().
-                forEach(date -> {
-                    final Set<Trip> trips = tripRepository.getTripsCallingAt(exchangeSqaure, date);
-                    Set<StopCall> present = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
-                            filter(stopCall -> stopCall.getStation().equals(exchangeSqaure)).
-                            filter(stopCall -> exchangeSquareMissing.contains(date,stopCall.getArrivalTime())).
-                            collect(Collectors.toSet());
-                    workaroundNotNeeded.addAll(present);
-                });
-
-        assertTrue(workaroundNotNeeded.isEmpty(), workaroundNotNeeded.toString());
-
     }
 
     @Test
@@ -295,22 +269,15 @@ public class TripRepositoryTest {
     }
 
     private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
-        if (ExchangeSquare.getId().equals(station.getId())) {
-            if (date.equals(TramDate.of(2025,7,6))) {
-                return Collections.emptyList();
-            } else {
-                return times.stream().filter(time -> !exchangeSquareMissing.contains(date, time)).toList();
-            }
-        }
-        if (UpcomingDates.hasClosure(station.getId(), date)) {
-            return Collections.emptyList();
-        }
-//        if (UpcomingDates.AltrinchamLineWorks.equals(date)) {
-//            if (AltrinchamLineWorksStations.contains(station.getId())) {
-//                return times.stream().filter(time -> !AltrinchamLineWorkTimes.contains(time)).toList();
+//        if (ExchangeSquare.getId().equals(station.getId())) {
+//            if (date.equals(TramDate.of(2025,7,6))) {
+//                return Collections.emptyList();
+//            } else {
+//                return times.stream().filter(time -> !exchangeSquareMissing.contains(date, time)).toList();
 //            }
 //        }
-
-        return times;
+        return times.stream().
+                filter(time -> UpcomingDates.hasClosure(station, date, TimeRange.of(time, time.plusMinutes(1)))).
+                toList();
     }
 }

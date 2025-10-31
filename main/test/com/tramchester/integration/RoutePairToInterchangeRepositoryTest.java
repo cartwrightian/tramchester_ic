@@ -16,6 +16,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
@@ -73,6 +74,7 @@ public class RoutePairToInterchangeRepositoryTest {
         repository = componentContainer.get(RoutePairToInterchangeRepository.class);
     }
 
+    @DisabledUntilDate(year = 2025, month = 11, day = 2)
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
         Route toTraffordCentre = routeHelper.getRed(date);

@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -14,6 +15,8 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.tramchester.testSupport.reference.TramStations.ExchangeSquare;
 
 public class UpcomingDates {
 
@@ -31,21 +34,27 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    //public static TramDate VictoriaBuryLinesOctober2025 = TramDate.of(2025,10,19);
-    public static DateRange BuryLinesOctober2025 = DateRange.of(TramDate.of(2025,10,25),
-            TramDate.of(2025,10,31));
-
-    public static DateRange TraffordBar2025 = DateRange.of(TramDate.of(2025,11,1), 2);
-
+    public static DateRange TraffordBar2025 = DateRange.of(TramDate.of(2025,11,1),
+            TramDate.of(2025, 11, 2));
     public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
-
     public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
+    public static TramDate ExchangeSquareUnpublished = TramDate.of(2025, 11, 9);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(Station station, TramDate date, TimeRange timeRange) {
+
+        TimeRange exchangeSquareNoTrams = TimeRange.of(TramTime.of(6, 25), TramTime.of(7, 35));
+        if (ExchangeSquare.getId().equals(station.getId())) {
+            if (ExchangeSquareUnpublished.equals(date) && exchangeSquareNoTrams.anyOverlap(timeRange)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
         if (hasClosure(station, date)) {
             return true;
         }
@@ -61,9 +70,9 @@ public class UpcomingDates {
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-//        if (date.isEqual(UpcomingDates.VictoriaBuryLinesOctober2025)) {
-//            return true;
-//        }
+        if (TraffordBar2025.contains(date)) {
+            return true;
+        }
         return false;
     }
 
