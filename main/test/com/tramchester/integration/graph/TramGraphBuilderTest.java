@@ -30,7 +30,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
@@ -229,7 +228,6 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(Timperley.getId()));
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 3)
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -242,18 +240,24 @@ class TramGraphBuilderTest {
 
         IdSet<Service> graphSvcsFromRouteStations = outboundsFromRouteStation.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
-                map(GraphRelationship::getServiceId).
-                collect(IdSet.idCollector());
+                //map(GraphRelationship::getServiceId).
+                map(relationship -> serviceRepository.getServiceById(relationship.getServiceId())).
+                filter(service -> when.isBefore(service.getCalendar().getDateRange().getEndDate())).
+                collect(IdSet.collector());
 
         assertFalse(graphSvcsFromRouteStations.isEmpty());
 
         // check number of outbound services matches services in transport data files
         IdSet<Service> fileSvcIds = getTripsFor(transportData.getTrips(), mediaCityUK).stream().
                 filter(trip -> trip.getRoute().equals(tramRouteEcclesAshton)).
+                filter(trip -> when.isBefore(trip.getService().getCalendar().getDateRange().getEndDate())).
                 map(trip -> trip.getService().getId()).
                 collect(IdSet.idCollector());
 
-        assertEquals(graphSvcsFromRouteStations, fileSvcIds);
+        IdSet<Service> mismatch = IdSet.disjunction(graphSvcsFromRouteStations, fileSvcIds);
+        assertTrue(mismatch.isEmpty(), "found mismatch " + mismatch + " between file " + fileSvcIds +
+                " and relationships " + graphSvcsFromRouteStations);
+        //assertEquals(graphSvcsFromRouteStations, fileSvcIds);
 
     }
 
@@ -830,7 +834,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 3)
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
@@ -871,8 +874,10 @@ class TramGraphBuilderTest {
         // since can have 'multiple' route stations due to dup routes use set here
        IdSet<Service> serviceRelatIds = routeStationOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
-                map(GraphRelationship::getServiceId).
-                collect(IdSet.idCollector());
+                map(graphRelationship -> serviceRepository.getServiceById(graphRelationship.getServiceId())).
+                filter(service -> when.isBefore(service.getCalendar().getDateRange().getEndDate())).
+                collect(IdSet.collector());
+       assertFalse(serviceRelatIds.isEmpty());
 
         Set<Trip> fileCallingTrips =
                 transportData.getRouteById(route.getId()).getTrips().stream().
@@ -881,13 +886,17 @@ class TramGraphBuilderTest {
                 collect(Collectors.toSet());
 
         IdSet<Service> fileSvcIdFromTrips = fileCallingTrips.stream().
-                map(trip -> trip.getService().getId()).
-                collect(IdSet.idCollector());
+                map(Trip::getService).
+                filter(svc -> when.isBefore(svc.getCalendar().getDateRange().getEndDate())).
+                collect(IdSet.collector());
 
         // NOTE: Check clean target that and graph has been rebuilt if see failure here
-        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size(),
-                "Did not match " + fileSvcIdFromTrips + " and " + serviceRelatIds);
-        assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
+        IdSet<Service> mismatch = IdSet.disjunction(fileSvcIdFromTrips, serviceRelatIds);
+        assertTrue(mismatch.isEmpty(), "found mismatch " + mismatch + " from file " + fileSvcIdFromTrips +
+                " and relationship service ids " + serviceRelatIds);
+//        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size(),
+//                "Did not match " + fileSvcIdFromTrips + " and " + serviceRelatIds);
+//        assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
 
         long connectedToRouteStation = routeStationOutbounds.stream().
                 filter(relationship -> relationship.isType(ROUTE_TO_STATION)).count();

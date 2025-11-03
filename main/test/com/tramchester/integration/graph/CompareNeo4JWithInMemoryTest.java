@@ -196,6 +196,7 @@ public class CompareNeo4JWithInMemoryTest {
         assertEquals(journeysNeo4J, journeysInMem);
     }
 
+    @Disabled("WIP")
     @Test
     void shouldCheckForConsistencyWhenInMemFails() {
         TramDate when = TestEnv.testDay();

@@ -22,10 +22,13 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses
-    ReplacementBusOne(BusOne, "Replacement Bus One", "2462", TramDate.of(2025,10,25)),
-    ReplacementBusOneNew(BusOne, "Replacement Bus One", "3080", TramDate.of(2025,11,1)),
+    //ReplacementBusOne(BusOne, "Replacement Bus One", "2462", TramDate.of(2025,10,25)),
+    ReplacementBusOneNewA(BusOne, "Replacement Bus One", "3080", TramDate.of(2025,11,1)),
+    ReplacementBusOneNewB(BusOne, "Replacement Bus One", "2949", TramDate.of(2025,11,16)),
 
-    ReplacementBusTwo(BusTwo, "Replacement Bus Two", "3081", TramDate.of(2025,11,1)),
+    ReplacementBusTwoA(BusTwo, "Replacement Bus Two", "3081", TramDate.of(2025,11,1)),
+    ReplacementBusTwoB(BusTwo, "Replacement Bus Two", "2736", TramDate.of(2025,11,16)),
+
     ReplacementBusThree(BusThree, "Replacement Bus Three", "3082", TramDate.of(2025,11,1)),
 
     // Blue

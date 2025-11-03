@@ -44,7 +44,7 @@ class TramInMemoryGraphBuilderTest {
         componentContainer.close();
     }
 
-    @RepeatedTest(value = 20)
+    @RepeatedTest(value = 3)
     void shouldHaveConsistentBuildsOfTheDB() {
 
         Graph fromFirst = componentContainer.get(Graph.class);

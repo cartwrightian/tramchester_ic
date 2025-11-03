@@ -136,9 +136,19 @@ public class KnownTramRoute {
                 routes.add(getBusOne(date));
             }
 
-            if (date.equals(TramDate.of(2025, 11, 9)) || date.equals(TramDate.of(2025, 11, 30))) {
+            // not in timetable?
+            if (date.equals(TramDate.of(2025, 11, 9))) {
                 routes.add(getYellow(date));
             }
+
+            // not in timetable?
+            if (date.equals(TramDate.of(2025, 11, 30))) {
+                routes.add(getYellow(date));
+                routes.add(getBusOne(date));
+                routes.add(getBusTwo(date));
+            }
+
+
         } else {
             if (!TraffordBar2025.contains(date)) {
                 routes.add(getGreen(date));
@@ -146,14 +156,15 @@ public class KnownTramRoute {
             routes.add(getYellow(date));
         }
 
-//        if (VictoriaAndRochdaleLineWorks.equals(date)) {
-//            routes.add(getBusOne(date));
-//        }
-
         if (TraffordBar2025.contains(date)) {
             routes.add(getBusOne(date));
             routes.add(getBusTwo(date));
             routes.add(getBusThree(date));
+        }
+
+        if (VictoriaAndRochdaleLineWorks.equals(date) || VictoriaNov2025.equals(date)) {
+            routes.add(getBusOne(date));
+            routes.add(getBusTwo(date));
         }
 
         routes.add(getBlue(date));

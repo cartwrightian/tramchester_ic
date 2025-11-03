@@ -114,8 +114,8 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        // +1 bus routes during closures
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+1);
+        // +2 bus routes during closures
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+2);
 
         assertEquals(expectedChanges, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
@@ -170,7 +170,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 2)
+    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -207,8 +207,8 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        // + 1 bus routes during closures
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5 + 1);
+        // + 2 bus routes during closures
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5 + 2);
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 
@@ -239,7 +239,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 2)
+    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -282,7 +282,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 2)
+    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);

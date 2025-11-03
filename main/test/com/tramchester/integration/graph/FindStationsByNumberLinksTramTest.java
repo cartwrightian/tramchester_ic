@@ -91,7 +91,9 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                Shudehill
+                Shudehill,
+                // replacement buses
+                OldhamMumps, OldhamKingStreet
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);

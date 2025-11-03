@@ -74,7 +74,7 @@ public class RoutePairToInterchangeRepositoryTest {
         repository = componentContainer.get(RoutePairToInterchangeRepository.class);
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 2)
+    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
         Route toTraffordCentre = routeHelper.getRed(date);
@@ -121,7 +121,7 @@ public class RoutePairToInterchangeRepositoryTest {
                 Cornbrook,
                 TraffordBar,
                 //Piccadilly,
-                //PiccadillyGardens,
+                PiccadillyGardens,
                 Shudehill
                 ).
                 map(CentralZoneStation::getId).

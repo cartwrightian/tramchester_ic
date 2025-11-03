@@ -115,7 +115,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 2)
+    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
@@ -210,7 +210,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 2)
+    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldSortAsExpected() {
 

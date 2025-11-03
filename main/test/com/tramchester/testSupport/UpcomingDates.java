@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.ExchangeSquare;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -62,10 +62,16 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(TramStations station, TramDate date) {
+
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
+        if (VictoriaAndRochdaleLineWorks.equals(date)) {
+            if (stationId.equals(MarketStreet.getId()) || stationId.equals(OldhamCentral.getId())) {
+                return true;
+            }
+        }
         return anyClosedOnDate(date);
     }
 
