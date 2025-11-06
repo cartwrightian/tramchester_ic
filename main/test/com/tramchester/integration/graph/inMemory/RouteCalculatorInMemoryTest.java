@@ -32,7 +32,6 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
 public class RouteCalculatorInMemoryTest {
     public static final Path GRAPH_FILENAME = Path.of("RouteCalcInMemoryTest.json");
     private static EnumSet<TransportMode> requestedModes;

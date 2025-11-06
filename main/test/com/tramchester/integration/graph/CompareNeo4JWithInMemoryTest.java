@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.TRANSPORT_MODES;
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
+import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_PLATFORM;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -157,18 +158,18 @@ public class CompareNeo4JWithInMemoryTest {
         checkForType(stationRepository.getRouteStations());
     }
 
-    @Test
+    @RepeatedTest(1000)
     void shouldCheckConsistencyAtSpecificRouteStation() {
-        Station holtTown = HoltTown.from(stationRepository);
+        Station station = Etihad.from(stationRepository);
 
-        Set<Route> pickUps = holtTown.getPickupRoutes();
-        Set<Route> dropOffs = holtTown.getPickupRoutes();
+        Set<Route> pickUps = station.getPickupRoutes();
+        Set<Route> dropOffs = station.getPickupRoutes();
 
         Set<Route> all = new HashSet<>(pickUps);
         all.addAll(dropOffs);
 
         all.forEach(route -> {
-            final RouteStation routeStation = stationRepository.getRouteStation(holtTown, route);
+            final RouteStation routeStation = stationRepository.getRouteStation(station, route);
             checkConsistencyOf(routeStation);
         });
 
@@ -274,7 +275,7 @@ public class CompareNeo4JWithInMemoryTest {
 
         checkProps(neo4JNode, inMemoryNode);
         checkSameDirections(neo4JNode, inMemoryNode, Outgoing);
-        checkSameDirections(neo4JNode, inMemoryNode, GraphDirection.Incoming);
+        checkSameDirections(neo4JNode, inMemoryNode, Incoming);
 
     }
 
