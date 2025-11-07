@@ -86,7 +86,7 @@ dependencies {
         exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet'
         exclude group: 'org.eclipse.jetty' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
-            'commons-io:commons-io:2.20.0',
+            'commons-io:commons-io:2.21.0',
             'commons-codec:commons-codec:1.19.0',
             'org.apache.commons:commons-collections4:4.5.0',
             'org.apache.commons:commons-compress:1.28.0',
