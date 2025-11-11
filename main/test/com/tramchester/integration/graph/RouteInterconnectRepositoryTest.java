@@ -26,7 +26,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.lang3.tuple.Pair;
@@ -114,8 +113,8 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        // +2 bus routes during closures
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+2);
+        // +1 bus routes during closures
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+1);
 
         assertEquals(expectedChanges, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
@@ -170,7 +169,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -183,8 +181,8 @@ public class RouteInterconnectRepositoryTest {
 
         // ignore data and mode here???
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
-        // 196 -> 49 -> 64
-        assertEquals(64, dateOverlaps.numberOfBitsSet());
+        // 196 -> 49
+        assertEquals(49, dateOverlaps.numberOfBitsSet());
 
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
@@ -207,8 +205,8 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        // + 2 bus routes during closures
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5 + 2);
+        // + 1 bus routes during closures
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5 + 1);
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 
@@ -239,7 +237,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -282,7 +279,6 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);

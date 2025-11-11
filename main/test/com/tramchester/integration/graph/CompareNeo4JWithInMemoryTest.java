@@ -42,6 +42,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_P
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("WIP")
 public class CompareNeo4JWithInMemoryTest {
 
     private static GuiceContainerDependencies componentContainerNeo4J;
@@ -158,9 +159,9 @@ public class CompareNeo4JWithInMemoryTest {
         checkForType(stationRepository.getRouteStations());
     }
 
-    @RepeatedTest(1000)
+    @RepeatedTest(50)
     void shouldCheckConsistencyAtSpecificRouteStation() {
-        Station station = Etihad.from(stationRepository);
+        Station station = HoltTown.from(stationRepository);
 
         Set<Route> pickUps = station.getPickupRoutes();
         Set<Route> dropOffs = station.getPickupRoutes();

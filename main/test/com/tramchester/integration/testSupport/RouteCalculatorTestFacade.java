@@ -74,7 +74,7 @@ public class RouteCalculatorTestFacade {
 
                 final JourneyDiagnostics diagnostics = request.getDiagnostics();
 
-                createGraphFile(diagnostics, request, !result.isEmpty());
+                createGraphFile(start, dest, diagnostics, request, !result.isEmpty());
             } else {
                 throw new RuntimeException("Diagnostics requested, but not received");
             }
@@ -87,10 +87,9 @@ public class RouteCalculatorTestFacade {
     }
 
 
-    private void createGraphFile(final JourneyDiagnostics journeyDiagnostics, final JourneyRequest journeyRequest, boolean success) {
-        final String fileName = createFilename(journeyRequest, success);
+    private void createGraphFile(Location<?> start, Location<?> dest, final JourneyDiagnostics journeyDiagnostics, final JourneyRequest journeyRequest, boolean success) {
+        final String fileName = createFilename(start, dest, journeyRequest, success);
 
-        logger.warn("Creating diagnostic dot file: " + fileName);
 
         try {
             final StringBuilder builder = new StringBuilder();
@@ -101,21 +100,24 @@ public class RouteCalculatorTestFacade {
             final FileWriter writer = new FileWriter(fileName);
             writer.write(builder.toString());
             writer.close();
-            logger.info(format("Created file %s", fileName));
+
+            logger.warn(format("Created file %s", fileName));
         }
         catch (IOException e) {
             logger.warn("Unable to create diagnostic graph file", e);
         }
     }
 
-    private String createFilename(final JourneyRequest journeyRequest, boolean success) {
+    private String createFilename(Location<?> start, Location<?> dest, final JourneyRequest journeyRequest, boolean success) {
         final String status = success ? "found" : "notfound";
         final String dateString = journeyRequest.getDate().toLocalDate().toString();
-        final String changes = "changes" + journeyRequest.getMaxChanges();
+        final String changes = "maxChn" + journeyRequest.getMaxChanges().get();
         final String postfix = journeyRequest.getUid().toString();
         TramTime queryTime = journeyRequest.getOriginalTime();
 
-        String fileName = format("%s_%s%s_at_%s_%s_%s.dot", status,
+        String fileName = format("%s_%s_to_%s_%s%s_at_%s_%s_%s.dot",
+                status,
+                start.getName(), dest.getName(),
                 queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
                 dateString, changes, postfix);
         fileName = fileName.replaceAll(":","");

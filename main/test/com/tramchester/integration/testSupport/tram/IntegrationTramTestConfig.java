@@ -50,12 +50,16 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     public IntegrationTramTestConfig(GraphDBType graphDBType) {
-        this(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled,
+        this(graphDBType,Caching.Enabled);
+    }
+
+    public IntegrationTramTestConfig(GraphDBType graphDBType, Caching caching) {
+        this(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, caching,
                 graphDBType);
     }
 
     public IntegrationTramTestConfig(LiveData liveData) {
-        this(liveData, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
+        this(liveData, Caching.Enabled);
     }
 
     public IntegrationTramTestConfig(LiveData liveData, Caching caching) {

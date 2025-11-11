@@ -91,7 +91,8 @@ public class FetchDataFromUrl {
             final String prefix = "Source " + dataSourceId + ": ";
             final Path downloadDirectory = sourceConfig.getDownloadPath();
             final Path destination = downloadDirectory.resolve(targetFile);
-            final Path statusCheckFile = sourceConfig.hasModCheckFilename() ? downloadDirectory.resolve(sourceConfig.getModTimeCheckFilename()) : destination;
+            final Path statusCheckFile = sourceConfig.hasModCheckFilename() ?
+                    downloadDirectory.resolve(sourceConfig.getModTimeCheckFilename()) : destination;
             final DestAndStatusCheckFile destAndStatusCheckFile = new DestAndStatusCheckFile(destination, statusCheckFile);
             logger.info("Checking status for data source " + dataSourceId + " using  " + destAndStatusCheckFile);
 

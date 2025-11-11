@@ -1,7 +1,6 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -34,8 +33,6 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange TraffordBar2025 = DateRange.of(TramDate.of(2025,11,1),
-            TramDate.of(2025, 11, 2));
     public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
     public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
     public static TramDate ExchangeSquareUnpublished = TramDate.of(2025, 11, 9);
@@ -76,9 +73,9 @@ public class UpcomingDates {
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-        if (TraffordBar2025.contains(date)) {
-            return true;
-        }
+//        if (TraffordBar2025.contains(date)) {
+//            return true;
+//        }
         return false;
     }
 

@@ -2,6 +2,7 @@ package com.tramchester.integration.graph.inMemory;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.graph.core.inMemory.SaveGraph;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
@@ -13,14 +14,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.tramchester.testSupport.TestEnv.SaveInMemoryGraph;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("WIP")
 public class GraphSerializationTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
-    
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -45,8 +43,10 @@ public class GraphSerializationTest {
     }
 
     @Test
-    void shouldSerialiseToFileWithoutError() throws IOException {
-        SaveInMemoryGraph(componentContainer, GRAPH_FILENAME);
+    void shouldSerialiseToFileWithoutError() {
+        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
+
+        saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
     }
 

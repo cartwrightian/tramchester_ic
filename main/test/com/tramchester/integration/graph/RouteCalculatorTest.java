@@ -23,12 +23,12 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.inMemory.SaveGraph;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -118,7 +118,8 @@ public class RouteCalculatorTest {
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
 
         if (journeys.isEmpty() && config.getInMemoryGraph()) {
-            TestEnv.SaveInMemoryGraph(componentContainer, Path.of("RouteCalculatorTest.json"));
+            SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
+            saveGraph.save(Path.of("RouteCalculatorTest.json"));
         }
 
         assertFalse(journeys.isEmpty(), journeyRequest.toString());
@@ -491,7 +492,6 @@ public class RouteCalculatorTest {
         return TramTime.difference(departs, arrive);
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 8)
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(11, 0), maxNumResults, maxChanges);
@@ -644,7 +644,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 8)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 15), maxNumResults, 1);

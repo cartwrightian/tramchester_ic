@@ -15,7 +15,7 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,10,25);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,11,8);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -131,38 +131,18 @@ public class KnownTramRoute {
                 routes.add(getYellow(date));
             }
 
-            if (TraffordBar2025.contains(date)) {
-                routes.add(getYellow(date));
-                routes.add(getBusOne(date));
-            }
-
             // not in timetable?
-            if (date.equals(TramDate.of(2025, 11, 9))) {
+            if (date.equals(TramDate.of(2025, 11, 30)) || date.equals(TramDate.of(2025, 12,7))) {
                 routes.add(getYellow(date));
             }
 
-            // not in timetable?
-            if (date.equals(TramDate.of(2025, 11, 30))) {
-                routes.add(getYellow(date));
-                routes.add(getBusOne(date));
-                routes.add(getBusTwo(date));
-            }
 
-
-        } else {
-            if (!TraffordBar2025.contains(date)) {
-                routes.add(getGreen(date));
-            }
+        } else { // Not Sunday
+            routes.add(getGreen(date));
             routes.add(getYellow(date));
         }
 
-        if (TraffordBar2025.contains(date)) {
-            routes.add(getBusOne(date));
-            routes.add(getBusTwo(date));
-            routes.add(getBusThree(date));
-        }
-
-        if (VictoriaAndRochdaleLineWorks.equals(date) || VictoriaNov2025.equals(date)) {
+        if (VictoriaAndRochdaleLineWorks.equals(date)) { // || VictoriaNov2025.equals(date)) {
             routes.add(getBusOne(date));
             routes.add(getBusTwo(date));
         }

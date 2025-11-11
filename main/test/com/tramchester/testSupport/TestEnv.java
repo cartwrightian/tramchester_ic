@@ -1,8 +1,6 @@
 package com.tramchester.testSupport;
 
 import com.codahale.metrics.Gauge;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.ComponentContainer;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.AppConfiguration;
@@ -26,7 +24,6 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.core.inMemory.Graph;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
@@ -34,7 +31,6 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -350,20 +346,11 @@ public class TestEnv {
         return UpcomingDates.nextMonday();
     }
 
-    public static void SaveInMemoryGraph(final ComponentContainer componentContainer, final Path graphFilename) throws IOException {
-        final JsonMapper mapper = JsonMapper.builder().
-                addModule(new JavaTimeModule()).
-                build();
-
-        final Graph graph = componentContainer.get(Graph.class);
-
-        try (FileWriter output = new FileWriter(graphFilename.toFile())) {
-            mapper.writeValue(output, graph);
-        }
-    }
+//    public static void SaveInMemoryGraph(final ComponentContainer componentContainer, final Path graphFilename) throws IOException {
+//
+//    }
 
     public static class Modes {
-
         public static final EnumSet<TransportMode> TramsOnly = EnumSet.of(Tram);
         public static final EnumSet<TransportMode> BusesOnly = EnumSet.of(Bus);
         public static final EnumSet<TransportMode> RailOnly = EnumSet.of(Train);

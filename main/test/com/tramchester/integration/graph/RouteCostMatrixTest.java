@@ -89,7 +89,7 @@ public class RouteCostMatrixTest {
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         // autumn 2025 closures
-        assertEquals(1, depth);
+        assertEquals(2, depth);
     }
 
     @Test

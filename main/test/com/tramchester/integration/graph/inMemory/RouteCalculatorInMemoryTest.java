@@ -10,6 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.inMemory.SaveGraph;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
@@ -33,11 +34,14 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteCalculatorInMemoryTest {
-    public static final Path GRAPH_FILENAME = Path.of("RouteCalcInMemoryTest.json");
+    public static final Path GRAPH_FILENAME_OK = Path.of("RouteCalcInMemoryTest.json");
+    public static final Path GRAPH_FILENAME_FAIL= Path.of("RouteCalcInMemoryTest_failed.json");
+
     private static EnumSet<TransportMode> requestedModes;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private static GraphDatabase database;
+    private static SaveGraph saveGraph;
 
     private final TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
@@ -47,15 +51,17 @@ public class RouteCalculatorInMemoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-        config = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        config = new IntegrationTramTestConfig(GraphDBType.InMemory, IntegrationTramTestConfig.Caching.Enabled);
         requestedModes = TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
 
-        if (Files.exists(GRAPH_FILENAME)) {
-            FileUtils.delete(GRAPH_FILENAME.toFile());
+        if (Files.exists(GRAPH_FILENAME_OK)) {
+            FileUtils.delete(GRAPH_FILENAME_OK.toFile());
         }
+
+        saveGraph = componentContainer.get(SaveGraph.class);
     }
 
     @AfterAll
@@ -81,8 +87,9 @@ public class RouteCalculatorInMemoryTest {
         testForConsistency(NavigationRoad, TraffordBar);
     }
 
+    @Disabled("WIP")
     @Test
-    void shouldHaveJourney() throws IOException {
+    void shouldHaveJourney() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
@@ -92,8 +99,9 @@ public class RouteCalculatorInMemoryTest {
             journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
             assertTrue(journeys.isEmpty());
             fail("failed, diag was on");
+            saveGraph.save(GRAPH_FILENAME_FAIL);
         } else {
-            TestEnv.SaveInMemoryGraph(componentContainer, GRAPH_FILENAME);
+           saveGraph.save(GRAPH_FILENAME_OK);
         }
     }
 

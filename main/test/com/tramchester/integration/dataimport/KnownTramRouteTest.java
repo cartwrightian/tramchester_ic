@@ -209,7 +209,7 @@ class KnownTramRouteTest {
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
-                filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
+                filter(date -> !date.isChristmasPeriod()).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
 

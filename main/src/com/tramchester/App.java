@@ -7,6 +7,7 @@ import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.FileVariableSubstitutor;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.Version;
@@ -36,6 +37,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.server.Connector;
@@ -44,6 +46,7 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -68,8 +71,17 @@ public class App extends Application<AppConfiguration>  {
 
     }
 
-    public static EnvironmentVariableSubstitutor getEnvVarSubstitutor() {
+    public static StringSubstitutor getEnvVarSubstitutor() {
         return new EnvironmentVariableSubstitutor(true, true);
+    }
+
+    public static StringSubstitutor getFileSubstitutor(final Path configDir) {
+        return new FileVariableSubstitutor(configDir);
+    }
+
+    public static ConfigurationSourceProvider getConfigSourceProvider(ConfigurationSourceProvider sourceProvider, Path configDir) {
+        final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(sourceProvider, App.getFileSubstitutor(configDir));
+        return new SubstitutingSourceProvider(substitutingSourceProvider, App.getEnvVarSubstitutor());
     }
 
     @Override
@@ -138,12 +150,10 @@ public class App extends Application<AppConfiguration>  {
         ConfigurationSourceProvider underlyingProvider = new FallbackConfigurationSourceProvider(bootstrap.getConfigurationSourceProvider(),
             new ResourceConfigurationSourceProvider());
 
-        EnvironmentVariableSubstitutor environmentVariableSubstitutor = getEnvVarSubstitutor();
-        final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(
-                underlyingProvider,
-                environmentVariableSubstitutor);
+        Path configDir = Path.of("config");
+        ConfigurationSourceProvider provider = App.getConfigSourceProvider(underlyingProvider, configDir);
 
-        bootstrap.setConfigurationSourceProvider(substitutingSourceProvider);
+        bootstrap.setConfigurationSourceProvider(provider);
 
         logger.info("Add asset bundle for static content");
         AssetsBundle appBundle = new AssetsBundle("/app", "/app", "index.html", "app");
@@ -164,6 +174,7 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
         logger.info("init bootstrap finished");
     }
+
 
     private String getBuildNumber() {
         // for when config not yet available

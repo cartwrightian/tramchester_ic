@@ -82,7 +82,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 27;
+        int expectedNumStations = 25;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
@@ -112,7 +112,7 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // autumn 2025 closures
-        assertEquals(7, lines.size(), lines.toString());
+        assertEquals(6, lines.size(), lines.toString());
 
     }
 
