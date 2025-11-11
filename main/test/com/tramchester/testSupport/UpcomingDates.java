@@ -5,7 +5,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -35,23 +34,13 @@ public class UpcomingDates {
 
     public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
     public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
-    public static TramDate ExchangeSquareUnpublished = TramDate.of(2025, 11, 9);
+    //public static TramDate ExchangeSquareUnpublished = TramDate.of(2025, 11, 9);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(Station station, TramDate date, TimeRange timeRange) {
-
-        TimeRange exchangeSquareNoTrams = TimeRange.of(TramTime.of(6, 25), TramTime.of(7, 35));
-        if (ExchangeSquare.getId().equals(station.getId())) {
-            if (ExchangeSquareUnpublished.equals(date) && exchangeSquareNoTrams.anyOverlap(timeRange)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
         if (hasClosure(station, date)) {
             return true;
         }
@@ -63,9 +52,14 @@ public class UpcomingDates {
         return hasClosure(station.getId(), date);
     }
 
-    public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
+    public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         if (VictoriaAndRochdaleLineWorks.equals(date)) {
             if (stationId.equals(MarketStreet.getId()) || stationId.equals(OldhamCentral.getId())) {
+                return true;
+            }
+        }
+        if (VictoriaNov2025.equals(date)) {
+            if (MarketStreet.getId().equals(stationId) || Shudehill.getId().equals(stationId)) {
                 return true;
             }
         }
