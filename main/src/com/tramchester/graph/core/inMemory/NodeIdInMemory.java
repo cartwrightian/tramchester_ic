@@ -2,11 +2,14 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.graph.core.GraphNodeId;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+
+@JsonTypeName(value = "nodeId")
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;

@@ -28,9 +28,11 @@ public class SaveGraph {
                 build();
 
         logger.info("Save graph to " + graphFilename.toAbsolutePath());
+
         try (FileWriter output = new FileWriter(graphFilename.toFile())) {
             mapper.writeValue(output, graph);
             logger.info("Saved");
+
         } catch (IOException e) {
             logger.error("Unable to save graph to " + graphFilename, e);
         }

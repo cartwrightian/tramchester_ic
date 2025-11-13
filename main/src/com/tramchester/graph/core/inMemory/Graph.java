@@ -2,11 +2,9 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphRelationship;
-import com.tramchester.graph.core.GraphRelationshipId;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.slf4j.Logger;
@@ -20,6 +18,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+@JsonPropertyOrder({"nodes", "relationships"})
 @LazySingleton
 public class Graph {
     private static final Logger logger = LoggerFactory.getLogger(Graph.class);
@@ -29,6 +28,8 @@ public class Graph {
     private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
     private final ConcurrentMap<GraphNodeId, GraphNodeInMemory> nodes;
     private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
+
+    private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> existingRelationships;
 
     private final ConcurrentMap<GraphLabel, Set<GraphNodeId>> labelsToNodes;
     private final ConcurrentMap<TransportRelationshipTypes, AtomicInteger> relationshipTypeCounts;
@@ -43,6 +44,7 @@ public class Graph {
         relationshipsForNodes = new ConcurrentHashMap<>();
         labelsToNodes = new ConcurrentHashMap<>();
         relationshipTypeCounts = new ConcurrentHashMap<>();
+        existingRelationships = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
@@ -82,15 +84,34 @@ public class Graph {
     public synchronized GraphRelationshipInMemory createRelationship(final TransportRelationshipTypes relationshipType,
                                                                      final GraphNodeInMemory begin,
                                                                      final GraphNodeInMemory end) {
+        checkAndUpdateExistingRelationships(relationshipType, begin, end);
+
         final int id = nextRelationshipId.getAndIncrement();
         final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
                 new RelationshipIdInMemory(id), begin, end);
         final GraphRelationshipId relationshipId = relationship.getId();
+
         relationships.put(relationshipId, relationship);
         addOutboundTo(begin.getId(), relationshipId);
         addInboundTo(end.getId(), relationshipId);
         relationshipTypeCounts.get(relationshipType).getAndIncrement();
         return relationship;
+    }
+
+    private void checkAndUpdateExistingRelationships(final TransportRelationshipTypes relationshipType, final GraphNodeInMemory begin,
+                                                     final GraphNodeInMemory end) {
+        final NodeIdPair idPair = NodeIdPair.of(begin, end);
+        if (existingRelationships.containsKey(idPair)) {
+            if (existingRelationships.get(idPair).contains(relationshipType)) {
+                String message = "Already have relationship of type " + relationshipType + " between " + begin + " and " + end;
+                logger.error(message);
+                throw new RuntimeException(message);
+            } else {
+                existingRelationships.get(idPair).add(relationshipType);
+            }
+        } else {
+            existingRelationships.put(idPair, EnumSet.of(relationshipType));
+        }
     }
 
     private void addInboundTo(final GraphNodeId id, final GraphRelationshipId relationshipId) {
@@ -234,14 +255,14 @@ public class Graph {
         return relationshipTypeCounts.get(relationshipType).get();
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public Map<GraphNodeId, GraphNodeInMemory> getNodes() {
-        return new TreeMap<>(nodes);
+    @JsonProperty(value = "nodes", access = JsonProperty.Access.READ_ONLY)
+    public Set<GraphNodeInMemory> getNodes() {
+        return new HashSet<>(nodes.values());
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public Map<GraphRelationshipId, GraphRelationshipInMemory> getRelationships() {
-        return new TreeMap<>(relationships);
+    @JsonProperty(value = "relationships", access = JsonProperty.Access.READ_ONLY)
+    public Set<GraphRelationshipInMemory> getRelationships() {
+        return new HashSet<>(relationships.values());
     }
 
     private static class RelationshipsForNode {
@@ -304,6 +325,32 @@ public class Graph {
         @Override
         public int hashCode() {
             return Objects.hash(outbound, inbound);
+        }
+    }
+
+    private static class NodeIdPair {
+        private final GraphNodeId first;
+        private final GraphNodeId second;
+
+        public static NodeIdPair of(GraphNodeInMemory begin, GraphNodeInMemory end) {
+            return new NodeIdPair(begin.getId(), end.getId());
+        }
+
+        private NodeIdPair(GraphNodeId first, GraphNodeId second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            NodeIdPair that = (NodeIdPair) o;
+            return Objects.equals(first, that.first) && Objects.equals(second, that.second);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(first, second);
         }
     }
 }

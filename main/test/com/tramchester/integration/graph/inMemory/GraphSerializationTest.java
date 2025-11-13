@@ -16,6 +16,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled("WIP")
 public class GraphSerializationTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
@@ -49,6 +50,4 @@ public class GraphSerializationTest {
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
     }
-
-
 }

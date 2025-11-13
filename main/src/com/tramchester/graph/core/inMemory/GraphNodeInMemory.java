@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -48,6 +49,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         // no-op
     }
 
+    @JsonProperty(value = "nodeId")
     @Override
     public GraphNodeId getId() {
         return id;
