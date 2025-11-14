@@ -127,26 +127,18 @@ public class KnownTramRoute {
         final Set<TestRoute> routes = new HashSet<>();
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (VictoriaAndRochdaleLineWorks.equals(date) || VictoriaNov2025.equals(date)) {
-                routes.add(getYellow(date));
-            }
-
-            // not in timetable?
-            if (date.equals(TramDate.of(2025, 11, 30)) || date.equals(TramDate.of(2025, 12,7))) {
-                routes.add(getYellow(date));
-            }
-
 
         } else { // Not Sunday
             routes.add(getGreen(date));
-            routes.add(getYellow(date));
         }
 
-        if (VictoriaAndRochdaleLineWorks.equals(date)) { // || VictoriaNov2025.equals(date)) {
+
+        if (VictoriaAndRochdaleLineWorks.equals(date)) {
             routes.add(getBusOne(date));
             routes.add(getBusTwo(date));
         }
 
+        routes.add(getYellow(date));
         routes.add(getBlue(date));
         routes.add(getRed(date));
         routes.add(getNavy(date));
