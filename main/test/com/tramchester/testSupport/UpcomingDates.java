@@ -32,9 +32,10 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
+    //public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
     public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
-    //public static TramDate ExchangeSquareUnpublished = TramDate.of(2025, 11, 9);
+    public static List<TramDate> VictoriaNov2025Undocumented = List.of(new TramDate[]{VictoriaNov2025.plusWeeks(1),
+            VictoriaNov2025.plusWeeks(2)});
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -53,12 +54,7 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
-        if (VictoriaAndRochdaleLineWorks.equals(date)) {
-            if (stationId.equals(MarketStreet.getId()) || stationId.equals(OldhamCentral.getId())) {
-                return true;
-            }
-        }
-        if (VictoriaNov2025.equals(date)) {
+        if (VictoriaNov2025.equals(date) || VictoriaNov2025Undocumented.contains(date)) {
             if (MarketStreet.getId().equals(stationId) || Shudehill.getId().equals(stationId)) {
                 return true;
             }
@@ -67,9 +63,6 @@ public class UpcomingDates {
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-//        if (TraffordBar2025.contains(date)) {
-//            return true;
-//        }
         return false;
     }
 

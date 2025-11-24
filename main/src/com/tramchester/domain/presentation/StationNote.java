@@ -18,6 +18,7 @@ public class StationNote extends Note {
         this.displayedAt = displayedAt;
     }
 
+    @Override
     public List<LocationRefDTO>  getDisplayedAt() {
         return displayedAt;
     }

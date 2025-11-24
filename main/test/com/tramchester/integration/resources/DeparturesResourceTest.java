@@ -213,6 +213,7 @@ class DeparturesResourceTest {
         assertFalse(notes.isEmpty(),"no notes for " + nearAltrinchamInterchange);
 
         Set<IdForDTO> notesDisplayedAt = notes.stream().
+                filter(note -> !note.getDisplayedAt().isEmpty()).
                 flatMap(note -> note.getDisplayedAt().stream()).
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
