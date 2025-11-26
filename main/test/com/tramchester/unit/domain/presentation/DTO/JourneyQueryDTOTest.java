@@ -42,7 +42,6 @@ public class JourneyQueryDTOTest {
 
     }
 
-
     @Test
     void shouldSerializedDeserializeWithMaxNumResults() throws JsonProcessingException {
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
@@ -57,7 +56,8 @@ public class JourneyQueryDTOTest {
 
         JourneyQueryDTO result = mapper.readValue(txt, JourneyQueryDTO.class);
 
-        assertEquals(42, dto.getMaxNumResults());
+        assertEquals(42, result.getMaxNumResults());
+        assertEquals(LocalTime.of(13,56), result.getTime());
 
     }
 }

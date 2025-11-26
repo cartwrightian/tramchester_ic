@@ -73,7 +73,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         // might update depending on redirect status
         String finalUrl = originalUrl.toString();
         if (redirect) {
-            Optional<String> locationField = responseHeaders.firstValue(LOCATION);
+            final Optional<String> locationField = responseHeaders.firstValue(LOCATION);
             if (locationField.isPresent()) {
                 logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                         originalUrl, httpStatusCode, locationField));
@@ -163,15 +163,14 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
     @NotNull
     private URLStatus createURLStatus(String url, Duration serverMod, int httpStatusCode, boolean redirected) {
-        URLStatus result;
+        final URLStatus result;
         if (serverMod.isZero()) {
             if (!redirected) {
                 logger.warn(format("No valid mod time from server, got 0, status code %s for %s", httpStatusCode, url));
             }
             result = new URLStatus(url, httpStatusCode);
-
         } else {
-            ZonedDateTime modTime = getAsUTCZone(serverMod);
+            final ZonedDateTime modTime = getAsUTCZone(serverMod);
             logger.debug(format("Mod time %s, status %s for %s", modTime, url, httpStatusCode));
             result = new URLStatus(url, httpStatusCode, modTime);
         }
@@ -287,15 +286,24 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return result;
     }
 
-    private void download(InputStream inputStream, File targetFile) throws IOException {
-        int maxSize = 1000 * 1024 * 1024;
+    private void download(final InputStream inputStream, final File targetFile) throws IOException {
+        final Path targetLocation = targetFile.toPath().toAbsolutePath();
+        logger.info("Download stream to " + targetLocation);
 
-        ReadableByteChannel rbc = Channels.newChannel(inputStream);
-        FileOutputStream fos = new FileOutputStream(targetFile);
+        final int maxSize;
+        if (logger.isDebugEnabled() || logger.isInfoEnabled()) {
+            // report progress
+            maxSize = 1000 * 1024;
+        } else {
+            maxSize = 1000 * 1024 * 1024;
+        }
+
+        final ReadableByteChannel rbc = Channels.newChannel(inputStream);
+        final FileOutputStream fos = new FileOutputStream(targetFile);
         long received = 1;
         while (received > 0) {
             received = fos.getChannel().transferFrom(rbc, 0, maxSize);
-            logger.info(format("Received %s bytes for %s", received, targetFile));
+            logger.info(format("Received %s bytes for %s", received, targetLocation));
         }
         fos.close();
         rbc.close();
@@ -305,6 +313,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     private void downloadByLength(InputStream inputStream, File targetFile, long len) throws IOException {
+        logger.info(format("Download %s bytes to %s", len, targetFile.toPath().toAbsolutePath()));
 
         ReadableByteChannel rbc = Channels.newChannel(inputStream);
         FileOutputStream fos = new FileOutputStream(targetFile);

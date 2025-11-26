@@ -119,12 +119,6 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
         return node.getRelationships(map(direction), relationshipTypes).stream().map(txnNeo4J::wrapRelationship);
     }
 
-//    @Override
-//    public Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction) {
-//        GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
-//        return node.getRelationships(map(direction)).stream().map(txnNeo4J::wrapRelationship);
-//    }
-
     @Override
     public boolean hasRelationship(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
         return node.hasRelationship(map(direction), relationshipTypeFactory.get(transportRelationshipTypes));
@@ -195,4 +189,5 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     public Traverser getTraverser(TraversalDescription traversalDesc) {
         return traversalDesc.traverse(node);
     }
+
 }

@@ -16,15 +16,15 @@ public class FetchDataCLI extends BaseCLI {
     // Used during build to download latest data from each remote data source in config file provided
     // which is subsequently uploaded into S3
     public static void main(String[] args) {
-        Logger logger = LoggerFactory.getLogger(FetchDataCLI.class);
+        final Logger logger = LoggerFactory.getLogger(FetchDataCLI.class);
 
         if (args.length != 1) {
             throw new RuntimeException("Expected 1 arguments: <config filename>");
         }
-        Path configFile = Paths.get(args[0]).toAbsolutePath();
+        final Path configFile = Paths.get(args[0]).toAbsolutePath();
         logger.info("Config from " + configFile);
 
-        FetchDataCLI fetchDataCLI = new FetchDataCLI();
+        final FetchDataCLI fetchDataCLI = new FetchDataCLI();
 
         try {
             fetchDataCLI.run(configFile, logger, "FetchDataCLI");

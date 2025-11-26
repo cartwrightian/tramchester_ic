@@ -12,10 +12,9 @@ import com.tramchester.graph.GraphPropertyKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 import java.util.Map;
 
-import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
 
 public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
     private static final Logger logger = LoggerFactory.getLogger(GraphEntityProperties.class);
@@ -52,21 +51,21 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         return RouteStationId.parse(value);
     }
 
-    protected void setTime(final TramTime tramTime, final E entity) {
-        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
-        if (tramTime.isNextDay()) {
-            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
-        }
-    }
-
-    protected TramTime getTime(final E entity) {
-        final LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
-        final boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
-        if (nextDay) {
-            return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
-        }
-        return TramTime.of(localTime.getHour(), localTime.getMinute());
-    }
+//    protected void setTime(final TramTime tramTime, final E entity) {
+//        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
+//        if (tramTime.isNextDay()) {
+//            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
+//        }
+//    }
+//
+//    protected TramTime getTime(final E entity) {
+//        final LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
+//        final boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
+//        if (nextDay) {
+//            return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
+//        }
+//        return TramTime.of(localTime.getHour(), localTime.getMinute());
+//    }
 
     // public to support testing
     protected Object getProperty(final GraphPropertyKey graphPropertyKey, final E entity) {
@@ -88,6 +87,10 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         boolean hasProperty(String key);
 
         void removeProperty(String key);
+
+        void setTime(TramTime tramTime);
+
+        TramTime getTime();
     }
 
 }

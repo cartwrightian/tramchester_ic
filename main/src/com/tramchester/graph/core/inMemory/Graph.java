@@ -25,12 +25,12 @@ public class Graph {
 
     private final AtomicInteger nextGraphNodeId;
     private final AtomicInteger nextRelationshipId;
+
     private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
     private final ConcurrentMap<GraphNodeId, GraphNodeInMemory> nodes;
+
     private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
-
     private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> existingRelationships;
-
     private final ConcurrentMap<GraphLabel, Set<GraphNodeId>> labelsToNodes;
     private final ConcurrentMap<TransportRelationshipTypes, AtomicInteger> relationshipTypeCounts;
 
@@ -63,12 +63,12 @@ public class Graph {
     public void stop() {
         logger.info("stop");
         logger.error("reinstate");
-//        nextGraphNodeId.set(0);
-//        nextRelationshipId.set(0);
-//        relationships.clear();
-//        nodes.clear();
-//        relationshipsForNodes.clear();
-//        labelsToNodes.clear();
+        nextGraphNodeId.set(0);
+        nextRelationshipId.set(0);
+        relationships.clear();
+        nodes.clear();
+        relationshipsForNodes.clear();
+        labelsToNodes.clear();
         logger.info("stopped");
     }
 

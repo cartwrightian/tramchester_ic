@@ -1,0 +1,15 @@
+calcTimeoutMillis: 3500
+maxWait: 25
+maxJourneyDuration: 155
+numberQueries: 3
+queryInterval: 10
+maxNumberResults: 5
+depthFirst: true
+maxWalkingConnections: 3
+nearestStopRangeKM: 1.6
+nearestStopForWalkingRangeKM: 1.6
+numOfNearestStopsToOffer: 5
+numOfNearestStopsForWalking: 3
+walkingMPH: 3.0
+recentStopsToShow: 5
+changeAtInterchangeOnly: true

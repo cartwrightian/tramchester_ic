@@ -1,31 +1,12 @@
-server:
-  applicationContextPath: /
-  rootPath: /api/*
-  applicationConnectors:
-    - type: http
-      port: 8080
-  adminContextPath: /admin
-  adminConnectors:
-    - type: http
-      port: 8081
-  gzip:
-    enabled: true
-    bufferSize: 8KiB
-    minimumEntitySize: 160B
-    syncFlush: true
-    excludedPaths: [ "/api/grid/chunked" ]
-secureHost: tramchester.com
-redirectToSecure: true
-staticAssetCacheTimeSeconds: 300
+%[shared/server.yml]
+
 inMemoryGraph: false
 graphDBConfig:
   graphName: databases/buses.db
   neo4jPagecacheMemory: 300m
   memoryTransactionGlobalMaxSize: 650m
   enableDiagnostics: ${ENABLE_DB_DIAG:- false }
-distributionBucket: tramchesternewdist
-environmentName: ${PLACE}
-buildNumber: ${BUILD:- 0}
+
 gtfsSourceConfig:
   -
     name: tfgm
@@ -86,12 +67,8 @@ walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: false
-cloudWatchMetricsFrequencyMinutes: 5
 
-swagger:
-  resourcePackage: com.tramchester.resources
-  title: tramchester
+%[shared/infra.yml]
 
 logging:
   level: INFO

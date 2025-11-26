@@ -61,7 +61,8 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @Override
     public void setTime(final TramTime tramTime) {
-        setTime(tramTime, relationship);
+        relationship.setTime(tramTime);
+        //setTime(tramTime, relationship);
         invalidateCache();
     }
 
@@ -243,7 +244,6 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return new DateRange(TramDate.of(start), TramDate.of(end));
     }
 
-
     @JsonIgnore
     @Override
     public int getHour() {
@@ -253,7 +253,8 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public TramTime getTime() {
-        return getTime(relationship);
+        return relationship.getTime();
+        //return getTime(relationship);
     }
 
     @JsonIgnore

@@ -1,22 +1,5 @@
-server:
-  applicationContextPath: /
-  rootPath: /api/*
-  applicationConnectors:
-    - type: http
-      port: 8080
-  adminContextPath: /admin
-  adminConnectors:
-    - type: http
-      port: 8081
-  gzip:
-    enabled: true
-    bufferSize: 8KiB
-    minimumEntitySize: 160B
-redirectToSecure: true
-secureHost: tramchester.com
-staticAssetCacheTimeSeconds: 300
-environmentName: ${PLACE}
-buildNumber: ${BUILD:- 0}
+%[shared/server.yml]
+
 inMemoryGraph: false
 graphDBConfig:
   graphName: ''
@@ -78,7 +61,6 @@ bounds:
   minNorthings: 373250
   maxEasting: 414500
   maxNorthings: 437850
-instanceDataUrl: http://169.254.169.254
 planningEnabled: false
 maxWait: 35
 depthFirst: true
@@ -95,12 +77,8 @@ walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: false
-cloudWatchMetricsFrequencyMinutes: 5
 
-swagger:
-  resourcePackage: com.tramchester.resources
-  title: tramchester
+%[shared/infra.yml]
 
 logging:
   level: INFO

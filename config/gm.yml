@@ -1,31 +1,11 @@
-server:
-  applicationContextPath: /
-  rootPath: /api/*
-  applicationConnectors:
-    - type: http
-      port: 8080
-  adminContextPath: /admin
-  adminConnectors:
-    - type: http
-      port: 8081
-  gzip:
-    enabled: true
-    bufferSize: 8KiB
-    minimumEntitySize: 160B
-    syncFlush: true
-    excludedPaths: [ "/api/grid/chunked" ]
-secureHost: tramchester.com
-redirectToSecure: true
-staticAssetCacheTimeSeconds: 300
+%[shared/server.yml]
+
+inMemoryGraph: false
 graphDBConfig:
   graphName: databases/gm_rail.db
   neo4jPagecacheMemory: 1000m
   memoryTransactionGlobalMaxSize: 650m
-distributionBucket: tramchesternewdist
-instanceDataUrl: http://169.254.169.254
-environmentName: ${PLACE}
-buildNumber: ${BUILD:- 0}
-inMemoryGraph: false
+
 gtfsSourceConfig:
   - name: tfgm
     hasFeedInfo: false
@@ -83,14 +63,9 @@ remoteSources:
 #    modTimeCheckFilename: gm_rail.db
 #    mandatory: false
 #    skipUpload: false
-tfgmTramliveData:
-  dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdBlue"}
-  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
-  s3Bucket: ""
-  s3Prefix: ${PLACE:- "test"}
-  refreshPeriodSeconds: 20
-  maxNumberStationsWithoutMessages: 10
-  maxNumberStationsWithoutData: 5
+
+%[shared/tfgm_live_data.yml]
+
 openLdb:
   accessToken: ${OPENLDB_APIKEY:- ""}
   wsdlLocation: ${RAIL_WSDL:- "config/OpenLDBWS.wsdl"}
@@ -101,7 +76,6 @@ bounds:
   minNorthings: 380000
   maxEasting: 404903
   maxNorthings: 414500
-planningEnabled: true
 neighbourConfig:
   maxNeighbourConnections: 3
   distanceToNeighboursKM: 0.2
@@ -112,6 +86,8 @@ neighbourConfig:
       second: "ECCLES"
     - first: "9400ZZMAAUL"
       second: "ASHONUL"
+
+planningEnabled: true
 maxWait: 25
 numberQueries: 3
 queryInterval: 10
@@ -127,12 +103,8 @@ walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: false
-cloudWatchMetricsFrequencyMinutes: 2
 
-swagger:
-  resourcePackage: com.tramchester.resources
-  title: tramchester
+%[shared/infra.yml]
 
 logging:
   level: INFO

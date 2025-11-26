@@ -1,6 +1,10 @@
 package com.tramchester.domain.time;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -14,6 +18,8 @@ import java.util.Objects;
 import static java.lang.String.format;
 
 
+@JsonDeserialize(using = TramTimeJsonDeserializer.class)
+@JsonSerialize(using = TramTimeJsonSerializer.class)
 public class TramTime implements Comparable<TramTime> {
     private static final CharSequence nextDaySuffix = "+24";
     public static final int MINS_IN_HOUR = 60;

@@ -617,7 +617,7 @@ tasks.register('pullData', JavaExec) {
     dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args prodConfig
+    args 'config/fetchData.yml'
 }
 
 tasks.register('pullOpenRailData', JavaExec) {

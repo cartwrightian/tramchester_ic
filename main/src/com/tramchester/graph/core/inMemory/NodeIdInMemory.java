@@ -1,8 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.tramchester.graph.core.GraphNodeId;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +12,8 @@ import java.util.Objects;
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
 
-    public NodeIdInMemory(final int id) {
+    @JsonCreator
+    public NodeIdInMemory(@JsonProperty("id") final int id) {
         this.id = id;
     }
 

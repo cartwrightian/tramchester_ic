@@ -1,7 +1,7 @@
 %[shared/server.yml]
 
-cacheFolder: data/cache
 dataExpiryThreadhold: 3
+cacheFolder: data/cache
 
 inMemoryGraph: false
 graphDBConfig:
@@ -11,23 +11,26 @@ graphDBConfig:
   enableDiagnostics: ${ENABLE_DB_DIAG:- false }
 
 %[shared/tfgm_trams.yml]
-%[shared/tfgm_live_data.yml]
-planningEnabled: true
+planningEnabled: false
 %[shared/tfgm_tram_planning.yml]
 
 %[shared/infra.yml]
+
+swagger:
+  resourcePackage: com.tramchester.resources
+  title: tramchester
 
 logging:
   level: INFO
 
   appenders:
     - type: console
-      threshold: WARN
+      threshold: INFO
     - type: file
-      currentLogFilename: logs/tramchester_local.log
+      currentLogFilename: logs/fetch_data.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/tramchester_local_%i.log
+      archivedLogFilenamePattern: logs/fetch_data_%i.log
       archivedFileCount: 5
       timeZone: UTC
       maxFileSize: 50MB

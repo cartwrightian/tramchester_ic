@@ -1,101 +1,21 @@
-server:
-  applicationContextPath: /
-  rootPath: /api/*
-  applicationConnectors:
-    - type: http
-      port: 8080
-  adminContextPath: /admin
-  adminConnectors:
-    - type: http
-      port: 8081
-  gzip:
-    enabled: true
-    bufferSize: 8KiB
-    minimumEntitySize: 160B
-    syncFlush: true
-    excludedPaths: [ "/api/grid/chunked" ]
-secureHost: tramchester.com
-redirectToSecure: true
-staticAssetCacheTimeSeconds: 300
+%[shared/server.yml]
+
+cacheFolder: data/cache
+dataExpiryThreadhold: 3
+
 inMemoryGraph: false
 graphDBConfig:
-  graphName: databases/tramchesterAcceptance.db
+  graphName: databases/tramchester.db
   neo4jPagecacheMemory: 100m
   memoryTransactionGlobalMaxSize: 650m
   enableDiagnostics: ${ENABLE_DB_DIAG:- false }
-distributionBucket: tramchesternewdist
-instanceDataUrl: http://169.254.169.254
-environmentName: ${PLACE}
-buildNumber: ${BUILD:- 0}
-gtfsSourceConfig:
-  -
-    name: tfgm
-    hasFeedInfo: false
-    transportModes: [ tram ]
-    transportModesWithPlatforms: [ Tram ]
-    initialWaitMinutes: 13
-    noServices: []
-    markedInterchangesOnly: false
-    additionalInterchanges: []
-    groupedStationModes: []
-    addWalksForClosed: true
-    stationClosures: []
-    temporaryStationsWalks: []
-remoteSources:
-  - name: tfgm
-    dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}
-    dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
-    dataPath: data/tram
-    downloadPath: data/tram
-    filename: tfgm_data.zip
-    defaultExpiryDays: 1
-  - name: database
-    dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-    dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-    dataPath: databases
-    downloadPath: databases
-    filename: database.zip
-    defaultExpiryDays: 0
-    modTimeCheckFilename: tramchester.db
-    mandatory: false
-    skipUpload: false
-cacheFolder: data/cache
-calcTimeoutMillis: 3500
-bounds:
-  minEastings: 333200
-  minNorthings: 373130
-  maxEasting: 414500
-  maxNorthings: 437850
-tfgmTramliveData:
-  dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdBlue"}
-  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
-  s3Bucket: ""
-  s3Prefix: ${PLACE:- "test"}
-  refreshPeriodSeconds: 20
-  maxNumberStationsWithoutMessages: 10
-  maxNumberStationsWithoutData: 5
-planningEnabled: true
-maxWait: 25
-maxJourneyDuration: 155
-numberQueries: 3
-queryInterval: 10
-maxNumberResults: 5
-depthFirst: true
-maxWalkingConnections: 3
-nearestStopRangeKM: 1.6
-nearestStopForWalkingRangeKM: 1.6
-numOfNearestStopsToOffer: 5
-numOfNearestStopsForWalking: 3
-walkingMPH: 3.0
-recentStopsToShow: 5
-dataExpiryThreadhold: 3
-changeAtInterchangeOnly: true
-sendCloudWatchMetrics: false
-cloudWatchMetricsFrequencyMinutes: 2
 
-swagger:
-  resourcePackage: com.tramchester.resources
-  title: tramchester
+%[shared/tfgm_trams.yml]
+%[shared/tfgm_live_data.yml]
+planningEnabled: true
+%[shared/tfgm_tram_planning.yml]
+
+%[shared/infra.yml]
 
 logging:
   level: INFO

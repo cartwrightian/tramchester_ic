@@ -1,6 +1,5 @@
 package com.tramchester.graph.core;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
@@ -42,7 +41,8 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @Override
     public void setTime(final TramTime tramTime) {
-        setTime(tramTime, graphProps);
+        //setTime(tramTime, graphProps);
+        graphProps.setTime(tramTime);
         invalidateCache();
     }
 
@@ -203,7 +203,8 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @JsonIgnore
     public TramTime getTime() {
-        return getTime(graphProps);
+        return graphProps.getTime();
+        //return getTime(graphProps);
     }
 
     @JsonIgnore
@@ -265,7 +266,8 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
 
-    @JsonGetter("properties")
+    //@JsonGetter("properties")
+    @JsonIgnore
     public Map<String,Object> getAllProperties() {
         return getAllProperties(graphProps);
     }

@@ -1,22 +1,11 @@
-server:
-  type: simple
-  applicationContextPath: /
-  rootPath: /api/*
-  adminContextPath: /admin
-  connector:
-    type: http
-    port: 8080
-redirectToSecure: true
-secureHost: tramchester.com
-staticAssetCacheTimeSeconds: 300
+%[shared/server.yml]
+
+inMemoryGraph: false
 graphDBConfig:
-  graphName: databases/tramchesterAcceptance.db
+  graphName: databases/tramchesterGMAcceptance.db
   neo4jPagecacheMemory: 1000m
   memoryTransactionGlobalMaxSize: 650m
-distributionBucket: tramchesternewdist
-environmentName: ${PLACE}
-buildNumber: ${BUILD:- 0}
-inMemoryGraph: false
+
 gtfsSourceConfig:
   -
     name: tfgm
@@ -65,23 +54,20 @@ rail:
   dataPath: data/openRailData
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
+
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
+
 bounds:
   minEastings: 370000
   minNorthings: 380000
   maxEasting: 404903
   maxNorthings: 414500
-tfgmTramliveData:
-  dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdBlue"}
-  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
-  s3Bucket: ""
-  s3Prefix: ${PLACE:- "test"}
-  refreshPeriodSeconds: 20
-  maxNumberStationsWithoutMessages: 10
-  maxNumberStationsWithoutData: 5
-instanceDataUrl: http://169.254.169.254
-planningEnabled: true
+
+%[shared/tfgm_live_data.yml]
+
+%[shared/infra.yml]
+
 neighbourConfig:
   maxNeighbourConnections: 3
   distanceToNeighboursKM: 0.2
@@ -92,6 +78,8 @@ neighbourConfig:
       second: "ECCLES"
     - first: "9400ZZMAAUL"
       second: "ASHONUL"
+
+planningEnabled: true
 maxWait: 25
 maxNumberResults: 5
 maxJourneyDuration:  155
@@ -107,12 +95,6 @@ walkingMPH: 3
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: false
-cloudWatchMetricsFrequencyMinutes: 2
-
-swagger:
-  resourcePackage: com.tramchester.resources
-  title: tramchester
 
 logging:
   level: INFO

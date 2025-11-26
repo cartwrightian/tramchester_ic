@@ -1,14 +1,13 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
@@ -22,6 +21,21 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         super(new PropertyContainer());
         this.id = id;
         this.labels = labels;
+    }
+
+    @JsonCreator
+    public GraphNodeInMemory(
+            @JsonProperty("nodeId") final NodeIdInMemory id,
+            @JsonProperty("labels") final EnumSet<GraphLabel> labels,
+            @JsonProperty("properties") Map<String, Object> properties) {
+        super(new PropertyContainer(properties));
+        this.id = id;
+        this.labels = labels;
+    }
+
+    @JsonGetter("properties")
+    public Map<String, Object> getProperties() {
+        return getAllProperties();
     }
 
     @Override
@@ -101,12 +115,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
             return inMemory.getRelationships(id, direction, types).map(item -> item);
         }
     }
-
-//    @Override
-//    public Stream<GraphRelationship> getAllRelationships(final GraphTransaction txn, final GraphDirection direction) {
-//        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-//        return inMemory.getRelationships(id, direction);
-//    }
 
     @Override
     public synchronized void delete(final MutableGraphTransaction txn) {
