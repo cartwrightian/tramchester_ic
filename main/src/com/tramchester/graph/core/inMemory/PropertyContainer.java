@@ -4,6 +4,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphEntityProperties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -19,9 +20,9 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
         props = new ConcurrentHashMap<>();
     }
 
-    public PropertyContainer(final Map<String, Object> properties) {
+    public PropertyContainer(final List<GraphNodeInMemory.PropertyDTO> properties) {
         this();
-        properties.forEach(this::setProperty);
+        properties.forEach(prop -> setProperty(prop.getKey(), prop.getValue()));
     }
 
     @Override

@@ -177,13 +177,14 @@ class KnownTramRouteTest {
 
     @Test
     void shouldNotHaveUnknownTramRoutes() {
-        TramDate start = TramDate.from(TestEnv.LocalNow());
+        TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(4));
+        Stream<TramDate> dateRange = DateRange.of(start, when.plusWeeks(4)).stream().
+                filter(UpcomingDates::validTestDate);
 
         SortedMap<TramDate, IdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
 
-        dateRange.stream().forEach(date -> {
+        dateRange.forEach(date -> {
             final IdSet<Route> known = KnownTramRoute.getFor(date).stream().
                     map(TestRoute::getId).
                     collect(IdSet.idCollector());
@@ -204,13 +205,12 @@ class KnownTramRouteTest {
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
+        Stream<TramDate> dateRange = DateRange.of(start, when.plusWeeks(6)).stream().
+                filter(UpcomingDates::validTestDate);
 
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
-        dateRange.stream().
-                filter(date -> !date.isChristmasPeriod()).
-                forEach(date -> {
+        dateRange.forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
 
                     final Set<TestRoute> knownButUnused = KnownTramRoute.getFor(date).stream().

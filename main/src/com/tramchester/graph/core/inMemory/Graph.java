@@ -1,7 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.core.*;
@@ -26,8 +25,7 @@ public class Graph {
     private final AtomicInteger nextGraphNodeId;
     private final AtomicInteger nextRelationshipId;
 
-    private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
-    private final ConcurrentMap<GraphNodeId, GraphNodeInMemory> nodes;
+    private final NodesAndEdges nodesAndEdges;
 
     private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
     private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> existingRelationships;
@@ -39,8 +37,7 @@ public class Graph {
     public Graph() {
         nextGraphNodeId = new AtomicInteger(0);
         nextRelationshipId = new AtomicInteger(0);
-        relationships = new ConcurrentHashMap<>();
-        nodes = new ConcurrentHashMap<>();
+        nodesAndEdges = new NodesAndEdges();
         relationshipsForNodes = new ConcurrentHashMap<>();
         labelsToNodes = new ConcurrentHashMap<>();
         relationshipTypeCounts = new ConcurrentHashMap<>();
@@ -65,8 +62,9 @@ public class Graph {
         logger.error("reinstate");
         nextGraphNodeId.set(0);
         nextRelationshipId.set(0);
-        relationships.clear();
-        nodes.clear();
+
+        nodesAndEdges.clear();
+
         relationshipsForNodes.clear();
         labelsToNodes.clear();
         logger.info("stopped");
@@ -76,7 +74,8 @@ public class Graph {
         final int id = nextGraphNodeId.getAndIncrement();
         final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(new NodeIdInMemory(id), labels);
         final GraphNodeId graphNodeId = graphNodeInMemory.getId();
-        nodes.put(graphNodeId, graphNodeInMemory);
+        nodesAndEdges.addNode(graphNodeId, graphNodeInMemory);
+        //nodes.put(graphNodeId, graphNodeInMemory);
         labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
         return graphNodeInMemory;
     }
@@ -88,10 +87,10 @@ public class Graph {
 
         final int id = nextRelationshipId.getAndIncrement();
         final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
-                new RelationshipIdInMemory(id), begin, end);
+                new RelationshipIdInMemory(id), begin.getId(), end.getId());
         final GraphRelationshipId relationshipId = relationship.getId();
 
-        relationships.put(relationshipId, relationship);
+        nodesAndEdges.addRelationship(relationshipId, relationship);
         addOutboundTo(begin.getId(), relationshipId);
         addInboundTo(end.getId(), relationshipId);
         relationshipTypeCounts.get(relationshipType).getAndIncrement();
@@ -129,7 +128,7 @@ public class Graph {
     }
 
     public Stream<GraphRelationshipInMemory> getRelationshipsFor(final GraphNodeId id, final GraphDirection direction) {
-        if (!nodes.containsKey(id)) {
+        if (!nodesAndEdges.hasNode(id)) {
             String msg = "No such node " + id;
             logger.error(msg);
             throw new GraphException(msg);
@@ -137,10 +136,10 @@ public class Graph {
         if (relationshipsForNodes.containsKey(id)) {
             final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
             return switch (direction) {
-                case Outgoing -> relationshipsForNode.getOutbound(relationships);
-                case Incoming -> relationshipsForNode.getInbound(relationships);
-                case Both -> Stream.concat(relationshipsForNode.getOutbound(relationships),
-                        relationshipsForNode.getInbound(relationships));
+                case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
+                case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode);
+                case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode),
+                        nodesAndEdges.getInbounds(relationshipsForNode));
             };
         } else {
             logger.info("node " + id + " has not relationships");
@@ -149,12 +148,12 @@ public class Graph {
     }
 
     public synchronized void delete(final GraphRelationshipId id) {
-        if (!relationships.containsKey(id)) {
+        if (!nodesAndEdges.hasRelationship(id)) {
             String msg = "Cannot delete relationship, missing id " + id;
             logger.error(msg);
             throw new GraphException(msg);
         }
-        final GraphRelationshipInMemory relationship = relationships.get(id);
+        final GraphRelationshipInMemory relationship = nodesAndEdges.getRelationship(id);
         final GraphNodeId begin = relationship.getStartId();
         final GraphNodeId end = relationship.getEndId();
 
@@ -165,7 +164,7 @@ public class Graph {
     }
 
     public synchronized void delete(final GraphNodeId id) {
-        if (!nodes.containsKey(id)) {
+        if (!nodesAndEdges.hasNode(id)) {
             String msg = "Missing id " + id;
             logger.error(msg);
             throw new GraphException(msg);
@@ -180,10 +179,10 @@ public class Graph {
             }
         }
         // label map
-        final EnumSet<GraphLabel> labels = nodes.get(id).getLabels();
+        final EnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
         labels.forEach(label -> labelsToNodes.get(label).remove(id));
         // the node
-        nodes.remove(id);
+        nodesAndEdges.removeNode(id);
     }
 
     private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final GraphRelationshipId relationshipId) {
@@ -194,22 +193,22 @@ public class Graph {
     }
 
     public GraphNodeInMemory getNode(final GraphNodeId nodeId) {
-        if (!nodes.containsKey(nodeId)) {
+        if (!nodesAndEdges.hasNode(nodeId)) {
             String msg = "No such node " + nodeId;
             logger.error(msg);
             throw new GraphException(msg);
         }
-        return nodes.get(nodeId);
+        return nodesAndEdges.getNode(nodeId);
     }
 
     public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
         final Set<GraphNodeId> matchingIds = labelsToNodes.get(graphLabel);
-        return matchingIds.stream().map(nodes::get);
+        return matchingIds.stream().map(nodesAndEdges::getNode);
     }
 
     public GraphRelationship getRelationship(final GraphRelationshipId graphRelationshipId) {
-        if (relationships.containsKey(graphRelationshipId)) {
-            return relationships.get(graphRelationshipId);
+        if (nodesAndEdges.hasRelationship(graphRelationshipId)) {
+            return nodesAndEdges.getRelationship(graphRelationshipId);
         } else {
             String msg = "No such relationship " + graphRelationshipId;
             logger.error(msg);
@@ -227,15 +226,14 @@ public class Graph {
         Graph graph = (Graph) o;
         return Objects.equals(nextGraphNodeId.get(), graph.nextGraphNodeId.get()) &&
                 Objects.equals(nextRelationshipId.get(), graph.nextRelationshipId.get()) &&
-                Objects.equals(relationships, graph.relationships) &&
-                Objects.equals(nodes, graph.nodes) &&
+                Objects.equals(nodesAndEdges, graph.nodesAndEdges) &&
                 Objects.equals(relationshipsForNodes, graph.relationshipsForNodes) &&
                 Objects.equals(labelsToNodes, graph.labelsToNodes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nextGraphNodeId, nextRelationshipId, relationships, nodes, relationshipsForNodes, labelsToNodes);
+        return Objects.hash(nextGraphNodeId, nextRelationshipId, nodesAndEdges, relationshipsForNodes, labelsToNodes);
     }
 
     @Override
@@ -243,8 +241,7 @@ public class Graph {
         return "Graph{" +
                 "nextGraphNodeId=" + nextGraphNodeId +
                 ", nextRelationshipId=" + nextRelationshipId +
-                ", relationships=" + relationships +
-                ", nodes=" + nodes +
+                ", nodesAndEdges=" + nodesAndEdges +
                 ", relationshipsForNodes=" + relationshipsForNodes +
                 ", labelsToNodes=" + labelsToNodes +
                 '}';
@@ -255,77 +252,8 @@ public class Graph {
         return relationshipTypeCounts.get(relationshipType).get();
     }
 
-    @JsonProperty(value = "nodes", access = JsonProperty.Access.READ_ONLY)
-    public Set<GraphNodeInMemory> getNodes() {
-        return new HashSet<>(nodes.values());
-    }
-
-    @JsonProperty(value = "relationships", access = JsonProperty.Access.READ_ONLY)
-    public Set<GraphRelationshipInMemory> getRelationships() {
-        return new HashSet<>(relationships.values());
-    }
-
-    private static class RelationshipsForNode {
-        private final Set<GraphRelationshipId> outbound;
-        private final Set<GraphRelationshipId> inbound;
-
-        private RelationshipsForNode() {
-            outbound = new HashSet<>();
-            inbound = new HashSet<>();
-        }
-
-        public Stream<GraphRelationshipInMemory> getOutbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
-            return outbound.stream().map(relationships::get);
-        }
-
-        public Stream<GraphRelationshipInMemory> getInbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
-            return inbound.stream().map(relationships::get);
-        }
-
-        public void addOutbound(final GraphRelationshipId relationshipId) {
-            synchronized (outbound) {
-                outbound.add(relationshipId);
-            }
-        }
-
-        public void addInbound(final GraphRelationshipId relationshipId) {
-            synchronized (inbound) {
-                inbound.add(relationshipId);
-            }
-        }
-
-        public void remove(final GraphRelationshipId relationshipId) {
-            synchronized (outbound) {
-                outbound.remove(relationshipId);
-            }
-            synchronized (inbound) {
-                inbound.remove(relationshipId);
-            }
-        }
-
-        public boolean isEmpty() {
-            return outbound.isEmpty() && inbound.isEmpty();
-        }
-
-        @Override
-        public String toString() {
-            return "RelationshipsForNode{" +
-                    "outbound=" + outbound +
-                    ", inbound=" + inbound +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            RelationshipsForNode that = (RelationshipsForNode) o;
-            return Objects.equals(outbound, that.outbound) && Objects.equals(inbound, that.inbound);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(outbound, inbound);
-        }
+    NodesAndEdges getCore() {
+        return nodesAndEdges;
     }
 
     private static class NodeIdPair {

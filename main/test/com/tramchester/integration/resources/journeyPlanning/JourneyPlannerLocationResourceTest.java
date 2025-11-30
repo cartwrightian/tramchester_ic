@@ -255,7 +255,7 @@ class JourneyPlannerLocationResourceTest {
 
         // Picc Gardens -> Market Street during closure
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.MarketStreet,
-                queryTime, true, when.plusDays(1));
+                queryTime, true, when);
 
         journeys.forEach(journeyDTO -> {
             LocalDateTime queryTimeDate = journeyDTO.getQueryTime().toDate(journeyDTO.getQueryDate());

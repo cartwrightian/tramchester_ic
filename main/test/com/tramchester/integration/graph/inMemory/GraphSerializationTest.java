@@ -7,11 +7,11 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
-import com.tramchester.graph.core.inMemory.NodeIdInMemory;
-import com.tramchester.graph.core.inMemory.SaveGraph;
+import com.tramchester.graph.core.GraphRelationshipId;
+import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
@@ -65,6 +65,8 @@ public class GraphSerializationTest {
 
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
+
+
     }
 
     @Test
@@ -76,6 +78,7 @@ public class GraphSerializationTest {
         TramTime tramTime = TramTime.of(11, 42);
         graphNodeInMemory.setTime(tramTime);
         graphNodeInMemory.setLatLong(KnownLocations.nearBury.latLong());
+        graphNodeInMemory.set(TestEnv.getTramTestRoute());
 
         String text = null;
         try {
@@ -96,6 +99,49 @@ public class GraphSerializationTest {
         try {
             assertEquals(tramTime, result.getTime());
             assertEquals(KnownLocations.nearBury.latLong(), result.getLatLong());
+            assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
+        }
+        catch(ClassCastException e) {
+            fail("Unable to fetch property from " + text, e);
+        }
+
+    }
+
+    @Test
+    void shouldRoundTripGraphRelationship()  {
+        GraphNodeId idA = new NodeIdInMemory(678);
+        GraphNodeId idB = new NodeIdInMemory(679);
+
+//        GraphNodeInMemory begin = new GraphNodeInMemory(idA, EnumSet.of(GraphLabel.STATION));
+//        GraphNodeInMemory end = new GraphNodeInMemory(idB, EnumSet.of(GraphLabel.PLATFORM));
+
+        GraphRelationshipId id = new RelationshipIdInMemory(42);
+        GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
+                idA, idB);
+
+        TramTime tramTime = TramTime.of(11, 42);
+        relationship.setTime(tramTime);
+        relationship.set(TestEnv.getTramTestRoute());
+
+        String text = null;
+        try {
+            text = mapper.writeValueAsString(relationship);
+        } catch (JsonProcessingException e) {
+            fail("failed to serialise", e);
+        }
+
+        GraphRelationshipInMemory result = null;
+        try {
+            result = mapper.readValue(text, GraphRelationshipInMemory.class);
+        } catch (JsonProcessingException e) {
+            fail("Unable to deserialize " + text,e);
+        }
+
+        assertEquals(relationship, result);
+
+        try {
+            assertEquals(tramTime, result.getTime());
+            assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);

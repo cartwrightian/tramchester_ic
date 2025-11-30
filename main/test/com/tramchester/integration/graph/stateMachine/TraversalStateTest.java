@@ -218,7 +218,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         List<GraphRelationship> towardsStation = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.INTERCHANGE_DEPART)).
-                filter(relationship -> relationship.getEndStationId().equals(cornbrook.getId())).
+                filter(relationship -> relationship.getEndStationId(txn).equals(cornbrook.getId())).
                 toList();
 
         assertEquals(numberOfPlatforms, towardsStation.size(), towardsStation.toString());

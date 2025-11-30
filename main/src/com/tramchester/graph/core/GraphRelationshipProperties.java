@@ -347,6 +347,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return getRouteStationId(relationship);
     }
 
+    @JsonIgnore
     public Map<String,Object> getAllProperties() {
         return getAllProperties(relationship);
     }
@@ -393,12 +394,12 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     @Override
-    public LocationId<?> getLocationId() {
+    public LocationId<?> getLocationId(GraphTransaction txn) {
         final TransportRelationshipTypes transportRelationshipTypes = getType();
         if (HAS_STATION_ID.contains(transportRelationshipTypes)) {
             return LocationId.wrap(getStationId());
         } else if (transportRelationshipTypes==GROUPED_TO_PARENT) {
-            return LocationId.wrap(getStationGroupId());
+            return LocationId.wrap(getStationGroupId(txn));
         } else {
             throw new RuntimeException("Unsupported relationship type " + transportRelationshipTypes);
         }

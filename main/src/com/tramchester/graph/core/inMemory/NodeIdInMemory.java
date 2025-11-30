@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 
-@JsonTypeName(value = "nodeId")
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
+//@JsonTypeName(value = "nodeId")
+//@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
 

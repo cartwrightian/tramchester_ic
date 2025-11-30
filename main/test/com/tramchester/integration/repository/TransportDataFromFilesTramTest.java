@@ -271,7 +271,6 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
         Set<TramDate> noServices = UpcomingDates.getUpcomingDates().
-                filter(date -> !date.isChristmasPeriod()).
                 filter(date -> transportData.getServicesOnDate(date, TramsOnly).isEmpty()).
                 collect(Collectors.toSet());
 

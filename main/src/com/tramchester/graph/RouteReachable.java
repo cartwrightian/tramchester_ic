@@ -59,7 +59,7 @@ public class RouteReachable {
                     Stream<GraphRelationship> edges = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE);
 
                     edges.forEach(edge -> {
-                        final IdFor<Station> endNodeStationId = edge.getEndStationId();
+                        final IdFor<Station> endNodeStationId = edge.getEndStationId(txn);
 
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);

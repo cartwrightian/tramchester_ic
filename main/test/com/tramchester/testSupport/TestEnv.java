@@ -55,10 +55,9 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    // summery 2025 replacement buses +2
-    public static final int NumberOfStationLinks = 206;
+    public static final int NumberOfStationLinks = 204;
 
-    private static final TramDate testDay;
+    //private static final TramDate testDay;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -91,7 +90,6 @@ public class TestEnv {
         };
     }
 
-
     public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
         return new TestConfig(getDefaultDBTYpe()) {
             @Override
@@ -115,13 +113,8 @@ public class TestEnv {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
-    static {
-        TramDate today = TramDate.from(LocalNow());
-        testDay = UpcomingDates.getNextDate(DayOfWeek.THURSDAY, today);
-    }
-
     public static TramDate testDay() {
-        return testDay;
+        return UpcomingDates.testDay();
     }
 
     public static Route getTramTestRoute() {
@@ -345,10 +338,6 @@ public class TestEnv {
     public static TramDate nextMonday() {
         return UpcomingDates.nextMonday();
     }
-
-//    public static void SaveInMemoryGraph(final ComponentContainer componentContainer, final Path graphFilename) throws IOException {
-//
-//    }
 
     public static class Modes {
         public static final EnumSet<TransportMode> TramsOnly = EnumSet.of(Tram);

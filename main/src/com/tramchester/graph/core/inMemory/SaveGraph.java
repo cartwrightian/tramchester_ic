@@ -23,6 +23,9 @@ public class SaveGraph {
     }
 
     public void save(final Path graphFilename) {
+
+        final NodesAndEdges nodesAndEdges = graph.getCore();
+
         final JsonMapper mapper = JsonMapper.builder().
                 addModule(new JavaTimeModule()).
                 build();
@@ -30,7 +33,7 @@ public class SaveGraph {
         logger.info("Save graph to " + graphFilename.toAbsolutePath());
 
         try (FileWriter output = new FileWriter(graphFilename.toFile())) {
-            mapper.writeValue(output, graph);
+            mapper.writeValue(output, nodesAndEdges);
             logger.info("Saved");
 
         } catch (IOException e) {

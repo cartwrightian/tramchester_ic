@@ -90,9 +90,7 @@ public class InterchangesTramTest {
                 StPetersSquare,
                 Broadway,
                 Victoria,
-                Shudehill,
-                // replacement buses
-                OldhamMumps, OldhamKingStreet
+                HoltTown, VeloPark
         );
 
         Set<Station> expectedStations = expectedTramStations.

@@ -117,8 +117,8 @@ public class FindPathsForJourney {
         final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId);
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
-            final GraphNode endRelationshipNode = graphRelationship.getEndNode(txn);
-            final GraphNodeId endRelationshipNodeId = endRelationshipNode.getId();
+            //final GraphNode endRelationshipNode = graphRelationship.getEndNode(txn);
+            final GraphNodeId endRelationshipNodeId = graphRelationship.getEndNodeId(txn); //endRelationshipNode.getId();
             final Duration newCost = relationshipCost.plus(currentCostToNode);
 
             final boolean alreadySeen = searchState.hasSeen(endRelationshipNodeId);
@@ -182,7 +182,7 @@ public class FindPathsForJourney {
             }
 
             if (lastRelationship.isType(DIVERSION)) {
-                final IdFor<Station> stationId = lastRelationship.getStartStationId();
+                final IdFor<Station> stationId = lastRelationship.getStartStationId(txn);
                 journeyStateForChildren.beginDiversion(stationId);
             }
 

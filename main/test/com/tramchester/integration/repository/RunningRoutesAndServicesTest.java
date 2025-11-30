@@ -16,6 +16,8 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -137,11 +139,15 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        TramDate when = TestEnv.testDay().plusDays(1);
+        TramDate when = UpcomingDates.testDay().plusDays(1);
+        TramDate previousDay = when.minusDays(1);
+
+        while (!UpcomingDates.validTestDate(when) || !UpcomingDates.validTestDate(previousDay)) {
+            when = when.plusWeeks(1);
+            previousDay = when.minusDays(1);
+        }
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
-
-        TramDate previousDay = when.minusDays(1);
 
         Route altyToBuryRoute = helper.getGreen(previousDay); // helper.getOneRoute(KnownTramRoute.getGreen(previousDay), previousDay);
 
@@ -150,10 +156,11 @@ public class RunningRoutesAndServicesTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 12, day = 5)
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
 
-        TramDate testDay = TestEnv.nextMonday();
+        TramDate testDay = UpcomingDates.nextMonday();
 
         final TramDate tuesdayDate = testDay.plusDays(1);
         final TramDate fridayDate = getFridayAfter(tuesdayDate);

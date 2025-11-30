@@ -169,18 +169,18 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public IdFor<Station> getEndStationId() {
-        return underlying.getEndStationId();
+    public IdFor<Station> getEndStationId(GraphTransaction txn) {
+        return underlying.getEndStationId(txn);
     }
 
     @Override
-    public IdFor<Station> getStartStationId() {
-        return underlying.getStartStationId();
+    public IdFor<Station> getStartStationId(GraphTransaction txn) {
+        return underlying.getStartStationId(txn);
     }
 
     @Override
-    public IdFor<StationLocalityGroup> getStationGroupId() {
-        return underlying.getStationGroupId();
+    public IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn) {
+        return underlying.getStationGroupId(txn);
     }
 
     /***
@@ -249,8 +249,8 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public LocationId<?> getLocationId() {
-        return underlying.getLocationId();
+    public LocationId<?> getLocationId(GraphTransaction txn) {
+        return underlying.getLocationId(txn);
     }
 
     @Override

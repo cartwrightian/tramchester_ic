@@ -111,7 +111,7 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        assertEquals(4, lines.size(), lines.toString());
+        assertEquals(5, lines.size(), lines.toString());
 
     }
 

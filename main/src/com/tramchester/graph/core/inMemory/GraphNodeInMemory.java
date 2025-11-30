@@ -7,7 +7,10 @@ import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
@@ -27,15 +30,15 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public GraphNodeInMemory(
             @JsonProperty("nodeId") final NodeIdInMemory id,
             @JsonProperty("labels") final EnumSet<GraphLabel> labels,
-            @JsonProperty("properties") Map<String, Object> properties) {
+            @JsonProperty("properties") List<PropertyDTO> properties) {
         super(new PropertyContainer(properties));
         this.id = id;
         this.labels = labels;
     }
 
     @JsonGetter("properties")
-    public Map<String, Object> getProperties() {
-        return getAllProperties();
+    public List<PropertyDTO> getProperties() {
+        return getAllProperties().entrySet().stream().map(PropertyDTO::new).toList();
     }
 
     @Override

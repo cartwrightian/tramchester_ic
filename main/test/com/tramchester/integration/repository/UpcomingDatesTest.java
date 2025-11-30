@@ -2,20 +2,24 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import java.time.DayOfWeek;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("WIP")
 @DataUpdateTest
 public class UpcomingDatesTest {
     private static GuiceContainerDependencies componentContainer;
-    private StopCallRepository stopCallRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -28,9 +32,19 @@ public class UpcomingDatesTest {
         componentContainer.close();
     }
 
-    @BeforeEach
-    void beforeEachTestRuns() {
-        stopCallRepository = componentContainer.get(StopCallRepository.class);
+    @Test
+    void expectDaysOfWeek() {
+        assertEquals(DayOfWeek.MONDAY, UpcomingDates.nextMonday().getDayOfWeek());
+        assertEquals(DayOfWeek.SATURDAY, UpcomingDates.nextSaturday().getDayOfWeek());
+        assertEquals(DayOfWeek.SUNDAY, UpcomingDates.nextSunday().getDayOfWeek());
+    }
+
+    @Test
+    void shouldHaveValidDates() {
+        TramDate testDay = TestEnv.testDay();
+        assertFalse(testDay.isChristmasPeriod());
+        assertEquals(DayOfWeek.THURSDAY, testDay.getDayOfWeek());
+        assertTrue(UpcomingDates.validTestDate(testDay));
     }
 
 //    @Disabled("WIP")

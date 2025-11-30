@@ -310,10 +310,10 @@ public class TransactionManagerTest {
             start.set(stationA);
             end.set(stationB);
 
-            IdFor<Station> beginId = relationship.getStartStationId();
+            IdFor<Station> beginId = relationship.getStartStationId(txn);
             assertEquals(stationA.getId(), beginId);
 
-            IdFor<Station> endId = relationship.getEndStationId();
+            IdFor<Station> endId = relationship.getEndStationId(txn);
             assertEquals(stationB.getId(), endId);
         }
     }

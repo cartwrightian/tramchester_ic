@@ -96,7 +96,7 @@ class SubgraphSmallStationWalksTest {
 
     @Test
     void shouldHaveJourneyFromPiccGardensToVictoria() {
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Victoria, journeyRequest);

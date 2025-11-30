@@ -60,8 +60,8 @@ public class ShortestPath {
 
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
-            final GraphNode nextNode = graphRelationship.getEndNode(txn);
-            final GraphNodeId nextNodeId = nextNode.getId();
+            //final GraphNode nextNode = graphRelationship.getEndNode(txn);
+            final GraphNodeId nextNodeId = graphRelationship.getEndNodeId(txn); //nextNode.getId();
             final Duration updatedCost = relationshipCost.plus(currentCostToNode);
 
             final GraphPathInMemory continuePath = pathToHere.duplicateWith(txn, graphRelationship);

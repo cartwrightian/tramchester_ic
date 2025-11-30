@@ -164,7 +164,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
             }
 
             if (lastRelationship.isType(DIVERSION)) {
-                final IdFor<Station> stationId = lastRelationship.getStartStationId();
+                final IdFor<Station> stationId = lastRelationship.getStartStationId(txn);
                 journeyStateForChildren.beginDiversion(stationId);
             }
         } else {

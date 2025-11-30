@@ -1,5 +1,8 @@
 package com.tramchester.graph.core;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.id.HasId;
@@ -51,22 +54,6 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         return RouteStationId.parse(value);
     }
 
-//    protected void setTime(final TramTime tramTime, final E entity) {
-//        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
-//        if (tramTime.isNextDay()) {
-//            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
-//        }
-//    }
-//
-//    protected TramTime getTime(final E entity) {
-//        final LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
-//        final boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
-//        if (nextDay) {
-//            return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
-//        }
-//        return TramTime.of(localTime.getHour(), localTime.getMinute());
-//    }
-
     // public to support testing
     protected Object getProperty(final GraphPropertyKey graphPropertyKey, final E entity) {
         return entity.getProperty(graphPropertyKey.getText());
@@ -91,6 +78,39 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         void setTime(TramTime tramTime);
 
         TramTime getTime();
+    }
+
+    public static class PropertyDTO {
+
+        @JsonProperty
+        private final String key;
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value = String.class, name = "string"),
+                @JsonSubTypes.Type(value = Double.class, name = "double"),
+                @JsonSubTypes.Type(value = TramTime.class, name = "TramTime")
+        })
+        private final Object value;
+
+        public PropertyDTO(
+                @JsonProperty("key") final String key,
+                @JsonProperty("value") final Object value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public PropertyDTO(Map.Entry<String, Object> entry) {
+            this(entry.getKey(), entry.getValue());
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Object getValue() {
+            return value;
+        }
     }
 
 }

@@ -6,6 +6,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 
@@ -26,10 +27,10 @@ public abstract class  FindLinkedStations {
 
     public abstract IdSet<Station> atLeastNLinkedStations(TransportMode mode, int threshhold);
 
-    protected StationToStationConnection createConnection(final GraphRelationship relationship) {
+    protected StationToStationConnection createConnection(final GraphRelationship relationship, final GraphTransaction txn) {
 
-        final IdFor<Station> startId = relationship.getStartStationId();
-        final IdFor<Station> endId = relationship.getEndStationId();
+        final IdFor<Station> startId = relationship.getStartStationId(txn);
+        final IdFor<Station> endId = relationship.getEndStationId(txn);
 
         final Station start = stationRepository.getStationById(startId);
         final Station end = stationRepository.getStationById(endId);

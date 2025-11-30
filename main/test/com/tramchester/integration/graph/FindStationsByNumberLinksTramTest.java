@@ -31,7 +31,7 @@ class FindStationsByNumberLinksTramTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private FindLinkedStations finder;
-    private int threshhold;
+    private int threshold;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -48,7 +48,7 @@ class FindStationsByNumberLinksTramTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        threshhold = Interchanges.getLinkThreshhold(TransportMode.Tram);
+        threshold = Interchanges.getLinkThreshhold(TransportMode.Tram);
         finder = componentContainer.get(FindLinkedStations.class);
     }
 
@@ -65,7 +65,7 @@ class FindStationsByNumberLinksTramTest {
         assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
         IdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
 
-        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
+        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
         IdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
 
@@ -76,7 +76,7 @@ class FindStationsByNumberLinksTramTest {
     @Test
     void shouldIdInterchangePointsLinked() {
 
-        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
+        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
         List<IdFor<Station>> expectedList = Stream.of(
 
@@ -91,9 +91,8 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                Shudehill,
-                // replacement buses
-                OldhamMumps, OldhamKingStreet
+                VeloPark,
+                HoltTown
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);

@@ -21,4 +21,6 @@ public class TramTimeJsonDeserializer extends JsonDeserializer<TramTime> {
         }
         throw new IOException("Failed to parse " + node.asText());
     }
+
+
 }

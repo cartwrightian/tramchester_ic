@@ -186,7 +186,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
         EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        int costs = getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
+        int costs = getPossibleMinChanges(start, destination, mode, when, timeRange);
 
         assertEquals(0, costs);
     }
@@ -219,12 +219,12 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldHaveJourneyFromPiccGardensToPiccadilly() {
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Victoria, journeyRequest);
 
-        assertFalse(results.isEmpty(), "no journeys");
+        assertFalse(results.isEmpty(), "no journeys for " + journeyRequest);
     }
 
     @Test
@@ -278,11 +278,11 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldFindPiccadillyToPiccadillyGardens() {
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, TramsOnly);
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, PiccadillyGardens, journeyRequest);
 
-        assertFalse(results.isEmpty());
+        assertFalse(results.isEmpty(), "no results for " + journeyRequest);
     }
 
     @Test

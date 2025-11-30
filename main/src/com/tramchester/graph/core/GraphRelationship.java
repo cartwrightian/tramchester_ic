@@ -64,11 +64,11 @@ public interface GraphRelationship extends GraphEntity {
 
     int getStopSeqNumber();
 
-    IdFor<Station> getEndStationId();
+    IdFor<Station> getEndStationId(GraphTransaction txn);
 
-    IdFor<Station> getStartStationId();
+    IdFor<Station> getStartStationId(GraphTransaction txn);
 
-    IdFor<StationLocalityGroup> getStationGroupId();
+    IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn);
 
     IdSet<Trip> getTripIds();
 
@@ -82,7 +82,7 @@ public interface GraphRelationship extends GraphEntity {
 
     TramTime getEndTime();
 
-    LocationId<?> getLocationId();
+    LocationId<?> getLocationId(GraphTransaction txn);
 
     boolean hasTripIdInList(IdFor<Trip> tripId);
 
@@ -92,7 +92,7 @@ public interface GraphRelationship extends GraphEntity {
     }
 
     default IdFor<? extends CoreDomain> getEndDomainId(final GraphTransaction txn) {
-        final GraphNode node = getEndNode(txn);
+        final GraphNode node = txn.getNodeById(getEndNodeId(txn)); // getEndNode(txn);
         return node.getCoreDomainId();
     }
 }

@@ -106,7 +106,7 @@ public class MapPathToStagesViaStates implements PathToStages {
                     mapStatesToStages.passStop(relationship);
                 }
                 if (relationship.isType(DIVERSION)) {
-                    final IdFor<Station> stationId = relationship.getStartStationId();
+                    final IdFor<Station> stationId = relationship.getStartStationId(txn);
                     mapStatesToStages.beginDiversion(stationId);
                 }
                 return lastRelationshipCost;

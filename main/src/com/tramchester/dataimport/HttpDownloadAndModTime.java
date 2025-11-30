@@ -301,8 +301,10 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         final ReadableByteChannel rbc = Channels.newChannel(inputStream);
         final FileOutputStream fos = new FileOutputStream(targetFile);
         long received = 1;
+        long position = 0;
         while (received > 0) {
-            received = fos.getChannel().transferFrom(rbc, 0, maxSize);
+            received = fos.getChannel().transferFrom(rbc, position, maxSize);
+            position += received;
             logger.info(format("Received %s bytes for %s", received, targetLocation));
         }
         fos.close();

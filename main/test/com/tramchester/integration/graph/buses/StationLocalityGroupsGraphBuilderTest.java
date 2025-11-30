@@ -120,7 +120,7 @@ public class StationLocalityGroupsGraphBuilderTest {
             GraphNode endNode = toParent.getEndNode(txn);
             assertEquals(stationGroupNode.getId(), endNode.getId(), "wrong parent for " + childNode.getStationId());
 
-            assertEquals(stationGroupId, toParent.getStationGroupId(), "missing for " + childNode.getStationId());
+            assertEquals(stationGroupId, toParent.getStationGroupId(txn), "missing for " + childNode.getStationId());
         });
     }
 

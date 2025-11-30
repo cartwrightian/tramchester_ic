@@ -1,28 +1,45 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
+import java.util.List;
 import java.util.Objects;
 
 public class GraphRelationshipInMemory extends GraphRelationshipProperties<PropertyContainer> {
     private final TransportRelationshipTypes relationshipType;
     private final GraphRelationshipId id;
-    private final MutableGraphNode start;
-    private final MutableGraphNode end;
+    private final GraphNodeId startId;
+    private final GraphNodeId endId;
 
     public GraphRelationshipInMemory(TransportRelationshipTypes relationshipType, GraphRelationshipId id,
-                                     MutableGraphNode start, MutableGraphNode end) {
+                                     GraphNodeId startId, GraphNodeId endId) {
         super(new PropertyContainer());
         this.relationshipType = relationshipType;
         this.id = id;
-        this.start = start;
-        this.end = end;
+        this.startId = startId;
+        this.endId = endId;
+    }
+
+    @JsonCreator
+    public GraphRelationshipInMemory(
+            @JsonProperty("type") TransportRelationshipTypes relationshipType,
+            @JsonProperty("relationshipId") RelationshipIdInMemory id,
+            @JsonProperty("startId") NodeIdInMemory startId,
+            @JsonProperty("endId") NodeIdInMemory endId,
+            @JsonProperty("properties") List<PropertyDTO> props) {
+        super(new PropertyContainer(props));
+        this.relationshipType = relationshipType;
+        this.id = id;
+        this.startId = startId;
+        this.endId = endId;
     }
 
     @Override
@@ -36,20 +53,25 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         // no-op
     }
 
-    @JsonIgnore
+    @JsonGetter("properties")
+    public List<PropertyDTO> getProperties() {
+        return getAllProperties().entrySet().stream().map(PropertyDTO::new).toList();
+    }
+
+    @JsonProperty(value = "relationshipId")
     @Override
     public GraphRelationshipId getId() {
         return id;
     }
 
     @Override
-    public GraphNode getEndNode(GraphTransaction txn) {
-        return end;
+    public GraphNode getEndNode(final GraphTransaction txn) {
+        return txn.getNodeById(endId);
     }
 
     @Override
-    public GraphNode getStartNode(GraphTransaction txn) {
-        return start;
+    public GraphNode getStartNode(final GraphTransaction txn) {
+        return txn.getNodeById(startId);
     }
 
     @Override
@@ -59,7 +81,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonGetter("startId")
     public GraphNodeId getStartId() {
-        return start.getId();
+        return startId;
     }
 
     @Override
@@ -69,7 +91,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonGetter("endId")
     public GraphNodeId getEndId() {
-        return end.getId();
+        return endId;
     }
 
     @Override
@@ -84,20 +106,21 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonIgnore
     @Override
-    public IdFor<Station> getEndStationId() {
-        return end.getStationId();
+    public IdFor<Station> getEndStationId(GraphTransaction txn) {
+        return getEndNode(txn).getStationId();
+        //return end.getStationId();
     }
 
     @JsonIgnore
     @Override
-    public IdFor<Station> getStartStationId() {
-        return start.getStationId();
+    public IdFor<Station> getStartStationId(GraphTransaction txn) {
+        return getStartNode(txn).getStationId();
     }
 
     @JsonIgnore
     @Override
-    public IdFor<StationLocalityGroup> getStationGroupId() {
-        return end.getStationGroupId();
+    public IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn) {
+        return getEndNode(txn).getStationGroupId();
     }
 
     @Override
@@ -115,8 +138,8 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         return "GraphRelationshipInMemory{" +
                 "relationshipType=" + relationshipType +
                 ", id=" + id +
-                ", start=" + start.getId() +
-                ", end=" + end.getId() +
+                ", start=" + startId +
+                ", end=" + endId +
                 '}';
     }
 
@@ -125,11 +148,11 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         if (o == null || getClass() != o.getClass()) return false;
         GraphRelationshipInMemory that = (GraphRelationshipInMemory) o;
         return relationshipType == that.relationshipType && Objects.equals(id, that.id)
-                && Objects.equals(start, that.start) && Objects.equals(end, that.end);
+                && Objects.equals(startId, that.startId) && Objects.equals(endId, that.endId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(relationshipType, id, start, end);
+        return Objects.hash(relationshipType, id, startId, endId);
     }
 }
