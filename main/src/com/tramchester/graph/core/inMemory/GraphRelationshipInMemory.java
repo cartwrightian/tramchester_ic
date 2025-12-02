@@ -30,7 +30,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonCreator
     public GraphRelationshipInMemory(
-            @JsonProperty("type") TransportRelationshipTypes relationshipType,
+            @JsonProperty("relationshipType") TransportRelationshipTypes relationshipType,
             @JsonProperty("relationshipId") RelationshipIdInMemory id,
             @JsonProperty("startId") NodeIdInMemory startId,
             @JsonProperty("endId") NodeIdInMemory endId,
@@ -94,6 +94,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         return endId;
     }
 
+    @JsonProperty("relationshipType")
     @Override
     public TransportRelationshipTypes getType() {
         return relationshipType;
@@ -108,7 +109,6 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     @Override
     public IdFor<Station> getEndStationId(GraphTransaction txn) {
         return getEndNode(txn).getStationId();
-        //return end.getStationId();
     }
 
     @JsonIgnore

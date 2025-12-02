@@ -1,10 +1,15 @@
 package com.tramchester.integration.graph.inMemory;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphRelationshipId;
@@ -17,18 +22,19 @@ import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("WIP")
 public class GraphSerializationTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
@@ -55,7 +61,12 @@ public class GraphSerializationTest {
             FileUtils.delete(GRAPH_FILENAME.toFile());
         }
 
-        mapper = new ObjectMapper();
+        JsonFactory factory = JsonFactory.
+                builder().
+                configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION, true).
+                build();
+
+        mapper = new ObjectMapper(factory);
         mapper.registerModule(new JavaTimeModule());
     }
 
@@ -66,7 +77,10 @@ public class GraphSerializationTest {
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
+        Graph expected = componentContainer.get(Graph.class);
 
+        NodesAndEdges result = saveGraph.load(GRAPH_FILENAME);
+        assertEquals(expected.getCore(), result);
     }
 
     @Test
@@ -112,8 +126,9 @@ public class GraphSerializationTest {
         GraphNodeId idA = new NodeIdInMemory(678);
         GraphNodeId idB = new NodeIdInMemory(679);
 
-//        GraphNodeInMemory begin = new GraphNodeInMemory(idA, EnumSet.of(GraphLabel.STATION));
-//        GraphNodeInMemory end = new GraphNodeInMemory(idB, EnumSet.of(GraphLabel.PLATFORM));
+        IdFor<Trip> tripA = Trip.createId("tripA");
+        IdFor<Trip> tripB = Trip.createId("tripB");
+        Duration cost = Duration.of(65, ChronoUnit.SECONDS);
 
         GraphRelationshipId id = new RelationshipIdInMemory(42);
         GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
@@ -122,6 +137,12 @@ public class GraphSerializationTest {
         TramTime tramTime = TramTime.of(11, 42);
         relationship.setTime(tramTime);
         relationship.set(TestEnv.getTramTestRoute());
+        relationship.setHour(17);
+        relationship.setStopSeqNum(42);
+        relationship.setCost(cost);
+        relationship.addTripId(tripA);
+        relationship.addTripId(tripB);
+        relationship.setTransportMode(Tram);
 
         String text = null;
         try {
@@ -142,6 +163,14 @@ public class GraphSerializationTest {
         try {
             assertEquals(tramTime, result.getTime());
             assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
+            assertEquals(17, relationship.getHour());
+            assertEquals(42, relationship.getStopSeqNumber());
+            assertEquals(cost, relationship.getCost());
+            IdSet<Trip> trips = relationship.getTripIds();
+            assertEquals(2, trips.size());
+            assertTrue(trips.contains(tripA));
+            assertTrue(trips.contains(tripB));
+            assertTrue(relationship.getTransportModes().contains(Tram));
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);

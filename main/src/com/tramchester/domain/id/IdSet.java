@@ -1,6 +1,8 @@
 package com.tramchester.domain.id;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.places.Location;
@@ -14,7 +16,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
+
+    @JsonIgnore
     private final Set<IdFor<T>> theSet;
+
+    @JsonProperty("ids")
+    private Set<IdForDTO> getIdsForSerialisation() {
+        return theSet.stream().map(IdForDTO::createFor).collect(Collectors.toSet());
+    }
 
     public IdSet() {
         theSet = new HashSet<>();
@@ -85,6 +94,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         theSet.clear();
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return theSet.isEmpty();
     }

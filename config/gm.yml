@@ -1,6 +1,10 @@
 %[shared/server.yml]
 
 inMemoryGraph: false
+
+cacheFolder: data/cache/gm
+dataExpiryThreadhold: 3
+
 graphDBConfig:
   graphName: databases/gm_rail.db
   neo4jPagecacheMemory: 1000m
@@ -69,7 +73,6 @@ remoteSources:
 openLdb:
   accessToken: ${OPENLDB_APIKEY:- ""}
   wsdlLocation: ${RAIL_WSDL:- "config/OpenLDBWS.wsdl"}
-cacheFolder: data/cache/gm
 calcTimeoutMillis: 3500
 bounds:
   minEastings: 370000
@@ -101,7 +104,6 @@ numOfNearestStopsToOffer: 5
 numOfNearestStopsForWalking: 3
 walkingMPH: 3.0
 recentStopsToShow: 5
-dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
 
 %[shared/infra.yml]

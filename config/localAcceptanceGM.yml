@@ -6,6 +6,9 @@ graphDBConfig:
   neo4jPagecacheMemory: 1000m
   memoryTransactionGlobalMaxSize: 650m
 
+dataExpiryThreadhold: 3
+cacheFolder: data/cache
+
 gtfsSourceConfig:
   -
     name: tfgm
@@ -55,7 +58,6 @@ rail:
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 
-cacheFolder: data/cache
 calcTimeoutMillis: 3500
 
 bounds:
@@ -93,7 +95,6 @@ numOfNearestStopsToOffer:  5
 numOfNearestStopsForWalking:  3
 walkingMPH: 3
 recentStopsToShow: 5
-dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
 
 logging:

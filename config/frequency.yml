@@ -5,7 +5,10 @@ graphDBConfig:
   graphName: ''
   neo4jPagecacheMemory: 0m
   memoryTransactionGlobalMaxSize: 0m
-distributionBucket: tramchesternewdist
+
+cacheFolder: data/cacheFrequency
+dataExpiryThreadhold: 3
+
 gtfsSourceConfig:
   -
     name: tfgm
@@ -54,14 +57,16 @@ remoteSources:
     downloadPath: data/nptg
     filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
-cacheFolder: data/cacheFrequency
+
 calcTimeoutMillis: 3500
+
 bounds:
   minEastings: 333200
   minNorthings: 373250
   maxEasting: 414500
   maxNorthings: 437850
 planningEnabled: false
+
 maxWait: 35
 depthFirst: true
 numberQueries: 3
@@ -75,7 +80,6 @@ numOfNearestStopsToOffer: 5
 numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
-dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
 
 %[shared/infra.yml]

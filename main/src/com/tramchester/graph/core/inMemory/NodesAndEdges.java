@@ -1,14 +1,17 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphRelationshipId;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class NodesAndEdges {
@@ -20,12 +23,28 @@ public class NodesAndEdges {
         nodes = new ConcurrentHashMap<>();
     }
 
-    @JsonProperty(value = "nodes", access = JsonProperty.Access.READ_ONLY)
+    @JsonCreator
+    public NodesAndEdges(
+            @JsonProperty(value = "relationships", required = true) Set<GraphRelationshipInMemory> relationshipSet,
+            @JsonProperty(value = "nodes", required = true) Set<GraphNodeInMemory> nodeSet) {
+        relationships = new ConcurrentHashMap<>();
+        nodes = new ConcurrentHashMap<>();
+
+        Map<GraphRelationshipId, GraphRelationshipInMemory> relationshipMap = relationshipSet.stream().
+                collect(Collectors.toMap(GraphRelationshipInMemory::getId, rel -> rel));
+        relationships.putAll(relationshipMap);
+
+        Map<GraphNodeId, GraphNodeInMemory> nodeMap = nodeSet.stream().
+                collect(Collectors.toMap(GraphNodeInMemory::getId, node -> node));
+        nodes.putAll(nodeMap);
+    }
+
+    @JsonProperty(value = "nodes")
     public Set<GraphNodeInMemory> getNodes() {
         return new HashSet<>(nodes.values());
     }
 
-    @JsonProperty(value = "relationships", access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(value = "relationships")
     public Set<GraphRelationshipInMemory> getRelationships() {
         return new HashSet<>(relationships.values());
     }

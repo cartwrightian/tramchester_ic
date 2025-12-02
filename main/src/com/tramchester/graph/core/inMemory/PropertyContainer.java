@@ -1,16 +1,19 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphEntityProperties;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
-import static com.tramchester.graph.GraphPropertyKey.TIME;
+import static com.tramchester.graph.GraphPropertyKey.*;
 
 final class PropertyContainer implements GraphEntityProperties.GraphProps {
 
@@ -64,5 +67,45 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
     @Override
     public TramTime getTime() {
         return (TramTime) getProperty(TIME.getText());
+    }
+
+    @Override
+    public void addTripId(final IdFor<Trip> tripId) {
+        final IdSet<Trip> existing = getTripIds();
+
+        final IdSet<Trip> updated;
+        if (existing.isEmpty()) {
+            updated = IdSet.singleton(tripId);
+        } else {
+            updated = IdSet.copy(existing).add(tripId);
+        }
+        setProperty(TRIP_ID_LIST, updated);
+    }
+
+    @Override
+    public boolean hasTripIdInList(final IdFor<Trip> tripId) {
+        return getTripIds().contains(tripId);
+    }
+
+    @Override
+    public IdSet<Trip> getTripIds() {
+        if (hasProperty(TRIP_ID_LIST)) {
+            return (IdSet<Trip>) getProperty(TRIP_ID_LIST);
+        } else {
+            return IdSet.emptySet();
+        }
+    }
+
+    @Override
+    public void setCost(Duration cost) {
+        setProperty(COST, cost);
+    }
+
+    @Override
+    public Duration getCost() {
+        if (hasProperty(COST)) {
+            return (Duration) getProperty(COST);
+        }
+        throw new RuntimeException("Cost is missing for " + this);
     }
 }

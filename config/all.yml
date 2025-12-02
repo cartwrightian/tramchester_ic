@@ -6,6 +6,9 @@ graphDBConfig:
   neo4jPagecacheMemory: 1500m
   memoryTransactionGlobalMaxSize: 650m
 
+cacheFolder: data/cacheAll
+calcTimeoutMillis: 3500
+
 gtfsSourceConfig:
   -
     name: tfgm
@@ -54,8 +57,7 @@ remoteSources:
     downloadPath: data/nptg
     filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
-cacheFolder: data/cacheAll
-calcTimeoutMillis: 3500
+
 bounds:
   minEastings: 333211
   minNorthings: 373264

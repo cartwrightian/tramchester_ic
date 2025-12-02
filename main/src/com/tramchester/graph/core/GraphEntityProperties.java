@@ -5,16 +5,15 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
@@ -65,11 +64,25 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
 
     public interface GraphProps {
 
+        // TODO String -> GraphPropertyKey here
+
         void setProperty(String key, Object value);
+
+        default void setProperty(final GraphPropertyKey graphPropertyKey, final Object value) {
+            setProperty(graphPropertyKey.getText(), value);
+        }
 
         Object getProperty(String text);
 
+        default Object getProperty(final GraphPropertyKey graphPropertyKey) {
+            return getProperty(graphPropertyKey.getText());
+        }
+
         Map<String, Object> getAllProperties();
+
+        default boolean hasProperty(final GraphPropertyKey graphPropertyKey) {
+            return hasProperty(graphPropertyKey.getText());
+        }
 
         boolean hasProperty(String key);
 
@@ -78,6 +91,17 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         void setTime(TramTime tramTime);
 
         TramTime getTime();
+
+        void addTripId(IdFor<Trip> tripId);
+
+        boolean hasTripIdInList(IdFor<Trip> tripId);
+
+        IdSet<Trip> getTripIds();
+
+        void setCost(Duration cost);
+
+        Duration getCost();
+
     }
 
     public static class PropertyDTO {
@@ -85,11 +109,11 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         @JsonProperty
         private final String key;
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
         @JsonSubTypes({
-                @JsonSubTypes.Type(value = String.class, name = "string"),
-                @JsonSubTypes.Type(value = Double.class, name = "double"),
-                @JsonSubTypes.Type(value = TramTime.class, name = "TramTime")
+                @JsonSubTypes.Type(value = TramTime.class, name = "tramTime"),
+                @JsonSubTypes.Type(value = Duration.class, name = "duration"),
+                @JsonSubTypes.Type(value = IdSet.class, name = "idSet")
         })
         private final Object value;
 

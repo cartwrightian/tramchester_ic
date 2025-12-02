@@ -252,7 +252,7 @@ public class Graph {
         return relationshipTypeCounts.get(relationshipType).get();
     }
 
-    NodesAndEdges getCore() {
+    public NodesAndEdges getCore() {
         return nodesAndEdges;
     }
 

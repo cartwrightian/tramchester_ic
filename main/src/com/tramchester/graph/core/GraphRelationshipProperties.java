@@ -34,12 +34,11 @@ import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION_DEPART;
 
-public abstract class GraphRelationshipProperties <T extends GraphEntityProperties.GraphProps> extends GraphEntityProperties<T> implements MutableGraphRelationship {
+public abstract class GraphRelationshipProperties <T extends GraphEntityProperties.GraphProps>
+        extends GraphEntityProperties<T> implements MutableGraphRelationship {
 
     private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
             DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
-
-    private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private final T relationship;
 
@@ -62,7 +61,6 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public void setTime(final TramTime tramTime) {
         relationship.setTime(tramTime);
-        //setTime(tramTime, relationship);
         invalidateCache();
     }
 
@@ -74,8 +72,9 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @Override
     public void setCost(final Duration cost) {
-        final long seconds = cost.toSeconds();
-        relationship.setProperty(COST.getText(), seconds);
+        relationship.setCost(cost);
+//        final long seconds = cost.toSeconds();
+//        relationship.setProperty(COST.getText(), seconds);
         invalidateCache();
     }
 
@@ -167,6 +166,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         invalidateCache();
     }
 
+    // TODO Push specifics into implementations of GraphEntityProperties.GraphProps
     @Override
     public void addTransportMode(final TransportMode mode) {
         invalidateCache();
@@ -197,28 +197,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public void addTripId(final IdFor<Trip> tripId) {
         invalidateCache();
-
-        final String text = tripId.getGraphId();
-        if (!(relationship.hasProperty(tripIdListProperty))) {
-            relationship.setProperty(tripIdListProperty, new String[]{text});
-            return;
-        }
-        // else
-        final String[] existing = getTripIdList();
-
-        // depends on the sort below
-        // TODO use the output here to find place to split array, vs copy below?
-        if (Arrays.binarySearch(existing, text)>=0) {
-            return;
-        }
-
-        final int length = existing.length;
-        final String[] replacement = Arrays.copyOf(existing, length + 1);
-        replacement[length] = text;
-        // keep array sorted, so can use BinarySearch
-        Arrays.sort(replacement);
-        relationship.setProperty(tripIdListProperty, replacement);
-
+        relationship.addTripId(tripId);
     }
 
     @JsonIgnore
@@ -226,11 +205,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     public Duration getCost() {
         final TransportRelationshipTypes relationshipType = getType();
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
-            if (relationship.hasProperty(COST.getText())) {
-                final long seconds = (long) relationship.getProperty(COST.getText());
-                return Duration.ofSeconds(seconds);
-            }
-            throw new RuntimeException("Cost is missing for " + this);
+            return relationship.getCost();
         } else {
             return Duration.ZERO;
         }
@@ -279,12 +254,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     public IdSet<Trip> getTripIds() {
-        if (!relationship.hasProperty(tripIdListProperty)) {
-            return IdSet.emptySet();
-        }
-        final String[] existing = getTripIdList();
-
-        return Arrays.stream(existing).map(Trip::createId).collect(IdSet.idCollector());
+        return relationship.getTripIds();
     }
 
     /***
@@ -294,16 +264,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
      */
     @Override
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
-        final String text = tripId.getGraphId();
-
-        final String[] existing = getTripIdList();
-        // NOTE: array MUST be sorted, see above addTripId
-        // conversion to a list or similar much slower
-        return Arrays.binarySearch(existing, text) >= 0;
-    }
-
-    private String[] getTripIdList() {
-        return (String[]) relationship.getProperty(tripIdListProperty);
+        return relationship.hasTripIdInList(tripId);
     }
 
     @JsonIgnore

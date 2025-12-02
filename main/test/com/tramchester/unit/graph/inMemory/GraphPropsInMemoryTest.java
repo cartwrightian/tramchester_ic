@@ -432,14 +432,16 @@ public class GraphPropsInMemoryTest {
                 sorted(Comparator.comparing(IdFor::getGraphId)).
                 toList();
 
-        String[] directFromRelationship = (String[]) underlying.getPropertyForTesting(TRIP_ID_LIST);
-        assertEquals(maxTripsForService, directFromRelationship.length);
+        IdSet<Trip> directFromRelationship = (IdSet<Trip>) underlying.getPropertyForTesting(TRIP_ID_LIST);
+        assertEquals(maxTripsForService, directFromRelationship.size());
 
-        // check sorted as expected
-        for (int i = 0; i < directFromRelationship.length; i++) {
-            final String tripIdText = sortedTripIds.get(i).getGraphId();
-            assertEquals(tripIdText, directFromRelationship[i], "mismatch on " + i);
-        }
+        assertTrue(directFromRelationship.containsAll(unsortedTripIds));
+
+//        // check sorted as expected
+//        for (int i = 0; i < directFromRelationship.length; i++) {
+//            final String tripIdText = sortedTripIds.get(i).getGraphId();
+//            assertEquals(tripIdText, directFromRelationship[i], "mismatch on " + i);
+//        }
 
         unsortedTripIds.forEach(tripId -> assertTrue(nodeA.hasOutgoingServiceMatching(txn, tripId), "Failed for " + tripId));
     }
