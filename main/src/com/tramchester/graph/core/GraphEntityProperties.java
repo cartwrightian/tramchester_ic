@@ -1,20 +1,22 @@
 package com.tramchester.graph.core;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
 
@@ -102,6 +104,13 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
 
         Duration getCost();
 
+        void setTransportMode(TransportMode transportMode);
+
+        TransportMode getTransportMode();
+
+        void addTransportMode(TransportMode mode);
+
+        EnumSet<TransportMode> getTransportModes();
     }
 
     public static class PropertyDTO {
@@ -113,10 +122,13 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         @JsonSubTypes({
                 @JsonSubTypes.Type(value = TramTime.class, name = "tramTime"),
                 @JsonSubTypes.Type(value = Duration.class, name = "duration"),
-                @JsonSubTypes.Type(value = IdSet.class, name = "idSet")
+                @JsonSubTypes.Type(value = IdSet.class, name = "idSet"),
+                @JsonSubTypes.Type(value = TransportMode.class, name = "transportMode"),
+                @JsonSubTypes.Type(value = EnumSetDTO.class, name = "enumSet")
         })
         private final Object value;
 
+        @JsonCreator
         public PropertyDTO(
                 @JsonProperty("key") final String key,
                 @JsonProperty("value") final Object value) {
@@ -124,8 +136,14 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
             this.value = value;
         }
 
-        public PropertyDTO(Map.Entry<String, Object> entry) {
-            this(entry.getKey(), entry.getValue());
+        public static PropertyDTO fromMapEntry(Map.Entry<String, Object> entry) {
+            Object entryValue = entry.getValue();
+            if (entryValue instanceof EnumSet<?> enumSet) {
+                if (entry.getKey().equals("transport_modes")) {
+                    entryValue = new EnumSetDTO((EnumSet<TransportMode>)enumSet);
+                }
+            }
+            return new PropertyDTO(entry.getKey(), entryValue);
         }
 
         public String getKey() {
@@ -134,6 +152,24 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
 
         public Object getValue() {
             return value;
+        }
+    }
+
+
+    public static class EnumSetDTO {
+
+        @JsonIgnore
+        private final Set<TransportMode> theSet;
+
+        @JsonProperty("contents")
+        public Set<TransportMode> getContents() {
+            return theSet;
+        }
+
+        @JsonCreator
+        public EnumSetDTO(
+                @JsonProperty(value = "contents", required = true) final Set<TransportMode> theSet) {
+            this.theSet = new HashSet<>(theSet);
         }
     }
 

@@ -22,7 +22,10 @@ import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,10 +34,10 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
 public class GraphSerializationTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
@@ -93,6 +96,7 @@ public class GraphSerializationTest {
         graphNodeInMemory.setTime(tramTime);
         graphNodeInMemory.setLatLong(KnownLocations.nearBury.latLong());
         graphNodeInMemory.set(TestEnv.getTramTestRoute());
+        graphNodeInMemory.setTransportMode(Tram);
 
         String text = null;
         try {
@@ -114,6 +118,7 @@ public class GraphSerializationTest {
             assertEquals(tramTime, result.getTime());
             assertEquals(KnownLocations.nearBury.latLong(), result.getLatLong());
             assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
+            assertEquals(Tram, result.getTransportMode());
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);
@@ -142,7 +147,8 @@ public class GraphSerializationTest {
         relationship.setCost(cost);
         relationship.addTripId(tripA);
         relationship.addTripId(tripB);
-        relationship.setTransportMode(Tram);
+        relationship.addTransportMode(Bus);
+        relationship.addTransportMode(Tram);
 
         String text = null;
         try {
@@ -170,7 +176,8 @@ public class GraphSerializationTest {
             assertEquals(2, trips.size());
             assertTrue(trips.contains(tripA));
             assertTrue(trips.contains(tripB));
-            assertTrue(relationship.getTransportModes().contains(Tram));
+            assertEquals(EnumSet.of(Bus,Tram),relationship.getTransportModes());
+
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);

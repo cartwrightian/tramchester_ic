@@ -55,7 +55,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonGetter("properties")
     public List<PropertyDTO> getProperties() {
-        return getAllProperties().entrySet().stream().map(PropertyDTO::new).toList();
+        return getAllProperties().entrySet().stream().map(PropertyDTO::fromMapEntry).toList();
     }
 
     @JsonProperty(value = "relationshipId")

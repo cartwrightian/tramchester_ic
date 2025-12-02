@@ -24,15 +24,11 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
-import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
-import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
-import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION_DEPART;
 
 public abstract class GraphRelationshipProperties <T extends GraphEntityProperties.GraphProps>
         extends GraphEntityProperties<T> implements MutableGraphRelationship {
@@ -54,7 +50,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @Override
     public void setTransportMode(final TransportMode transportMode) {
-        relationship.setProperty(TRANSPORT_MODE.getText(), transportMode.getNumber());
+        relationship.setTransportMode(transportMode);
         invalidateCache();
     }
 
@@ -73,8 +69,6 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public void setCost(final Duration cost) {
         relationship.setCost(cost);
-//        final long seconds = cost.toSeconds();
-//        relationship.setProperty(COST.getText(), seconds);
         invalidateCache();
     }
 
@@ -170,28 +164,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public void addTransportMode(final TransportMode mode) {
         invalidateCache();
-
-        final short modeNumber = mode.getNumber();
-        final String key = TRANSPORT_MODES.getText();
-
-        if (!(relationship.hasProperty(key))) {
-            // INIT
-            relationship.setProperty(key, new short[]{modeNumber});
-            return;
-        } //else UPDATE
-
-        final short[] existing = (short[]) relationship.getProperty(key);
-        // note: not sorted, hence not binary search here
-        for (short value : existing) {
-            if (value == modeNumber) {
-                return;
-            }
-        }
-
-        final short[] replacement = Arrays.copyOf(existing, existing.length + 1);
-        replacement[existing.length] = modeNumber;
-        //Arrays.sort(replacement);
-        relationship.setProperty(key, replacement);
+        relationship.addTransportMode(mode);
     }
 
     @Override
@@ -229,7 +202,6 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public TramTime getTime() {
         return relationship.getTime();
-        //return getTime(relationship);
     }
 
     @JsonIgnore
@@ -270,13 +242,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public EnumSet<TransportMode> getTransportModes() {
-        // todo can this be stored direct now?
-        if (!relationship.hasProperty(TRANSPORT_MODES.getText())) {
-            return EnumSet.noneOf(TransportMode.class);
-        }
-
-        final short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
-        return TransportMode.fromNumbers(existing);
+        return relationship.getTransportModes();
     }
 
     @JsonIgnore

@@ -83,8 +83,9 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     }
 
     @Override
-    public void setTransportMode(final TransportMode first) {
-        graphProps.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
+    public void setTransportMode(final TransportMode mode) {
+        graphProps.setTransportMode(mode);
+        //graphProps.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
         invalidateCache();
     }
 
@@ -148,8 +149,9 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     @Override
     public TransportMode getTransportMode() {
-        short number = (short) getProperty(TRANSPORT_MODE, graphProps);
-        return TransportMode.fromNumber(number);
+        return graphProps.getTransportMode();
+//        short number = (short) getProperty(TRANSPORT_MODE, graphProps);
+//        return TransportMode.fromNumber(number);
     }
 
     @JsonIgnore

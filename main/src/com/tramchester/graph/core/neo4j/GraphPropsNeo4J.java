@@ -3,6 +3,7 @@ package com.tramchester.graph.core.neo4j;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphEntityProperties;
 import org.neo4j.graphdb.Entity;
@@ -10,6 +11,7 @@ import org.neo4j.graphdb.Entity;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -131,5 +133,52 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps {
             return Duration.ofSeconds(seconds);
         }
         throw new RuntimeException("Cost is missing for " + this);
+    }
+
+    @Override
+    public void setTransportMode(final TransportMode transportMode) {
+        setProperty(TRANSPORT_MODE, transportMode.getNumber());
+    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        short number = (short) getProperty(TRANSPORT_MODE);
+        return TransportMode.fromNumber(number);
+    }
+
+    @Override
+    public void addTransportMode(final TransportMode mode) {
+
+        final short modeNumber = mode.getNumber();
+        final String key = TRANSPORT_MODES.getText();
+
+        if (!hasProperty(key)) {
+            // INIT
+            setProperty(key, new short[]{modeNumber});
+            return;
+        } //else UPDATE
+
+        final short[] existing = (short[]) getProperty(key);
+        // note: not sorted, hence not binary search here
+        for (short value : existing) {
+            if (value == modeNumber) {
+                return;
+            }
+        }
+
+        final short[] replacement = Arrays.copyOf(existing, existing.length + 1);
+        replacement[existing.length] = modeNumber;
+        //Arrays.sort(replacement);
+        setProperty(key, replacement);
+    }
+
+    @Override
+    public EnumSet<TransportMode> getTransportModes() {
+        if (!hasProperty(TRANSPORT_MODES.getText())) {
+            return EnumSet.noneOf(TransportMode.class);
+        }
+
+        final short[] existing = (short[]) getProperty(TRANSPORT_MODES.getText());
+        return TransportMode.fromNumbers(existing);
     }
 }

@@ -3,10 +3,12 @@ package com.tramchester.graph.core.inMemory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphEntityProperties;
 
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,5 +109,38 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
             return (Duration) getProperty(COST);
         }
         throw new RuntimeException("Cost is missing for " + this);
+    }
+
+    @Override
+    public void setTransportMode(TransportMode transportMode) {
+        setProperty(TRANSPORT_MODE, transportMode);
+    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        return (TransportMode) getProperty(TRANSPORT_MODE);
+    }
+
+    @Override
+    public void addTransportMode(final TransportMode mode) {
+        final EnumSet<TransportMode> current;
+        if (hasProperty(TRANSPORT_MODES)) {
+            current = (EnumSet<TransportMode>) getProperty(TRANSPORT_MODES);
+        } else {
+            current = EnumSet.noneOf(TransportMode.class);
+        }
+
+        final EnumSet<TransportMode> updated = EnumSet.copyOf(current);
+        updated.add(mode);
+        setProperty(TRANSPORT_MODES, updated);
+    }
+
+    @Override
+    public EnumSet<TransportMode> getTransportModes() {
+        if (hasProperty(TRANSPORT_MODES)) {
+            return (EnumSet<TransportMode>) getProperty(TRANSPORT_MODES);
+        } else {
+            return EnumSet.noneOf(TransportMode.class);
+        }
     }
 }
