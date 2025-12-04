@@ -5,6 +5,7 @@ import com.tramchester.graph.core.GraphNodeId;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 //@JsonTypeName(value = "nodeId")
@@ -44,5 +45,9 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     @Override
     public int compareTo(@NotNull NodeIdInMemory other) {
         return Integer.compare(this.id, other.id);
+    }
+
+    void recordIdTo(AtomicInteger toUpdate) {
+        toUpdate.set(id);
     }
 }

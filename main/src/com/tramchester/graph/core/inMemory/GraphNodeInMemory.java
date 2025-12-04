@@ -15,12 +15,12 @@ import java.util.stream.Stream;
 
 public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
-    private final GraphNodeId id;
+    private final NodeIdInMemory id;
 
     // push labels into graph, so can do the validation check etc
     private final EnumSet<GraphLabel> labels;
 
-    public GraphNodeInMemory(final GraphNodeId id, final EnumSet<GraphLabel> labels) {
+    public GraphNodeInMemory(final NodeIdInMemory id, final EnumSet<GraphLabel> labels) {
         super(new PropertyContainer());
         this.id = id;
         this.labels = labels;
@@ -68,7 +68,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @JsonProperty(value = "nodeId")
     @Override
-    public GraphNodeId getId() {
+    public NodeIdInMemory getId() {
         return id;
     }
 

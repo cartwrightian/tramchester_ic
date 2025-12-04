@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteCalculatorInMemoryTest {
     public static final Path GRAPH_FILENAME_OK = Path.of("RouteCalcInMemoryTest.json");
-    public static final Path GRAPH_FILENAME_FAIL= Path.of("RouteCalcInMemoryTest_failed.json");
+    public static final Path GRAPH_FILENAME_FAIL = Path.of("RouteCalcInMemoryTest_failed.json");
 
     private static EnumSet<TransportMode> requestedModes;
     private static ComponentContainer componentContainer;
@@ -87,7 +87,6 @@ public class RouteCalculatorInMemoryTest {
         testForConsistency(NavigationRoad, TraffordBar);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldHaveJourney() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
@@ -98,8 +97,8 @@ public class RouteCalculatorInMemoryTest {
             journeyRequest.setDiag(true);
             journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
             assertTrue(journeys.isEmpty());
-            fail("failed, diag was on");
             saveGraph.save(GRAPH_FILENAME_FAIL);
+            fail("failed, diag was on");
         } else {
            saveGraph.save(GRAPH_FILENAME_OK);
         }

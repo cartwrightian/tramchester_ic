@@ -55,7 +55,10 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public MutableGraphNode getNodeByIdMutable(final GraphNodeId nodeId) {
-        return graph.getNode(nodeId);
+        if (nodeId instanceof NodeIdInMemory nodeIdInMemory) {
+            return graph.getNode(nodeIdInMemory);
+        }
+        throw new RuntimeException("Not defined for " + nodeId);
     }
 
     @Override
@@ -85,7 +88,10 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public GraphNode getNodeById(final GraphNodeId nodeId) {
-        return graph.getNode(nodeId);
+        if (nodeId instanceof NodeIdInMemory nodeIdInMemory) {
+            return graph.getNode(nodeIdInMemory);
+        }
+        throw new RuntimeException("Not defined for " + nodeId);
     }
 
     @Override
@@ -101,7 +107,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(final ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNodeInMemory findNode(final ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
@@ -130,7 +136,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction,
                                                                 EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        final GraphNode node = findNode(routeStation);
+        final  GraphNodeInMemory node = findNode(routeStation);
         if (node==null) {
             logger.info("Did not find node for " + routeStation.getId());
             return Collections.emptyList();
@@ -143,25 +149,28 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public GraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
-        return graph.getRelationship(graphRelationshipId);
+        if (graphRelationshipId instanceof RelationshipIdInMemory relationshipIdInMemory) {
+            return graph.getRelationship(relationshipIdInMemory);
+        }
+        throw new RuntimeException("Not defined for " + graphRelationshipId);
     }
 
-    public Stream<GraphRelationship> getRelationships(final GraphNodeId id, final GraphDirection direction) {
+    Stream<GraphRelationship> getRelationships(final NodeIdInMemory id, final GraphDirection direction) {
         return graph.getRelationshipsFor(id, direction).map(item -> item);
     }
 
-    public Stream<GraphRelationshipInMemory> getRelationships(final GraphNodeId id, final GraphDirection direction,
+    Stream<GraphRelationshipInMemory> getRelationships(final NodeIdInMemory id, final GraphDirection direction,
                                                               final EnumSet<TransportRelationshipTypes> relationshipTypes) {
         Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
         return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
     }
 
-    public boolean hasRelationship(final GraphNodeId id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipType) {
+    boolean hasRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipType) {
         final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
         return relationships.anyMatch(relationship -> relationship.getType().equals(transportRelationshipType));
     }
 
-    public GraphRelationshipInMemory getSingleRelationship(final GraphNodeId id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
+    GraphRelationshipInMemory getSingleRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
         final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
         final List<GraphRelationshipInMemory> result = relationships.
                 filter(relationship -> relationship.getType().equals(transportRelationshipTypes)).
@@ -175,15 +184,15 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     }
 
-    public void delete(final GraphRelationshipId id) {
+    void delete(final RelationshipIdInMemory id) {
         graph.delete(id);
     }
 
-    public void delete(final GraphNodeId id) {
+    void delete(final NodeIdInMemory id) {
         graph.delete(id);
     }
 
-    public void addLabel(final GraphNodeId id, final GraphLabel label) {
+    void addLabel(final NodeIdInMemory id, final GraphLabel label) {
         graph.addLabel(id, label);
     }
 

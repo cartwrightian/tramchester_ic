@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
@@ -22,10 +23,20 @@ public class SaveGraph {
     @Inject
     public SaveGraph(Graph graph) {
         this.graph = graph;
+        this.mapper = createMapper();
+    }
 
-        mapper = JsonMapper.builder().
+    public static JsonMapper createMapper() {
+        return JsonMapper.builder().
+                enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).
                 addModule(new JavaTimeModule()).
                 build();
+    }
+
+    public static Graph loadDBFrom(final Path graphFilename) {
+        logger.info("Load DB from " + graphFilename.toAbsolutePath());
+        NodesAndEdges nodesAndEdges = load(graphFilename);
+        return Graph.createFrom(nodesAndEdges);
     }
 
     public void save(final Path graphFilename) {
@@ -46,11 +57,13 @@ public class SaveGraph {
     }
 
 
-    public NodesAndEdges load(final Path graphFilename) {
+    public static NodesAndEdges load(final Path graphFilename) {
         logger.info("Load from " + graphFilename.toAbsolutePath());
+        final JsonMapper jsonMapper = createMapper();
+
 
         try(final FileReader reader = new FileReader(graphFilename.toFile())) {
-             return mapper.readValue(reader, NodesAndEdges.class);
+             return jsonMapper.readValue(reader, NodesAndEdges.class);
         } catch (IOException e) {
             String msg = "Unable to load graph from " + graphFilename.toAbsolutePath();
             logger.error(msg, e);

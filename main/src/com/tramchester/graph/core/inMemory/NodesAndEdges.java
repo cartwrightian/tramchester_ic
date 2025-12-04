@@ -2,21 +2,17 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphRelationshipId;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class NodesAndEdges {
-    private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
-    private final ConcurrentMap<GraphNodeId, GraphNodeInMemory> nodes;
+    private final ConcurrentMap<RelationshipIdInMemory, GraphRelationshipInMemory> relationships;
+    private final ConcurrentMap<NodeIdInMemory, GraphNodeInMemory> nodes;
 
     NodesAndEdges() {
         relationships = new ConcurrentHashMap<>();
@@ -30,11 +26,11 @@ public class NodesAndEdges {
         relationships = new ConcurrentHashMap<>();
         nodes = new ConcurrentHashMap<>();
 
-        Map<GraphRelationshipId, GraphRelationshipInMemory> relationshipMap = relationshipSet.stream().
+        Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationshipMap = relationshipSet.stream().
                 collect(Collectors.toMap(GraphRelationshipInMemory::getId, rel -> rel));
         relationships.putAll(relationshipMap);
 
-        Map<GraphNodeId, GraphNodeInMemory> nodeMap = nodeSet.stream().
+        Map<NodeIdInMemory, GraphNodeInMemory> nodeMap = nodeSet.stream().
                 collect(Collectors.toMap(GraphNodeInMemory::getId, node -> node));
         nodes.putAll(nodeMap);
     }
@@ -54,31 +50,31 @@ public class NodesAndEdges {
         nodes.clear();
     }
 
-    public void addNode(GraphNodeId id, GraphNodeInMemory node) {
+    public void addNode(NodeIdInMemory id, GraphNodeInMemory node) {
         nodes.put(id, node);
     }
 
-    public void addRelationship(final GraphRelationshipId id, final GraphRelationshipInMemory relationship) {
+    public void addRelationship(final RelationshipIdInMemory id, final GraphRelationshipInMemory relationship) {
         relationships.put(id, relationship);
     }
 
-    public boolean hasNode(final GraphNodeId id) {
+    public boolean hasNode(final NodeIdInMemory id) {
         return nodes.containsKey(id);
     }
 
-    public boolean hasRelationship(final GraphRelationshipId id) {
+    public boolean hasRelationship(final RelationshipIdInMemory id) {
         return relationships.containsKey(id);
     }
 
-    public GraphRelationshipInMemory getRelationship(GraphRelationshipId id) {
+    public GraphRelationshipInMemory getRelationship(RelationshipIdInMemory id) {
         return relationships.get(id);
     }
 
-    public GraphNodeInMemory getNode(GraphNodeId id) {
+    public GraphNodeInMemory getNode(NodeIdInMemory id) {
         return nodes.get(id);
     }
 
-    public void removeNode(GraphNodeId id) {
+    public void removeNode(NodeIdInMemory id) {
         nodes.remove(id);
     }
 
@@ -108,5 +104,15 @@ public class NodesAndEdges {
 
     Stream<GraphRelationshipInMemory> getInbounds(final RelationshipsForNode relationshipsForNode) {
         return relationshipsForNode.getInbound(relationships);
+    }
+
+    public void updateHighestId(AtomicInteger toUpdate) {
+        Optional<NodeIdInMemory> max = nodes.keySet().stream().max(Comparable::compareTo);
+        if (max.isEmpty()) {
+            throw new RuntimeException("Unable to find max node id");
+        } else {
+            NodeIdInMemory found = max.get();
+            found.recordIdTo(toUpdate);
+        }
     }
 }

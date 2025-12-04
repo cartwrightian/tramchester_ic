@@ -1,7 +1,5 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.tramchester.graph.core.GraphRelationshipId;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -9,35 +7,35 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 class RelationshipsForNode {
-    private final Set<GraphRelationshipId> outbound;
-    private final Set<GraphRelationshipId> inbound;
+    private final Set<RelationshipIdInMemory> outbound;
+    private final Set<RelationshipIdInMemory> inbound;
 
     RelationshipsForNode() {
         outbound = new HashSet<>();
         inbound = new HashSet<>();
     }
 
-    public Stream<GraphRelationshipInMemory> getOutbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
+    public Stream<GraphRelationshipInMemory> getOutbound(final ConcurrentMap<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
         return outbound.stream().map(relationships::get);
     }
 
-    public Stream<GraphRelationshipInMemory> getInbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
+    public Stream<GraphRelationshipInMemory> getInbound(final ConcurrentMap<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
         return inbound.stream().map(relationships::get);
     }
 
-    public void addOutbound(final GraphRelationshipId relationshipId) {
+    public void addOutbound(final RelationshipIdInMemory relationshipId) {
         synchronized (outbound) {
             outbound.add(relationshipId);
         }
     }
 
-    public void addInbound(final GraphRelationshipId relationshipId) {
+    public void addInbound(final RelationshipIdInMemory relationshipId) {
         synchronized (inbound) {
             inbound.add(relationshipId);
         }
     }
 
-    public void remove(final GraphRelationshipId relationshipId) {
+    public void remove(final RelationshipIdInMemory relationshipId) {
         synchronized (outbound) {
             outbound.remove(relationshipId);
         }

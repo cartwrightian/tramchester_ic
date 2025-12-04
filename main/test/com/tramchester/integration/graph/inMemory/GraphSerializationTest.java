@@ -1,18 +1,13 @@
 package com.tramchester.integration.graph.inMemory;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphRelationshipId;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
@@ -22,10 +17,7 @@ import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,13 +56,7 @@ public class GraphSerializationTest {
             FileUtils.delete(GRAPH_FILENAME.toFile());
         }
 
-        JsonFactory factory = JsonFactory.
-                builder().
-                configure(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION, true).
-                build();
-
-        mapper = new ObjectMapper(factory);
-        mapper.registerModule(new JavaTimeModule());
+        mapper = SaveGraph.createMapper();
     }
 
     @Test
@@ -80,15 +66,30 @@ public class GraphSerializationTest {
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
-        Graph expected = componentContainer.get(Graph.class);
+        Graph graph = componentContainer.get(Graph.class);
+        NodesAndEdges expected = graph.getCore();
 
         NodesAndEdges result = saveGraph.load(GRAPH_FILENAME);
-        assertEquals(expected.getCore(), result);
+        assertEquals(expected, result);
+    }
+
+    @Disabled("WIP - also memory issues")
+    @Test
+    void shouldBuildInMemoryFromSerialisedForm() {
+        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
+
+        saveGraph.save(GRAPH_FILENAME);
+        assertTrue(Files.exists(GRAPH_FILENAME));
+
+        Graph loaded = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        Graph expected = componentContainer.get(Graph.class);
+
+        assertEquals(expected, loaded);
     }
 
     @Test
     void shouldRoundTripGraphNode()  {
-        GraphNodeId id = new NodeIdInMemory(678);
+        NodeIdInMemory id = new NodeIdInMemory(678);
         EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.STATION, GraphLabel.INTERCHANGE);
         GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(id, labels);
 
@@ -128,14 +129,14 @@ public class GraphSerializationTest {
 
     @Test
     void shouldRoundTripGraphRelationship()  {
-        GraphNodeId idA = new NodeIdInMemory(678);
-        GraphNodeId idB = new NodeIdInMemory(679);
+        NodeIdInMemory idA = new NodeIdInMemory(678);
+        NodeIdInMemory idB = new NodeIdInMemory(679);
 
         IdFor<Trip> tripA = Trip.createId("tripA");
         IdFor<Trip> tripB = Trip.createId("tripB");
         Duration cost = Duration.of(65, ChronoUnit.SECONDS);
 
-        GraphRelationshipId id = new RelationshipIdInMemory(42);
+        RelationshipIdInMemory id = new RelationshipIdInMemory(42);
         GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
                 idA, idB);
 

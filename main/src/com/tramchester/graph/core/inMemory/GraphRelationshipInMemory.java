@@ -15,12 +15,12 @@ import java.util.Objects;
 
 public class GraphRelationshipInMemory extends GraphRelationshipProperties<PropertyContainer> {
     private final TransportRelationshipTypes relationshipType;
-    private final GraphRelationshipId id;
-    private final GraphNodeId startId;
-    private final GraphNodeId endId;
+    private final RelationshipIdInMemory id;
+    private final NodeIdInMemory startId;
+    private final NodeIdInMemory endId;
 
-    public GraphRelationshipInMemory(TransportRelationshipTypes relationshipType, GraphRelationshipId id,
-                                     GraphNodeId startId, GraphNodeId endId) {
+    public GraphRelationshipInMemory(TransportRelationshipTypes relationshipType, RelationshipIdInMemory id,
+                                     NodeIdInMemory startId, NodeIdInMemory endId) {
         super(new PropertyContainer());
         this.relationshipType = relationshipType;
         this.id = id;
@@ -60,7 +60,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonProperty(value = "relationshipId")
     @Override
-    public GraphRelationshipId getId() {
+    public RelationshipIdInMemory getId() {
         return id;
     }
 
