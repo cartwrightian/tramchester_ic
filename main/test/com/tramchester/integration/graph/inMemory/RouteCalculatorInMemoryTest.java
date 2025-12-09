@@ -93,6 +93,8 @@ public class RouteCalculatorInMemoryTest {
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
 
+        //assertFalse(journeys.isEmpty());
+
         if (journeys.isEmpty()) {
             journeyRequest.setDiag(true);
             journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);

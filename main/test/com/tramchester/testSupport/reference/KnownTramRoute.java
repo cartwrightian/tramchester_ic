@@ -12,10 +12,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.testSupport.UpcomingDates.EmergencyWorksDeansgateDev2025;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,11,29);
+    public static final TramDate latestCutoverDate = TramDate.of(2025,12,8);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -81,10 +82,10 @@ public class KnownTramRoute {
             routes.add(find.apply(Green));
         }
 
-//        if (VictoriaAndRochdaleLineWorks.equals(date)) {
-//            routes.add(find.apply(BusOne));
-//            routes.add(find.apply(BusTwo));
-//        }
+        if (EmergencyWorksDeansgateDev2025.equals(date)) {
+            routes.add(find.apply(BusOne));
+            routes.add(find.apply(BusTwo));
+        }
 
         routes.add(find.apply(Yellow));
         routes.add(find.apply(Blue));

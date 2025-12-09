@@ -3,9 +3,12 @@ package com.tramchester.graph.core.inMemory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +30,11 @@ public class Graph {
 
     private final NodesAndEdges nodesAndEdges;
 
+    private final ConcurrentMap<GraphLabel, Set<NodeIdInMemory>> labelsToNodes;
+
     private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
     private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> existingRelationships;
-    private final ConcurrentMap<GraphLabel, Set<NodeIdInMemory>> labelsToNodes;
-    private final ConcurrentMap<TransportRelationshipTypes, AtomicInteger> relationshipTypeCounts;
+    private final RelationshipTypeCounts relationshipTypeCounts;
 
     // todo proper transaction handling, rollbacks etc
 
@@ -41,27 +45,52 @@ public class Graph {
 
         relationshipsForNodes = new ConcurrentHashMap<>();
         labelsToNodes = new ConcurrentHashMap<>();
-        relationshipTypeCounts = new ConcurrentHashMap<>();
+        relationshipTypeCounts = new RelationshipTypeCounts();
         existingRelationships = new ConcurrentHashMap<>();
     }
 
     public static Graph createFrom(final NodesAndEdges incoming) {
-        Graph result = new Graph();
+        final Graph result = new Graph();
         result.start();
 
+        loadNodes(incoming, result);
+        loadRelationships(incoming, result);
+
+        return result;
+    }
+
+    private static void loadRelationships(final NodesAndEdges incoming, final Graph target) {
+        logger.info("Loading relationships");
+
+        incoming.getRelationships().forEach(relationship -> {
+            target.checkAndUpdateExistingRelationships(relationship.getType(), relationship.getStartId(), relationship.getEndId());
+            target.captureRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
+        });
+        target.updateNextRelationshipId();
+    }
+
+    private static void loadNodes(final NodesAndEdges incoming, final Graph target) {
+        logger.info("Loading nodes");
         incoming.getNodes().forEach(node -> {
             // update highest node id
 
             final NodeIdInMemory id = node.getId();
-            result.nodesAndEdges.addNode(id, node);
+            target.nodesAndEdges.addNode(id, node);
 
             EnumSet<GraphLabel> labels = node.getLabels();
-            labels.forEach(label -> result.labelsToNodes.get(label).add(id));
+            labels.forEach(label -> target.labelsToNodes.get(label).add(id));
         });
-        // todo push in
-        result.nodesAndEdges.updateHighestId(result.nextGraphNodeId);
+        target.updateNextNodeId();
+        //target.nodesAndEdges.captureNextNodeId(target.nextGraphNodeId);
+        logger.info("Loaded nodes, new next node id is " + target.nextGraphNodeId.get());
+    }
 
-        return result;
+    private synchronized void updateNextNodeId() {
+        nodesAndEdges.refreshNextNodeId(nextGraphNodeId);
+    }
+
+    private synchronized void updateNextRelationshipId() {
+        nodesAndEdges.captureNextRelationshipId(nextRelationshipId);
     }
 
     @PostConstruct
@@ -70,9 +99,7 @@ public class Graph {
         for(GraphLabel label : GraphLabel.values()) {
             labelsToNodes.put(label, new HashSet<>());
         }
-        for(TransportRelationshipTypes type : TransportRelationshipTypes.values()) {
-            relationshipTypeCounts.put(type, new AtomicInteger(0));
-        }
+        relationshipTypeCounts.reset();
         logger.info("started");
     }
 
@@ -90,38 +117,52 @@ public class Graph {
         logger.info("stopped");
     }
 
-    public synchronized GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
-        final int id = nextGraphNodeId.getAndIncrement();
-        final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(new NodeIdInMemory(id), labels);
-        final NodeIdInMemory graphNodeId = graphNodeInMemory.getId();
-        nodesAndEdges.addNode(graphNodeId, graphNodeInMemory);
-        labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
-        return graphNodeInMemory;
+    public GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
+        synchronized (nodesAndEdges) {
+            final int id = nextGraphNodeId.getAndIncrement();
+            final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(new NodeIdInMemory(id), labels);
+            final NodeIdInMemory graphNodeId = graphNodeInMemory.getId();
+            nodesAndEdges.addNode(graphNodeId, graphNodeInMemory);
+            labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
+            return graphNodeInMemory;
+        }
     }
 
-    public synchronized GraphRelationshipInMemory createRelationship(final TransportRelationshipTypes relationshipType,
+    public GraphRelationshipInMemory createRelationship(final TransportRelationshipTypes relationshipType,
                                                                      final GraphNodeInMemory begin,
                                                                      final GraphNodeInMemory end) {
-        checkAndUpdateExistingRelationships(relationshipType, begin, end);
+        synchronized (nodesAndEdges) {
+            final NodeIdInMemory beginId = begin.getId();
+            final NodeIdInMemory endId = end.getId();
 
-        final int id = nextRelationshipId.getAndIncrement();
-        final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
-                new RelationshipIdInMemory(id), begin.getId(), end.getId());
+            checkAndUpdateExistingRelationships(relationshipType, beginId, endId);
+
+            final int id = nextRelationshipId.getAndIncrement();
+            final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
+                    new RelationshipIdInMemory(id), beginId, endId);
+
+            captureRelationship(relationshipType, relationship, beginId, endId);
+            return relationship;
+        }
+    }
+
+    private void captureRelationship(final TransportRelationshipTypes relationshipType,
+                                     final GraphRelationshipInMemory relationship,
+                                     final NodeIdInMemory beginId, final NodeIdInMemory endId) {
         final RelationshipIdInMemory relationshipId = relationship.getId();
 
         nodesAndEdges.addRelationship(relationshipId, relationship);
-        addOutboundTo(begin.getId(), relationshipId);
-        addInboundTo(end.getId(), relationshipId);
-        relationshipTypeCounts.get(relationshipType).getAndIncrement();
-        return relationship;
+        addOutboundTo(beginId, relationshipId);
+        addInboundTo(endId, relationshipId);
+        relationshipTypeCounts.increment(relationshipType);
     }
 
-    private void checkAndUpdateExistingRelationships(final TransportRelationshipTypes relationshipType, final GraphNodeInMemory begin,
-                                                     final GraphNodeInMemory end) {
-        final NodeIdPair idPair = NodeIdPair.of(begin, end);
+    private void checkAndUpdateExistingRelationships(final TransportRelationshipTypes relationshipType, final NodeIdInMemory beginId,
+                                                     final NodeIdInMemory endId) {
+        final NodeIdPair idPair = NodeIdPair.of(beginId, endId);
         if (existingRelationships.containsKey(idPair)) {
             if (existingRelationships.get(idPair).contains(relationshipType)) {
-                String message = "Already have relationship of type " + relationshipType + " between " + begin + " and " + end;
+                String message = "Already have relationship of type " + relationshipType + " between " + beginId + " and " + endId;
                 logger.error(message);
                 throw new RuntimeException(message);
             } else {
@@ -133,75 +174,87 @@ public class Graph {
     }
 
     private void addInboundTo(final GraphNodeId id, final RelationshipIdInMemory relationshipId) {
-        if (!relationshipsForNodes.containsKey(id)) {
-            relationshipsForNodes.put(id, new RelationshipsForNode());
+        synchronized (relationshipsForNodes) {
+            if (!relationshipsForNodes.containsKey(id)) {
+                relationshipsForNodes.put(id, new RelationshipsForNode());
+            }
+            relationshipsForNodes.get(id).addInbound(relationshipId);
         }
-        relationshipsForNodes.get(id).addInbound(relationshipId);
     }
 
     private void addOutboundTo(final GraphNodeId id, final RelationshipIdInMemory relationshipId) {
-        if (!relationshipsForNodes.containsKey(id)) {
-            relationshipsForNodes.put(id, new RelationshipsForNode());
+        synchronized (relationshipsForNodes) {
+            if (!relationshipsForNodes.containsKey(id)) {
+                relationshipsForNodes.put(id, new RelationshipsForNode());
+            }
+            relationshipsForNodes.get(id).addOutbound(relationshipId);
         }
-        relationshipsForNodes.get(id).addOutbound(relationshipId);
     }
 
     public Stream<GraphRelationshipInMemory> getRelationshipsFor(final NodeIdInMemory id, final GraphDirection direction) {
-        if (!nodesAndEdges.hasNode(id)) {
-            String msg = "No such node " + id;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-        if (relationshipsForNodes.containsKey(id)) {
-            final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
-            return switch (direction) {
-                case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
-                case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode);
-                case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode),
-                        nodesAndEdges.getInbounds(relationshipsForNode));
-            };
-        } else {
-            logger.info("node " + id + " has not relationships");
-            return Stream.empty();
-        }
-    }
-
-    synchronized void delete(final RelationshipIdInMemory id) {
-        if (!nodesAndEdges.hasRelationship(id)) {
-            String msg = "Cannot delete relationship, missing id " + id;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-        final GraphRelationshipInMemory relationship = nodesAndEdges.getRelationship(id);
-        final GraphNodeId begin = relationship.getStartId();
-        final GraphNodeId end = relationship.getEndId();
-
-        deleteRelationshipFrom(begin, id);
-        deleteRelationshipFrom(end, id);
-
-        relationshipTypeCounts.get(relationship.getType()).getAndDecrement();
-    }
-
-    synchronized void delete(final NodeIdInMemory id) {
-        if (!nodesAndEdges.hasNode(id)) {
-            String msg = "Missing id " + id;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-        // relationships
-        if (relationshipsForNodes.containsKey(id)) {
-            final RelationshipsForNode forNode = relationshipsForNodes.get(id);
-            if (!forNode.isEmpty()) {
-                String msg = "Node " + id + " still has relationships " + relationshipsForNodes;
+        synchronized (nodesAndEdges) {
+            if (!nodesAndEdges.hasNode(id)) {
+                String msg = "No such node " + id;
                 logger.error(msg);
                 throw new GraphException(msg);
             }
         }
-        // label map
-        final EnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
-        labels.forEach(label -> labelsToNodes.get(label).remove(id));
-        // the node
-        nodesAndEdges.removeNode(id);
+        synchronized (relationshipsForNodes) {
+            if (relationshipsForNodes.containsKey(id)) {
+                final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
+                return switch (direction) {
+                    case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
+                    case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode);
+                    case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode),
+                            nodesAndEdges.getInbounds(relationshipsForNode));
+                };
+            } else {
+                logger.debug("node " + id + " has no relationships");
+                return Stream.empty();
+            }
+        }
+    }
+
+    void delete(final RelationshipIdInMemory id) {
+        synchronized (nodesAndEdges) {
+            if (!nodesAndEdges.hasRelationship(id)) {
+                String msg = "Cannot delete relationship, missing id " + id;
+                logger.error(msg);
+                throw new GraphException(msg);
+            }
+            final GraphRelationshipInMemory relationship = nodesAndEdges.getRelationship(id);
+            final GraphNodeId begin = relationship.getStartId();
+            final GraphNodeId end = relationship.getEndId();
+
+            deleteRelationshipFrom(begin, id);
+            deleteRelationshipFrom(end, id);
+
+            relationshipTypeCounts.decrement(relationship.getType());
+        }
+    }
+
+    void delete(final NodeIdInMemory id) {
+        synchronized (nodesAndEdges) {
+            if (!nodesAndEdges.hasNode(id)) {
+                String msg = "Missing id " + id;
+                logger.error(msg);
+                throw new GraphException(msg);
+            }
+            // relationships
+            if (relationshipsForNodes.containsKey(id)) {
+                final RelationshipsForNode forNode = relationshipsForNodes.get(id);
+                if (!forNode.isEmpty()) {
+                    String msg = "Node " + id + " still has relationships " + relationshipsForNodes;
+                    logger.error(msg);
+                    throw new GraphException(msg);
+                }
+            }
+            // label map
+            final EnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
+            labels.forEach(label -> labelsToNodes.get(label).remove(id));
+            // the node
+            nodesAndEdges.removeNode(id);
+        }
     }
 
     private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId) {
@@ -212,47 +265,44 @@ public class Graph {
     }
 
     public GraphNodeInMemory getNode(final NodeIdInMemory nodeId) {
-        if (!nodesAndEdges.hasNode(nodeId)) {
-            String msg = "No such node " + nodeId;
-            logger.error(msg);
-            throw new GraphException(msg);
+        synchronized (nodesAndEdges) {
+            if (!nodesAndEdges.hasNode(nodeId)) {
+                String msg = "No such node " + nodeId;
+                logger.error(msg);
+                throw new GraphException(msg);
+            }
+            return nodesAndEdges.getNode(nodeId);
         }
-        return nodesAndEdges.getNode(nodeId);
     }
 
     public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
-        final Set<NodeIdInMemory> matchingIds = labelsToNodes.get(graphLabel);
-        return matchingIds.stream().map(nodesAndEdges::getNode);
-    }
-
-    GraphRelationship getRelationship(final RelationshipIdInMemory graphRelationshipId) {
-        if (nodesAndEdges.hasRelationship(graphRelationshipId)) {
-            return nodesAndEdges.getRelationship(graphRelationshipId);
-        } else {
-            String msg = "No such relationship " + graphRelationshipId;
-            logger.error(msg);
-            throw new GraphException(msg);
+        synchronized (nodesAndEdges) {
+            final Set<NodeIdInMemory> matchingIds = labelsToNodes.get(graphLabel);
+            return matchingIds.stream().map(nodesAndEdges::getNode);
         }
     }
 
-    synchronized void addLabel(final NodeIdInMemory id, final GraphLabel label) {
-        labelsToNodes.get(label).add(id);
+    GraphRelationship getRelationship(final RelationshipIdInMemory graphRelationshipId) {
+        synchronized (nodesAndEdges) {
+            if (nodesAndEdges.hasRelationship(graphRelationshipId)) {
+                return nodesAndEdges.getRelationship(graphRelationshipId);
+            } else {
+                String msg = "No such relationship " + graphRelationshipId;
+                logger.error(msg);
+                throw new GraphException(msg);
+            }
+        }
     }
 
-    @Override
-    public String toString() {
-        return "Graph{" +
-                "nextGraphNodeId=" + nextGraphNodeId +
-                ", nextRelationshipId=" + nextRelationshipId +
-                ", nodesAndEdges=" + nodesAndEdges +
-                ", relationshipsForNodes=" + relationshipsForNodes +
-                ", labelsToNodes=" + labelsToNodes +
-                '}';
+    void addLabel(final NodeIdInMemory id, final GraphLabel label) {
+        synchronized (nodesAndEdges) {
+            labelsToNodes.get(label).add(id);
+        }
     }
 
     @JsonIgnore
     public long getNumberOf(TransportRelationshipTypes relationshipType) {
-        return relationshipTypeCounts.get(relationshipType).get();
+        return relationshipTypeCounts.get(relationshipType);
     }
 
     public NodesAndEdges getCore() {
@@ -275,12 +325,59 @@ public class Graph {
         return Objects.hash(nodesAndEdges, relationshipsForNodes, existingRelationships, labelsToNodes, relationshipTypeCounts);
     }
 
+    @Override
+    public String toString() {
+        return "Graph{" +
+                "nextGraphNodeId=" + nextGraphNodeId +
+                ", nextRelationshipId=" + nextRelationshipId +
+                ", nodesAndEdges=" + nodesAndEdges +
+                ", labelsToNodes=" + labelsToNodes.size() +
+                ", relationshipsForNodes=" + relationshipsForNodes.size() +
+                ", existingRelationships=" + existingRelationships.size() +
+                ", relationshipTypeCounts=" + relationshipTypeCounts +
+                '}';
+    }
+
+    public static boolean same(Graph a, Graph b) {
+        if (a.nextRelationshipId.get()!=b.nextRelationshipId.get()) {
+            logger.error(a.nextRelationshipId + "!=" + b.nextRelationshipId);
+            return false;
+        }
+        if (a.nextGraphNodeId.get()!=b.nextGraphNodeId.get()) {
+            logger.error(a.nextGraphNodeId + "!=" + b.nextGraphNodeId);
+            return false;
+        }
+        if (!a.nodesAndEdges.equals(b.nodesAndEdges)) {
+            logger.error(a.nodesAndEdges + "!=" + b.nodesAndEdges);
+        }
+        if (!same(a.relationshipsForNodes, b.relationshipsForNodes)) {
+            return false;
+        }
+        if (!same(a.existingRelationships, b.existingRelationships)) {
+            return false;
+        }
+        if (!(a.relationshipTypeCounts.equals(b.relationshipTypeCounts))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean same(Map<?, ?> a, Map<?, ?> b) {
+        final Set<Map.Entry<?, ?>> diffs = SetUtils.disjunction(a.entrySet(), b.entrySet());
+        if (diffs.isEmpty()) {
+            return true;
+        }
+        logger.error("Diffs " + diffs);
+        return false;
+    }
+
     private static class NodeIdPair {
         private final GraphNodeId first;
         private final GraphNodeId second;
 
-        public static NodeIdPair of(GraphNodeInMemory begin, GraphNodeInMemory end) {
-            return new NodeIdPair(begin.getId(), end.getId());
+        public static NodeIdPair of(NodeIdInMemory begin, NodeIdInMemory end) {
+            return new NodeIdPair(begin, end);
         }
 
         private NodeIdPair(GraphNodeId first, GraphNodeId second) {
@@ -298,6 +395,44 @@ public class Graph {
         @Override
         public int hashCode() {
             return Objects.hash(first, second);
+        }
+    }
+
+    private static class RelationshipTypeCounts {
+        ConcurrentHashMap<TransportRelationshipTypes, Integer> theMap;
+
+        RelationshipTypeCounts() {
+            theMap = new ConcurrentHashMap<>();
+        }
+
+        public void reset() {
+            for(TransportRelationshipTypes type : TransportRelationshipTypes.values()) {
+                theMap.put(type, 0);
+            }
+        }
+
+        public void increment(TransportRelationshipTypes relationshipType) {
+            theMap.compute(relationshipType, (k, current) -> current + 1);
+        }
+
+        public synchronized void decrement(TransportRelationshipTypes relationshipType) {
+            theMap.compute(relationshipType, (k, current) -> current - 1);
+        }
+
+        public synchronized int get(TransportRelationshipTypes relationshipType) {
+            return theMap.get(relationshipType);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            RelationshipTypeCounts that = (RelationshipTypeCounts) o;
+            return Objects.equals(theMap, that.theMap);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(theMap);
         }
     }
 }

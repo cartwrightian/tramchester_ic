@@ -126,8 +126,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn,
-                                                         MutableGraphNode end, TransportRelationshipTypes relationshipType) {
+    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn,
+                                                         final MutableGraphNode end, final TransportRelationshipTypes relationshipType) {
         return txn.createRelationship(this, end, relationshipType);
     }
 
@@ -136,7 +136,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         labels.add(label);
         inMemory.addLabel(id, label);
-
     }
 
     @Override
@@ -150,7 +149,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getSingleRelationship(id, direction, transportRelationshipTypes);
     }
-
 
     @Override
     public boolean isNode() {

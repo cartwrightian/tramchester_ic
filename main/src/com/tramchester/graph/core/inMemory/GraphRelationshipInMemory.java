@@ -80,7 +80,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     }
 
     @JsonGetter("startId")
-    public GraphNodeId getStartId() {
+    public NodeIdInMemory getStartId() {
         return startId;
     }
 
@@ -90,7 +90,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     }
 
     @JsonGetter("endId")
-    public GraphNodeId getEndId() {
+    public NodeIdInMemory getEndId() {
         return endId;
     }
 

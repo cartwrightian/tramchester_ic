@@ -47,7 +47,7 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
         return Integer.compare(this.id, other.id);
     }
 
-    void recordIdTo(AtomicInteger toUpdate) {
+    void recordIdTo(final AtomicInteger toUpdate) {
         toUpdate.set(id);
     }
 }

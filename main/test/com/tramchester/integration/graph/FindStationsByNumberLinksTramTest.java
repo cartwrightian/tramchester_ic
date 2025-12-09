@@ -91,8 +91,9 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                VeloPark,
-                HoltTown
+                Shudehill
+                //VeloPark,
+                //HoltTown
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);

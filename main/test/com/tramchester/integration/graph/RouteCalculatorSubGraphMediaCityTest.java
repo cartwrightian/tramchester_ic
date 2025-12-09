@@ -141,6 +141,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(13,0), testSunday);
     }
 
+    @DisabledUntilDate(year = 2025, month = 12, day = 14)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 

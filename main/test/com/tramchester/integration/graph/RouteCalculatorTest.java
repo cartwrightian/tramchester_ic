@@ -29,6 +29,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -644,6 +645,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
+    @DisabledUntilDate(year = 2025, month = 12, day = 15)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 15), maxNumResults, 1);

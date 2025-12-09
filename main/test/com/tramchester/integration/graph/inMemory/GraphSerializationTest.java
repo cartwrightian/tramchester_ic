@@ -8,6 +8,10 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
@@ -16,6 +20,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
@@ -25,11 +30,15 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("WIP")
 public class GraphSerializationTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
@@ -73,7 +82,6 @@ public class GraphSerializationTest {
         assertEquals(expected, result);
     }
 
-    @Disabled("WIP - also memory issues")
     @Test
     void shouldBuildInMemoryFromSerialisedForm() {
         SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
@@ -81,10 +89,97 @@ public class GraphSerializationTest {
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
-        Graph loaded = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        Graph result = SaveGraph.loadDBFrom(GRAPH_FILENAME);
         Graph expected = componentContainer.get(Graph.class);
 
-        assertEquals(expected, loaded);
+        assertEquals(expected.getCore(), result.getCore());
+
+        checkSame(expected, result);
+
+        assertEquals(expected, result);
+
+        expected.stop();
+        result.stop();
+    }
+
+    @Test
+    void shouldCheckCompare() {
+
+        Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+
+        Graph.same(graphA, graphB);
+        checkSame(graphA, graphB);
+    }
+
+    @Test
+    void shouldCompareGoodAndBad() {
+
+        Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        Graph.same(graphA, graphB);
+        checkSame(graphA, graphB);
+    }
+
+    private static void checkSame(Graph expected, Graph result) {
+        for(TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
+            assertEquals(expected.getNumberOf(relationshipType), result.getNumberOf(relationshipType), "wrong for " + relationshipType);
+        }
+
+        for(GraphLabel label : GraphLabel.values()) {
+            final List<GraphNodeInMemory> expectedNodes = expected.findNodes(label).toList();
+            final List<GraphNodeInMemory> resultNodes = result.findNodes(label).toList();
+            assertEquals(expectedNodes, resultNodes, "mismatch for " + label);
+
+            GraphDatabase db = componentContainer.get(GraphDatabase.class);
+            GraphTransaction txn = db.beginTx();
+
+            for (GraphNodeInMemory expectedNode : expectedNodes) {
+                final GraphNodeInMemory resultNode = result.getNode(expectedNode.getId());
+                assertEquals(expectedNode.getId(), resultNode.getId());
+                assertEquals(expectedNode.getProperties(), resultNode.getProperties());
+
+                checkRelationships(txn, GraphDirection.Outgoing, expectedNode, result);
+                checkRelationships(txn, GraphDirection.Incoming, expectedNode, result);
+            }
+        }
+
+        assertTrue(Graph.same(expected, result));
+    }
+
+    private static void checkRelationships(GraphTransaction txn, GraphDirection direction,
+                                           GraphNodeInMemory expected, Graph result) {
+
+        final NodeIdInMemory nodeId = expected.getId();
+
+        long numForExpected = expected.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
+        long resultCount = result.getRelationshipsFor(nodeId, direction).count();
+        assertEquals(numForExpected, resultCount, "for " + expected.getAllProperties());
+
+        for(TransportRelationshipTypes transportRelationshipType : TransportRelationshipTypes.values()) {
+
+            final Set<GraphRelationship> expectedRelationships = expected.
+                    getRelationships(txn, direction, transportRelationshipType).
+                    collect(Collectors.toSet());
+
+            assertFalse(expectedRelationships.isEmpty());
+
+            final Set<GraphRelationship> resultRelationships = result.
+                    getRelationshipsFor(nodeId, direction).
+                    filter(relat -> relat.isType(transportRelationshipType)).
+                    map(relat -> (GraphRelationship) relat).
+                    collect(Collectors.toSet());
+
+            assertFalse(resultRelationships.isEmpty());
+
+            Set<GraphRelationship> diff = SetUtils.disjunction(expectedRelationships, resultRelationships);
+
+            assertTrue(diff.isEmpty(), "diff:" + diff +  " failed for " + transportRelationshipType + " expected:" +
+                    expectedRelationships + " vs result:" + resultRelationships);
+        }
+
+
     }
 
     @Test

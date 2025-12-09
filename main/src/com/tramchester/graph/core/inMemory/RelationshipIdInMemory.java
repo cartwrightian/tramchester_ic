@@ -5,6 +5,7 @@ import com.tramchester.graph.core.GraphRelationshipId;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<RelationshipIdInMemory> {
     private final int id;
@@ -42,5 +43,9 @@ public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<R
     @Override
     public int compareTo(@NotNull RelationshipIdInMemory other) {
         return Integer.compare(this.id, other.id);
+    }
+
+    public void recordIdTo(final AtomicInteger target) {
+        target.set(id);
     }
 }

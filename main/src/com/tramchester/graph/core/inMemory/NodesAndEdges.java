@@ -93,8 +93,8 @@ public class NodesAndEdges {
     @Override
     public String toString() {
         return "NodesAndEdges{" +
-                "relationships=" + relationships +
-                ", nodes=" + nodes +
+                "relationships=" + relationships.size() +
+                ", nodes=" + nodes.size() +
                 '}';
     }
 
@@ -106,13 +106,25 @@ public class NodesAndEdges {
         return relationshipsForNode.getInbound(relationships);
     }
 
-    public void updateHighestId(AtomicInteger toUpdate) {
-        Optional<NodeIdInMemory> max = nodes.keySet().stream().max(Comparable::compareTo);
+    public void refreshNextNodeId(final AtomicInteger target) {
+        final Optional<NodeIdInMemory> max = nodes.keySet().stream().max(Comparable::compareTo);
         if (max.isEmpty()) {
             throw new RuntimeException("Unable to find max node id");
         } else {
             NodeIdInMemory found = max.get();
-            found.recordIdTo(toUpdate);
+            found.recordIdTo(target);
+            target.incrementAndGet();
+        }
+    }
+
+    public void captureNextRelationshipId(final AtomicInteger target) {
+        final Optional<RelationshipIdInMemory> max = relationships.keySet().stream().max(Comparable::compareTo);
+        if (max.isEmpty()) {
+            throw new RuntimeException("Unable to find max node id");
+        } else {
+            RelationshipIdInMemory found = max.get();
+            found.recordIdTo(target);
+            target.incrementAndGet();
         }
     }
 }

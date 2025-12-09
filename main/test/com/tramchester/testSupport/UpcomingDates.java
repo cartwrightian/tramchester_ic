@@ -36,6 +36,8 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
+    public static TramDate EmergencyWorksDeansgateDev2025 = TramDate.of(2025,12,14);
+
     public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
     public static List<TramDate> VictoriaNov2025Undocumented = List.of(new TramDate[]{VictoriaNov2025.plusWeeks(1),
             VictoriaNov2025.plusWeeks(2)});

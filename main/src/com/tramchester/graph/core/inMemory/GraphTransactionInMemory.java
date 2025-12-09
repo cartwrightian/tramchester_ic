@@ -67,7 +67,8 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
-    public MutableGraphRelationship createRelationship(MutableGraphNode begin, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
+    public MutableGraphRelationship createRelationship(final MutableGraphNode begin, final MutableGraphNode end,
+                                                       final TransportRelationshipTypes relationshipType) {
         return graph.createRelationship(relationshipType, (GraphNodeInMemory) begin, (GraphNodeInMemory) end);
     }
 
@@ -161,7 +162,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     Stream<GraphRelationshipInMemory> getRelationships(final NodeIdInMemory id, final GraphDirection direction,
                                                               final EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
+        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
         return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
     }
 

@@ -17,7 +17,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -156,7 +155,6 @@ public class RunningRoutesAndServicesTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 12, day = 5)
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
 

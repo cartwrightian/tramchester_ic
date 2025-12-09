@@ -12,12 +12,12 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.inMemory.GraphDatabaseInMemory;
-import com.tramchester.graph.core.inMemory.NumberOfNodesAndRelationshipsRepositoryInMemory;
+import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.neo4j.NumberOfNodesAndRelationshipsRepositoryNeo4J;
+import com.tramchester.integration.graph.inMemory.RouteCalculatorInMemoryTest;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.PlatformRepository;
@@ -114,6 +114,27 @@ public class CompareNeo4JWithInMemoryTest {
             long neo4J = neo4JCounts.numberOf(label);
             assertEquals(neo4J, inMem, "Mismatch for " + label);
         }
+    }
+
+    @Test
+    void compareWithGraphWithFailure() {
+        Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        Station station = VeloPark.from(stationRepository);
+
+        Optional<GraphNodeInMemory> findInLoadedDB = result.findNodes(GraphLabel.STATION).
+                filter(GraphNodeProperties::hasStationId).
+                filter(node -> node.getStationId().equals(station.getId())).
+                findFirst();
+
+        assertFalse(findInLoadedDB.isEmpty());
+
+        GraphNodeInMemory inMemoryNode = findInLoadedDB.get();
+
+        final GraphNode neo4JNode = localTxn.findNode(station);
+
+        visitMatchedNodes(neo4JNode, inMemoryNode, 5);
+
     }
 
     @Test
@@ -248,7 +269,7 @@ public class CompareNeo4JWithInMemoryTest {
                     toList();
 
             assertEquals(1, matched.size(), "Found wrong number matching " + relationshipProps + " for type " + type +
-                    " and end node props " + endNodeProps);
+                    " and end node props " + endNodeProps + " got:" + matched);
 
             GraphNode destinationNodeInMem = matched.getFirst().getEndNode(txnInMem);
 

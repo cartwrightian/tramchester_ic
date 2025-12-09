@@ -1,9 +1,9 @@
 package com.tramchester.graph.core.inMemory;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 class RelationshipsForNode {
@@ -15,11 +15,11 @@ class RelationshipsForNode {
         inbound = new HashSet<>();
     }
 
-    public Stream<GraphRelationshipInMemory> getOutbound(final ConcurrentMap<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
+    public Stream<GraphRelationshipInMemory> getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
         return outbound.stream().map(relationships::get);
     }
 
-    public Stream<GraphRelationshipInMemory> getInbound(final ConcurrentMap<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
+    public Stream<GraphRelationshipInMemory> getInbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
         return inbound.stream().map(relationships::get);
     }
 

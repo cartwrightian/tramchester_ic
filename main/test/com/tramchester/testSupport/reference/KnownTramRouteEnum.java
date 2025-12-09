@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.testSupport.UpcomingDates.EmergencyWorksDeansgateDev2025;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 
 /*
@@ -23,8 +24,8 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses
 
-    //ReplacementBusOne(BusOne, "Replacement Bus One", "2949", TramDate.of(2025,11,16)),
-    //ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", TramDate.of(2025,11,16)),
+    ReplacementBusOne(BusOne, "Replacement Bus One", "2462", EmergencyWorksDeansgateDev2025),
+    ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", EmergencyWorksDeansgateDev2025),
     //ReplacementBusThree(BusThree, "Replacement Bus Three", "3082", TramDate.of(2025,11,1)),
 
     // Blue
