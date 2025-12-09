@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
-
 public class UpcomingDates {
 
     private static final TramDate sunday;
@@ -38,9 +36,9 @@ public class UpcomingDates {
 
     public static TramDate EmergencyWorksDeansgateDev2025 = TramDate.of(2025,12,14);
 
-    public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
-    public static List<TramDate> VictoriaNov2025Undocumented = List.of(new TramDate[]{VictoriaNov2025.plusWeeks(1),
-            VictoriaNov2025.plusWeeks(2)});
+//    public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
+//    public static List<TramDate> VictoriaNov2025Undocumented = List.of(new TramDate[]{VictoriaNov2025.plusWeeks(1),
+//            VictoriaNov2025.plusWeeks(2)});
 
 
     public static boolean hasClosure(final Station station, final TramDate date) {
@@ -60,11 +58,11 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
-        if (VictoriaNov2025.equals(date) || VictoriaNov2025Undocumented.contains(date)) {
-            if (MarketStreet.getId().equals(stationId) || Shudehill.getId().equals(stationId)) {
-                return true;
-            }
-        }
+//        if (VictoriaNov2025.equals(date) || VictoriaNov2025Undocumented.contains(date)) {
+//            if (MarketStreet.getId().equals(stationId) || Shudehill.getId().equals(stationId)) {
+//                return true;
+//            }
+//        }
         return anyClosedOnDate(date);
     }
 
