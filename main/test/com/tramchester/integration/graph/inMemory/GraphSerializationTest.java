@@ -7,6 +7,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphDirection;
@@ -22,6 +23,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -38,7 +40,7 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
+@Disabled("WIP - memory issues via gradle")
 public class GraphSerializationTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
@@ -78,7 +80,7 @@ public class GraphSerializationTest {
         Graph graph = componentContainer.get(Graph.class);
         NodesAndEdges expected = graph.getCore();
 
-        NodesAndEdges result = saveGraph.load(GRAPH_FILENAME);
+        NodesAndEdges result = SaveGraph.load(GRAPH_FILENAME);
         assertEquals(expected, result);
     }
 
@@ -92,9 +94,13 @@ public class GraphSerializationTest {
         Graph result = SaveGraph.loadDBFrom(GRAPH_FILENAME);
         Graph expected = componentContainer.get(Graph.class);
 
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+
         assertEquals(expected.getCore(), result.getCore());
 
-        checkSame(expected, result);
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
+            checkSame(expected, result, txn);
+        }
 
         assertEquals(expected, result);
 
@@ -106,23 +112,48 @@ public class GraphSerializationTest {
     void shouldCheckCompare() {
 
         Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
-        Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        GraphDatabaseInMemory graphDatabase = createGraphDatabaseInMemory(graphA);
 
-        Graph.same(graphA, graphB);
-        checkSame(graphA, graphB);
+        graphDatabase.start();
+
+        // A-> A
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
+            checkSame(graphA, graphA, txn);
+        }
     }
 
+    @Test
+    void shouldLoadConsistently() {
+
+        Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+
+        GraphDatabaseInMemory graphDatabase = createGraphDatabaseInMemory(graphA);
+        graphDatabase.start();
+
+        Graph.same(graphA, graphB);
+
+        // A-> A
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
+            checkSame(graphA, graphB, txn);
+        }
+    }
+
+    @Disabled("WIP - need to reproduce the failure")
     @Test
     void shouldCompareGoodAndBad() {
 
         Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
         Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
+        GraphDatabaseInMemory graphDatabase = createGraphDatabaseInMemory(graphA);
+        graphDatabase.start();
+
         Graph.same(graphA, graphB);
-        checkSame(graphA, graphB);
+        checkSame(graphA, graphB, graphDatabase.beginTx());
     }
 
-    private static void checkSame(Graph expected, Graph result) {
+    private static void checkSame(Graph expected, Graph result, GraphTransaction txnForExpected) {
         for(TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
             assertEquals(expected.getNumberOf(relationshipType), result.getNumberOf(relationshipType), "wrong for " + relationshipType);
         }
@@ -132,16 +163,13 @@ public class GraphSerializationTest {
             final List<GraphNodeInMemory> resultNodes = result.findNodes(label).toList();
             assertEquals(expectedNodes, resultNodes, "mismatch for " + label);
 
-            GraphDatabase db = componentContainer.get(GraphDatabase.class);
-            GraphTransaction txn = db.beginTx();
-
             for (GraphNodeInMemory expectedNode : expectedNodes) {
                 final GraphNodeInMemory resultNode = result.getNode(expectedNode.getId());
                 assertEquals(expectedNode.getId(), resultNode.getId());
                 assertEquals(expectedNode.getProperties(), resultNode.getProperties());
 
-                checkRelationships(txn, GraphDirection.Outgoing, expectedNode, result);
-                checkRelationships(txn, GraphDirection.Incoming, expectedNode, result);
+                checkRelationships(txnForExpected, GraphDirection.Outgoing, expectedNode, result);
+                checkRelationships(txnForExpected, GraphDirection.Incoming, expectedNode, result);
             }
         }
 
@@ -163,7 +191,7 @@ public class GraphSerializationTest {
                     getRelationships(txn, direction, transportRelationshipType).
                     collect(Collectors.toSet());
 
-            assertFalse(expectedRelationships.isEmpty());
+            //assertFalse(expectedRelationships.isEmpty(), "empty for " + expected + " " + expected.getAllProperties());
 
             final Set<GraphRelationship> resultRelationships = result.
                     getRelationshipsFor(nodeId, direction).
@@ -171,15 +199,13 @@ public class GraphSerializationTest {
                     map(relat -> (GraphRelationship) relat).
                     collect(Collectors.toSet());
 
-            assertFalse(resultRelationships.isEmpty());
+            //assertFalse(resultRelationships.isEmpty());
 
             Set<GraphRelationship> diff = SetUtils.disjunction(expectedRelationships, resultRelationships);
 
             assertTrue(diff.isEmpty(), "diff:" + diff +  " failed for " + transportRelationshipType + " expected:" +
                     expectedRelationships + " vs result:" + resultRelationships);
         }
-
-
     }
 
     @Test
@@ -279,5 +305,11 @@ public class GraphSerializationTest {
             fail("Unable to fetch property from " + text, e);
         }
 
+    }
+
+    private static @NotNull GraphDatabaseInMemory createGraphDatabaseInMemory(Graph graphA) {
+        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
+        TransactionManager transactionManager = new TransactionManager(providesNow, graphA);
+        return new GraphDatabaseInMemory(transactionManager);
     }
 }

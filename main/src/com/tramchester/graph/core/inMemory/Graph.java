@@ -338,17 +338,17 @@ public class Graph {
                 '}';
     }
 
-    public static boolean same(Graph a, Graph b) {
+    public static boolean same(final Graph a, final Graph b) {
         if (a.nextRelationshipId.get()!=b.nextRelationshipId.get()) {
-            logger.error(a.nextRelationshipId + "!=" + b.nextRelationshipId);
+            logger.error("check same nextRelationshipId" + a.nextRelationshipId + "!=" + b.nextRelationshipId);
             return false;
         }
         if (a.nextGraphNodeId.get()!=b.nextGraphNodeId.get()) {
-            logger.error(a.nextGraphNodeId + "!=" + b.nextGraphNodeId);
+            logger.error("check same nextGraphNodeId" + a.nextGraphNodeId + "!=" + b.nextGraphNodeId);
             return false;
         }
         if (!a.nodesAndEdges.equals(b.nodesAndEdges)) {
-            logger.error(a.nodesAndEdges + "!=" + b.nodesAndEdges);
+            logger.error("check same nodesAndEdges" + a.nodesAndEdges + "!=" + b.nodesAndEdges);
         }
         if (!same(a.relationshipsForNodes, b.relationshipsForNodes)) {
             return false;

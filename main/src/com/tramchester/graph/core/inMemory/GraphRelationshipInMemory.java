@@ -140,6 +140,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
                 ", id=" + id +
                 ", start=" + startId +
                 ", end=" + endId +
+                ", props=" + getAllProperties() +
                 '}';
     }
 
