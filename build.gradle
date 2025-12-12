@@ -56,7 +56,7 @@ ext {
 }
 
 // see also allure.properties file
-def allureVersion = "2.29.1"
+def allureVersion = "2.32.0"
 
 repositories {
     maven {
