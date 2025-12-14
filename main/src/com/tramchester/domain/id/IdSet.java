@@ -3,8 +3,12 @@ package com.tramchester.domain.id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.LocationIdPair;
+import com.tramchester.domain.id.serialization.IdSetDeserializer;
+import com.tramchester.domain.id.serialization.IdSetSerializer;
 import com.tramchester.domain.places.Location;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +19,8 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@JsonSerialize(using = IdSetSerializer.class)
+@JsonDeserialize(using = IdSetDeserializer.class)
 public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
 
     @JsonIgnore

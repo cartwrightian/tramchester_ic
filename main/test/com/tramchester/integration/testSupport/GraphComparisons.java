@@ -57,7 +57,9 @@ public class GraphComparisons {
 
             // types
             final List<GraphRelationship> matchType = inMemoryNode.getRelationships(txnInMem, Outgoing, type).toList();
-            assertFalse(matchType.isEmpty());
+            assertFalse(matchType.isEmpty(), "Failed to match relationship type " + type + " within " +
+                            inMemoryNode.getRelationships(txnInMem, Outgoing, allTypes).toList() + " at "
+                    + inMemoryNode + "  " + inMemoryNode.getAllProperties() + " neo4J node props " + neo4JNode.getAllProperties());
 
             // relationship props
             final List<GraphRelationship> matchProps = matchType.stream().
@@ -139,9 +141,15 @@ public class GraphComparisons {
                 }
             } else if (key.equals(TRIP_ID_LIST.getText())) {
                 final String[] arrayA = (String[]) valueA;
-                final List<String> stringsA = Arrays.asList(arrayA);
-                final IdSet<Trip> tripsA = stringsA.stream().map(Trip::createId).collect(IdSet.idCollector());
-                matched = tripsA.equals(valueB);
+                final IdSet<Trip> tripsB = (IdSet<Trip>) valueB;
+                if (arrayA.length == tripsB.size()) {
+                    final List<String> stringsA = Arrays.asList(arrayA);
+                    final IdSet<Trip> tripsA = stringsA.stream().map(Trip::createId).collect(IdSet.idCollector());
+                    matched = tripsA.equals(tripsB);
+                } else {
+                    logger.error("Length mismatch between " + arrayA.length + " and " + tripsB + " for " + diag);
+                    matched = false;
+                }
                 if ((!matched) && logging) {
                     logger.error("mismatch on trip ids " + diagOnProp);
                 }

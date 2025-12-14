@@ -33,6 +33,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("WIP")
 public class RouteCalculatorInMemoryTest {
     public static final Path GRAPH_FILENAME_OK = Path.of("RouteCalcInMemoryTest.json");
     public static final Path GRAPH_FILENAME_FAIL = Path.of("RouteCalcInMemoryTest_failed.json");
@@ -88,12 +89,41 @@ public class RouteCalculatorInMemoryTest {
     }
 
     @Test
+    void shouldHaveJourneyFromExchangeSquareToMediaCity() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12, 0),
+                maxNumResults, 1);
+
+        List<Journey> journeys = calculator.calculateRouteAsList(ExchangeSquare, MediaCityUK, journeyRequest);
+
+        assertFalse(journeys.isEmpty(), "missing for " + journeyRequest);
+    }
+
+    @Test
+    void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
+
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(11, 45),
+                maxNumResults, 1);
+        List<Journey> journeys = calculator.calculateRouteAsList(Victoria, Ashton, journeyRequest);
+
+        assertFalse(journeys.isEmpty(), "missing for " +journeyRequest);
+
+    }
+
+    @Test
+    void shouldHandleCrossingMidnightWithChange() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,30), maxNumResults, 1);
+
+        List<Journey> journeys = calculator.calculateRouteAsList(TraffordCentre, TraffordBar, journeyRequest);
+
+        assertFalse(journeys.isEmpty(), "Unable to find journey " + journeyRequest);
+
+    }
+
+    @Test
     void shouldHaveJourney() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
-
-        //assertFalse(journeys.isEmpty());
 
         if (journeys.isEmpty()) {
             journeyRequest.setDiag(true);

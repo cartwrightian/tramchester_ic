@@ -37,6 +37,7 @@ import java.util.*;
 import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_PLATFORM;
+import static com.tramchester.unit.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -115,10 +116,12 @@ public class CompareNeo4JWithInMemoryTest {
         }
     }
 
-    @Disabled("Need to reproduce the failure")
     @Test
     void compareWithGraphWithFailure() {
         Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
+        inMemoryDB.start();
 
         Station station = VeloPark.from(stationRepository);
 
@@ -133,8 +136,10 @@ public class CompareNeo4JWithInMemoryTest {
 
         final GraphNode neo4JNode = txnNeo4J.findNode(station);
 
-        GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, txnInMem);
-        graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 5);
+        try (GraphTransaction inMemoryTxn = inMemoryDB.beginTx()) {
+            GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, inMemoryTxn);
+            graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 5);
+        }
 
     }
 

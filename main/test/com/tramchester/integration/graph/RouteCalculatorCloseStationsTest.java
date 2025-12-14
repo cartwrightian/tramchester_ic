@@ -39,19 +39,26 @@ class RouteCalculatorCloseStationsTest {
     private static GraphDatabase database;
 
     private RouteCalculatorTestFacade calculator;
-    private final static TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
 
-    private final static TramDate begin = when.plusWeeks(1);
-    private final static TramDate end = when.plusWeeks(2);
+    private static TramDate begin;
+    private static TramDate end;
 
     // see note below on DB deletion
-    private final static List<StationClosures> closedStations = Arrays.asList(
-            new StationClosuresListForTest(Shudehill, new DateRange(begin, end), true),
-            new StationClosuresListForTest(PiccadillyGardens, new DateRange(begin, end), false));
+    private static List<StationClosures> closedStations;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
+
+        TramDate when = TestEnv.testDay();
+
+        begin = UpcomingDates.avoidChristmasDate(when.plusWeeks(1));
+        end = begin.plusWeeks(1);
+
+        closedStations = Arrays.asList(
+                new StationClosuresListForTest(Shudehill, new DateRange(begin, end), true),
+                new StationClosuresListForTest(PiccadillyGardens, new DateRange(begin, end), false));
+
         TramchesterConfig config = new IntegrationTramClosedStationsTestConfig(closedStations, true,
                 Collections.emptyList());
 
@@ -84,7 +91,7 @@ class RouteCalculatorCloseStationsTest {
         JourneyRequest journeyRequest = new JourneyRequest(begin, TramTime.of(8,0), false,
                 2, Duration.ofMinutes(120), 1, getRequestedModes());
         List<Journey> result = calculator.calculateRouteAsList(TramStations.Altrincham, TraffordBar, journeyRequest);
-        assertFalse(result.isEmpty());
+        assertFalse(result.isEmpty(), "no result for " + journeyRequest);
     }
 
     @Test

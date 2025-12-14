@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 

@@ -3,6 +3,7 @@ package com.tramchester.graph.core.inMemory;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;

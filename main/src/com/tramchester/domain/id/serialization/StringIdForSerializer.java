@@ -1,4 +1,4 @@
-package com.tramchester.domain.id;
+package com.tramchester.domain.id.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.id.StringIdFor;
 
 import java.io.IOException;
 import java.io.Serial;

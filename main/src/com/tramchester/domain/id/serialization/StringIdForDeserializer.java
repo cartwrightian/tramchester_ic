@@ -1,4 +1,4 @@
-package com.tramchester.domain.id;
+package com.tramchester.domain.id.serialization;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +17,8 @@ import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tramchester.domain.id.StringIdForSerializer.CONTENTS_FIELD;
-import static com.tramchester.domain.id.StringIdForSerializer.TYPE_FIELD;
+import static com.tramchester.domain.id.serialization.StringIdForSerializer.CONTENTS_FIELD;
+import static com.tramchester.domain.id.serialization.StringIdForSerializer.TYPE_FIELD;
 import static java.lang.String.format;
 
 public class StringIdForDeserializer<T extends CoreDomain> extends StdDeserializer<IdFor<T>>  {

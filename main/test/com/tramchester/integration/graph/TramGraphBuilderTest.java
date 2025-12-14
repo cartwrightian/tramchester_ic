@@ -117,6 +117,19 @@ class TramGraphBuilderTest {
     }
 
     @Test
+    void shouldNotHaveMissingTripsOnAnyServiceRelations() {
+
+        Stream<GraphNode> nodes = txn.findNodes(GraphLabel.ROUTE_STATION);
+
+        List<GraphNode> haveMissingTrips = nodes.
+                filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
+                        anyMatch(rel -> rel.getTripIds().isEmpty())).toList();
+
+        assertTrue(haveMissingTrips.isEmpty());
+
+    }
+
+    @Test
     void shouldHaveCorrectPlatformCosts() {
         Station piccadilly = Piccadilly.from(stationRepository);
         Set<Platform> platforms = piccadilly.getPlatforms();

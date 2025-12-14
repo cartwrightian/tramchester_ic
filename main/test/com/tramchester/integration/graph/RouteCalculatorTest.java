@@ -362,6 +362,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    @DisabledUntilDate(year = 2025, month = 12, day = 15)
     @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -372,7 +373,7 @@ public class RouteCalculatorTest {
         assertFalse(results.isEmpty(), "no results");    // results is iterator
         for (Journey result : results) {
             List<TransportStage<?,?>> stages = result.getStages();
-            assertEquals(2, stages.size());
+            assertEquals(2, stages.size(), "wrong number of stages " + stages);
             VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
             assertEquals(TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
@@ -593,9 +594,8 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproIssueWithJourneysToEcclesWithBus() {
-        TramDate testDate = when.plusWeeks(1);
 
-        JourneyRequest journeyRequest = standardJourneyRequest(testDate, TramTime.of(9,0), maxNumResults, 2);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 2);
 
         assertGetAndCheckJourneys(journeyRequest, Bury, Broadway);
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);

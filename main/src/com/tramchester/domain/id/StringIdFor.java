@@ -3,6 +3,8 @@ package com.tramchester.domain.id;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.id.serialization.StringIdForDeserializer;
+import com.tramchester.domain.id.serialization.StringIdForSerializer;
 import com.tramchester.domain.places.Station;
 
 import java.util.Objects;
@@ -57,7 +59,11 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return text.replace(originalStringId.theId, "");
     }
 
-    String getContainedId() {
+    /***
+     * Serialisation support only
+     * @return contianed id
+     */
+    public String getContainedId() {
         return theId;
     }
 

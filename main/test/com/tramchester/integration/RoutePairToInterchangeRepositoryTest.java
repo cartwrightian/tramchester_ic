@@ -68,7 +68,7 @@ public class RoutePairToInterchangeRepositoryTest {
     void beforeEachTestRuns() {
         routeHelper = new TramRouteHelper(componentContainer);
 
-        date = TestEnv.testDay().plusWeeks(1);
+        date = TestEnv.testDay();
 
         repository = componentContainer.get(RoutePairToInterchangeRepository.class);
     }

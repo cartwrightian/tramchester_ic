@@ -1,5 +1,6 @@
 package com.tramchester.domain.id;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -38,6 +39,7 @@ public class IdForDTO {
         }
     }
 
+    @JsonCreator
     public IdForDTO(String id) {
         this.actualId = id;
     }

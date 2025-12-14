@@ -3,15 +3,13 @@ package com.tramchester.graph.core.inMemory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphEntityProperties;
 
 import java.time.Duration;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -25,7 +23,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
         props = new ConcurrentHashMap<>();
     }
 
-    public PropertyContainer(final List<GraphNodeInMemory.PropertyDTO> properties) {
+    public PropertyContainer(final List<PropertyDTO> properties) {
         this();
         properties.forEach(prop -> setProperty(prop.getKey(), prop.getValue()));
     }
@@ -138,7 +136,8 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
     @Override
     public EnumSet<TransportMode> getTransportModes() {
         if (hasProperty(TRANSPORT_MODES)) {
-            return (EnumSet<TransportMode>) getProperty(TRANSPORT_MODES);
+            Set<TransportMode> theSet = (Set<TransportMode>) getProperty(TRANSPORT_MODES);
+            return EnumSet.copyOf(theSet);
         } else {
             return EnumSet.noneOf(TransportMode.class);
         }

@@ -1,26 +1,17 @@
-package com.tramchester.integration.graph.inMemory;
+package com.tramchester.unit.graph.inMemory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphRelationship;
-import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.integration.graph.inMemory.RouteCalculatorInMemoryTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownLocations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -29,22 +20,22 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.graph.core.GraphDirection.Incoming;
+import static com.tramchester.graph.core.GraphDirection.Outgoing;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Disabled("WIP - memory issues via gradle")
-public class GraphSerializationTest {
+public class GraphSaveAndLoadTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
-    private ObjectMapper mapper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -54,6 +45,7 @@ public class GraphSerializationTest {
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
+
     }
 
     @AfterAll
@@ -67,7 +59,6 @@ public class GraphSerializationTest {
             FileUtils.delete(GRAPH_FILENAME.toFile());
         }
 
-        mapper = SaveGraph.createMapper();
     }
 
     @Test
@@ -111,14 +102,43 @@ public class GraphSerializationTest {
     @Test
     void shouldCheckCompare() {
 
-        Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
-        GraphDatabaseInMemory graphDatabase = createGraphDatabaseInMemory(graphA);
+        Graph loadedGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(loadedGraph, componentContainer);
 
         graphDatabase.start();
 
         // A-> A
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            checkSame(graphA, graphA, txn);
+            checkSame(loadedGraph, loadedGraph, txn);
+        }
+    }
+
+    @Test
+    void shouldNotHaveMissingTripsOnAnyServiceRelations() {
+
+        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
+        saveGraph.save(GRAPH_FILENAME);
+
+        Graph loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(loadedGraph, componentContainer);
+
+        graphDatabase.start();
+
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
+            Stream<GraphNode> nodes = txn.findNodes(GraphLabel.ROUTE_STATION);
+
+            List<GraphNode> haveMissingTrips = nodes.
+                    filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
+                            anyMatch(rel -> rel.getTripIds().isEmpty())).toList();
+
+            List<GraphNode> allMissingTripIds = haveMissingTrips.stream().
+                    filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
+                            allMatch(rel -> rel.getTripIds().isEmpty())).toList();
+
+            assertEquals(0, allMissingTripIds.size());
+
+            assertEquals(0, haveMissingTrips.size());
+
         }
     }
 
@@ -128,7 +148,7 @@ public class GraphSerializationTest {
         Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
         Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
 
-        GraphDatabaseInMemory graphDatabase = createGraphDatabaseInMemory(graphA);
+        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(graphA, componentContainer);
         graphDatabase.start();
 
         Graph.same(graphA, graphB);
@@ -139,6 +159,7 @@ public class GraphSerializationTest {
         }
     }
 
+
     @Disabled("WIP - need to reproduce the failure")
     @Test
     void shouldCompareGoodAndBad() {
@@ -146,7 +167,7 @@ public class GraphSerializationTest {
         Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
         Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
-        GraphDatabaseInMemory graphDatabase = createGraphDatabaseInMemory(graphA);
+        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(graphA, componentContainer);
         graphDatabase.start();
 
         Graph.same(graphA, graphB);
@@ -169,7 +190,7 @@ public class GraphSerializationTest {
                 assertEquals(expectedNode.getProperties(), resultNode.getProperties());
 
                 checkRelationships(txnForExpected, GraphDirection.Outgoing, expectedNode, result);
-                checkRelationships(txnForExpected, GraphDirection.Incoming, expectedNode, result);
+                checkRelationships(txnForExpected, Incoming, expectedNode, result);
             }
         }
 
@@ -208,108 +229,11 @@ public class GraphSerializationTest {
         }
     }
 
-    @Test
-    void shouldRoundTripGraphNode()  {
-        NodeIdInMemory id = new NodeIdInMemory(678);
-        EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.STATION, GraphLabel.INTERCHANGE);
-        GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(id, labels);
 
-        TramTime tramTime = TramTime.of(11, 42);
-        graphNodeInMemory.setTime(tramTime);
-        graphNodeInMemory.setLatLong(KnownLocations.nearBury.latLong());
-        graphNodeInMemory.set(TestEnv.getTramTestRoute());
-        graphNodeInMemory.setTransportMode(Tram);
-
-        String text = null;
-        try {
-            text = mapper.writeValueAsString(graphNodeInMemory);
-        } catch (JsonProcessingException e) {
-            fail("failed to serialise", e);
-        }
-
-        GraphNodeInMemory result = null;
-        try {
-            result = mapper.readValue(text, GraphNodeInMemory.class);
-        } catch (JsonProcessingException e) {
-            fail("Unable to deserialize " + text,e);
-        }
-
-        assertEquals(graphNodeInMemory, result);
-
-        try {
-            assertEquals(tramTime, result.getTime());
-            assertEquals(KnownLocations.nearBury.latLong(), result.getLatLong());
-            assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
-            assertEquals(Tram, result.getTransportMode());
-        }
-        catch(ClassCastException e) {
-            fail("Unable to fetch property from " + text, e);
-        }
-
-    }
-
-    @Test
-    void shouldRoundTripGraphRelationship()  {
-        NodeIdInMemory idA = new NodeIdInMemory(678);
-        NodeIdInMemory idB = new NodeIdInMemory(679);
-
-        IdFor<Trip> tripA = Trip.createId("tripA");
-        IdFor<Trip> tripB = Trip.createId("tripB");
-        Duration cost = Duration.of(65, ChronoUnit.SECONDS);
-
-        RelationshipIdInMemory id = new RelationshipIdInMemory(42);
-        GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
-                idA, idB);
-
-        TramTime tramTime = TramTime.of(11, 42);
-        relationship.setTime(tramTime);
-        relationship.set(TestEnv.getTramTestRoute());
-        relationship.setHour(17);
-        relationship.setStopSeqNum(42);
-        relationship.setCost(cost);
-        relationship.addTripId(tripA);
-        relationship.addTripId(tripB);
-        relationship.addTransportMode(Bus);
-        relationship.addTransportMode(Tram);
-
-        String text = null;
-        try {
-            text = mapper.writeValueAsString(relationship);
-        } catch (JsonProcessingException e) {
-            fail("failed to serialise", e);
-        }
-
-        GraphRelationshipInMemory result = null;
-        try {
-            result = mapper.readValue(text, GraphRelationshipInMemory.class);
-        } catch (JsonProcessingException e) {
-            fail("Unable to deserialize " + text,e);
-        }
-
-        assertEquals(relationship, result);
-
-        try {
-            assertEquals(tramTime, result.getTime());
-            assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
-            assertEquals(17, relationship.getHour());
-            assertEquals(42, relationship.getStopSeqNumber());
-            assertEquals(cost, relationship.getCost());
-            IdSet<Trip> trips = relationship.getTripIds();
-            assertEquals(2, trips.size());
-            assertTrue(trips.contains(tripA));
-            assertTrue(trips.contains(tripB));
-            assertEquals(EnumSet.of(Bus,Tram),relationship.getTransportModes());
-
-        }
-        catch(ClassCastException e) {
-            fail("Unable to fetch property from " + text, e);
-        }
-
-    }
-
-    private static @NotNull GraphDatabaseInMemory createGraphDatabaseInMemory(Graph graphA) {
-        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
+    public static @NotNull GraphDatabaseInMemory CreateGraphDatabaseInMemory(Graph graphA, GuiceContainerDependencies container) {
+        ProvidesNow providesNow = container.get(ProvidesNow.class);
         TransactionManager transactionManager = new TransactionManager(providesNow, graphA);
         return new GraphDatabaseInMemory(transactionManager);
     }
+
 }
