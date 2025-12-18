@@ -28,11 +28,11 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
-import static com.tramchester.unit.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
+import static com.tramchester.integration.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
 import static com.tramchester.testSupport.reference.TramStations.VeloPark;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
+@Disabled("was spurious issue? TBC")
 public class MissingTripListOnServicesTest {
 
     private static GuiceContainerDependencies componentContainer;
@@ -156,7 +156,7 @@ public class MissingTripListOnServicesTest {
             GraphNode problemNode = txn.findNode(routeStation);
 
             // todo this will break but that's ok, just here to double check have reproduced the exact issue
-            NodeIdInMemory nodeId = new NodeIdInMemory(430);
+            NodeIdInMemory nodeId = new NodeIdInMemory(434);
             assertEquals(nodeId, problemNode.getId());
 
             List<GraphRelationship> toService = problemNode.getRelationships(txn, Outgoing, TO_SERVICE).toList();

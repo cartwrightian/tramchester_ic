@@ -1,6 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.*;
@@ -106,7 +107,7 @@ public class NodesAndEdges {
         return relationshipsForNode.getInbound(relationships);
     }
 
-    public void refreshNextNodeId(final AtomicInteger target) {
+    public void refreshNextNodeIdInto(final AtomicInteger target) {
         final Optional<NodeIdInMemory> max = nodes.keySet().stream().max(Comparable::compareTo);
         if (max.isEmpty()) {
             throw new RuntimeException("Unable to find max node id");
@@ -126,5 +127,10 @@ public class NodesAndEdges {
             found.recordIdTo(target);
             target.incrementAndGet();
         }
+    }
+
+    @JsonIgnore
+    public boolean isEmpty() {
+        return nodes.isEmpty() && relationships.isEmpty();
     }
 }

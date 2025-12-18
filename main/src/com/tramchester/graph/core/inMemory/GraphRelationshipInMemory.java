@@ -14,6 +14,8 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import java.util.List;
 import java.util.Objects;
 
+import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
+
 public class GraphRelationshipInMemory extends GraphRelationshipProperties<PropertyContainer> {
     private final TransportRelationshipTypes relationshipType;
     private final RelationshipIdInMemory id;
@@ -56,7 +58,9 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonGetter("properties")
     public List<PropertyDTO> getProperties() {
-        return getAllProperties().entrySet().stream().map(PropertyDTO::fromMapEntry).toList();
+        return getAllProperties().entrySet().stream().
+                filter(entry -> !entry.getKey().equals(DAY_OFFSET.getText())).
+                map(PropertyDTO::fromMapEntry).toList();
     }
 
     @JsonProperty(value = "relationshipId")

@@ -22,7 +22,7 @@ public class TramTimeJsonSerializer extends JsonSerializer<TramTime> {
     @Override
     public void serializeWithType(TramTime tramTime, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
 
-        WritableTypeId typeId = typeSer.typeId(tramTime, JsonToken.VALUE_STRING);
+        WritableTypeId typeId = typeSer.typeId(tramTime, JsonToken.VALUE_EMBEDDED_OBJECT);
 
         typeSer.writeTypePrefix(gen, typeId);
         gen.writeString(tramTime.serialize());

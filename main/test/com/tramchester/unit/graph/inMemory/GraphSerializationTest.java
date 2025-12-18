@@ -16,6 +16,7 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@Disabled("WIP")
 public class GraphSerializationTest {
     private ObjectMapper mapper;
     private final TramDate when = TestEnv.testDay();
@@ -41,6 +41,7 @@ public class GraphSerializationTest {
         mapper = SaveGraph.createMapper();
     }
 
+    @Disabled("old format, re-instate with new sample text")
     @Test
     void deserializeFromSample() throws JsonProcessingException {
         String text = """
@@ -85,7 +86,7 @@ public class GraphSerializationTest {
         try {
             result = mapper.readValue(text, GraphNodeInMemory.class);
         } catch (JsonProcessingException e) {
-            fail("Unable to deserialize " + text,e);
+                fail("Unable to deserialize " + text,e);
         }
 
         assertEquals(graphNodeInMemory, result);
@@ -99,25 +100,19 @@ public class GraphSerializationTest {
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);
         }
-
     }
 
     @Test
     void shouldRoundTripGraphRelationship()  {
-        NodeIdInMemory idA = new NodeIdInMemory(678);
-        NodeIdInMemory idB = new NodeIdInMemory(679);
+        GraphRelationshipInMemory relationship = createRelationship();
 
         IdFor<Trip> tripA = Trip.createId("tripA");
         IdFor<Trip> tripB = Trip.createId("tripB");
+
         Duration cost = Duration.of(65, ChronoUnit.SECONDS);
-
         IdFor<RouteStation> routeStationId = RouteStationId.createId(KnownTramRoute.getBlue(when).getId(), Bury.getId());
-
-        RelationshipIdInMemory id = new RelationshipIdInMemory(42);
-        GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
-                idA, idB);
-
         TramTime tramTime = TramTime.of(11, 42);
+
         relationship.setTime(tramTime);
         relationship.set(TestEnv.getTramTestRoute());
         relationship.setHour(17);
@@ -129,19 +124,9 @@ public class GraphSerializationTest {
         relationship.addTransportMode(Bus);
         relationship.addTransportMode(Tram);
 
-        String text = null;
-        try {
-            text = mapper.writeValueAsString(relationship);
-        } catch (JsonProcessingException e) {
-            fail("failed to serialise", e);
-        }
+        String text = serializeToString(relationship);
 
-        GraphRelationshipInMemory result = null;
-        try {
-            result = mapper.readValue(text, GraphRelationshipInMemory.class);
-        } catch (JsonProcessingException e) {
-            fail("Unable to deserialize " + text,e);
-        }
+        GraphRelationshipInMemory result = deserializeFromString(text);
 
         assertEquals(relationship, result);
 
@@ -166,35 +151,42 @@ public class GraphSerializationTest {
     }
 
     @Test
-    void shouldRoundTripGraphRelationshipEmptyEnumSet()  {
-        fail("todo");
+    void shouldRoundTripGraphRelationshipIdSet()  {
+        GraphRelationshipInMemory relationship = createRelationship();
+
+        IdFor<Trip> tripA = Trip.createId("tripA");
+        IdFor<Trip> tripB = Trip.createId("tripB");
+
+        relationship.addTripId(tripA);
+        relationship.addTripId(tripB);
+
+        String text = serializeToString(relationship);
+
+        GraphRelationshipInMemory result = deserializeFromString(text);
+
+        assertEquals(relationship, result);
+
+        try {
+            IdSet<Trip> trips = result.getTripIds();
+            assertEquals(2, trips.size());
+            assertTrue(trips.contains(tripA));
+            assertTrue(trips.contains(tripB));
+        }
+        catch(ClassCastException e) {
+            fail("Unable to fetch property from " + text, e);
+        }
     }
 
     @Test
     void shouldRoundTripGraphRelationshipEnumSet()  {
-        NodeIdInMemory idA = new NodeIdInMemory(678);
-        NodeIdInMemory idB = new NodeIdInMemory(679);
-
-        RelationshipIdInMemory id = new RelationshipIdInMemory(42);
-        GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
-                idA, idB);
+        GraphRelationshipInMemory relationship = createRelationship();
 
         relationship.addTransportMode(Bus);
         relationship.addTransportMode(Tram);
 
-        String text = null;
-        try {
-            text = mapper.writeValueAsString(relationship);
-        } catch (JsonProcessingException e) {
-            fail("failed to serialise", e);
-        }
+        String text = serializeToString(relationship);
 
-        GraphRelationshipInMemory result = null;
-        try {
-            result = mapper.readValue(text, GraphRelationshipInMemory.class);
-        } catch (JsonProcessingException e) {
-            fail("Unable to deserialize " + text,e);
-        }
+        GraphRelationshipInMemory result = deserializeFromString(text);
 
         assertEquals(relationship, result);
 
@@ -205,6 +197,72 @@ public class GraphSerializationTest {
             fail("Unable to fetch property from " + text, e);
         }
 
+    }
+
+    @Test
+    void shouldRoundTripGraphRelationshipTime() {
+        GraphRelationshipInMemory relationship = createRelationship();
+
+        TramTime tramTime = TramTime.of(11, 42);
+        relationship.setTime(tramTime);
+
+        String text = serializeToString(relationship);
+
+        GraphRelationshipInMemory result = deserializeFromString(text);
+
+        assertEquals(relationship, result);
+
+        try {
+            assertEquals(tramTime, result.getTime());
+        } catch (ClassCastException e) {
+            fail("Unable to fetch property from " + text, e);
+        }
+    }
+
+    @Test
+    void shouldRoundTripGraphRelationshipTimeNextDay() {
+        GraphRelationshipInMemory relationship = createRelationship();
+
+        TramTime tramTime = TramTime.nextDay(11, 42);
+        relationship.setTime(tramTime);
+
+        String text = serializeToString(relationship);
+
+        GraphRelationshipInMemory result = deserializeFromString(text);
+
+        assertEquals(relationship, result);
+
+        try {
+            assertEquals(tramTime, result.getTime());
+        } catch (ClassCastException e) {
+            fail("Unable to fetch property from " + text, e);
+        }
+    }
+
+    private String serializeToString(GraphRelationshipInMemory relationship) {
+        try {
+            return mapper.writeValueAsString(relationship);
+        } catch (JsonProcessingException e) {
+            fail("failed to serialise", e);
+            return null;
+        }
+    }
+
+    private GraphRelationshipInMemory deserializeFromString(final String text) {
+        try {
+            return mapper.readValue(text, GraphRelationshipInMemory.class);
+        } catch (JsonProcessingException e) {
+            fail("Unable to deserialize " + text,e);
+            return null;
+        }
+    }
+
+    private static @NotNull GraphRelationshipInMemory createRelationship() {
+        NodeIdInMemory idA = new NodeIdInMemory(678);
+        NodeIdInMemory idB = new NodeIdInMemory(679);
+        RelationshipIdInMemory id = new RelationshipIdInMemory(42);
+        return new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
+                idA, idB);
     }
 
 }

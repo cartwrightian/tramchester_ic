@@ -279,11 +279,11 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return getAllProperties(relationship);
     }
 
-    @JsonIgnore
-    public boolean isDayOffset() {
-        // todo should this be checking if set instead?
-        return (Boolean) relationship.getProperty(DAY_OFFSET.getText());
-    }
+//    @JsonIgnore
+//    public boolean isDayOffset() {
+//        // todo should this be checking if set instead?
+//        return (Boolean) relationship.getProperty(DAY_OFFSET.getText());
+//    }
 
     public boolean validOn(final TramDate tramDate) {
         final LocalDate localDate = tramDate.toLocalDate();

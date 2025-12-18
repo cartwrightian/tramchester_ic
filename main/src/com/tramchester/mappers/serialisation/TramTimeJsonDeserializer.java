@@ -1,10 +1,13 @@
 package com.tramchester.mappers.serialisation;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.tramchester.domain.time.TramTime;
 
 import java.io.IOException;
@@ -22,5 +25,18 @@ public class TramTimeJsonDeserializer extends JsonDeserializer<TramTime> {
         throw new IOException("Failed to parse " + node.asText());
     }
 
+    @Override
+    public TramTime deserializeWithType(JsonParser jsonParser, DeserializationContext context, TypeDeserializer typeDeserializer) throws IOException, JacksonException {
+        ObjectCodec oc = jsonParser.getCodec();
+        JsonNode node = oc.readTree(jsonParser);
 
+        if (node.isObject()) {
+            JsonNode contained = node.get("TramTime");
+            String txt = contained.asText();
+            return TramTime.parse(txt);
+        } else {
+            throw new JsonParseException(jsonParser, "Expected an object but got " + node);
+        }
+
+    }
 }

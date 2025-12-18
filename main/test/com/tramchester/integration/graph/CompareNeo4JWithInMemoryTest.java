@@ -37,7 +37,7 @@ import java.util.*;
 import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_PLATFORM;
-import static com.tramchester.unit.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
+import static com.tramchester.integration.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -60,7 +60,6 @@ public class CompareNeo4JWithInMemoryTest {
 
     private RouteCalculatorTestFacade calculatorInMem;
     private RouteCalculatorTestFacade calculatorNeo4J;
-    private GraphDatabaseNeo4J dbNeo4J;
 
 
     @BeforeAll
@@ -85,7 +84,7 @@ public class CompareNeo4JWithInMemoryTest {
         GraphDatabaseInMemory dbInMemory = componentContainerInMemory.get(GraphDatabaseInMemory.class);
         txnInMem = dbInMemory.beginTx();
 
-        dbNeo4J = componentContainerNeo4J.get(GraphDatabaseNeo4J.class);
+        GraphDatabaseNeo4J dbNeo4J = componentContainerNeo4J.get(GraphDatabaseNeo4J.class);
         txnNeo4J = dbNeo4J.beginTx();
 
         calculatorInMem = new RouteCalculatorTestFacade(componentContainerInMemory, txnInMem);

@@ -206,7 +206,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     public TramTime getTime() {
         return graphProps.getTime();
-        //return getTime(graphProps);
     }
 
     @JsonIgnore

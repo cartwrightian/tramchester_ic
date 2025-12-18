@@ -72,21 +72,22 @@ public class Graph {
     private static void loadNodes(final NodesAndEdges incoming, final Graph target) {
         logger.info("Loading nodes");
         incoming.getNodes().forEach(node -> {
-            // update highest node id
 
+            // add the node using id from the saved version
             final NodeIdInMemory id = node.getId();
             target.nodesAndEdges.addNode(id, node);
 
+            // update labels for the node
             EnumSet<GraphLabel> labels = node.getLabels();
             labels.forEach(label -> target.labelsToNodes.get(label).add(id));
         });
+        // using loaded id's work out new next node id
         target.updateNextNodeId();
-        //target.nodesAndEdges.captureNextNodeId(target.nextGraphNodeId);
         logger.info("Loaded nodes, new next node id is " + target.nextGraphNodeId.get());
     }
 
     private synchronized void updateNextNodeId() {
-        nodesAndEdges.refreshNextNodeId(nextGraphNodeId);
+        nodesAndEdges.refreshNextNodeIdInto(nextGraphNodeId);
     }
 
     private synchronized void updateNextRelationshipId() {

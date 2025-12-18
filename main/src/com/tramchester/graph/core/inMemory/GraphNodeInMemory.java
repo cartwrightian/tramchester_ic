@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
+
 public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     private final NodeIdInMemory id;
@@ -39,7 +41,9 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @JsonGetter("properties")
     public List<PropertyDTO> getProperties() {
-        return getAllProperties().entrySet().stream().map(PropertyDTO::fromMapEntry).toList();
+        return getAllProperties().entrySet().stream().
+                filter(entry -> !entry.getKey().equals(DAY_OFFSET.getText())).
+                map(PropertyDTO::fromMapEntry).toList();
     }
 
     @Override

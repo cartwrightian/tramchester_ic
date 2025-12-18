@@ -25,7 +25,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
 
     public PropertyContainer(final List<PropertyDTO> properties) {
         this();
-        properties.forEach(prop -> setProperty(prop.getKey(), prop.getValue()));
+        properties.forEach(prop -> setProperty(prop.getKey(), prop.getContainedValue()));
     }
 
     @Override
@@ -57,8 +57,9 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
     }
 
     @Override
-    public void setTime(TramTime tramTime) {
+    public void setTime(final TramTime tramTime) {
         setProperty(TIME.getText(), tramTime);
+        // to allow backwards compatible comparison with props in Neo4J
         if (tramTime.isNextDay()) {
             setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
         }

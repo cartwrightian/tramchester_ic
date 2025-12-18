@@ -63,7 +63,10 @@ public class GraphComparisons {
 
             // relationship props
             final List<GraphRelationship> matchProps = matchType.stream().
-                    filter(relat -> compareProps(relationshipProps, relat.getAllProperties(), false)).toList();
+                    filter(relat -> {
+                        final Map<String, Object> allProperties = fixUpDayOffsetIfNeeded(relat.getAllProperties());
+                        return compareProps(relationshipProps, allProperties, false);
+                    }).toList();
             assertFalse(matchProps.isEmpty(), "mismatch on relationship props " + relationshipProps + " vs " + matchType);
 
             // end node labels
@@ -74,11 +77,12 @@ public class GraphComparisons {
 
             // end node props
             final List<GraphRelationship> matchNodeProps = matchNodeLabels.stream().
-                    filter(relat -> compareProps(endNodeProps, relat.getEndNode(txnInMem).getAllProperties(), false)).
+                    filter(relat -> compareProps(endNodeProps,
+                            fixUpDayOffsetIfNeeded(relat.getEndNode(txnInMem).getAllProperties()), false)).
                     toList();
-            assertFalse(matchNodeProps.isEmpty());
+            assertFalse(matchNodeProps.isEmpty(), "No matches for " + endNodeProps + " and any of " + matchNodeLabels);
 
-            assertEquals(1, matchNodeProps.size(), outgoingNeo4J + " is not matched by " + matchNodeProps);
+            assertEquals(1, matchNodeProps.size(), endNodeProps + " is not matched by exactly one " + matchNodeProps);
 
             final GraphRelationship matchingRelationship = matchNodeProps.getFirst();
 
@@ -87,11 +91,31 @@ public class GraphComparisons {
 
     }
 
+    private Map<String, Object> fixUpDayOffsetIfNeeded(Map<String, Object> properties) {
+        if (properties.containsKey(TIME.getText())) {
+            if (properties.containsKey(DAY_OFFSET.getText())) {
+                return properties;
+            }
+            // else need to add flag
+            final TramTime time = (TramTime) properties.get(TIME.getText());
+            if (time.isNextDay()) {
+                final HashMap<String, Object> replacement = new HashMap<>(properties);
+                replacement.put(DAY_OFFSET.getText(), true);
+                return replacement;
+            }
+        }
+        return properties;
+
+    }
+
     // TODO Push comparisons into test help and add logging
     private boolean compareProps(Map<String, Object> propsA, Map<String, Object> propsB, boolean logging) {
         final String diag = propsA + " vs " + propsB;
         if (propsA.size()!=propsB.size()) {
-            logger.error("mismatch on size " + diag);
+            if (logging) {
+                logger.error("mismatch on size " + diag);
+            }
+
             return false;
         }
         final Set<String> keysA = propsA.keySet();
@@ -147,7 +171,9 @@ public class GraphComparisons {
                     final IdSet<Trip> tripsA = stringsA.stream().map(Trip::createId).collect(IdSet.idCollector());
                     matched = tripsA.equals(tripsB);
                 } else {
-                    logger.error("Length mismatch between " + arrayA.length + " and " + tripsB + " for " + diag);
+                    if (logging) {
+                        logger.error("Length mismatch between " + arrayA.length + " and " + tripsB.size() + " for " + diag);
+                    }
                     matched = false;
                 }
                 if ((!matched) && logging) {

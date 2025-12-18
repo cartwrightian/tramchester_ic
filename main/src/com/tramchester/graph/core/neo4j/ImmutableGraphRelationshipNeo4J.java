@@ -138,10 +138,10 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
         return underlying.getAllProperties();
     }
 
-    @Override
-    public boolean isDayOffset() {
-        return underlying.isDayOffset();
-    }
+//    @Override
+//    public boolean isDayOffset() {
+//        return underlying.isDayOffset();
+//    }
 
     @Override
     public boolean validOn(final TramDate tramDate) {

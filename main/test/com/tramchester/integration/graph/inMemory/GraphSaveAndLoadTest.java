@@ -1,4 +1,4 @@
-package com.tramchester.unit.graph.inMemory;
+package com.tramchester.integration.graph.inMemory;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
@@ -8,7 +8,6 @@ import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.integration.graph.inMemory.RouteCalculatorInMemoryTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
@@ -32,7 +31,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERV
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("WIP - memory issues via gradle")
+@Disabled("Memory issues running from gradle")
 public class GraphSaveAndLoadTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
@@ -58,7 +57,6 @@ public class GraphSaveAndLoadTest {
         if (Files.exists(GRAPH_FILENAME)) {
             FileUtils.delete(GRAPH_FILENAME.toFile());
         }
-
     }
 
     @Test
@@ -76,7 +74,7 @@ public class GraphSaveAndLoadTest {
     }
 
     @Test
-    void shouldBuildInMemoryFromSerialisedForm() {
+    void shouldSaveAndLoadAndCompare() {
         SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
 
         saveGraph.save(GRAPH_FILENAME);
@@ -99,6 +97,7 @@ public class GraphSaveAndLoadTest {
         result.stop();
     }
 
+    @Disabled("WIP - needs data in sync to work")
     @Test
     void shouldCheckCompare() {
 
@@ -143,10 +142,20 @@ public class GraphSaveAndLoadTest {
     }
 
     @Test
-    void shouldLoadConsistently() {
+    void shouldLoadConsistently() throws InterruptedException {
+        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
+        saveGraph.save(GRAPH_FILENAME);
 
-        Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
-        Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        // race condition?? Flush is being call but file is empty?
+//        final File file = GRAPH_FILENAME.toFile();
+//        int count = 10;
+//        while (file.length()==0 && count-->0) {
+//            Thread.sleep(20);
+//        }
+//        assertNotEquals(0, file.length());
+
+        Graph graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        Graph graphB = SaveGraph.loadDBFrom(GRAPH_FILENAME);
 
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(graphA, componentContainer);
         graphDatabase.start();
@@ -158,7 +167,6 @@ public class GraphSaveAndLoadTest {
             checkSame(graphA, graphB, txn);
         }
     }
-
 
     @Disabled("WIP - need to reproduce the failure")
     @Test

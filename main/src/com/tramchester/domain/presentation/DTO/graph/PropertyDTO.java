@@ -1,60 +1,64 @@
 package com.tramchester.domain.presentation.DTO.graph;
 
 import com.fasterxml.jackson.annotation.*;
-import com.tramchester.domain.id.IdSet;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.id.serialization.PropertyDTODeserializer;
+import com.tramchester.domain.id.serialization.PropertyDTOSerializer;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.tramchester.domain.id.serialization.PropertyDTOSerializer.DURATION_FIELD_NAME;
+import static com.tramchester.domain.id.serialization.PropertyDTOSerializer.TRANSPORT_MODE_FIELD_NAME;
 
 /***
  * Supports saving of graphs
  */
 public class PropertyDTO {
 
-    @JsonProperty
     private final String key;
+    private final PropertyDTOValue value;
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    @JsonSubTypes({
-            @JsonSubTypes.Type(value = TramTime.class, name = "tramTime"),
-            @JsonSubTypes.Type(value = Duration.class, name = "duration"),
-            @JsonSubTypes.Type(value = IdSet.class, name = "idSet"),
-            @JsonSubTypes.Type(value = TransportMode.class, name = "transportMode"),
-            @JsonSubTypes.Type(value = EnumSet.class, name = "enumSet")
-            //@JsonSubTypes.Type(value = EnumSetDTO.class, name = "enumSet")
-    })
-    private final Object value;
+    @JsonIgnore
+    public PropertyDTO(
+            final String key,
+            final Object value) {
+        this.key = key;
+        this.value = new PropertyDTOValue(value);
+    }
 
     @JsonCreator
     public PropertyDTO(
-            @JsonProperty("key") final String key,
-            @JsonProperty("value") final Object value) {
+            @JsonProperty("key")
+            final String key,
+            @JsonProperty("value")
+            final PropertyDTOValue value) {
         this.key = key;
         this.value = value;
     }
 
     // called direct by getters on the Node and Relationship implementations
     public static PropertyDTO fromMapEntry(final Map.Entry<String, Object> entry) {
-        Object entryValue = entry.getValue();
-        if (entry.getKey().equals("transport_modes")) {
-            if (entryValue instanceof EnumSet<?> enumSet) {
-                EnumSet<TransportMode> transportModes = (EnumSet<TransportMode>) enumSet;
-                return new PropertyDTO(entry.getKey(), transportModes.stream().toList());
-            } else {
-                throw new RuntimeException("unexpected contents for transport_modes:" + entryValue.toString());
-            }
-        }
-        return new PropertyDTO(entry.getKey(), entryValue);
+        return new PropertyDTO(entry.getKey(), entry.getValue());
     }
 
+    @JsonProperty("key")
     public String getKey() {
         return key;
     }
 
-    public Object getValue() {
+    @JsonProperty("value")
+    public PropertyDTOValue getValue() {
         return value;
+    }
+
+    @JsonIgnore
+    public Object getContainedValue() {
+        return value.getValue();
     }
 
     @Override
@@ -74,23 +78,49 @@ public class PropertyDTO {
         return "PropertyDTO{" +
                 "key='" + key + '\'' +
                 ", value=" + value +
+                "[class=" + value.getClass().getSimpleName() + ']' +
                 '}';
     }
 
-//    public static class EnumSetDTO {
-//
-//        @JsonIgnore
-//        private final Set<TransportMode> theSet;
-//
-//        @JsonProperty("contents")
-//        public Set<TransportMode> getContents() {
-//            return theSet;
-//        }
-//
-//        @JsonCreator
-//        public EnumSetDTO(
-//                @JsonProperty(value = "contents", required = true) final Set<TransportMode> theSet) {
-//            super();
-//        }
-//    }
+    @JsonSerialize(using = PropertyDTOSerializer.class)
+    @JsonDeserialize(using = PropertyDTODeserializer.class)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = TramTime.class, name = "TramTime"),
+            @JsonSubTypes.Type(value = Duration.class, name = DURATION_FIELD_NAME),
+            @JsonSubTypes.Type(value = TransportMode.class, name = TRANSPORT_MODE_FIELD_NAME)
+    })
+    public static class PropertyDTOValue {
+
+        private final Object value;
+
+        public PropertyDTOValue(Object value) {
+            this.value = value;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            PropertyDTOValue that = (PropertyDTOValue) o;
+            return Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(value);
+        }
+
+        @Override
+        public String toString() {
+            return "PropertyDTOValue{" +
+                    "value=" + value +
+                    '}';
+        }
+    }
+
+
 }

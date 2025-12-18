@@ -15,6 +15,7 @@ public class IdSetSerializer extends StdSerializer<IdSet<?>> {
 
     public static final String CONTAINS_FIELD_NAME = "contains";
     public static final String ITEMS_FIELD_NAME = "items";
+    public static final String ID_SET = "idSet";
 
     protected IdSetSerializer(Class<IdSet<?>> t) {
         super(t);
@@ -26,13 +27,23 @@ public class IdSetSerializer extends StdSerializer<IdSet<?>> {
 
     @Override
     public void serializeWithType(IdSet<?> value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+        serialize(value, gen);
+    }
+
+
+    @Override
+    public void serialize(IdSet<?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        serialize(value, gen);
+    }
+
+    private static void serialize(IdSet<?> value, JsonGenerator gen) throws IOException {
         Optional<? extends IdFor<?>> anyItem = value.stream().findAny();
 
         if (anyItem.isPresent()) {
             IdFor<?> sampleItem = anyItem.get();
 
             gen.writeStartObject();
-                gen.writeFieldName("idSet");
+                gen.writeFieldName(ID_SET);
 
                 gen.writeStartObject();
                     gen.writeStringField(CONTAINS_FIELD_NAME,sampleItem.getDomainType().getSimpleName());
@@ -54,11 +65,6 @@ public class IdSetSerializer extends StdSerializer<IdSet<?>> {
             gen.writeStartArray();
             gen.writeEndArray();
         }
-
     }
 
-    @Override
-    public void serialize(IdSet<?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        throw new RuntimeException("not used");
-    }
 }

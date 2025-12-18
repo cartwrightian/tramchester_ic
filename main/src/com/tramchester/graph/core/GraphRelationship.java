@@ -54,7 +54,7 @@ public interface GraphRelationship extends GraphEntity {
 
     IdFor<RouteStation> getRouteStationId();
 
-    boolean isDayOffset();
+//    boolean isDayOffset();
 
     boolean validOn(TramDate tramDate);
 
