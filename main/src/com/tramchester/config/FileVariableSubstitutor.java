@@ -12,7 +12,7 @@ public class FileVariableSubstitutor extends StringSubstitutor {
     public static final StringMatcher DEFAULT_SUFFIX = StringMatcherFactory.INSTANCE.stringMatcher("]");
     private static final char DEFAULT_ESCAPE = '%';
 
-    public FileVariableSubstitutor(Path configDir) {
+    public FileVariableSubstitutor(final Path configDir) {
         super(new FilenameContentsLookUp(configDir),DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_ESCAPE);
         this.setEnableUndefinedVariableException(true);
         this.setEnableSubstitutionInVariables(true);

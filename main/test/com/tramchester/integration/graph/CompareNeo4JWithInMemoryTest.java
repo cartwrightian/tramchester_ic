@@ -60,6 +60,7 @@ public class CompareNeo4JWithInMemoryTest {
 
     private RouteCalculatorTestFacade calculatorInMem;
     private RouteCalculatorTestFacade calculatorNeo4J;
+    private GraphDatabaseNeo4J dbNeo4J;
 
 
     @BeforeAll
@@ -84,7 +85,7 @@ public class CompareNeo4JWithInMemoryTest {
         GraphDatabaseInMemory dbInMemory = componentContainerInMemory.get(GraphDatabaseInMemory.class);
         txnInMem = dbInMemory.beginTx();
 
-        GraphDatabaseNeo4J dbNeo4J = componentContainerNeo4J.get(GraphDatabaseNeo4J.class);
+        dbNeo4J = componentContainerNeo4J.get(GraphDatabaseNeo4J.class);
         txnNeo4J = dbNeo4J.beginTx();
 
         calculatorInMem = new RouteCalculatorTestFacade(componentContainerInMemory, txnInMem);
@@ -116,7 +117,7 @@ public class CompareNeo4JWithInMemoryTest {
     }
 
     @Test
-    void compareWithGraphWithFailure() {
+    void compareWithGraphWithFailureForSpecificStartStation() {
         Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
@@ -137,9 +138,56 @@ public class CompareNeo4JWithInMemoryTest {
 
         try (GraphTransaction inMemoryTxn = inMemoryDB.beginTx()) {
             GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, inMemoryTxn);
-            graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 5);
+            graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 6);
         }
+    }
 
+    @Test
+    void compareWithGraphWithFailureForStationNodes() {
+        Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
+        inMemoryDB.start();
+
+        Set<Station> stations = stationRepository.getStations();
+
+        stations.forEach(station -> {
+
+            try (GraphTransaction localNeo4jTxn = dbNeo4J.beginTx()) {
+                try (GraphTransaction inMemoryTxn = inMemoryDB.beginTx()) {
+                    final GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, inMemoryTxn);
+
+                    final GraphNode neo4JNode = localNeo4jTxn.findNode(station);
+                    final GraphNode inMemoryNode = inMemoryTxn.findNode(station);
+
+                    graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 4);
+                }
+            }
+        });
+    }
+
+    @Test
+    void compareWithGraphWithFailureFoRouteStationNodes() {
+        Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
+        inMemoryDB.start();
+
+        Set<RouteStation> routeStations = stationRepository.getRouteStations();
+
+        routeStations.forEach(routeStation -> {
+
+            try (GraphTransaction localNeo4jTxn = dbNeo4J.beginTx()) {
+                try (GraphTransaction inMemoryTxn = inMemoryDB.beginTx()) {
+                    final GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, inMemoryTxn);
+
+                    final GraphNode neo4JNode = localNeo4jTxn.findNode(routeStation);
+                    final GraphNode inMemoryNode = inMemoryTxn.findNode(routeStation);
+
+                    graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 4);
+                }
+            }
+        });
     }
 
     @Test
@@ -182,13 +230,8 @@ public class CompareNeo4JWithInMemoryTest {
         checkForType(platforms);
     }
 
-//    @Disabled("slow...")
-//    @Test
-//    void shouldHaveRelationshipsAtRouteStationNodes() {
-//        checkForType(stationRepository.getRouteStations());
-//    }
 
-    @RepeatedTest(5)
+    @Test
     void shouldCheckConsistencyAtSpecificRouteStation() {
         Station station = HoltTown.from(stationRepository);
 
@@ -205,7 +248,6 @@ public class CompareNeo4JWithInMemoryTest {
 
     }
 
-    @Disabled("WIP")
     @Test
     void shouldCompareSameJourney() {
 
@@ -227,7 +269,6 @@ public class CompareNeo4JWithInMemoryTest {
         assertEquals(journeysNeo4J, journeysInMem);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldCheckForConsistencyWhenInMemFails() {
         TramDate when = TestEnv.testDay();

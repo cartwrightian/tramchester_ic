@@ -28,12 +28,11 @@ public class StandaloneConfigLoader {
 
     // use by CLI tools and testing
     public static <T extends Configuration> T LoadConfigFromFile(final Path fullPathToConfig, Class<T> klass) throws IOException, ConfigurationException {
-        Path configDir = fullPathToConfig.getParent();
         final YamlConfigurationFactory<T> factory = getValidatingFactory(klass);
 
         final FileConfigurationSourceProvider fileProvider = new FileConfigurationSourceProvider();
 
-        ConfigurationSourceProvider substitutingProvider = App.getConfigSourceProvider(fileProvider, configDir);
+        ConfigurationSourceProvider substitutingProvider = App.getConfigSourceProvider(fileProvider);
 
         return factory.build(substitutingProvider, fullPathToConfig.toString());
     }

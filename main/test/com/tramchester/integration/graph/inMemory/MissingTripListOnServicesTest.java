@@ -5,6 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
@@ -75,9 +76,26 @@ public class MissingTripListOnServicesTest {
 
             List<GraphNode> haveMissingTrips = nodes.
                     filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
-                            anyMatch(rel -> rel.getTripIds().isEmpty())).toList();
+                            anyMatch(rel -> rel.getTripIds().isEmpty())).
+                    toList();
 
             assertTrue(haveMissingTrips.isEmpty());
+        }
+    }
+
+    @Test
+    void shouldNotHaveMissingServiceIdOnAnyServiceRelations() {
+
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
+            Stream<GraphNode> nodes = txn.findNodes(GraphLabel.ROUTE_STATION);
+
+            List<GraphNode> haveMissingServiceId = nodes.
+                    filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
+                            anyMatch(rel -> !rel.hasProperty(GraphPropertyKey.SERVICE_ID))).
+                    toList();
+
+            assertTrue(haveMissingServiceId.isEmpty());
         }
     }
 
@@ -90,13 +108,19 @@ public class MissingTripListOnServicesTest {
         graphDatabase.start();
 
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            Stream<GraphNode> nodes = txn.findNodes(GraphLabel.ROUTE_STATION);
 
-            List<GraphNode> haveMissingTrips = nodes.
+            List<GraphNode> haveMissingTrips = txn.findNodes(GraphLabel.ROUTE_STATION).
                     filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
                             anyMatch(rel -> rel.getTripIds().isEmpty())).toList();
-
             assertEquals(0,haveMissingTrips.size());
+
+
+            List<GraphNode> haveMissingServiceId = txn.findNodes(GraphLabel.ROUTE_STATION).
+                    filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
+                            anyMatch(rel -> !rel.hasProperty(GraphPropertyKey.SERVICE_ID))).
+                    toList();
+            assertTrue(haveMissingServiceId.isEmpty());
+
         }
     }
 

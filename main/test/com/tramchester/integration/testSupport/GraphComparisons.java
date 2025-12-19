@@ -67,7 +67,7 @@ public class GraphComparisons {
                         final Map<String, Object> allProperties = fixUpDayOffsetIfNeeded(relat.getAllProperties());
                         return compareProps(relationshipProps, allProperties, false);
                     }).toList();
-            assertFalse(matchProps.isEmpty(), "mismatch on relationship props " + relationshipProps + " vs " + matchType);
+            assertFalse(matchProps.isEmpty(), "mismatch on relationship props " + prettyPrintProps(relationshipProps) + " not matching any of " + matchType);
 
             // end node labels
             final List<GraphRelationship> matchNodeLabels = matchProps.stream().
@@ -89,6 +89,28 @@ public class GraphComparisons {
             visitMatchedNodes(destinationNode, matchingRelationship.getEndNode(txnInMem), depth-1);
         });
 
+    }
+
+    private String prettyPrintProps(Map<String, Object> props) {
+        List<String> strings = props.entrySet().stream().map(item -> String.format("%s=%s", item.getKey(), prettyPrintObj(item.getValue()))).toList();
+        StringBuilder builder = new StringBuilder();
+        builder.append('{');
+        for (int i = 0; i < strings.size(); i++) {
+            if (i>0) {
+                builder.append(", ");
+            }
+            builder.append(strings.get(i));
+        }
+        builder.append('}');
+        return builder.toString();
+    }
+
+    private String prettyPrintObj(Object value) {
+        if (value instanceof String[] stringArray) {
+            return Arrays.asList(stringArray).toString();
+        } else {
+            return value.toString();
+        }
     }
 
     private Map<String, Object> fixUpDayOffsetIfNeeded(Map<String, Object> properties) {
@@ -212,55 +234,12 @@ public class GraphComparisons {
         return mismatch.isEmpty();
     }
 
-//    private boolean compareArrays(short[] arrayA, short[] arrayB) {
-//        if (arrayA.length!=arrayB.length) {
-//            logger.error("length mismatch " + arrayA + " vs " + arrayB);
-//        }
-//        boolean matched = true;
-//        for (int i = 0; i < arrayA.length; i++) {
-//            matched = matched && arrayA[i]==arrayB[i];
-//        }
-//        if (!matched) {
-//            logger.error("mismatch " + arrayA + " vs " + arrayB);
-//        }
-//        return matched;
-//    }
-
-
     public void checkProps(final GraphEntity graphEntityA, final GraphEntity graphEntityB) {
         final Map<String, Object> propsA = graphEntityA.getAllProperties();
         final Map<String, Object> propsB = graphEntityB.getAllProperties();
 
-        matchProps(propsA, propsB);
-
-//        assertEquals(propsA.size(), propsB.size());
-//
-//        for(final String key : propsA.keySet()) {
-//            assertTrue(propsB.containsKey(key));
-//            if (key.equals(TRANSPORT_MODES.getText())) {
-//                final short[] arrayA = (short[]) propsA.get(key);
-//                final short[] arrayB = (short[]) propsB.get(key);
-//                assertArrayEquals(arrayA, arrayB, "mismatch on " + key + " for " + graphEntityA + " and " + graphEntityB);
-//            } else {
-//                assertEquals(propsA.get(key), propsB.get(key), "mismatch on " + key + " for " + graphEntityA + " and " + graphEntityB);
-//            }
-//        }
+        compareProps(propsA, propsB, false);
     }
-
-
-    private boolean checkTrips(final Map<String, Object> expected, final Map<String, Object> props) {
-        final String[] arrayA = (String[]) expected.get(TRIP_ID_LIST.getText());
-        final String[] arrayB = (String[]) props.get(TRIP_ID_LIST.getText());
-        if (arrayA.length!=arrayB.length) {
-            return false;
-        }
-
-        final Set<String> setA = new HashSet<>(Arrays.asList(arrayA));
-        final Set<String> setB = new HashSet<>(Arrays.asList(arrayB));
-
-        return setA.equals(setB);
-    }
-
 
     public void checkRelationshipsMatch(final List<GraphRelationship> listA, final List<GraphRelationship> listB) {
         for(final GraphRelationship expected : listA) {
@@ -275,57 +254,12 @@ public class GraphComparisons {
 
             final Map<String, Object> expectedProps = expected.getAllProperties();
             final Set<GraphRelationship> match = beginAndEndMatch.stream().
-                    filter(graphRelationship -> matchProps(expectedProps, graphRelationship.getAllProperties())).
+                    filter(graphRelationship -> compareProps(expectedProps, graphRelationship.getAllProperties(), false)).
                     collect(Collectors.toSet());
             assertEquals(1, match.size(),"mismatch for " + expectedProps + " from " + beginAndEndMatch + " for relationship " + expected);
         }
     }
 
-
-    private boolean matchProps(final Map<String, Object> expected, final Map<String, Object> props) {
-        return compareProps(expected, props, false);
-
-//        if (!expected.keySet().equals(props.keySet())) {
-//            logger.error("mismatch on keys expected:" + expected.keySet() + " got " + props.keySet());
-//            return false;
-//        }
-//
-//        for(final String key : expected.keySet()) {
-//            if (key.equals(TRANSPORT_MODES.getText())) {
-//                if  (!checkModes(expected, props)) {
-//                    logger.error("Failed on modes for expected:" +expected + " vs " + props);
-//                    return false;
-//                }
-//            } else if (key.equals(TRIP_ID_LIST.getText())) {
-//                if (!checkTrips(expected, props)) {
-//                    logger.error("Failed on trip ids for expected:" +expected + " vs " + props);
-//                    return false;
-//                }
-//            } else {
-//                if (!expected.get(key).equals(props.get(key))) {
-//                    logger.error("Failed on " + key + " for expected:" +expected + " vs " + props);
-//                    return false;
-//                }
-//            }
-//        }
-//
-//        return true;
-    }
-
-//    private static boolean checkModes(final Map<String, Object> expected, final Map<String, Object> props) {
-//        final short[] arrayA = (short[]) expected.get(TRANSPORT_MODES.getText());
-//        final short[] arrayB = (short[]) props.get(TRANSPORT_MODES.getText());
-//        if (arrayA.length!=arrayB.length) {
-//            return false;
-//        }
-//        for (int i = 0; i < arrayA.length; i++) {
-//            if (arrayA[i]!=arrayB[i]) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
 
     public void checkSameDirections(final GraphNode graphNodeA, final GraphNode graphNodeB, final GraphDirection direction) {
         final List<GraphRelationship> relationshipsA = graphNodeA.getRelationships(txnNeo4J, direction).toList();
@@ -357,7 +291,7 @@ public class GraphComparisons {
 
             final Map<String, Object> expectedProps = relationshipA.getAllProperties();
             final Set<GraphRelationship> match = typeMatches.stream().
-                    filter(graphRelationship -> matchProps(expectedProps, graphRelationship.getAllProperties())).
+                    filter(graphRelationship -> compareProps(expectedProps, graphRelationship.getAllProperties(), false)).
                     collect(Collectors.toSet());
 
             assertEquals(1, match.size(), "mismatch for " + expectedProps + " from found " + typeMatches +

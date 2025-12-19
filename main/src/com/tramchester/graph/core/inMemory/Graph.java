@@ -41,12 +41,40 @@ public class Graph {
     public Graph() {
         nextGraphNodeId = new AtomicInteger(0);
         nextRelationshipId = new AtomicInteger(0);
+
         nodesAndEdges = new NodesAndEdges();
 
         relationshipsForNodes = new ConcurrentHashMap<>();
         labelsToNodes = new ConcurrentHashMap<>();
         relationshipTypeCounts = new RelationshipTypeCounts();
         existingRelationships = new ConcurrentHashMap<>();
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.info("Starting");
+        for(GraphLabel label : GraphLabel.values()) {
+            labelsToNodes.put(label, new HashSet<>());
+        }
+        relationshipTypeCounts.reset();
+        logger.info("started");
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stop");
+
+        nextGraphNodeId.set(0);
+        nextRelationshipId.set(0);
+
+        nodesAndEdges.clear();
+        relationshipsForNodes.clear();
+        relationshipTypeCounts.reset();
+        existingRelationships.clear();
+
+        labelsToNodes.clear();
+
+        logger.info("stopped");
     }
 
     public static Graph createFrom(final NodesAndEdges incoming) {
@@ -94,29 +122,7 @@ public class Graph {
         nodesAndEdges.captureNextRelationshipId(nextRelationshipId);
     }
 
-    @PostConstruct
-    public void start() {
-        logger.info("Starting");
-        for(GraphLabel label : GraphLabel.values()) {
-            labelsToNodes.put(label, new HashSet<>());
-        }
-        relationshipTypeCounts.reset();
-        logger.info("started");
-    }
 
-    @PreDestroy
-    public void stop() {
-        logger.info("stop");
-        logger.error("reinstate");
-        nextGraphNodeId.set(0);
-        nextRelationshipId.set(0);
-
-        nodesAndEdges.clear();
-
-        relationshipsForNodes.clear();
-        labelsToNodes.clear();
-        logger.info("stopped");
-    }
 
     public GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
         synchronized (nodesAndEdges) {

@@ -171,6 +171,8 @@ class RouteCalculatorSubGraphMediaCityTest {
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
 
+        journeyRequest.setDiag(true);
+
         TramStations start = ExchangeSquare;
         TramStations end = MediaCityUK;
 

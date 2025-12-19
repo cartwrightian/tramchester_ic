@@ -7,7 +7,6 @@ import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.config.FileVariableSubstitutor;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.Version;
@@ -46,7 +45,6 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -75,12 +73,8 @@ public class App extends Application<AppConfiguration>  {
         return new EnvironmentVariableSubstitutor(true, true);
     }
 
-    public static StringSubstitutor getFileSubstitutor(final Path configDir) {
-        return new FileVariableSubstitutor(configDir);
-    }
-
-    public static ConfigurationSourceProvider getConfigSourceProvider(ConfigurationSourceProvider sourceProvider, Path configDir) {
-        final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(sourceProvider, App.getFileSubstitutor(configDir));
+    public static ConfigurationSourceProvider getConfigSourceProvider(ConfigurationSourceProvider sourceProvider) {
+        final FileVariableSubstitutorProvider substitutingSourceProvider = new FileVariableSubstitutorProvider(sourceProvider);
         return new SubstitutingSourceProvider(substitutingSourceProvider, App.getEnvVarSubstitutor());
     }
 
@@ -150,8 +144,7 @@ public class App extends Application<AppConfiguration>  {
         ConfigurationSourceProvider underlyingProvider = new FallbackConfigurationSourceProvider(bootstrap.getConfigurationSourceProvider(),
             new ResourceConfigurationSourceProvider());
 
-        Path configDir = Path.of("config");
-        ConfigurationSourceProvider provider = App.getConfigSourceProvider(underlyingProvider, configDir);
+        ConfigurationSourceProvider provider = App.getConfigSourceProvider(underlyingProvider);
 
         bootstrap.setConfigurationSourceProvider(provider);
 
