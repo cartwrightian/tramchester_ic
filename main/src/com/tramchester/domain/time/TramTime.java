@@ -17,6 +17,8 @@ import java.util.Objects;
 
 import static java.lang.String.format;
 
+// TODO Immutable interface
+
 
 @JsonDeserialize(using = TramTimeJsonDeserializer.class)
 @JsonSerialize(using = TramTimeJsonSerializer.class)
