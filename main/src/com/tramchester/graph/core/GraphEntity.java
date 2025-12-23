@@ -13,4 +13,6 @@ public interface GraphEntity {
 
     Map<String, Object> getAllProperties();
 
+    <T extends GraphId> T getId();
+
 }

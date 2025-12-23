@@ -56,7 +56,7 @@ public class FindPathsForJourney {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
-        SearchStateKey stateKey = new SearchStateKey(startNode.getId());
+        SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
         final PathSearchState searchState = new PathSearchState(stateKey, initialPath);
         searchState.setJourneyState(stateKey, journeyState);
 
@@ -112,7 +112,6 @@ public class FindPathsForJourney {
 
         final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
 
-        // todo combine these
         final List<PathSearchState.NodeSearchState> updatedNodes = new LinkedList<>();
         final List<PathSearchState.NodeSearchState> notVisitedYet = new LinkedList<>();
 
@@ -121,7 +120,7 @@ public class FindPathsForJourney {
             final Duration relationshipCost = graphRelationship.getCost();
 
             //final GraphNodeId endRelationshipNodeId = graphRelationship.getEndNodeId(txn); //endRelationshipNode.getId();
-            final SearchStateKey endStateKey = new SearchStateKey(graphRelationship.getEndNodeId(txn));
+            final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, graphRelationship.getEndNodeId(txn));
             final Duration newCost = relationshipCost.plus(currentCostToNode);
 
             final boolean alreadySeen = searchState.hasSeen(endStateKey);
@@ -134,11 +133,12 @@ public class FindPathsForJourney {
             }
 
             if (alreadySeen) {
-                final Duration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
-                if (newCost.compareTo(currentDurationForEnd) < 0) {
-                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
-                } // else no update, not lower cost
-            } else {
+                //final Duration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
+//                if (newCost.compareTo(currentDurationForEnd) < 0) {
+//                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
+//                }
+                updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
+            } else { // not seen before
                 searchState.updateCost(endStateKey, newCost);
                 notVisitedYet.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
             }

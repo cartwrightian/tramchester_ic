@@ -154,4 +154,8 @@ public class GraphPathInMemory implements GraphPath {
     public boolean isEmpty() {
         return entityList.isEmpty();
     }
+
+    public List<GraphId> getEntitiesIds() {
+        return entityList.stream().map(GraphEntity::getId).map(item -> (GraphId)item).toList();
+    }
 }
