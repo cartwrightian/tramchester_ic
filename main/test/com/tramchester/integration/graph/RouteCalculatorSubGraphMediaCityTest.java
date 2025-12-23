@@ -168,6 +168,11 @@ class RouteCalculatorSubGraphMediaCityTest {
         TramDate date = TestEnv.testDay();
         TramTime queryTime = TramTime.of(9, 0);
 
+//        before = txn.findNodes(GraphLabel.ROUTE_STATION).
+//                filter(node -> node.getStationId().equals(Anchorage.getId())).
+//                map(node -> node.)
+//                collect(Collectors.toSet());
+
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
 

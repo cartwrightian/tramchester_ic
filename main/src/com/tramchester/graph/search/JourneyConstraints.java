@@ -53,7 +53,6 @@ public class JourneyConstraints {
         this.destinationsAvailable = destinationsAvailable;
         this.maxPathLength = computeMaxPathLength();
 
-        //this.destinations = destinations;
         this.destinationModes = destinationModes;
         this.maxJourneyDuration = maxJourneyDuration;
         this.maxWalkingConnections = config.getMaxWalkingConnections();

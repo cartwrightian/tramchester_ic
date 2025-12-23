@@ -2,8 +2,10 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.*;
 import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,10 +14,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 //@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
+    @JsonIgnore
+    private final EnumSet<GraphLabel> labels; // diagnostics only
 
     @JsonCreator
     public NodeIdInMemory(@JsonProperty("id") final int id) {
+        this(id, EnumSet.noneOf(GraphLabel.class));
+    }
+
+    public NodeIdInMemory(final int id, final EnumSet<GraphLabel> labels) {
         this.id = id;
+        this.labels = labels;
     }
 
     @JsonGetter("id")
@@ -32,9 +41,17 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
 
     @Override
     public String toString() {
-        return "NodeIdInMemory{" +
-                "id=" + id +
-                '}';
+        if (labels.isEmpty()) {
+            return "NodeIdInMemory{" +
+                    "id=" + id +
+                    '}';
+        } else {
+            return "NodeIdInMemory{" +
+                    "id=" + id +
+                    " [" +labels + "]" +
+                    '}';
+        }
+
     }
 
     @Override

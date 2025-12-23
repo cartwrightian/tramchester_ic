@@ -4,10 +4,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
+import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -18,9 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public abstract class TramRouteEvaluator {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
@@ -72,7 +72,18 @@ public abstract class TramRouteEvaluator {
         // reuse these, label operations on nodes are expensive
         final EnumSet<GraphLabel> labels = nextNode.getLabels();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), graphPath.getPreviousNodeId(txn));
+        final List<PropertyDTO> props;
+        if (serviceHeuristics.isDiagnostics()) {
+            if (nextNode instanceof GraphNodeInMemory graphNodeInMemory) {
+                props = graphNodeInMemory.getProperties();
+            } else {
+                props = Collections.emptyList();
+            }
+        } else {
+            props= Collections.emptyList();
+        }
+
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), graphPath.getPreviousNodeId(txn), props);
 
         // TODO WIP Spike
 //        if (journeyState.alreadyVisited(nextNode, labels)) {

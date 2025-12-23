@@ -211,16 +211,16 @@ public abstract class RouteCalculatorSupport {
                                          final JourneyConstraints journeyConstraints) {
         final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(nodeAndStation.location, config);
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
-                journeyRequest.getOriginalTime(), numChanges);
+                journeyRequest.getOriginalTime(), numChanges, journeyRequest.getDiagnosticsEnabled());
         return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait,
                 journeyConstraints.getDestinationModes());
     }
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
                                          EnumSet<TransportMode> requestedModes, int numChanges,
-                                         JourneyConstraints journeyConstraints, Duration maxInitialWait) {
+                                         JourneyConstraints journeyConstraints, Duration maxInitialWait, boolean diagnosticsRequested) {
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
-                actualQueryTime, numChanges);
+                actualQueryTime, numChanges, diagnosticsRequested);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait,
                 journeyConstraints.getDestinationModes());
     }
@@ -293,7 +293,7 @@ public abstract class RouteCalculatorSupport {
         final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
-                                journeyConstraints, maxInitialWait))).
+                                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled()))).
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
                         createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination)).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
@@ -340,7 +340,7 @@ public abstract class RouteCalculatorSupport {
 
         final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), requestedModes,
                 journeyRequest.getMaxChanges().get(),
-                journeyConstraints, maxInitialWait);
+                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled());
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 

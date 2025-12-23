@@ -82,6 +82,8 @@ public class DiagnosticsToGraphViz {
                 builder.append(format("\"%s\" [label=\"%s\"] [shape=\"%s\" style=\"filled\" color=\"%s\"]\n",
                         reasonNodeId, reason.getText(), reasonShape, reasonColor));
 
+                builder.append(format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"]\n", beginNodeId,
+                        endNodeId, "toEnd", reasonColor));
 
             });
 

@@ -35,6 +35,7 @@ public class Graph {
     private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
     private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> existingRelationships;
     private final RelationshipTypeCounts relationshipTypeCounts;
+    private final boolean diagnostics;
 
     // todo proper transaction handling, rollbacks etc
 
@@ -48,6 +49,8 @@ public class Graph {
         labelsToNodes = new ConcurrentHashMap<>();
         relationshipTypeCounts = new RelationshipTypeCounts();
         existingRelationships = new ConcurrentHashMap<>();
+
+        diagnostics = false;
     }
 
     @PostConstruct
@@ -122,12 +125,16 @@ public class Graph {
         nodesAndEdges.captureNextRelationshipId(nextRelationshipId);
     }
 
-
-
     public GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
         synchronized (nodesAndEdges) {
             final int id = nextGraphNodeId.getAndIncrement();
-            final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(new NodeIdInMemory(id), labels);
+            final NodeIdInMemory idInMemory;
+            if (diagnostics) {
+                idInMemory = new NodeIdInMemory(id, labels);
+            } else {
+                idInMemory = new NodeIdInMemory(id);
+            }
+            final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(idInMemory, labels);
             final NodeIdInMemory graphNodeId = graphNodeInMemory.getId();
             nodesAndEdges.addNode(graphNodeId, graphNodeInMemory);
             labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));

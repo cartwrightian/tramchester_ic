@@ -136,7 +136,7 @@ class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
 
         LocationId<Station> approxPosition = Shudehill.getLocationId();
         howIGotHere = new HowIGotHere(nodeId, previousNodeId, TraversalStateType.MinuteState, approxPosition,
-                TramStations.MarketStreet.getId());
+                TramStations.MarketStreet.getId(), Collections.emptyList());
 
         EasyMock.expect(node.getId()).andStubReturn(GraphNodeIdNeo4J.TestOnly(42L));
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
@@ -149,6 +149,8 @@ class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
         EasyMock.expect(path.lastRelationship()).andReturn(previousRelationship);
                         //EasyMock.expect(txn.getPreviousNodeId(graphPath)).andReturn(previousNodeId);
         EasyMock.expect(txn.getGraphIdFor(previousNode)).andReturn(previousNodeId);
+
+        EasyMock.expect(serviceHeuristics.isDiagnostics()).andStubReturn(false);
 
     }
 

@@ -3,35 +3,40 @@ package com.tramchester.graph.search.diagnostics;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.stateMachine.states.HasTowardsStationId;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
+import java.util.List;
 import java.util.Objects;
 
 public class HowIGotHere {
 
     private final GraphNodeId nodeId;
+    private final GraphNodeId previousId;
 
     private final TraversalStateType traversalStateType;
     private final LocationId<?> approxPosition;
     private final IdFor<Station> towards;
-    private final GraphNodeId previousId;
+    private final List<PropertyDTO> nodeProperties;
 
-    public HowIGotHere(final ImmutableJourneyState immutableJourneyState, final GraphNodeId endNodeId, final GraphNodeId previousNodeId) {
+    public HowIGotHere(final ImmutableJourneyState immutableJourneyState, final GraphNodeId endNodeId, final GraphNodeId previousNodeId, List<PropertyDTO> nodeProperties) {
         this(endNodeId, previousNodeId, immutableJourneyState.getTraversalStateType(),
-                immutableJourneyState.approxPosition(), getTowards(immutableJourneyState));
+                immutableJourneyState.approxPosition(), getTowards(immutableJourneyState), nodeProperties);
     }
 
+    // test support
     public HowIGotHere(final GraphNodeId endNodeId, final GraphNodeId previousNodeId, final TraversalStateType traversalStateType,
-                       LocationId<?> approxPosition, final IdFor<Station> towards) {
+                       LocationId<?> approxPosition, final IdFor<Station> towards, List<PropertyDTO> nodeProperties) {
         this.nodeId = endNodeId;
         this.previousId = previousNodeId;
         this.traversalStateType = traversalStateType;
         this.approxPosition = approxPosition;
         this.towards = towards;
+        this.nodeProperties = nodeProperties;
     }
 
     private static IdFor<Station> getTowards(final ImmutableJourneyState journeyState) {
@@ -98,5 +103,9 @@ public class HowIGotHere {
 
     public GraphNodeId getPreviousId() {
         return previousId;
+    }
+
+    public List<PropertyDTO> getNodeProperties() {
+        return nodeProperties;
     }
 }

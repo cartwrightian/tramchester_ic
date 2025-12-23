@@ -35,10 +35,11 @@ public class ServiceHeuristics {
     private final int currentChangesLimit;
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
     private final int penultimateChange;
+    private final boolean diagnostics;
 
     public ServiceHeuristics(StationRepository stationRepository,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
-                             int currentChangesLimit) {
+                             int currentChangesLimit, boolean diagnostics) {
         this.stationRepository = stationRepository;
 
         this.journeyConstraints = journeyConstraints;
@@ -46,6 +47,7 @@ public class ServiceHeuristics {
         this.currentChangesLimit = currentChangesLimit;
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
         penultimateChange = currentChangesLimit>1 ? currentChangesLimit-1 : currentChangesLimit;
+        this.diagnostics = diagnostics;
     }
     
     public HeuristicsReason checkServiceDateAndTime(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons,
@@ -97,7 +99,7 @@ public class ServiceHeuristics {
                                       final ServiceReasons reasons, final int maxWait) {
         reasons.incrementTotalChecked();
 
-        final TramTime nodeTime = node.getTime(); //nodeOperations.getTime(node);
+        final TramTime nodeTime = node.getTime();
         if (currentTime.isAfter(nodeTime)) { // already departed
             return reasons.recordReason(HeuristicsReasons.AlreadyDeparted(currentTime, howIGotHere));
         }
@@ -110,7 +112,7 @@ public class ServiceHeuristics {
         final TimeRange window = TimeRangePartial.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
 
         if (window.contains(currentTime)) {
-            return reasons.recordReason(HeuristicReasonsOK.TimeOK(ReasonCode.TimeOk, howIGotHere, nodeTime));
+            return reasons.recordReason(HeuristicReasonsOK.TimeOK(ReasonCode.TimeOk, howIGotHere, currentTime));
         }
 
         return reasons.recordReason(HeuristicsReasons.DoesNotOperateOnTime(currentTime, howIGotHere));
@@ -258,4 +260,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.Continue, howIGotHere, reasons);
     }
 
+    public boolean isDiagnostics() {
+        return diagnostics;
+    }
 }
