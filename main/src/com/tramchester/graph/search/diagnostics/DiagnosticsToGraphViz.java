@@ -7,9 +7,10 @@ import com.tramchester.domain.presentation.DTO.diagnostics.DiagnosticReasonDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 
-import jakarta.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,13 +20,15 @@ import static java.lang.String.format;
 @LazySingleton
 public class DiagnosticsToGraphViz {
 
-    private final HashSet<Pair<IdForDTO, String>> locationToNode;
-    private final HashSet<Pair<String, String>> nodeToReason;
+    private final Set<Pair<IdForDTO, String>> locationToNode;
+    private final Set<Pair<String, String>> nodeToReason;
+    private final Set<String> nodes;
 
     @Inject
     public DiagnosticsToGraphViz() {
         locationToNode = new HashSet<>();
         nodeToReason = new HashSet<>();
+        nodes = new HashSet<>();
     }
 
     public void appendTo(final StringBuilder builder, final JourneyDiagnostics diagnostics) {
@@ -59,7 +62,26 @@ public class DiagnosticsToGraphViz {
 
                 final String reasonNodeId = reason.getStateType().name() + "_" + reason.getCode() + "_" + endNodeId;
 
-                // location -> begin node
+                // TODO Just use add nodes so get props?
+                // begin node
+                if (!nodes.contains(beginNodeId)) {
+                    nodes.add(beginNodeId);
+                    builder.append(format("\"%s\"\n", beginNodeId));
+                }
+
+                // end node
+                if (!nodes.contains(endNodeId)) {
+                    nodes.add(endNodeId);
+
+                    final List<PropertyDTO> props = reason.getEndProps();
+                    if (props.isEmpty()) {
+                        builder.append(format("\"%s\"\n", endNodeId));
+                    } else {
+                        builder.append(format("\"%s\" [label=\"%s \n %s\"]\n", endNodeId, endNodeId, props));
+                    }
+                }
+
+                // location --> begin node
                 final Pair<IdForDTO, String> locationToNodeKey = Pair.of(locationId, beginNodeId);
                 if (!locationToNode.contains(locationToNodeKey)) {
                     builder.append(format("\"%s\"->\"%s\"\n", locationId, beginNodeId));
@@ -69,12 +91,20 @@ public class DiagnosticsToGraphViz {
                 final String reasonLinkText = valid ? "yes" : "no";
                 final String reasonColor = valid ? "green" : "red";
 
-                // begin node -> reason node
+                // begin node --> reason node
                 final Pair<String, String> nodeToReasonKey = Pair.of(beginNodeId, reasonNodeId);
                 if (!nodeToReason.contains(nodeToReasonKey)) {
                     builder.append(format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"]\n", beginNodeId,
                             reasonNodeId, reasonLinkText, reasonColor));
                     nodeToReason.add(nodeToReasonKey);
+                }
+
+                // end node ->> reason node
+                final Pair<String, String> endnodeToReasonKey = Pair.of(endNodeId, reasonNodeId);
+                if (!nodeToReason.contains(endnodeToReasonKey)) {
+                    builder.append(format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"]\n", endNodeId,
+                            reasonNodeId, reasonLinkText, reasonColor));
+                    nodeToReason.add(endnodeToReasonKey);
                 }
 
                 final String reasonShape = valid ? "oval" : "octagon";

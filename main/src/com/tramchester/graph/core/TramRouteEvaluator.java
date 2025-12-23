@@ -72,18 +72,19 @@ public abstract class TramRouteEvaluator {
         // reuse these, label operations on nodes are expensive
         final EnumSet<GraphLabel> labels = nextNode.getLabels();
 
-        final List<PropertyDTO> props;
+        final List<PropertyDTO> endNodeProps;
         if (serviceHeuristics.isDiagnostics()) {
             if (nextNode instanceof GraphNodeInMemory graphNodeInMemory) {
-                props = graphNodeInMemory.getProperties();
+                endNodeProps = graphNodeInMemory.getProperties();
             } else {
-                props = Collections.emptyList();
+                endNodeProps = Collections.emptyList();
             }
         } else {
-            props= Collections.emptyList();
+            endNodeProps= Collections.emptyList();
         }
 
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), graphPath.getPreviousNodeId(txn), props);
+        GraphNodeId previousNodeId = graphPath.getPreviousNodeId(txn);
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), previousNodeId, endNodeProps);
 
         // TODO WIP Spike
 //        if (journeyState.alreadyVisited(nextNode, labels)) {

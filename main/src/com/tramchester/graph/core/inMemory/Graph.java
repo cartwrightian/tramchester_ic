@@ -50,7 +50,8 @@ public class Graph {
         relationshipTypeCounts = new RelationshipTypeCounts();
         existingRelationships = new ConcurrentHashMap<>();
 
-        diagnostics = false;
+        // TODO into config and consolidate with neo4j diag option?
+        diagnostics = true;
     }
 
     @PostConstruct

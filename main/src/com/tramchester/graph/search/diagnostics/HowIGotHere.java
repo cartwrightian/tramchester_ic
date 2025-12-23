@@ -21,22 +21,24 @@ public class HowIGotHere {
     private final TraversalStateType traversalStateType;
     private final LocationId<?> approxPosition;
     private final IdFor<Station> towards;
-    private final List<PropertyDTO> nodeProperties;
 
-    public HowIGotHere(final ImmutableJourneyState immutableJourneyState, final GraphNodeId endNodeId, final GraphNodeId previousNodeId, List<PropertyDTO> nodeProperties) {
+    // only when diag enabled
+    private final List<PropertyDTO> endProperties;
+
+    public HowIGotHere(final ImmutableJourneyState immutableJourneyState, final GraphNodeId endNodeId, final GraphNodeId previousNodeId, List<PropertyDTO> endProperties) {
         this(endNodeId, previousNodeId, immutableJourneyState.getTraversalStateType(),
-                immutableJourneyState.approxPosition(), getTowards(immutableJourneyState), nodeProperties);
+                immutableJourneyState.approxPosition(), getTowards(immutableJourneyState), endProperties);
     }
 
     // test support
     public HowIGotHere(final GraphNodeId endNodeId, final GraphNodeId previousNodeId, final TraversalStateType traversalStateType,
-                       LocationId<?> approxPosition, final IdFor<Station> towards, List<PropertyDTO> nodeProperties) {
+                       LocationId<?> approxPosition, final IdFor<Station> towards, List<PropertyDTO> endProperties) {
         this.nodeId = endNodeId;
         this.previousId = previousNodeId;
         this.traversalStateType = traversalStateType;
         this.approxPosition = approxPosition;
         this.towards = towards;
-        this.nodeProperties = nodeProperties;
+        this.endProperties = endProperties;
     }
 
     private static IdFor<Station> getTowards(final ImmutableJourneyState journeyState) {
@@ -105,7 +107,12 @@ public class HowIGotHere {
         return previousId;
     }
 
-    public List<PropertyDTO> getNodeProperties() {
-        return nodeProperties;
+    /***
+     * Only when diagnostics enabled
+     * @return empty, or props for the end
+     */
+    public List<PropertyDTO> getEndProperties() {
+        return endProperties;
     }
+
 }

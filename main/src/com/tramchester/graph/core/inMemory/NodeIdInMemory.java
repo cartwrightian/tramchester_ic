@@ -42,13 +42,13 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     @Override
     public String toString() {
         if (labels.isEmpty()) {
-            return "NodeIdInMemory{" +
+            return "NodeId{" +
                     "id=" + id +
                     '}';
         } else {
-            return "NodeIdInMemory{" +
+            return "NodeId{" +
                     "id=" + id +
-                    " [" +labels + "]" +
+                    " " +labels +
                     '}';
         }
 

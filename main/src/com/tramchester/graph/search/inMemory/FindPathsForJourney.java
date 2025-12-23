@@ -56,8 +56,9 @@ public class FindPathsForJourney {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
-        final PathSearchState searchState = new PathSearchState(startNode.getId(), initialPath);
-        searchState.setJourneyState(startNode.getId(), journeyState);
+        SearchStateKey stateKey = new SearchStateKey(startNode.getId());
+        final PathSearchState searchState = new PathSearchState(stateKey, initialPath);
+        searchState.setJourneyState(stateKey, journeyState);
 
         while (searchState.hasNodes()) {
             final PathSearchState.NodeSearchState nodeSearchState = searchState.getNext();
@@ -74,13 +75,14 @@ public class FindPathsForJourney {
 
         final boolean debugEnabled = logger.isDebugEnabled();
 
-        final GraphNodeId currentNodeId = nodeSearchState.getNodeId();
-        final GraphNode currentNode = txn.getNodeById(currentNodeId);
+        //final GraphNodeId currentNodeId = nodeSearchState.getStateKey();
+        final SearchStateKey stateKey = nodeSearchState.getStateKey();
+        final GraphNode currentNode = txn.getNodeById(stateKey.getNodeId());
 
         final GraphPathInMemory existingPath = nodeSearchState.getPathToHere();
         final GraphPathInMemory pathToCurrentNode = existingPath.duplicateWith(txn, currentNode);
 
-        final JourneyState existingState = searchState.getJourneyStateFor(currentNodeId);
+        final JourneyState existingState = searchState.getJourneyStateFor(stateKey);
 
         final JourneyState graphStateForChildren = getNextState(existingPath, existingState, currentNode);
 
@@ -93,7 +95,7 @@ public class FindPathsForJourney {
             return;
         }
 
-        if (evaluator.matchesDestination(currentNodeId)) {
+        if (evaluator.matchesDestination(stateKey.getNodeId())) {
             if (debugEnabled) {
                 logger.debug("Found destination");
             }
@@ -114,14 +116,15 @@ public class FindPathsForJourney {
         final List<PathSearchState.NodeSearchState> updatedNodes = new LinkedList<>();
         final List<PathSearchState.NodeSearchState> notVisitedYet = new LinkedList<>();
 
-        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId);
+        final Duration currentCostToNode = searchState.getCurrentCost(stateKey);
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
-            //final GraphNode endRelationshipNode = graphRelationship.getEndNode(txn);
-            final GraphNodeId endRelationshipNodeId = graphRelationship.getEndNodeId(txn); //endRelationshipNode.getId();
+
+            //final GraphNodeId endRelationshipNodeId = graphRelationship.getEndNodeId(txn); //endRelationshipNode.getId();
+            final SearchStateKey endStateKey = new SearchStateKey(graphRelationship.getEndNodeId(txn));
             final Duration newCost = relationshipCost.plus(currentCostToNode);
 
-            final boolean alreadySeen = searchState.hasSeen(endRelationshipNodeId);
+            final boolean alreadySeen = searchState.hasSeen(endStateKey);
 
             final GraphPathInMemory continuePath;
             if (depthFirst) {
@@ -131,31 +134,30 @@ public class FindPathsForJourney {
             }
 
             if (alreadySeen) {
-                final Duration currentDurationForEnd = searchState.getCurrentCost(endRelationshipNodeId);
+                final Duration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
                 if (newCost.compareTo(currentDurationForEnd) < 0) {
-                    updatedNodes.add(new PathSearchState.NodeSearchState(endRelationshipNodeId, newCost, continuePath));
-
+                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
                 } // else no update, not lower cost
             } else {
-                searchState.updateCost(endRelationshipNodeId, newCost);
-                notVisitedYet.add(new PathSearchState.NodeSearchState(endRelationshipNodeId, newCost, continuePath));
+                searchState.updateCost(endStateKey, newCost);
+                notVisitedYet.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
             }
         });
 
         notVisitedYet.forEach(toVisit -> {
-            final GraphNodeId nodeId = toVisit.getNodeId();
-            searchState.addCostAndQueue(nodeId, toVisit.getDuration(), toVisit.getPathToHere());
-            searchState.setJourneyState(nodeId, graphStateForChildren);
+            final SearchStateKey searchStateKey = toVisit.getStateKey();
+            searchState.addCostAndQueue(searchStateKey, toVisit.getDuration(), toVisit.getPathToHere());
+            searchState.setJourneyState(searchStateKey, graphStateForChildren);
         });
 
         updatedNodes.forEach(toUpdate -> {
-            final GraphNodeId nodeId = toUpdate.getNodeId();
+            final SearchStateKey searchStateKey = toUpdate.getStateKey();
             if (depthFirst) {
-                searchState.updateCost(nodeId, toUpdate.getDuration());
+                searchState.updateCost(searchStateKey, toUpdate.getDuration());
             } else {
-                searchState.updateCostAndQueue(nodeId, toUpdate.getDuration(),  toUpdate.getPathToHere());
+                searchState.updateCostAndQueue(searchStateKey, toUpdate.getDuration(),  toUpdate.getPathToHere());
             }
-            searchState.setJourneyState(nodeId, graphStateForChildren);
+            searchState.setJourneyState(searchStateKey, graphStateForChildren);
         });
     }
 

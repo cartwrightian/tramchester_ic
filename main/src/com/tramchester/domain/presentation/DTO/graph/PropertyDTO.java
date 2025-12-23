@@ -75,10 +75,7 @@ public class PropertyDTO {
 
     @Override
     public String toString() {
-        return "PropertyDTO{" +
-                "key='" + key + '\'' +
-                ", value=" + value +
-                "[class=" + value.getClass().getSimpleName() + ']' +
+        return "{" + key + '=' + value +
                 '}';
     }
 
@@ -116,8 +113,8 @@ public class PropertyDTO {
 
         @Override
         public String toString() {
-            return "PropertyDTOValue{" +
-                    "value=" + value +
+            return "{" +
+                     value +
                     '}';
         }
     }

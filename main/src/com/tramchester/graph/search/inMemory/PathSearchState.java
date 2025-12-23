@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.inMemory;
 
-import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.search.JourneyState;
 
@@ -11,17 +10,17 @@ class PathSearchState {
     // remaining working
     private final PriorityQueue<NodeSearchState> nodeQueue;
     // state
-    private final Map<GraphNodeId, Duration> currentCost;
-    private final Map<GraphNodeId, JourneyState> journeyStates;
+    private final Map<SearchStateKey, Duration> currentCost;
+    private final Map<SearchStateKey, JourneyState> journeyStates;
     // results
     final List<GraphPathInMemory> foundPaths;
 
-    PathSearchState(final GraphNodeId startNodeId, final GraphPathInMemory pathToHere) {
+    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere) {
         nodeQueue = new PriorityQueue<>();
-        nodeQueue.add(new NodeSearchState(startNodeId, Duration.ZERO, pathToHere));
+        nodeQueue.add(new NodeSearchState(searchStateKey, Duration.ZERO, pathToHere));
 
         currentCost = new HashMap<>();
-        currentCost.put(startNodeId, Duration.ZERO);
+        currentCost.put(searchStateKey, Duration.ZERO);
 
         foundPaths = new ArrayList<>();
         journeyStates = new HashMap<>();
@@ -31,13 +30,13 @@ class PathSearchState {
         return nodeQueue.poll();
     }
 
-    public Duration getCurrentCost(final GraphNodeId nodeId) {
-        return currentCost.getOrDefault(nodeId, FindPathsForJourney.NotVisitiedDuration);
+    public Duration getCurrentCost(final SearchStateKey stateKey) {
+        return currentCost.getOrDefault(stateKey, FindPathsForJourney.NotVisitiedDuration);
     }
 
-    public void updateCost(final GraphNodeId nodeId, final Duration duration) {
+    public void updateCost(final SearchStateKey stateKey, final Duration duration) {
         synchronized (nodeQueue) {
-            currentCost.put(nodeId, duration);
+            currentCost.put(stateKey, duration);
         }
     }
 
@@ -45,15 +44,15 @@ class PathSearchState {
         return !nodeQueue.isEmpty();
     }
 
-    public boolean hasSeen(final GraphNodeId endNodeId) {
+    public boolean hasSeen(final SearchStateKey stateKey) {
         // can this get out of sink with the nodeQueue? i.e. have a cost but not corresponding node in the queue?
         synchronized (nodeQueue) {
-            return currentCost.containsKey(endNodeId);
+            return currentCost.containsKey(stateKey);
         }
     }
 
-    public void updateCostAndQueue(final GraphNodeId graphNodeId, final Duration duration, final GraphPathInMemory graphPath) {
-        final NodeSearchState update = new NodeSearchState(graphNodeId, duration, graphPath);
+    public void updateCostAndQueue(final SearchStateKey stateKey, final Duration duration, final GraphPathInMemory graphPath) {
+        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath);
 
         synchronized (nodeQueue) {
             // clunky, relies on NodeSearchState defining equals to be on NodeId only
@@ -61,25 +60,21 @@ class PathSearchState {
                 nodeQueue.remove(update);
                 nodeQueue.add(update);
             } else {
-                throw new RuntimeException("Node was not in the queue " + graphNodeId + " for " + update);
+                throw new RuntimeException("Node was not in the queue " + stateKey + " for " + update);
             }
-            currentCost.put(graphNodeId, duration);
+            currentCost.put(stateKey, duration);
         }
     }
 
-    public void addCostAndQueue(GraphNodeId graphNodeId, Duration duration, GraphPathInMemory graphPath) {
-        final NodeSearchState update = new NodeSearchState(graphNodeId, duration, graphPath);
+    public void addCostAndQueue(SearchStateKey stateKey, Duration duration, GraphPathInMemory graphPath) {
+        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath);
 
-        addCostAndQueue(update);
-    }
-
-    private void addCostAndQueue(final NodeSearchState update) {
         synchronized (nodeQueue) {
             if (nodeQueue.contains(update)) {
-                throw new RuntimeException("Already in queue " + update.getNodeId());
+                throw new RuntimeException("Already in queue " + update.getStateKey());
             }
             nodeQueue.add(update);
-            currentCost.put(update.getNodeId(), update.duration);
+            currentCost.put(stateKey, duration);
         }
     }
 
@@ -102,24 +97,24 @@ class PathSearchState {
                 '}';
     }
 
-    public void setJourneyState(final GraphNodeId id, final JourneyState journeyState) {
+    public void setJourneyState(final SearchStateKey id, final JourneyState journeyState) {
         journeyStates.put(id, journeyState);
     }
 
-    public JourneyState getJourneyStateFor(final GraphNodeId nodeId) {
-        if (!journeyStates.containsKey(nodeId)) {
-            throw new RuntimeException("No journey state for " + nodeId);
+    public JourneyState getJourneyStateFor(final SearchStateKey stateKey) {
+        if (!journeyStates.containsKey(stateKey)) {
+            throw new RuntimeException("No journey state for " + stateKey);
         }
-        return journeyStates.get(nodeId);
+        return journeyStates.get(stateKey);
     }
 
     public static class NodeSearchState implements Comparable<NodeSearchState> {
-        private final GraphNodeId nodeId;
+        private final SearchStateKey stateKey;
         private final Duration duration;
         private final GraphPathInMemory pathToHere;
 
-        NodeSearchState(GraphNodeId nodeId, Duration duration, GraphPathInMemory pathToHere) {
-            this.nodeId = nodeId;
+        NodeSearchState(SearchStateKey stateKey, Duration duration, GraphPathInMemory pathToHere) {
+            this.stateKey = stateKey;
             this.duration = duration;
             this.pathToHere = pathToHere.duplicateThis();
         }
@@ -132,20 +127,20 @@ class PathSearchState {
             //return this.duration.compareTo(other.duration);
         }
 
-        public GraphNodeId getNodeId() {
-            return nodeId;
+        public SearchStateKey getStateKey() {
+            return stateKey;
         }
 
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
             NodeSearchState nodeSearchState = (NodeSearchState) o;
-            return Objects.equals(nodeId, nodeSearchState.nodeId);
+            return Objects.equals(stateKey, nodeSearchState.stateKey);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(nodeId);
+            return Objects.hashCode(stateKey);
         }
 
         public GraphPathInMemory getPathToHere() {
@@ -155,7 +150,7 @@ class PathSearchState {
         @Override
         public String toString() {
             return "NodeSearchState{" +
-                    "nodeId=" + nodeId +
+                    "stateKey=" + stateKey +
                     ", duration=" + duration +
                     ", pathToHere=" + pathToHere +
                     '}';
