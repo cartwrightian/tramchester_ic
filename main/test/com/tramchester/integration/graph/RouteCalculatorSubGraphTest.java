@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RouteCalculatorSubGraphTest {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade calculator;
@@ -64,7 +63,6 @@ class RouteCalculatorSubGraphTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
@@ -79,6 +77,8 @@ class RouteCalculatorSubGraphTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTxMutable();
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 

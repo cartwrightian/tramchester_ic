@@ -40,7 +40,6 @@ class LocationJourneyPlannerTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static IntegrationTramTestConfig testConfig;
 
     private final TramDate when = TestEnv.testDay();
@@ -57,7 +56,6 @@ class LocationJourneyPlannerTest {
         testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -67,6 +65,8 @@ class LocationJourneyPlannerTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         date = when;
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
@@ -123,9 +123,13 @@ class LocationJourneyPlannerTest {
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            WalkingFromStationStage first = (WalkingFromStationStage) stages.getFirst();
-            assertEquals(PiccadillyGardens.getId(), first.getFirstStation().getId());
-            assertEquals(nearPiccGardens.latLong(), first.getLastStation().getLatLong());
+            //WalkingFromStationStage first = (WalkingFromStationStage) stages.getFirst();
+            if (stages.getFirst() instanceof WalkingFromStationStage walkingFromStationStage) {
+                assertEquals(PiccadillyGardens.getId(), walkingFromStationStage.getFirstStation().getId());
+                assertEquals(nearPiccGardens.latLong(), walkingFromStationStage.getLastStation().getLatLong());
+            } else {
+                fail("Not a WalkingFromStationStage" + stages.getFirst());
+            }
         });
     }
 
@@ -265,12 +269,11 @@ class LocationJourneyPlannerTest {
 
         journeyList.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(2, callingPoints.size());
+            assertEquals(2, callingPoints.size(), HasId.asIds(callingPoints));
             assertEquals(TramStations.Shudehill.getId(), callingPoints.get(0).getId());
             assertEquals(nearShudehill.latLong(), callingPoints.get(1).getLatLong());
         });
     }
-
 
     @Test
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
@@ -369,7 +372,7 @@ class LocationJourneyPlannerTest {
 
         // set max stages to 1, because there is another path via walk to market street and then tram
         Set<Journey> results = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens, request, 1);
-        assertFalse(results.isEmpty(),"no results");
+        assertFalse(results.isEmpty(),"no results for " + request);
 
         results.forEach(journey-> {
             TransportStage<?,?> rawStage = journey.getStages().getFirst();

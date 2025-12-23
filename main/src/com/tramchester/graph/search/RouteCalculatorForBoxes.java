@@ -70,13 +70,6 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final LocationSet<Station> destinations = destinationBox.getStations();
 
-//        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
-
-//        final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
-//
-//        final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true,
-//                selector, destinations, destinationNodeIds);
-
         TramNetworkTraverserFactory traverserFactory = getTraverserFactoryForGrids(destinationBox, startingBoxes);
 
         return calculateRoutes(journeyRequest, startingBoxes, traverserFactory, destinations);

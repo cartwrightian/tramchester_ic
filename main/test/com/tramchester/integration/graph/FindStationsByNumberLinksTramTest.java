@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FindStationsByNumberLinksTramTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
+
     private FindLinkedStations finder;
     private int threshold;
 

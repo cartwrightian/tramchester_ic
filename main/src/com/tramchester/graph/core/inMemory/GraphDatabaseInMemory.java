@@ -24,7 +24,7 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     @Inject
-    public GraphDatabaseInMemory(TransactionManager transactionManager) {
+    public GraphDatabaseInMemory(final TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
 

@@ -57,7 +57,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledUntilDate(year = 2025, month = 11, day = 2)
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade calculator;
@@ -99,7 +98,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter toConfigure, RouteRepository routeRepository) {
@@ -114,6 +112,8 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
@@ -156,27 +156,15 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
-    // repro in memory failure
-    // org.opentest4j.AssertionFailedError: [(TramDate{epochDays=20379, dayOfWeek=SATURDAY, date=2025-10-18},
-    // LocationIdsAndNames{items=[StationIdAndNamePair{Exchange Quay[Id{'Station:9400ZZMAEXC'}],
-    // MediaCityUK[Id{'Station:9400ZZMAMCU'}]}]})]
-    // NOTES
-    // fails immediately or passes for many repeats
-    //@RepeatedTest(value = 500)
     @Test
     void reproduceInMemoryFailureInMem() {
         TramDate date = TestEnv.testDay();
         TramTime queryTime = TramTime.of(9, 0);
 
-//        before = txn.findNodes(GraphLabel.ROUTE_STATION).
-//                filter(node -> node.getStationId().equals(Anchorage.getId())).
-//                map(node -> node.)
-//                collect(Collectors.toSet());
-
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
 
-        journeyRequest.setDiag(true);
+        //journeyRequest.setDiag(true);
 
         TramStations start = ExchangeSquare;
         TramStations end = MediaCityUK;

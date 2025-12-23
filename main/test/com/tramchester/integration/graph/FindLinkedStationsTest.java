@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FindLinkedStationsTest {
 
     private static ComponentContainer componentContainer;
+
     private FindLinkedStations findStationLinks;
     private StationRepository stationRepository;
     private Geography geography;

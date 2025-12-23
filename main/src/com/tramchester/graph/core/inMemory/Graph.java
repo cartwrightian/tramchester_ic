@@ -68,15 +68,18 @@ public class Graph {
     public void stop() {
         logger.info("stop");
 
-        nextGraphNodeId.set(0);
-        nextRelationshipId.set(0);
+        synchronized (nodesAndEdges) {
+            nextGraphNodeId.set(0);
+            nextRelationshipId.set(0);
 
-        nodesAndEdges.clear();
-        relationshipsForNodes.clear();
-        relationshipTypeCounts.reset();
-        existingRelationships.clear();
+            nodesAndEdges.clear();
+            relationshipsForNodes.clear();
+            existingRelationships.clear();
 
-        labelsToNodes.clear();
+            relationshipTypeCounts.reset();
+
+            labelsToNodes.clear();
+        }
 
         logger.info("stopped");
     }

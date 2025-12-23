@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,10 +23,15 @@ public class TransactionManager implements TransactionObserver {
     private final Graph graph;
 
     @Inject
-    public TransactionManager(ProvidesNow providesNow, Graph graph) {
+    public TransactionManager(final ProvidesNow providesNow, final Graph graph) {
         this.providesNow = providesNow;
         this.graph = graph;
         transactionId = new AtomicInteger(1);
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("Stopped");
     }
 
     public synchronized MutableGraphTransaction createTransaction(final Duration timeout) {

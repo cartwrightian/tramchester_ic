@@ -43,7 +43,6 @@ public class RouteCalculatorForYorkStreetClosureTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static TramchesterConfig config;
 
     private RouteCalculatorTestFacade calculator;
@@ -74,7 +73,6 @@ public class RouteCalculatorForYorkStreetClosureTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -84,6 +82,8 @@ public class RouteCalculatorForYorkStreetClosureTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);

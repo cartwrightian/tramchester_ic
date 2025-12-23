@@ -28,7 +28,6 @@ public class GraphDatabaseServiceFactoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-//        String dbName = "graphDbTest.db";
 
         config = new IntegrationTramTestConfig();
         TestEnv.deleteDBIfPresent(config);

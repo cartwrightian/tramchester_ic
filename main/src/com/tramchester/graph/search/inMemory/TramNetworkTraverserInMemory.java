@@ -46,11 +46,11 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
                 startNodeId, txn, running);
 
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
-        final FindPathsForJourney searchAlgo = new FindPathsForJourney(txn, startNode, config, tramRouteEvaluator, traversalStateFactory);
+        final FindPathsForJourney searchAlgo = new FindPathsForJourney(txn, startNode, config, tramRouteEvaluator, traversalStateFactory, pathRequest.getMaxNumberJourneys());
 
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
-        Stream<GraphPath> results = searchAlgo.findPaths(actualQueryTime);
+        Stream<GraphPath> results = searchAlgo.findPaths(actualQueryTime, running);
 
         reasons.reportReasons(txn, pathRequest, destinations);
 

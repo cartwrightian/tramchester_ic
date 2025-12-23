@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @Disabled("Just used to track down specific issue")
 class RouteCalculatorSubGraphEcclesAshtonLine {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+
     private static SubgraphConfig config;
     private static TramRouteHelper tramRouteHelper;
 
@@ -51,7 +51,6 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
                 configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
 
         tramRouteHelper = new TramRouteHelper(componentContainer);
 
@@ -70,6 +69,8 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 

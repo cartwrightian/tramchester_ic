@@ -17,6 +17,7 @@ public class PathRequest {
     private final EnumSet<TransportMode> requestedModes;
     private final EnumSet<TransportMode> destinationModes;
     private final Duration maxInitialWait;
+    private final long maxNumberJourneys;
 
     private final ServiceHeuristics serviceHeuristics;
 
@@ -24,13 +25,13 @@ public class PathRequest {
                        Duration maxInitialWait, EnumSet<TransportMode> desintationModes) {
         this(startNode, journeyRequest.getDate(), journeyRequest.getOriginalTime(), numChanges, serviceHeuristics,
                 journeyRequest.getRequestedModes(),
-                maxInitialWait, desintationModes);
+                maxInitialWait, desintationModes, journeyRequest.getMaxNumberOfJourneys());
     }
 
     // query time here can range over the series of times
     public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                        ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
-                       Duration maxInitialWait, EnumSet<TransportMode> destinationModes) {
+                       Duration maxInitialWait, EnumSet<TransportMode> destinationModes, long maxNumberJourneys) {
         this.startNode = startNode;
         this.queryDate = queryDate;
         this.queryTime = queryTime;
@@ -39,6 +40,7 @@ public class PathRequest {
         this.requestedModes = requestedModes;
         this.maxInitialWait = maxInitialWait;
         this.destinationModes = destinationModes;
+        this.maxNumberJourneys = maxNumberJourneys;
     }
 
     public ServiceHeuristics getServiceHeuristics() {
@@ -83,11 +85,11 @@ public class PathRequest {
         return startNode;
     }
 
-//        public BranchOrderingPolicy getSelector() {
-//            return selector;
-//        }
-
     public EnumSet<TransportMode> getDesintationModes() {
         return destinationModes;
+    }
+
+    public long getMaxNumberJourneys() {
+        return maxNumberJourneys;
     }
 }

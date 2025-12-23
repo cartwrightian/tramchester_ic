@@ -61,7 +61,6 @@ public class RouteCalculatorTest {
     public static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static TramchesterConfig config;
 
     private final int maxChanges = 2;
@@ -80,7 +79,6 @@ public class RouteCalculatorTest {
         requestedModes = TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -90,6 +88,8 @@ public class RouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());

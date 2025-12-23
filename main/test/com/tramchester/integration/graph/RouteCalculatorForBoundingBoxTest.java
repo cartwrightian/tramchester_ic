@@ -41,7 +41,6 @@ class RouteCalculatorForBoundingBoxTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static TramchesterConfig testConfig;
 
     private RouteCalculatorForBoxes calculator;
@@ -58,7 +57,6 @@ class RouteCalculatorForBoundingBoxTest {
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -68,6 +66,8 @@ class RouteCalculatorForBoundingBoxTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = componentContainer.get(RouteCalculatorForBoxes.class);
         stationLocations = componentContainer.get(StationLocations.class);

@@ -42,7 +42,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@Disabled("WIP")
+@Disabled("can no longer reproduce as test is passing now")
 public class CompareNeo4JWithInMemoryTest {
 
     private static GuiceContainerDependencies componentContainerNeo4J;
@@ -283,23 +283,6 @@ public class CompareNeo4JWithInMemoryTest {
         assertFalse(journeys.isEmpty());
     }
 
-//    @ParameterizedTest
-//    @EnumSource(TramStations.class)
-//    @Disabled("WIP - slow")
-//    void shouldWalkGraphs(final TramStations tramStation) {
-//        final Station item = tramStation.from(stationRepository);
-//
-//        // local due to timeouts
-//        try (GraphTransaction localTransaction = dbNeo4J.beginTx()) {
-//
-//            final GraphNode inMemoryNode = txnInMem.findNode(item);
-//            final GraphNode neo4JNode = localTransaction.findNode(item);
-//
-//            final GraphComparisons graphComparisons = new GraphComparisons(localTransaction, txnInMem);
-//            graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 5);
-//        }
-//    }
-
     @Test
     void shouldWalkGraphForVeloPark() {
         Station item = VeloPark.from(stationRepository);
@@ -310,7 +293,6 @@ public class CompareNeo4JWithInMemoryTest {
         GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, txnInMem);
         graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 5);
     }
-
 
     private List<Journey> sortedByArrivalTime(final List<Journey> journeys) {
         List<Journey> result = new ArrayList<>(journeys);

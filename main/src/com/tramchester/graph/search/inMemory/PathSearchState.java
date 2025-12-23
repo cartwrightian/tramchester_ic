@@ -2,11 +2,15 @@ package com.tramchester.graph.search.inMemory;
 
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.search.JourneyState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
 
 class PathSearchState {
+    private static final Logger logger = LoggerFactory.getLogger(PathSearchState.class);
+
     // remaining working
     private final PriorityQueue<NodeSearchState> nodeQueue;
     // state
@@ -14,8 +18,10 @@ class PathSearchState {
     private final Map<SearchStateKey, JourneyState> journeyStates;
     // results
     final List<GraphPathInMemory> foundPaths;
+    private final long numberJourneys;
 
-    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere) {
+    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys) {
+        this.numberJourneys = numberJourneys;
         nodeQueue = new PriorityQueue<>();
         nodeQueue.add(new NodeSearchState(searchStateKey, Duration.ZERO, pathToHere));
 
@@ -24,6 +30,13 @@ class PathSearchState {
 
         foundPaths = new ArrayList<>();
         journeyStates = new HashMap<>();
+    }
+
+    public void clear() {
+        nodeQueue.clear();
+        currentCost.clear();
+        journeyStates.clear();
+        foundPaths.clear();
     }
 
     public NodeSearchState getNext() {
@@ -38,10 +51,6 @@ class PathSearchState {
         synchronized (nodeQueue) {
             currentCost.put(stateKey, duration);
         }
-    }
-
-    public boolean hasNodes() {
-        return !nodeQueue.isEmpty();
     }
 
     public boolean hasSeen(final SearchStateKey stateKey) {
@@ -60,7 +69,9 @@ class PathSearchState {
                 nodeQueue.remove(update);
                 nodeQueue.add(update);
             } else {
-                throw new RuntimeException("Node was not in the queue " + stateKey + " for " + update);
+                String message = "Node was not in the queue " + stateKey + " for " + update;
+                logger.error(message);
+                throw new RuntimeException(message);
             }
             currentCost.put(stateKey, duration);
         }
@@ -71,7 +82,9 @@ class PathSearchState {
 
         synchronized (nodeQueue) {
             if (nodeQueue.contains(update)) {
-                throw new RuntimeException("Already in queue " + update.getStateKey());
+                String message = "Already in queue " + update.getStateKey();
+                logger.error(message);
+                throw new RuntimeException(message);
             }
             nodeQueue.add(update);
             currentCost.put(stateKey, duration);
@@ -79,7 +92,7 @@ class PathSearchState {
     }
 
     public List<GraphPathInMemory> getFoundPaths() {
-        return foundPaths;
+        return new LinkedList<>(foundPaths);
     }
 
     public void addFoundPath(final GraphPathInMemory path) {
@@ -103,9 +116,25 @@ class PathSearchState {
 
     public JourneyState getJourneyStateFor(final SearchStateKey stateKey) {
         if (!journeyStates.containsKey(stateKey)) {
-            throw new RuntimeException("No journey state for " + stateKey);
+            String message = "No journey state for " + stateKey;
+            logger.error(message);
+            throw new RuntimeException(message);
         }
         return journeyStates.get(stateKey);
+    }
+
+    public boolean continueSearch() {
+        if (nodeQueue.isEmpty()) {
+            logger.warn("Queue was empty");
+            return false;
+        }
+        synchronized (foundPaths) {
+            if (foundPaths.size()>=numberJourneys) {
+                logger.info("Matched " + numberJourneys + " journeys");
+                return false;
+            }
+        }
+        return true;
     }
 
     public static class NodeSearchState implements Comparable<NodeSearchState> {

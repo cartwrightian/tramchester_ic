@@ -2,6 +2,7 @@ package com.tramchester.graph.search.inMemory;
 
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
@@ -38,17 +39,19 @@ public class FindPathsForJourney {
     private final boolean depthFirst;
     private final TramRouteEvaluator evaluator;
     private final TraversalStateFactory traversalStateFactory;
+    private final long numberJourneys;
 
     public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
-                               final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory) {
+                               final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory, long numberJourneys) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();
         this.evaluator = evaluator;
         this.traversalStateFactory = traversalStateFactory;
+        this.numberJourneys = numberJourneys;
     }
 
-    public Stream<GraphPath> findPaths(final TramTime actualQueryTime) {
+    public Stream<GraphPath> findPaths(final TramTime actualQueryTime, Running running) {
 
         final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
 
@@ -57,15 +60,17 @@ public class FindPathsForJourney {
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
-        final PathSearchState searchState = new PathSearchState(stateKey, initialPath);
+        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys);
         searchState.setJourneyState(stateKey, journeyState);
 
-        while (searchState.hasNodes()) {
+        // TODO ideally want yield/stream here
+        while (searchState.continueSearch() && running.isRunning()) {
             final PathSearchState.NodeSearchState nodeSearchState = searchState.getNext();
             visitNodeOnPath(nodeSearchState, searchState);
         }
 
         final List<GraphPathInMemory> results = searchState.getFoundPaths();
+        searchState.clear();
 
         // downcast
         return results.stream().map(item -> item);
@@ -75,7 +80,6 @@ public class FindPathsForJourney {
 
         final boolean debugEnabled = logger.isDebugEnabled();
 
-        //final GraphNodeId currentNodeId = nodeSearchState.getStateKey();
         final SearchStateKey stateKey = nodeSearchState.getStateKey();
         final GraphNode currentNode = txn.getNodeById(stateKey.getNodeId());
 
@@ -119,7 +123,6 @@ public class FindPathsForJourney {
         outgoing.forEach(graphRelationship -> {
             final Duration relationshipCost = graphRelationship.getCost();
 
-            //final GraphNodeId endRelationshipNodeId = graphRelationship.getEndNodeId(txn); //endRelationshipNode.getId();
             final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, graphRelationship.getEndNodeId(txn));
             final Duration newCost = relationshipCost.plus(currentCostToNode);
 
@@ -133,11 +136,11 @@ public class FindPathsForJourney {
             }
 
             if (alreadySeen) {
-                //final Duration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
-//                if (newCost.compareTo(currentDurationForEnd) < 0) {
-//                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
-//                }
-                updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
+                final Duration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
+                if (newCost.compareTo(currentDurationForEnd) != 0) {
+                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
+                }
+                //updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
             } else { // not seen before
                 searchState.updateCost(endStateKey, newCost);
                 notVisitedYet.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));

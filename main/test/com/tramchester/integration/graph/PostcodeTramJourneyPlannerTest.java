@@ -42,7 +42,6 @@ class PostcodeTramJourneyPlannerTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
 
     private static final TramDate when = TestEnv.testDay();
     private static TramWithPostcodesEnabled testConfig;
@@ -58,7 +57,6 @@ class PostcodeTramJourneyPlannerTest {
         testConfig = new TramWithPostcodesEnabled();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -68,6 +66,8 @@ class PostcodeTramJourneyPlannerTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner =  new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);

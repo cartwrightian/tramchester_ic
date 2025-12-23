@@ -55,7 +55,6 @@ class DeparturesAfterJourneyResourceTest {
     private Station stationWithNotes;
     private Station stationWithDepartures;
     private PlatformMessageSource platformMessageSource;
-    //private Station destinationForDueTram;
     private IdFor<Station> destinationForDueTramId;
 
     private JourneyResourceTestFacade journeyPlanner;

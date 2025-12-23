@@ -36,7 +36,6 @@ class RouteCalculatorCloseStationsTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
 
     private RouteCalculatorTestFacade calculator;
     private GraphTransaction txn;
@@ -67,7 +66,6 @@ class RouteCalculatorCloseStationsTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -77,6 +75,8 @@ class RouteCalculatorCloseStationsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
     }

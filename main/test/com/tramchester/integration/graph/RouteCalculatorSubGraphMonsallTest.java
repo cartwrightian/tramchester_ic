@@ -29,7 +29,6 @@ import static java.lang.String.format;
 
 class RouteCalculatorSubGraphMonsallTest {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static SubgraphConfig config;
     private static TramRouteHelper tramRouteHelper;
 
@@ -48,10 +47,7 @@ class RouteCalculatorSubGraphMonsallTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
-
         tramRouteHelper = new TramRouteHelper(componentContainer);
-
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
@@ -66,6 +62,8 @@ class RouteCalculatorSubGraphMonsallTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
