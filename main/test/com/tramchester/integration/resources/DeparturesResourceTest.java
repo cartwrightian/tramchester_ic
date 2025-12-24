@@ -177,7 +177,10 @@ class DeparturesResourceTest {
         DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
         SortedSet<DepartureDTO> departures = result.getDepartures();
         assertTrue(departures.isEmpty());
-        assertTrue(result.getNotes().isEmpty());
+
+        List<Note> notes = result.getNotes().stream().filter(note -> note.getNoteType() != Note.NoteType.Christmas).toList();
+
+        assertTrue(notes.isEmpty(), "expected no notes in " + result);
     }
 
     @Test
@@ -188,8 +191,10 @@ class DeparturesResourceTest {
         DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
         SortedSet<DepartureDTO> departures = result.getDepartures();
 
+        List<Note> notes = result.getNotes().stream().filter(note -> note.getNoteType() != Note.NoteType.Christmas).toList();
+
         assertTrue(departures.isEmpty());
-        assertTrue(result.getNotes().isEmpty());
+        assertTrue(notes.isEmpty(), "expected no notes in " + result);
     }
 
     @Test

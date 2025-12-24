@@ -155,7 +155,6 @@ public abstract class TramRouteEvaluator {
         }
 
         // no journey longer than N nodes
-        // TODO check length based on current transport mode??
         if (thePath.length() > serviceHeuristics.getMaxPathLength()) {
             if (depthFirst) {
                 logger.warn("Hit max path length");

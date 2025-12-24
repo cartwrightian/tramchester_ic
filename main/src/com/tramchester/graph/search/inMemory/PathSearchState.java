@@ -152,8 +152,6 @@ class PathSearchState {
         public int compareTo(final NodeSearchState other) {
             // depth first
             return Integer.compare(other.pathToHere.length(), pathToHere.length());
-
-            //return this.duration.compareTo(other.duration);
         }
 
         public SearchStateKey getStateKey() {
