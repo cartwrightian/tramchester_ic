@@ -27,11 +27,11 @@ public class NodesAndEdges {
         relationships = new ConcurrentHashMap<>();
         nodes = new ConcurrentHashMap<>();
 
-        Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationshipMap = relationshipSet.stream().
+        final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationshipMap = relationshipSet.stream().
                 collect(Collectors.toMap(GraphRelationshipInMemory::getId, rel -> rel));
         relationships.putAll(relationshipMap);
 
-        Map<NodeIdInMemory, GraphNodeInMemory> nodeMap = nodeSet.stream().
+        final Map<NodeIdInMemory, GraphNodeInMemory> nodeMap = nodeSet.stream().
                 collect(Collectors.toMap(GraphNodeInMemory::getId, node -> node));
         nodes.putAll(nodeMap);
     }
@@ -71,7 +71,7 @@ public class NodesAndEdges {
         return relationships.get(id);
     }
 
-    public GraphNodeInMemory getNode(NodeIdInMemory id) {
+    public GraphNodeInMemory getNode(final NodeIdInMemory id) {
         return nodes.get(id);
     }
 

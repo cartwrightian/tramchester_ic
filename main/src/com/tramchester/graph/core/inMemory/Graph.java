@@ -210,27 +210,13 @@ public class Graph {
     }
 
     public Stream<GraphRelationshipInMemory> getRelationshipsFor(final NodeIdInMemory id, final GraphDirection direction) {
-        synchronized (nodesAndEdges) {
-            if (!nodesAndEdges.hasNode(id)) {
-                String msg = "No such node " + id;
-                logger.error(msg);
-                throw new GraphException(msg);
-            }
-        }
-        synchronized (relationshipsForNodes) {
-            if (relationshipsForNodes.containsKey(id)) {
-                final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
-                return switch (direction) {
+        final RelationshipsForNode relationshipsForNode = relationshipsForNodes.getOrDefault(id, RelationshipsForNode.empty());
+        return switch (direction) {
                     case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
                     case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode);
                     case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode),
                             nodesAndEdges.getInbounds(relationshipsForNode));
                 };
-            } else {
-                logger.debug("node " + id + " has no relationships");
-                return Stream.empty();
-            }
-        }
     }
 
     void delete(final RelationshipIdInMemory id) {
@@ -258,6 +244,7 @@ public class Graph {
                 logger.error(msg);
                 throw new GraphException(msg);
             }
+
             // relationships
             if (relationshipsForNodes.containsKey(id)) {
                 final RelationshipsForNode forNode = relationshipsForNodes.get(id);
@@ -266,6 +253,7 @@ public class Graph {
                     logger.error(msg);
                     throw new GraphException(msg);
                 }
+                relationshipsForNodes.remove(id);
             }
             // label map
             final EnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
@@ -283,14 +271,7 @@ public class Graph {
     }
 
     public GraphNodeInMemory getNode(final NodeIdInMemory nodeId) {
-        synchronized (nodesAndEdges) {
-            if (!nodesAndEdges.hasNode(nodeId)) {
-                String msg = "No such node " + nodeId;
-                logger.error(msg);
-                throw new GraphException(msg);
-            }
-            return nodesAndEdges.getNode(nodeId);
-        }
+        return nodesAndEdges.getNode(nodeId);
     }
 
     public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {

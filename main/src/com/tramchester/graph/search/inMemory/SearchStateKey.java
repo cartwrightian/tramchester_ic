@@ -10,11 +10,11 @@ public class SearchStateKey {
     private final GraphNodeId nodeId;
     private final List<GraphId> path;
 
-    public static SearchStateKey create(GraphPathInMemory graphPath, GraphNodeId lastNode) {
+    public static SearchStateKey create(final GraphPathInMemory graphPath, final GraphNodeId lastNode) {
         return new SearchStateKey(lastNode, graphPath.getEntitiesIds());
     }
 
-    public SearchStateKey(GraphNodeId nodeId, List<GraphId> path) {
+    public SearchStateKey(final GraphNodeId nodeId, final List<GraphId> path) {
         this.nodeId = nodeId;
         this.path = path;
     }

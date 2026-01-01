@@ -9,16 +9,16 @@ import java.util.stream.Stream;
 
 public class GraphPathInMemory implements GraphPath {
 
-    private final List<GraphEntity> entityList;
+    private final EntityList entityList;
     private GraphNode lastAddedNode;
     private GraphRelationship lastAddedRelationship;
 
     public GraphPathInMemory() {
-        entityList = new ArrayList<>();
+        entityList = new EntityList();
     }
 
     public GraphPathInMemory(final GraphPathInMemory original) {
-        entityList = new ArrayList<>(original.entityList);
+        entityList = new EntityList(original.entityList);
         lastAddedNode = original.lastAddedNode;
         lastAddedRelationship = original.lastAddedRelationship;
     }
@@ -64,11 +64,7 @@ public class GraphPathInMemory implements GraphPath {
 
     @Override
     public GraphNode getStartNode(final GraphTransaction txn) {
-        final Optional<GraphEntity> found = entityList.stream().filter(GraphEntity::isNode).findFirst();
-        if (found.isEmpty()) {
-            throw new RuntimeException("Could not find a start node");
-        }
-        return (GraphNode) found.get();
+        return entityList.getFirstNode();
     }
 
     @Override
@@ -80,19 +76,11 @@ public class GraphPathInMemory implements GraphPath {
 
     @Override
     public Iterable<GraphNode> getNodes(final GraphTransaction txn) {
-        Stream<GraphNode> stream = entityList.stream().
-                filter(GraphEntity::isNode).
-                map(item -> (GraphNode)item);
-        return new Iterable<>() {
-            @Override
-            public @NotNull Iterator<GraphNode> iterator() {
-                return stream.iterator();
-            }
-        };
+        return entityList.getNodes();
     }
 
     @Override
-    public GraphRelationship getLastRelationship(GraphTransaction txn) {
+    public GraphRelationship getLastRelationship(final GraphTransaction txn) {
         synchronized (entityList) {
             return lastAddedRelationship;
         }
@@ -142,11 +130,11 @@ public class GraphPathInMemory implements GraphPath {
     @Override
     public TramDuration getTotalCost() {
         // todo accumulate cost as we go instead
-        final Optional<TramDuration> total = entityList.stream().
-                filter(GraphEntity::isRelationship).
-                map(entity -> (GraphRelationship) entity).
+
+        final Optional<TramDuration> total = entityList.getRelationships().
                 map(GraphRelationship::getCost).
                 reduce(TramDuration::plus);
+
         return total.orElse(TramDuration.ofSeconds(Integer.MAX_VALUE));
 
     }
@@ -156,6 +144,67 @@ public class GraphPathInMemory implements GraphPath {
     }
 
     public List<GraphId> getEntitiesIds() {
-        return entityList.stream().map(GraphEntity::getId).map(item -> (GraphId)item).toList();
+        return entityList.getEntitiesIds();
+    }
+
+    private static class EntityList {
+        List<GraphEntity> list;
+
+        public EntityList(final EntityList entityList) {
+            list = new ArrayList<>(entityList.list);
+        }
+
+        public EntityList() {
+            list = new ArrayList<>();
+        }
+
+        public boolean isEmpty() {
+            return list.isEmpty();
+        }
+
+        public void add(final GraphEntity graphEntity) {
+            list.add(graphEntity);
+        }
+
+        public int size() {
+            return list.size();
+        }
+
+        public @NotNull Iterator<GraphEntity> iterator() {
+            return list.iterator();
+        }
+
+        public GraphNode getFirstNode() {
+            final Optional<GraphEntity> found = list.stream().filter(GraphEntity::isNode).findFirst();
+            if (found.isEmpty()) {
+                throw new RuntimeException("Could not find a start node");
+            }
+            return (GraphNode) found.get();
+        }
+
+        public Iterable<GraphNode> getNodes() {
+            Stream<GraphNode> stream = list.stream().
+                    filter(GraphEntity::isNode).
+                    map(item -> (GraphNode)item);
+            return new Iterable<>() {
+                @Override
+                public @NotNull Iterator<GraphNode> iterator() {
+                    return stream.iterator();
+                }
+            };
+        }
+
+        public Stream<GraphRelationship> getRelationships() {
+            return list.stream().
+                filter(GraphEntity::isRelationship).
+                map(entity -> (GraphRelationship) entity);
+        }
+
+        public List<GraphId> getEntitiesIds() {
+            return list.stream().
+                    map(GraphEntity::getId).
+                    map(item -> (GraphId)item).
+                    toList();
+        }
     }
 }

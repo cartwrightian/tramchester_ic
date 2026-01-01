@@ -54,7 +54,6 @@ public class RouteCalculatorAllTramJourneysTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         modes = TramsOnly;
-        //InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 

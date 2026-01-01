@@ -7,52 +7,58 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 class RelationshipsForNode {
-    private final Set<RelationshipIdInMemory> outbound;
-    private final Set<RelationshipIdInMemory> inbound;
+    private final Set<RelationshipIdInMemory> outboundIds;
+    private final Set<RelationshipIdInMemory> inboundIds;
+
+    private static final RelationshipsForNode empty = new RelationshipsForNode();
 
     RelationshipsForNode() {
-        outbound = new HashSet<>();
-        inbound = new HashSet<>();
+        outboundIds = new HashSet<>();
+        inboundIds = new HashSet<>();
     }
 
-    public Stream<GraphRelationshipInMemory> getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
-        return outbound.stream().map(relationships::get);
+    public static RelationshipsForNode empty() {
+        return empty;
     }
 
-    public Stream<GraphRelationshipInMemory> getInbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationships) {
-        return inbound.stream().map(relationships::get);
+    public Stream<GraphRelationshipInMemory> getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
+        return outboundIds.stream().map(source::get);
+    }
+
+    public Stream<GraphRelationshipInMemory> getInbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
+        return inboundIds.stream().map(source::get);
     }
 
     public void addOutbound(final RelationshipIdInMemory relationshipId) {
-        synchronized (outbound) {
-            outbound.add(relationshipId);
+        synchronized (outboundIds) {
+            outboundIds.add(relationshipId);
         }
     }
 
     public void addInbound(final RelationshipIdInMemory relationshipId) {
-        synchronized (inbound) {
-            inbound.add(relationshipId);
+        synchronized (inboundIds) {
+            inboundIds.add(relationshipId);
         }
     }
 
     public void remove(final RelationshipIdInMemory relationshipId) {
-        synchronized (outbound) {
-            outbound.remove(relationshipId);
+        synchronized (outboundIds) {
+            outboundIds.remove(relationshipId);
         }
-        synchronized (inbound) {
-            inbound.remove(relationshipId);
+        synchronized (inboundIds) {
+            inboundIds.remove(relationshipId);
         }
     }
 
     public boolean isEmpty() {
-        return outbound.isEmpty() && inbound.isEmpty();
+        return outboundIds.isEmpty() && inboundIds.isEmpty();
     }
 
     @Override
     public String toString() {
         return "RelationshipsForNode{" +
-                "outbound=" + outbound +
-                ", inbound=" + inbound +
+                "outbound=" + outboundIds +
+                ", inbound=" + inboundIds +
                 '}';
     }
 
@@ -60,11 +66,11 @@ class RelationshipsForNode {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         RelationshipsForNode that = (RelationshipsForNode) o;
-        return Objects.equals(outbound, that.outbound) && Objects.equals(inbound, that.inbound);
+        return Objects.equals(outboundIds, that.outboundIds) && Objects.equals(inboundIds, that.inboundIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(outbound, inbound);
+        return Objects.hash(outboundIds, inboundIds);
     }
 }

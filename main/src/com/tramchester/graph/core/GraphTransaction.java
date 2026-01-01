@@ -21,8 +21,6 @@ public interface GraphTransaction extends AutoCloseable {
 
     Stream<GraphNode> findNodes(GraphLabel graphLabel);
 
-    //Stream<GraphRelationship> findRelationships(TransportRelationshipTypes relationshipType);
-
     GraphNode getNodeById(GraphNodeId nodeId);
 
     boolean hasAnyMatching(GraphLabel label, GraphPropertyKey key, String value);

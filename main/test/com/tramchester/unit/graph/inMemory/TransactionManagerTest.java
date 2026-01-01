@@ -356,7 +356,9 @@ public class TransactionManagerTest {
 
             assertFalse(txn.hasAnyMatching(TRAIN));
 
-            assertThrows(GraphException.class, () -> txn.getNodeById(end.getId()));
+            GraphNode nodeById = txn.getNodeById(end.getId());
+            assertNull(nodeById);
+            //assertThrows(GraphException.class, () -> nodeById);
 
         }
     }

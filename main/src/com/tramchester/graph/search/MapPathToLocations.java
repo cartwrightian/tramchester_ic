@@ -35,9 +35,8 @@ public class MapPathToLocations {
     public List<Location<?>> mapToLocations(final GraphPath path, final GraphTransaction txn) {
         Location<?> previous = null;
         final List<Location<?>> results = new ArrayList<>();
-        //for(GraphNode node : txn.iter(path.nodes())) {
         for(GraphNode node : path.getNodes(txn)) {
-            Optional<Location<?>> maybeLocation = mapNode(node);
+            final Optional<Location<?>> maybeLocation = mapNode(node);
             maybeLocation.ifPresent(location -> {});
             if (maybeLocation.isPresent()) {
                 final Location<?> location = maybeLocation.get();
