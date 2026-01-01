@@ -44,7 +44,15 @@ Fox fix issue with missing cert for tfgm data download
 
 > openssl s_client -connect odata.tfgm.com:443 | openssl x509 -out tfgm.cert
 
+Might need to delete if already imported
+
+> keytool -delete -alias tfgm -keystore $JAVA_HOME/lib/security/cacerts
+
 > keytool -import -alias tfgm -file ./tfgm.cert -keystore $JAVA_HOME/lib/security/cacerts
+
+To list
+
+> keytool -list -alias tfgm -keystore $JAVA_HOME/lib/security/cacerts
 
 Might need sudo depending on JAVA_HOME location.
 

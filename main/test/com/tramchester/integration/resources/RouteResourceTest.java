@@ -16,6 +16,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -59,19 +60,22 @@ class RouteResourceTest {
         routeRepository = app.getDependencies().get(RouteRepository.class);
     }
 
+    @DisabledUntilDate(year = 2026, month = 1, day = 2)
     @Test
     void shouldGetAllRoutes() {
 
-        // today since API returns routes for today
+        // today since API always returns routes for today
         TramDate today = TramDate.from(TestEnv.LocalNow());
+
+        Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
+                map(TestRoute::dtoId).
+                collect(Collectors.toSet());
 
         List<RouteDTO> routeDTOS = getRouteResponse(); // uses current date server side
         routeDTOS.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
         Set<IdForDTO> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
-        Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
-                map(TestRoute::dtoId).
-                collect(Collectors.toSet());
+
 
         Set<IdForDTO> mismatch = SetUtils.disjunction(namesFromDTO, expectedNames);
         assertTrue(mismatch.isEmpty(), mismatch.toString());

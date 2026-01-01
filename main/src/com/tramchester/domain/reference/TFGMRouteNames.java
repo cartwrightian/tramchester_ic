@@ -1,5 +1,6 @@
 package com.tramchester.domain.reference;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,12 @@ public enum TFGMRouteNames {
     Navy("Navy Line"),
     Yellow("Yellow Line"),
     Blue("Blue Line");
+
+    private final static EnumSet<TFGMRouteNames> Buses = EnumSet.of(BusOne, BusTwo, BusThree);
+
+    public boolean isReplacementBus() {
+        return Buses.contains(this);
+    }
 
     // this pops up in the data as a metrolink route, but is the circular bus within the city centre
     // exception will be thrown in TransportEntityFactoryForTFGM if it ever appears as a tram route
