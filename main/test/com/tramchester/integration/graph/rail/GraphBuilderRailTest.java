@@ -7,10 +7,10 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -18,7 +18,6 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -100,7 +99,7 @@ class GraphBuilderRailTest {
     @Test
     void shouldHaveCorrectPlatformCosts() {
         Station piccadilly = ManchesterPiccadilly.from(transportData);
-        Duration cost = piccadilly.getMinChangeDuration();
+        TramDuration cost = piccadilly.getMinChangeDuration();
         Set<Platform> platforms = piccadilly.getPlatforms();
 
         assertFalse(platforms.isEmpty());
@@ -108,11 +107,11 @@ class GraphBuilderRailTest {
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
             GraphRelationship leave = node.getSingleRelationship(txn, TransportRelationshipTypes.LEAVE_PLATFORM, GraphDirection.Outgoing);
-            Duration leaveCost = leave.getCost(); // GraphProps.getCost(leave);
-            assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
+            TramDuration leaveCost = leave.getCost(); // GraphProps.getCost(leave);
+            assertEquals(TramDuration.ZERO, leaveCost, "leave cost wrong for " + platform);
 
             GraphRelationship enter = node.getSingleRelationship(txn, TransportRelationshipTypes.ENTER_PLATFORM, GraphDirection.Incoming);
-            Duration enterCost = enter.getCost(); // GraphProps.getCost(enter);
+            TramDuration enterCost = enter.getCost(); // GraphProps.getCost(enter);
             assertEquals(cost, enterCost, "wrong enter cost for " + platform.getId());
         });
 
@@ -120,14 +119,14 @@ class GraphBuilderRailTest {
             GraphNode node = txn.findNode(platform);
             if (node.hasRelationship(txn, GraphDirection.Outgoing, BOARD)) {
                 GraphRelationship board = node.getSingleRelationship(txn, BOARD, GraphDirection.Outgoing);
-                Duration boardCost = board.getCost(); // GraphProps.getCost(board);
-                assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
+                TramDuration boardCost = board.getCost(); // GraphProps.getCost(board);
+                assertEquals(TramDuration.ZERO, boardCost, "board cost wrong for " + platform);
             }
 
             if (node.hasRelationship(txn, GraphDirection.Incoming, DEPART)) {
                 GraphRelationship depart = node.getSingleRelationship(txn, DEPART, GraphDirection.Incoming);
-                Duration enterCost = depart.getCost(); //GraphProps.getCost(depart);
-                assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
+                TramDuration enterCost = depart.getCost(); //GraphProps.getCost(depart);
+                assertEquals(TramDuration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
             }
         });
     }
@@ -151,7 +150,7 @@ class GraphBuilderRailTest {
 
         assertFalse(endIsManPic.isEmpty(), outgoingFromStockport.toString());
 
-        final Duration limit = Duration.ofMinutes(5);
+        final TramDuration limit = TramDuration.ofMinutes(5);
         endIsManPic.forEach(
                 relationship -> assertTrue(relationship.getCost().compareTo(limit) > 0,
                         relationship.getAllProperties().toString()));

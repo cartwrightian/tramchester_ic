@@ -2,7 +2,6 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
@@ -13,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.graph.RouteCostCalculator;
@@ -35,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -107,7 +106,7 @@ class TramRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 3, modes);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 3, modes);
     }
 
     @AfterEach
@@ -179,8 +178,8 @@ class TramRouteTest {
         final Station destination = transportData.getInterchange();
         final Station midway = transportData.getSecond();
 
-        Duration walkCost = getWalkCost(start, midway);
-        TestEnv.assertMinutesRoundedEquals(Duration.ofMinutes(3), walkCost);
+        TramDuration walkCost = getWalkCost(start, midway);
+        TestEnv.assertMinutesRoundedEquals(TramDuration.ofMinutes(3), walkCost);
 
         int tramDur = 9;
         TramTime tramBoard = TramTime.of(8,11);
@@ -197,7 +196,7 @@ class TramRouteTest {
             final TransportStage<?, ?> tram = stages.get(1);
 
             assertEquals(midway, walk.getLastStation());
-            assertEquals(walk.getMode(), TransportMode.Walk);
+            assertEquals(TransportMode.Walk, walk.getMode());
             TestEnv.assertMinutesRoundedEquals(walkCost, walk.getDuration());
             final int boardAndPlatformEntry =  1;
             assertEquals(tramBoard.minusRounded(walkCost.plusMinutes(boardAndPlatformEntry)), walk.getFirstDepartureTime(), journey.toString());
@@ -217,8 +216,8 @@ class TramRouteTest {
         final Location<?> start = nearWythenshaweHosp.location();
         final Station destination = transportData.getSecond();
 
-        Duration walkCost = getWalkCost(start, destination);
-        assertEquals(Duration.ofMinutes(3).plusSeconds(19), walkCost);
+        TramDuration walkCost = getWalkCost(start, destination);
+        assertEquals(TramDuration.ofMinutes(3).plusSeconds(19), walkCost);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
                 journeyRequest, 2);
@@ -234,7 +233,7 @@ class TramRouteTest {
         });
     }
 
-    private Duration getWalkCost(Location<?> start, Station destination) {
+    private TramDuration getWalkCost(Location<?> start, Station destination) {
         return geography.getWalkingDuration(start, destination);
     }
 
@@ -244,8 +243,8 @@ class TramRouteTest {
         final Station start = transportData.getSecond();
         final Location<?> destination = nearWythenshaweHosp.location();
 
-        Duration walkCost = getWalkCost(destination, start);
-        TestEnv.assertMinutesRoundedEquals(Duration.ofMinutes(3), walkCost);
+        TramDuration walkCost = getWalkCost(destination, start);
+        TestEnv.assertMinutesRoundedEquals(TramDuration.ofMinutes(3), walkCost);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
                 journeyRequest, 2);
@@ -271,8 +270,8 @@ class TramRouteTest {
         final Station endFirstWalk = transportData.getSecond();
         final Station startSecondWalk = transportData.getInterchange();
 
-        Duration walk1Cost = getWalkCost(start, endFirstWalk);
-        Duration walk2Cost = getWalkCost(destination, startSecondWalk);
+        TramDuration walk1Cost = getWalkCost(start, endFirstWalk);
+        TramDuration walk2Cost = getWalkCost(destination, startSecondWalk);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination, journeyRequest, 3);
         assertFalse(journeys.isEmpty(), "journeys");
@@ -311,8 +310,8 @@ class TramRouteTest {
         final Station start = transportData.getSecond();
         final Station midway = transportData.getInterchange();
 
-        Duration walkCost = getWalkCost(destination, midway);
-        TestEnv.assertMinutesRoundedEquals(Duration.ofMinutes(5), walkCost);
+        TramDuration walkCost = getWalkCost(destination, midway);
+        TestEnv.assertMinutesRoundedEquals(TramDuration.ofMinutes(5), walkCost);
 
         TramTime boardTime = TramTime.of(8,11);
         final int tramDuration = 9;
@@ -334,11 +333,11 @@ class TramRouteTest {
             assertEquals(tram.getFirstDepartureTime(), boardTime);
             assertEquals(tram.getExpectedArrivalTime(), boardTime.plusMinutes(tramDuration));
 
-            assertEquals(walk.getMode(), TransportMode.Walk);
+            assertEquals(TransportMode.Walk, walk.getMode());
             assertEquals(walk.getFirstStation(), midway);
             TestEnv.assertMinutesRoundedEquals(walkCost, walk.getDuration());
             assertEquals(walk.getFirstDepartureTime(), boardTime.plusMinutes(tramDuration+depart));
-            assertEquals(boardTime.plusRounded(Duration.ofMinutes(tramDuration).plusMinutes(depart).plus(walkCost)), walk.getExpectedArrivalTime());
+            assertEquals(boardTime.plusRounded(TramDuration.ofMinutes(tramDuration).plusMinutes(depart).plus(walkCost)), walk.getExpectedArrivalTime());
 
             assertTrue(walk.getFirstDepartureTime().isAfter(tram.getExpectedArrivalTime()) ||
                             walk.getFirstDepartureTime().equals(tram.getExpectedArrivalTime()),
@@ -528,7 +527,7 @@ class TramRouteTest {
         TramTime departTime = vehicleStage.getFirstDepartureTime();
         assertTrue(departTime.isAfter(queryTime));
 
-        assertFalse(vehicleStage.getDuration().isNegative());
+        assertTrue(vehicleStage.getDuration().isValid());
         assertFalse(vehicleStage.getDuration().isZero());
     }
 

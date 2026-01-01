@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
@@ -9,7 +10,6 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
@@ -37,7 +37,7 @@ public class WalkingState extends TraversalState {
             return TraversalStateType.WalkingState;
         }
 
-        public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
+        public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final TramDuration cost, final GraphTransaction txn) {
             final Stream<GraphRelationship> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
             final IterableWithEmptyCheck<GraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
 
@@ -50,14 +50,14 @@ public class WalkingState extends TraversalState {
             }
         }
 
-        public TraversalState fromStation(final StationState station, final GraphNode node, final Duration cost, final GraphTransaction txn) {
+        public TraversalState fromStation(final StationState station, final GraphNode node, final TramDuration cost, final GraphTransaction txn) {
             return new WalkingState(station,
                     filterExcludingNode(txn, node.getRelationships(txn, GraphDirection.Outgoing), station), cost, this, node);
         }
 
     }
 
-    private WalkingState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final Duration cost,
+    private WalkingState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final TramDuration cost,
                          final Towards<WalkingState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
     }
@@ -68,21 +68,21 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
                                                      final JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
                                                  final JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node, final Duration cost,
+    protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node, final TramDuration cost,
                                  final JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         towardsDestination.from(this, cost, node);

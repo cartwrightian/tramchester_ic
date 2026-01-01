@@ -7,19 +7,19 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.diagnostics.*;
-import com.tramchester.graph.search.PreviousVisits;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 
 public abstract class TramRouteEvaluator {
@@ -47,7 +47,7 @@ public abstract class TramRouteEvaluator {
                               final LowestCostSeen bestResultSoFar, final GraphNodeId startNodeId,
                               final EnumSet<TransportMode> requestedModes, Running running,
                               final EnumSet<TransportMode> destinationModes,
-                              final Duration maxInitialWait) {
+                              final TramDuration maxInitialWait) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.reasons = reasons;
@@ -123,13 +123,13 @@ public abstract class TramRouteEvaluator {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 
-        final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();
+        final TramDuration totalCostSoFar = journeyState.getTotalDurationSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges, totalCostSoFar);
         } else if (bestResultSoFar.everArrived()) { // Not arrived for current journey, but we have seen at least one prior success
-            final Duration lowestCostSeen = bestResultSoFar.getLowestDuration();
+            final TramDuration lowestCostSeen = bestResultSoFar.getLowestDuration();
             if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
                 // already longer that current shortest, no need to continue
                 return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
@@ -293,7 +293,7 @@ public abstract class TramRouteEvaluator {
 
     @NotNull
     private synchronized HeuristicsReason processArrivalAtDest(final ImmutableJourneyState journeyState, final HowIGotHere howIGotHere,
-                                                               final int numberChanges, Duration totalCostSoFar) {
+                                                               final int numberChanges, TramDuration totalCostSoFar) {
 
         // todo if was on diversion at any stage then change behaviour here?
 

@@ -11,6 +11,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -52,7 +53,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
-    private Duration maxDurationFromConfig;
+    private TramDuration maxDurationFromConfig;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -92,7 +93,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
         txn = database.beginTx(TXN_TIMEOUT);
         testFacade = new RouteCalculatorTestFacade(componentContainer, txn);
 
-        maxDurationFromConfig = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxDurationFromConfig = TramDuration.ofMinutes(config.getMaxJourneyDuration());
     }
 
     // Notes:

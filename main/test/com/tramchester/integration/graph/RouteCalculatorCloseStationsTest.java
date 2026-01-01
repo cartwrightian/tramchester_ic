@@ -9,6 +9,7 @@ import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -21,7 +22,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -89,7 +89,7 @@ class RouteCalculatorCloseStationsTest {
     @Test
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(begin, TramTime.of(8,0), false,
-                2, Duration.ofMinutes(120), 1, getRequestedModes());
+                2, TramDuration.ofMinutes(120), 1, getRequestedModes());
         List<Journey> result = calculator.calculateRouteAsList(TramStations.Altrincham, TraffordBar, journeyRequest);
         assertFalse(result.isEmpty(), "no result for " + journeyRequest);
     }
@@ -98,7 +98,7 @@ class RouteCalculatorCloseStationsTest {
     void shouldHandlePartialClosure() {
         // appears to be an issue with data more than 1 week out with missing routes for ExchangeSquare and other stations...
         JourneyRequest journeyRequest = new JourneyRequest(begin.plusDays(1), TramTime.of(8,0), false,
-                3, Duration.ofMinutes(120), 1, getRequestedModes());
+                3, TramDuration.ofMinutes(120), 1, getRequestedModes());
         List<Journey> result = calculator.calculateRouteAsList(ExchangeSquare, StPetersSquare, journeyRequest);
         assertFalse(result.isEmpty(), "no journey for " + journeyRequest);
     }
@@ -127,7 +127,7 @@ class RouteCalculatorCloseStationsTest {
         assertFalse(UpcomingDates.hasClosure(Bury.getId(), travelDate), "sanity check failed for date " + travelDate);
 
         JourneyRequest journeyRequest = new JourneyRequest(travelDate, TramTime.of(8, 0),
-                false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
+                false, 0, TramDuration.ofMinutes(120), 1, getRequestedModes());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Bury, Shudehill, journeyRequest);
         return journeys.stream().filter(results -> results.getStages().size() == 1).collect(Collectors.toSet());

@@ -3,13 +3,16 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
-import java.time.Duration;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
@@ -26,7 +29,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             this.depthFirst = builderParameters.depthFirst();
         }
 
-        public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
+        public HourState fromService(final ServiceState serviceState, final GraphNode node, final TramDuration cost,
                                      final IdFor<Station> towardsStationId, final GraphTransaction txn) {
             final Stream<GraphRelationship> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, node, towardsStationId, cost, this);
@@ -58,13 +61,13 @@ public class HourState extends TraversalState implements HasTowardsStationId {
     private final IdFor<Station> towardsStationId;
 
     private HourState(final TraversalState parent, final Stream<GraphRelationship> relationships,
-                      final GraphNode node, IdFor<Station> towardsStationId, final Duration cost, final Towards<HourState> builder) {
+                      final GraphNode node, IdFor<Station> towardsStationId, final TramDuration cost, final Towards<HourState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node.getId());
         this.towardsStationId = towardsStationId;
     }
 
     @Override
-    protected TraversalState toMinute(final MinuteState.Builder towardsMinute, final GraphNode minuteNode, final Duration cost,
+    protected TraversalState toMinute(final MinuteState.Builder towardsMinute, final GraphNode minuteNode, final TramDuration cost,
                                       final JourneyStateUpdate journeyState) {
         try {
             final TramTime time = minuteNode.getTime();

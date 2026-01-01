@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -21,7 +22,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +38,7 @@ class LocationJourneyPlannerBusTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static TramchesterConfig testConfig;
-    private Duration maxDuration;
+    private TramDuration maxDuration;
 
     private final TramDate nextMonday = TestEnv.nextMonday();
     private MutableGraphTransaction txn;
@@ -63,7 +63,7 @@ class LocationJourneyPlannerBusTest {
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
-        maxDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        maxDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
     }
 

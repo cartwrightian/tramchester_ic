@@ -8,10 +8,10 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -21,7 +21,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -93,12 +92,12 @@ class RailAndTramGraphBuilderTest {
             GraphNode node = txn.findNode(routeStation);
 
             GraphRelationship toStation = node.getSingleRelationship(txn, ROUTE_TO_STATION, GraphDirection.Outgoing);
-            Duration costToStation = toStation.getCost(); // GraphProps.getCost(toStation);
-            assertEquals(Duration.ZERO, costToStation, "wrong cost for " + routeStation);
+            TramDuration costToStation = toStation.getCost(); // GraphProps.getCost(toStation);
+            assertEquals(TramDuration.ZERO, costToStation, "wrong cost for " + routeStation);
 
             GraphRelationship fromStation = node.getSingleRelationship(txn, STATION_TO_ROUTE, GraphDirection.Incoming);
-            Duration costFromStation = fromStation.getCost(); // GraphProps.getCost(fromStation);
-            Duration expected = routeStation.getStation().getMinChangeDuration();
+            TramDuration costFromStation = fromStation.getCost(); // GraphProps.getCost(fromStation);
+            TramDuration expected = routeStation.getStation().getMinChangeDuration();
             assertEquals(expected, costFromStation, "wrong cost for " + routeStation);
         });
     }
@@ -108,7 +107,7 @@ class RailAndTramGraphBuilderTest {
         Station altyTram = Altrincham.from(stationRepository);
         Station altyTrain = RailStationIds.Altrincham.from(stationRepository);
 
-        Duration expectedCost = Duration.ofSeconds(51L);
+        TramDuration expectedCost = TramDuration.ofSeconds(51L);
 
         GraphNode altyTramNode = txn.findNode(altyTram);
         GraphNode altyTrainNode = txn.findNode(altyTrain);
@@ -126,7 +125,7 @@ class RailAndTramGraphBuilderTest {
         List<GraphRelationship> fromTrain = altyTrainNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
         assertEquals(1, fromTrain.size(), "Wrong number of neighbours " + fromTram);
 
-        GraphRelationship trainNeighbour = fromTrain.get(0);
+        GraphRelationship trainNeighbour = fromTrain.getFirst();
         assertEquals(altyTramNode, trainNeighbour.getEndNode(txn)); //GraphNode.fromEnd(trainNeighbour));
         assertEquals(expectedCost, trainNeighbour.getCost());
 

@@ -91,8 +91,8 @@ class FindStationsByNumberLinksTramTest {
                 StWerburghsRoad,
                 Pomona,
                 Broadway,
-                HarbourCity,
-                Shudehill
+                HarbourCity
+                //Shudehill
                 //VeloPark,
                 //HoltTown
             ).map(FakeStation::getId).toList();

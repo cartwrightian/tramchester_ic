@@ -10,9 +10,11 @@ import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.*;
-//import com.tramchester.graph.core.neo4j.GraphNodeIdNeo4J;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.PathRequest;
@@ -24,7 +26,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -41,7 +42,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
     void onceBeforeEachTestRuns() {
         TramTime time = TramTime.of(13, 45);
         JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
-                false, 3, Duration.ofHours(1), 1, TramsOnly);
+                false, 3, TramDuration.ofHours(1), 1, TramsOnly);
         providesLocalNow = new ProvidesLocalNow();
 
         failedJourneyDiagnostics = createMock(CreateJourneyDiagnostics.class);
@@ -69,7 +70,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
     void shouldProvideDiagnostics() {
         TramTime time = TramTime.of(13, 45);
         JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
-                false, 3, Duration.ofHours(1), 1, TramsOnly);
+                false, 3, TramDuration.ofHours(1), 1, TramsOnly);
 
         Station dest = TramStations.Piccadilly.fake();
         LocationCollection destinations = LocationCollectionSingleton.of(dest);
@@ -124,7 +125,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         HowIGotHere howIGotHere = createMock(HowIGotHere.class);
 
-        Duration totalCostSoFar = Duration.ofMinutes(42);
+        TramDuration totalCostSoFar = TramDuration.ofMinutes(42);
         serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar,2));
         serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, 2));
         serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, 2));

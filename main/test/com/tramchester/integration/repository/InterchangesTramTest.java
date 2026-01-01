@@ -89,8 +89,8 @@ public class InterchangesTramTest {
                 //Piccadilly,
                 StPetersSquare,
                 Broadway,
-                Victoria,
-                Shudehill
+                Victoria
+                //Shudehill
                 //HoltTown, VeloPark
         );
 

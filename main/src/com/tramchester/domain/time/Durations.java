@@ -12,7 +12,15 @@ public class Durations {
         return comparisonFunction.compare(durationA.compareTo(durationB));
     }
 
+    private static boolean compare(ComparisonFunction comparisonFunction, TramDuration durationA, TramDuration durationB) {
+        return comparisonFunction.compare(durationA.compareTo(durationB));
+    }
+
     public static boolean greaterOrEquals(Duration durationA, Duration durationB) {
+        return compare(GreaterThanOrEquals, durationA, durationB);
+    }
+
+    public static boolean greaterOrEquals(TramDuration durationA, TramDuration durationB) {
         return compare(GreaterThanOrEquals, durationA, durationB);
     }
 
@@ -20,16 +28,23 @@ public class Durations {
         return compare(GreaterThan, durationA, durationB);
     }
 
+    public static boolean greaterThan(TramDuration durationA, TramDuration durationB) {
+        return compare(GreaterThan, durationA, durationB);
+    }
+
     public static boolean lessThan(Duration durationA, Duration durationB) {
         return compare(LessThan, durationA, durationB);
     }
 
-    public static Duration of(int minutes, int seconds) {
-        return Duration.ofMinutes(minutes).plusSeconds(seconds);
+    public static TramDuration of(int minutes, int seconds) {
+        return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+    }
+
+    public static boolean lessThan(TramDuration durationA, TramDuration durationB) {
+        return compare(LessThan, durationA, durationB);
     }
 
     private interface ComparisonFunction {
-
         boolean compare(int result);
     }
 

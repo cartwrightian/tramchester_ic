@@ -2,12 +2,15 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_HOUR;
@@ -36,14 +39,14 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
         }
 
         public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final GraphNode serviceNode,
-                                               final Duration cost, final GraphTransaction txn) {
+                                               final TramDuration cost, final GraphTransaction txn) {
             final Stream<GraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
             return new ServiceState(state, hourRelationships, cost, this, serviceNode, depthFirst,
                     super.getQueryHour());
         }
 
         public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode serviceNode,
-                                               final Duration cost, final GraphTransaction txn) {
+                                               final TramDuration cost, final GraphTransaction txn) {
             final Stream<GraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
             return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst,
                     super.getQueryHour());
@@ -60,7 +63,7 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
     private final IdFor<Station> towardsStationId;
 
     private ServiceState(final TraversalState parent, final Stream<GraphRelationship> relationships,
-                         final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
+                         final TramDuration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
         super(parent, relationships, cost, builder.getDestination(), serviceNode.getId());
         this.queryHour = queryHour;
         this.depthFirst = depthFirst;
@@ -68,7 +71,7 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
     }
 
     @Override
-    protected HourState toHour(final HourState.Builder towardsHour, final GraphNode node, final Duration cost) {
+    protected HourState toHour(final HourState.Builder towardsHour, final GraphNode node, final TramDuration cost) {
         return towardsHour.fromService(this, node, cost, towardsStationId, txn);
     }
 

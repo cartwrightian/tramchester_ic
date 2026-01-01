@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import tech.units.indriya.unit.Units;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.time.Duration;
 import java.util.EnumSet;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
@@ -40,7 +40,7 @@ class StationToStationConnectionDTOTest extends EasyMockSupport {
 
         Quantity<Length> distance = Quantities.getQuantity(42.5768D, Units.METRE);
         StationToStationConnection stationLink = new StationToStationConnection(altrincham, stPeters, modes,
-                StationToStationConnection.LinkType.Diversion, distance, Duration.ofSeconds(124));
+                StationToStationConnection.LinkType.Diversion, distance, TramDuration.ofSeconds(124));
 
         replayAll();
         StationToStationConnectionDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);

@@ -9,19 +9,19 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST>  {
     private final FROM start;
     private final DEST end;
-    private final Duration cost;
+    private final TramDuration cost;
     private final TramTime walkStartTime;
 
-    public ConnectingStage(FROM start, DEST end, Duration cost, TramTime walkStartTime) {
+    public ConnectingStage(FROM start, DEST end, TramDuration cost, TramTime walkStartTime) {
         this.start = start;
         this.end = end;
         this.cost = cost;
@@ -64,7 +64,7 @@ public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>>
     }
 
     @Override
-    public Duration getDuration() {
+    public TramDuration getDuration() {
         return cost;
     }
 

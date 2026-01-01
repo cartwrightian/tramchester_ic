@@ -5,11 +5,10 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.search.ValidHeuristicReason;
-
-import java.time.Duration;
 
 public class HeuristicsReasons {
 
@@ -112,19 +111,19 @@ public class HeuristicsReasons {
         return new CachedHeuristicReason(contained, path);
     }
 
-    public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere, Duration duration) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.HigherCost, howIGotHere, duration, false, Duration::toString);
+    public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere, TramDuration duration) {
+        return new HeuristicReasonWithAttribute<>(ReasonCode.HigherCost, howIGotHere, duration, false, TramDuration::toString);
     }
 
-    public static HeuristicsReason ArrivedMoreChanges(HowIGotHere howIGotHere, int numberChanges, Duration duration) {
+    public static HeuristicsReason ArrivedMoreChanges(HowIGotHere howIGotHere, int numberChanges, TramDuration duration) {
         return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedMoreChanges, howIGotHere, duration, numberChanges, false,
-                Duration::toString, Object::toString);
+                TramDuration::toString, Object::toString);
     }
 
 
-    public static HeuristicsReason ArrivedLater(HowIGotHere howIGotHere, Duration duration, int numberChanges) {
+    public static HeuristicsReason ArrivedLater(HowIGotHere howIGotHere, TramDuration duration, int numberChanges) {
         return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedLater, howIGotHere, duration, numberChanges, false,
-                Duration::toString, Object::toString);
+                TramDuration::toString, Object::toString);
     }
 
     public static HeuristicsReason PathToLong(final HowIGotHere path) {

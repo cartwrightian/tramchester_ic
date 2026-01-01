@@ -1,11 +1,11 @@
 package com.tramchester.graph.search.inMemory;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.search.JourneyState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 
 class PathSearchState {
@@ -14,7 +14,7 @@ class PathSearchState {
     // remaining working
     private final PriorityQueue<NodeSearchState> nodeQueue;
     // state
-    private final Map<SearchStateKey, Duration> currentCost;
+    private final Map<SearchStateKey, TramDuration> currentCost;
     private final Map<SearchStateKey, JourneyState> journeyStates;
     // results
     final List<GraphPathInMemory> foundPaths;
@@ -23,10 +23,10 @@ class PathSearchState {
     PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys) {
         this.numberJourneys = numberJourneys;
         nodeQueue = new PriorityQueue<>();
-        nodeQueue.add(new NodeSearchState(searchStateKey, Duration.ZERO, pathToHere));
+        nodeQueue.add(new NodeSearchState(searchStateKey, TramDuration.ZERO, pathToHere));
 
         currentCost = new HashMap<>();
-        currentCost.put(searchStateKey, Duration.ZERO);
+        currentCost.put(searchStateKey, TramDuration.ZERO);
 
         foundPaths = new ArrayList<>();
         journeyStates = new HashMap<>();
@@ -43,11 +43,11 @@ class PathSearchState {
         return nodeQueue.poll();
     }
 
-    public Duration getCurrentCost(final SearchStateKey stateKey) {
+    public TramDuration getCurrentCost(final SearchStateKey stateKey) {
         return currentCost.getOrDefault(stateKey, FindPathsForJourney.NotVisitiedDuration);
     }
 
-    public void updateCost(final SearchStateKey stateKey, final Duration duration) {
+    public void updateCost(final SearchStateKey stateKey, final TramDuration duration) {
         synchronized (nodeQueue) {
             currentCost.put(stateKey, duration);
         }
@@ -60,7 +60,7 @@ class PathSearchState {
         }
     }
 
-    public void updateCostAndQueue(final SearchStateKey stateKey, final Duration duration, final GraphPathInMemory graphPath) {
+    public void updateCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath) {
         final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath);
 
         synchronized (nodeQueue) {
@@ -77,7 +77,7 @@ class PathSearchState {
         }
     }
 
-    public void addCostAndQueue(SearchStateKey stateKey, Duration duration, GraphPathInMemory graphPath) {
+    public void addCostAndQueue(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory graphPath) {
         final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath);
 
         synchronized (nodeQueue) {
@@ -139,10 +139,10 @@ class PathSearchState {
 
     public static class NodeSearchState implements Comparable<NodeSearchState> {
         private final SearchStateKey stateKey;
-        private final Duration duration;
+        private final TramDuration duration;
         private final GraphPathInMemory pathToHere;
 
-        NodeSearchState(SearchStateKey stateKey, Duration duration, GraphPathInMemory pathToHere) {
+        NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere) {
             this.stateKey = stateKey;
             this.duration = duration;
             this.pathToHere = pathToHere.duplicateThis();
@@ -183,7 +183,7 @@ class PathSearchState {
                     '}';
         }
 
-        public Duration getDuration() {
+        public TramDuration getDuration() {
             return duration;
         }
     }

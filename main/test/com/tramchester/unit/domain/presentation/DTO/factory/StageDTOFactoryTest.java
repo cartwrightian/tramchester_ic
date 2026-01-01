@@ -21,6 +21,7 @@ import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
@@ -31,7 +32,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,7 +61,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     void shouldCreateStageDTOCorrectlyForWalking() {
         MyLocation location = nearAltrincham.location();
 
-        WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, Duration.ofMinutes(15),
+        WalkingFromStationStage stage = new WalkingFromStationStage(Altrincham.fake(), location, TramDuration.ofMinutes(15),
                 TramTime.of(8,11));
 
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Altrincham.fake())).
@@ -80,7 +80,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateStageDTOCorrectlyForConnection() {
         ConnectingStage<Station, Station> connectingStage = new ConnectingStage<>(Altrincham.fake(), NavigationRoad.fake(),
-                Duration.ofMinutes(1), TramTime.of(10,42) );
+                TramDuration.ofMinutes(1), TramTime.of(10,42) );
 
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Altrincham.fake())).
                 andReturn(new LocationRefWithPosition(Altrincham.fake()));
@@ -109,7 +109,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
                 stopCallIndexes
         );
-        vehicleStage.setCost(Duration.ofMinutes(5));
+        vehicleStage.setCost(TramDuration.ofMinutes(5));
 
         vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
 
@@ -126,7 +126,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board, "headSign");
 
-        assertTrue(stageDTO instanceof VehicleStageDTO);
+        assertInstanceOf(VehicleStageDTO.class, stageDTO);
 
         VehicleStageDTO vehicleStageDTO = (VehicleStageDTO) stageDTO;
 
@@ -149,7 +149,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 TransportMode.Train, trip, TramTime.of(0, 0), Bury.fake(),
                 stopCallIndexes
         );
-        vehicleStage.setCost(Duration.ofMinutes(5));
+        vehicleStage.setCost(TramDuration.ofMinutes(5));
 
         vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
 
@@ -166,7 +166,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board, "trainHeadSign");
 
-        assertTrue(stageDTO instanceof VehicleStageDTO);
+        assertInstanceOf(VehicleStageDTO.class, stageDTO);
 
         VehicleStageDTO vehicleStageDTO = (VehicleStageDTO) stageDTO;
 
@@ -188,7 +188,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
                 stopCallIndexes
         );
-        vehicleStage.setCost(Duration.ofMinutes(5));
+        vehicleStage.setCost(TramDuration.ofMinutes(5));
 
         vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
 
@@ -213,7 +213,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());
         assertEquals(IdForDTO.createFor(stage.getLastStation()), dto.getLastStation().getId());
         assertEquals(stage.getExpectedArrivalTime().toDate(when), dto.getExpectedArrivalTime());
-        assertEquals(stage.getDuration(), Duration.ofMinutes(dto.getDuration()));
+        assertEquals(stage.getDuration(), TramDuration.ofMinutes(dto.getDuration()));
         assertEquals(IdForDTO.createFor(stage.getFirstStation()), dto.getFirstStation().getId());
         assertEquals(expectedHeadsign, dto.getHeadSign());
 

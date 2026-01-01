@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
@@ -25,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     private static final Logger logger = LoggerFactory.getLogger(TramDepartureRepository.class);
 
     // TODO Correct limit here?
-    private static final Duration TIME_LIMIT_MINS = DeparturesRepository.TRAM_WINDOW; // only enrich if data is within this many minutes
+    private static final TramDuration TIME_LIMIT_MINS = DeparturesRepository.TRAM_WINDOW; // only enrich if data is within this many minutes
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
     // platformId -> StationDepartureInfo
@@ -163,8 +163,9 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     }
 
     private boolean withinTime(final TramTime queryTime, final LocalTime updateTime) {
-        final TramTime limitBefore = TramTime.ofHourMins(updateTime.minus(TIME_LIMIT_MINS));
-        final TramTime limitAfter = TramTime.ofHourMins(updateTime.plus(TIME_LIMIT_MINS));
+        final TramTime tramTime = TramTime.ofHourMins(updateTime);
+        final TramTime limitBefore = tramTime.minus(TIME_LIMIT_MINS); // TramTime.ofHourMins(updateTime.minus(TIME_LIMIT_MINS));
+        final TramTime limitAfter = tramTime.plus(TIME_LIMIT_MINS); // TramTime.ofHourMins(updateTime.plus(TIME_LIMIT_MINS));
         return queryTime.between(limitBefore, limitAfter);
     }
 

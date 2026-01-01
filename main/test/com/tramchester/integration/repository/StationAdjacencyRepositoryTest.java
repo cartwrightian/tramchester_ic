@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
@@ -19,9 +20,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
@@ -62,13 +61,13 @@ class StationAdjacencyRepositoryTest {
     @Test
     void shouldGiveCorrectCostForAdjacencyAltyNavigationRoad() {
         assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
-        assertTrue(getAdjacent(NavigationRoad, Cornbrook).isNegative());
+        assertTrue(getAdjacent(NavigationRoad, Cornbrook).invalid());
     }
 
     @Test
     void shouldGiveCorrectCostForAdjacencyCornbrookDeansgate() {
-        Duration duration = getAdjacent(Cornbrook, Deansgate);
-        assertEquals(Duration.ofMinutes(3), duration.truncatedTo(ChronoUnit.MINUTES));
+        TramDuration duration = getAdjacent(Cornbrook, Deansgate);
+        assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
     }
 
     @Test
@@ -88,9 +87,7 @@ class StationAdjacencyRepositoryTest {
         assertEquals(4, results.size(), pairs.toString());
     }
 
-    private Duration getAdjacent(TramStations first, TramStations second) {
-//        StationPair pair = StationPair.of(transportDataSource.getStationById(first.getId()),
-//                transportDataSource.getStationById(second.getId()));
+    private TramDuration getAdjacent(TramStations first, TramStations second) {
 
         StationIdPair stationIdPair = StationIdPair.of(first.getId(), second.getId());
 

@@ -9,9 +9,9 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +27,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
     private final TramTime departFirstStationTime;
     private final Route route;
 
-    protected Duration cost;
+    protected TramDuration cost;
     private Platform platform;
 
     public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
@@ -42,7 +42,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         this.lastStation = lastStation;
 
         this.platform = null;
-        this.cost = Duration.ofMinutes(-999);
+        this.cost = TramDuration.Invalid;
     }
 
     public Station getFirstStation() {
@@ -50,7 +50,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
     }
 
     @Override
-    public Duration getDuration() {
+    public TramDuration getDuration() {
         return cost;
     }
 
@@ -74,7 +74,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return mode;
     }
 
-    public VehicleStage setCost(Duration cost) {
+    public VehicleStage setCost(TramDuration cost) {
         this.cost = cost;
         return this;
     }
@@ -99,7 +99,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return platform != null;
     }
 
-    public Duration getCost() {
+    public TramDuration getCost() {
         return cost;
     }
 

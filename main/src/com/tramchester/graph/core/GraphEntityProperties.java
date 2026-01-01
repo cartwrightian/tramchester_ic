@@ -1,18 +1,17 @@
 package com.tramchester.graph.core;
 
-import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
@@ -97,9 +96,9 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
 
         IdSet<Trip> getTripIds();
 
-        void setCost(Duration cost);
+        void setCost(TramDuration cost);
 
-        Duration getCost();
+        TramDuration getCost();
 
         void setTransportMode(TransportMode transportMode);
 

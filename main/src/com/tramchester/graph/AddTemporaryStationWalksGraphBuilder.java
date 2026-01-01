@@ -8,11 +8,12 @@ import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
-import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -183,7 +183,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
 
         logger.debug("Adding Temp Station Walk to/from " + firstNode.getId() + " and " + second.getId());
 
-        final Duration cost = geography.getWalkingDuration(first, second);
+        final TramDuration cost = geography.getWalkingDuration(first, second);
 
         logger.info(format("Create walk to/from %s and %s cost %s", first.getId(), second.getId(), cost));
 
@@ -216,7 +216,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         return closedNode;
     }
 
-    private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final TemporaryStationWalk stationWalk) {
+    private void setCommonProperties(final MutableGraphRelationship relationship, final TramDuration cost, final TemporaryStationWalk stationWalk) {
         relationship.setCost(cost);
         relationship.setDateRange(stationWalk.getDateRange());
         relationship.setTimeRange(TimeRange.AllDay());

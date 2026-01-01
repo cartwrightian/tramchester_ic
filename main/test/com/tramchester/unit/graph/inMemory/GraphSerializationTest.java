@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -55,7 +54,7 @@ public class GraphSerializationTest {
         GraphRelationshipInMemory result = mapper.readValue(text, GraphRelationshipInMemory.class);
 
         assertEquals(Route.createBasicRouteId("Blue>>2119"),result.getRouteId());
-        assertEquals(Duration.ZERO, result.getCost());
+        assertEquals(TramDuration.ZERO, result.getCost());
         assertEquals(new RelationshipIdInMemory(18547), result.getId());
         assertEquals(new NodeIdInMemory(351), result.getStartId());
         assertEquals(new NodeIdInMemory(17703), result.getEndId());
@@ -109,7 +108,7 @@ public class GraphSerializationTest {
         IdFor<Trip> tripA = Trip.createId("tripA");
         IdFor<Trip> tripB = Trip.createId("tripB");
 
-        Duration cost = Duration.of(65, ChronoUnit.SECONDS);
+        TramDuration cost = TramDuration.ofSeconds(65);
         IdFor<RouteStation> routeStationId = RouteStationId.createId(KnownTramRoute.getBlue(when).getId(), Bury.getId());
         TramTime tramTime = TramTime.of(11, 42);
 

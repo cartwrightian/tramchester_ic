@@ -1,13 +1,13 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -62,28 +62,28 @@ public class CreateNodesAndRelationships {
     }
 
     protected void addNeighbourRelationship(final MutableGraphTransaction txn, final MutableGraphNode fromNode,
-                                            final MutableGraphNode toNode, final Duration walkCost) {
+                                            final MutableGraphNode toNode, final TramDuration walkCost) {
         addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
     protected void addContainedRelationshipTowardsGroup(final MutableGraphTransaction txn, final MutableGraphNode stationNode,
-                                                        final MutableGraphNode groupNode, final Duration walkCost) {
+                                                        final MutableGraphNode groupNode, final TramDuration walkCost) {
         addRelationshipFor(txn, stationNode, groupNode, walkCost, GROUPED_TO_PARENT);
     }
 
     protected void addGroupRelationshipTowardsContained(final MutableGraphTransaction txn, final MutableGraphNode groupNode,
-                                                        final MutableGraphNode stationNode, final Duration walkCost) {
+                                                        final MutableGraphNode stationNode, final TramDuration walkCost) {
         addRelationshipFor(txn, groupNode, stationNode, walkCost, GROUPED_TO_CHILD);
     }
 
     protected void addRelationshipsBetweenGroupAndParentGroup(final MutableGraphTransaction txn, final MutableGraphNode childGroupNode,
-                                                              final MutableGraphNode parentGroupNode, final Duration walkCost) {
+                                                              final MutableGraphNode parentGroupNode, final TramDuration walkCost) {
         addRelationshipFor(txn, parentGroupNode, childGroupNode, walkCost, GROUPED_TO_GROUPED);
         addRelationshipFor(txn, childGroupNode, parentGroupNode, walkCost, GROUPED_TO_GROUPED);
     }
 
     private boolean addRelationshipFor(final MutableGraphTransaction txn, final MutableGraphNode fromNode, final MutableGraphNode toNode,
-                                       final Duration walkCost, final TransportRelationshipTypes relationshipType) {
+                                       final TramDuration walkCost, final TransportRelationshipTypes relationshipType) {
 
         final boolean alreadyPresent = fromNode.getRelationships(txn, GraphDirection.Outgoing, relationshipType).
                 map(relationship -> relationship.getEndNodeId(txn)).

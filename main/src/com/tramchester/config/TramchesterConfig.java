@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
 import io.dropwizard.core.Configuration;
@@ -16,7 +17,6 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Time;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -212,7 +212,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         }
     }
 
-    public Duration getInitialMaxWaitFor(final DataSourceID sourceId) {
+    public TramDuration getInitialMaxWaitFor(final DataSourceID sourceId) {
         final TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
         return sourceConfig.getMaxInitialWait();
     }
@@ -240,14 +240,14 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return Quantities.getQuantity(metersPerSecond, METRE_PER_SECOND);
     }
 
-    public Duration getWalkingDuration() {
+    public TramDuration getWalkingDuration() {
         final ComparableQuantity<Speed> speed = getWalkingSpeed();
         final ComparableQuantity<Length> distance = getWalkingDistanceRange().getDistance();
 
         final ComparableQuantity<Time> result = distance.divide(speed, Time.class);
 
         Number seconds = result.to(SECOND).getValue();
-        return Duration.ofSeconds(seconds.longValue());
+        return TramDuration.ofSeconds(seconds.longValue());
     }
 
     public boolean inProdEnv() {
@@ -255,15 +255,15 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return getEnvironmentName().startsWith("Prod");
     }
 
-    public static Duration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
+    public static TramDuration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
         return config.getInitialMaxWaitFor(location.getDataSourceID());
     }
 
-    public static Duration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
-        final Optional<Duration> longestWait = stationWalks.stream().
+    public static TramDuration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
+        final Optional<TramDuration> longestWait = stationWalks.stream().
                 map(StationWalk::getStation).
                 map(station -> getMaxInitialWaitFor(station, config)).
-                max(Duration::compareTo);
+                max(TramDuration::compareTo);
         if (longestWait.isEmpty()) {
             throw new RuntimeException("Could not compute initial max wait for " + stationWalks);
         }

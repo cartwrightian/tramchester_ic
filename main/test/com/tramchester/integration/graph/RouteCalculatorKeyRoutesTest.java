@@ -12,6 +12,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -44,7 +45,7 @@ class RouteCalculatorKeyRoutesTest {
     private TramDate when;
     private RouteCalculationCombinations<Station> combinations;
     private JourneyRequest journeyRequest;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private EnumSet<TransportMode> modes;
 
     @BeforeAll
@@ -64,7 +65,7 @@ class RouteCalculatorKeyRoutesTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         modes = TramsOnly;
-        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         int maxChanges = 4;
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, maxChanges,
                 maxJourneyDuration, 1, modes);
@@ -154,20 +155,22 @@ class RouteCalculatorKeyRoutesTest {
     @Test
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
 
+        TramDuration twice = maxJourneyDuration.plus(maxJourneyDuration);
+
         JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 2,
-                maxJourneyDuration.multipliedBy(2), 3, modes);
+                twice, 3, modes);
 
         RouteCalculationCombinations.CombinationResults<Station> results =
                 combinations.getJourneysFor(combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
 
         validateFor(results);
 
-        final Optional<Duration> max = results.getValidJourneys().stream().
+        final Optional<TramDuration> max = results.getValidJourneys().stream().
                 map(RouteCalculatorTest::costOfJourney).
-                max(Duration::compareTo);
+                max(TramDuration::compareTo);
 
         assertTrue(max.isPresent());
-        Duration longest = max.get();
+        TramDuration longest = max.get();
 
         assertTrue(Durations.greaterOrEquals(maxJourneyDuration, longest), "longest was " + longest + " more than config: "
                 + maxJourneyDuration);

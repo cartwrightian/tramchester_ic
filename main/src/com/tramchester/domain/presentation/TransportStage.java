@@ -7,9 +7,9 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
 import java.util.List;
 
 public interface TransportStage<FROM extends Location<?>, DEST extends Location<?>> {
@@ -23,7 +23,7 @@ public interface TransportStage<FROM extends Location<?>, DEST extends Location<
     TramTime getFirstDepartureTime();
     TramTime getExpectedArrivalTime();
 
-    Duration getDuration();
+    TramDuration getDuration();
 
     Platform getBoardingPlatform();
 

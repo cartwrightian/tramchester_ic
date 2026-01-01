@@ -9,12 +9,12 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningRoutesAndServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -36,7 +36,7 @@ public class JourneyConstraints {
     private final int maxPathLength;
     private final IdSet<Station> closedStationsIds;
     private final Set<ClosedStation> closedStations;
-    private final Duration maxJourneyDuration;
+    private final TramDuration maxJourneyDuration;
     private final int maxWalkingConnections;
     private final int maxNumberWalkingConnections;
     private final LowestCostsForDestRoutes lowestCostForDestinations;
@@ -44,7 +44,7 @@ public class JourneyConstraints {
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               Set<ClosedStation> closedStations, EnumSet<TransportMode> destinationModes,
-                              LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration,
+                              LowestCostsForDestRoutes lowestCostForDestinations, TramDuration maxJourneyDuration,
                               TimeRange destinationsAvailable) {
         this.config = config;
         this.closedStations = closedStations;
@@ -91,7 +91,7 @@ public class JourneyConstraints {
 //        return destinations;
 //    }
 
-    public Duration getMaxJourneyDuration() {
+    public TramDuration getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
 

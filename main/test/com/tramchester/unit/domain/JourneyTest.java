@@ -5,9 +5,12 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
@@ -17,11 +20,10 @@ import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.testSupport.reference.KnownLocations.*;
+import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +73,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
+        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), TramDuration.ofMinutes(42), departureTime));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
@@ -91,7 +93,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new ConnectingStage<>(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
+        stages.add(new ConnectingStage<>(myLocation, Bury.fake(), TramDuration.ofMinutes(42), departureTime));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
@@ -112,7 +114,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, Duration.ofMinutes(42), departureTime));
+        stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, TramDuration.ofMinutes(42), departureTime));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
@@ -132,7 +134,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
+        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), TramDuration.ofMinutes(42), departureTime));
         stages.add(createVehicleStage(Bury.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(42), 13));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
@@ -154,7 +156,7 @@ class JourneyTest {
 
         final TramTime departureTime = queryTime.plusMinutes(10);
 
-        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), Duration.ofMinutes(42), departureTime));
+        stages.add(new WalkingToStationStage(myLocation, Bury.fake(), TramDuration.ofMinutes(42), departureTime));
         stages.add(createVehicleStage(Bury.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(42), 13));
         stages.add(createVehicleStage(Victoria.fake(), ManAirport.fake(), Tram, departureTime.plusMinutes(42), 13));
 
@@ -171,7 +173,7 @@ class JourneyTest {
         final TramTime departureTime = queryTime.plusMinutes(10);
 
         stages.add(createVehicleStage(Altrincham.fake(), StPetersSquare.fake(), Tram, departureTime.plusMinutes(5), 13));
-        stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, Duration.ofMinutes(42), departureTime.plusMinutes(18)));
+        stages.add(new WalkingFromStationStage(Bury.fake(), myLocation, TramDuration.ofMinutes(42), departureTime.plusMinutes(18)));
 
         Journey journey = new Journey(departureTime, queryTime, departureTime.plusMinutes(15), stages, path, requestedNumberChanges, journeyIndex);
 
@@ -255,7 +257,7 @@ class JourneyTest {
     private VehicleStage createVehicleStage(Station firstStation, Station lastStation, TransportMode mode, TramTime departTime,
                                             int costMinutes) {
         VehicleStage stage = new VehicleStage(firstStation, route, mode, trip, departTime, lastStation, stopSequenceNumbers);
-        stage.setCost(Duration.ofMinutes(costMinutes));
+        stage.setCost(TramDuration.ofMinutes(costMinutes));
         return stage;
     }
 

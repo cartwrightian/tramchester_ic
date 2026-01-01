@@ -15,11 +15,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.time.Duration;
 import java.util.EnumSet;
 
 public interface GraphRelationship extends GraphEntity {
@@ -30,7 +30,7 @@ public interface GraphRelationship extends GraphEntity {
 
     int getHour();
 
-    Duration getCost();
+    TramDuration getCost();
 
     GraphNode getEndNode(final GraphTransaction txn);
 

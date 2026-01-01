@@ -2,11 +2,11 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.mappers.Geography;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
@@ -27,10 +27,10 @@ public class StationToStationConnection {
     private final LinkType linkType;
 
     private final Quantity<Length> distanceBetweenInMeters;
-    private final Duration connectionTime;
+    private final TramDuration connectionTime;
 
     public StationToStationConnection(Station begin, Station end, EnumSet<TransportMode> linkingModes, LinkType linkType,
-                                      Quantity<Length> distanceBetweenInMeters, Duration connectionTime) {
+                                      Quantity<Length> distanceBetweenInMeters, TramDuration connectionTime) {
         this.linkType = linkType;
         this.distanceBetweenInMeters = distanceBetweenInMeters;
         this.connectionTime = connectionTime;
@@ -43,7 +43,7 @@ public class StationToStationConnection {
     public static StationToStationConnection createForWalk(Station begin, Station end, EnumSet<TransportMode> linkingModes,
                                                            LinkType linkType, Geography geography) {
         final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
-        final Duration walkingDuration = geography.getWalkingDuration(begin, end);
+        final TramDuration walkingDuration = geography.getWalkingDuration(begin, end);
         return new StationToStationConnection(begin, end, linkingModes, linkType, distance, walkingDuration);
     }
 
@@ -98,7 +98,7 @@ public class StationToStationConnection {
         return distanceBetweenInMeters;
     }
 
-    public Duration getConnectionTime() {
+    public TramDuration getConnectionTime() {
         return connectionTime;
     }
 

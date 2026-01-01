@@ -2,12 +2,11 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.core.NodeId;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
@@ -19,8 +18,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     protected final GraphTransaction txn;
 
     private final Stream<GraphRelationship> outbounds;
-    private final Duration costForLastEdge;
-    private final Duration parentCost;
+    private final TramDuration costForLastEdge;
+    private final TramDuration parentCost;
     private final GraphNodeId graphNodeId;
 
     // initial only, at beginning of search
@@ -32,15 +31,15 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.traversalStateFactory = traversalStateFactory;
 
         this.graphNodeId = graphNodeId;
-        this.costForLastEdge = Duration.ZERO;
-        this.parentCost = Duration.ZERO;
+        this.costForLastEdge = TramDuration.ZERO;
+        this.parentCost = TramDuration.ZERO;
         this.outbounds = Stream.empty();
         if (stateType!=TraversalStateType.NotStartedState) {
             throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
         }
     }
 
-    protected TraversalState(final ImmutableTraversalState parent, final Stream<GraphRelationship> outbounds, final Duration costForLastEdge,
+    protected TraversalState(final ImmutableTraversalState parent, final Stream<GraphRelationship> outbounds, final TramDuration costForLastEdge,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId) {
         super(stateType);
         this.txn = parent.getTransaction();
@@ -78,7 +77,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     public TraversalState nextState(final EnumSet<GraphLabel> originalLabels, final GraphNode node,
-                                    final JourneyStateUpdate journeyState, final Duration cost) {
+                                    final JourneyStateUpdate journeyState, final TramDuration cost) {
 
         final boolean isInterchange = originalLabels.contains(GraphLabel.INTERCHANGE);
         final boolean hasPlatforms = originalLabels.contains(GraphLabel.HAS_PLATFORMS);
@@ -109,7 +108,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     private TraversalState getTraversalState(final TraversalStateType nextType, final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
-                                             final Duration cost, final boolean isInterchange) {
+                                             final TramDuration cost, final boolean isInterchange) {
         switch (nextType) {
             case MinuteState -> {
                 return toMinute(traversalStateFactory.getTowardsMinute(stateType), node, cost, journeyStateUpdate);
@@ -183,15 +182,15 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    public void toDestination(final TraversalState from, final GraphNode finalNode, final Duration cost, final JourneyStateUpdate journeyState) {
+    public void toDestination(final TraversalState from, final GraphNode finalNode, final TramDuration cost, final JourneyStateUpdate journeyState) {
         toDestination(traversalStateFactory.getTowardsDestination(from.getStateType()), finalNode, cost, journeyState);
     }
 
-    public Duration getTotalDuration() {
+    public TramDuration getTotalDuration() {
         return parentCost.plus(getCurrentDuration());
     }
 
-    public Duration getCurrentDuration() {
+    public TramDuration getCurrentDuration() {
         return costForLastEdge;
     }
 

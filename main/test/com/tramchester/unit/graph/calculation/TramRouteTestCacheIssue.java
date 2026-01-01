@@ -5,11 +5,11 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.TramRouteCalculator;
-//import com.tramchester.graph.search.neo4j.RouteCalculatorNeo4J;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.GraphTypeConfigResolver;
@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,7 +75,7 @@ class TramRouteTestCacheIssue {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 3, TramsOnly);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 3, TramsOnly);
     }
 
     @Test

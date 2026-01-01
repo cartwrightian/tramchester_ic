@@ -18,6 +18,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -44,7 +45,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,7 +81,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private GraphTransaction txn;
 
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private RouteCalculationCombinations<Station> combinations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
@@ -114,7 +114,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
@@ -208,7 +208,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         // 2 -> 4
         int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(SalfordQuay.getId(), StPetersSquare.getId(), journeyRequest);
 
@@ -261,7 +261,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
@@ -273,7 +273,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         // 2 -> 4
         int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         // pairs of stations to check
         LocationIdsAndNames<Station> results = getFailedPairedFor(journeyRequest);
@@ -362,7 +362,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     Tram, additionalInterchanges, groupStationModes, IntegrationTramTestConfig.CurrentClosures,
-                    Duration.ofMinutes(45), Collections.emptyList());
+                    TramDuration.ofMinutes(45), Collections.emptyList());
 
             return Collections.singletonList(gtfsSourceConfig);
         }

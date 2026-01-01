@@ -6,17 +6,16 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-
-import java.time.Duration;
 
 public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST> {
     private final FROM start;
     protected final DEST destination;
-    private final Duration duration;
+    private final TramDuration duration;
     private final TramTime beginTime;
 
-    public WalkingStage(FROM start, DEST destination, Duration duration, TramTime beginTime) {
+    public WalkingStage(FROM start, DEST destination, TramDuration duration, TramTime beginTime) {
         this.start = start;
         this.destination = destination;
         this.duration = duration;
@@ -28,7 +27,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
         return TransportMode.Walk;
     }
     
-    public Duration getDuration() {
+    public TramDuration getDuration() {
         return duration;
     }
 

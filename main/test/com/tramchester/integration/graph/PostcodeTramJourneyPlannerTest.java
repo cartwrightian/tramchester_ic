@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -27,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -82,7 +82,7 @@ class PostcodeTramJourneyPlannerTest {
 
     // IS USED - see below
     private static Stream<JourneyRequest> getRequest() {
-        Duration maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         //TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;
@@ -99,7 +99,7 @@ class PostcodeTramJourneyPlannerTest {
         Set<Journey> journeySet =  planner.quickestRouteForLocation(centralLocation, TramStations.Bury, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
-        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
         checkDepartBefore(journeySet, request.getArriveBy());
     }
 
@@ -110,7 +110,7 @@ class PostcodeTramJourneyPlannerTest {
         Set<Journey> journeySet =  planner.quickestRouteForLocation(TramStations.Bury, centralLocation, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
-        journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().get(0).getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().getFirst().getMode()));
         checkDepartBefore(journeySet, request.getArriveBy());
 
     }
@@ -127,7 +127,7 @@ class PostcodeTramJourneyPlannerTest {
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertTrue(journey.getStages().size()>=3));
         // walk at start
-        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
         // walk at end
         journeySet.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
@@ -146,7 +146,7 @@ class PostcodeTramJourneyPlannerTest {
 
     private void checkDepartBefore(Set<Journey> journeySet, boolean arriveBy) {
         if (arriveBy) {
-            journeySet.forEach(journey -> journey.getStages().get(0).getFirstDepartureTime().isBefore(planningTime));
+            journeySet.forEach(journey -> journey.getStages().getFirst().getFirstDepartureTime().isBefore(planningTime));
         }
     }
 }

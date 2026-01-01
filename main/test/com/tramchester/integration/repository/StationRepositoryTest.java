@@ -16,6 +16,7 @@ import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
@@ -33,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,7 +176,7 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-        assertEquals(Duration.ofMinutes(1), station.getMinChangeDuration());
+        assertEquals(TramDuration.ofMinutes(1), station.getMinChangeDuration());
 
         double delta = naptanEnabled ? 0.01 : 0.0001;
         LatLong expectedLatLong = Altrincham.getLatLong();

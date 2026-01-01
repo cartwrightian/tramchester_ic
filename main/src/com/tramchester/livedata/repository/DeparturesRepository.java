@@ -9,18 +9,18 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.openLdb.TrainDeparturesRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
+import jakarta.inject.Inject;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,10 +33,10 @@ import static java.lang.String.format;
 @LazySingleton
 public class DeparturesRepository {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesRepository.class);
-    public static final Duration TRAM_WINDOW = Duration.ofMinutes(20);
-    public static final Duration TRAIN_WINDOW = Duration.ofMinutes(60);
-    public static final Duration BUS_WINDOW = Duration.ofMinutes(30);
-    public static final Duration DEFAULT_WINDOW = Duration.ofMinutes(45);
+    public static final TramDuration TRAM_WINDOW = TramDuration.ofMinutes(20);
+    public static final TramDuration TRAIN_WINDOW = TramDuration.ofMinutes(60);
+    public static final TramDuration BUS_WINDOW = TramDuration.ofMinutes(30);
+    public static final TramDuration DEFAULT_WINDOW = TramDuration.ofMinutes(45);
 
     private final StationLocationsRepository stationLocationsRepository;
     private final TramDepartureRepository tramDepartureRepository;
@@ -69,12 +69,12 @@ public class DeparturesRepository {
     }
 
     private boolean isTimely(final TramTime time, final UpcomingDeparture departure) {
-        final Duration windowSize = getLiveDeparturesWindowFor(departure.getMode());
+        final TramDuration windowSize = getLiveDeparturesWindowFor(departure.getMode());
         final TimeRange timeRange = TimeRangePartial.of(time, windowSize, windowSize);
         return timeRange.contains(departure.getWhen());
     }
 
-    private Duration getLiveDeparturesWindowFor(TransportMode mode) {
+    private TramDuration getLiveDeparturesWindowFor(TransportMode mode) {
         return switch (mode) {
             case Tram -> TRAM_WINDOW;
             case Train -> TRAIN_WINDOW;

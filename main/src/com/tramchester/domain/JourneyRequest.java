@@ -5,9 +5,9 @@ import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
@@ -19,7 +19,7 @@ public class JourneyRequest {
     private final boolean arriveBy;
     private final MaxNumberOfChanges maxChanges;
     private final UUID uid;
-    private final Duration maxJourneyDuration;
+    private final TramDuration maxJourneyDuration;
     private final long maxNumberOfJourneys;
 
     private final EnumSet<TransportMode> requestedModes;
@@ -32,12 +32,12 @@ public class JourneyRequest {
     private JourneyDiagnostics journeyDiagnostics;
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
-                          Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
+                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
         this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys, requestedModes);
     }
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,
-                          Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
+                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
@@ -108,7 +108,7 @@ public class JourneyRequest {
         this.cachingDisabled = flag;
     }
 
-    public Duration getMaxJourneyDuration() {
+    public TramDuration getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
 
@@ -168,9 +168,9 @@ public class JourneyRequest {
         return cachingDisabled;
     }
 
-    public TimeRange getJourneyTimeRange(final Duration offset) {
-        final Duration timeout = offset.plus(maxJourneyDuration);
-        return TimeRangePartial.of(originalQueryTime, Duration.ZERO, timeout);
+    public TimeRange getJourneyTimeRange(final TramDuration offset) {
+        final TramDuration timeout = offset.plus(maxJourneyDuration);
+        return TimeRangePartial.of(originalQueryTime, TramDuration.ZERO, timeout);
     }
 
     public static class MaxNumberOfChanges {

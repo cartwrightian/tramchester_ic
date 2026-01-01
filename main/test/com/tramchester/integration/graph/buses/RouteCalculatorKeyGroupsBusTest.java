@@ -8,6 +8,7 @@ import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -16,7 +17,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +55,7 @@ class RouteCalculatorKeyGroupsBusTest {
         TramTime time = TramTime.of(10, 30);
         int numberChanges = 3;
         journeyRequest = new JourneyRequest(when, time, false, numberChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
     }
 
     @Test
@@ -79,7 +79,7 @@ class RouteCalculatorKeyGroupsBusTest {
     void shouldCheckForAllKnownGMLocalities() {
         TramTime time = TramTime.of(11, 30);
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
         LocationIdPairSet<StationLocalityGroup> pairs = createPairsFor(new ArrayList<>(GreaterManchester));
         combinations.validateAllHaveAtLeastOneJourney(pairs, request, true);

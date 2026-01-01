@@ -2,13 +2,13 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -41,7 +41,7 @@ public class NoPlatformStationState extends StationState {
         }
 
         @Override
-        public NoPlatformStationState fromWalking(final WalkingState walkingState, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState,
+        public NoPlatformStationState fromWalking(final WalkingState walkingState, final GraphNode node, final TramDuration cost, final JourneyStateUpdate journeyState,
                                                   final GraphTransaction txn) {
             return new NoPlatformStationState(walkingState,
                     boardRelationshipsPlus(node, txn, GROUPED_TO_PARENT, NEIGHBOUR),
@@ -49,7 +49,7 @@ public class NoPlatformStationState extends StationState {
         }
 
         @Override
-        public NoPlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode node, final Duration cost,
+        public NoPlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode node, final TramDuration cost,
                                                 final JourneyStateUpdate journeyState,
                                                 final GraphTransaction txn) {
 
@@ -61,19 +61,21 @@ public class NoPlatformStationState extends StationState {
                     journeyState, getDestination());
         }
 
-        public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node, final Duration cost,
+        @Override
+        public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node, final TramDuration cost,
                                                final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             return findStateAfterRouteStation.endTripTowardsStation(getDestination(), routeStationState, node, cost,
                     journeyState, txn, this);
         }
 
-        public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip onTrip, final GraphNode node, final Duration cost,
+        @Override
+        public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip onTrip, final GraphNode node, final TramDuration cost,
                                                final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             return findStateAfterRouteStation.onTripTowardsStation(getDestination(), onTrip, node, cost, journeyState, txn, this);
         }
 
         @Override
-        public NoPlatformStationState fromNeighbour(final StationState noPlatformStation, final GraphNode node, final Duration cost,
+        public NoPlatformStationState fromNeighbour(final StationState noPlatformStation, final GraphNode node, final TramDuration cost,
                                                     final JourneyStateUpdate journeyState,
                                                     final GraphTransaction txn) {
             final Stream<GraphRelationship> grouped = node.getRelationships(txn, GraphDirection.Outgoing,GROUPED_TO_PARENT);
@@ -82,7 +84,7 @@ public class NoPlatformStationState extends StationState {
         }
 
         @Override
-        public NoPlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode node, final Duration cost,
+        public NoPlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode node, final TramDuration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final Stream<GraphRelationship> neighbour = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
             final Stream<GraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
@@ -98,20 +100,20 @@ public class NoPlatformStationState extends StationState {
 
     }
 
-    NoPlatformStationState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final Duration cost,
+    NoPlatformStationState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final TramDuration cost,
                            final GraphNode stationNode, final JourneyStateUpdate journeyStateUpdate, final TraversalStateType builderStateTYpe) {
         super(parent, relationships, cost, stationNode, journeyStateUpdate, builderStateTYpe);
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode next, final Duration cost,
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode next, final TramDuration cost,
                                                      final JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final Builder towardsStation, final GraphNode next, final Duration cost,
+    protected TraversalState toNoPlatformStation(final Builder towardsStation, final GraphNode next, final TramDuration cost,
                                                  final JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, txn);
@@ -119,27 +121,27 @@ public class NoPlatformStationState extends StationState {
 
     @Override
     protected TraversalState toWalk(final WalkingState.Builder towardsWalk, final GraphNode walkingNode,
-                                    final Duration cost, final JourneyStateUpdate journeyState) {
+                                    final TramDuration cost, final JourneyStateUpdate journeyState) {
         journeyState.beginWalk(stationNode, false, cost);
         return towardsWalk.fromStation(this, walkingNode, cost, txn);
     }
 
     @Override
     protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, final GraphNode groupNode,
-                                       final Duration cost, final JourneyStateUpdate journeyState) {
+                                       final TramDuration cost, final JourneyStateUpdate journeyState) {
         return towardsGroup.fromChildStation(this, journeyStateUpdate, groupNode, cost, txn);
     }
 
     @Override
     protected JustBoardedState toJustBoarded(final JustBoardedState.Builder towardsJustBoarded, final GraphNode boardNode,
-                                             final Duration cost, final JourneyStateUpdate journeyState) {
+                                             final TramDuration cost, final JourneyStateUpdate journeyState) {
         boardVehicle(boardNode, journeyState);
         return towardsJustBoarded.fromNoPlatformStation(journeyState, this, boardNode, cost, txn);
     }
 
     @Override
     protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode boardingNode,
-                                 final Duration cost, final JourneyStateUpdate journeyStateUpdate) {
+                                 final TramDuration cost, final JourneyStateUpdate journeyStateUpdate) {
         towardsDestination.from(this, cost, boardingNode);
     }
 

@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.mappers.Geography;
@@ -24,7 +25,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -144,7 +144,7 @@ public class Neighbours implements NeighboursRepository {
         logger.info("Adding " + pair + " as neighbours");
 
         final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
-        final Duration walkingDuration = geography.getWalkingDuration(begin, end);
+        final TramDuration walkingDuration = geography.getWalkingDuration(begin, end);
 
         addNeighbour(begin, new StationToStationConnection(begin, end, walk, linkType, distance, walkingDuration));
         addNeighbour(end, new StationToStationConnection(end, begin, walk, linkType, distance, walkingDuration));

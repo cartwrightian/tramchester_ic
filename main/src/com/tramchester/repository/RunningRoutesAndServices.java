@@ -10,16 +10,12 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.CrossesDay;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.*;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -192,7 +188,7 @@ public class RunningRoutesAndServices {
             }
 
             // check if within wait time
-            final TimeRange range = TimeRangePartial.of(startTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+            final TimeRange range = TimeRangePartial.of(startTime, TramDuration.ofMinutes(maxWait), TramDuration.ZERO);
             return range.contains(time);
         }
     }

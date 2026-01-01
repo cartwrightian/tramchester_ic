@@ -2,7 +2,6 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
@@ -13,6 +12,7 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphDatabase;
@@ -32,7 +32,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -107,7 +106,7 @@ class CompositeRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 2, TramsOnly);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 2, TramsOnly);
     }
 
     @AfterEach

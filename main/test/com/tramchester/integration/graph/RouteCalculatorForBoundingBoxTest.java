@@ -9,6 +9,7 @@ import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationBoxFactory;
@@ -24,7 +25,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -110,7 +110,7 @@ class RouteCalculatorForBoundingBoxTest {
         long maxNumberOfJourneys = 3;
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
-                false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
+                false, 3, TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
                 TramsOnly);
 
         Station destination = StPetersSquare.from(stationRepository);

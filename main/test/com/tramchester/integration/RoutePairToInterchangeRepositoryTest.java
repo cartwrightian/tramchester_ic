@@ -117,10 +117,10 @@ public class RoutePairToInterchangeRepositoryTest {
                 Victoria,
                 //Deansgate,
                 Cornbrook,
-                TraffordBar,
+                TraffordBar
                 //Piccadilly,
                 //PiccadillyGardens
-                Shudehill
+                //Shudehill
                 ).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());

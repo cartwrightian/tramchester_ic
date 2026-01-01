@@ -10,11 +10,11 @@ import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.WalkingStage;
 import jakarta.inject.Inject;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 // TODO Use superclass and JSON annotations (see Note class) to handle presence or not of platform?
@@ -51,7 +51,7 @@ public class StageDTOFactory {
 
         final RouteRefDTO routeRefDTO = new RouteRefDTO(route);
 
-        final Duration duration = source.getDuration();
+        final TramDuration duration = source.getDuration();
         if (source instanceof WalkingStage<?,?> || source instanceof ConnectingStage<?,?>) {
             return new SimpleStageDTO(firstStation,
                     lastStation,

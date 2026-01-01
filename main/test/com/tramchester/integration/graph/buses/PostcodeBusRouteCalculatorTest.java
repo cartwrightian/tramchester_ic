@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -22,7 +23,6 @@ import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.PostcodeTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +46,7 @@ class PostcodeBusRouteCalculatorTest {
     private MutableGraphTransaction txn;
     private final TramTime time = TramTime.of(9,11);
     private LocationJourneyPlannerTestFacade planner;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
 
     /// TODO In effect these are just location to location searchs, perhaps map postcode to locality???
 
@@ -69,7 +69,7 @@ class PostcodeBusRouteCalculatorTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
-        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
     }
 
     @AfterEach
@@ -211,7 +211,7 @@ class PostcodeBusRouteCalculatorTest {
     }
 
     private void assertWalkAtStart(Set<Journey> journeys) {
-        journeys.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
+        journeys.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
     }
 
     private void checkNearby(PostcodeLocation start, BusStations end) {
@@ -225,7 +225,7 @@ class PostcodeBusRouteCalculatorTest {
         assertFalse(oneStage.isEmpty(), "no direct journey");
 
         oneStage.forEach(journey -> {
-            TransportStage<?,?> transportStage = journey.getStages().get(0);
+            TransportStage<?,?> transportStage = journey.getStages().getFirst();
             assertEquals(TransportMode.Walk, transportStage.getMode());
             assertEquals(start.getLatLong(), transportStage.getFirstStation().getLatLong());
             assertEquals(end.getId(), transportStage.getLastStation().getId());
@@ -241,7 +241,7 @@ class PostcodeBusRouteCalculatorTest {
         assertFalse(oneStage.isEmpty(), "Missing one stage journey, got " + journeys);
 
         oneStage.forEach(journey -> {
-            final TransportStage<?, ?> transportStage = journey.getStages().get(0);
+            final TransportStage<?, ?> transportStage = journey.getStages().getFirst();
             assertEquals(TransportMode.Walk, transportStage.getMode());
             assertEquals(start.getId(), transportStage.getFirstStation().getId());
         });

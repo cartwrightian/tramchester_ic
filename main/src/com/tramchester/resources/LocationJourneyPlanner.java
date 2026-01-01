@@ -13,25 +13,25 @@ import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphRelationship;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
-import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
+import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,7 +114,7 @@ public class LocationJourneyPlanner {
         final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksToStart, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksToStart, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
@@ -164,7 +164,7 @@ public class LocationJourneyPlanner {
                 map(StationWalk::getStation).
                 collect(LocationSet.stationCollector());
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest, timeRange);
@@ -203,7 +203,7 @@ public class LocationJourneyPlanner {
         final LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksAtStart, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksAtStart, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest, timeRange);
@@ -265,7 +265,7 @@ public class LocationJourneyPlanner {
                 collect(Collectors.toSet());
     }
 
-    private Duration calculateDuration(Location<?> location, Station station) {
+    private TramDuration calculateDuration(Location<?> location, Station station) {
         return geography.getWalkingDuration(location, station);
     }
 
@@ -315,7 +315,7 @@ public class LocationJourneyPlanner {
         private MutableGraphRelationship createWalkRelationship(final MutableGraphNode walkNode, final StationWalk stationWalk,
                                                                 final TransportRelationshipTypes direction) {
             final Station walkStation = stationWalk.getStation();
-            final Duration cost = stationWalk.getCost();
+            final TramDuration cost = stationWalk.getCost();
 
             final MutableGraphRelationship walkingRelationship;
             final MutableGraphNode stationNode = txn.findNodeMutable(walkStation);

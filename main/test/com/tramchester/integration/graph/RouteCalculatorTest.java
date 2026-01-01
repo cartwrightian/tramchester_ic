@@ -19,6 +19,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.core.GraphDatabase;
@@ -39,7 +40,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -70,7 +70,7 @@ public class RouteCalculatorTest {
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxNumResults;
 
     @BeforeAll
@@ -92,7 +92,7 @@ public class RouteCalculatorTest {
 
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         maxNumResults = config.getMaxNumResults();
     }
 
@@ -219,7 +219,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
-        Duration cutoffInterval = Duration.ofMinutes(16);
+        TramDuration cutoffInterval = TramDuration.ofMinutes(16);
         final TramTime queryTime = TramTime.of(17, 45);
         JourneyRequest journeyRequest = standardJourneyRequest(when, queryTime, maxNumResults, maxChanges);
 
@@ -229,7 +229,7 @@ public class RouteCalculatorTest {
         assertTrue(earliest.isPresent());
 
         final TramTime firstDepartTime = earliest.get().getDepartTime();
-        Duration elapsed = TramTime.difference(queryTime, firstDepartTime);
+        TramDuration elapsed = TramTime.difference(queryTime, firstDepartTime);
         assertFalse(greaterOrEquals(elapsed, cutoffInterval), "first result too far in future " + firstDepartTime
                 + " cuttoff " + cutoffInterval + " earliest journey " + earliest) ;
     }
@@ -271,12 +271,12 @@ public class RouteCalculatorTest {
             journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
-                    forEach(cost -> assertFalse(cost.isZero() || cost.isNegative()));
-            Duration total = journey.getStages().stream().
+                    forEach(cost -> assertFalse(cost.isZero() || cost.invalid()));
+            TramDuration total = journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
-                    reduce(Duration.ZERO, Duration::plus);
-            assertTrue(total.compareTo(Duration.ofMinutes(20))>0);
+                    reduce(TramDuration.ZERO, TramDuration::plus);
+            assertTrue(total.compareTo(TramDuration.ofMinutes(20))>0);
         });
     }
 
@@ -487,7 +487,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, MediaCityUK);
     }
 
-    public static Duration costOfJourney(final Journey journey) {
+    public static TramDuration costOfJourney(final Journey journey) {
         final TramTime departs = journey.getDepartTime();
         final TramTime arrive = journey.getArrivalTime();
         return TramTime.difference(departs, arrive);

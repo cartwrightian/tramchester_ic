@@ -1,13 +1,13 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -15,7 +15,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 public class FindStateAfterRouteStation  {
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
-                                                final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate,
+                                                final GraphNode node, final TramDuration cost, final JourneyStateUpdate journeyStateUpdate,
                                                 final GraphTransaction txn, StateBuilder<?> stateBuilder) {
         final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, false);
@@ -31,7 +31,7 @@ public class FindStateAfterRouteStation  {
     }
 
     public TraversalState endTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateEndTrip routeStationState,
-                                                 final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+                                                 final GraphNode node, final TramDuration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
         final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, true);
         if (!towardsDest.isEmpty()) {
@@ -44,7 +44,7 @@ public class FindStateAfterRouteStation  {
     }
 
     public TraversalState onTripTowardsStation(final TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
-                                               final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn,
+                                               final TramDuration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn,
                                                StateBuilder<?> stateBuilder) {
         final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, false);
         if (!towardsDest.isEmpty()) {
@@ -58,7 +58,7 @@ public class FindStateAfterRouteStation  {
     }
 
     public TraversalState onTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateOnTrip routeStationStateOnTrip,
-                                                final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+                                                final GraphNode node, final TramDuration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
         final IterableWithEmptyCheck<GraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, true);
         if (!towardsDest.isEmpty()) {
             return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, towardsState);
@@ -107,14 +107,14 @@ public class FindStateAfterRouteStation  {
     }
 
     private NoPlatformStationState createNoPlatformStationState(ImmutableTraversalState parentState, GraphNode node,
-                                                                Duration cost, JourneyStateUpdate journeyStateUpdate,
+                                                                TramDuration cost, JourneyStateUpdate journeyStateUpdate,
                                                                 Stream<GraphRelationship> relationships,
                                                                 TraversalStateType towardsState) {
         return new NoPlatformStationState(parentState, relationships, cost, node, journeyStateUpdate, towardsState);
     }
 
     private static PlatformState createPlatformState(TraversalStateType towardsState, RouteStationStateEndTrip routeStationState,
-                                                     GraphNode node, Duration cost, Stream<GraphRelationship> platformRelationships) {
+                                                     GraphNode node, TramDuration cost, Stream<GraphRelationship> platformRelationships) {
         return new PlatformState(routeStationState, platformRelationships, node, cost, towardsState);
     }
 }

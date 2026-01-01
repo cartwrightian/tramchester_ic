@@ -8,13 +8,13 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -94,8 +94,8 @@ public class RailTimetableOverlaysTest {
                 }
 
                 @Override
-                public Duration getMaxInitialWait() {
-                    return Duration.ofMinutes(45);
+                public TramDuration getMaxInitialWait() {
+                    return TramDuration.ofMinutes(45);
                 }
             };
         }

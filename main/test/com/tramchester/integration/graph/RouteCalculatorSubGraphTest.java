@@ -2,12 +2,12 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
@@ -26,7 +27,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -47,7 +47,7 @@ class RouteCalculatorSubGraphTest {
             Pomona);
     private MutableGraphTransaction txn;
     private TramTime tramTime;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private EnumSet<TransportMode> modes;
     private LocationJourneyPlannerTestFacade locationJourneyPlannerTestFacade;
     private StationRepository stationRepository;
@@ -87,7 +87,7 @@ class RouteCalculatorSubGraphTest {
         locationJourneyPlannerTestFacade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         tramTime = TramTime.of(8, 0);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
         modes = TramsOnly;
     }

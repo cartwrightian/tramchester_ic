@@ -14,6 +14,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.DeparturesRepository;
@@ -49,7 +50,7 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
                                      CRSRepository crsRepository, StationRepository stationRepository, CacheMetrics cacheMetrics,
                                      TramchesterConfig config) {
         this.config = config;
-        final Duration cacheDuration = DeparturesRepository.TRAIN_WINDOW;
+        final TramDuration cacheDuration = DeparturesRepository.TRAIN_WINDOW;
         long cacheSize = stationRepository.getNumberOfStations(DataSourceID.openRailData, TransportMode.Train);
 
         liveTrainDepartures = new LiveTrainDepartures(dataFetcher, agencyRepository, crsRepository);

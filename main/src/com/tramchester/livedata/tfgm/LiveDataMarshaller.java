@@ -3,6 +3,7 @@ package com.tramchester.livedata.tfgm;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import jakarta.inject.Inject;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +23,7 @@ import static java.lang.String.format;
 public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataMarshaller.class);
 
-    private static final Duration TIME_LIMIT = Duration.ofMinutes(20); // only enrich if data is within this many minutes
+    private static final TramDuration TIME_LIMIT = TramDuration.ofMinutes(20); // only enrich if data is within this many minutes
 
     public enum Timely {
         OnTime,

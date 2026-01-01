@@ -7,12 +7,16 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.repository.RouteRepository;
+import jakarta.inject.Inject;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
@@ -22,8 +26,6 @@ import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +33,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
-import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.ON_ROUTE;
 import static java.lang.String.format;
 
 /***
@@ -55,33 +57,33 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
     }
 
     @Override
-    public Duration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                          final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
+                                              final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     @Override
-    public Duration getAverageCostBetween(final GraphTransaction txn, final Location<?> station, final GraphNode endNode, final TramDate date,
-                                          final EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(final GraphTransaction txn, final Location<?> station, final GraphNode endNode, final TramDate date,
+                                              final EnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     // startNode must have been found within supplied txn
     @Override
-    public Duration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final Location<?> endStation,
-                                          final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final Location<?> endStation,
+                                              final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode endNode = txn.findNode(endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     @Override
-    public Duration getAverageCostBetween(final GraphTransaction txn, final Location<?> startStation, final Location<?> endStation,
-                                          final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(final GraphTransaction txn, final Location<?> startStation, final Location<?> endStation,
+                                              final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date, modes);
     }
 
-    private Duration getCostBetween(final GraphTransaction txn, final Location<?> startLocation, final Location<?> endLocation,
+    private TramDuration getCostBetween(final GraphTransaction txn, final Location<?> startLocation, final Location<?> endLocation,
                                     final GraphPropertyKey key, final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
@@ -97,7 +99,7 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
     }
 
     // startNode and endNode must have been found within supplied txn
-    private Duration calculateLeastCost(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
+    private TramDuration calculateLeastCost(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                         final GraphPropertyKey key, final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
 
         final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date, modes).stream().
@@ -127,13 +129,13 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
         double weight  = Math.floor(path.weight());
 
         int seconds = (int) weight;
-        return Duration.ofSeconds(seconds);
+        return TramDuration.ofSeconds(seconds);
     }
 
     private PathExpander<Double> fullExpanderForCostApproximation(final Predicate<? super Relationship> routeFilter) {
         PathExpanderBuilder builder = PathExpanderBuilder.empty();
 
-        final List<RelationshipType> mapped = costApproxTypes.stream().map(type -> map(type)).toList();
+        final List<RelationshipType> mapped = costApproxTypes.stream().map(this::map).toList();
 
         for (RelationshipType relationshipType : mapped) {
             builder = builder.add(relationshipType, Direction.OUTGOING);

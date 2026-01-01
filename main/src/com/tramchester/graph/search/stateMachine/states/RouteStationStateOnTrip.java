@@ -5,13 +5,13 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
@@ -39,7 +39,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
         }
 
         public RouteStationStateOnTrip fromMinuteState(final JourneyStateUpdate journeyState, final MinuteState minuteState,
-                                                       final GraphNode routeStationNode, final Duration cost, final boolean isInterchange,
+                                                       final GraphNode routeStationNode, final TramDuration cost, final boolean isInterchange,
                                                        final GetOutgoingServicesMatchingTripId getOutgoingServicesMatchingTripId, // TODO Remove this
                                                        final GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
@@ -68,7 +68,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     private RouteStationStateOnTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships,
-                                    final Duration cost, final GraphNode routeStationNode, final IdFor<Trip> tripId, final TransportMode transportMode,
+                                    final TramDuration cost, final GraphNode routeStationNode, final IdFor<Trip> tripId, final TransportMode transportMode,
                                     final TowardsRouteStation<RouteStationStateOnTrip> builder) {
         super(parent, relationships, journeyState, cost, builder, routeStationNode);
         this.routeStationNode = routeStationNode;
@@ -77,19 +77,19 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode serviceNode, final Duration cost) {
+    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode serviceNode, final TramDuration cost) {
         return towardsService.fromRouteStation(this, serviceNode, cost, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsNoPlatformStation, final GraphNode node, final Duration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsNoPlatformStation, final GraphNode node, final TramDuration cost,
                                                  final JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState, transportMode, "Unable to depart tram");
         return towardsNoPlatformStation.fromRouteStationOnTrip(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node, final Duration cost,
+    protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node, final TramDuration cost,
                                         final JourneyStateUpdate journeyState) {
 
         leaveVehicle(journeyState, transportMode, "Unable to process platform");

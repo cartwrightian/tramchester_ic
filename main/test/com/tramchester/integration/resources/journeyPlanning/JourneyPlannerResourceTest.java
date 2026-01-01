@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
@@ -331,8 +332,8 @@ public class JourneyPlannerResourceTest {
 
         TramTime firstDepart = TramTime.ofHourMins(earliestJourney.getFirstDepartureTime().toLocalTime());
 
-        Duration elapsed = TramTime.difference(queryTime, firstDepart);
-        assertTrue(Durations.lessThan(elapsed,Duration.ofMinutes(15)), "first result too far in future " + firstDepart + " for " + results.getJourneys());
+        TramDuration elapsed = TramTime.difference(queryTime, firstDepart);
+        assertTrue(Durations.lessThan(elapsed,TramDuration.ofMinutes(15)), "first result too far in future " + firstDepart + " for " + results.getJourneys());
     }
 
     private void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {

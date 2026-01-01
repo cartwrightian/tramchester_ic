@@ -1,11 +1,11 @@
 package com.tramchester.graph.search.inMemory;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -20,7 +20,7 @@ public class ShortestPath {
         this.startNode = startNode;
     }
 
-    public Duration findShortestPathsTo(final GraphNode destNode, final FindPathsForJourney.GraphRelationshipFilter filter) {
+    public TramDuration findShortestPathsTo(final GraphNode destNode, final FindPathsForJourney.GraphRelationshipFilter filter) {
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         final SearchState searchState = new SearchState(startNode.getId(), initialPath);
@@ -33,9 +33,9 @@ public class ShortestPath {
             visitNodeForShortestPath(nextId, searchState, nodeSearchState.pathToHere(), results, destNode.getId(), filter);
         }
 
-        Optional<Duration> minimum = results.stream().
+        Optional<TramDuration> minimum = results.stream().
                 map(GraphPath::getTotalCost).
-                min(Duration::compareTo);
+                min(TramDuration::compareTo);
 
         return minimum.orElse(FindPathsForJourney.NotVisitiedDuration);
 
@@ -53,20 +53,20 @@ public class ShortestPath {
 
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
         final GraphPathInMemory pathToHere = incomingPath.duplicateWith(txn, currentNode);
-        final Duration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
+        final TramDuration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
 
         final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing).
                 filter(filter::include);
 
         outgoing.forEach(graphRelationship -> {
-            final Duration relationshipCost = graphRelationship.getCost();
+            final TramDuration relationshipCost = graphRelationship.getCost();
             //final GraphNode nextNode = graphRelationship.getEndNode(txn);
             final GraphNodeId nextNodeId = graphRelationship.getEndNodeId(txn); //nextNode.getId();
-            final Duration updatedCost = relationshipCost.plus(currentCostToNode);
+            final TramDuration updatedCost = relationshipCost.plus(currentCostToNode);
 
             final GraphPathInMemory continuePath = pathToHere.duplicateWith(txn, graphRelationship);
             if (searchState.hasSeen(nextNodeId)) {
-                final Duration currentDurationForEnd = searchState.getCurrentCost(nextNodeId);
+                final TramDuration currentDurationForEnd = searchState.getCurrentCost(nextNodeId);
                 if (updatedCost.compareTo(currentDurationForEnd) < 0) {
                     searchState.setNewCostFor(nextNodeId, updatedCost, continuePath);
                 }
@@ -79,7 +79,7 @@ public class ShortestPath {
     }
 
     private static class SearchState {
-        private final Map<GraphNodeId, Duration> currentCost;
+        private final Map<GraphNodeId, TramDuration> currentCost;
         private final PriorityQueue<NodeSearchState> nodeQueue;
 
         public SearchState(final GraphNodeId id, final GraphPathInMemory initialPath) {
@@ -98,7 +98,7 @@ public class ShortestPath {
             return nodeQueue.remove();
         }
 
-        public Duration getCurrentCost(final GraphNodeId nodeId) {
+        public TramDuration getCurrentCost(final GraphNodeId nodeId) {
             if (!currentCost.containsKey(nodeId)) {
                 throw new RuntimeException("Missing cost for " + nodeId);
             }
@@ -109,7 +109,7 @@ public class ShortestPath {
             return currentCost.containsKey(nodeId);
         }
 
-        public void setNewCostFor(final GraphNodeId nodeId, final Duration duration, final GraphPath path) {
+        public void setNewCostFor(final GraphNodeId nodeId, final TramDuration duration, final GraphPath path) {
             synchronized (nodeQueue) {
                 currentCost.put(nodeId, duration);
                 final NodeSearchState updatedState = new NodeSearchState(nodeId, duration, path);
@@ -118,7 +118,7 @@ public class ShortestPath {
             }
         }
 
-        public void add(final GraphNodeId nodeId, final Duration duration, final GraphPath path) {
+        public void add(final GraphNodeId nodeId, final TramDuration duration, final GraphPath path) {
             synchronized (nodeQueue) {
                 currentCost.put(nodeId, duration);
                 final NodeSearchState nodeSearchState = new NodeSearchState(nodeId, duration, path);
@@ -127,7 +127,7 @@ public class ShortestPath {
         }
     }
 
-    private record NodeSearchState(GraphNodeId nodeId, Duration cost,
+    private record NodeSearchState(GraphNodeId nodeId, TramDuration cost,
                                    GraphPath pathToHere) implements Comparable<NodeSearchState> {
 
             @Override

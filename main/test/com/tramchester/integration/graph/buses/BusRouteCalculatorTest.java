@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -22,7 +23,6 @@ import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -48,7 +48,7 @@ class BusRouteCalculatorTest {
 
     private final TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private StationLocalityGroup stockportCentral;
     private StationLocalityGroup altrinchamCentral;
     private StationLocalityGroup knutsfordLocality;
@@ -71,7 +71,7 @@ class BusRouteCalculatorTest {
     @BeforeEach
     void beforeEachTestRuns() {
 
-        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         stockportCentral = KnownLocality.Stockport.from(stationGroupsRepository);
@@ -186,7 +186,7 @@ class BusRouteCalculatorTest {
     void shouldHaveManchesterAirportToShudehill() {
         TramTime time = TramTime.of(11, 30);
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.ManchesterAirport, KnownLocality.Shudehill, request);
         assertFalse(results.isEmpty());
@@ -197,7 +197,7 @@ class BusRouteCalculatorTest {
         TramTime time = TramTime.of(10,37);
 
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Altrincham, KnownLocality.Bollington, request);
         assertFalse(results.isEmpty());
@@ -210,7 +210,7 @@ class BusRouteCalculatorTest {
 
         //TramDate date = TramDate.of(2024,2,21);
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
 //        request.setDiag(true);
 
@@ -226,7 +226,7 @@ class BusRouteCalculatorTest {
 
         TramDate date = TramDate.of(2024,2,21);
         JourneyRequest request = new JourneyRequest(date, time, false, MIN_CHANGES,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
 //        request.setDiag(true);
 
@@ -239,7 +239,7 @@ class BusRouteCalculatorTest {
     void shouldHaveMacclesfieldToKnutsford() {
         TramTime time = TramTime.of(12, 30);
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Knutsford, request);
         assertFalse(results.isEmpty());
@@ -249,7 +249,7 @@ class BusRouteCalculatorTest {
     void shouldHaveMacclesfieldToShudehill() {
         TramTime time = TramTime.of(11, 30);
         JourneyRequest request = new JourneyRequest(when, time, false, 3,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Shudehill, request);
         assertFalse(results.isEmpty());
@@ -275,7 +275,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(120), 1, getRequestedModes());
+                TramDuration.ofMinutes(120), 1, getRequestedModes());
         List<Journey> results = calculator.calculateRouteAsList(altrinchamCentral, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -292,7 +292,7 @@ class BusRouteCalculatorTest {
         Station end = stations.get(1);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(7,30), false, 1,
-                Duration.ofMinutes(120), 1,  EnumSet.noneOf(TransportMode.class));
+                TramDuration.ofMinutes(120), 1,  EnumSet.noneOf(TransportMode.class));
 
         List<Journey> results = calculator.calculateRouteAsList(start, end, journeyRequest);
 
@@ -305,7 +305,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, Duration.ofMinutes(120), 1,  getRequestedModes());
+                3, TramDuration.ofMinutes(120), 1,  getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(knutsfordLocality, altrinchamCentral, journeyRequest);
 

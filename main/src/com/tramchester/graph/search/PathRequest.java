@@ -3,10 +3,10 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 
-import java.time.Duration;
 import java.util.EnumSet;
 
 public class PathRequest {
@@ -16,13 +16,13 @@ public class PathRequest {
     private final int numChanges;
     private final EnumSet<TransportMode> requestedModes;
     private final EnumSet<TransportMode> destinationModes;
-    private final Duration maxInitialWait;
+    private final TramDuration maxInitialWait;
     private final long maxNumberJourneys;
 
     private final ServiceHeuristics serviceHeuristics;
 
     public PathRequest(JourneyRequest journeyRequest, GraphNode startNode, int numChanges, ServiceHeuristics serviceHeuristics,
-                       Duration maxInitialWait, EnumSet<TransportMode> desintationModes) {
+                       TramDuration maxInitialWait, EnumSet<TransportMode> desintationModes) {
         this(startNode, journeyRequest.getDate(), journeyRequest.getOriginalTime(), numChanges, serviceHeuristics,
                 journeyRequest.getRequestedModes(),
                 maxInitialWait, desintationModes, journeyRequest.getMaxNumberOfJourneys());
@@ -31,7 +31,7 @@ public class PathRequest {
     // query time here can range over the series of times
     public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                        ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
-                       Duration maxInitialWait, EnumSet<TransportMode> destinationModes, long maxNumberJourneys) {
+                       TramDuration maxInitialWait, EnumSet<TransportMode> destinationModes, long maxNumberJourneys) {
         this.startNode = startNode;
         this.queryDate = queryDate;
         this.queryTime = queryTime;
@@ -77,7 +77,7 @@ public class PathRequest {
         return requestedModes;
     }
 
-    public Duration getMaxInitialWait() {
+    public TramDuration getMaxInitialWait() {
         return maxInitialWait;
     }
 

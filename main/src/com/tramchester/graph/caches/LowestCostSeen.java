@@ -1,23 +1,23 @@
 package com.tramchester.graph.caches;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.search.ImmutableJourneyState;
 
-import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LowestCostSeen {
-    private final AtomicReference<Duration> lowestCost;
+    private final AtomicReference<TramDuration> lowestCost;
     private final AtomicInteger lowestNumChanges;
     private final AtomicInteger arrived;
 
     public LowestCostSeen() {
-        lowestCost = new AtomicReference<>(Duration.ofMinutes(Integer.MAX_VALUE));
+        lowestCost = new AtomicReference<>(TramDuration.ofMinutes(Integer.MAX_VALUE));
         lowestNumChanges = new AtomicInteger(Integer.MAX_VALUE);
         arrived = new AtomicInteger(0);
     }
 
-    public Duration getLowestDuration() {
+    public TramDuration getLowestDuration() {
         return lowestCost.get();
     }
 

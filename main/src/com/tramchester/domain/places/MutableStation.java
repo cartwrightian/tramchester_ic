@@ -1,16 +1,19 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,7 +34,7 @@ public class MutableStation implements Station {
     private final DataSourceID dataSourceID;
     private final boolean isMarkedInterchange;
     private final EnumSet<TransportMode> modes;
-    private final Duration changeTimeNeeded;
+    private final TramDuration changeTimeNeeded;
     private final boolean isCentral;
     private final int hashCode;
 
@@ -39,12 +42,12 @@ public class MutableStation implements Station {
                           DataSourceID dataSourceID, boolean isCentral) {
         // todo default change duration from config for the data source?
         this(id, localityId, stationName, latLong, gridPosition, dataSourceID, false,
-                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME), isCentral);
+                TramDuration.ofMinutes(DEFAULT_MIN_CHANGE_TIME), isCentral);
     }
 
     // for some data sources we know if station is an interchange
     public MutableStation(IdFor<Station> stationId, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
-                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded, boolean isCentral) {
+                          DataSourceID dataSourceID, boolean isMarkedInterchange, TramDuration changeTimeNeeded, boolean isCentral) {
         this.localityId = localityId;
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
@@ -66,7 +69,7 @@ public class MutableStation implements Station {
 
     public static Station Unknown(final DataSourceID dataSourceID) {
         return new MutableStation(StringIdFor.createId("unknown", Station.class), NPTGLocality.InvalidId(), "Unknown",
-                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO, false);
+                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, TramDuration.ZERO, false);
     }
 
     @Override
@@ -216,7 +219,7 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public Duration getMinChangeDuration() {
+    public TramDuration getMinChangeDuration() {
         return changeTimeNeeded;
     }
 

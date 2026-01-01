@@ -2,11 +2,11 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -14,13 +14,13 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +40,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private final static TramDate when = TestEnv.testDay();
 
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -74,7 +74,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
     }
 
     @AfterEach

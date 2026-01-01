@@ -4,11 +4,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphEntityProperties;
 import org.neo4j.graphdb.Entity;
 
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -121,16 +121,16 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps {
     }
 
     @Override
-    public void setCost(final Duration cost) {
+    public void setCost(final TramDuration cost) {
         final long seconds = cost.toSeconds();
         setProperty(COST.getText(), seconds);
     }
 
     @Override
-    public Duration getCost() {
+    public TramDuration getCost() {
         if (hasProperty(COST)) {
             final long seconds = (long) getProperty(COST);
-            return Duration.ofSeconds(seconds);
+            return TramDuration.ofSeconds(seconds);
         }
         throw new RuntimeException("Cost is missing for " + this);
     }

@@ -14,10 +14,14 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.RailPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.filters.GraphFilterActive;
@@ -27,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
@@ -403,7 +406,7 @@ public class RailTimetableMapper {
                 final GTFSPickupDropoffType dropoff = doesDropOff ? Regular : None;
                 stopCall = createStopCall(trip, station, platform, stopSequence, arrivalTime, departureTime, pickup, dropoff);
 
-                if (Durations.greaterThan(TramTime.difference(arrivalTime, departureTime), Duration.ofHours(1))) {
+                if (Durations.greaterThan(TramTime.difference(arrivalTime, departureTime), TramDuration.ofHours(1))) {
                     // this definitely happens, so an info not a warning
                     logger.info("Delay of more than one hour for " + stopCall + " on trip " + trip.getId());
                 }

@@ -13,6 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.RouteCostCalculator;
@@ -96,7 +97,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
-        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startingBoxes, config);
+        final TramDuration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startingBoxes, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest, timeRange);

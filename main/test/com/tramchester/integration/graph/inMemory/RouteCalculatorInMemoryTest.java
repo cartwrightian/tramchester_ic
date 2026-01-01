@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +47,7 @@ public class RouteCalculatorInMemoryTest {
     private final TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
     private RouteCalculatorTestFacade calculator;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxNumResults;
 
     @BeforeAll
@@ -74,7 +74,7 @@ public class RouteCalculatorInMemoryTest {
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         maxNumResults = config.getMaxNumResults();
     }
 

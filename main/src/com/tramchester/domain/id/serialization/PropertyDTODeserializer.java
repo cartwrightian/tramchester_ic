@@ -8,13 +8,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.DurationDeserializer;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.mappers.serialisation.TramDurationDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import org.reflections.Reflections;
 
@@ -56,10 +57,11 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
                 value = deserializeIdSet(context, typeDeserializer, valueNode.get(ID_SET), objectCodec);
             }
             else if (valueNode.has(DURATION_FIELD_NAME)) {
-                DurationDeserializer deserializer = new DurationDeserializer();
-                JsonParser parser = valueNode.get(DURATION_FIELD_NAME).traverse(objectCodec);
-                parser.nextToken();
-                value = deserializer.deserialize(parser, context);
+                value = deserializeTramDuration(context, typeDeserializer, valueNode, objectCodec);
+//                DurationDeserializer deserializer = new DurationDeserializer();
+//                JsonParser parser = valueNode.get(DURATION_FIELD_NAME).traverse(objectCodec);
+//                parser.nextToken();
+//                value = deserializer.deserialize(parser, context);
             } else if (valueNode.has(TRANSPORT_MODE_FIELD_NAME)) {
                 JsonNode textNode = valueNode.get(TRANSPORT_MODE_FIELD_NAME);
                 String txt = textNode.asText();
@@ -96,6 +98,13 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
 
     private static TramTime deserializeTramTime(DeserializationContext context, TypeDeserializer typeDeserializer, JsonNode valueNode, ObjectCodec objectCodec) throws IOException {
         final TramTimeJsonDeserializer deserializer = new TramTimeJsonDeserializer();
+        JsonParser parser = valueNode.traverse(objectCodec);
+        parser.nextToken();
+        return deserializer.deserializeWithType(parser, context, typeDeserializer);
+    }
+
+    private static TramDuration deserializeTramDuration(DeserializationContext context, TypeDeserializer typeDeserializer, JsonNode valueNode, ObjectCodec objectCodec) throws IOException {
+        final TramDurationDeserializer deserializer = new TramDurationDeserializer();
         JsonParser parser = valueNode.traverse(objectCodec);
         parser.nextToken();
         return deserializer.deserializeWithType(parser, context, typeDeserializer);

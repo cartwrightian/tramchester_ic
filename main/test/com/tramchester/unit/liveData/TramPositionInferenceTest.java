@@ -6,6 +6,7 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -22,9 +23,7 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -83,7 +82,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         departureFromEnd.setPlatform(endPlatform);
 
         EasyMock.expect(adjacencyRepository.getAdjacent(pair.getStationIds(), date, timeRange)).
-                andReturn(Duration.ofMinutes(costBetweenStations));
+                andReturn(TramDuration.ofMinutes(costBetweenStations));
 
         EasyMock.expect(departuresRepository.forStation(pair.getEnd())).andReturn(Collections.singletonList(departureFromEnd));
 
@@ -104,7 +103,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
 
         assertEquals(begin, result.getFirst());
         assertEquals(end, result.getSecond());
-        assertEquals(Duration.ofMinutes(costBetweenStations), result.getCost());
+        assertEquals(TramDuration.ofMinutes(costBetweenStations), result.getCost());
     }
 
     @Test
@@ -116,7 +115,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         departureFromEnd.setPlatform(endPlatform);
 
         EasyMock.expect(adjacencyRepository.getAdjacent(pair.getStationIds(), date, timeRange)).
-                andReturn(Duration.ofMinutes(costBetweenStationsMins).plusSeconds(10));
+                andReturn(TramDuration.ofMinutes(costBetweenStationsMins).plusSeconds(10));
 
         EasyMock.expect(departuresRepository.forStation(pair.getEnd())).andReturn(Collections.singletonList(departureFromEnd));
 
@@ -137,7 +136,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
 
         assertEquals(begin, result.getFirst());
         assertEquals(end, result.getSecond());
-        assertEquals(Duration.ofMinutes(costBetweenStationsMins), result.getCost().truncatedTo(ChronoUnit.MINUTES));
+        assertEquals(TramDuration.ofMinutes(costBetweenStationsMins), result.getCost().truncateToMinutes());
     }
 
     @Test
@@ -149,7 +148,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         departureFromEnd.setPlatform(endPlatform);
 
         EasyMock.expect(adjacencyRepository.getAdjacent(pair.getStationIds(), date, timeRange)).
-                andReturn(Duration.ofMinutes(costBetweenStationsMins).plusSeconds(45));
+                andReturn(TramDuration.ofMinutes(costBetweenStationsMins).plusSeconds(45));
 
         EasyMock.expect(departuresRepository.forStation(pair.getEnd())).andReturn(Collections.singletonList(departureFromEnd));
 
@@ -171,7 +170,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
 
         assertEquals(begin, result.getFirst());
         assertEquals(end, result.getSecond());
-        assertEquals(Duration.ofMinutes(costBetweenStationsMins), result.getCost().truncatedTo(ChronoUnit.MINUTES));
+        assertEquals(TramDuration.ofMinutes(costBetweenStationsMins), result.getCost().truncateToMinutes());
     }
 
     @Test
@@ -184,7 +183,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         departureFromEnd.setPlatform(endPlatform);
 
         EasyMock.expect(adjacencyRepository.getAdjacent(pair.getStationIds(), date, timeRange)).
-                andReturn(Duration.ofMinutes(costBetweenStations));
+                andReturn(TramDuration.ofMinutes(costBetweenStations));
 
         EasyMock.expect(departuresRepository.forStation(pair.getEnd())).andReturn(Collections.singletonList(departureFromEnd));
 

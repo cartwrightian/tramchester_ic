@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -22,7 +23,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -47,7 +47,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
 
     private RouteCalculatorTestFacade calculator;
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxNumResults;
     private TramDate when;
     private StationRepository stationRepository;
@@ -87,7 +87,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         maxNumResults = config.getMaxNumResults();
 
         when = YorkStreetWorks2025.getStartDate().plusDays(1);

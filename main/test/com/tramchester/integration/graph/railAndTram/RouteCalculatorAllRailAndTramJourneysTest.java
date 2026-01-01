@@ -8,6 +8,7 @@ import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -15,7 +16,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -68,7 +68,7 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
         JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(2);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 

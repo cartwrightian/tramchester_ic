@@ -11,6 +11,7 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -22,7 +23,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +94,7 @@ public class RailRouteCalculatorTest {
     void shouldHaveStockportToManPicc() {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                TramDuration.ofMinutes(30), 1, getRequestedModes());
 
         atLeastOneDirect(request, stockport, manchesterPiccadilly);
     }
@@ -107,7 +107,7 @@ public class RailRouteCalculatorTest {
     void shouldHaveManPiccToStockport() {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                TramDuration.ofMinutes(30), 1, getRequestedModes());
 
         atLeastOneDirect(request, manchesterPiccadilly, stockport);
     }
@@ -116,7 +116,7 @@ public class RailRouteCalculatorTest {
     void shouldHaveManPiccToMacclesfield() {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                Duration.ofMinutes(45), 1, getRequestedModes());
+                TramDuration.ofMinutes(45), 1, getRequestedModes());
 
         atLeastOneDirect(request, manchesterPiccadilly, macclesfield);
     }
@@ -150,7 +150,7 @@ public class RailRouteCalculatorTest {
 
         TramTime time = TramTime.of(8,45);
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(45), 1, getRequestedModes());
+                TramDuration.ofMinutes(45), 1, getRequestedModes());
 
         atLeastOneDirect(request, altrincham, stockport);
     }
@@ -169,7 +169,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                TramDuration.ofMinutes(30), 1, getRequestedModes());
 
         List<Journey> directs = atLeastOneDirect(request, Hale.getId(), Knutsford.getId());
 
@@ -191,7 +191,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
-                Duration.ofMinutes(120), 1, getRequestedModes());
+                TramDuration.ofMinutes(120), 1, getRequestedModes());
 
         atLeastOneDirect(request, Knutsford.getId(), Hale.getId());
     }
@@ -205,7 +205,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(11,40);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, travelTime, false, 3,
-                Duration.ofMinutes(3*60), 2, getRequestedModes());
+                TramDuration.ofMinutes(3*60), 2, getRequestedModes());
 
         //journeyRequest.setDiag(true);
 
@@ -220,7 +220,7 @@ public class RailRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
-                Duration.ofMinutes(3*60), 3, getRequestedModes());
+                TramDuration.ofMinutes(3*60), 3, getRequestedModes());
         List<Journey> journeys = testFacade.calculateRouteAsList(RailStationIds.LondonEuston.getId(),
                 ManchesterPiccadilly.getId(),
                 request);
@@ -230,7 +230,7 @@ public class RailRouteCalculatorTest {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size());
 
-            TransportStage<?, ?> trainStage = stages.get(0);
+            TransportStage<?, ?> trainStage = stages.getFirst();
 
             assertEquals(TransportMode.Train, trainStage.getMode());
             final int passedStopsCount = trainStage.getPassedStopsCount();

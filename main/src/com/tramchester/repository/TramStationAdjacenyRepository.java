@@ -9,12 +9,12 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.filters.GraphFilterActive;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class TramStationAdjacenyRepository  {
     //
     // Distance between two adjacent stations, or negative Duration -999 if not next to each other
     //
-    public Duration getAdjacent(final StationIdPair stationPair, final TramDate date, final TimeRange timeRange) {
+    public TramDuration getAdjacent(final StationIdPair stationPair, final TramDate date, final TimeRange timeRange) {
         final IdFor<Station> begin = stationPair.getBeginId();
         final IdFor<Station> end = stationPair.getEndId();
 
@@ -56,26 +56,26 @@ public class TramStationAdjacenyRepository  {
             logger.warn("Failed to find legs between " + stationPair + " for " + date + " and " + timeRange);
         }
 
-        final List<Duration> costs = legs.stream().filter(leg -> leg.getStations().equals(stationPair)).
+        final List<TramDuration> costs = legs.stream().filter(leg -> leg.getStations().equals(stationPair)).
                 filter(leg -> timeRange.contains(leg.getDepartureTime())).
                 map(StopCalls.StopLeg::getCost).
                 toList();
 
         if (costs.isEmpty()) {
             logger.warn("Failed to find costs between " + stationPair + " for " + date + " and " + timeRange);
-            return Duration.ofMinutes(-999);
+            return TramDuration.Invalid;
         }
 
-        final Set<Duration> unique = new HashSet<>(costs);
+        final Set<TramDuration> unique = new HashSet<>(costs);
 
         if (unique.size()==1) {
             return costs.getFirst();
         }
 
         logger.warn("Ambiguous cost between " + stationPair + " costs: " + costs + " for " + date + " and " + timeRange);
-        final long sum = costs.stream().mapToLong(Duration::getSeconds).sum();
+        final long sum = costs.stream().mapToLong(TramDuration::toSeconds).sum();
         final long average = Math.floorDiv(sum, costs.size());
-        return Duration.ofSeconds(average);
+        return TramDuration.ofSeconds(average);
 
     }
 

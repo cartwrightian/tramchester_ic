@@ -17,6 +17,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.filters.IncludeAllFilter;
@@ -36,7 +37,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -377,7 +377,7 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
     private static class ConfigWithClosure extends TestConfig {
 
-        public static final Duration MAX_INITIAL_WAIT = Duration.ofMinutes(13);
+        public static final TramDuration MAX_INITIAL_WAIT = TramDuration.ofMinutes(13);
 
         private final TFGMGTFSSourceTestConfig gtfsSourceConfig;
 

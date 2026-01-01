@@ -3,6 +3,7 @@ package com.tramchester.graph.search.neo4j;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphPath;
@@ -17,7 +18,6 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.PathEvaluator;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -39,7 +39,7 @@ public class TramRouteEvaluatorNeo4J extends TramRouteEvaluator implements PathE
                                    final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                                    final GraphNodeId startNodeId, final EnumSet<TransportMode> requestedModes,
                                    final EnumSet<TransportMode> destinationModes,
-                                   final Duration maxInitialWait, final GraphTransaction txn, Running running) {
+                                   final TramDuration maxInitialWait, final GraphTransaction txn, Running running) {
         super(serviceHeuristics, config, txn, destinationNodeIds, reasons, previousVisits, bestResultSoFar, startNodeId, requestedModes,
                 running, destinationModes, maxInitialWait);
 

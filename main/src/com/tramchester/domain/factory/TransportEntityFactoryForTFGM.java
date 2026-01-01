@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.WriteableTransportData;
@@ -24,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
     private final NaptanRepository naptanRepository;
     private final boolean naptanEnabled;
 
-    private final Duration minChangeDuration = Duration.ofMinutes(MutableStation.DEFAULT_MIN_CHANGE_TIME);
+    private final TramDuration minChangeDuration = TramDuration.ofMinutes(MutableStation.DEFAULT_MIN_CHANGE_TIME);
 
     private final Map<String, IdFor<Station>> stopIdToStationId;
     private final Map<String, String> originalCodeForStop; // stopId -> full stopCode with platform suffix

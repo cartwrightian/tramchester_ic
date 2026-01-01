@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphTransaction;
@@ -21,7 +22,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
@@ -62,20 +62,20 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         EnumSet<TransportMode> modes = TramsOnly;
 
-        Duration duration = Duration.ofMinutes(15);
+        TramDuration duration = TramDuration.ofMinutes(15);
         EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate, modes)).andReturn(duration);
         TramTime requiredDepartTime = arriveByTime.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
 
         JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(5);
 
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(localDate, requiredDepartTime, true,
-                maxChanges, Duration.ofMinutes(120), maxNumberOfJourneys, modes);
+                maxChanges, TramDuration.ofMinutes(120), maxNumberOfJourneys, modes);
         EasyMock.expect(routeCalculator.calculateRoute(txn, start, destinationId, updatedWithComputedDepartTime, running)).andReturn(journeyStream);
-        EasyMock.expect(config.getInitialMaxWaitFor(DataSourceID.tfgm)).andReturn(Duration.ofMinutes(34));
+        EasyMock.expect(config.getInitialMaxWaitFor(DataSourceID.tfgm)).andReturn(TramDuration.ofMinutes(34));
 
         replayAll();
         JourneyRequest originalRequest = new JourneyRequest(localDate, arriveByTime, true, maxChanges,
-                Duration.ofMinutes(120), maxNumberOfJourneys, modes);
+                TramDuration.ofMinutes(120), maxNumberOfJourneys, modes);
         Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(txn, start, destinationId, originalRequest, running);
         verifyAll();
         assertSame(journeyStream, result);

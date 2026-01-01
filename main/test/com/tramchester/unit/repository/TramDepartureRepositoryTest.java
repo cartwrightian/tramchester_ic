@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -20,7 +21,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -75,7 +75,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         Platform platfromForSecondStation = TestEnv.findOnlyPlatform(secondStation);
 
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, secondStation, ManAirport.fake(), "Due",
-                TramTime.ofHourMins(lastUpdate.toLocalTime()).plus(Duration.ofMinutes(12)), "Double", agency, mode);
+                TramTime.ofHourMins(lastUpdate.toLocalTime()).plus(TramDuration.ofMinutes(12)), "Double", agency, mode);
         addStationInfoWithDueTram(infos, lastUpdate, "displayId2", platfromForSecondStation,
                 "message 2", secondStation, dueTramOther);
 
@@ -113,7 +113,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
                 Station destinationManAirport = ManAirport.fake();
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, otherStation, destinationManAirport, "Due",
-                TramTime.ofHourMins(lastUpdate.toLocalTime()).plus(Duration.ofMinutes(12)), "Double", agency, mode);
+                TramTime.ofHourMins(lastUpdate.toLocalTime()).plus(TramDuration.ofMinutes(12)), "Double", agency, mode);
         addStationInfoWithDueTram(infos, lastUpdate, "displayXXX", otherPlatform,
                 "some message", otherStation, dueTramOther);
 

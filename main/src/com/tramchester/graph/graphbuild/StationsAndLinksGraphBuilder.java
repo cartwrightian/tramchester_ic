@@ -12,10 +12,10 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.core.*;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.RouteStationNodeCache;
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -185,9 +184,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final MutableGraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
         final MutableGraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
 
-        final Duration minimumChangeCost = station.getMinChangeDuration();
+        final TramDuration minimumChangeCost = station.getMinChangeDuration();
         stationToRoute.setCost(minimumChangeCost);
-        routeToStation.setCost(Duration.ZERO);
+        routeToStation.setCost(TramDuration.ZERO);
 
         routeToStation.setTransportMode(transportMode);
         stationToRoute.setTransportMode(transportMode);
@@ -203,7 +202,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
-        final Map<StationIdPair, Duration> pairs = new HashMap<>(); // (start, dest) -> cost
+        final Map<StationIdPair, TramDuration> pairs = new HashMap<>(); // (start, dest) -> cost
         route.getTrips().forEach(trip -> {
                 final StopCalls stops = trip.getStopCalls();
                 stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
@@ -212,7 +211,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         final GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
                         final StationIdPair legStations = leg.getStations();
                         if (pickup==Regular && dropOff==Regular && !pairs.containsKey(legStations)) {
-                            final Duration cost = leg.getCost();
+                            final TramDuration cost = leg.getCost();
                             pairs.put(legStations, cost);
                         }
                     }

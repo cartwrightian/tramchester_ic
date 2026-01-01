@@ -9,6 +9,7 @@ import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
@@ -26,7 +27,6 @@ import org.openqa.selenium.Cookie;
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -363,8 +363,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         TramTime updatedDepartTime = updatedResults.getFirst().getDepartTime();
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isBefore(firstDepartureTime), "should be before current first departure time");
-        Duration difference = TramTime.difference(firstDepartureTime, updatedDepartTime);
-        assertTrue(Durations.lessThan(difference, Duration.ofMinutes(60)), // difference.compareTo(Duration.ofMinutes(60)) < 0,
+        TramDuration difference = TramTime.difference(firstDepartureTime, updatedDepartTime);
+        assertTrue(Durations.lessThan(difference, TramDuration.ofMinutes(60)), // difference.compareTo(Duration.ofMinutes(60)) < 0,
                 "Too much gap between " + firstDepartureTime + " and update: " + updatedDepartTime);
     }
 
@@ -394,8 +394,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         TramTime updatedDepartTime = updatedResults.getFirst().getDepartTime();
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isAfter(lastDepartureTime), "should be after current departure time");
-        Duration difference = TramTime.difference(lastDepartureTime, updatedDepartTime);
-        assertTrue(difference.compareTo(Duration.ofMinutes(60)) < 0,
+        TramDuration difference = TramTime.difference(lastDepartureTime, updatedDepartTime);
+        assertTrue(difference.compareTo(TramDuration.ofMinutes(60)) < 0,
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 

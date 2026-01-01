@@ -9,8 +9,9 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
@@ -21,7 +22,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.function.BiFunction;
 
@@ -122,24 +122,24 @@ class BusRouteCostCalculatorTest {
         assertEquals(Durations.of(41,16), getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
     }
 
-    private BiFunction<Location<?>, Location<?>, Duration> average() {
+    private BiFunction<Location<?>, Location<?>, TramDuration> average() {
         return this::getAverageCostBetween;
     }
 
-    private Duration getAverageCostBetween(Location<?> start, Location<?> finish) {
+    private TramDuration getAverageCostBetween(Location<?> start, Location<?> finish) {
         try {
             return routeCost.getAverageCostBetween(txn, start, finish, date, modes);
         } catch (InvalidDurationException e) {
             fail("Unexpected exception", e);
-            return Duration.ZERO;
+            return TramDuration.ZERO;
         }
     }
 
-    private Duration getCost(BiFunction<Location<?>, Location<?>, Duration> function, BusStations start, BusStations end) {
+    private TramDuration getCost(BiFunction<Location<?>, Location<?>, TramDuration> function, BusStations start, BusStations end) {
         return getCostBetween(function, start.from(stationRepository), end.from(stationRepository));
     }
 
-    private Duration getCostBetween(BiFunction<Location<?>, Location<?>, Duration> function, Location<?> start, Location<?> end) {
+    private TramDuration getCostBetween(BiFunction<Location<?>, Location<?>, TramDuration> function, Location<?> start, Location<?> end) {
         return function.apply(start, end);
     }
 

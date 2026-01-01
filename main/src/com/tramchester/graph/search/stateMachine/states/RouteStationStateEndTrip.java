@@ -3,6 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
@@ -10,7 +11,6 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 public class RouteStationStateEndTrip extends RouteStationState {
@@ -34,7 +34,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
         }
 
         public RouteStationStateEndTrip fromMinuteState(JourneyStateUpdate journeyState, final MinuteState minuteState, final GraphNode node,
-                                                        final Duration cost, final boolean isInterchange, final GraphTransaction txn) {
+                                                        final TramDuration cost, final boolean isInterchange, final GraphTransaction txn) {
             final TransportMode transportMode = node.getTransportMode();
 
             final IterableWithEmptyCheck<GraphRelationship> towardsDestination = getTowardsDestination(node, txn);
@@ -54,7 +54,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final GraphNode routeStationNode;
 
     private RouteStationStateEndTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState minuteState,
-                                     final Stream<GraphRelationship> routeStationOutbound, final Duration cost,
+                                     final Stream<GraphRelationship> routeStationOutbound, final TramDuration cost,
                                      final TransportMode mode, final GraphNode routeStationNode,
                                      final TowardsRouteStation<RouteStationStateEndTrip> builder) {
         super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode);
@@ -63,7 +63,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
                                                  final JourneyStateUpdate journeyStateUpdate) {
         leaveVehicle(journeyStateUpdate);
         return towardsStation.fromRouteStationEndTrip(this, node, cost, journeyStateUpdate, txn);
@@ -71,7 +71,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     @Override
     protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node,
-                                        final Duration cost, final JourneyStateUpdate journeyState) {
+                                        final TramDuration cost, final JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState);
         return towardsPlatform.fromRouteStationEndTrip(this, node, cost, journeyState, txn);
     }

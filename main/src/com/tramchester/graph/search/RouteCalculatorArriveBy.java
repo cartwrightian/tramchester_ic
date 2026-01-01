@@ -9,6 +9,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphNode;
@@ -17,7 +18,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -41,8 +41,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     @Override
     public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running) {
         try {
-            final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+            final TramDuration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
             final JourneyRequest updatedRequest = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, updatedRequest));
             return routeCalculator.calculateRoute(txn, start, destination, updatedRequest, running);
@@ -58,8 +58,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destStations,
                                                    JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
-            final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+            final TramDuration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
             final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, possibleMinChanges, running);
@@ -74,8 +74,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
                                                      JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
-            final Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
+            final TramDuration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
             final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, possibleMinChanges, running);
@@ -91,8 +91,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
                                                            GraphNode endNode, LocationCollection destinationStations,
                                                            JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
-            final Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
+            final TramDuration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
             final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, possibleMinChanges, running);
@@ -104,7 +104,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
 
-    private JourneyRequest calcDepartTime(final JourneyRequest originalRequest, final Duration costToDest, final Duration maxInitialWait) {
+    private JourneyRequest calcDepartTime(final JourneyRequest originalRequest, final TramDuration costToDest, final TramDuration maxInitialWait) {
         final TramTime queryTime = originalRequest.getOriginalTime();
 
         final TramTime departTime = queryTime.minusRounded(costToDest);

@@ -1,8 +1,7 @@
 package com.tramchester.graph.core;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
-
-import java.time.Duration;
 
 public class PathMapper {
 
@@ -17,7 +16,7 @@ public class PathMapper {
 
     public void process(final TraversalState initial, final ForGraphNode forGraphNode, final ForGraphRelationship forGraphRelationship) {
         currentState = initial;
-        Duration currentCost = Duration.ZERO;
+        TramDuration currentCost = TramDuration.ZERO;
         for (GraphEntity entity : path.getEntities(txn)) {
             if (entity.isNode()) {
                 final GraphNode graphNode = (GraphNode) entity;
@@ -35,10 +34,10 @@ public class PathMapper {
     }
 
     public interface ForGraphRelationship {
-        Duration getCostFor(final TraversalState current, GraphRelationship relationship);
+        TramDuration getCostFor(final TraversalState current, GraphRelationship relationship);
     }
 
     public interface ForGraphNode {
-        TraversalState getNextStateFrom(final TraversalState previous, GraphNode node, final Duration currentCost);
+        TraversalState getNextStateFrom(final TraversalState previous, GraphNode node, final TramDuration currentCost);
     }
 }

@@ -7,11 +7,12 @@ import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
-import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -210,7 +210,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         others.stream().filter(graphFilter::shouldInclude).forEach(otherStation -> {
 
-            final Duration cost = geography.getWalkingDuration(actualStation, otherStation);
+            final TramDuration cost = geography.getWalkingDuration(actualStation, otherStation);
 
             logger.info(format("Create diversion to/from %s and %s cost %s", actualStation.getId(), otherStation.getId(), cost));
 
@@ -266,7 +266,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             uniqueStations.add(first);
             uniqueStations.add(second);
 
-            final Duration cost = geography.getWalkingDuration(first, second);
+            final TramDuration cost = geography.getWalkingDuration(first, second);
 
             logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
 
@@ -288,7 +288,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         return toLinkViaDiversion.size();
     }
 
-    private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final ClosedStation closure) {
+    private void setCommonProperties(final MutableGraphRelationship relationship, final TramDuration cost, final ClosedStation closure) {
         relationship.setCost(cost);
         relationship.setDateTimeRange(closure.getDateTimeRange());
     }

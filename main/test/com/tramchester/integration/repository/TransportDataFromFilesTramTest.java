@@ -22,6 +22,8 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TFGMRouteNames;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -29,7 +31,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -39,7 +40,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +50,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getNavy;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -259,7 +259,7 @@ public class TransportDataFromFilesTramTest {
 
         for (Route route : routes) {
             List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
-                    filter(stopLeg -> stopLeg.getCost().compareTo(Duration.ofMinutes(12*24)) > 0).
+                    filter(stopLeg -> stopLeg.getCost().compareTo(TramDuration.ofMinutes(12*24)) > 0).
                     toList();
             assertTrue(over.isEmpty(), over.toString());
         }
@@ -443,7 +443,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1554, maximumNumberOfTrips);
+        assertEquals(1535, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

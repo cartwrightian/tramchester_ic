@@ -5,8 +5,8 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class VehicleStageDTO extends SimpleStageDTO {
@@ -16,7 +16,7 @@ public class VehicleStageDTO extends SimpleStageDTO {
     private IdForDTO tripId;
 
     public VehicleStageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
-                           LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, Duration duration,
+                           LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, TramDuration duration,
                            String headSign, TransportMode mode, int passedStops,
                            RouteRefDTO route, TravelAction action, TramDate queryDate, IdForDTO tripId) {
         super(firstStation, lastStation, actionStation, firstDepartureTime, expectedArrivalTime, duration, headSign,
@@ -29,7 +29,7 @@ public class VehicleStageDTO extends SimpleStageDTO {
 
     public VehicleStageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
                            PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime,
-                           Duration duration,
+                           TramDuration duration,
                            String headSign, TransportMode mode, int passedStops,
                            RouteRefDTO route, TravelAction action, TramDate queryDate, IdForDTO tripId) {
         this(firstStation, lastStation, actionStation, firstDepartureTime, expectedArrivalTime, duration, headSign, mode,

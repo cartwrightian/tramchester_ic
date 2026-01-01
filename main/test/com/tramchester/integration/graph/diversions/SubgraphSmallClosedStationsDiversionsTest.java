@@ -15,6 +15,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -41,7 +42,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -69,7 +69,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxChanges;
     private StationsWithDiversionRepository diversionRepository;
 
@@ -101,7 +101,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         diversionRepository = componentContainer.get(StationsWithDiversionRepository.class);
 
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxJourneyDuration = Duration.ofMinutes(30);
+        maxJourneyDuration = TramDuration.ofMinutes(30);
         maxChanges = 2;
     }
 
@@ -195,7 +195,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 

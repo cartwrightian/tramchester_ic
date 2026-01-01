@@ -2,14 +2,15 @@ package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
+import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.DatabaseRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.GraphDBType;
@@ -19,7 +20,6 @@ import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.Optional;
 
 public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
-    public static final Duration MAX_INITIAL_WAIT = Duration.ofMinutes(13);
+    public static final TramDuration MAX_INITIAL_WAIT = TramDuration.ofMinutes(13);
 
     public enum LiveData {
         Enabled, Disabled, EnabledWithSNS

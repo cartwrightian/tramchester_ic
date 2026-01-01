@@ -6,6 +6,7 @@ import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import tech.units.indriya.unit.Units;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -63,7 +63,7 @@ public class LinkedInterchangeStationTest {
 
         EnumSet<TransportMode> modes = EnumSet.of(Walk);
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
-        Duration walkingTime = Duration.ofMinutes(4);
+        TramDuration walkingTime = TramDuration.ofMinutes(4);
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
         StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, linkType, distance, walkingTime);
@@ -122,7 +122,7 @@ public class LinkedInterchangeStationTest {
 
         EnumSet<TransportMode> modes = EnumSet.of(Walk);
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
-        Duration walkingTime = Duration.ofMinutes(4);
+        TramDuration walkingTime = TramDuration.ofMinutes(4);
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
         StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, linkType, distance, walkingTime);
@@ -164,7 +164,7 @@ public class LinkedInterchangeStationTest {
         EnumSet<TransportMode> modes = EnumSet.of(Walk);
 
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
-        Duration walkingTime = Duration.ofMinutes(4);
+        TramDuration walkingTime = TramDuration.ofMinutes(4);
 
         Route tramPickupB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram3"), "tram route 3 name");
         Route tramDropoffB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram4"), "tram route 4 name");

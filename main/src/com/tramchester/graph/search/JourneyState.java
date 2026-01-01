@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
@@ -18,7 +19,6 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +30,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private static final Logger logger = LoggerFactory.getLogger(JourneyState.class);
 
     private final CoreState coreState;
-    private Duration journeyOffset;
+    private TramDuration journeyOffset;
     private TramTime boardingTime;
     private ImmutableTraversalState traversalState;
     private final IdSet<Trip> tripsDone;
@@ -40,7 +40,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState = new CoreState(queryTime);
 
         this.traversalState = traversalState;
-        journeyOffset = Duration.ZERO;
+        journeyOffset = TramDuration.ZERO;
         tripsDone = new IdSet<>();
         currentTrip = Trip.InvalidId();
     }
@@ -68,8 +68,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void updateTotalCost(final Duration currentTotalCost) {
-        final Duration durationForTrip = currentTotalCost.minus(journeyOffset);
+    public void updateTotalCost(final TramDuration currentTotalCost) {
+        final TramDuration durationForTrip = currentTotalCost.minus(journeyOffset);
 
         if (coreState.onBoard()) {
             coreState.setJourneyClock(boardingTime.plus(durationForTrip));
@@ -78,7 +78,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
     }
 
-    public void recordTime(final TramTime boardingTime, final Duration currentCost) throws TramchesterException {
+    public void recordTime(final TramTime boardingTime, final TramDuration currentCost) throws TramchesterException {
         if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");
         }
@@ -98,7 +98,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void beginWalk(final GraphNode beforeWalkNode, final boolean atStart, final Duration unused) {
+    public void beginWalk(final GraphNode beforeWalkNode, final boolean atStart, final TramDuration unused) {
         coreState.incrementWalkingConnections();
     }
 
@@ -108,7 +108,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void toNeighbour(final GraphNode startNode, final GraphNode endNode, final Duration cost) {
+    public void toNeighbour(final GraphNode startNode, final GraphNode endNode, final TramDuration cost) {
         coreState.incrementNeighbourConnections();
     }
 
@@ -138,7 +138,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void leave(final TransportMode mode, final Duration totalDuration, final GraphNode node) throws TramchesterException {
+    public void leave(final TransportMode mode, final TramDuration totalDuration, final GraphNode node) throws TramchesterException {
         if (!currentTrip.isValid()) {
             throw new TramchesterException("Trying to leave a trip, not on a trip");
         }
@@ -160,12 +160,12 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.currentTrip = newTripId;
     }
 
-    private void leave(final Duration currentTotalCost) {
+    private void leave(final TramDuration currentTotalCost) {
         if (Durations.lessThan(currentTotalCost, journeyOffset)) {
             throw new RuntimeException("Invalid total cost "+currentTotalCost+" less that current total offset " +journeyOffset);
         }
 
-        final Duration tripCost = currentTotalCost.minus(journeyOffset); //currentTotalCost - journeyOffset;
+        final TramDuration tripCost = currentTotalCost.minus(journeyOffset); //currentTotalCost - journeyOffset;
 
         coreState.setJourneyClock(boardingTime.plus(tripCost));
 
@@ -223,7 +223,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public Duration getTotalDurationSoFar() {
+    public TramDuration getTotalDurationSoFar() {
         return traversalState.getTotalDuration();
     }
 
@@ -367,7 +367,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             journeyClock = time;
         }
 
-        public void incrementJourneyClock(final Duration duration) {
+        public void incrementJourneyClock(final TramDuration duration) {
             journeyClock = journeyClock.plusRounded(duration);
         }
 

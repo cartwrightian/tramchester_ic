@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeProperties;
@@ -31,7 +32,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.graph.core.GraphDirection.Incoming;
@@ -55,7 +55,7 @@ public class CompareNeo4JWithInMemoryTest {
     private StationRepository stationRepository;
     private GraphTransaction txnInMem;
     private GraphTransaction txnNeo4J;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxNumResults;
 
     private RouteCalculatorTestFacade calculatorInMem;
@@ -90,7 +90,7 @@ public class CompareNeo4JWithInMemoryTest {
 
         calculatorInMem = new RouteCalculatorTestFacade(componentContainerInMemory, txnInMem);
         calculatorNeo4J = new RouteCalculatorTestFacade(componentContainerNeo4J, txnNeo4J);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         maxNumResults = config.getMaxNumResults();
 
     }
@@ -274,7 +274,7 @@ public class CompareNeo4JWithInMemoryTest {
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
         EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         long maxNumResults = 3;
 
         final JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,

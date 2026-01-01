@@ -17,6 +17,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
@@ -35,7 +36,6 @@ import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -134,16 +134,16 @@ class TramGraphBuilderTest {
         Station piccadilly = Piccadilly.from(stationRepository);
         Set<Platform> platforms = piccadilly.getPlatforms();
 
-        Duration expectedCost = piccadilly.getMinChangeDuration();
+        TramDuration expectedCost = piccadilly.getMinChangeDuration();
 
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
             GraphRelationship leave = node.getSingleRelationship(txn, TransportRelationshipTypes.LEAVE_PLATFORM, Outgoing);
-            Duration leaveCost =  leave.getCost(); //GraphProps.getCost(leave);
-            assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
+            TramDuration leaveCost =  leave.getCost(); //GraphProps.getCost(leave);
+            assertEquals(TramDuration.ZERO, leaveCost, "leave cost wrong for " + platform);
 
             GraphRelationship enter = node.getSingleRelationship(txn, TransportRelationshipTypes.ENTER_PLATFORM, GraphDirection.Incoming);
-            Duration enterCost = enter.getCost(); //GraphProps.getCost(enter);
+            TramDuration enterCost = enter.getCost(); //GraphProps.getCost(enter);
             assertEquals(expectedCost, enterCost, "wrong cost for " + platform.getId());
         });
 
@@ -151,14 +151,14 @@ class TramGraphBuilderTest {
             GraphNode node = txn.findNode(platform);
             Stream<GraphRelationship> boards = node.getRelationships(txn, Outgoing, INTERCHANGE_BOARD);
             boards.forEach(board -> {
-                Duration boardCost = board.getCost();
-                assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
+                TramDuration boardCost = board.getCost();
+                assertEquals(TramDuration.ZERO, boardCost, "board cost wrong for " + platform);
             });
 
             Stream<GraphRelationship> departs = node.getRelationships(txn, Outgoing, INTERCHANGE_DEPART);
             departs.forEach(depart -> {
-                Duration enterCost = depart.getCost();
-                assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
+                TramDuration enterCost = depart.getCost();
+                assertEquals(TramDuration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
             });
 
         });
@@ -173,12 +173,12 @@ class TramGraphBuilderTest {
             GraphNode node = txn.findNode(routeStation);
 
             GraphRelationship toStation = node.getSingleRelationship(txn, ROUTE_TO_STATION, Outgoing);
-            Duration costToStation = toStation.getCost(); //GraphProps.getCost(toStation);
-            assertEquals(Duration.ZERO, costToStation, "wrong cost for " + routeStation);
+            TramDuration costToStation = toStation.getCost(); //GraphProps.getCost(toStation);
+            assertEquals(TramDuration.ZERO, costToStation, "wrong cost for " + routeStation);
 
             GraphRelationship fromStation = node.getSingleRelationship(txn, STATION_TO_ROUTE, GraphDirection.Incoming);
-            Duration costFromStation = fromStation.getCost(); //GraphProps.getCost(fromStation);
-            Duration expected = routeStation.getStation().getMinChangeDuration();
+            TramDuration costFromStation = fromStation.getCost(); //GraphProps.getCost(fromStation);
+            TramDuration expected = routeStation.getStation().getMinChangeDuration();
             assertEquals(expected, costFromStation, "wrong cost for " + routeStation);
         });
     }

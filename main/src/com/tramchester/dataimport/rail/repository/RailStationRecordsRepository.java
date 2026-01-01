@@ -15,6 +15,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -25,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -142,7 +142,7 @@ public class RailStationRecordsRepository {
             }
         }
 
-        final Duration minChangeTime = Duration.ofMinutes(stationRecord.getMinChangeTime());
+        final TramDuration minChangeTime = TramDuration.ofMinutes(stationRecord.getMinChangeTime());
 
         //final String name = stationRecord.getName();
 
@@ -233,7 +233,7 @@ public class RailStationRecordsRepository {
 
         boolean isInterchange = false;
         // TODO
-        Duration minChangeTime = Duration.ofMinutes(5);
+        TramDuration minChangeTime = TramDuration.ofMinutes(5);
 
         return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.openRailData, isInterchange,
                 minChangeTime, isCentral);

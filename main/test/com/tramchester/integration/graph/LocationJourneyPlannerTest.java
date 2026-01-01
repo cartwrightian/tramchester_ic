@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
@@ -46,7 +47,7 @@ class LocationJourneyPlannerTest {
     private MutableGraphTransaction txn;
     private LocationJourneyPlannerTestFacade planner;
     private TramDate date;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private long maxNumberOfJourneys;
 
     // TODO MAKE this a dual test
@@ -67,7 +68,7 @@ class LocationJourneyPlannerTest {
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         date = when;
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
@@ -379,7 +380,7 @@ class LocationJourneyPlannerTest {
             assertEquals(TransportMode.Walk, rawStage.getMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());
             assertEquals(nearPiccGardens.latLong(), rawStage.getFirstStation().getLatLong());
-            TestEnv.assertMinutesRoundedEquals(Duration.ofMinutes(2), rawStage.getDuration());
+            TestEnv.assertMinutesRoundedEquals(TramDuration.ofMinutes(2), rawStage.getDuration());
         });
     }
 

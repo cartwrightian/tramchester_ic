@@ -17,11 +17,11 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.EnumSet;
@@ -67,7 +67,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     }
 
     @Override
-    public void setCost(final Duration cost) {
+    public void setCost(final TramDuration cost) {
         relationship.setCost(cost);
         invalidateCache();
     }
@@ -175,12 +175,12 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     @Override
-    public Duration getCost() {
+    public TramDuration getCost() {
         final TransportRelationshipTypes relationshipType = getType();
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
             return relationship.getCost();
         } else {
-            return Duration.ZERO;
+            return TramDuration.ZERO;
         }
     }
 

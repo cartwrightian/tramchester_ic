@@ -11,6 +11,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.DTO.query.GridQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.mappers.JourneyToDTOMapper;
@@ -29,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -75,7 +75,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         // just find the first one -- todo this won't be lowest cost route....
         long maxNumberOfJourneys = 1;
 
-        final Duration maxDuration = Duration.ofMinutes(gridQueryDTO.getMaxDuration());
+        final TramDuration maxDuration = TramDuration.ofMinutes(gridQueryDTO.getMaxDuration());
 
         // todo into parameters
         final EnumSet<TransportMode> allModes = config.getTransportModes();

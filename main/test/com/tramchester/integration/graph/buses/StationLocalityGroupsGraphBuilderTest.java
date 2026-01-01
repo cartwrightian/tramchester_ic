@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.reference.GraphLabel;
@@ -66,7 +67,7 @@ public class StationLocalityGroupsGraphBuilderTest {
     @Test
     void shouldHaveCostsWithinExpectedBounds() {
         Stream<GraphNode> groupNodes = txn.findNodes(GraphLabel.GROUPED);
-        final Duration walkingDuration = testConfig.getWalkingDuration();
+        final TramDuration walkingDuration = testConfig.getWalkingDuration();
 
         Set<GraphNode> toOthers = groupNodes.filter(node -> node.hasRelationship(txn, GraphDirection.Outgoing, GROUPED_TO_GROUPED)).collect(Collectors.toSet());
 
@@ -77,7 +78,7 @@ public class StationLocalityGroupsGraphBuilderTest {
             assertFalse(outbounds.isEmpty(), node.getAllProperties().toString());
 
             GraphRelationship link = outbounds.getFirst();
-            Duration cost = link.getCost();
+            TramDuration cost = link.getCost();
             assertTrue(cost.compareTo(walkingDuration) <=0, "got " + cost + " more than " + walkingDuration);
 
         });

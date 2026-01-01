@@ -10,6 +10,7 @@ import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
@@ -21,7 +22,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -118,7 +118,7 @@ class StationLocalityGroupRepositoryTest {
 
         StationLocalityGroup parent = stationGroupsRepository.getStationGroup(shudehill.getParentId());
 
-        Duration cost = geography.getWalkingDuration(shudehill, parent);
+        TramDuration cost = geography.getWalkingDuration(shudehill, parent);
 
         assertTrue(cost.toMinutes()<6, "took too long " + cost);
     }

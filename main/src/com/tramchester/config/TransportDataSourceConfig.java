@@ -1,13 +1,12 @@
 package com.tramchester.config;
 
 import com.tramchester.domain.DataSourceID;
-
-import java.time.Duration;
+import com.tramchester.domain.time.TramDuration;
 
 public interface TransportDataSourceConfig {
     boolean getOnlyMarkedInterchanges();
 
     DataSourceID getDataSourceId();
 
-    Duration getMaxInitialWait();
+    TramDuration getMaxInitialWait();
 }

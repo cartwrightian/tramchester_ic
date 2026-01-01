@@ -6,14 +6,14 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 public class WalkingFromStationStage extends WalkingStage<Station, MyLocation> {
-    public WalkingFromStationStage(Station start, MyLocation destination, Duration duration, TramTime beginTime) {
+    public WalkingFromStationStage(Station start, MyLocation destination, TramDuration duration, TramTime beginTime) {
         super(start, destination, duration, beginTime);
     }
 

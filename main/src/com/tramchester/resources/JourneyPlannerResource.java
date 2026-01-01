@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -33,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.Set;
@@ -225,7 +225,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         final boolean arriveBy = query.isArriveBy();
         final int maxChanges = query.getMaxChanges();
         final TramTime queryTime = TramTime.ofHourMins(time);
-        final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        final TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
         int maxNumberResults = (query.getMaxNumResults()==null) ? config.getMaxNumResults() : query.getMaxNumResults();
 

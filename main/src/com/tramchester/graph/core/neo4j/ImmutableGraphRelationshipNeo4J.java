@@ -14,17 +14,17 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.internal.helpers.collection.Iterables;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -84,7 +84,7 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public Duration getCost() {
+    public TramDuration getCost() {
         return costCache.get();
     }
 
@@ -269,13 +269,13 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     private class CostCache {
-        private Duration duration;
+        private TramDuration duration;
 
         private CostCache() {
             duration = null;
         }
 
-        synchronized public Duration get() {
+        synchronized public TramDuration get() {
             if (duration==null) {
                 duration = underlying.getCost();
             }

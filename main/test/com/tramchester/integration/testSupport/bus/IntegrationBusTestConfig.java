@@ -6,15 +6,15 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.TestGroupType;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +42,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         final Path downloadFolder = Path.of("data/bus");
 
         // TODO not long enough?
-        Duration maxInitialWait = Duration.ofMinutes(45);
+        TramDuration maxInitialWait = TramDuration.ofMinutes(45);
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(
                 Collections.singleton(GTFSTransportationType.bus),
                 modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), maxInitialWait,

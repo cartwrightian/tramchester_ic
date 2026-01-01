@@ -7,6 +7,7 @@ import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -15,7 +16,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.List;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
@@ -167,7 +167,7 @@ class PlatformStopCallsTest {
         assertEquals(stopA, secondLeg.getSecond());
         assertMinutesEquals(6, secondLeg.getCost());
 
-        Duration expected = TramTime.difference(stopA.getDepartureTime(), stopE.getArrivalTime());
+        TramDuration expected = TramTime.difference(stopA.getDepartureTime(), stopE.getArrivalTime());
         StopCalls.StopLeg thirdLeg = legs.get(2);
         assertEquals(stopA, thirdLeg.getFirst());
         assertEquals(stopE, thirdLeg.getSecond()); // not D, no pick-up or drop-off

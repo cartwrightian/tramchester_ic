@@ -7,10 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.Durations;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.*;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
@@ -18,7 +15,6 @@ import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 
 public class ServiceHeuristics {
@@ -109,7 +105,7 @@ public class ServiceHeuristics {
         }
 
         // Wait to get the service?
-        final TimeRange window = TimeRangePartial.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+        final TimeRange window = TimeRangePartial.of(nodeTime, TramDuration.ofMinutes(maxWait), TramDuration.ZERO);
 
         if (window.contains(currentTime)) {
             return reasons.recordReason(HeuristicReasonsOK.TimeOK(ReasonCode.TimeOk, howIGotHere, currentTime));
@@ -231,7 +227,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    public HeuristicsReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
+    public HeuristicsReason journeyDurationUnderLimit(final TramDuration totalDuration, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {

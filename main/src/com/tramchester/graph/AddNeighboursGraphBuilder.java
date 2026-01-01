@@ -5,10 +5,11 @@ import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import java.time.Duration;
 import java.util.Set;
 
 @LazySingleton
@@ -135,7 +135,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                         logger.error(msg);
                         throw new RuntimeException(msg);
                     }
-                    final Duration walkingCost = link.getConnectionTime();
+                    final TramDuration walkingCost = link.getConnectionTime();
                     addNeighbourRelationship(txn, fromNode, toNode, walkingCost);
                 });
     }

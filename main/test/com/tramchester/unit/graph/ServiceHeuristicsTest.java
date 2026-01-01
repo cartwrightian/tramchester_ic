@@ -9,6 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
@@ -27,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
 
@@ -52,14 +52,14 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private IdFor<Service> serviceIdA;
     private IdFor<Service> serviceIdB;
     private JourneyConstraints journeyConstraints;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private LowestCostsForDestRoutes fewestHopsForRoutes;
     private CreateJourneyDiagnostics failedJourneyDiagnostics;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        maxJourneyDuration = Duration.ofMinutes(config30MinsWait.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config30MinsWait.getMaxJourneyDuration());
         maxNumberOfJourneys = 1;
         providesLocalNow = new ProvidesLocalNow();
         serviceIdA = Service.createId("serviceIdA");
@@ -516,10 +516,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = createServiceHeuristics(queryTime, MAX_NUM_CHANGES);
 
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(5), howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen-1), howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen), howIGotHere, reasons).isValid());
-        assertFalse(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen+1), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(5), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(overallMaxLen-1), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(overallMaxLen), howIGotHere, reasons).isValid());
+        assertFalse(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(overallMaxLen+1), howIGotHere, reasons).isValid());
 
         verifyAll();
     }
@@ -528,7 +528,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckChangeLimit() {
         TramTime queryTime = TramTime.of(11,20);
         JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSaturday(), queryTime,
-                false, 2, Duration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
+                false, 2, TramDuration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
@@ -547,7 +547,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckReachableForRouteStation() {
         TramTime queryTime = TramTime.of(11,20);
         JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSaturday(), queryTime,
-                false, 2, Duration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
+                false, 2, TramDuration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         IdFor<Station> stationId = TramStations.Altrincham.getId();
@@ -598,10 +598,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         replayAll();
         ServiceHeuristics serviceHeuristics = createServiceHeuristics(queryTime, MAX_NUM_CHANGES);
 
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(5), howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen-1), howIGotHere, reasons).isValid());
-        assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen), howIGotHere, reasons).isValid());
-        assertFalse(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(overallMaxLen+1), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(5), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(overallMaxLen-1), howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(overallMaxLen), howIGotHere, reasons).isValid());
+        assertFalse(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ofMinutes(overallMaxLen+1), howIGotHere, reasons).isValid());
 
         verifyAll();
     }

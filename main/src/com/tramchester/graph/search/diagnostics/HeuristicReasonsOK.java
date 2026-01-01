@@ -2,9 +2,8 @@ package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-
-import java.time.Duration;
 
 public class HeuristicReasonsOK {
 
@@ -16,9 +15,9 @@ public class HeuristicReasonsOK {
         return new HeuristicReasonWithValidity(ReasonCode.Continue, path, true);
     }
 
-    public static HeuristicsReason Arrived(final HowIGotHere path, Duration totalCostSoFar, int numberOfChanges) {
+    public static HeuristicsReason Arrived(final HowIGotHere path, TramDuration totalCostSoFar, int numberOfChanges) {
         return new HeuristicReasonWithAttributes<>(ReasonCode.Arrived, path, totalCostSoFar, numberOfChanges, true,
-                Duration::toString, Object::toString);
+                TramDuration::toString, Object::toString);
     }
 
     public static HeuristicsReason NumChangesOK(ReasonCode reasonCode, HowIGotHere howIGotHere, int currentNumChanges) {

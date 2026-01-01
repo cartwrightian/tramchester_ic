@@ -3,10 +3,10 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import io.dropwizard.core.Configuration;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -43,8 +43,8 @@ public class RailAppConfig extends Configuration implements RailConfig {
     }
 
     @Override
-    public Duration getMaxInitialWait() {
-        return Duration.ofMinutes(initialWaitMinutes);
+    public TramDuration getMaxInitialWait() {
+        return TramDuration.ofMinutes(initialWaitMinutes);
     }
 
     @Override

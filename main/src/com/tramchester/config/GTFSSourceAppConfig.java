@@ -9,11 +9,11 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import io.dropwizard.core.Configuration;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -121,7 +121,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public Duration getMaxInitialWait() {
-        return Duration.ofMinutes(initialWaitMinutes);
+    public TramDuration getMaxInitialWait() {
+        return TramDuration.ofMinutes(initialWaitMinutes);
     }
 }

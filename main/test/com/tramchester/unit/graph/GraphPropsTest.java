@@ -20,6 +20,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
@@ -38,7 +39,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -511,11 +511,11 @@ public class GraphPropsTest {
     void shouldSetCost() {
         MutableGraphRelationship relationship = createRelationship();
 
-        Duration duration = Duration.ofMinutes(42);
+        TramDuration duration = TramDuration.ofMinutes(42);
 
         relationship.setCost(duration);
 
-        Duration result = relationship.getCost();
+        TramDuration result = relationship.getCost();
 
         assertEquals(duration, result);
     }
@@ -524,11 +524,11 @@ public class GraphPropsTest {
     void shouldSetCostExact() {
         MutableGraphRelationship relationship = createRelationship();
 
-        Duration duration = Duration.ofMinutes(42).plusSeconds(15);
+        TramDuration duration = TramDuration.ofMinutes(42).plusSeconds(15);
 
         relationship.setCost(duration);
 
-        Duration result = relationship.getCost();
+        TramDuration result = relationship.getCost();
 
         assertEquals(duration, result);
     }

@@ -5,10 +5,11 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.collections.LocationIdPairSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -17,7 +18,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -64,7 +64,7 @@ class RouteCalculatorAllBusJourneysTest {
 
         int maxChanges = 3;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
         LocationIdPairSet<StationLocalityGroup> stationGroupPairs = stationGroupRepository.getStationGroupsFor(Bus).stream().
                 flatMap(groupA -> stationGroupRepository.getStationGroupsFor(Bus).stream().

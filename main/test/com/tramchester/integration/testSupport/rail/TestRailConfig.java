@@ -3,9 +3,9 @@ package com.tramchester.integration.testSupport.rail;
 import com.tramchester.config.RailConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
@@ -26,8 +26,8 @@ public class TestRailConfig implements RailConfig {
         }
 
     @Override
-    public Duration getMaxInitialWait() {
-        return Duration.ofMinutes(INITIAL_WAIT_MINS);
+    public TramDuration getMaxInitialWait() {
+        return TramDuration.ofMinutes(INITIAL_WAIT_MINS);
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
@@ -55,7 +56,7 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    public static final int NumberOfStationLinks = 202 + 3;
+    public static final int NumberOfStationLinks = 202;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -218,15 +219,15 @@ public class TestEnv {
         assertEquals(expected.getLon(), actual.getLon(), delta, "lon: " +message);
     }
 
-    public static void assertMinutesEquals(int minutes, Duration duration) {
-        assertEquals(Duration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
+    public static void assertMinutesEquals(int minutes, TramDuration duration) {
+        assertEquals(TramDuration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
     }
 
-    public static void assertMinutesRoundedEquals(Duration durationA, Duration durationB) {
+    public static void assertMinutesRoundedEquals(TramDuration durationA, TramDuration durationB) {
         assertEquals(roundToMinutes(durationA), roundToMinutes(durationB), "Duration %s did match %s round to mins".formatted(durationA, durationB));
     }
 
-    private static long roundToMinutes(Duration duration) {
+    private static long roundToMinutes(TramDuration duration) {
         final double minutesExact = duration.toSeconds() / 60D;
         return Math.round(minutesExact);
     }

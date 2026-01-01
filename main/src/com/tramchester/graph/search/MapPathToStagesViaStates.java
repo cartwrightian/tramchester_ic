@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.core.*;
@@ -24,7 +25,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -77,7 +77,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         pathMapper.process(initial, new PathMapper.ForGraphNode() {
             @Override
-            public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final Duration currentCost) {
+            public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final TramDuration currentCost) {
                 final EnumSet<GraphLabel> labels = node.getLabels();
                 try {
                     final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
@@ -93,13 +93,13 @@ public class MapPathToStagesViaStates implements PathToStages {
             }
         }, new PathMapper.ForGraphRelationship() {
             @Override
-            public Duration getCostFor(final TraversalState current, final GraphRelationship relationship) {
-                final Duration lastRelationshipCost = relationship.getCost(); //nodeContentsRepository.getCost(relationship);
+            public TramDuration getCostFor(final TraversalState current, final GraphRelationship relationship) {
+                final TramDuration lastRelationshipCost = relationship.getCost(); //nodeContentsRepository.getCost(relationship);
 
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 
-                if (Durations.greaterThan(lastRelationshipCost, Duration.ZERO)) {
-                    final Duration total = current.getTotalDuration().plus(lastRelationshipCost);
+                if (Durations.greaterThan(lastRelationshipCost, TramDuration.ZERO)) {
+                    final TramDuration total = current.getTotalDuration().plus(lastRelationshipCost);
                     mapStatesToStages.updateTotalCost(total);
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM)) {
@@ -117,7 +117,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final GraphNode endOfPath = path.getEndNode(txn); // txn.fromEnd(path);
 
-        finalState.toDestination(finalState, endOfPath, Duration.ZERO, mapStatesToStages);
+        finalState.toDestination(finalState, endOfPath, TramDuration.ZERO, mapStatesToStages);
 
         final List<TransportStage<?, ?>> stages = mapStatesToStages.getStages();
         if (stages.isEmpty()) {
@@ -143,7 +143,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         final Station end = stationRepository.getStationById(endId);
 
         // todo duration should be walking costs?
-        return new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
+        return new ConnectingStage<>(start, end, TramDuration.ZERO, journeyRequest.getOriginalTime());
     }
 
 

@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.mappers.Geography;
 import com.tramchester.testSupport.TestEnv;
@@ -18,13 +19,13 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Time;
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static org.junit.jupiter.api.Assertions.*;
-import static tech.units.indriya.unit.Units.*;
+import static tech.units.indriya.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.SECOND;
 
 public class GeographyTest {
     private Geography geography;
@@ -63,7 +64,7 @@ public class GeographyTest {
         Location<?> start = nearAltrincham.location();
         Location<?> end = Altrincham.fake();
 
-        Duration result = geography.getWalkingDuration(start, end);
+        TramDuration result = geography.getWalkingDuration(start, end);
 
         Duration expected = TestEnv.calcCostInMinutes(start, end, config.getWalkingMPH());
 
@@ -82,9 +83,9 @@ public class GeographyTest {
 
         int expectedSeconds = 346;
 
-        Duration result = geography.getWalkingDuration(start, end);
+        TramDuration result = geography.getWalkingDuration(start, end);
 
-        assertEquals(expectedSeconds, result.getSeconds());
+        assertEquals(expectedSeconds, result.toSeconds());
     }
 
     @Test
@@ -109,7 +110,7 @@ public class GeographyTest {
         Geography.LocationsSource<Station> provider = () -> Stream.of(stationC, stationA, stationB);
 
         List<Station> results = geography.
-                getNearToSorted(provider, myLocation.getGridPosition(), MarginInMeters.ofMeters(20000)).collect(Collectors.toList());
+                getNearToSorted(provider, myLocation.getGridPosition(), MarginInMeters.ofMeters(20000)).toList();
 
         assertEquals(3, results.size());
         assertEquals(stationA, results.get(0));

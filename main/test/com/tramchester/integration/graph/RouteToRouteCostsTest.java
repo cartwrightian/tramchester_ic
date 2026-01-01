@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -162,7 +162,7 @@ public class RouteToRouteCostsTest {
     private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routesCostRepository.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
@@ -235,7 +235,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(23,59), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(23,59), TramDuration.ZERO, TramDuration.ofMinutes(maxDuration));
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
@@ -249,7 +249,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = StPetersSquare.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,0), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,0), TramDuration.ZERO, TramDuration.ofMinutes(maxDuration));
 
         Station navigationRoad = Cornbrook.from(stationRepository);
 
@@ -263,7 +263,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,1), TramDuration.ZERO, TramDuration.ofMinutes(maxDuration));
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 

@@ -6,6 +6,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
@@ -20,7 +21,6 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +30,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSI
 
 public class FindPathsForJourney {
 
-    public static final Duration NotVisitiedDuration = Duration.ofSeconds(Integer.MAX_VALUE);
+    public static final TramDuration NotVisitiedDuration = TramDuration.ofSeconds(Integer.MAX_VALUE);
 
     private static final Logger logger = LoggerFactory.getLogger(FindPathsForJourney.class);
 
@@ -119,12 +119,12 @@ public class FindPathsForJourney {
         final List<PathSearchState.NodeSearchState> updatedNodes = new LinkedList<>();
         final List<PathSearchState.NodeSearchState> notVisitedYet = new LinkedList<>();
 
-        final Duration currentCostToNode = searchState.getCurrentCost(stateKey);
+        final TramDuration currentCostToNode = searchState.getCurrentCost(stateKey);
         outgoing.forEach(graphRelationship -> {
-            final Duration relationshipCost = graphRelationship.getCost();
+            final TramDuration relationshipCost = graphRelationship.getCost();
 
             final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, graphRelationship.getEndNodeId(txn));
-            final Duration newCost = relationshipCost.plus(currentCostToNode);
+            final TramDuration newCost = relationshipCost.plus(currentCostToNode);
 
             final boolean alreadySeen = searchState.hasSeen(endStateKey);
 
@@ -136,7 +136,7 @@ public class FindPathsForJourney {
             }
 
             if (alreadySeen) {
-                final Duration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
+                final TramDuration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
                 if (newCost.compareTo(currentDurationForEnd) != 0) {
                     updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
                 }
@@ -173,16 +173,16 @@ public class FindPathsForJourney {
         if (currentNode.getId().equals(startNode.getId())) {
             // point to 'real' start node -> mirroring the way the existing implementation works
             final ImmutableTraversalState nextTraversalState = currentTraversalState.nextState(startNode.getLabels(), startNode,
-                    journeyStateForChildren, Duration.ZERO);
+                    journeyStateForChildren, TramDuration.ZERO);
             journeyStateForChildren.updateTraversalState(nextTraversalState);
 
         } else {
             final GraphRelationship lastRelationship = pathToHere.getLastRelationship(txn);
-            final Duration cost = lastRelationship.getCost();
+            final TramDuration cost = lastRelationship.getCost();
 
-            if (Durations.greaterThan(cost, Duration.ZERO)) {
-                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
-                final Duration total = totalCost.plus(cost);
+            if (Durations.greaterThan(cost, TramDuration.ZERO)) {
+                final TramDuration totalCost = currentJourneyState.getTotalDurationSoFar();
+                final TramDuration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
             }
 

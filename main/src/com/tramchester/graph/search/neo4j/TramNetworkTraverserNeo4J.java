@@ -6,6 +6,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
@@ -26,7 +27,6 @@ import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.Spliterator;
@@ -153,13 +153,13 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
 
         final GraphRelationship lastRelationship = path.getLastRelationship(txn); //txn.lastFrom(path);
 
-        final Duration cost;
+        final TramDuration cost;
         if (lastRelationship != null) {
             cost = lastRelationship.getCost();
 
-            if (Durations.greaterThan(cost, Duration.ZERO)) {
-                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
-                final Duration total = totalCost.plus(cost);
+            if (Durations.greaterThan(cost, TramDuration.ZERO)) {
+                final TramDuration totalCost = currentJourneyState.getTotalDurationSoFar();
+                final TramDuration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
             }
 
@@ -168,7 +168,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
                 journeyStateForChildren.beginDiversion(stationId);
             }
         } else {
-            cost = Duration.ZERO;
+            cost = TramDuration.ZERO;
         }
 
         final GraphNode endPathNode =  path.getEndNode(txn); // txn.fromEnd(path);

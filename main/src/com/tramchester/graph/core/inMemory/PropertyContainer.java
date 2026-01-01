@@ -5,10 +5,10 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphEntityProperties;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -98,14 +98,14 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
     }
 
     @Override
-    public void setCost(Duration cost) {
+    public void setCost(TramDuration cost) {
         setProperty(COST, cost);
     }
 
     @Override
-    public Duration getCost() {
+    public TramDuration getCost() {
         if (hasProperty(COST)) {
-            return (Duration) getProperty(COST);
+            return (TramDuration) getProperty(COST);
         }
         throw new RuntimeException("Cost is missing for " + this);
     }

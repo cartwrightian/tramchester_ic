@@ -13,6 +13,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -29,7 +30,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.TramBusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,7 +53,7 @@ public class NeighbourJourneysTest {
     private Station shudehillBusStop;
     private LocationJourneyPlanner planner;
     private RouteToRouteCosts routeToRouteCosts;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private TramDate date;
     private TimeRange timeRange;
     private final EnumSet<TransportMode> modes = EnumSet.of(Bus, Tram);
@@ -86,7 +86,7 @@ public class NeighbourJourneysTest {
 
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
         txn = graphDatabase.beginTxMutable();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer, txn);
@@ -107,7 +107,7 @@ public class NeighbourJourneysTest {
 
     private int getPossibleMinChanges(Station being, Station end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 

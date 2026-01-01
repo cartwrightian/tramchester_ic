@@ -5,12 +5,12 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.TestGroupType;
+import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -28,7 +28,7 @@ public class UnitTestOfGraphConfig extends TestConfig {
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
                 EnumSet.of(GTFSTransportationType.tram),
                 EnumSet.of(Tram), IdSet.emptySet(), EnumSet.noneOf(TransportMode.class), Collections.emptyList(),
-                Duration.ofMinutes(13), Collections.emptyList());
+                TramDuration.ofMinutes(13), Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 

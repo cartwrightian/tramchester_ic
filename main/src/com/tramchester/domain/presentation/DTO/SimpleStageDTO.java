@@ -7,8 +7,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -32,7 +32,7 @@ public class SimpleStageDTO {
     private RouteRefDTO route;
 
     public SimpleStageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
-                          LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, Duration duration,
+                          LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, TramDuration duration,
                           String headSign, TransportMode mode, int passedStops,
                           RouteRefDTO route, TravelAction action, TramDate queryDate) {
         this.firstStation = firstStation;

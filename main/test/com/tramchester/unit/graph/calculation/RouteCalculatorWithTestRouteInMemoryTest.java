@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphDatabase;
@@ -32,7 +33,6 @@ import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -123,9 +123,9 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
         final FindPathsForJourney.GraphRelationshipFilter filter = relationship ->
                 RouteCostCalculator.costApproxTypes.contains(relationship.getType());
-        final Duration result = shortestPath.findShortestPathsTo(destNode, filter);
+        final TramDuration result = shortestPath.findShortestPathsTo(destNode, filter);
 
-        assertEquals(Duration.ofMinutes(41), result);
+        assertEquals(TramDuration.ofMinutes(41), result);
 
     }
 
@@ -202,8 +202,8 @@ class RouteCalculatorWithTestRouteInMemoryTest {
         final Location<?> start = nearWythenshaweHosp.location();
         final Station destination = transportData.getSecond();
 
-        Duration walkCost = getWalkCost(start, destination);
-        assertEquals(Duration.ofMinutes(3).plusSeconds(19), walkCost);
+        TramDuration walkCost = getWalkCost(start, destination);
+        assertEquals(TramDuration.ofMinutes(3).plusSeconds(19), walkCost);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
                 journeyRequest, 2);
@@ -220,12 +220,12 @@ class RouteCalculatorWithTestRouteInMemoryTest {
         });
     }
 
-    private Duration getWalkCost(Location<?> start, Station destination) {
+    private TramDuration getWalkCost(Location<?> start, Station destination) {
         return geography.getWalkingDuration(start, destination);
     }
 
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, int maxNumberChanges) {
-        Duration maxDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        TramDuration maxDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         return new JourneyRequest(date, time, false, maxNumberChanges, maxDuration,
                 3, EnumSet.of(Tram));
     }
