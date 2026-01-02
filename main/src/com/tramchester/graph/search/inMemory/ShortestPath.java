@@ -72,7 +72,6 @@ public class ShortestPath {
                 }
             } else {
                 searchState.add(nextNodeId, updatedCost, continuePath);
-                //searchState.storeCostOnly(endRelationshipNodeId, newCost);
             }
 
         });
