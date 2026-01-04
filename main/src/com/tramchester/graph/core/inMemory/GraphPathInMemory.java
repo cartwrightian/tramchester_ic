@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.collections.EntityList;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
@@ -14,26 +15,26 @@ public class GraphPathInMemory implements GraphPath {
     private GraphRelationship lastAddedRelationship;
 
     public GraphPathInMemory() {
-        entityList = new EntityList();
+        entityList = new SimpleEntityList();
     }
 
-    public GraphPathInMemory(final GraphPathInMemory original) {
-        entityList = new EntityList(original.entityList);
+    private GraphPathInMemory(final GraphPathInMemory original) {
+        entityList = original.entityList.branchFrom();
         lastAddedNode = original.lastAddedNode;
         lastAddedRelationship = original.lastAddedRelationship;
     }
 
-    public GraphPathInMemory duplicateThis() {
+    public GraphPathInMemory duplicate() {
         return new GraphPathInMemory(this);
     }
 
     public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphRelationship graphRelationship) {
-        return duplicateThis().addRelationship(txn, graphRelationship);
+        return duplicate().addRelationship(txn, graphRelationship);
     }
 
     @Override
     public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphNode currentNode) {
-        return duplicateThis().addNode(txn, currentNode);
+        return duplicate().addNode(txn, currentNode);
     }
 
     private GraphPathInMemory addNode(final GraphTransaction txn, final GraphNode node) {
@@ -70,14 +71,20 @@ public class GraphPathInMemory implements GraphPath {
         return new Iterable<>() {
             @Override
             public @NotNull Iterator<GraphEntity> iterator() {
-                return entityList.iterator();
+                return entityList.Stream().iterator();
             }
         };
     }
 
     @Override
     public GraphNode getStartNode(final GraphTransaction txn) {
-        return entityList.getFirstNode();
+        final Optional<GraphEntity> found = entityList.Stream().
+                filter(GraphEntity::isNode).
+                findFirst();
+        if (found.isEmpty()) {
+            throw new RuntimeException("Could not find a start node");
+        }
+        return (GraphNode) found.get();
     }
 
     @Override
@@ -89,7 +96,15 @@ public class GraphPathInMemory implements GraphPath {
 
     @Override
     public Iterable<GraphNode> getNodes(final GraphTransaction txn) {
-        return entityList.getNodes();
+        return new Iterable<>() {
+            @Override
+            public @NotNull Iterator<GraphNode> iterator() {
+                return entityList.Stream().
+                        filter(GraphEntity::isNode).
+                        map(item -> (GraphNode)item).
+                        iterator();
+            }
+        };
     }
 
     @Override
@@ -131,12 +146,13 @@ public class GraphPathInMemory implements GraphPath {
     public TramDuration getTotalCost() {
         // todo accumulate cost as we go instead
 
-        final Optional<TramDuration> total = entityList.getRelationships().
+        final Optional<TramDuration> total = entityList.Stream().
+                filter(GraphEntity::isRelationship).
+                map(item -> (GraphRelationship)item).
                 map(GraphRelationship::getCost).
                 reduce(TramDuration::plus);
 
         return total.orElse(TramDuration.ofSeconds(Integer.MAX_VALUE));
-
     }
 
     public boolean isEmpty() {
@@ -144,69 +160,45 @@ public class GraphPathInMemory implements GraphPath {
     }
 
     public List<GraphId> getEntitiesIds() {
-        return entityList.getEntitiesIds();
+        return entityList.Stream().map(GraphEntity::getId).map(item-> (GraphId)item).toList();
     }
 
-    private static class EntityList {
-        final ArrayList<GraphEntity> list;
+    private static class SimpleEntityList implements EntityList {
 
-        public EntityList(final EntityList entityList) {
-            list = new ArrayList<>(entityList.list);
-        }
+        private final List<GraphEntity> list;
 
-        public EntityList() {
+        private SimpleEntityList() {
             list = new ArrayList<>();
         }
 
+        private SimpleEntityList(final List<GraphEntity> list) {
+            this.list = list;
+        }
+
+        @Override
+        public EntityList branchFrom() {
+            return new SimpleEntityList(new ArrayList<>(list));
+        }
+
+        @Override
         public boolean isEmpty() {
             return list.isEmpty();
         }
 
-        public void add(final GraphEntity graphEntity) {
+        @Override
+        public void add(GraphEntity graphEntity) {
             list.add(graphEntity);
         }
 
+        @Override
+        public @NotNull Stream<GraphEntity> Stream() {
+            return list.stream();
+        }
+
+        @Override
         public int size() {
             return list.size();
         }
-
-        public @NotNull Iterator<GraphEntity> iterator() {
-            return list.iterator();
-        }
-
-        public GraphNode getFirstNode() {
-            final Optional<GraphEntity> found = list.stream().
-                    filter(GraphEntity::isNode).
-                    findFirst();
-            if (found.isEmpty()) {
-                throw new RuntimeException("Could not find a start node");
-            }
-            return (GraphNode) found.get();
-        }
-
-        public Iterable<GraphNode> getNodes() {
-            final Stream<GraphNode> stream = list.stream().
-                    filter(GraphEntity::isNode).
-                    map(item -> (GraphNode)item);
-            return new Iterable<>() {
-                @Override
-                public @NotNull Iterator<GraphNode> iterator() {
-                    return stream.iterator();
-                }
-            };
-        }
-
-        public Stream<GraphRelationship> getRelationships() {
-            return list.stream().
-                filter(GraphEntity::isRelationship).
-                map(entity -> (GraphRelationship) entity);
-        }
-
-        public List<GraphId> getEntitiesIds() {
-            return list.stream().
-                map(GraphEntity::getId).
-                map(item -> (GraphId)item).
-                toList();
-        }
     }
+
 }

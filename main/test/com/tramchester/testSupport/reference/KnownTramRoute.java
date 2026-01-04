@@ -15,7 +15,7 @@ import static com.tramchester.domain.reference.TFGMRouteNames.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,12,24);
+    public static final TramDate latestCutoverDate = TramDate.of(2026,1,3);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";

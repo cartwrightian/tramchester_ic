@@ -8,7 +8,6 @@ import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +39,9 @@ class TramRouteHelperTest {
     @Test
     void shouldFindAllKnownRoutes() {
 
-        TramDate today = TramDate.from(TestEnv.LocalNow());
+        TramDate date = TestEnv.testDay(); //TramDate.from(TestEnv.LocalNow());
 
-        TramDate date = UpcomingDates.avoidChristmasDate(today);
+        //TramDate date = UpcomingDates.avoidChristmasDate(today);
 
         for(TFGMRouteNames routeName : TFGMRouteNames.values()) {
             if (!routeName.isReplacementBus()) {

@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
@@ -30,12 +29,10 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostCalculatorInMemory.class);
 
     private final RouteRepository routeRepository;
-    private final TramchesterConfig config;
 
     @Inject
-    public RouteCostCalculatorInMemory(StagedTransportGraphBuilder.Ready ready, RouteRepository routeRepository, TramchesterConfig config) {
+    public RouteCostCalculatorInMemory(StagedTransportGraphBuilder.Ready ready, RouteRepository routeRepository) {
         this.routeRepository = routeRepository;
-        this.config = config;
     }
 
     @Override

@@ -132,7 +132,7 @@ public class FindPathsForJourney {
             if (depthFirst) {
                 continuePath = pathToCurrentNode.duplicateWith(txn, graphRelationship);
             } else {
-                continuePath = pathToCurrentNode.duplicateThis();
+                continuePath = pathToCurrentNode.duplicate();
             }
 
             if (alreadySeen) {

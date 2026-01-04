@@ -145,7 +145,7 @@ class PathSearchState {
         NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere) {
             this.stateKey = stateKey;
             this.duration = duration;
-            this.pathToHere = pathToHere.duplicateThis();
+            this.pathToHere = pathToHere.duplicate();
         }
 
         @Override
