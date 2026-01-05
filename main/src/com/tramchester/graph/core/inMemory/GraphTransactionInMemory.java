@@ -209,8 +209,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         return relationships.anyMatch(relationship -> relationship.getType().equals(transportRelationshipType));
     }
 
-
-
     void delete(final RelationshipIdInMemory id) {
         graph.delete(id);
     }
@@ -223,5 +221,11 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         graph.addLabel(id, label);
     }
 
-
+    @Override
+    public String toString() {
+        return "GraphTransactionInMemory{" +
+                "id=" + id +
+                ", immutable=" + immutable +
+                '}';
+    }
 }

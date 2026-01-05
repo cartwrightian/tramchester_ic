@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @LazySingleton
@@ -20,27 +22,44 @@ public class TransactionManager implements TransactionObserver {
     private final AtomicInteger transactionSequenceNumber;
     private final ProvidesNow providesNow;
     private final GraphCore graphCore;
-
-    // TODO Open Transaction tracking/warning
+    private final Set<Integer> openTransactions;
+    private final Set<Integer> committedTransactions;
 
     @Inject
     public TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore) {
         this.providesNow = providesNow;
         this.graphCore = graphCore;
+        openTransactions = new HashSet<>();
+        committedTransactions = new HashSet<>();
         transactionSequenceNumber = new AtomicInteger(1);
     }
 
     @PreDestroy
     public void stop() {
+        if (!openTransactions.isEmpty()) {
+            openTransactions.stream().filter(id -> !committedTransactions.contains(id)).
+                    forEach(id -> logger.error("Not closed or commited " + id));
+        }
         logger.info("Stopped");
     }
 
     public synchronized MutableGraphTransaction createTransaction(final Duration timeout, boolean immutable) {
-        // TODO implement timeout
         final int index = transactionSequenceNumber.getAndIncrement();
-        logger.info("create mutable for id " + index);
+        openTransactions.add(index);
         final Graph graph = wrapGraph(immutable);
+
+        logger.info("create mutable for id " + index);
         return new GraphTransactionInMemory(index, this, graph, immutable);
+    }
+
+
+    public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text, boolean immutable) {
+        final int index = transactionSequenceNumber.getAndIncrement();
+        openTransactions.add(index);
+        final Graph graph = wrapGraph(immutable);
+
+        logger.info("create timed for id " + index);
+        return new TimedTransactionInMemory(index, this, graph, logger, text, immutable);
     }
 
     private Graph wrapGraph(boolean immutable) {
@@ -52,22 +71,19 @@ public class TransactionManager implements TransactionObserver {
         }
     }
 
-    public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text, boolean immutable) {
-        final int index = transactionSequenceNumber.getAndIncrement();
-        //final Instant createdAt = providesNow.getInstant();
-        logger.info("create timed for id " + index);
-        final Graph graph = wrapGraph(immutable);
-        return new TimedTransactionInMemory(index, this, graph, logger, text, immutable);
+    @Override
+    public synchronized void onClose(final GraphTransaction graphTransaction) {
+        logger.info("close " + graphTransaction);
+        openTransactions.remove(graphTransaction.getTransactionId());
     }
 
     @Override
-    public void onClose(final GraphTransaction graphTransaction) {
-        logger.info("close " + graphTransaction.getTransactionId());
-    }
-
-    @Override
-    public void onCommit(final GraphTransaction graphTransaction) {
-        logger.info("commit " + graphTransaction.getTransactionId());
+    public synchronized void onCommit(final GraphTransaction graphTransaction) {
+        logger.info("commit " + graphTransaction);
+        if (!openTransactions.contains(graphTransaction.getTransactionId())) {
+            throw new RuntimeException("Not open " + graphTransaction);
+        }
+        committedTransactions.add(graphTransaction.getTransactionId());
     }
 
 

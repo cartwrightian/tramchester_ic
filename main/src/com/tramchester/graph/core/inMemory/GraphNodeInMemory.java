@@ -23,7 +23,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     private final AtomicInteger dirtyCount;
 
     // push labels into graph, so can do the validation check etc
-    private final EnumSet<GraphLabel> labels;
+    private final GraphNodeLabelsContainer labels;
 
     public GraphNodeInMemory(final NodeIdInMemory id, final EnumSet<GraphLabel> labels) {
         this(new PropertyContainer(), id, labels);
@@ -40,7 +40,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, EnumSet<GraphLabel> labels) {
         super(propertyContainer);
         this.id = id;
-        this.labels = labels;
+        this.labels = new GraphNodeLabelsContainer(this, labels);
         dirtyCount = new AtomicInteger(0);
     }
 
@@ -90,7 +90,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @Override
     public EnumSet<GraphLabel> getLabels() {
-        return labels;
+        return labels.getLabels();
     }
 
     @Override
@@ -118,7 +118,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+                                                      final TransportRelationshipTypes... transportRelationshipTypes) {
         final List<TransportRelationshipTypes> list = Arrays.asList(transportRelationshipTypes);
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
 
@@ -148,11 +149,12 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         labels.add(label);
         inMemory.addLabel(id, label);
-        invalidateCache();
+        //invalidateCache();
     }
 
     @Override
-    public Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType) {
+    public Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction,
+                                                                    TransportRelationshipTypes relationshipType) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getRelationshipMutable(id, direction, EnumSet.of(relationshipType)).map(item -> item);
     }
