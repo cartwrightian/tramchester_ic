@@ -10,6 +10,7 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import jakarta.inject.Inject;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,6 @@ import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 @JsonPropertyOrder({"nodes", "relationships"})
@@ -27,8 +27,7 @@ import java.util.stream.Stream;
 public class GraphCore implements Graph {
     private static final Logger logger = LoggerFactory.getLogger(GraphCore.class);
 
-    private final AtomicInteger nextGraphNodeId;
-    private final AtomicInteger nextRelationshipId;
+    private final GraphIdFactory idFactory;
 
     private final NodesAndEdges nodesAndEdges;
 
@@ -41,9 +40,9 @@ public class GraphCore implements Graph {
 
     // todo proper transaction handling, rollbacks etc
 
-    public GraphCore() {
-        nextGraphNodeId = new AtomicInteger(0);
-        nextRelationshipId = new AtomicInteger(0);
+    @Inject
+    public GraphCore(GraphIdFactory idFactory) {
+        this.idFactory = idFactory;
 
         nodesAndEdges = new NodesAndEdges();
 
@@ -71,8 +70,8 @@ public class GraphCore implements Graph {
         logger.info("stop");
 
         synchronized (nodesAndEdges) {
-            nextGraphNodeId.set(0);
-            nextRelationshipId.set(0);
+//            nextGraphNodeId.set(0);
+//            nextRelationshipId.set(0);
 
             nodesAndEdges.clear();
             relationshipsForNodes.clear();
@@ -86,8 +85,8 @@ public class GraphCore implements Graph {
         logger.info("stopped");
     }
 
-    static GraphCore createFrom(final NodesAndEdges incoming) {
-        final GraphCore result = new GraphCore();
+    static GraphCore createFrom(final NodesAndEdges incoming, GraphIdFactory graphIdFactory) {
+        final GraphCore result = new GraphCore(graphIdFactory);
         result.start();
 
         loadNodes(incoming, result);
@@ -120,21 +119,21 @@ public class GraphCore implements Graph {
         });
         // using loaded id's work out new next node id
         target.updateNextNodeId();
-        logger.info("Loaded nodes, new next node id is " + target.nextGraphNodeId.get());
+        logger.info("Loaded nodes");
     }
 
     private synchronized void updateNextNodeId() {
-        nodesAndEdges.refreshNextNodeIdInto(nextGraphNodeId);
+        nodesAndEdges.refreshNextNodeIdInto(idFactory);
     }
 
     private synchronized void updateNextRelationshipId() {
-        nodesAndEdges.captureNextRelationshipId(nextRelationshipId);
+        nodesAndEdges.captureNextRelationshipId(idFactory);
     }
 
     @Override
     public GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
         synchronized (nodesAndEdges) {
-            final int id = nextGraphNodeId.getAndIncrement();
+            final int id = idFactory.getNextNodeId(); //nextGraphNodeId.getAndIncrement();
             final NodeIdInMemory idInMemory;
             if (diagnostics) {
                 idInMemory = new NodeIdInMemory(id, labels);
@@ -159,7 +158,7 @@ public class GraphCore implements Graph {
 
             checkAndUpdateExistingRelationships(relationshipType, beginId, endId);
 
-            final int id = nextRelationshipId.getAndIncrement();
+            final int id = idFactory.getNextRelationshipId(); //nextRelationshipId.getAndIncrement();
             final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
                     new RelationshipIdInMemory(id), beginId, endId);
 
@@ -381,8 +380,6 @@ public class GraphCore implements Graph {
     @Override
     public String toString() {
         return "Graph{" +
-                "nextGraphNodeId=" + nextGraphNodeId +
-                ", nextRelationshipId=" + nextRelationshipId +
                 ", nodesAndEdges=" + nodesAndEdges +
                 ", labelsToNodes=" + labelsToNodes.size() +
                 ", relationshipsForNodes=" + relationshipsForNodes.size() +
@@ -392,14 +389,18 @@ public class GraphCore implements Graph {
     }
 
     public static boolean same(final GraphCore a, final GraphCore b) {
-        if (a.nextRelationshipId.get()!=b.nextRelationshipId.get()) {
-            logger.error("check same nextRelationshipId" + a.nextRelationshipId + "!=" + b.nextRelationshipId);
+        if (!GraphIdFactory.same(a.idFactory, b.idFactory)) {
+            logger.error("check same idFactory" + a.idFactory + "!=" + b.idFactory);
             return false;
         }
-        if (a.nextGraphNodeId.get()!=b.nextGraphNodeId.get()) {
-            logger.error("check same nextGraphNodeId" + a.nextGraphNodeId + "!=" + b.nextGraphNodeId);
-            return false;
-        }
+//        if (a.nextRelationshipId.get()!=b.nextRelationshipId.get()) {
+//            logger.error("check same nextRelationshipId" + a.nextRelationshipId + "!=" + b.nextRelationshipId);
+//            return false;
+//        }
+//        if (a.nextGraphNodeId.get()!=b.nextGraphNodeId.get()) {
+//            logger.error("check same nextGraphNodeId" + a.nextGraphNodeId + "!=" + b.nextGraphNodeId);
+//            return false;
+//        }
         if (!a.nodesAndEdges.equals(b.nodesAndEdges)) {
             logger.error("check same nodesAndEdges" + a.nodesAndEdges + "!=" + b.nodesAndEdges);
         }
@@ -423,6 +424,14 @@ public class GraphCore implements Graph {
         }
         logger.error("Diffs " + diffs);
         return false;
+    }
+
+    public boolean hasNodeId(NodeIdInMemory nodeId) {
+        return nodesAndEdges.hasNode(nodeId);
+    }
+
+    public boolean hasRelationshipId(RelationshipIdInMemory graphRelationshipId) {
+        return nodesAndEdges.hasRelationship(graphRelationshipId);
     }
 
     private static class NodeIdPair {

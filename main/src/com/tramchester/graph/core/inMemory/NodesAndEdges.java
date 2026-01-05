@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,25 +106,23 @@ public class NodesAndEdges {
         return relationshipsForNode.getInbound(relationships);
     }
 
-    public void refreshNextNodeIdInto(final AtomicInteger target) {
+    public void refreshNextNodeIdInto(final GraphIdFactory idFactory) {
         final Optional<NodeIdInMemory> max = nodes.keySet().stream().max(Comparable::compareTo);
         if (max.isEmpty()) {
             throw new RuntimeException("Unable to find max node id");
         } else {
             NodeIdInMemory found = max.get();
-            found.recordIdTo(target);
-            target.incrementAndGet();
+            found.recordIdTo(idFactory);
         }
     }
 
-    public void captureNextRelationshipId(final AtomicInteger target) {
+    public void captureNextRelationshipId(final GraphIdFactory idFactory) {
         final Optional<RelationshipIdInMemory> max = relationships.keySet().stream().max(Comparable::compareTo);
         if (max.isEmpty()) {
             throw new RuntimeException("Unable to find max node id");
         } else {
             RelationshipIdInMemory found = max.get();
-            found.recordIdTo(target);
-            target.incrementAndGet();
+            found.recordIdTo(idFactory);
         }
     }
 

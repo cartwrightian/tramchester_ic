@@ -8,10 +8,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.inMemory.GraphCore;
-import com.tramchester.graph.core.inMemory.NodeIdInMemory;
-import com.tramchester.graph.core.inMemory.RelationshipIdInMemory;
-import com.tramchester.graph.core.inMemory.TransactionManager;
+import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,9 +35,10 @@ public class TransactionManagerTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         ProvidesNow providesNow = new ProvidesLocalNow();
-        GraphCore graph = new GraphCore();
+        GraphIdFactory graphIdFactory = new GraphIdFactory();
+        GraphCore graph = new GraphCore(graphIdFactory);
         graph.start();
-        transactionManager = new TransactionManager(providesNow, graph);
+        transactionManager = new TransactionManager(providesNow, graph, graphIdFactory);
     }
 
     @Test
@@ -65,7 +63,7 @@ public class TransactionManagerTest {
             assertFalse(node.hasLabel(TRAIN));
 
             GraphNodeId id = node.getId();
-            assertEquals(new NodeIdInMemory(0), id);
+            assertEquals(new NodeIdInMemory(1), id);
 
             txn.commit();
         }
@@ -240,7 +238,7 @@ public class TransactionManagerTest {
             assertFalse(relationship.isType(TRAIN_GOES_TO));
 
             id = relationship.getId();
-            assertEquals(new RelationshipIdInMemory(0), id);
+            assertEquals(new RelationshipIdInMemory(1), id);
 
             assertEquals(start, relationship.getStartNode(txn));
             assertEquals(end, relationship.getEndNode(txn));

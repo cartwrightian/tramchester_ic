@@ -39,13 +39,19 @@ public class SaveGraph {
                 build();
     }
 
+    /***
+     * Experimental - creates own GraphIdFactory
+     * @param graphFilename
+     * @return
+     */
     public static GraphCore loadDBFrom(final Path graphFilename) {
         logger.info("Load DB from " + graphFilename.toAbsolutePath() + " with file of size " + graphFilename.toFile().length());
         final NodesAndEdges nodesAndEdges = load(graphFilename);
         if (nodesAndEdges.isEmpty()) {
             throw new RuntimeException("Empty graph loaded from " + graphFilename.toAbsolutePath());
         }
-        return GraphCore.createFrom(nodesAndEdges);
+        final GraphIdFactory graphIdFactory = new GraphIdFactory();
+        return GraphCore.createFrom(nodesAndEdges, graphIdFactory);
     }
 
     public void save(final Path graphFilename) {

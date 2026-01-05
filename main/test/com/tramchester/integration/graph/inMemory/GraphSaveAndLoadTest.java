@@ -233,9 +233,10 @@ public class GraphSaveAndLoadTest {
     }
 
 
-    public static @NotNull GraphDatabaseInMemory CreateGraphDatabaseInMemory(GraphCore graphA, GuiceContainerDependencies container) {
+    public static @NotNull GraphDatabaseInMemory CreateGraphDatabaseInMemory(GraphCore graphCore, GuiceContainerDependencies container) {
         ProvidesNow providesNow = container.get(ProvidesNow.class);
-        TransactionManager transactionManager = new TransactionManager(providesNow, graphA);
+        GraphIdFactory idFactory = container.get(GraphIdFactory.class);
+        TransactionManager transactionManager = new TransactionManager(providesNow, graphCore, idFactory);
         return new GraphDatabaseInMemory(transactionManager);
     }
 

@@ -22,13 +22,15 @@ public class TransactionManager implements TransactionObserver {
     private final AtomicInteger transactionSequenceNumber;
     private final ProvidesNow providesNow;
     private final GraphCore graphCore;
+    private final GraphIdFactory idFactory;
     private final Set<Integer> openTransactions;
     private final Set<Integer> committedTransactions;
 
     @Inject
-    public TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore) {
+    public TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore, final GraphIdFactory idFactory) {
         this.providesNow = providesNow;
         this.graphCore = graphCore;
+        this.idFactory = idFactory;
         openTransactions = new HashSet<>();
         committedTransactions = new HashSet<>();
         transactionSequenceNumber = new AtomicInteger(1);
@@ -52,7 +54,6 @@ public class TransactionManager implements TransactionObserver {
         return new GraphTransactionInMemory(index, this, graph, immutable);
     }
 
-
     public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text, boolean immutable) {
         final int index = transactionSequenceNumber.getAndIncrement();
         openTransactions.add(index);
@@ -66,8 +67,8 @@ public class TransactionManager implements TransactionObserver {
         if (immutable) {
             return new ImmutableGraph(graphCore);
         } else {
-            // TODO
             return graphCore;
+            //return new MutableTransactionGraph(graphCore, idFactory);
         }
     }
 

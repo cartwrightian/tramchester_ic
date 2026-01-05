@@ -1,11 +1,12 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.graph.core.GraphRelationshipId;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<RelationshipIdInMemory> {
     private final int id;
@@ -45,7 +46,7 @@ public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<R
         return Integer.compare(this.id, other.id);
     }
 
-    public void recordIdTo(final AtomicInteger target) {
-        target.set(id);
+    public void recordIdTo(final GraphIdFactory idFactory) {
+        idFactory.captureRelationshipId(id);
     }
 }

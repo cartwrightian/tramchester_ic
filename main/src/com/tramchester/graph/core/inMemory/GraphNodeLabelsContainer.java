@@ -22,7 +22,7 @@ public class GraphNodeLabelsContainer {
         return labels;
     }
 
-    public void add(GraphLabel label) {
+    public void add(final GraphLabel label) {
         labels.add(label);
         parent.invalidateCache();
     }
