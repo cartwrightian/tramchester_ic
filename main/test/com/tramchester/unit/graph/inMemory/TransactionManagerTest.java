@@ -45,7 +45,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldCreateTransactionWithExpectedId() {
-        try (GraphTransaction graphTransaction = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (GraphTransaction graphTransaction = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             int id = graphTransaction.getTransactionId();
             assertEquals(1, id);
         }
@@ -53,7 +53,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldCreateNode() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             MutableGraphNode node = txn.createNode(FERRY);
 
             assertTrue(node.isNode());
@@ -70,7 +70,7 @@ public class TransactionManagerTest {
             txn.commit();
         }
 
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             List<GraphNode> found = txn.findNodes(FERRY).toList();
             assertEquals(1, found.size());
         }
@@ -79,7 +79,7 @@ public class TransactionManagerTest {
     @Disabled("WIP")
     @Test
     void shouldCreateNodeButNotCommit() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode node = txn.createNode(FERRY);
 
             assertTrue(node.isNode());
@@ -94,7 +94,7 @@ public class TransactionManagerTest {
             assertEquals(new NodeIdInMemory(0), id);
         }
 
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             List<GraphNode> found = txn.findNodes(FERRY).toList();
             assertTrue(found.isEmpty());
 
@@ -103,7 +103,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldUpdateLabel() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             final MutableGraphNode node = txn.createNode(FERRY);
             final GraphNodeId id = node.getId();
 
@@ -124,7 +124,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldFindNodesByIdAndLabels() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
 
             assertFalse(txn.hasAnyMatching(FERRY));
 
@@ -160,7 +160,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldGetRelationships() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
 
             MutableGraphNode nodeA = txn.createNode(ROUTE_STATION);
             MutableGraphNode nodeB = txn.createNode(STATION);
@@ -195,7 +195,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldFindNodesByDomainItem() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             Station station = Victoria.fake();
 
             MutableGraphNode nodeA = txn.createNode(station.getNodeLabel());
@@ -226,7 +226,7 @@ public class TransactionManagerTest {
     @Test
     void shouldCreateRelationship() {
         final GraphRelationshipId id;
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -249,7 +249,7 @@ public class TransactionManagerTest {
             assertEquals(end.getId(), relationship.getEndNodeId(txn));
         }
 
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             GraphRelationship found = txn.getRelationshipById(id);
             assertNotNull(found);
 
@@ -261,7 +261,7 @@ public class TransactionManagerTest {
     @Test
     void shouldCreateRelationshipNoCommit() {
         final GraphRelationshipId id;
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -284,7 +284,7 @@ public class TransactionManagerTest {
             assertEquals(end.getId(), relationship.getEndNodeId(txn));
         }
 
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             GraphRelationship found = txn.getRelationshipById(id);
             assertNull(found);
 
@@ -293,7 +293,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldQueryRelationship() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -314,7 +314,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldQueryRelationships() {
-            try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+            try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
                 MutableGraphNode start = txn.createNode(FERRY);
                 MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -344,7 +344,7 @@ public class TransactionManagerTest {
 
         @Test
         void shouldQueryRelationshipsMutable() {
-            try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+            try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
                 MutableGraphNode start = txn.createNode(FERRY);
                 MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -370,7 +370,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldUpdateQueryStationsForRelationships() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -396,7 +396,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldDeleteNodesAndRelationships() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 

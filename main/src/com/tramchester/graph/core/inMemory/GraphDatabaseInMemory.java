@@ -66,12 +66,12 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @Override
     public GraphTransaction beginTx(final Duration timeout) {
-        return beginTxInMemory(timeout);
+        return beginTxInMemory(timeout, true);
     }
 
-    private MutableGraphTransaction beginTxInMemory(final Duration timeout) {
+    private MutableGraphTransaction beginTxInMemory(final Duration timeout, boolean immutable) {
         guardForNotStarted();
-        return transactionManager.createTransaction(timeout);
+        return transactionManager.createTransaction(timeout, immutable);
     }
 
     @Override
@@ -91,13 +91,13 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @Override
     public MutableGraphTransaction beginTxMutable(Duration timeout) {
-        return beginTxInMemory(timeout);
+        return beginTxInMemory(timeout, false);
     }
 
     @Override
     public MutableGraphTransaction beginTimedTxMutable(Logger logger, String text) {
         guardForNotStarted();
-        return transactionManager.createTimedTransaction(logger, text);
+        return transactionManager.createTimedTransaction(logger, text, false);
     }
 
     @Override

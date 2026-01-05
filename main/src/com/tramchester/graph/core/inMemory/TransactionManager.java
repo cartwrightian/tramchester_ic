@@ -36,19 +36,19 @@ public class TransactionManager implements TransactionObserver {
         logger.info("Stopped");
     }
 
-    public synchronized MutableGraphTransaction createTransaction(final Duration timeout) {
+    public synchronized MutableGraphTransaction createTransaction(final Duration timeout, boolean immutable) {
         // TODO implement timeout
         final int index = transactionSequenceNumber.getAndIncrement();
         final Instant createdAt = providesNow.getInstant();
         logger.info("create mutable for id " + index);
-        return new GraphTransactionInMemory(index, this, createdAt, graph);
+        return new GraphTransactionInMemory(index, this, graph, immutable);
     }
 
-    public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text) {
+    public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text, boolean immutable) {
         final int index = transactionSequenceNumber.getAndIncrement();
         final Instant createdAt = providesNow.getInstant();
         logger.info("create timed for id " + index);
-        return new TimedTransactionInMemory(index, this, createdAt, graph, logger, text);
+        return new TimedTransactionInMemory(index, this, createdAt, graph, logger, text, immutable);
     }
 
     @Override

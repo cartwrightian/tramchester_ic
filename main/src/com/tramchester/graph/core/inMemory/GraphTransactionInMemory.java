@@ -12,7 +12,6 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -23,14 +22,14 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     private final int id;
     private final TransactionObserver parent;
-    private final Instant createdAt;
     private final Graph graph;
+    private final boolean immutable;
 
-    public GraphTransactionInMemory(int id, TransactionObserver parent, Instant createdAt, Graph graph) {
+    public GraphTransactionInMemory(int id, TransactionObserver parent, Graph graph, boolean immutable) {
         this.id = id;
         this.parent = parent;
-        this.createdAt = createdAt;
         this.graph = graph;
+        this.immutable = immutable;
     }
 
     @Override
