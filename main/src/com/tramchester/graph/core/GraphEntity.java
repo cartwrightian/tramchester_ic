@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Map;
 
-public interface GraphEntity {
+public interface GraphEntity<T extends GraphId> {
     @JsonIgnore
     boolean isNode();
 
@@ -13,6 +13,6 @@ public interface GraphEntity {
 
     Map<String, Object> getAllProperties();
 
-    <T extends GraphId> T getId();
+    T getId();
 
 }

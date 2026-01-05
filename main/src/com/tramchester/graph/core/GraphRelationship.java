@@ -22,7 +22,7 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.EnumSet;
 
-public interface GraphRelationship extends GraphEntity {
+public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
 
     GraphRelationshipId getId();
 
@@ -53,8 +53,6 @@ public interface GraphRelationship extends GraphEntity {
     boolean isType(TransportRelationshipTypes transportRelationshipType);
 
     IdFor<RouteStation> getRouteStationId();
-
-//    boolean isDayOffset();
 
     boolean validOn(TramDate tramDate);
 

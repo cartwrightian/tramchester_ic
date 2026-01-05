@@ -22,7 +22,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
 
-public interface GraphNode extends GraphEntity {
+public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     GraphNodeId getId();
 
