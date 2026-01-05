@@ -35,12 +35,14 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public void commit() {
-        // TODO
+        logger.error("TODO commit for " + id);
+        parent.onCommit(this);
     }
 
     @Override
     public void close() {
-        // TODO
+        logger.error("TODO close for " + id);
+        parent.onClose(this);
     }
 
     @Override
@@ -153,7 +155,8 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         if (graphRelationshipId instanceof RelationshipIdInMemory relationshipIdInMemory) {
             return graph.getRelationship(relationshipIdInMemory);
         }
-        throw new RuntimeException("Not defined for " + graphRelationshipId);
+        return null;
+        //throw new RuntimeException("Not defined for " + graphRelationshipId);
     }
 
     Stream<GraphRelationship> getRelationships(final NodeIdInMemory id, final GraphDirection direction) {

@@ -7,7 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.Graph;
+import com.tramchester.graph.core.inMemory.GraphCore;
 import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -56,7 +56,7 @@ class TramInMemoryGraphBuilderTest {
     @Test
     void shouldHaveConsistentRelationshipResults() {
 
-        Graph graph = componentContainer.get(Graph.class);
+        GraphCore graph = componentContainer.get(GraphCore.class);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         GraphTransaction txn = graphDatabase.beginTx();
 
@@ -81,14 +81,14 @@ class TramInMemoryGraphBuilderTest {
     @RepeatedTest(value = 3)
     void shouldHaveConsistentBuildsOfTheDB() {
 
-        Graph fromFirst = componentContainer.get(Graph.class);
+        GraphCore fromFirst = componentContainer.get(GraphCore.class);
 
         GuiceContainerDependencies secondContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         secondContainer.initialise();
         StagedTransportGraphBuilder builder = secondContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
 
-        Graph graphB =  secondContainer.get(Graph.class);
+        GraphCore graphB =  secondContainer.get(GraphCore.class);
 
         assertEquals(fromFirst, graphB);
 

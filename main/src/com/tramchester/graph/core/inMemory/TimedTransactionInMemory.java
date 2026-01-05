@@ -1,6 +1,5 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.TransactionObserver;
 import com.tramchester.metrics.Timing;
 import org.neo4j.graphdb.TransientTransactionFailureException;
@@ -15,7 +14,7 @@ public class TimedTransactionInMemory extends GraphTransactionInMemory {
     private final Timing timing;
     private boolean committed;
 
-    public TimedTransactionInMemory(int id, TransactionObserver parent, Instant createdAt, Graph graph, Logger logger, String name) {
+    public TimedTransactionInMemory(int id, TransactionObserver parent, Instant createdAt, GraphCore graph, Logger logger, String name) {
         super(id, parent, createdAt, graph);
         this.logger = logger;
         this.name = name;

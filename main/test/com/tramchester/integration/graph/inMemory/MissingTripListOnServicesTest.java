@@ -10,7 +10,7 @@ import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.Graph;
+import com.tramchester.graph.core.inMemory.GraphCore;
 import com.tramchester.graph.core.inMemory.GraphDatabaseInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.core.inMemory.SaveGraph;
@@ -102,7 +102,7 @@ public class MissingTripListOnServicesTest {
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelationsProblemGraph() {
 
-        Graph problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+        GraphCore problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(problemGraph, componentContainer);
         graphDatabase.start();
@@ -127,7 +127,7 @@ public class MissingTripListOnServicesTest {
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelationsProblemGraphAnyWithAllMissing() {
 
-        Graph problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+        GraphCore problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(problemGraph, componentContainer);
         graphDatabase.start();
@@ -171,7 +171,7 @@ public class MissingTripListOnServicesTest {
 
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
-        Graph problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+        GraphCore problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(problemGraph, componentContainer);
         graphDatabase.start();

@@ -118,7 +118,7 @@ public class CompareNeo4JWithInMemoryTest {
 
     @Test
     void compareWithGraphWithFailureForSpecificStartStation() {
-        Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+        GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
         inMemoryDB.start();
@@ -144,7 +144,7 @@ public class CompareNeo4JWithInMemoryTest {
 
     @Test
     void compareWithGraphWithFailureForStationNodes() {
-        Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+        GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
         inMemoryDB.start();
@@ -168,7 +168,7 @@ public class CompareNeo4JWithInMemoryTest {
 
     @Test
     void compareWithGraphWithFailureFoRouteStationNodes() {
-        Graph result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+        GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
         inMemoryDB.start();

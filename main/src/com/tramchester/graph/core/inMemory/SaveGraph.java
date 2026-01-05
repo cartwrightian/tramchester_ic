@@ -20,11 +20,11 @@ import java.nio.file.Path;
 public class SaveGraph {
     private static final Logger logger = LoggerFactory.getLogger(SaveGraph.class);
 
-    private final Graph graph;
+    private final GraphCore graph;
     private final JsonMapper mapper;
 
     @Inject
-    public SaveGraph(Graph graph) {
+    public SaveGraph(GraphCore graph) {
         this.graph = graph;
         this.mapper = createMapper();
     }
@@ -39,18 +39,18 @@ public class SaveGraph {
                 build();
     }
 
-    public static Graph loadDBFrom(final Path graphFilename) {
+    public static GraphCore loadDBFrom(final Path graphFilename) {
         logger.info("Load DB from " + graphFilename.toAbsolutePath() + " with file of size " + graphFilename.toFile().length());
         final NodesAndEdges nodesAndEdges = load(graphFilename);
         if (nodesAndEdges.isEmpty()) {
             throw new RuntimeException("Empty graph loaded from " + graphFilename.toAbsolutePath());
         }
-        return Graph.createFrom(nodesAndEdges);
+        return GraphCore.createFrom(nodesAndEdges);
     }
 
     public void save(final Path graphFilename) {
 
-        final NodesAndEdges nodesAndEdges = graph.getCore();
+        final NodesAndEdges nodesAndEdges = graph.getNodesAndEdges();
 
         logger.info("Save graph to " + graphFilename.toAbsolutePath());
 

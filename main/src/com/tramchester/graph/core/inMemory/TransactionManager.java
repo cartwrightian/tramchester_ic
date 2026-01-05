@@ -18,15 +18,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TransactionManager implements TransactionObserver {
     private static final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
-    private final AtomicInteger transactionId;
+    private final AtomicInteger transactionSequenceNumber;
     private final ProvidesNow providesNow;
-    private final Graph graph;
+    private final GraphCore graph;
+
+    // TODO Open Transaction tracking/warning
 
     @Inject
-    public TransactionManager(final ProvidesNow providesNow, final Graph graph) {
+    public TransactionManager(final ProvidesNow providesNow, final GraphCore graph) {
         this.providesNow = providesNow;
         this.graph = graph;
-        transactionId = new AtomicInteger(1);
+        transactionSequenceNumber = new AtomicInteger(1);
     }
 
     @PreDestroy
@@ -36,25 +38,27 @@ public class TransactionManager implements TransactionObserver {
 
     public synchronized MutableGraphTransaction createTransaction(final Duration timeout) {
         // TODO implement timeout
-        final int index = transactionId.getAndIncrement();
+        final int index = transactionSequenceNumber.getAndIncrement();
         final Instant createdAt = providesNow.getInstant();
+        logger.info("create mutable for id " + index);
         return new GraphTransactionInMemory(index, this, createdAt, graph);
     }
 
     public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text) {
-        final int index = transactionId.getAndIncrement();
+        final int index = transactionSequenceNumber.getAndIncrement();
         final Instant createdAt = providesNow.getInstant();
+        logger.info("create timed for id " + index);
         return new TimedTransactionInMemory(index, this, createdAt, graph, logger, text);
     }
 
     @Override
     public void onClose(final GraphTransaction graphTransaction) {
-
+        logger.info("close " + graphTransaction.getTransactionId());
     }
 
     @Override
     public void onCommit(final GraphTransaction graphTransaction) {
-
+        logger.info("commit " + graphTransaction.getTransactionId());
     }
 
 

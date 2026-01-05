@@ -66,8 +66,8 @@ public class GraphSaveAndLoadTest {
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
-        Graph graph = componentContainer.get(Graph.class);
-        NodesAndEdges expected = graph.getCore();
+        GraphCore graph = componentContainer.get(GraphCore.class);
+        NodesAndEdges expected = graph.getNodesAndEdges();
 
         NodesAndEdges result = SaveGraph.load(GRAPH_FILENAME);
         assertEquals(expected, result);
@@ -80,12 +80,12 @@ public class GraphSaveAndLoadTest {
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
-        Graph result = SaveGraph.loadDBFrom(GRAPH_FILENAME);
-        Graph expected = componentContainer.get(Graph.class);
+        GraphCore result = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        GraphCore expected = componentContainer.get(GraphCore.class);
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
-        assertEquals(expected.getCore(), result.getCore());
+        assertEquals(expected.getNodesAndEdges(), result.getNodesAndEdges());
 
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             checkSame(expected, result, txn);
@@ -101,7 +101,7 @@ public class GraphSaveAndLoadTest {
     @Test
     void shouldCheckCompare() {
 
-        Graph loadedGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        GraphCore loadedGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(loadedGraph, componentContainer);
 
         graphDatabase.start();
@@ -118,7 +118,7 @@ public class GraphSaveAndLoadTest {
         SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
         saveGraph.save(GRAPH_FILENAME);
 
-        Graph loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        GraphCore loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(loadedGraph, componentContainer);
 
         graphDatabase.start();
@@ -154,13 +154,13 @@ public class GraphSaveAndLoadTest {
 //        }
 //        assertNotEquals(0, file.length());
 
-        Graph graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
-        Graph graphB = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        GraphCore graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        GraphCore graphB = SaveGraph.loadDBFrom(GRAPH_FILENAME);
 
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(graphA, componentContainer);
         graphDatabase.start();
 
-        Graph.same(graphA, graphB);
+        GraphCore.same(graphA, graphB);
 
         // A-> A
         try (GraphTransaction txn = graphDatabase.beginTx()) {
@@ -172,17 +172,17 @@ public class GraphSaveAndLoadTest {
     @Test
     void shouldCompareGoodAndBad() {
 
-        Graph graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
-        Graph graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+        GraphCore graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
+        GraphCore graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
         GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(graphA, componentContainer);
         graphDatabase.start();
 
-        Graph.same(graphA, graphB);
+        GraphCore.same(graphA, graphB);
         checkSame(graphA, graphB, graphDatabase.beginTx());
     }
 
-    private static void checkSame(Graph expected, Graph result, GraphTransaction txnForExpected) {
+    private static void checkSame(GraphCore expected, GraphCore result, GraphTransaction txnForExpected) {
         for(TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
             assertEquals(expected.getNumberOf(relationshipType), result.getNumberOf(relationshipType), "wrong for " + relationshipType);
         }
@@ -202,11 +202,11 @@ public class GraphSaveAndLoadTest {
             }
         }
 
-        assertTrue(Graph.same(expected, result));
+        assertTrue(GraphCore.same(expected, result));
     }
 
     private static void checkRelationships(GraphTransaction txn, GraphDirection direction,
-                                           GraphNodeInMemory expected, Graph result) {
+                                           GraphNodeInMemory expected, GraphCore result) {
 
         final NodeIdInMemory nodeId = expected.getId();
 
@@ -238,7 +238,7 @@ public class GraphSaveAndLoadTest {
     }
 
 
-    public static @NotNull GraphDatabaseInMemory CreateGraphDatabaseInMemory(Graph graphA, GuiceContainerDependencies container) {
+    public static @NotNull GraphDatabaseInMemory CreateGraphDatabaseInMemory(GraphCore graphA, GuiceContainerDependencies container) {
         ProvidesNow providesNow = container.get(ProvidesNow.class);
         TransactionManager transactionManager = new TransactionManager(providesNow, graphA);
         return new GraphDatabaseInMemory(transactionManager);
