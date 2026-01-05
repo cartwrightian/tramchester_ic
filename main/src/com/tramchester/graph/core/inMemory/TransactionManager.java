@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @LazySingleton
@@ -20,14 +19,14 @@ public class TransactionManager implements TransactionObserver {
 
     private final AtomicInteger transactionSequenceNumber;
     private final ProvidesNow providesNow;
-    private final GraphCore graph;
+    private final GraphCore graphCore;
 
     // TODO Open Transaction tracking/warning
 
     @Inject
-    public TransactionManager(final ProvidesNow providesNow, final GraphCore graph) {
+    public TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore) {
         this.providesNow = providesNow;
-        this.graph = graph;
+        this.graphCore = graphCore;
         transactionSequenceNumber = new AtomicInteger(1);
     }
 
@@ -40,13 +39,24 @@ public class TransactionManager implements TransactionObserver {
         // TODO implement timeout
         final int index = transactionSequenceNumber.getAndIncrement();
         logger.info("create mutable for id " + index);
+        final Graph graph = wrapGraph(immutable);
         return new GraphTransactionInMemory(index, this, graph, immutable);
+    }
+
+    private Graph wrapGraph(boolean immutable) {
+        if (immutable) {
+            return new ImmutableGraph(graphCore);
+        } else {
+            // TODO
+            return graphCore;
+        }
     }
 
     public synchronized MutableGraphTransaction createTimedTransaction(Logger logger, String text, boolean immutable) {
         final int index = transactionSequenceNumber.getAndIncrement();
-        final Instant createdAt = providesNow.getInstant();
+        //final Instant createdAt = providesNow.getInstant();
         logger.info("create timed for id " + index);
+        final Graph graph = wrapGraph(immutable);
         return new TimedTransactionInMemory(index, this, graph, logger, text, immutable);
     }
 

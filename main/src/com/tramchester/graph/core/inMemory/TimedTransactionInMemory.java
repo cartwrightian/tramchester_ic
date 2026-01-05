@@ -14,7 +14,7 @@ public class TimedTransactionInMemory extends GraphTransactionInMemory {
     private final Timing timing;
     private boolean committed;
 
-    public TimedTransactionInMemory(int id, TransactionObserver parent, GraphCore graph, Logger logger, String name,
+    public TimedTransactionInMemory(int id, TransactionObserver parent, Graph graph, Logger logger, String name,
                                     boolean immutable) {
         super(id, parent, graph, immutable);
         this.logger = logger;

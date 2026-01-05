@@ -34,6 +34,9 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public void commit() {
+        if (immutable) {
+            throw new RuntimeException("Immutable transaction");
+        }
         logger.error("TODO commit for " + id);
         parent.onCommit(this);
     }
@@ -99,9 +102,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public boolean hasAnyMatching(final GraphLabel label, final GraphPropertyKey key, final String value) {
         return graph.findNodesImmutable(label, key, value).findAny().isPresent();
-//        return graph.findNodesImmutable(label).
-//                filter(node -> node.hasProperty(key)).
-//                anyMatch(node -> node.getProperty(key).equals(value));
     }
 
     @Override

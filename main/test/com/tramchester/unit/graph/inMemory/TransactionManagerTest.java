@@ -53,7 +53,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldCreateNode() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode node = txn.createNode(FERRY);
 
             assertTrue(node.isNode());
