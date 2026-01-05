@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
@@ -19,14 +20,13 @@ import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
 public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     private final NodeIdInMemory id;
+    private final AtomicInteger dirtyCount;
 
     // push labels into graph, so can do the validation check etc
     private final EnumSet<GraphLabel> labels;
 
     public GraphNodeInMemory(final NodeIdInMemory id, final EnumSet<GraphLabel> labels) {
-        super(new PropertyContainer());
-        this.id = id;
-        this.labels = labels;
+        this(new PropertyContainer(), id, labels);
     }
 
     @JsonCreator
@@ -34,9 +34,20 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
             @JsonProperty("nodeId") final NodeIdInMemory id,
             @JsonProperty("labels") final EnumSet<GraphLabel> labels,
             @JsonProperty("properties") List<PropertyDTO> properties) {
-        super(new PropertyContainer(properties));
+        this(new PropertyContainer(properties), id, labels);
+    }
+
+    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, EnumSet<GraphLabel> labels) {
+        super(propertyContainer);
         this.id = id;
         this.labels = labels;
+        dirtyCount = new AtomicInteger(0);
+    }
+
+
+    @Override
+    protected void invalidateCache() {
+        dirtyCount.getAndIncrement();
     }
 
     @JsonGetter("properties")
@@ -66,11 +77,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
                 '}';
     }
 
-    @Override
-    protected void invalidateCache() {
-        // no-op
-    }
-
     @JsonProperty(value = "nodeId")
     @Override
     public NodeIdInMemory getId() {
@@ -96,7 +102,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getSingleRelationship(id, direction, transportRelationshipTypes);
+        return inMemory.getSingleRelationshipImmutable(id, direction, transportRelationshipTypes);
     }
 
     @Override
@@ -128,6 +134,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public synchronized void delete(final MutableGraphTransaction txn) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         inMemory.delete(id);
+        invalidateCache();
     }
 
     @Override
@@ -141,6 +148,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         labels.add(label);
         inMemory.addLabel(id, label);
+        invalidateCache();
     }
 
     @Override
@@ -152,7 +160,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
         GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getSingleRelationship(id, direction, transportRelationshipTypes);
+        return inMemory.getSingleRelationshipMutable(id, direction, transportRelationshipTypes);
     }
 
     @Override

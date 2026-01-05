@@ -211,7 +211,7 @@ public class GraphSaveAndLoadTest {
         final NodeIdInMemory nodeId = expected.getId();
 
         long numForExpected = expected.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
-        long resultCount = result.getRelationshipsImmutableFor(nodeId, direction).count();
+        long resultCount = result.findRelationshipsImmutableFor(nodeId, direction).count();
         assertEquals(numForExpected, resultCount, "for " + expected.getAllProperties());
 
         for(TransportRelationshipTypes transportRelationshipType : TransportRelationshipTypes.values()) {
@@ -221,7 +221,7 @@ public class GraphSaveAndLoadTest {
                     collect(Collectors.toSet());
 
             final Set<GraphRelationship> resultRelationships = result.
-                    getRelationshipsImmutableFor(nodeId, direction).
+                    findRelationshipsImmutableFor(nodeId, direction).
                     filter(relat -> relat.isType(transportRelationshipType)).
                     collect(Collectors.toSet());
 

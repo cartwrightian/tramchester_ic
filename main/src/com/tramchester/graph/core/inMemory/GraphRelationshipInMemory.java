@@ -13,6 +13,7 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
 
@@ -21,14 +22,11 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     private final RelationshipIdInMemory id;
     private final NodeIdInMemory startId;
     private final NodeIdInMemory endId;
+    private final AtomicInteger dirtyCount;
 
     public GraphRelationshipInMemory(TransportRelationshipTypes relationshipType, RelationshipIdInMemory id,
                                      NodeIdInMemory startId, NodeIdInMemory endId) {
-        super(new PropertyContainer());
-        this.relationshipType = relationshipType;
-        this.id = id;
-        this.startId = startId;
-        this.endId = endId;
+        this(new PropertyContainer(), relationshipType, id, startId, endId);
     }
 
     @JsonCreator
@@ -38,22 +36,29 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
             @JsonProperty("startId") NodeIdInMemory startId,
             @JsonProperty("endId") NodeIdInMemory endId,
             @JsonProperty("properties") List<PropertyDTO> props) {
-        super(new PropertyContainer(props));
+        this(new PropertyContainer(props), relationshipType, id, startId, endId);
+    }
+
+    private GraphRelationshipInMemory(PropertyContainer propertyContainer, TransportRelationshipTypes relationshipType,
+                                     RelationshipIdInMemory id, NodeIdInMemory startId, NodeIdInMemory endId) {
+        super(propertyContainer);
         this.relationshipType = relationshipType;
         this.id = id;
         this.startId = startId;
         this.endId = endId;
+        dirtyCount = new AtomicInteger(0);
     }
 
     @Override
     public void delete(MutableGraphTransaction txn) {
         GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         inMemory.delete(id);
+        invalidateCache();
     }
 
     @Override
     protected void invalidateCache() {
-        // no-op
+        dirtyCount.getAndIncrement();
     }
 
     @JsonGetter("properties")

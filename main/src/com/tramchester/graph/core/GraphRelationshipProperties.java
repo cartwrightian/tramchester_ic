@@ -36,62 +36,62 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
             DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
 
-    private final T relationship;
+    private final T relationshipProperties;
 
-    protected GraphRelationshipProperties(T relationship) {
-        this.relationship = relationship;
+    protected GraphRelationshipProperties(T relationshipProperties) {
+        this.relationshipProperties = relationshipProperties;
     }
 
     protected abstract void invalidateCache();
 
     public Object getPropertyForTesting(final GraphPropertyKey graphPropertyKey) {
-        return relationship.getProperty(graphPropertyKey.getText());
+        return relationshipProperties.getProperty(graphPropertyKey.getText());
     }
 
     @Override
     public void setTransportMode(final TransportMode transportMode) {
-        relationship.setTransportMode(transportMode);
+        relationshipProperties.setTransportMode(transportMode);
         invalidateCache();
     }
 
     @Override
     public void setTime(final TramTime tramTime) {
-        relationship.setTime(tramTime);
+        relationshipProperties.setTime(tramTime);
         invalidateCache();
     }
 
     @Override
     public void setHour(final int hour) {
-        relationship.setProperty(HOUR.getText(), hour);
+        relationshipProperties.setProperty(HOUR.getText(), hour);
         invalidateCache();
     }
 
     @Override
     public void setCost(final TramDuration cost) {
-        relationship.setCost(cost);
+        relationshipProperties.setCost(cost);
         invalidateCache();
     }
 
     @Override
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(final C domainItem) {
-        set(domainItem, relationship);
+        set(domainItem, relationshipProperties);
         invalidateCache();
     }
 
     @Override
     public boolean hasProperty(final GraphPropertyKey propertyKey) {
-        return relationship.hasProperty(propertyKey.getText());
+        return relationshipProperties.hasProperty(propertyKey.getText());
     }
 
     @Override
     public void setRouteStationId(final IdFor<RouteStation> routeStationId) {
-        relationship.setProperty(ROUTE_STATION_ID.getText(), routeStationId.getGraphId());
+        relationshipProperties.setProperty(ROUTE_STATION_ID.getText(), routeStationId.getGraphId());
         invalidateCache();
     }
 
     @Override
     public void setStopSeqNum(final int sequenceNumber) {
-        relationship.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
+        relationshipProperties.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
         invalidateCache();
     }
 
@@ -107,7 +107,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public int getStopSeqNumber() {
-        return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
+        return (int) relationshipProperties.getProperty(STOP_SEQ_NUM.getText());
     }
 
     @Override
@@ -119,13 +119,13 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public void setTimeRange(final TimeRange timeRange) {
         if (timeRange.allDay()) {
-            relationship.setProperty(ALL_DAY.getText(), "");
-            relationship.removeProperty(START_TIME.getText());
-            relationship.removeProperty(END_TIME.getText());
+            relationshipProperties.setProperty(ALL_DAY.getText(), "");
+            relationshipProperties.removeProperty(START_TIME.getText());
+            relationshipProperties.removeProperty(END_TIME.getText());
         } else {
             setStartTime(timeRange.getStart());
             setEndTime(timeRange.getEnd());
-            relationship.removeProperty(ALL_DAY.getText());
+            relationshipProperties.removeProperty(ALL_DAY.getText());
         }
         invalidateCache();
     }
@@ -135,7 +135,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for start time next");
         }
-        relationship.setProperty(START_TIME.getText(), tramTime.asLocalTime());
+        relationshipProperties.setProperty(START_TIME.getText(), tramTime.asLocalTime());
         invalidateCache();
     }
 
@@ -144,19 +144,19 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for end time next");
         }
-        relationship.setProperty(END_TIME.getText(), tramTime.asLocalTime());
+        relationshipProperties.setProperty(END_TIME.getText(), tramTime.asLocalTime());
         invalidateCache();
     }
 
     @Override
     public void setEndDate(final LocalDate localDate) {
-        relationship.setProperty(END_DATE.getText(), localDate);
+        relationshipProperties.setProperty(END_DATE.getText(), localDate);
         invalidateCache();
     }
 
     @Override
     public void setStartDate(final LocalDate localDate) {
-        relationship.setProperty(START_DATE.getText(), localDate);
+        relationshipProperties.setProperty(START_DATE.getText(), localDate);
         invalidateCache();
     }
 
@@ -164,13 +164,13 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public void addTransportMode(final TransportMode mode) {
         invalidateCache();
-        relationship.addTransportMode(mode);
+        relationshipProperties.addTransportMode(mode);
     }
 
     @Override
     public void addTripId(final IdFor<Trip> tripId) {
         invalidateCache();
-        relationship.addTripId(tripId);
+        relationshipProperties.addTripId(tripId);
     }
 
     @JsonIgnore
@@ -178,7 +178,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     public TramDuration getCost() {
         final TransportRelationshipTypes relationshipType = getType();
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
-            return relationship.getCost();
+            return relationshipProperties.getCost();
         } else {
             return TramDuration.ZERO;
         }
@@ -195,19 +195,19 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public int getHour() {
-        return (int) relationship.getProperty(HOUR.getText());
+        return (int) relationshipProperties.getProperty(HOUR.getText());
     }
 
     @JsonIgnore
     @Override
     public TramTime getTime() {
-        return relationship.getTime();
+        return relationshipProperties.getTime();
     }
 
     @JsonIgnore
     @Override
     public TimeRange getTimeRange() {
-        if (relationship.hasProperty(ALL_DAY.getText())) {
+        if (relationshipProperties.hasProperty(ALL_DAY.getText())) {
             return TimeRange.AllDay();
         } else {
             final TramTime start = getStartTime();
@@ -226,7 +226,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     public IdSet<Trip> getTripIds() {
-        return relationship.getTripIds();
+        return relationshipProperties.getTripIds();
     }
 
     /***
@@ -236,13 +236,13 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
      */
     @Override
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
-        return relationship.hasTripIdInList(tripId);
+        return relationshipProperties.hasTripIdInList(tripId);
     }
 
     @JsonIgnore
     @Override
     public EnumSet<TransportMode> getTransportModes() {
-        return relationship.getTransportModes();
+        return relationshipProperties.getTransportModes();
     }
 
     @JsonIgnore
@@ -266,17 +266,17 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     }
 
     <K extends CoreDomain> IdFor<K> getId(Class<K> theClass) {
-        return getIdFor(theClass, relationship);
+        return getIdFor(theClass, relationshipProperties);
     }
 
     @JsonIgnore
     public IdFor<RouteStation> getRouteStationId() {
-        return getRouteStationId(relationship);
+        return getRouteStationId(relationshipProperties);
     }
 
     @JsonIgnore
     public Map<String,Object> getAllProperties() {
-        return getAllProperties(relationship);
+        return getAllProperties(relationshipProperties);
     }
 
 //    @JsonIgnore
@@ -297,25 +297,25 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     private LocalDate getEndDate() {
-        return (LocalDate) relationship.getProperty(END_DATE.getText());
+        return (LocalDate) relationshipProperties.getProperty(END_DATE.getText());
     }
 
     @JsonIgnore
     private LocalDate getStartDate() {
-        return (LocalDate) relationship.getProperty(START_DATE.getText());
+        return (LocalDate) relationshipProperties.getProperty(START_DATE.getText());
     }
 
     @JsonIgnore
     @Override
     public TramTime getStartTime() {
-        final LocalTime localTime = (LocalTime) relationship.getProperty(START_TIME.getText());
+        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(START_TIME.getText());
         return TramTime.ofHourMins(localTime);
     }
 
     @JsonIgnore
     @Override
     public TramTime getEndTime() {
-        final LocalTime localTime = (LocalTime) relationship.getProperty(END_TIME.getText());
+        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(END_TIME.getText());
         return TramTime.ofHourMins(localTime);
     }
 

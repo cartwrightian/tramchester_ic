@@ -70,7 +70,7 @@ class TramInMemoryGraphBuilderTest {
                     final NodeIdInMemory nodeId = (NodeIdInMemory) node.getId();
 
                     long numFromNode = node.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
-                    long numViaGraph = graph.getRelationshipsImmutableFor(nodeId, direction).count();
+                    long numViaGraph = graph.findRelationshipsImmutableFor(nodeId, direction).count();
 
                     assertEquals(numFromNode, numViaGraph);
                 }

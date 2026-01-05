@@ -156,7 +156,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         }
         // TODO
         NodeIdInMemory idInMemory = (NodeIdInMemory) node.getId();
-        final Stream<GraphRelationship> results = graph.getRelationshipsImmutableFor(idInMemory, direction).
+        final Stream<GraphRelationship> results = graph.findRelationshipsImmutableFor(idInMemory, direction).
                 filter(relationship -> relationshipTypes.contains(relationship.getType())).
                 map(item ->item);
         return results.toList();
@@ -172,39 +172,44 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     Stream<GraphRelationship> getRelationships(final NodeIdInMemory id, final GraphDirection direction) {
-        return graph.getRelationshipsImmutableFor(id, direction);
+        return graph.findRelationshipsImmutableFor(id, direction);
     }
 
     Stream<GraphRelationshipInMemory> getRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
                                                               final EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsMutableFor(id, direction);
-        return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
+        return graph.findRelationshipsMutableFor(id, direction)
+                .filter(relationship -> relationshipTypes.contains(relationship.getType()));
     }
 
-    Stream<GraphRelationship> getRelationshipImmutable(final NodeIdInMemory id, final GraphDirection direction,
-                                                             final EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        final Stream<GraphRelationship> relationships = graph.getRelationshipsImmutableFor(id, direction);
-        return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
-    }
-
-    boolean hasRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipType) {
-        final Stream<GraphRelationship> relationships = graph.getRelationshipsImmutableFor(id, direction);
-        return relationships.anyMatch(relationship -> relationship.getType().equals(transportRelationshipType));
-    }
-
-    GraphRelationshipInMemory getSingleRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
-        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsMutableFor(id, direction);
-        final List<GraphRelationshipInMemory> result = relationships.
-                filter(relationship -> relationship.getType().equals(transportRelationshipTypes)).
-                toList();
+    public GraphRelationship getSingleRelationshipImmutable(NodeIdInMemory id, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes) {
+        final List<GraphRelationship> result = graph.findRelationshipsImmutableFor(id, direction).
+                filter(rel -> rel.isType(transportRelationshipTypes)).toList();
         if (result.size()==1) {
             return result.getFirst();
         }
         String msg = "Wrong number of relationships " + result.size();
         logger.error(msg);
         throw new GraphException(msg);
-
     }
+
+    GraphRelationshipInMemory getSingleRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
+                                                    final TransportRelationshipTypes transportRelationshipType) {
+
+        return graph.getSingleRelationshipMutable(id, direction, transportRelationshipType);
+    }
+
+    Stream<GraphRelationship> getRelationshipImmutable(final NodeIdInMemory id, final GraphDirection direction,
+                                                             final EnumSet<TransportRelationshipTypes> relationshipTypes) {
+        final Stream<GraphRelationship> relationships = graph.findRelationshipsImmutableFor(id, direction);
+        return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
+    }
+
+    boolean hasRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipType) {
+        final Stream<GraphRelationship> relationships = graph.findRelationshipsImmutableFor(id, direction);
+        return relationships.anyMatch(relationship -> relationship.getType().equals(transportRelationshipType));
+    }
+
+
 
     void delete(final RelationshipIdInMemory id) {
         graph.delete(id);
@@ -217,5 +222,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     void addLabel(final NodeIdInMemory id, final GraphLabel label) {
         graph.addLabel(id, label);
     }
+
 
 }

@@ -251,6 +251,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             });
 
             if (find.isPresent()) {
+                // no need to create new relationship
                 return;
             }
         }

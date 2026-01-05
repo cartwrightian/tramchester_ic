@@ -22,8 +22,12 @@ public interface Graph {
     void delete(RelationshipIdInMemory id);
     void delete(NodeIdInMemory id);
     void addLabel(NodeIdInMemory id, GraphLabel label);
-    Stream<GraphRelationshipInMemory> getRelationshipsMutableFor(NodeIdInMemory id, GraphDirection direction);
+
     GraphNodeInMemory getNodeMutable(NodeIdInMemory nodeId);
+    GraphRelationshipInMemory getSingleRelationshipMutable(NodeIdInMemory id, GraphDirection direction,
+                                                           TransportRelationshipTypes transportRelationshipType);
+
+    Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(NodeIdInMemory id, GraphDirection direction);
     Stream<GraphNodeInMemory> findNodesMutable(GraphLabel graphLabel);
 
     // immutable
@@ -31,7 +35,7 @@ public interface Graph {
     Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value);
     GraphNode getNodeImmutable(NodeIdInMemory nodeId);
 
-    Stream<GraphRelationship> getRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction);
+    Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction);
     GraphRelationship getRelationship(RelationshipIdInMemory graphRelationshipId);
 
     long getNumberOf(TransportRelationshipTypes relationshipType);

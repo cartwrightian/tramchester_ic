@@ -214,7 +214,12 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public Stream<GraphRelationshipInMemory> getRelationshipsMutableFor(final NodeIdInMemory id, final GraphDirection direction) {
+    public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction) {
+        return findRelationshipsMutableFor(id, direction).map(item -> item);
+    }
+
+    @Override
+    public Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(final NodeIdInMemory id, final GraphDirection direction) {
         final RelationshipsForNode relationshipsForNode = relationshipsForNodes.getOrDefault(id, RelationshipsForNode.empty());
         return switch (direction) {
                     case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
@@ -222,6 +227,21 @@ public class GraphCore implements Graph {
                     case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode),
                             nodesAndEdges.getInbounds(relationshipsForNode));
                 };
+    }
+
+    @Override
+    public GraphRelationshipInMemory getSingleRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
+                                                                  final TransportRelationshipTypes transportRelationshipType) {
+        final List<GraphRelationshipInMemory> result = findRelationshipsMutableFor(id, direction).
+                filter(rel -> rel.isType(transportRelationshipType)).
+                toList();
+
+        if (result.size()==1) {
+            return result.getFirst();
+        }
+        String msg = "Wrong number of relationships " + result.size();
+        logger.error(msg);
+        throw new GraphException(msg);
     }
 
     @Override
@@ -306,11 +326,6 @@ public class GraphCore implements Graph {
                 filter(node -> node.hasProperty(key)).
                 filter(node -> node.getProperty(key).equals(value)).
                 map(item -> item);
-    }
-
-    @Override
-    public Stream<GraphRelationship> getRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction) {
-        return getRelationshipsMutableFor(id, direction).map(item -> item);
     }
 
     @Override
