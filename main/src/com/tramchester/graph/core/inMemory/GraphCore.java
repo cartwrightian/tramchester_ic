@@ -3,7 +3,9 @@ package com.tramchester.graph.core.inMemory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.reference.GraphLabel;
@@ -212,7 +214,7 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public Stream<GraphRelationshipInMemory> getRelationshipsFor(final NodeIdInMemory id, final GraphDirection direction) {
+    public Stream<GraphRelationshipInMemory> getRelationshipsMutableFor(final NodeIdInMemory id, final GraphDirection direction) {
         final RelationshipsForNode relationshipsForNode = relationshipsForNodes.getOrDefault(id, RelationshipsForNode.empty());
         return switch (direction) {
                     case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
@@ -276,16 +278,39 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public GraphNodeInMemory getNode(final NodeIdInMemory nodeId) {
+    public GraphNodeInMemory getNodeMutable(final NodeIdInMemory nodeId) {
         return nodesAndEdges.getNode(nodeId);
     }
 
     @Override
-    public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
+    public GraphNode getNodeImmutable(final NodeIdInMemory nodeId) {
+        return nodesAndEdges.getNode(nodeId);
+    }
+
+    @Override
+    public Stream<GraphNodeInMemory> findNodesMutable(final GraphLabel graphLabel) {
         synchronized (nodesAndEdges) {
             final Set<NodeIdInMemory> matchingIds = labelsToNodes.get(graphLabel);
             return matchingIds.stream().map(nodesAndEdges::getNode);
         }
+    }
+
+    @Override
+    public Stream<GraphNode> findNodesImmutable(final GraphLabel graphLabel) {
+        return findNodesMutable(graphLabel).map(item -> item);
+    }
+
+    @Override
+    public Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value) {
+        return findNodesMutable(label).
+                filter(node -> node.hasProperty(key)).
+                filter(node -> node.getProperty(key).equals(value)).
+                map(item -> item);
+    }
+
+    @Override
+    public Stream<GraphRelationship> getRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction) {
+        return getRelationshipsMutableFor(id, direction).map(item -> item);
     }
 
     @Override

@@ -125,7 +125,7 @@ public class CompareNeo4JWithInMemoryTest {
 
         Station station = VeloPark.from(stationRepository);
 
-        Optional<GraphNodeInMemory> findInLoadedDB = result.findNodes(GraphLabel.STATION).
+        Optional<GraphNodeInMemory> findInLoadedDB = result.findNodesMutable(GraphLabel.STATION).
                 filter(GraphNodeProperties::hasStationId).
                 filter(node -> node.getStationId().equals(station.getId())).
                 findFirst();

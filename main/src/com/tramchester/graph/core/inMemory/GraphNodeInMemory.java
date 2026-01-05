@@ -102,13 +102,13 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes relationshipType) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationships(id, direction, EnumSet.of(relationshipType)).map(item -> item);
+        return inMemory.getRelationshipImmutable(id, direction, EnumSet.of(relationshipType)).map(item -> item);
     }
 
     @Override
     public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, EnumSet<TransportRelationshipTypes> types) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationships(id, direction, types).map(item -> item);
+        return inMemory.getRelationshipImmutable(id, direction, types).map(item -> item);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
             return inMemory.getRelationships(id, direction);
         } else {
             final EnumSet<TransportRelationshipTypes> types = EnumSet.copyOf(list);
-            return inMemory.getRelationships(id, direction, types).map(item -> item);
+            return inMemory.getRelationshipImmutable(id, direction, types).map(item -> item);
         }
     }
 
@@ -146,7 +146,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationships(id, direction, EnumSet.of(relationshipType)).map(item -> item);
+        return inMemory.getRelationshipMutable(id, direction, EnumSet.of(relationshipType)).map(item -> item);
     }
 
     @Override

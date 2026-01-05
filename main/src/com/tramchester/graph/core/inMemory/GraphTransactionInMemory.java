@@ -57,14 +57,14 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public MutableGraphNode getNodeByIdMutable(final GraphNodeId nodeId) {
         if (nodeId instanceof NodeIdInMemory nodeIdInMemory) {
-            return graph.getNode(nodeIdInMemory);
+            return graph.getNodeMutable(nodeIdInMemory);
         }
         throw new RuntimeException("Not defined for " + nodeId);
     }
 
     @Override
     public Stream<MutableGraphNode> findNodesMutable(final GraphLabel graphLabel) {
-        return graph.findNodes(graphLabel).map(item -> item);
+        return graph.findNodesMutable(graphLabel).map(item -> item);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public Stream<GraphNode> findNodes(final GraphLabel graphLabel) {
-        return graph.findNodes(graphLabel).map(item -> item);
+        return graph.findNodesImmutable(graphLabel);
     }
 
     @Override
@@ -91,46 +91,57 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public GraphNode getNodeById(final GraphNodeId nodeId) {
         if (nodeId instanceof NodeIdInMemory nodeIdInMemory) {
-            return graph.getNode(nodeIdInMemory);
+            return graph.getNodeImmutable(nodeIdInMemory);
         }
         throw new RuntimeException("Not defined for " + nodeId);
     }
 
     @Override
-    public boolean hasAnyMatching(GraphLabel label, GraphPropertyKey key, String value) {
-        return graph.findNodes(label).
-                filter(node -> node.hasProperty(key)).
-                anyMatch(node -> node.getProperty(key).equals(value));
+    public boolean hasAnyMatching(final GraphLabel label, final GraphPropertyKey key, final String value) {
+        return graph.findNodesImmutable(label, key, value).findAny().isPresent();
+//        return graph.findNodesImmutable(label).
+//                filter(node -> node.hasProperty(key)).
+//                anyMatch(node -> node.getProperty(key).equals(value));
     }
 
     @Override
     public boolean hasAnyMatching(GraphLabel graphLabel) {
-        return graph.findNodes(graphLabel).findAny().isPresent();
+        return graph.findNodesImmutable(graphLabel).findAny().isPresent();
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNodeInMemory findNode(final ITEM item) {
-        return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
-    }
-
-    @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
-        return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
-    }
-
-    private GraphNodeInMemory findNode(final GraphLabel label, final GraphPropertyKey propertyKey, final String itemId) {
-        final List<GraphNodeInMemory> found = graph.findNodes(label).
-                filter(node -> node.hasProperty(propertyKey)).
-                filter(node -> node.getProperty(propertyKey).equals(itemId)).
-                toList();
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(final ITEM item) {
+        final List<GraphNode> found = graph.
+                findNodesImmutable(item.getNodeLabel(), item.getProp(), item.getId().getGraphId()).toList();
         if (found.isEmpty()) {
-            logger.info("Did not match " + label + " " + propertyKey + " " + itemId);
+            logger.info("Did not match " + item);
             return null;
         }
         if (found.size()==1) {
             return found.getFirst();
         }
-        final String message = "Unexpected number found " + found.size();
+        final String message = "Unexpected number found " + found.size() + " while seraching for " + item;
+        logger.error(message);
+        throw new GraphException(message);
+    }
+
+    @Override
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
+        final GraphLabel label = item.getNodeLabel();
+        final GraphPropertyKey propertyKey = item.getProp();
+        final String itemId = item.getId().getGraphId();
+        final List<GraphNodeInMemory> found = graph.findNodesMutable(label).
+                filter(node -> node.hasProperty(propertyKey)).
+                filter(node -> node.getProperty(propertyKey).equals(itemId)).
+                toList();
+        if (found.isEmpty()) {
+            logger.info("Did not find " + label + " " + propertyKey + " " + itemId);
+            return null;
+        }
+        if (found.size()==1) {
+            return found.getFirst();
+        }
+        final String message = "Unexpected number found " + found.size() + " searching for " + item;
         logger.error(message);
         throw new GraphException(message);
     }
@@ -138,12 +149,14 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction,
                                                                 EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        final  GraphNodeInMemory node = findNode(routeStation);
+        final GraphNode node = findNode(routeStation);
         if (node==null) {
             logger.info("Did not find node for " + routeStation.getId());
             return Collections.emptyList();
         }
-        final Stream<GraphRelationship> results = graph.getRelationshipsFor(node.getId(), direction).
+        // TODO
+        NodeIdInMemory idInMemory = (NodeIdInMemory) node.getId();
+        final Stream<GraphRelationship> results = graph.getRelationshipsImmutableFor(idInMemory, direction).
                 filter(relationship -> relationshipTypes.contains(relationship.getType())).
                 map(item ->item);
         return results.toList();
@@ -159,22 +172,28 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     Stream<GraphRelationship> getRelationships(final NodeIdInMemory id, final GraphDirection direction) {
-        return graph.getRelationshipsFor(id, direction).map(item -> item);
+        return graph.getRelationshipsImmutableFor(id, direction);
     }
 
-    Stream<GraphRelationshipInMemory> getRelationships(final NodeIdInMemory id, final GraphDirection direction,
+    Stream<GraphRelationshipInMemory> getRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
                                                               final EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
+        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsMutableFor(id, direction);
+        return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
+    }
+
+    Stream<GraphRelationship> getRelationshipImmutable(final NodeIdInMemory id, final GraphDirection direction,
+                                                             final EnumSet<TransportRelationshipTypes> relationshipTypes) {
+        final Stream<GraphRelationship> relationships = graph.getRelationshipsImmutableFor(id, direction);
         return relationships.filter(relationship -> relationshipTypes.contains(relationship.getType()));
     }
 
     boolean hasRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipType) {
-        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
+        final Stream<GraphRelationship> relationships = graph.getRelationshipsImmutableFor(id, direction);
         return relationships.anyMatch(relationship -> relationship.getType().equals(transportRelationshipType));
     }
 
     GraphRelationshipInMemory getSingleRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
-        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsFor(id, direction);
+        final Stream<GraphRelationshipInMemory> relationships = graph.getRelationshipsMutableFor(id, direction);
         final List<GraphRelationshipInMemory> result = relationships.
                 filter(relationship -> relationship.getType().equals(transportRelationshipTypes)).
                 toList();

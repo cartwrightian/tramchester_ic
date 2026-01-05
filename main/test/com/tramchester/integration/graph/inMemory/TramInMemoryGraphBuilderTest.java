@@ -6,9 +6,9 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.GraphCore;
-import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
@@ -62,14 +62,15 @@ class TramInMemoryGraphBuilderTest {
 
         for(GraphDirection direction : GraphDirection.values()) {
             for (GraphLabel label : GraphLabel.values()) {
-                final List<GraphNodeInMemory> nodes = graph.findNodes(label).toList();
+                final List<GraphNode> nodes = graph.findNodesImmutable(label).toList();
 
-                for (GraphNodeInMemory node : nodes) {
+                for (GraphNode node : nodes) {
 
-                    final NodeIdInMemory nodeId = node.getId();
+                    // TODO
+                    final NodeIdInMemory nodeId = (NodeIdInMemory) node.getId();
 
                     long numFromNode = node.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
-                    long numViaGraph = graph.getRelationshipsFor(nodeId, direction).count();
+                    long numViaGraph = graph.getRelationshipsImmutableFor(nodeId, direction).count();
 
                     assertEquals(numFromNode, numViaGraph);
                 }

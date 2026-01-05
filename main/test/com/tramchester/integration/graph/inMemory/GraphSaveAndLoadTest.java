@@ -188,12 +188,12 @@ public class GraphSaveAndLoadTest {
         }
 
         for(GraphLabel label : GraphLabel.values()) {
-            final List<GraphNodeInMemory> expectedNodes = expected.findNodes(label).toList();
-            final List<GraphNodeInMemory> resultNodes = result.findNodes(label).toList();
+            final List<GraphNodeInMemory> expectedNodes = expected.findNodesMutable(label).toList();
+            final List<GraphNodeInMemory> resultNodes = result.findNodesMutable(label).toList();
             assertEquals(expectedNodes, resultNodes, "mismatch for " + label);
 
             for (GraphNodeInMemory expectedNode : expectedNodes) {
-                final GraphNodeInMemory resultNode = result.getNode(expectedNode.getId());
+                final GraphNodeInMemory resultNode = result.getNodeMutable(expectedNode.getId());
                 assertEquals(expectedNode.getId(), resultNode.getId());
                 assertEquals(expectedNode.getProperties(), resultNode.getProperties());
 
@@ -211,7 +211,7 @@ public class GraphSaveAndLoadTest {
         final NodeIdInMemory nodeId = expected.getId();
 
         long numForExpected = expected.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
-        long resultCount = result.getRelationshipsFor(nodeId, direction).count();
+        long resultCount = result.getRelationshipsImmutableFor(nodeId, direction).count();
         assertEquals(numForExpected, resultCount, "for " + expected.getAllProperties());
 
         for(TransportRelationshipTypes transportRelationshipType : TransportRelationshipTypes.values()) {
@@ -220,15 +220,10 @@ public class GraphSaveAndLoadTest {
                     getRelationships(txn, direction, transportRelationshipType).
                     collect(Collectors.toSet());
 
-            //assertFalse(expectedRelationships.isEmpty(), "empty for " + expected + " " + expected.getAllProperties());
-
             final Set<GraphRelationship> resultRelationships = result.
-                    getRelationshipsFor(nodeId, direction).
+                    getRelationshipsImmutableFor(nodeId, direction).
                     filter(relat -> relat.isType(transportRelationshipType)).
-                    map(relat -> (GraphRelationship) relat).
                     collect(Collectors.toSet());
-
-            //assertFalse(resultRelationships.isEmpty());
 
             Set<GraphRelationship> diff = SetUtils.disjunction(expectedRelationships, resultRelationships);
 
