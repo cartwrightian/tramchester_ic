@@ -6,7 +6,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.DayOfWeek;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -75,17 +74,13 @@ public class KnownTramRoute {
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
-        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-
-        } else { // Not Sunday
-            routes.add(find.apply(Green));
-        }
-
-//        if (EmergencyWorksDeansgateDev2025.equals(date)) {
-//            routes.add(find.apply(BusOne));
-//            routes.add(find.apply(BusTwo));
+//        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+//
+//        } else { // Not Sunday
+//            routes.add(find.apply(Green));
 //        }
 
+        routes.add(find.apply(Green));
         routes.add(find.apply(Yellow));
         routes.add(find.apply(Blue));
         routes.add(find.apply(Red));

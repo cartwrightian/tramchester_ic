@@ -30,7 +30,7 @@ import java.util.Map;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
-public abstract class GraphRelationshipProperties <T extends GraphEntityProperties.GraphProps>
+public abstract class GraphRelationshipProperties <T extends GraphEntityProperties.GraphProps<T>>
         extends GraphEntityProperties<T> implements MutableGraphRelationship {
 
     private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
@@ -40,6 +40,10 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     protected GraphRelationshipProperties(T relationshipProperties) {
         this.relationshipProperties = relationshipProperties;
+    }
+
+    protected T copyProperties() {
+        return relationshipProperties.copy();
     }
 
     protected abstract void invalidateCache();

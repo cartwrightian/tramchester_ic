@@ -4,6 +4,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
@@ -92,6 +93,16 @@ public class ImmutableGraph implements Graph {
     @Override
     public long getNumberOf(TransportRelationshipTypes relationshipType) {
         return underlying.getNumberOf(relationshipType);
+    }
+
+    @Override
+    public void commit(GraphTransaction owningTransaction) {
+        throw new RuntimeException("Got unexpected commit for " + owningTransaction);
+    }
+
+    @Override
+    public void close(GraphTransaction owningTransaction) {
+        // NO-OP
     }
 
     private static class ImmutableGraphException extends RuntimeException {

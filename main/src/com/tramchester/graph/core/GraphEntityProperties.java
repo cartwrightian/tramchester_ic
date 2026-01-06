@@ -16,7 +16,7 @@ import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
 
-public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
+public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>> {
     private static final Logger logger = LoggerFactory.getLogger(GraphEntityProperties.class);
 
     protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(final C domainItem, final E entity) {
@@ -60,7 +60,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         return entity.getAllProperties();
     }
 
-    public interface GraphProps {
+    public interface GraphProps<IMPL extends GraphProps<IMPL>> {
 
         // TODO String -> GraphPropertyKey here
 
@@ -107,6 +107,8 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
         void addTransportMode(TransportMode mode);
 
         EnumSet<TransportMode> getTransportModes();
+
+        IMPL copy();
     }
 
 }

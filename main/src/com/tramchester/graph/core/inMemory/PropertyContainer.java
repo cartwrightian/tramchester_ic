@@ -15,17 +15,26 @@ import java.util.concurrent.ConcurrentMap;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
-final class PropertyContainer implements GraphEntityProperties.GraphProps {
+final class PropertyContainer implements GraphEntityProperties.GraphProps<PropertyContainer> {
 
     private final ConcurrentMap<String, Object> props;
 
     PropertyContainer() {
-        props = new ConcurrentHashMap<>();
+        this(new ConcurrentHashMap<>());
     }
 
     public PropertyContainer(final List<PropertyDTO> properties) {
         this();
         properties.forEach(prop -> setProperty(prop.getKey(), prop.getContainedValue()));
+    }
+
+    private PropertyContainer(ConcurrentHashMap<String, Object> props) {
+        this.props = props;
+    }
+
+    @Override
+    public PropertyContainer copy() {
+        return new PropertyContainer(new ConcurrentHashMap<>(props));
     }
 
     @Override
@@ -143,4 +152,6 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps {
             return EnumSet.noneOf(TransportMode.class);
         }
     }
+
+
 }

@@ -4,6 +4,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
@@ -40,4 +41,6 @@ public interface Graph {
 
     long getNumberOf(TransportRelationshipTypes relationshipType);
 
+    void commit(GraphTransaction owningTransaction);
+    void close(GraphTransaction owningTransaction);
 }

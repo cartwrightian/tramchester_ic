@@ -44,6 +44,9 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         dirtyCount = new AtomicInteger(0);
     }
 
+    public GraphNodeInMemory copy() {
+        return new GraphNodeInMemory(super.copyProperties(), id, labels.getLabels());
+    }
 
     @Override
     protected void invalidateCache() {
@@ -174,6 +177,5 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public boolean isRelationship() {
         return false;
     }
-
 
 }

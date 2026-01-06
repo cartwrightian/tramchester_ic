@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
-public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps {
+public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPropsNeo4J> {
     private final Entity entity;
 
     private static final String tripIdListProperty = TRIP_ID_LIST.getText();
@@ -181,4 +181,10 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps {
         final short[] existing = (short[]) getProperty(TRANSPORT_MODES.getText());
         return TransportMode.fromNumbers(existing);
     }
+
+    @Override
+    public GraphPropsNeo4J copy() {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

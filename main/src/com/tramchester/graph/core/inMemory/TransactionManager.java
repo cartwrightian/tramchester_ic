@@ -81,6 +81,7 @@ public class TransactionManager implements TransactionObserver {
     @Override
     public synchronized void onCommit(final GraphTransaction graphTransaction) {
         logger.info("commit " + graphTransaction);
+
         if (!openTransactions.contains(graphTransaction.getTransactionId())) {
             throw new RuntimeException("Not open " + graphTransaction);
         }

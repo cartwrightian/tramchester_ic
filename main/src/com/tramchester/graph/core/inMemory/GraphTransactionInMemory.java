@@ -37,13 +37,14 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         if (immutable) {
             throw new RuntimeException("Immutable transaction");
         }
-        logger.error("TODO commit for " + id);
+        graph.commit(this);
         parent.onCommit(this);
     }
 
     @Override
     public void close() {
-        logger.error("TODO close for " + id);
+        //logger.error("TODO close for " + id);
+        graph.close(this);
         parent.onClose(this);
     }
 

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import jakarta.inject.Inject;
@@ -39,9 +36,14 @@ public class GraphCore implements Graph {
     private final boolean diagnostics;
 
     // todo proper transaction handling, rollbacks etc
+    // TODO need way to know this is the 'core' graph, not a local copy??
 
+    /***
+     * Use with care, normally want the local copy version of this cons
+     * @param idFactory global id factory
+     */
     @Inject
-    public GraphCore(GraphIdFactory idFactory) {
+    public GraphCore(final GraphIdFactory idFactory) {
         this.idFactory = idFactory;
 
         nodesAndEdges = new NodesAndEdges();
@@ -54,6 +56,7 @@ public class GraphCore implements Graph {
         // TODO into config and consolidate with neo4j diag option?
         diagnostics = true;
     }
+
 
     @PostConstruct
     public void start() {
@@ -100,7 +103,7 @@ public class GraphCore implements Graph {
 
         incoming.getRelationships().forEach(relationship -> {
             target.checkAndUpdateExistingRelationships(relationship.getType(), relationship.getStartId(), relationship.getEndId());
-            target.captureRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
+            target.insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
         });
         target.updateNextRelationshipId();
     }
@@ -141,11 +144,19 @@ public class GraphCore implements Graph {
                 idInMemory = new NodeIdInMemory(id);
             }
             final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(idInMemory, labels);
-            final NodeIdInMemory graphNodeId = graphNodeInMemory.getId();
-            nodesAndEdges.addNode(graphNodeId, graphNodeInMemory);
-            labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
-            return graphNodeInMemory;
+//            final NodeIdInMemory graphNodeId = graphNodeInMemory.getId();
+//            nodesAndEdges.addNode(graphNodeId, graphNodeInMemory);
+//            labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
+            return insertNode(graphNodeInMemory, labels);
+            //return graphNodeInMemory;
         }
+    }
+
+    synchronized GraphNodeInMemory insertNode(final GraphNodeInMemory nodeToInsert, final EnumSet<GraphLabel> labels) {
+        final NodeIdInMemory id = nodeToInsert.getId();
+        nodesAndEdges.addNode(id, nodeToInsert);
+        labels.forEach(label -> labelsToNodes.get(label).add(id));
+        return nodeToInsert;
     }
 
     @Override
@@ -162,20 +173,21 @@ public class GraphCore implements Graph {
             final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
                     new RelationshipIdInMemory(id), beginId, endId);
 
-            captureRelationship(relationshipType, relationship, beginId, endId);
+            insertRelationship(relationshipType, relationship, beginId, endId);
             return relationship;
         }
     }
 
-    private void captureRelationship(final TransportRelationshipTypes relationshipType,
-                                     final GraphRelationshipInMemory relationship,
-                                     final NodeIdInMemory beginId, final NodeIdInMemory endId) {
+    GraphRelationshipInMemory insertRelationship(final TransportRelationshipTypes relationshipType,
+                                    final GraphRelationshipInMemory relationship,
+                                    final NodeIdInMemory beginId, final NodeIdInMemory endId) {
         final RelationshipIdInMemory relationshipId = relationship.getId();
 
         nodesAndEdges.addRelationship(relationshipId, relationship);
         addOutboundTo(beginId, relationshipId);
         addInboundTo(endId, relationshipId);
         relationshipTypeCounts.increment(relationshipType);
+        return relationship;
     }
 
     private void checkAndUpdateExistingRelationships(final TransportRelationshipTypes relationshipType, final NodeIdInMemory beginId,
@@ -328,7 +340,7 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public GraphRelationship getRelationship(final RelationshipIdInMemory graphRelationshipId) {
+    public GraphRelationshipInMemory getRelationship(final RelationshipIdInMemory graphRelationshipId) {
         synchronized (nodesAndEdges) {
             if (nodesAndEdges.hasRelationship(graphRelationshipId)) {
                 return nodesAndEdges.getRelationship(graphRelationshipId);
@@ -350,6 +362,18 @@ public class GraphCore implements Graph {
     @JsonIgnore
     public long getNumberOf(TransportRelationshipTypes relationshipType) {
         return relationshipTypeCounts.get(relationshipType);
+    }
+
+    @Override
+    public void commit(final GraphTransaction owningTransaction) {
+        // TODO
+        //throw new RuntimeException("Unexpected commit for " + owningTransaction);
+    }
+
+    @Override
+    public void close(final GraphTransaction owningTransaction) {
+        // TODO
+        //throw new RuntimeException("Unexpected close for " + owningTransaction);
     }
 
     /***
@@ -432,6 +456,27 @@ public class GraphCore implements Graph {
 
     public boolean hasRelationshipId(RelationshipIdInMemory graphRelationshipId) {
         return nodesAndEdges.hasRelationship(graphRelationshipId);
+    }
+
+    public void commitChanges(GraphCore childGraph, Set<RelationshipIdInMemory> relationshipsToDelete, Set<NodeIdInMemory> nodesToDelete) {
+        synchronized (nodesAndEdges) {
+            for (RelationshipIdInMemory relationshipIdInMemory : relationshipsToDelete) {
+                delete(relationshipIdInMemory);
+            }
+            for (NodeIdInMemory nodeIdInMemory : nodesToDelete) {
+                delete(nodeIdInMemory);
+            }
+            final Set<GraphNodeInMemory> nodesFromChild = childGraph.nodesAndEdges.getNodes();
+            for (GraphNodeInMemory graphNodeInMemory : nodesFromChild) {
+                insertNode(graphNodeInMemory, graphNodeInMemory.getLabels());
+            }
+            final Set<GraphRelationshipInMemory> relationshipsFromChild = childGraph.nodesAndEdges.getRelationships();
+            for (GraphRelationshipInMemory relationship : relationshipsFromChild) {
+                insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
+            }
+        }
+
+        //throw new RuntimeException("TODO");
     }
 
     private static class NodeIdPair {

@@ -23,12 +23,16 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
 
-public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphProps> extends GraphEntityProperties<T> implements MutableGraphNode {
+public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphProps<T>> extends GraphEntityProperties<T> implements MutableGraphNode {
 
     private final T graphProps;
 
     public GraphNodeProperties(T graphProps) {
         this.graphProps = graphProps;
+    }
+
+    protected T copyProperties() {
+        return graphProps.copy();
     }
 
     @Override
@@ -280,4 +284,5 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     public Object getProperty(final GraphPropertyKey propertyKey) {
         return graphProps.getProperty(propertyKey.getText());
     }
+
 }

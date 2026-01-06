@@ -49,6 +49,10 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         dirtyCount = new AtomicInteger(0);
     }
 
+    public GraphRelationshipInMemory copy() {
+        return new GraphRelationshipInMemory(super.copyProperties(), relationshipType, id, startId, endId);
+    }
+
     @Override
     public void delete(MutableGraphTransaction txn) {
         GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
@@ -166,4 +170,6 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     public int hashCode() {
         return Objects.hash(relationshipType, id, startId, endId);
     }
+
+
 }
