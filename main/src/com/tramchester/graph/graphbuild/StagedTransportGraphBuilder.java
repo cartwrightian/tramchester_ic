@@ -45,7 +45,6 @@ import static java.lang.String.format;
 @LazySingleton
 public class StagedTransportGraphBuilder extends GraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(StagedTransportGraphBuilder.class);
-    public static final int COMMIT_BATCH_SIZE = 100;
 
     ///
     // Station -[enter]-> Platform -[board]-> RouteStation -[toSvc]-> Service -> Hour-[toMinute]->
@@ -65,6 +64,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final GraphDatabaseMetaInfo databaseMetaInfo;
     private final StopCallRepository stopCallRepository;
     private final StationsWithDiversionRepository stationsWithDiversionRepository;
+    private final int commitBatchSize;
 
     // force construction via guice to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -88,6 +88,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         this.databaseMetaInfo = databaseMetaInfo;
         this.stopCallRepository = stopCallRepository;
         this.stationsWithDiversionRepository = stationsWithDiversionRepository;
+
+        this.commitBatchSize = graphDatabase.isInMemory() ? 1000 : 100;
     }
 
     @PostConstruct
@@ -200,7 +202,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         try(Timing ignored = new Timing(logger,"time and update for trips for " + agency.getId())) {
             // moved the parallel up one level, undefined behaviours with shared txn
-            final BatchTransactionStrategy transactionStrategy = new BatchTransactionStrategy(graphDatabase, COMMIT_BATCH_SIZE, agency.getId());
+            final BatchTransactionStrategy transactionStrategy = new BatchTransactionStrategy(graphDatabase, commitBatchSize, agency.getId());
             getRoutesForAgency(agency).forEach(route -> {
                 transactionStrategy.routeBegin(route);
                 createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, agencyBuilderNodeCache, routeStationNodeCache, agencyBuilderNodeCache);

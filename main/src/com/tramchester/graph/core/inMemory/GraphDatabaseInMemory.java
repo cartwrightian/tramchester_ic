@@ -59,6 +59,11 @@ public class GraphDatabaseInMemory implements GraphDatabase {
         return true;
     }
 
+    @Override
+    public boolean isInMemory() {
+        return true;
+    }
+
     // begin immutable
 
     @Override

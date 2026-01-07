@@ -93,6 +93,11 @@ public class GraphDatabaseNeo4J implements DatabaseEventListener, GraphDatabase 
         return lifecycleManager.isCleanDB();
     }
 
+    @Override
+    public boolean isInMemory() {
+        return false;
+    }
+
     // immutable transactions
 
     @Override
