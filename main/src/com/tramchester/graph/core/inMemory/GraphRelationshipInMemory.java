@@ -65,6 +65,11 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         dirtyCount.getAndIncrement();
     }
 
+    @JsonIgnore
+    public boolean isDirty() {
+        return dirtyCount.get()>0;
+    }
+
     @JsonGetter("properties")
     public List<PropertyDTO> getProperties() {
         return getAllProperties().entrySet().stream().

@@ -2,6 +2,7 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
@@ -51,6 +52,11 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     protected void invalidateCache() {
         dirtyCount.getAndIncrement();
+    }
+
+    @JsonIgnore
+    public boolean isDirty() {
+        return dirtyCount.get()>0;
     }
 
     @JsonGetter("properties")

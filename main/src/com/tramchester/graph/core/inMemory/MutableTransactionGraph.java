@@ -249,7 +249,7 @@ public class MutableTransactionGraph implements Graph {
 
     @Override
     public synchronized void commit(final GraphTransaction owningTransaction) {
-        parent.commitChanges(localGraph, relationshipsToDelete, notesToDelete);
+        parent.commitChanges(this, relationshipsToDelete, notesToDelete);
     }
 
     @Override
@@ -259,5 +259,19 @@ public class MutableTransactionGraph implements Graph {
         locallyCreatedRelationships.clear();
         relationshipsToDelete.clear();
         notesToDelete.clear();
+    }
+
+    @Override
+    public Stream<GraphNodeInMemory> getUpdatedNodes() {
+        final Set<GraphNodeInMemory> allLocalNodes = localGraph.getNodesAndEdges().getNodes();
+        return allLocalNodes.stream().
+                filter(node -> locallyCreatedNodes.contains(node.getId()) || node.isDirty());
+    }
+
+    @Override
+    public Stream<GraphRelationshipInMemory> getUpdatedRelationships() {
+        final Set<GraphRelationshipInMemory> allLocalRelationships = localGraph.getNodesAndEdges().getRelationships();
+        return allLocalRelationships.stream().
+                filter(rel -> locallyCreatedRelationships.contains(rel.getId()) || rel.isDirty());
     }
 }

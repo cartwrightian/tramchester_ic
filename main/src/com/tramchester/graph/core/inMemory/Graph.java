@@ -43,4 +43,7 @@ public interface Graph {
 
     void commit(GraphTransaction owningTransaction);
     void close(GraphTransaction owningTransaction);
+
+    Stream<GraphNodeInMemory> getUpdatedNodes();
+    Stream<GraphRelationshipInMemory> getUpdatedRelationships();
 }

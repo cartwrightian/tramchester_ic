@@ -105,6 +105,16 @@ public class ImmutableGraph implements Graph {
         // NO-OP
     }
 
+    @Override
+    public Stream<GraphNodeInMemory> getUpdatedNodes() {
+        return Stream.empty();
+    }
+
+    @Override
+    public Stream<GraphRelationshipInMemory> getUpdatedRelationships() {
+        return Stream.empty();
+    }
+
     private static class ImmutableGraphException extends RuntimeException {
         ImmutableGraphException() {
             super("Not implemented for ImmutableGraph");

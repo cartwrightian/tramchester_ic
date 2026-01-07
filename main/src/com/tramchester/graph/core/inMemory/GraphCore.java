@@ -406,6 +406,16 @@ public class GraphCore implements Graph {
         throw new RuntimeException("Unexpected close for " + owningTransaction);
     }
 
+    @Override
+    public Stream<GraphNodeInMemory> getUpdatedNodes() {
+        throw new RuntimeException("Not implemented for core");
+    }
+
+    @Override
+    public Stream<GraphRelationshipInMemory> getUpdatedRelationships() {
+        throw new RuntimeException("Not implemented for core");
+    }
+
     /***
      * Save and Test support
      *
@@ -447,14 +457,6 @@ public class GraphCore implements Graph {
             logger.error("check same idFactory" + a.idFactory + "!=" + b.idFactory);
             return false;
         }
-//        if (a.nextRelationshipId.get()!=b.nextRelationshipId.get()) {
-//            logger.error("check same nextRelationshipId" + a.nextRelationshipId + "!=" + b.nextRelationshipId);
-//            return false;
-//        }
-//        if (a.nextGraphNodeId.get()!=b.nextGraphNodeId.get()) {
-//            logger.error("check same nextGraphNodeId" + a.nextGraphNodeId + "!=" + b.nextGraphNodeId);
-//            return false;
-//        }
         if (!a.nodesAndEdges.equals(b.nodesAndEdges)) {
             logger.error("check same nodesAndEdges" + a.nodesAndEdges + "!=" + b.nodesAndEdges);
         }
@@ -488,7 +490,8 @@ public class GraphCore implements Graph {
         return nodesAndEdges.hasRelationship(graphRelationshipId);
     }
 
-    public void commitChanges(GraphCore childGraph, Set<RelationshipIdInMemory> relationshipsToDelete, Set<NodeIdInMemory> nodesToDelete) {
+    public void commitChanges(final Graph mutatedGraph, final Set<RelationshipIdInMemory> relationshipsToDelete,
+                              final Set<NodeIdInMemory> nodesToDelete) {
         synchronized (nodesAndEdges) {
             for (RelationshipIdInMemory relationshipIdInMemory : relationshipsToDelete) {
                 delete(relationshipIdInMemory);
@@ -496,19 +499,19 @@ public class GraphCore implements Graph {
             for (NodeIdInMemory nodeIdInMemory : nodesToDelete) {
                 delete(nodeIdInMemory);
             }
-            // TODO Use Dirty flag here
-            final Set<GraphNodeInMemory> nodesFromChild = childGraph.nodesAndEdges.getNodes();
-            for (GraphNodeInMemory graphNodeInMemory : nodesFromChild) {
-                insertNode(graphNodeInMemory, graphNodeInMemory.getLabels());
-            }
-            // TODO Use Dirty flag here
-            final Set<GraphRelationshipInMemory> relationshipsFromChild = childGraph.nodesAndEdges.getRelationships();
-            for (GraphRelationshipInMemory relationship : relationshipsFromChild) {
-                insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
-            }
+            final Stream<GraphNodeInMemory> nodesFromChild = mutatedGraph.getUpdatedNodes();
+            nodesFromChild.forEach(node -> insertNode(node, node.getLabels()));
+
+            final Stream<GraphRelationshipInMemory> relationshipsFromChild = mutatedGraph.getUpdatedRelationships();
+            relationshipsFromChild.forEach(relationship ->
+                    insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId()));
+
+//            final Set<GraphRelationshipInMemory> relationshipsFromChild = mutatedGraph.nodesAndEdges.getRelationships();
+//            for (GraphRelationshipInMemory relationship : relationshipsFromChild) {
+//                insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
+//            }
         }
 
-        //throw new RuntimeException("TODO");
     }
 
     private static class NodeIdPair {
