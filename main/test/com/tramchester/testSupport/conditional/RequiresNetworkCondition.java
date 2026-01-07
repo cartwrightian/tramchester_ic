@@ -17,15 +17,12 @@ public class RequiresNetworkCondition implements ExecutionCondition {
     static boolean networkAvailable = checkForActiveInterface();
 
     private static boolean checkForActiveInterface() {
-        boolean opened=false;
-        try {
-            final Socket socket = new Socket("www.google.com", 443);
-            opened = true;
-            socket.close();
+        try (final Socket ignored = new Socket("www.google.com", 443);) {
+            return true;
         } catch (IOException e) {
             // can't open socket
         }
-        return opened;
+        return false;
     }
 
     @Override

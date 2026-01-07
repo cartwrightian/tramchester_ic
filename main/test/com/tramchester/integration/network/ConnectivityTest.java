@@ -1,6 +1,7 @@
 package com.tramchester.integration.network;
 
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -11,6 +12,7 @@ import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@RequiresNetwork
 class ConnectivityTest {
 
     // Here to assist in diagnosing connectivity issues on the CI machines

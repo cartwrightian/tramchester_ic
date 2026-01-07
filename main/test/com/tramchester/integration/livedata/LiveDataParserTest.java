@@ -11,6 +11,7 @@ import com.tramchester.livedata.tfgm.LiveDataParser;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -60,6 +61,7 @@ public class LiveDataParserTest {
         assertTrue(missing.isEmpty(), missing.toString());
     }
 
+    @RequiresNetwork
     @Test
     void shouldParseCurrentData() {
 

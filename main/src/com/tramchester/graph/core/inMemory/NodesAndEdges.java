@@ -54,7 +54,7 @@ public class NodesAndEdges {
         nodes.put(id, node);
     }
 
-    public void addRelationship(final RelationshipIdInMemory id, final GraphRelationshipInMemory relationship) {
+    public void putRelationship(final RelationshipIdInMemory id, final GraphRelationshipInMemory relationship) {
         relationships.put(id, relationship);
     }
 

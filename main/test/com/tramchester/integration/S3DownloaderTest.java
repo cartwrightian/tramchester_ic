@@ -6,6 +6,7 @@ import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.S3DownloadAndModTime;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 @S3Test
 public class S3DownloaderTest {
     private static ClientForS3 clientForS3;

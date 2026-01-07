@@ -67,8 +67,8 @@ public class TransactionManager implements TransactionObserver {
         if (immutable) {
             return new ImmutableGraph(graphCore);
         } else {
-            return graphCore;
-            //return new MutableTransactionGraph(graphCore, idFactory);
+            //return graphCore;
+            return new MutableTransactionGraph(graphCore, idFactory);
         }
     }
 

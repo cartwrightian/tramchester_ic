@@ -7,6 +7,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -38,6 +39,7 @@ import java.util.zip.ZipInputStream;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 @S3Test
 public class ClientForS3Test {
     private static S3Client awsS3;

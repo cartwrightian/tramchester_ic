@@ -17,6 +17,7 @@ import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 @JsonPropertyOrder({"nodes", "relationships"})
@@ -181,12 +182,17 @@ public class GraphCore implements Graph {
     GraphRelationshipInMemory insertRelationship(final TransportRelationshipTypes relationshipType,
                                     final GraphRelationshipInMemory relationship,
                                     final NodeIdInMemory beginId, final NodeIdInMemory endId) {
+
         final RelationshipIdInMemory relationshipId = relationship.getId();
 
-        nodesAndEdges.addRelationship(relationshipId, relationship);
-        addOutboundTo(beginId, relationshipId);
-        addInboundTo(endId, relationshipId);
-        relationshipTypeCounts.increment(relationshipType);
+        // TODO sanity check direction and type have not changed? These are immutable properties for the relationship
+        nodesAndEdges.putRelationship(relationshipId, relationship);
+
+        final boolean addInbound = putInboundTo(endId, relationshipId);
+        final boolean addOutbound = putOutboundTo(beginId, relationshipId);
+        if (addInbound||addOutbound) {
+            relationshipTypeCounts.increment(relationshipType);
+        }
         return relationship;
     }
 
@@ -206,21 +212,33 @@ public class GraphCore implements Graph {
         }
     }
 
-    private void addInboundTo(final GraphNodeId id, final RelationshipIdInMemory relationshipId) {
+    /***
+     * Add an inbound for node nodeId
+     * @param nodeId parent node id
+     * @param relationshipId id of outbound relationship to add
+     * @return true if added a new relationship
+     */
+    private boolean putInboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
         synchronized (relationshipsForNodes) {
-            if (!relationshipsForNodes.containsKey(id)) {
-                relationshipsForNodes.put(id, new RelationshipsForNode());
+            if (!relationshipsForNodes.containsKey(nodeId)) {
+                relationshipsForNodes.put(nodeId, new RelationshipsForNode());
             }
-            relationshipsForNodes.get(id).addInbound(relationshipId);
+            return relationshipsForNodes.get(nodeId).putInbound(relationshipId);
         }
     }
 
-    private void addOutboundTo(final GraphNodeId id, final RelationshipIdInMemory relationshipId) {
+    /***
+     * Add an outbound for node nodeId
+     * @param nodeId parent node id
+     * @param relationshipId id of outbound relationship to add
+     * @return true if added a new relationship
+     */
+    private boolean putOutboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
         synchronized (relationshipsForNodes) {
-            if (!relationshipsForNodes.containsKey(id)) {
-                relationshipsForNodes.put(id, new RelationshipsForNode());
+            if (!relationshipsForNodes.containsKey(nodeId)) {
+                relationshipsForNodes.put(nodeId, new RelationshipsForNode());
             }
-            relationshipsForNodes.get(id).addOutbound(relationshipId);
+            return relationshipsForNodes.get(nodeId).putOutbound(relationshipId);
         }
     }
 
@@ -240,6 +258,16 @@ public class GraphCore implements Graph {
                 };
     }
 
+    /***
+     * Find single relationship
+     * If one found returns that
+     * If none found return null
+     * If >1 found throws exception
+     * @param id the node id
+     * @param direction Incoming or Outgoing
+     * @param transportRelationshipType type of relationship
+     * @return the single relationship that matched
+     */
     @Override
     public GraphRelationshipInMemory getSingleRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
                                                                   final TransportRelationshipTypes transportRelationshipType) {
@@ -247,9 +275,13 @@ public class GraphCore implements Graph {
                 filter(rel -> rel.isType(transportRelationshipType)).
                 toList();
 
+        if (result.isEmpty()) {
+            return null;
+        }
         if (result.size()==1) {
             return result.getFirst();
         }
+
         String msg = "Wrong number of relationships " + result.size();
         logger.error(msg);
         throw new GraphException(msg);
@@ -366,14 +398,12 @@ public class GraphCore implements Graph {
 
     @Override
     public void commit(final GraphTransaction owningTransaction) {
-        // TODO
-        //throw new RuntimeException("Unexpected commit for " + owningTransaction);
+        throw new RuntimeException("Unexpected commit for " + owningTransaction);
     }
 
     @Override
     public void close(final GraphTransaction owningTransaction) {
-        // TODO
-        //throw new RuntimeException("Unexpected close for " + owningTransaction);
+        throw new RuntimeException("Unexpected close for " + owningTransaction);
     }
 
     /***
@@ -466,10 +496,12 @@ public class GraphCore implements Graph {
             for (NodeIdInMemory nodeIdInMemory : nodesToDelete) {
                 delete(nodeIdInMemory);
             }
+            // TODO Use Dirty flag here
             final Set<GraphNodeInMemory> nodesFromChild = childGraph.nodesAndEdges.getNodes();
             for (GraphNodeInMemory graphNodeInMemory : nodesFromChild) {
                 insertNode(graphNodeInMemory, graphNodeInMemory.getLabels());
             }
+            // TODO Use Dirty flag here
             final Set<GraphRelationshipInMemory> relationshipsFromChild = childGraph.nodesAndEdges.getRelationships();
             for (GraphRelationshipInMemory relationship : relationshipsFromChild) {
                 insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
@@ -505,29 +537,33 @@ public class GraphCore implements Graph {
         }
     }
 
+    /***
+     * Cached, performance
+     */
     private static class RelationshipTypeCounts {
-        ConcurrentHashMap<TransportRelationshipTypes, Integer> theMap;
+        ConcurrentHashMap<TransportRelationshipTypes, AtomicInteger> theMap;
 
         RelationshipTypeCounts() {
             theMap = new ConcurrentHashMap<>();
+            reset();
         }
 
         public void reset() {
             for(TransportRelationshipTypes type : TransportRelationshipTypes.values()) {
-                theMap.put(type, 0);
+                theMap.put(type, new AtomicInteger(0));
             }
         }
 
-        public void increment(TransportRelationshipTypes relationshipType) {
-            theMap.compute(relationshipType, (k, current) -> current + 1);
+        public void increment(final TransportRelationshipTypes relationshipType) {
+            theMap.get(relationshipType).getAndIncrement();
         }
 
-        public synchronized void decrement(TransportRelationshipTypes relationshipType) {
-            theMap.compute(relationshipType, (k, current) -> current - 1);
+        public synchronized void decrement(final TransportRelationshipTypes relationshipType) {
+            theMap.get(relationshipType).getAndDecrement();
         }
 
-        public synchronized int get(TransportRelationshipTypes relationshipType) {
-            return theMap.get(relationshipType);
+        public synchronized int get(final TransportRelationshipTypes relationshipType) {
+            return theMap.get(relationshipType).get();
         }
 
         @Override

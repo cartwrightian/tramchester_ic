@@ -29,15 +29,25 @@ class RelationshipsForNode {
         return inboundIds.stream().map(source::get);
     }
 
-    public void addOutbound(final RelationshipIdInMemory relationshipId) {
+    /***
+     * Add a outbound relationship
+     * @param relationshipId the id of relationship to add
+     * @return true if added new outbound
+     */
+    public boolean putOutbound(final RelationshipIdInMemory relationshipId) {
         synchronized (outboundIds) {
-            outboundIds.add(relationshipId);
+            return outboundIds.add(relationshipId);
         }
     }
 
-    public void addInbound(final RelationshipIdInMemory relationshipId) {
+    /***
+     * Add a inbound relationship
+     * @param relationshipId the id of relationship to add
+     * @return true if added new inbound
+     */
+    public boolean putInbound(final RelationshipIdInMemory relationshipId) {
         synchronized (inboundIds) {
-            inboundIds.add(relationshipId);
+            return inboundIds.add(relationshipId);
         }
     }
 
