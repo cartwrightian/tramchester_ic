@@ -29,6 +29,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item);
 
+    // test support
     List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction,
                                                          EnumSet<TransportRelationshipTypes> relationshipTypes);
 

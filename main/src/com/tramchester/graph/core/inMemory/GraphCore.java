@@ -243,7 +243,7 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction) {
+    public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory id, final GraphDirection direction) {
         return findRelationshipsMutableFor(id, direction).map(item -> item);
     }
 

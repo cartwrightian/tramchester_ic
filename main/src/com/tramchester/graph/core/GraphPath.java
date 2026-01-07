@@ -9,7 +9,7 @@ public interface GraphPath {
 
     TramDuration getTotalCost();
 
-    Iterable<GraphEntity> getEntities(GraphTransaction txn);
+    Iterable<GraphEntity<? extends GraphId>> getEntities(GraphTransaction txn);
 
     GraphNode getStartNode(GraphTransaction txn);
 

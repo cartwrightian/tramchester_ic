@@ -61,11 +61,11 @@ public class GraphPathNeo4j implements GraphPath {
     }
 
     @Override
-    public Iterable<GraphEntity> getEntities(final GraphTransaction txn) {
+    public Iterable<GraphEntity<? extends GraphId>> getEntities(final GraphTransaction txn) {
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return new Iterable<>() {
             @Override
-            public @NotNull Iterator<GraphEntity> iterator() {
+            public @NotNull Iterator<GraphEntity<? extends GraphId>> iterator() {
                 return new PathIterator(path.iterator(), txnNeo4J);
             }
         };
@@ -126,7 +126,7 @@ public class GraphPathNeo4j implements GraphPath {
         return path.endNode();
     }
 
-    private static class PathIterator implements Iterator<GraphEntity> {
+    private static class PathIterator implements Iterator<GraphEntity<? extends GraphId>> {
 
         private final Iterator<Entity> iterator;
         private final GraphTransactionNeo4J txn;
@@ -142,8 +142,8 @@ public class GraphPathNeo4j implements GraphPath {
         }
 
         @Override
-        public GraphEntity next() {
-            Entity entity = iterator.next();
+        public GraphEntity<? extends GraphId> next() {
+            final Entity entity = iterator.next();
             if (entity==null) {
                 return null;
             }

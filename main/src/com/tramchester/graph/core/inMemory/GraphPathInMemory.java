@@ -67,10 +67,10 @@ public class GraphPathInMemory implements GraphPath {
     }
 
     @Override
-    public Iterable<GraphEntity> getEntities(GraphTransaction txn) {
+    public Iterable<GraphEntity<? extends GraphId>> getEntities(final GraphTransaction txn) {
         return new Iterable<>() {
             @Override
-            public @NotNull Iterator<GraphEntity> iterator() {
+            public @NotNull Iterator<GraphEntity<? extends GraphId>> iterator() {
                 return entityList.Stream().iterator();
             }
         };
@@ -78,7 +78,7 @@ public class GraphPathInMemory implements GraphPath {
 
     @Override
     public GraphNode getStartNode(final GraphTransaction txn) {
-        final Optional<GraphEntity> found = entityList.Stream().
+        final Optional<GraphEntity<? extends GraphId>> found = entityList.Stream().
                 filter(GraphEntity::isNode).
                 findFirst();
         if (found.isEmpty()) {
@@ -165,13 +165,13 @@ public class GraphPathInMemory implements GraphPath {
 
     private static class SimpleEntityList implements EntityList {
 
-        private final List<GraphEntity> list;
+        private final List<GraphEntity<? extends GraphId>> list;
 
         private SimpleEntityList() {
             list = new ArrayList<>();
         }
 
-        private SimpleEntityList(final List<GraphEntity> list) {
+        private SimpleEntityList(final List<GraphEntity<? extends GraphId>> list) {
             this.list = list;
         }
 
@@ -186,12 +186,12 @@ public class GraphPathInMemory implements GraphPath {
         }
 
         @Override
-        public void add(GraphEntity graphEntity) {
+        public void add(GraphEntity<? extends GraphId> graphEntity) {
             list.add(graphEntity);
         }
 
         @Override
-        public @NotNull Stream<GraphEntity> Stream() {
+        public @NotNull Stream<GraphEntity<? extends GraphId>> Stream() {
             return list.stream();
         }
 

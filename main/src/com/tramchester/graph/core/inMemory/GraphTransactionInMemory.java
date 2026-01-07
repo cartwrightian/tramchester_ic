@@ -147,19 +147,19 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         throw new GraphException(message);
     }
 
+    // Test support
     @Override
     public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction,
-                                                                EnumSet<TransportRelationshipTypes> relationshipTypes) {
+                                                                final EnumSet<TransportRelationshipTypes> relationshipTypes) {
         final GraphNode node = findNode(routeStation);
         if (node==null) {
             logger.info("Did not find node for " + routeStation.getId());
             return Collections.emptyList();
         }
         // TODO
-        NodeIdInMemory idInMemory = (NodeIdInMemory) node.getId();
+        final NodeIdInMemory idInMemory = (NodeIdInMemory) node.getId();
         final Stream<GraphRelationship> results = graph.findRelationshipsImmutableFor(idInMemory, direction).
-                filter(relationship -> relationshipTypes.contains(relationship.getType())).
-                map(item ->item);
+                filter(relationship -> relationshipTypes.contains(relationship.getType()));
         return results.toList();
     }
 

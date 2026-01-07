@@ -84,12 +84,12 @@ public class MutableTransactionGraph implements Graph {
         if (localGraph.hasNodeId(id)) {
             localGraph.addLabel(id, label);
         } else {
-            copyIntoLocal(id);
+            copyNodeIntoLocal(id, true);
             localGraph.addLabel(id, label);
         }
     }
 
-    private GraphNodeInMemory copyIntoLocal(final NodeIdInMemory nodeId) {
+    private GraphNodeInMemory copyNodeIntoLocal(final NodeIdInMemory nodeId, final boolean includeRelationships) {
         if (!parent.hasNodeId(nodeId)) {
             throw new RuntimeException("Could node find node with id " + nodeId);
         }
@@ -99,16 +99,18 @@ public class MutableTransactionGraph implements Graph {
         final GraphNodeInMemory original = parent.getNodeMutable(nodeId);
         final GraphNodeInMemory result = localGraph.insertNode(original.copy(), original.getLabels());
 
-        final Stream<RelationshipIdInMemory> relNotCopiedIn = parent.
-                getRelationshipsIdsFor(nodeId).
-                filter(relId -> !localGraph.hasRelationshipId(relId));
+        if (includeRelationships) {
+            final Stream<RelationshipIdInMemory> relNotCopiedIn = parent.
+                    getRelationshipsIdsFor(nodeId).
+                    filter(relId -> !localGraph.hasRelationshipId(relId));
 
-        relNotCopiedIn.forEach(this::copyIntoLocal);
+            relNotCopiedIn.forEach(this::copyRelationshipIntoLocal);
+        }
 
         return result;
     }
 
-    private GraphRelationshipInMemory copyIntoLocal(final RelationshipIdInMemory relId) {
+    private GraphRelationshipInMemory copyRelationshipIntoLocal(final RelationshipIdInMemory relId) {
         if (!parent.hasRelationshipId(relId)) {
             throw new RuntimeException("Could node find relationship with id " + relId);
         }
@@ -117,9 +119,10 @@ public class MutableTransactionGraph implements Graph {
         }
 
         final GraphRelationshipInMemory original = parent.getRelationship(relId);
-        final GraphNodeInMemory begin = copyIntoLocal(original.getStartId());
-        final GraphNodeInMemory end = copyIntoLocal(original.getEndId());
+        final GraphNodeInMemory begin = copyNodeIntoLocal(original.getStartId(), false);
+        final GraphNodeInMemory end = copyNodeIntoLocal(original.getEndId(), false);
         return localGraph.insertRelationship(original.getType(), original.copy(), begin.getId(), end.getId());
+
     }
 
     @Override
@@ -127,7 +130,7 @@ public class MutableTransactionGraph implements Graph {
         if (localGraph.hasNodeId(nodeId)) {
             return localGraph.getNodeMutable(nodeId);
         } else {
-            return copyIntoLocal(nodeId);
+            return copyNodeIntoLocal(nodeId, true);
         }
     }
 
@@ -158,7 +161,7 @@ public class MutableTransactionGraph implements Graph {
                    return localGraph.getRelationship(originalRelationshipId);
                } else {
                    // copy into local (which includes the nodes)
-                   return copyIntoLocal(originalRelationshipId);
+                   return copyRelationshipIntoLocal(originalRelationshipId);
                }
            }
         }
@@ -184,14 +187,14 @@ public class MutableTransactionGraph implements Graph {
             final Stream<RelationshipIdInMemory> needCopyIn = originalRelationships.
                     filter(relId -> !localGraph.hasRelationshipId(relId));
 
-            return needCopyIn.map(this::copyIntoLocal);
+            return needCopyIn.map(this::copyRelationshipIntoLocal);
         }
 
         throw new RuntimeException("Did not find node " + nodeId);
     }
 
     @Override
-    public Stream<GraphNodeInMemory> findNodesMutable(GraphLabel graphLabel) {
+    public Stream<GraphNodeInMemory> findNodesMutable(final GraphLabel graphLabel) {
         final List<NodeIdInMemory> localIds = localGraph.findNodesMutable(graphLabel).
                 map(GraphNodeInMemory::getId).
                 toList();
@@ -199,8 +202,10 @@ public class MutableTransactionGraph implements Graph {
                 map(GraphNodeInMemory::getId).
                 filter(node -> !localIds.contains(node)).toList();
 
-        final Stream<GraphNodeInMemory> copiedIn = fromParent.stream().map(this::copyIntoLocal);
-        final Stream<GraphNodeInMemory> localNodes = localIds.stream().map(this::getNodeMutable);
+        final Stream<GraphNodeInMemory> copiedIn = fromParent.stream().
+                map(node -> copyNodeIntoLocal(node, true));
+        final Stream<GraphNodeInMemory> localNodes = localIds.stream().
+                map(this::getNodeMutable);
         return Stream.concat(localNodes, copiedIn);
     }
 
@@ -232,9 +237,9 @@ public class MutableTransactionGraph implements Graph {
     }
 
     @Override
-    public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction) {
-        final List<GraphRelationship> local = localGraph.findRelationshipsImmutableFor(id, direction).toList();
-        final Stream<GraphRelationship> fromParent = parent.findRelationshipsImmutableFor(id, direction).
+    public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory nodeId, final GraphDirection direction) {
+        final List<GraphRelationship> local = localGraph.findRelationshipsImmutableFor(nodeId, direction).toList();
+        final Stream<GraphRelationship> fromParent = parent.findRelationshipsImmutableFor(nodeId, direction).
                 filter(graphRelationship -> !local.contains(graphRelationship));
         return Stream.concat(local.stream(), fromParent);
     }
