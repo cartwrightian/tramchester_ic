@@ -514,6 +514,17 @@ public class GraphCore implements Graph {
 
     }
 
+    Stream<RelationshipIdInMemory> getRelationshipsIdsFor(NodeIdInMemory nodeId) {
+        synchronized (relationshipsForNodes) {
+            if (relationshipsForNodes.containsKey(nodeId)) {
+                final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(nodeId);
+                return relationshipsForNode.getRelationshipIds();
+            } else {
+                return Stream.empty();
+            }
+        }
+    }
+
     private static class NodeIdPair {
         private final GraphNodeId first;
         private final GraphNodeId second;

@@ -77,7 +77,7 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     public static GraphDBType getDefaultDBTYpe() {
-        return GraphDBType.InMemory;
+        return GraphDBType.Neo4J;
     }
 
     public static AppConfiguration GET() {

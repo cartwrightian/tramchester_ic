@@ -83,4 +83,8 @@ class RelationshipsForNode {
     public int hashCode() {
         return Objects.hash(outboundIds, inboundIds);
     }
+
+    public Stream<RelationshipIdInMemory> getRelationshipIds() {
+        return Stream.concat(outboundIds.stream(), inboundIds.stream());
+    }
 }

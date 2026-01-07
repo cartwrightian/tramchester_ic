@@ -7,6 +7,9 @@ import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.metrics.Timing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -15,6 +18,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class MutableTransactionGraph implements Graph {
+    private static final Logger logger = LoggerFactory.getLogger(MutableTransactionGraph.class);
+
     private final GraphCore parent;
     private final GraphCore localGraph;
     private final Set<RelationshipIdInMemory> locallyCreatedRelationships;
@@ -84,34 +89,34 @@ public class MutableTransactionGraph implements Graph {
         }
     }
 
-    private GraphNodeInMemory copyIntoLocal(final NodeIdInMemory id) {
-        if (!parent.hasNodeId(id)) {
-            throw new RuntimeException("Could node find node with id " + id);
+    private GraphNodeInMemory copyIntoLocal(final NodeIdInMemory nodeId) {
+        if (!parent.hasNodeId(nodeId)) {
+            throw new RuntimeException("Could node find node with id " + nodeId);
         }
-        if (localGraph.hasNodeId(id)) {
-            return localGraph.getNodeMutable(id);
+        if (localGraph.hasNodeId(nodeId)) {
+            return localGraph.getNodeMutable(nodeId);
         }
-        final GraphNodeInMemory original = parent.getNodeMutable(id);
+        final GraphNodeInMemory original = parent.getNodeMutable(nodeId);
         final GraphNodeInMemory result = localGraph.insertNode(original.copy(), original.getLabels());
-        final Stream<RelationshipIdInMemory> notCopiedIn = parent.
-                findRelationshipsMutableFor(id, GraphDirection.Both).
-                map(GraphRelationshipInMemory::getId).
+
+        final Stream<RelationshipIdInMemory> relNotCopiedIn = parent.
+                getRelationshipsIdsFor(nodeId).
                 filter(relId -> !localGraph.hasRelationshipId(relId));
 
-        notCopiedIn.forEach(this::copyIntoLocal);
+        relNotCopiedIn.forEach(this::copyIntoLocal);
 
         return result;
     }
 
-    private GraphRelationshipInMemory copyIntoLocal(final RelationshipIdInMemory id) {
-        if (!parent.hasRelationshipId(id)) {
-            throw new RuntimeException("Could node find relationship with id " + id);
+    private GraphRelationshipInMemory copyIntoLocal(final RelationshipIdInMemory relId) {
+        if (!parent.hasRelationshipId(relId)) {
+            throw new RuntimeException("Could node find relationship with id " + relId);
         }
-        if (localGraph.hasRelationshipId(id)) {
-            return localGraph.getRelationship(id);
+        if (localGraph.hasRelationshipId(relId)) {
+            return localGraph.getRelationship(relId);
         }
 
-        final GraphRelationshipInMemory original = parent.getRelationship(id);
+        final GraphRelationshipInMemory original = parent.getRelationship(relId);
         final GraphNodeInMemory begin = copyIntoLocal(original.getStartId());
         final GraphNodeInMemory end = copyIntoLocal(original.getEndId());
         return localGraph.insertRelationship(original.getType(), original.copy(), begin.getId(), end.getId());
@@ -249,7 +254,9 @@ public class MutableTransactionGraph implements Graph {
 
     @Override
     public synchronized void commit(final GraphTransaction owningTransaction) {
-        parent.commitChanges(this, relationshipsToDelete, notesToDelete);
+        try (Timing ignored = new Timing(logger, "commit for " + owningTransaction)) {
+            parent.commitChanges(this, relationshipsToDelete, notesToDelete);
+        }
     }
 
     @Override
