@@ -54,8 +54,8 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     }
 
     @Override
-    public void delete(MutableGraphTransaction txn) {
-        GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+    public void delete(final MutableGraphTransaction txn) {
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         inMemory.delete(id);
         invalidateCache();
     }

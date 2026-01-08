@@ -130,4 +130,11 @@ public class NodesAndEdges {
     public boolean isEmpty() {
         return nodes.isEmpty() && relationships.isEmpty();
     }
+
+    public void removeRelationship(RelationshipIdInMemory relId) {
+        if (!relationships.containsKey(relId)) {
+            throw new RuntimeException("Cannot delete, did not find " + relId);
+        }
+        relationships.remove(relId);
+    }
 }

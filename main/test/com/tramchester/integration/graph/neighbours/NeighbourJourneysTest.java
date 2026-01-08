@@ -23,7 +23,7 @@ import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConf
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;

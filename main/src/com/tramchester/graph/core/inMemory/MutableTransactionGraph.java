@@ -237,6 +237,13 @@ public class MutableTransactionGraph implements Graph {
     }
 
     @Override
+    public Stream<GraphRelationship> findRelationships(TransportRelationshipTypes type) {
+        final List<GraphRelationship> local = localGraph.findRelationships(type).toList();
+        final Stream<GraphRelationship> fromParent = parent.findRelationships(type).filter(rel -> !local.contains(rel));
+        return Stream.concat(local.stream(), fromParent);
+    }
+
+    @Override
     public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory nodeId, final GraphDirection direction) {
         final List<GraphRelationship> local = localGraph.findRelationshipsImmutableFor(nodeId, direction).toList();
         final Stream<GraphRelationship> fromParent = parent.findRelationshipsImmutableFor(nodeId, direction).

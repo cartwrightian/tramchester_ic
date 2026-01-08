@@ -1,0 +1,176 @@
+package com.tramchester.integration.graph;
+
+import com.tramchester.ComponentsBuilder;
+import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
+import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.core.*;
+import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.search.LocationJourneyPlanner;
+import com.tramchester.graph.search.WalkNodesAndRelationships;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
+import com.tramchester.testSupport.reference.TramStations;
+import org.junit.jupiter.api.*;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+
+import static com.tramchester.graph.core.GraphDirection.Outgoing;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_FROM_STATION;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
+import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class WalkNodesAndRelationshipsTest {
+    private static GuiceContainerDependencies componentContainer;
+    private static IntegrationTramTestConfig testConfig;
+    ;
+    private MutableGraphTransaction txn;
+    private WalkNodesAndRelationships walkNodesAndRelationships;
+    private JourneyRequest journeyRequest;
+
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() {
+        testConfig = new IntegrationTramTestConfig();
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer.initialise();
+    }
+
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
+        componentContainer.close();
+    }
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
+
+        journeyRequest = new JourneyRequest(TestEnv.testDay(), TramTime.of(9, 0), false,
+                0, maxJourneyDuration, 1, EnumSet.of(TransportMode.Tram));
+
+        // init graph build
+        componentContainer.get(LocationJourneyPlanner.class);
+
+        txn = database.beginTxMutable();
+
+        walkNodesAndRelationships = new WalkNodesAndRelationships(txn);
+
+    }
+
+    @AfterEach
+    void afterEachTestRuns() {
+        txn.close();
+    }
+
+    @Test
+    void shouldCreateAndThenDeleteWalkingNode() {
+
+        KnownLocations knownLocation = KnownLocations.nearStPetersSquare;
+
+        assertEquals(0,txn.findNodes(GraphLabel.QUERY_NODE).count());
+
+        walkNodesAndRelationships.createWalkingNode(knownLocation.location(), journeyRequest);
+
+        List<GraphNode> nodes = txn.findNodes(GraphLabel.QUERY_NODE).toList();
+
+        assertEquals(1, nodes.size());
+
+        GraphNode node = nodes.getFirst();
+
+        assertEquals(knownLocation.latLong(), node.getLatLong());
+
+        assertEquals(format("%s_%s", knownLocation.location().getLatLong(), journeyRequest.getUid().toString()), node.getWalkId());
+
+        walkNodesAndRelationships.delete();
+
+        assertEquals(0,txn.findNodes(GraphLabel.QUERY_NODE).count());
+
+    }
+
+    @Test
+    void shouldCreateWalksToStartStationAndThenDelete() {
+
+        KnownLocations knownLocation = KnownLocations.nearStPetersSquare;
+        Station startStation = TramStations.StPetersSquare.fake();
+        TramDuration cost = TramDuration.ofSeconds(75);
+
+        StationWalk walk = new StationWalk(startStation, cost);
+        Set<StationWalk> stationWalks = Collections.singleton(walk);
+
+        assertEquals(0,txn.findNodes(GraphLabel.QUERY_NODE).count());
+
+        MutableGraphNode queryNode = walkNodesAndRelationships.createWalkingNode(knownLocation.location(), journeyRequest);
+        GraphNode stationNode = txn.findNode(startStation);
+
+        walkNodesAndRelationships.createWalksToStart(queryNode, stationWalks);
+
+        assertEquals(1, txn.findRelationships(WALKS_TO_STATION).count());
+
+        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Outgoing, EnumSet.of(WALKS_TO_STATION))
+                .toList();
+
+        assertEquals(1, relationships.size());
+
+        GraphRelationship relationship = relationships.getFirst();
+
+        assertEquals(cost, relationship.getCost());
+        assertEquals(stationNode.getId(), relationship.getEndNodeId(txn));
+        assertEquals(queryNode.getId(), relationship.getStartNodeId(txn));
+        assertEquals(startStation.getId(), relationship.getStationId());
+
+        walkNodesAndRelationships.delete();
+
+        assertEquals(0, txn.findNodes(GraphLabel.QUERY_NODE).count());
+        assertEquals(0, txn.findRelationships(WALKS_TO_STATION).count());
+    }
+
+    @Test
+    void shouldCreateWalksFromStationAndThenDelete() {
+
+        KnownLocations knownLocation = KnownLocations.nearStPetersSquare;
+        Station startStation = TramStations.StPetersSquare.fake();
+        TramDuration cost = TramDuration.ofSeconds(75);
+
+        StationWalk walk = new StationWalk(startStation, cost);
+        Set<StationWalk> stationWalks = Collections.singleton(walk);
+
+        assertEquals(0,txn.findNodes(GraphLabel.QUERY_NODE).count());
+
+        MutableGraphNode queryNode = walkNodesAndRelationships.createWalkingNode(knownLocation.location(), journeyRequest);
+        GraphNode stationNode = txn.findNode(startStation);
+
+        walkNodesAndRelationships.createWalksToDest(queryNode, stationWalks);
+
+        assertEquals(1, txn.findRelationships(WALKS_FROM_STATION).count());
+
+        List<GraphRelationship> relationships = stationNode.getRelationships(txn, Outgoing, EnumSet.of(WALKS_FROM_STATION))
+                .toList();
+
+        assertEquals(1, relationships.size());
+
+        GraphRelationship relationship = relationships.getFirst();
+
+        assertEquals(cost, relationship.getCost());
+        assertEquals(queryNode.getId(), relationship.getEndNodeId(txn));
+        assertEquals(stationNode.getId(), relationship.getStartNodeId(txn));
+        assertEquals(startStation.getId(), relationship.getStationId());
+
+        walkNodesAndRelationships.delete();
+
+        assertEquals(0, txn.findNodes(GraphLabel.QUERY_NODE).count());
+        assertEquals(0, txn.findRelationships(WALKS_FROM_STATION).count());
+    }
+
+
+
+}

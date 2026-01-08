@@ -22,7 +22,7 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.testSupport.testTags.MultiDB;

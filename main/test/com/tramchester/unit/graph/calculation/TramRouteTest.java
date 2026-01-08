@@ -24,7 +24,7 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;

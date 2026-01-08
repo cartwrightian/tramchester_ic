@@ -16,7 +16,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;

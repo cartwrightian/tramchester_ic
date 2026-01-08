@@ -133,7 +133,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
 
         if (list.isEmpty()) {
-            return inMemory.getRelationships(id, direction);
+            return inMemory.findRelationships(id, direction);
         } else {
             final EnumSet<TransportRelationshipTypes> types = EnumSet.copyOf(list);
             return inMemory.getRelationshipImmutable(id, direction, types).map(item -> item);

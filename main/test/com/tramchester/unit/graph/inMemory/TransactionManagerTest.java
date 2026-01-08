@@ -10,6 +10,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -170,12 +171,12 @@ public class TransactionManagerTest {
 
             EnumSet<TransportRelationshipTypes> relationshipTypes = EnumSet.copyOf(Arrays.asList(TransportRelationshipTypes.forPlanning()));
 
-            List<GraphRelationship> initialSearch = txn.getRouteStationRelationships(routeStation, Outgoing, relationshipTypes);
+            List<GraphRelationship> initialSearch = GraphHelper.getRouteStationRelationships(txn, routeStation, Outgoing, relationshipTypes);
             assertTrue(initialSearch.isEmpty());
 
             MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.DEPART);
 
-            List<GraphRelationship> result = txn.getRouteStationRelationships(routeStation, Outgoing, relationshipTypes);
+            List<GraphRelationship> result = GraphHelper.getRouteStationRelationships(txn, routeStation, Outgoing, relationshipTypes);
             assertFalse(result.isEmpty());
 
             assertTrue(result.contains(relationship));
@@ -401,6 +402,9 @@ public class TransactionManagerTest {
             MutableGraphRelationship relationshipA = start.createRelationshipTo(txn, end, FERRY_GOES_TO);
             MutableGraphRelationship relationshipB = end.createRelationshipTo(txn, start, TRAIN_GOES_TO);
 
+            assertEquals(1, txn.findRelationships(FERRY_GOES_TO).count());
+            assertEquals(1, txn.findRelationships(TRAIN_GOES_TO).count());
+
             assertTrue(start.hasRelationship(txn, Outgoing, FERRY_GOES_TO));
             assertTrue(end.hasRelationship(txn, Incoming, FERRY_GOES_TO));
             assertTrue(start.hasRelationship(txn, Incoming, TRAIN_GOES_TO));
@@ -410,11 +414,15 @@ public class TransactionManagerTest {
 
             assertFalse(start.hasRelationship(txn, Outgoing, FERRY_GOES_TO));
             assertFalse(end.hasRelationship(txn, Incoming, FERRY_GOES_TO));
+
             assertTrue(start.hasRelationship(txn, Incoming, TRAIN_GOES_TO));
             assertTrue(end.hasRelationship(txn, Outgoing, TRAIN_GOES_TO));
 
             List<GraphRelationship> foundOutgoing = start.getRelationships(txn, Outgoing, FERRY_GOES_TO).toList();
             assertTrue(foundOutgoing.isEmpty());
+
+            assertEquals(0, txn.findRelationships(FERRY_GOES_TO).count());
+            assertEquals(1, txn.findRelationships(TRAIN_GOES_TO).count());
 
             relationshipB.delete(txn);
 
@@ -425,6 +433,9 @@ public class TransactionManagerTest {
 
             List<GraphRelationship> foundBoth = start.getRelationships(txn, Both, FERRY_GOES_TO, TRAIN_GOES_TO).toList();
             assertTrue(foundBoth.isEmpty());
+
+            assertEquals(0, txn.findRelationships(FERRY_GOES_TO).count());
+            assertEquals(0, txn.findRelationships(TRAIN_GOES_TO).count());
 
             end.delete(txn);
 

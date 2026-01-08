@@ -137,7 +137,7 @@ public class GraphCore implements Graph {
     @Override
     public GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
         synchronized (nodesAndEdges) {
-            final int id = idFactory.getNextNodeId(); //nextGraphNodeId.getAndIncrement();
+            final int id = idFactory.getNextNodeId();
             final NodeIdInMemory idInMemory;
             if (diagnostics) {
                 idInMemory = new NodeIdInMemory(id, labels);
@@ -145,11 +145,7 @@ public class GraphCore implements Graph {
                 idInMemory = new NodeIdInMemory(id);
             }
             final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(idInMemory, labels);
-//            final NodeIdInMemory graphNodeId = graphNodeInMemory.getId();
-//            nodesAndEdges.addNode(graphNodeId, graphNodeInMemory);
-//            labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
             return insertNode(graphNodeInMemory, labels);
-            //return graphNodeInMemory;
         }
     }
 
@@ -170,7 +166,7 @@ public class GraphCore implements Graph {
 
             checkAndUpdateExistingRelationships(relationshipType, beginId, endId);
 
-            final int id = idFactory.getNextRelationshipId(); //nextRelationshipId.getAndIncrement();
+            final int id = idFactory.getNextRelationshipId();
             final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
                     new RelationshipIdInMemory(id), beginId, endId);
 
@@ -288,19 +284,21 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public void delete(final RelationshipIdInMemory id) {
+    public void delete(final RelationshipIdInMemory relId) {
         synchronized (nodesAndEdges) {
-            if (!nodesAndEdges.hasRelationship(id)) {
-                String msg = "Cannot delete relationship, missing id " + id;
+            if (!nodesAndEdges.hasRelationship(relId)) {
+                String msg = "Cannot delete relationship, missing id " + relId;
                 logger.error(msg);
                 throw new GraphException(msg);
             }
-            final GraphRelationshipInMemory relationship = nodesAndEdges.getRelationship(id);
+            final GraphRelationshipInMemory relationship = nodesAndEdges.getRelationship(relId);
             final GraphNodeId begin = relationship.getStartId();
             final GraphNodeId end = relationship.getEndId();
 
-            deleteRelationshipFrom(begin, id);
-            deleteRelationshipFrom(end, id);
+            deleteRelationshipFrom(begin, relId);
+            deleteRelationshipFrom(end, relId);
+
+            nodesAndEdges.removeRelationship(relId);
 
             relationshipTypeCounts.decrement(relationship.getType());
         }
@@ -335,7 +333,7 @@ public class GraphCore implements Graph {
 
     private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId) {
         if (relationshipsForNodes.containsKey(graphNodeId)) {
-            RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(graphNodeId);
+            final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(graphNodeId);
             relationshipsForNode.remove(relationshipId);
         }
     }
@@ -369,6 +367,14 @@ public class GraphCore implements Graph {
                 filter(node -> node.hasProperty(key)).
                 filter(node -> node.getProperty(key).equals(value)).
                 map(item -> item);
+    }
+
+    @Override
+    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes type) {
+        return nodesAndEdges.getRelationships().stream().
+                filter(rel -> rel.isType(type)).
+                map(item -> item);
+
     }
 
     @Override
@@ -505,16 +511,11 @@ public class GraphCore implements Graph {
             final Stream<GraphRelationshipInMemory> relationshipsFromChild = mutatedGraph.getUpdatedRelationships();
             relationshipsFromChild.forEach(relationship ->
                     insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId()));
-
-//            final Set<GraphRelationshipInMemory> relationshipsFromChild = mutatedGraph.nodesAndEdges.getRelationships();
-//            for (GraphRelationshipInMemory relationship : relationshipsFromChild) {
-//                insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
-//            }
         }
 
     }
 
-    Stream<RelationshipIdInMemory> getRelationshipsIdsFor(NodeIdInMemory nodeId) {
+    Stream<RelationshipIdInMemory> getRelationshipsIdsFor(final NodeIdInMemory nodeId) {
         synchronized (relationshipsForNodes) {
             if (relationshipsForNodes.containsKey(nodeId)) {
                 final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(nodeId);

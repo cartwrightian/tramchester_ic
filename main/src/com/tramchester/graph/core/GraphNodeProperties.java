@@ -213,10 +213,18 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     }
 
     @JsonIgnore
+    @Override
     public LatLong getLatLong() {
         final double lat = (double) getProperty(LATITUDE, graphProps);
         final double lon = (double) getProperty(LONGITUDE, graphProps);
         return new LatLong(lat, lon);
+    }
+
+
+    @JsonIgnore
+    @Override
+    public String getWalkId() {
+        return getProperty(WALK_ID).toString();
     }
 
     public boolean hasTripId() {

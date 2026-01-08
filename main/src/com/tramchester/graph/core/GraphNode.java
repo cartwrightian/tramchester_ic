@@ -76,6 +76,7 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
+    String getWalkId();
 
     // TODO this isn't a unique ID for all CoreDomain types i.e. there can be multiple Service Nodes with the same ServiceId
     // but different RouteIds
@@ -101,4 +102,5 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
             throw new RuntimeException("Could not match (or too many) " + labels + " with core domain " + GraphLabel.CoreDomain);
         }
     }
+
 }

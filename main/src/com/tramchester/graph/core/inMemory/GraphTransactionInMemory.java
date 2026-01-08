@@ -4,7 +4,6 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -12,7 +11,6 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
@@ -88,6 +86,11 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
+    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes type) {
+        return graph.findRelationships(type);
+    }
+
+    @Override
     public long numberOf(final TransportRelationshipTypes relationshipType) {
         return graph.getNumberOf(relationshipType);
     }
@@ -147,22 +150,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         throw new GraphException(message);
     }
 
-    // Test support
-    @Override
-    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction,
-                                                                final EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        final GraphNode node = findNode(routeStation);
-        if (node==null) {
-            logger.info("Did not find node for " + routeStation.getId());
-            return Collections.emptyList();
-        }
-        // TODO
-        final NodeIdInMemory idInMemory = (NodeIdInMemory) node.getId();
-        final Stream<GraphRelationship> results = graph.findRelationshipsImmutableFor(idInMemory, direction).
-                filter(relationship -> relationshipTypes.contains(relationship.getType()));
-        return results.toList();
-    }
-
     @Override
     public GraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
         if (graphRelationshipId instanceof RelationshipIdInMemory relationshipIdInMemory) {
@@ -172,7 +159,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         //throw new RuntimeException("Not defined for " + graphRelationshipId);
     }
 
-    Stream<GraphRelationship> getRelationships(final NodeIdInMemory id, final GraphDirection direction) {
+    Stream<GraphRelationship> findRelationships(final NodeIdInMemory id, final GraphDirection direction) {
         return graph.findRelationshipsImmutableFor(id, direction);
     }
 

@@ -25,7 +25,7 @@ import com.tramchester.graph.search.inMemory.ShortestPath;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;

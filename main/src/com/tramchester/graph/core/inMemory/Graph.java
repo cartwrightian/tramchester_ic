@@ -36,6 +36,8 @@ public interface Graph {
     Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value);
     GraphNode getNodeImmutable(NodeIdInMemory nodeId);
 
+    Stream<GraphRelationship> findRelationships(TransportRelationshipTypes type);
+
     Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction);
     GraphRelationship getRelationship(RelationshipIdInMemory graphRelationshipId);
 
@@ -46,4 +48,5 @@ public interface Graph {
 
     Stream<GraphNodeInMemory> getUpdatedNodes();
     Stream<GraphRelationshipInMemory> getUpdatedRelationships();
+
 }

@@ -81,6 +81,11 @@ public class ImmutableGraph implements Graph {
     }
 
     @Override
+    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes type) {
+        return underlying.findRelationships(type);
+    }
+
+    @Override
     public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory id, final GraphDirection direction) {
         return underlying.findRelationshipsImmutableFor(id, direction);
     }

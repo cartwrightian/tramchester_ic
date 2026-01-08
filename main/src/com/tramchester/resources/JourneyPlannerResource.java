@@ -19,6 +19,7 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;

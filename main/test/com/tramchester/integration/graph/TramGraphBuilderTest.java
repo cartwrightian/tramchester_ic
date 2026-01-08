@@ -29,6 +29,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
@@ -249,7 +250,7 @@ class TramGraphBuilderTest {
         RouteStation routeStationMediaCityA = stationRepository.getRouteStation(mediaCityUK, tramRouteEcclesAshton);
 
         assertNotNull(routeStationMediaCityA);
-        List<GraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStationMediaCityA, Outgoing, transportRelationshipTypes);
+        List<GraphRelationship> outboundsFromRouteStation = getRouteStationRelationships(routeStationMediaCityA, Outgoing, transportRelationshipTypes);
 
         IdSet<Service> graphSvcsFromRouteStations = outboundsFromRouteStation.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -735,7 +736,7 @@ class TramGraphBuilderTest {
     private List<GraphRelationship> getOutboundsServicesForRouteStation(final Station station, final Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
-        List<GraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStation, Outgoing, transportRelationshipTypes);
+        List<GraphRelationship> outboundsFromRouteStation = getRouteStationRelationships(routeStation, Outgoing, transportRelationshipTypes);
 
         return outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
     }
@@ -755,10 +756,10 @@ class TramGraphBuilderTest {
 
         EnumSet<TransportRelationshipTypes> relationshipTypes = EnumSet.of(TO_SERVICE);
 
-        Set<GraphRelationship> svcOutboundsA = new HashSet<>(txn.getRouteStationRelationships(routeStationA, Outgoing, relationshipTypes));
+        Set<GraphRelationship> svcOutboundsA = new HashSet<>(getRouteStationRelationships(routeStationA, Outgoing, relationshipTypes));
         assertFalse(svcOutboundsA.isEmpty());
 
-        Set<GraphRelationship> svcOutboundsB = new HashSet<>(txn.getRouteStationRelationships(routeStationB, Outgoing, relationshipTypes));
+        Set<GraphRelationship> svcOutboundsB = new HashSet<>(getRouteStationRelationships(routeStationB, Outgoing, relationshipTypes));
         assertFalse(svcOutboundsB.isEmpty());
 
         IdSet<Service> stationAServices = svcOutboundsA.stream().map(GraphRelationship::getServiceId).collect(IdSet.idCollector());
@@ -830,7 +831,7 @@ class TramGraphBuilderTest {
         Route tramRouteAltBury = tramRouteHelper.getGreen(when);
 
         RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(cornbrook, tramRouteAltBury);
-        List<GraphRelationship> outboundsA = txn.getRouteStationRelationships(routeStationCornbrookAltyPiccRoute, Outgoing, transportRelationshipTypes);
+        List<GraphRelationship> outboundsA = getRouteStationRelationships(routeStationCornbrookAltyPiccRoute, Outgoing, transportRelationshipTypes);
 
         assertTrue(outboundsA.size()>1, "have at least one outbound");
 
@@ -879,7 +880,7 @@ class TramGraphBuilderTest {
 
         assertNotNull(routeStation, "Could not find route stations for " + station.getId() + " " + route.getId());
 
-        List<GraphRelationship> routeStationOutbounds = txn.getRouteStationRelationships(routeStation, Outgoing,
+        List<GraphRelationship> routeStationOutbounds = getRouteStationRelationships(routeStation, Outgoing,
                 EnumSet.allOf(TransportRelationshipTypes.class));
 
         assertFalse(routeStationOutbounds.isEmpty());
@@ -915,9 +916,9 @@ class TramGraphBuilderTest {
                 filter(relationship -> relationship.isType(ROUTE_TO_STATION)).count();
         assertNotEquals(0, connectedToRouteStation);
 
-        TransportRelationshipTypes[] stationToRoute = new TransportRelationshipTypes[] {STATION_TO_ROUTE};
+        //TransportRelationshipTypes[] stationToRoute = new TransportRelationshipTypes[] {STATION_TO_ROUTE};
 
-        List<GraphRelationship> incomingToRouteStation = txn.getRouteStationRelationships(routeStation, GraphDirection.Incoming,
+        List<GraphRelationship> incomingToRouteStation = getRouteStationRelationships(routeStation, GraphDirection.Incoming,
                 EnumSet.allOf(TransportRelationshipTypes.class));
         long fromStation = incomingToRouteStation.stream().filter(relationship -> relationship.isType(STATION_TO_ROUTE)).count();
         assertNotEquals(0, fromStation);
@@ -934,7 +935,7 @@ class TramGraphBuilderTest {
     private void checkInboundConsistency(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
         assertNotNull(routeStation, "Could not find a route for " + station.getId() + " and  " + route.getId());
-        List<GraphRelationship> inbounds = txn.getRouteStationRelationships(routeStation, GraphDirection.Incoming, transportRelationshipTypes);
+        List<GraphRelationship> inbounds = getRouteStationRelationships(routeStation, GraphDirection.Incoming, transportRelationshipTypes);
 
         List<GraphRelationship> graphTramsIntoStation = inbounds.stream().
                 filter(inbound -> inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).toList();
@@ -974,4 +975,7 @@ class TramGraphBuilderTest {
         assertEquals(0, tripIdsFromFile.size());
     }
 
+    private List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection graphDirection, EnumSet<TransportRelationshipTypes> transportRelationshipTypes) {
+        return GraphHelper.getRouteStationRelationships(txn, routeStation, graphDirection, transportRelationshipTypes);
+    }
 }
