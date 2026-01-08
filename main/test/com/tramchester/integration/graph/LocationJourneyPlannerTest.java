@@ -46,7 +46,6 @@ class LocationJourneyPlannerTest {
     private final TramDate when = TestEnv.testDay();
     private MutableGraphTransaction txn;
     private LocationJourneyPlannerTestFacade planner;
-    private TramDate date;
     private TramDuration maxJourneyDuration;
     private long maxNumberOfJourneys;
 
@@ -69,7 +68,7 @@ class LocationJourneyPlannerTest {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
-        date = when;
+
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
@@ -136,7 +135,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
-        final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false,
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 0), false,
                 3, maxJourneyDuration, 1, getRequestedModes());
         //request.setDiag(true);
         final TramStations walkChangeStation = NavigationRoad;
@@ -173,7 +172,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveExpectedChangeStationsWhenTwoStageBeginWithWalk() {
-        final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false,
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 0), false,
                 3, maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(nearAltrincham, ManAirport, request, 3);
@@ -238,7 +237,7 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 0);
-        final JourneyRequest request = new JourneyRequest(date, queryTime, true, 2,
+        final JourneyRequest request = new JourneyRequest(when, queryTime, true, 2,
                 maxJourneyDuration, 1, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(Deansgate, nearAltrincham, request, 3);
@@ -260,7 +259,7 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingDirectAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);
-        final JourneyRequest request = new JourneyRequest(date, queryTime, false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
+        final JourneyRequest request = new JourneyRequest(when, queryTime, false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Shudehill, nearShudehill, request, 4);
 
@@ -281,7 +280,7 @@ class LocationJourneyPlannerTest {
         TramTime queryTime = TramTime.of(8, 35);
 
         // 2->3 for closures?
-        final JourneyRequest request = new JourneyRequest(date, queryTime, false, 3,
+        final JourneyRequest request = new JourneyRequest(when, queryTime, false, 3,
                 maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(Altrincham, nearShudehill, request, 3);

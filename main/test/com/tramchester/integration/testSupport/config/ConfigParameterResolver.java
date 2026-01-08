@@ -24,7 +24,6 @@ public class ConfigParameterResolver implements ParameterResolver {
 
     public static final String PARAMETER_KEY = "com.tramchester.config";
     private static final String dualTest = getTagName(MultiMode.class);
-
     private static final String trainTest = getTagName(TrainTest.class);
     private static final String gmTest = getTagName(GMTest.class);
 

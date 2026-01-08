@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class GraphDatabaseServiceFactoryTest {
     private static GuiceContainerDependencies componentContainer;
@@ -30,6 +31,8 @@ public class GraphDatabaseServiceFactoryTest {
     static void onceBeforeAnyTestsRun() throws IOException {
 
         config = new IntegrationTramTestConfig();
+        assumeFalse(config.getInMemoryGraph());
+
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
@@ -40,11 +43,13 @@ public class GraphDatabaseServiceFactoryTest {
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
+        assumeFalse(config.getInMemoryGraph());
         componentContainer.close();
     }
 
     @Test
     void shouldCreateAndStartDBAndRestart() {
+
 
         String labelName = "shouldCreateAndStartDBAndRestart";
         GraphDatabaseService dbService = factory.create();
@@ -53,7 +58,7 @@ public class GraphDatabaseServiceFactoryTest {
         assertTrue(dbService.isAvailable(200));
 
         List<String> intial = getAllLabels(dbService);
-        assertFalse(intial.contains(labelName));
+        assertFalse(intial.contains(labelName), "not expecting to see " + labelName + " in " + intial);
 
         // create a node with as label so can check persistence across restart
         try (Transaction txn = dbService.beginTx()) {

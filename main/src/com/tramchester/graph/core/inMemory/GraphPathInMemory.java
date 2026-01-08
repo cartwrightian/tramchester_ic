@@ -160,24 +160,28 @@ public class GraphPathInMemory implements GraphPath {
     }
 
     public List<GraphId> getEntitiesIds() {
-        return entityList.Stream().map(GraphEntity::getId).map(item-> (GraphId)item).toList();
+        return entityList.getIds();
+        //return entityList.Stream().map(GraphEntity::getId).map(item-> (GraphId)item).toList();
     }
 
     private static class SimpleEntityList implements EntityList {
 
         private final List<GraphEntity<? extends GraphId>> list;
+        private final List<GraphId> ids;
 
         private SimpleEntityList() {
             list = new ArrayList<>();
+            ids = new ArrayList<>();
         }
 
-        private SimpleEntityList(final List<GraphEntity<? extends GraphId>> list) {
+        private SimpleEntityList(final List<GraphEntity<? extends GraphId>> list, final List<GraphId> ids) {
             this.list = list;
+            this.ids = ids;
         }
 
         @Override
         public EntityList branchFrom() {
-            return new SimpleEntityList(new ArrayList<>(list));
+            return new SimpleEntityList(new ArrayList<>(list), new ArrayList<>(ids));
         }
 
         @Override
@@ -188,6 +192,7 @@ public class GraphPathInMemory implements GraphPath {
         @Override
         public void add(GraphEntity<? extends GraphId> graphEntity) {
             list.add(graphEntity);
+            ids.add(graphEntity.getId());
         }
 
         @Override
@@ -198,6 +203,11 @@ public class GraphPathInMemory implements GraphPath {
         @Override
         public int size() {
             return list.size();
+        }
+
+        @Override
+        public List<GraphId> getIds() {
+            return ids;
         }
     }
 
