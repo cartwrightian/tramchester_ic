@@ -70,6 +70,10 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
         return dirtyCount.get()>0;
     }
 
+    public void setClean() {
+        dirtyCount.set(0);
+    }
+
     @JsonGetter("properties")
     public List<PropertyDTO> getProperties() {
         return getAllProperties().entrySet().stream().
@@ -175,6 +179,5 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     public int hashCode() {
         return Objects.hash(relationshipType, id, startId, endId);
     }
-
 
 }

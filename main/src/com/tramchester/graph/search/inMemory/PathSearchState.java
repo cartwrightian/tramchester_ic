@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-class PathSearchState {
+public class PathSearchState {
     private static final Logger logger = LoggerFactory.getLogger(PathSearchState.class);
 
     // remaining working
@@ -20,10 +20,10 @@ class PathSearchState {
     final List<GraphPathInMemory> foundPaths;
     private final long numberJourneys;
 
-    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys) {
+    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys, boolean towardsDest) {
         this.numberJourneys = numberJourneys;
         nodeQueue = new PriorityQueue<>();
-        nodeQueue.add(new NodeSearchState(searchStateKey, TramDuration.ZERO, pathToHere));
+        nodeQueue.add(new NodeSearchState(searchStateKey, TramDuration.ZERO, pathToHere, towardsDest));
 
         currentCost = new HashMap<>();
         currentCost.put(searchStateKey, TramDuration.ZERO);
@@ -60,8 +60,8 @@ class PathSearchState {
         }
     }
 
-    public void updateCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath) {
-        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath);
+    public void updateCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath, boolean towardsDest) {
+        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath, towardsDest);
 
         synchronized (nodeQueue) {
             // clunky, relies on NodeSearchState defining equals to be on NodeId only
@@ -77,8 +77,8 @@ class PathSearchState {
         }
     }
 
-    public void addCostAndQueue(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory graphPath) {
-        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath);
+    public void addCostAndQueue(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory graphPath, boolean towardsDest) {
+        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath, towardsDest);
 
         synchronized (nodeQueue) {
             if (nodeQueue.contains(update)) {
@@ -141,16 +141,28 @@ class PathSearchState {
         private final SearchStateKey stateKey;
         private final TramDuration duration;
         private final GraphPathInMemory pathToHere;
+        private final boolean jumpQueue;
 
-        NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere) {
+        public NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere, boolean jumpQueue) {
             this.stateKey = stateKey;
             this.duration = duration;
             this.pathToHere = pathToHere.duplicate();
+            this.jumpQueue = jumpQueue;
         }
 
+        // TODO prioritise states leading to destination?
         @Override
         public int compareTo(final NodeSearchState other) {
             // depth first
+            if (jumpQueue && other.jumpQueue) {
+                return Integer.compare(this.pathToHere.length(), other.pathToHere.length());
+            }
+            if (jumpQueue) {
+                return -1;
+            }
+            if (other.jumpQueue) {
+                return 1;
+            }
             return Integer.compare(other.pathToHere.length(), pathToHere.length());
         }
 
@@ -185,6 +197,10 @@ class PathSearchState {
 
         public TramDuration getDuration() {
             return duration;
+        }
+
+        public boolean getTowardsDest() {
+            return jumpQueue;
         }
     }
 

@@ -26,4 +26,12 @@ public class GraphNodeLabelsContainer {
         labels.add(label);
         parent.invalidateCache();
     }
+
+    @Override
+    public String toString() {
+        return "GraphNodeLabelsContainer{" +
+                "labels=" + labels +
+                ", parent=" + parent.getId() +
+                '}';
+    }
 }

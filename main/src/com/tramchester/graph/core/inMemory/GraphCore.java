@@ -505,12 +505,18 @@ public class GraphCore implements Graph {
             for (NodeIdInMemory nodeIdInMemory : nodesToDelete) {
                 delete(nodeIdInMemory);
             }
+
             final Stream<GraphNodeInMemory> nodesFromChild = mutatedGraph.getUpdatedNodes();
-            nodesFromChild.forEach(node -> insertNode(node, node.getLabels()));
+            nodesFromChild.forEach(node -> {
+                insertNode(node, node.getLabels());
+                node.setClean();
+            });
 
             final Stream<GraphRelationshipInMemory> relationshipsFromChild = mutatedGraph.getUpdatedRelationships();
-            relationshipsFromChild.forEach(relationship ->
-                    insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId()));
+            relationshipsFromChild.forEach(relationship -> {
+                insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
+                relationship.setClean();
+            });
         }
 
     }

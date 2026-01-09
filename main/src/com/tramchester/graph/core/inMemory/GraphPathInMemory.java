@@ -161,7 +161,6 @@ public class GraphPathInMemory implements GraphPath {
 
     public List<GraphId> getEntitiesIds() {
         return entityList.getIds();
-        //return entityList.Stream().map(GraphEntity::getId).map(item-> (GraphId)item).toList();
     }
 
     private static class SimpleEntityList implements EntityList {
@@ -208,6 +207,25 @@ public class GraphPathInMemory implements GraphPath {
         @Override
         public List<GraphId> getIds() {
             return ids;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            SimpleEntityList that = (SimpleEntityList) o;
+            return Objects.equals(ids, that.ids);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(ids);
+        }
+
+        @Override
+        public String toString() {
+            return "SimpleEntityList{" +
+                    "list=" + list +
+                    '}';
         }
     }
 

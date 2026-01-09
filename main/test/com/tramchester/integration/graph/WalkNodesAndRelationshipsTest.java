@@ -120,7 +120,7 @@ public class WalkNodesAndRelationshipsTest {
 
         assertEquals(1, txn.findRelationships(WALKS_TO_STATION).count());
 
-        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Outgoing, EnumSet.of(WALKS_TO_STATION))
+        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Outgoing, WALKS_TO_STATION)
                 .toList();
 
         assertEquals(1, relationships.size());
@@ -128,8 +128,8 @@ public class WalkNodesAndRelationshipsTest {
         GraphRelationship relationship = relationships.getFirst();
 
         assertEquals(cost, relationship.getCost());
-        assertEquals(stationNode.getId(), relationship.getEndNodeId(txn));
         assertEquals(queryNode.getId(), relationship.getStartNodeId(txn));
+        assertEquals(stationNode.getId(), relationship.getEndNodeId(txn));
         assertEquals(startStation.getId(), relationship.getStationId());
 
         walkNodesAndRelationships.delete();
@@ -152,7 +152,7 @@ public class WalkNodesAndRelationshipsTest {
 
         assertEquals(stationWalks.size(), txn.findRelationships(WALKS_TO_STATION).count());
 
-        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Outgoing, EnumSet.of(WALKS_TO_STATION))
+        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Outgoing, WALKS_TO_STATION)
                 .toList();
 
         assertEquals(stationWalks.size(), relationships.size());
@@ -167,8 +167,8 @@ public class WalkNodesAndRelationshipsTest {
 
             GraphRelationship graphRelationship = results.get(expectedStation.getId());
             assertEquals(queryNode.getId(), graphRelationship.getStartNodeId(txn));
-            assertEquals(graphRelationship.getCost(), expected.getCost());
             assertEquals(stationNode, graphRelationship.getEndNode(txn));
+            assertEquals(graphRelationship.getCost(), expected.getCost());
         }
 
         walkNodesAndRelationships.delete();
@@ -195,7 +195,7 @@ public class WalkNodesAndRelationshipsTest {
 
         assertEquals(1, txn.findRelationships(WALKS_FROM_STATION).count());
 
-        List<GraphRelationship> relationships = stationNode.getRelationships(txn, Outgoing, EnumSet.of(WALKS_FROM_STATION))
+        List<GraphRelationship> relationships = stationNode.getRelationships(txn, Outgoing, WALKS_FROM_STATION)
                 .toList();
 
         assertEquals(1, relationships.size());
@@ -203,8 +203,8 @@ public class WalkNodesAndRelationshipsTest {
         GraphRelationship relationship = relationships.getFirst();
 
         assertEquals(cost, relationship.getCost());
-        assertEquals(queryNode.getId(), relationship.getEndNodeId(txn));
         assertEquals(stationNode.getId(), relationship.getStartNodeId(txn));
+        assertEquals(queryNode.getId(), relationship.getEndNodeId(txn));
         assertEquals(startStation.getId(), relationship.getStationId());
 
         walkNodesAndRelationships.delete();
@@ -226,7 +226,7 @@ public class WalkNodesAndRelationshipsTest {
 
         assertEquals(stationWalks.size(), txn.findRelationships(WALKS_FROM_STATION).count());
 
-        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Incoming, EnumSet.of(WALKS_FROM_STATION))
+        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Incoming, WALKS_FROM_STATION)
                 .toList();
 
         assertEquals(stationWalks.size(), relationships.size());
@@ -240,9 +240,9 @@ public class WalkNodesAndRelationshipsTest {
             assertTrue(results.containsKey(expectedStation.getId()));
             GraphRelationship graphRelationship = results.get(expectedStation.getId());
 
+            assertEquals(stationNode, graphRelationship.getStartNode(txn));
             assertEquals(queryNode.getId(), graphRelationship.getEndNodeId(txn));
             assertEquals(graphRelationship.getCost(), expected.getCost());
-            assertEquals(stationNode, graphRelationship.getStartNode(txn));
         }
 
         walkNodesAndRelationships.delete();

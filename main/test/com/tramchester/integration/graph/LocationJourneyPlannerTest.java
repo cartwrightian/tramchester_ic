@@ -26,6 +26,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -87,7 +88,11 @@ class LocationJourneyPlannerTest {
     void shouldHaveDirectWalkNearPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
                 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
-        Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens,
+
+        KnownLocations startingLocation = nearPiccGardens;
+        TramStations destinationStation = PiccadillyGardens;
+
+        Set<Journey> unsortedResults = planner.quickestRouteForLocation(startingLocation, destinationStation,
                 journeyRequest, 3);
 
         assertFalse(unsortedResults.isEmpty(),"no results");
@@ -95,21 +100,21 @@ class LocationJourneyPlannerTest {
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
             WalkingToStationStage first = (WalkingToStationStage) stages.getFirst();
-            assertEquals(nearPiccGardens.latLong(), first.getFirstStation().getLatLong());
-            assertEquals(PiccadillyGardens.getId(), first.getLastStation().getId());
+            assertEquals(startingLocation.latLong(), first.getFirstStation().getLatLong());
+            assertEquals(destinationStation.getId(), first.getLastStation().getId());
 
             List<ChangeLocation<?>> changes = journey.getChangeStations();
             assertEquals(1, changes.size());
             Set<String> names = changes.stream().map(changeLocation -> changeLocation.location().getName()).collect(Collectors.toSet());
-            assertTrue(names.contains(PiccadillyGardens.getName()), "could not find in " + names);
+            assertTrue(names.contains(destinationStation.getName()), "could not find in " + names);
             assertEquals(TransportMode.Walk, changes.getFirst().fromMode());
         });
 
         unsortedResults.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
             assertEquals(2, callingPoints.size());
-            assertEquals(nearPiccGardens.latLong(), callingPoints.get(0).getLatLong());
-            assertEquals(PiccadillyGardens.getId(), callingPoints.get(1).getId());
+            assertEquals(startingLocation.latLong(), callingPoints.get(0).getLatLong());
+            assertEquals(destinationStation.getId(), callingPoints.get(1).getId());
         });
     }
 

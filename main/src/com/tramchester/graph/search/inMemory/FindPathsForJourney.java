@@ -60,7 +60,7 @@ public class FindPathsForJourney {
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
-        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys);
+        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys, false);
         searchState.setJourneyState(stateKey, journeyState);
 
         // TODO ideally want yield/stream here
@@ -121,6 +121,10 @@ public class FindPathsForJourney {
 
         final TramDuration currentCostToNode = searchState.getCurrentCost(stateKey);
         outgoing.forEach(graphRelationship -> {
+
+            // TODO prioritise those Towards Dest
+            final boolean towardsDest = (evaluator.matchesDestination(graphRelationship.getEndNodeId(txn)));
+
             final TramDuration relationshipCost = graphRelationship.getCost();
 
             final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, graphRelationship.getEndNodeId(txn));
@@ -135,21 +139,22 @@ public class FindPathsForJourney {
                 continuePath = pathToCurrentNode.duplicate();
             }
 
+
             if (alreadySeen) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
                 if (newCost.compareTo(currentDurationForEnd) != 0) {
-                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
+                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath, towardsDest));
                 }
                 //updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
             } else { // not seen before
                 searchState.updateCost(endStateKey, newCost);
-                notVisitedYet.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
+                notVisitedYet.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath, towardsDest));
             }
         });
 
         notVisitedYet.forEach(toVisit -> {
             final SearchStateKey searchStateKey = toVisit.getStateKey();
-            searchState.addCostAndQueue(searchStateKey, toVisit.getDuration(), toVisit.getPathToHere());
+            searchState.addCostAndQueue(searchStateKey, toVisit.getDuration(), toVisit.getPathToHere(), toVisit.getTowardsDest());
             searchState.setJourneyState(searchStateKey, graphStateForChildren);
         });
 
@@ -158,7 +163,7 @@ public class FindPathsForJourney {
             if (depthFirst) {
                 searchState.updateCost(searchStateKey, toUpdate.getDuration());
             } else {
-                searchState.updateCostAndQueue(searchStateKey, toUpdate.getDuration(),  toUpdate.getPathToHere());
+                searchState.updateCostAndQueue(searchStateKey, toUpdate.getDuration(),  toUpdate.getPathToHere(), toUpdate.getTowardsDest());
             }
             searchState.setJourneyState(searchStateKey, graphStateForChildren);
         });

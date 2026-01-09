@@ -9,12 +9,15 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
 
 public class WalkingState extends TraversalState {
+    private static final Logger logger = LoggerFactory.getLogger(WalkingState.class);
 
     public static class Builder extends StateBuilder<WalkingState> {
 
@@ -43,9 +46,11 @@ public class WalkingState extends TraversalState {
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
+                logger.debug("no direct " + towardsDest);
                 return new WalkingState(notStartedState, relationships, cost, this, firstNode);
             } else {
-                // direct
+                // direct walk available
+                logger.info("direct " + towardsDest);
                 return new WalkingState(notStartedState, towardsDest.stream(), cost, this, firstNode);
             }
         }

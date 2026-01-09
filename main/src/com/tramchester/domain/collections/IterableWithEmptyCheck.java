@@ -12,11 +12,11 @@ public class IterableWithEmptyCheck<T> implements Iterable<T> {
 
     private final Collection<T> contained;
 
-    public IterableWithEmptyCheck(Collection<T> contained) {
+    public IterableWithEmptyCheck(final Collection<T> contained) {
         this.contained = contained;
     }
 
-    public static <R> IterableWithEmptyCheck<R> from(Collection<R> collection) {
+    public static <R> IterableWithEmptyCheck<R> from(final Collection<R> collection) {
         return new IterableWithEmptyCheck<>(collection);
     }
 
@@ -31,5 +31,12 @@ public class IterableWithEmptyCheck<T> implements Iterable<T> {
 
     public Stream<T> stream() {
         return contained.stream();
+    }
+
+    @Override
+    public String toString() {
+        return "IterableWithEmptyCheck{" +
+                "contained=" + contained +
+                '}';
     }
 }
