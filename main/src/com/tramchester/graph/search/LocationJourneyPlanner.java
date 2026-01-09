@@ -216,20 +216,20 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Set<StationWalk> getStationWalks(Location<?> location, EnumSet<TransportMode> modes) {
+    public Set<StationWalk> getStationWalks(final Location<?> location, final EnumSet<TransportMode> modes) {
 
         int maxResults = config.getNumOfNearestStopsForWalking();
-        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin, modes);
+        final List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin, modes);
 
         if (nearbyStationsWithComposites.isEmpty()) {
             logger.warn(format("Failed to find stations within %s of %s", margin, location));
             return Collections.emptySet();
         }
 
-        List<Station> filtered = nearbyStationsWithComposites.stream()
+        final List<Station> filtered = nearbyStationsWithComposites.stream()
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
-        Set<StationWalk> stationWalks = createWalks(location, filtered);
+        final Set<StationWalk> stationWalks = createWalks(location, filtered);
         logger.info(format("Stops within %s of %s are [%s]", maxResults, location, stationWalks));
         return stationWalks;
     }

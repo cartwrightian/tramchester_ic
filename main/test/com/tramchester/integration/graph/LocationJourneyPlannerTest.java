@@ -8,9 +8,11 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -19,9 +21,9 @@ import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -33,6 +35,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,7 +114,7 @@ class LocationJourneyPlannerTest {
     }
 
     private EnumSet<TransportMode> getRequestedModes() {
-        return TestEnv.Modes.TramsOnly;
+        return TramsOnly;
     }
 
     @Test
@@ -261,7 +264,7 @@ class LocationJourneyPlannerTest {
         TramTime queryTime = TramTime.of(8, 30);
         final JourneyRequest request = new JourneyRequest(when, queryTime, false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
-        Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Shudehill, nearShudehill, request, 4);
+        Set<Journey> journeySet = planner.quickestRouteForLocation(Shudehill, nearShudehill, request, 4);
 
         List<Journey> journeyList = sortByCost(journeySet);
 
@@ -269,9 +272,9 @@ class LocationJourneyPlannerTest {
 
         journeyList.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(2, callingPoints.size(), HasId.asIds(callingPoints));
-            assertEquals(TramStations.Shudehill.getId(), callingPoints.get(0).getId());
-            assertEquals(nearShudehill.latLong(), callingPoints.get(1).getLatLong());
+            assertEquals(2, callingPoints.size(), HasId.asIds(callingPoints) + journey + " within " + journeyList);
+            assertEquals(Shudehill.getId(), callingPoints.get(0).getId(),journey + " within " + journeyList);
+            assertEquals(nearShudehill.latLong(), callingPoints.get(1).getLatLong(), journey + " within " + journeyList);
         });
     }
 
@@ -291,9 +294,6 @@ class LocationJourneyPlannerTest {
 
         // find the lowest cost journey, should be tram to shudehill and then a walk
         Journey lowestCostJourney = journeyList.getFirst();
-
-        // changable
-        //assertEquals(Duration.ofMinutes(33), RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
 
         List<TransportStage<?,?>> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);
@@ -383,10 +383,24 @@ class LocationJourneyPlannerTest {
         });
     }
 
+    @Test
+    void shouldGetExpectedStationWalks() {
+        LocationJourneyPlanner journeyPlanner = componentContainer.get(LocationJourneyPlanner.class);
+
+        Set<StationWalk> walks = journeyPlanner.getStationWalks(nearPiccGardens.location(), TramsOnly);
+
+        assertEquals(3, walks.size(), walks.toString());
+
+        IdSet<Station> stations = walks.stream().map(StationWalk::getStation).collect(IdSet.collector());
+
+        assertTrue(stations.contains(PiccadillyGardens.getId()));
+        assertTrue(stations.contains(MarketStreet.getId()));
+        assertTrue(stations.contains(StPetersSquare.getId()));
+    }
+
     @NotNull
     private List<Journey> sortByCost(Set<Journey> journeySet) {
         List<Journey> journeyList = new LinkedList<>(journeySet);
-        //Comparator.comparingInt(RouteCalculatorTest::costOfJourney)
         journeyList.sort(Comparator.comparing(RouteCalculatorTest::costOfJourney));
         return journeyList;
     }

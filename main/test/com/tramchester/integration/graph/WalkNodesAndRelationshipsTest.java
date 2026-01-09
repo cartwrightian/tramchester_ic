@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
@@ -16,18 +17,21 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_FROM_STATION;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
+import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WalkNodesAndRelationshipsTest {
     private static GuiceContainerDependencies componentContainer;
@@ -75,7 +79,7 @@ public class WalkNodesAndRelationshipsTest {
     @Test
     void shouldCreateAndThenDeleteWalkingNode() {
 
-        KnownLocations knownLocation = KnownLocations.nearStPetersSquare;
+        KnownLocations knownLocation = nearStPetersSquare;
 
         assertEquals(0,txn.findNodes(GraphLabel.QUERY_NODE).count());
 
@@ -98,9 +102,9 @@ public class WalkNodesAndRelationshipsTest {
     }
 
     @Test
-    void shouldCreateWalksToStartStationAndThenDelete() {
+    void shouldCreateWalkToStartStationAndThenDelete() {
 
-        KnownLocations knownLocation = KnownLocations.nearStPetersSquare;
+        KnownLocations knownLocation = nearStPetersSquare;
         Station startStation = TramStations.StPetersSquare.fake();
         TramDuration cost = TramDuration.ofSeconds(75);
 
@@ -134,10 +138,48 @@ public class WalkNodesAndRelationshipsTest {
         assertEquals(0, txn.findRelationships(WALKS_TO_STATION).count());
     }
 
-    @Test
-    void shouldCreateWalksFromStationAndThenDelete() {
 
-        KnownLocations knownLocation = KnownLocations.nearStPetersSquare;
+    @Test
+    void shouldCreateMultipleWalksToStartStationAndThenDelete() {
+
+        Set<StationWalk> stationWalks = createStationWalks();
+
+        assertEquals(0, txn.findNodes(GraphLabel.QUERY_NODE).count());
+
+        MutableGraphNode queryNode = walkNodesAndRelationships.createWalkingNode(nearStPetersSquare.location(), journeyRequest);
+
+        walkNodesAndRelationships.createWalksToStart(queryNode, stationWalks);
+
+        assertEquals(stationWalks.size(), txn.findRelationships(WALKS_TO_STATION).count());
+
+        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Outgoing, EnumSet.of(WALKS_TO_STATION))
+                .toList();
+
+        assertEquals(stationWalks.size(), relationships.size());
+
+        Map<IdFor<Station>, GraphRelationship> results = relationships.stream().collect(Collectors.toMap(GraphRelationship::getStationId, rel->rel));
+
+        for (StationWalk expected : stationWalks) {
+            Station expectedStation = expected.getStation();
+            GraphNode stationNode = txn.findNode(expectedStation);
+
+            assertTrue(results.containsKey(expectedStation.getId()));
+
+            GraphRelationship graphRelationship = results.get(expectedStation.getId());
+            assertEquals(queryNode.getId(), graphRelationship.getStartNodeId(txn));
+            assertEquals(graphRelationship.getCost(), expected.getCost());
+            assertEquals(stationNode, graphRelationship.getEndNode(txn));
+        }
+
+        walkNodesAndRelationships.delete();
+
+        assertEquals(0, txn.findNodes(GraphLabel.QUERY_NODE).count());
+        assertEquals(0, txn.findRelationships(WALKS_TO_STATION).count());
+    }
+
+    @Test
+    void shouldCreateWalkFromStationAndThenDelete() {
+
         Station startStation = TramStations.StPetersSquare.fake();
         TramDuration cost = TramDuration.ofSeconds(75);
 
@@ -146,7 +188,7 @@ public class WalkNodesAndRelationshipsTest {
 
         assertEquals(0,txn.findNodes(GraphLabel.QUERY_NODE).count());
 
-        MutableGraphNode queryNode = walkNodesAndRelationships.createWalkingNode(knownLocation.location(), journeyRequest);
+        MutableGraphNode queryNode = walkNodesAndRelationships.createWalkingNode(nearStPetersSquare.location(), journeyRequest);
         GraphNode stationNode = txn.findNode(startStation);
 
         walkNodesAndRelationships.createWalksToDest(queryNode, stationWalks);
@@ -171,6 +213,54 @@ public class WalkNodesAndRelationshipsTest {
         assertEquals(0, txn.findRelationships(WALKS_FROM_STATION).count());
     }
 
+    @Test
+    void shouldCreateMultipleWalksFromStationsAndThenDelete() {
+
+        Set<StationWalk> stationWalks = createStationWalks();
+
+        assertEquals(0, txn.findNodes(GraphLabel.QUERY_NODE).count());
+
+        MutableGraphNode queryNode = walkNodesAndRelationships.createWalkingNode(nearStPetersSquare.location(), journeyRequest);
+
+        walkNodesAndRelationships.createWalksToDest(queryNode, stationWalks);
+
+        assertEquals(stationWalks.size(), txn.findRelationships(WALKS_FROM_STATION).count());
+
+        List<GraphRelationship> relationships = queryNode.getRelationships(txn, Incoming, EnumSet.of(WALKS_FROM_STATION))
+                .toList();
+
+        assertEquals(stationWalks.size(), relationships.size());
+
+        Map<IdFor<Station>, GraphRelationship> results = relationships.stream().collect(Collectors.toMap(GraphRelationship::getStationId, rel->rel));
+
+        for (StationWalk expected : stationWalks) {
+            Station expectedStation = expected.getStation();
+            GraphNode stationNode = txn.findNode(expectedStation);
+
+            assertTrue(results.containsKey(expectedStation.getId()));
+            GraphRelationship graphRelationship = results.get(expectedStation.getId());
+
+            assertEquals(queryNode.getId(), graphRelationship.getEndNodeId(txn));
+            assertEquals(graphRelationship.getCost(), expected.getCost());
+            assertEquals(stationNode, graphRelationship.getStartNode(txn));
+        }
+
+        walkNodesAndRelationships.delete();
+
+        assertEquals(0, txn.findNodes(GraphLabel.QUERY_NODE).count());
+        assertEquals(0, txn.findRelationships(WALKS_FROM_STATION).count());
+    }
+
+    private @NotNull HashSet<StationWalk> createStationWalks() {
+        return new HashSet<>(Arrays.asList(
+                walk(MarketStreet, 3),
+                walk(PiccadillyGardens, 4),
+                walk(StPetersSquare, 5)));
+    }
+
+    StationWalk walk(TramStations station, int costInMins) {
+        return new StationWalk(station.fake(), TramDuration.ofMinutes(costInMins));
+    }
 
 
 }

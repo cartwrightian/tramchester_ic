@@ -40,14 +40,16 @@ public class WalkNodesAndRelationships {
         // cache is updated by the delete methods
         relationships.forEach(relationship -> relationship.delete(txn));
         nodes.forEach(node -> node.delete(txn));
+        relationships.clear();
+        nodes.clear();
         logger.info("Removed added walks and walk node(s)");
     }
 
-    public void addAll(List<MutableGraphRelationship> relationshipList) {
+    public void addAll(final List<MutableGraphRelationship> relationshipList) {
         relationships.addAll(relationshipList);
     }
 
-    public MutableGraphNode createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
+    public MutableGraphNode createWalkingNode(final Location<?> location, final JourneyRequest journeyRequest) {
         final MutableGraphNode walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
         nodes.add(walkingNode);
         return walkingNode;
