@@ -10,6 +10,7 @@ import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
@@ -36,8 +37,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.Piccadilly;
 import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
 class RailAndTramLocationJourneyPlannerTest {
@@ -115,9 +115,11 @@ class RailAndTramLocationJourneyPlannerTest {
 
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            WalkingFromStationStage first = (WalkingFromStationStage) stages.getFirst();
-            assertEquals(PiccadillyGardens.getId(), first.getFirstStation().getId());
-            assertEquals(nearPiccGardens.latLong(), first.getLastStation().getLatLong());
+            assertEquals(TransportMode.Walk, stages.getFirst().getMode(), "Expected walk, go " + stages.getFirst());
+
+            WalkingFromStationStage walkingStage = (WalkingFromStationStage) stages.getFirst();
+            assertEquals(PiccadillyGardens.getId(), walkingStage.getFirstStation().getId());
+            assertEquals(nearPiccGardens.latLong(), walkingStage.getLastStation().getLatLong());
         });
     }
 

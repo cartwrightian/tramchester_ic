@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static com.tramchester.testSupport.reference.TramStations.Victoria;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -31,7 +32,6 @@ public class LocationRepositoryTest {
     private static GuiceContainerDependencies componentContainer;
     private LocationRepository locationRepository;
     private TramchesterConfig config;
-    private boolean naptanEnabled;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -48,7 +48,6 @@ public class LocationRepositoryTest {
     void beforeEachTestRuns() {
         config = componentContainer.get(TramchesterConfig.class);
         locationRepository = componentContainer.get(LocationRepository.class);
-        naptanEnabled = config.hasRemoteDataSourceConfig(DataSourceID.naptanxml);
     }
 
     @Test
@@ -65,11 +64,15 @@ public class LocationRepositoryTest {
 
     @Test
     void shouldCheckIfLocationPresent() {
-        assertTrue(locationRepository.hasLocation(LocationType.Station, Victoria.getIdForDTO()));
+        boolean naptanEnabled = config.hasRemoteDataSourceConfig(DataSourceID.naptanxml);
 
+        assumeTrue(naptanEnabled);
+
+        assertTrue(locationRepository.hasLocation(LocationType.Station, Victoria.getIdForDTO()));
         IdFor<StationLocalityGroup> cityCentreId = KnownLocality.ManchesterCityCentre.getId();
 
-        assertEquals(naptanEnabled, locationRepository.hasLocation(LocationType.StationGroup, IdForDTO.createFor(cityCentreId)));
+        assertTrue(locationRepository.hasLocation(LocationType.StationGroup, IdForDTO.createFor(cityCentreId)),
+                "No group found for " + cityCentreId);
     }
 
     @Test

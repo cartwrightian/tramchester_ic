@@ -476,6 +476,11 @@ public abstract class RouteCalculatorSupport {
             TransportStage<?, ?> walkingStage = journey.getStages().getFirst();
 
             final Location<?> lastStation = walkingStage.getLastStation();
+
+            if (!journeysPerStation.containsKey(lastStation)) {
+                throw new RuntimeException("Unexpected " + lastStation.getId() + " as not present in " + journeysPerStation);
+            }
+
             long countForStation = journeysPerStation.get(lastStation).incrementAndGet();
             if (countForStation==maxJourneys) {
                 logger.info("Seen " + maxJourneys + " for " + lastStation.getId());

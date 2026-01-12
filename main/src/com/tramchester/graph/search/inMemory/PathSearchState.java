@@ -147,10 +147,9 @@ public class PathSearchState {
             this.stateKey = stateKey;
             this.duration = duration;
             this.pathToHere = pathToHere.duplicate();
-            this.jumpQueue = jumpQueue;
+            this.jumpQueue = jumpQueue; // used when we can id state leads direct to a destination
         }
 
-        // TODO prioritise states leading to destination?
         @Override
         public int compareTo(final NodeSearchState other) {
             // depth first

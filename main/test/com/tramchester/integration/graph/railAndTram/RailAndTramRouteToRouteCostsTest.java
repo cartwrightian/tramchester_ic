@@ -103,8 +103,7 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = getPossibleMinChanges(tram(Altrincham), rail(ManchesterPiccadilly),
                 TramsOnly, date, timeRange);
 
-        // 0->1 picc gardens closure 2025
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     private int getPossibleMinChanges(Station being, Station end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -120,8 +119,7 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = getPossibleMinChanges(rail(RailStationIds.Altrincham), tram(Piccadilly),
                 TramsOnly, date, timeRange);
 
-        // 0->1 picc gardens closure 2025
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     @Test
