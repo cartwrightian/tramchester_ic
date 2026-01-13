@@ -107,7 +107,7 @@ public class LiveDataSNSPubSubTest extends EasyMockSupport {
         }
 
         @Override
-        public TfgmTramLiveDataConfig getLiveDataConfig() {
+        public TfgmTramLiveDataConfig getTfgmTramliveData() {
             return liveDataConfig;
         }
     }

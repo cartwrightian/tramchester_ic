@@ -402,7 +402,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         }
 
         @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        public List<RemoteDataSourceConfig> getRemoteSources() {
             return Collections.singletonList(TFGMRemoteDataSourceConfig.createFor(downloadPath));
         }
     }

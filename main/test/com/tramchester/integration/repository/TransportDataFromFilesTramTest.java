@@ -365,8 +365,8 @@ public class TransportDataFromFilesTramTest {
         // are not any in the data at the moment 15/11/2022
         assertFalse(applyToCurrentServices.isEmpty(), "did not alter any of " + HasId.asIds(calendarsForTrams));
 
-        assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
-        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().getFirst();
+        assertEquals(1,  config.getGtfsSourceConfig().size(), "expected only one data source");
+        GTFSSourceConfig sourceConfig = config.getGtfsSourceConfig().getFirst();
         TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         applyToCurrentServices.forEach(exception -> {

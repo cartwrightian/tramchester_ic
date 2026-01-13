@@ -213,8 +213,8 @@ class TransportDataFromFilesBusTest {
 
         assertFalse(exceptionalDatesForServices.isEmpty());
 
-        assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
-        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
+        assertEquals(1,  config.getGtfsSourceConfig().size(), "expected only one data source");
+        GTFSSourceConfig sourceConfig = config.getGtfsSourceConfig().get(0);
         TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         exceptionalDatesForServices.forEach(exception -> {

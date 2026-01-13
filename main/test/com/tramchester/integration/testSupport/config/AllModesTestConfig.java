@@ -47,7 +47,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public RailConfig getRailConfig() {
+    public RailConfig getRail() {
         return new TestRailConfig();
     }
 
@@ -58,7 +58,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         return Arrays.asList(remoteDataRailConfig, remoteNaptanXMLConfig, remoteTfgmSourceConfig, remoteNPTGconfig);
     }
 

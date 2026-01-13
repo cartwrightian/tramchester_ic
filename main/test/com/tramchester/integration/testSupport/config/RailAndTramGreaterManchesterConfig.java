@@ -31,13 +31,13 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         // TODO temp removed remoteDBSourceConfig
         return Arrays.asList(railRemoteDataSource, remoteTFGMConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 
     @Override
-    public RailConfig getRailConfig() {
+    public RailConfig getRail() {
         return new TestRailConfig();
     }
 
@@ -81,12 +81,12 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
     }
 
     @Override
-    public OpenLdbConfig getOpenldbwsConfig() {
+    public OpenLdbConfig getOpenLdb() {
         return new TestOpenLdbConfig();
     }
 
     @Override
-    public OpenRailDataConfig getOpenRailDataConfig() {
+    public OpenRailDataConfig getOpenRailData() {
         return new OpenRailDataTestConfig();
     }
 

@@ -19,7 +19,7 @@ public class IntegrationTramTestConfigWithNaptan extends IntegrationTramTestConf
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         return Arrays.asList(remoteTFGMConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 

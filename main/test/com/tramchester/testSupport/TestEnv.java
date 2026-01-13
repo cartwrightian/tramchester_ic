@@ -97,7 +97,7 @@ public class TestEnv {
             }
 
             @Override
-            public TfgmTramLiveDataConfig getLiveDataConfig() {
+            public TfgmTramLiveDataConfig getTfgmTramliveData() {
                 return testLiveDataConfig;
             }
         };

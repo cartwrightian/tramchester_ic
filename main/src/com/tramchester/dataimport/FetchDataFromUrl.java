@@ -53,7 +53,7 @@ public class FetchDataFromUrl {
                             GetsFileModTime getsFileModTime, HeaderForDatasourceFactory headerFactory) {
         this.httpDownloader = httpDownloader;
         this.s3Downloader = s3Downloader;
-        this.configs = new ArrayList<>(config.getRemoteDataSourceConfig());
+        this.configs = new ArrayList<>(config.getRemoteSources());
         this.providesLocalNow = providesLocalNow;
 
         this.downloadedDataRepository = downloadedDataRepository;

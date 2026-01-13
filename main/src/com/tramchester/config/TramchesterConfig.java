@@ -91,7 +91,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // maximum length of a journey in minutes
     public abstract int getMaxJourneyDuration();
 
-    public abstract SwaggerBundleConfiguration getSwaggerBundleConfiguration();
+    public abstract SwaggerBundleConfiguration getSwagger();
 
     // number of days before data expiry to start warning
     public abstract int getDataExpiryThreshold();
@@ -106,22 +106,22 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract NeighbourConfig getNeighbourConfig();
 
     // config for each of the GTFS data sources
-    public abstract List<GTFSSourceConfig> getGTFSDataSource();
+    public abstract List<GTFSSourceConfig> getGtfsSourceConfig();
 
     // config for each remote data source to be downloaded
-    public abstract List<RemoteDataSourceConfig> getRemoteDataSourceConfig();
+    public abstract List<RemoteDataSourceConfig> getRemoteSources();
 
     // live transport data config
-    public abstract TfgmTramLiveDataConfig getLiveDataConfig();
+    public abstract TfgmTramLiveDataConfig getTfgmTramliveData();
 
     //  Open Live Departure Boards Web Service config
-    public abstract OpenLdbConfig getOpenldbwsConfig();
+    public abstract OpenLdbConfig getOpenLdb();
 
     // config for auth against open rail data download
-    public abstract OpenRailDataConfig getOpenRailDataConfig();
+    public abstract OpenRailDataConfig getOpenRailData();
 
     // rail data
-    public abstract RailConfig getRailConfig();
+    public abstract RailConfig getRail();
 
     // Graph DB Config
     public abstract GraphDBConfig getGraphDBConfig();
@@ -131,10 +131,10 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public EnumSet<TransportMode> getTransportModes() {
         final EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);
-        getGTFSDataSource().stream().
+        getGtfsSourceConfig().stream().
                 map(GTFSSourceConfig::getTransportModes).forEach(result::addAll);
 
-        final RailConfig railConfig = getRailConfig();
+        final RailConfig railConfig = getRail();
         if (railConfig!=null) {
             result.add(Train);
             result.add(RailReplacementBus);
@@ -144,13 +144,13 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     }
 
     public RemoteDataSourceConfig getDataRemoteSourceConfig(DataSourceID dataSourceID) {
-        return getRemoteDataSourceConfig().stream().
+        return getRemoteSources().stream().
                 filter(config -> config.getDataSourceId()==dataSourceID).
                 findFirst().orElseThrow();
     }
 
     public boolean hasRemoteDataSourceConfig(DataSourceID dataSourceID) {
-        return getRemoteDataSourceConfig().stream().anyMatch(config -> config.getDataSourceId()==dataSourceID);
+        return getRemoteSources().stream().anyMatch(config -> config.getDataSourceId()==dataSourceID);
     }
 
     // number of connections to make by walking
@@ -159,11 +159,11 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract boolean getSendCloudWatchMetrics();
 
     public boolean liveTfgmTramDataEnabled() {
-        return getLiveDataConfig()!=null;
+        return getTfgmTramliveData()!=null;
     }
 
     public boolean liveTrainDataEnabled() {
-        return getOpenldbwsConfig()!=null;
+        return getOpenLdb()!=null;
     }
 
     public abstract boolean getDepthFirst();
@@ -187,7 +187,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract boolean getInMemoryGraph();
 
     public boolean hasRailConfig() {
-        return getRailConfig()!=null;
+        return getRail()!=null;
     }
 
     public boolean onlyMarkedInterchange(Station station) {
@@ -203,9 +203,9 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     private void populateDataSourceMap() {
         if (dataSources.isEmpty()) {
-            final List<GTFSSourceConfig> gtfsSources = getGTFSDataSource();
+            final List<GTFSSourceConfig> gtfsSources = getGtfsSourceConfig();
             gtfsSources.forEach(gtfsSource -> dataSources.put(gtfsSource.getDataSourceId(), gtfsSource));
-            final RailConfig railConfig = getRailConfig();
+            final RailConfig railConfig = getRail();
             if (railConfig != null) {
                 dataSources.put(railConfig.getDataSourceId(), railConfig);
             }
@@ -219,7 +219,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public String getLiveDataSNSPublishTopic() {
         if (liveTfgmTramDataEnabled()) {
-            TfgmTramLiveDataConfig liveDataConfig = getLiveDataConfig();
+            TfgmTramLiveDataConfig liveDataConfig = getTfgmTramliveData();
             String topic = liveDataConfig.getSnsTopicPublishPrefix();
             if (topic==null) {
                 return "";

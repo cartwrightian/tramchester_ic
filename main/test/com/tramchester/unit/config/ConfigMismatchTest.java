@@ -70,7 +70,7 @@ class ConfigMismatchTest {
 
         for(Path config : configFiles) {
             AppConfiguration configuration = StandaloneConfigLoader.LoadConfigFromFile(config);
-            List<RemoteDataSourceConfig> remoteSourceConfigs = configuration.getRemoteDataSourceConfig();
+            List<RemoteDataSourceConfig> remoteSourceConfigs = configuration.getRemoteSources();
             for(RemoteDataSourceConfig remoteSourceConfig : remoteSourceConfigs) {
                 final DataSourceID dataSourceID = DataSourceID.findOrUnknown(remoteSourceConfig.getName());
                 assertNotEquals(DataSourceID.unknown, dataSourceID,
@@ -99,8 +99,8 @@ class ConfigMismatchTest {
 
         validateCoreParameters(Collections.emptySet(), appConfig, testConfig);
 
-        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
-        List<RemoteDataSourceConfig> testDataSourceConfig = testConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteSources();
+        List<RemoteDataSourceConfig> testDataSourceConfig = testConfig.getRemoteSources();
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
         assertEquals(2, dataSourceConfig.size());
 
@@ -122,8 +122,8 @@ class ConfigMismatchTest {
         AppConfiguration busConfig = loadConfigFromFile("buses.yml");
         AppConfiguration tramConfig = loadConfigFromFile("local.yml");
 
-        assertEquals(3, busConfig.getRemoteDataSourceConfig().size());
-        assertRemoteSources(busConfig.getRemoteDataSourceConfig(), tramConfig.getRemoteDataSourceConfig(), DataSourceID.tfgm);
+        assertEquals(3, busConfig.getRemoteSources().size());
+        assertRemoteSources(busConfig.getRemoteSources(), tramConfig.getRemoteSources(), DataSourceID.tfgm);
     }
 
     @Disabled("WIP")
@@ -141,8 +141,8 @@ class ConfigMismatchTest {
 
         validateCoreParameters(Collections.emptySet(), appConfig,  nationalRailConfig);
 
-        List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteDataSourceConfig();
-        List<RemoteDataSourceConfig> testRemoteSources =  nationalRailConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> remoteSources = appConfig.getRemoteSources();
+        List<RemoteDataSourceConfig> testRemoteSources =  nationalRailConfig.getRemoteSources();
 
         assertEquals(remoteSources.size(), testRemoteSources.size());
         assertEquals(3, testRemoteSources.size());
@@ -151,14 +151,14 @@ class ConfigMismatchTest {
         assertRemoteSources(remoteSources, testRemoteSources, DataSourceID.naptanxml);
         assertRemoteSources(remoteSources, testRemoteSources, DataSourceID.nptg);
 
-        RailConfig rail = appConfig.getRailConfig();
-        RailConfig testRail = appConfig.getRailConfig();
+        RailConfig rail = appConfig.getRail();
+        RailConfig testRail = appConfig.getRail();
 
         assertEquals(rail.getModes(), testRail.getModes());
 
-        assertRailLiveData(appConfig.getOpenldbwsConfig(),  nationalRailConfig.getOpenldbwsConfig());
+        assertRailLiveData(appConfig.getOpenLdb(),  nationalRailConfig.getOpenLdb());
 
-        checkDataSourceConfig(appConfig.getRailConfig(),  nationalRailConfig.getRailConfig());
+        checkDataSourceConfig(appConfig.getRail(),  nationalRailConfig.getRail());
 
 //        checkRailDataVersionFor(appConfig);
 //        checkRailDataVersionFor(testConfig);
@@ -172,7 +172,7 @@ class ConfigMismatchTest {
             // TODO Assert remote config for DB is not present
         }
         else {
-            RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteDataSourceConfig(), DataSourceID.database);
+            RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteSources(), DataSourceID.database);
             assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
         }
     }
@@ -182,7 +182,7 @@ class ConfigMismatchTest {
     void shouldHaveCheckFilenameForDBSourceMatchDBNameForGM() throws ConfigurationException, IOException {
         AppConfiguration normalConfig = loadConfigFromFile("gm.yml");
 
-        RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteDataSourceConfig(), DataSourceID.database);
+        RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteSources(), DataSourceID.database);
         assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
     }
 
@@ -194,7 +194,7 @@ class ConfigMismatchTest {
         // TODO Which other parameters should be the same?
 
         checkGTFSSourceConfig(normalConfig, gmConfig, Category.Closures.not(EnumSet.noneOf(Category.class)));
-        assertRemoteSources(normalConfig.getRemoteDataSourceConfig(), gmConfig.getRemoteDataSourceConfig(), DataSourceID.tfgm);
+        assertRemoteSources(normalConfig.getRemoteSources(), gmConfig.getRemoteSources(), DataSourceID.tfgm);
 
         // TODO add this
         //assertRemoteSources(normalConfig.getRemoteDataSourceConfig(), gmConfig.getRemoteDataSourceConfig(), DataSourceID.database);
@@ -213,8 +213,8 @@ class ConfigMismatchTest {
 
         validateCoreParameters(Collections.emptyList(), appConfig, testConfig);
 
-        List<RemoteDataSourceConfig> configRemoteSources = appConfig.getRemoteDataSourceConfig();
-        List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> configRemoteSources = appConfig.getRemoteSources();
+        List<RemoteDataSourceConfig> testRemoteSources = testConfig.getRemoteSources();
 
         assertEquals(appConfig.getNumberQueries(), testConfig.getNumberQueries(), "number of queries mismatch");
         assertEquals(appConfig.getQueryInterval(), testConfig.getQueryInterval(), "query interval mismatch");
@@ -229,12 +229,12 @@ class ConfigMismatchTest {
         assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.naptanxml);
         assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.nptg);
 
-        RailConfig configRail = appConfig.getRailConfig();
-        RailConfig testRail = testConfig.getRailConfig();
+        RailConfig configRail = appConfig.getRail();
+        RailConfig testRail = testConfig.getRail();
 
         assertEquals(configRail.getModes(), testRail.getModes());
 
-        assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
+        assertRailLiveData(appConfig.getOpenLdb(), testConfig.getOpenLdb());
 
         checkDataSourceConfig(configRail, testRail);
 
@@ -251,8 +251,8 @@ class ConfigMismatchTest {
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
 
-        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
-        List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteSources();
+        List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteSources();
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
         assertEquals(2, dataSourceConfig.size());
 
@@ -274,13 +274,13 @@ class ConfigMismatchTest {
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
 
-        checkDataSourceConfig(appConfig.getRailConfig(), accTestConfig.getRailConfig());
+        checkDataSourceConfig(appConfig.getRail(), accTestConfig.getRail());
 
         //checkRailDataVersionFor(appConfig);
         //checkRailDataVersionFor(accTestConfig);
 
-        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
-        List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteSources();
+        List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteSources();
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
 
         // 5->4 remote DB config disabled for GM
@@ -369,8 +369,8 @@ class ConfigMismatchTest {
     }
 
     private void checkRemoteDataSourceConfig(AppConfiguration expected, AppConfiguration testConfig) {
-        List<RemoteDataSourceConfig> expectedRemoteDataSourceConfig = expected.getRemoteDataSourceConfig();
-        List<RemoteDataSourceConfig> foundRemoteDataSourceConfig = testConfig.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> expectedRemoteDataSourceConfig = expected.getRemoteSources();
+        List<RemoteDataSourceConfig> foundRemoteDataSourceConfig = testConfig.getRemoteSources();
 
         assertFalse(expectedRemoteDataSourceConfig.isEmpty());
         assertEquals(expectedRemoteDataSourceConfig.size(), foundRemoteDataSourceConfig.size(), "RemoteDataSourceConfig");
@@ -383,8 +383,8 @@ class ConfigMismatchTest {
     }
 
     private void checkGTFSSourceConfig(AppConfiguration expected, AppConfiguration testConfig, boolean checkClosures) {
-        List<GTFSSourceConfig> expectedgtfsDataSource = expected.getGTFSDataSource();
-        List<GTFSSourceConfig> foundgtfsDataSource = testConfig.getGTFSDataSource();
+        List<GTFSSourceConfig> expectedgtfsDataSource = expected.getGtfsSourceConfig();
+        List<GTFSSourceConfig> foundgtfsDataSource = testConfig.getGtfsSourceConfig();
         assertEquals(expectedgtfsDataSource.size(), foundgtfsDataSource.size());
         //assume same order
         for (int i = 0; i < expectedgtfsDataSource.size(); i++) {
@@ -420,15 +420,15 @@ class ConfigMismatchTest {
                     "neo4jPagecacheMemory");
         }
 
-        TfgmTramLiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
+        TfgmTramLiveDataConfig expectedLiveDataConfig = expected.getTfgmTramliveData();
 
         if (expectedLiveDataConfig!=null) {
-            TfgmTramLiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
+            TfgmTramLiveDataConfig liveDataConfig = testConfig.getTfgmTramliveData();
             assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
             assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
             assertEquals(expectedLiveDataConfig.getS3Bucket().isEmpty(), liveDataConfig.getS3Bucket().isEmpty(), "s3 data upload disabled");
         } else {
-            assertNull(testConfig.getLiveDataConfig());
+            assertNull(testConfig.getTfgmTramliveData());
         }
     }
 

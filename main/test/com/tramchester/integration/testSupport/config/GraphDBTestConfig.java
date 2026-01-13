@@ -64,12 +64,12 @@ public class GraphDBTestConfig implements GraphDBConfig {
     }
 
     private Path createGraphDatabasePath(final TestGroupType group) {
-        final Set<DataSourceID> sourcesFromConfig = config.getRemoteDataSourceConfig().stream().
+        final Set<DataSourceID> sourcesFromConfig = config.getRemoteSources().stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
                 filter(dataSourceId -> dataSourceId !=DataSourceID.database).
                 collect(Collectors.toSet());
 
-        final List<GTFSSourceConfig> gtfsDataSource = config.getGTFSDataSource();
+        final List<GTFSSourceConfig> gtfsDataSource = config.getGtfsSourceConfig();
         final Set<TransportMode> groupedModesFromConfig = gtfsDataSource.stream().
                 flatMap(gtfsSourceConfig -> gtfsSourceConfig.groupedStationModes().stream()).
                 collect(Collectors.toSet());

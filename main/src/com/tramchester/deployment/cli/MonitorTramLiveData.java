@@ -75,7 +75,7 @@ public class MonitorTramLiveData extends BaseCLI {
             return false;
         }
 
-        final TfgmTramLiveDataConfig liveConfig = config.getLiveDataConfig();
+        final TfgmTramLiveDataConfig liveConfig = config.getTfgmTramliveData();
         final Long refreshSeconds = liveConfig.getRefreshPeriodSeconds();
 
         final LiveDataMarshaller marshaller = dependencies.get(LiveDataMarshaller.class);

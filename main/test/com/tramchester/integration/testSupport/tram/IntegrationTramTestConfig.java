@@ -115,7 +115,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         if (isGraphFiltered()) {
             return Collections.singletonList(remoteTFGMConfig);
         } else {
@@ -132,7 +132,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public TfgmTramLiveDataConfig getLiveDataConfig() {
+    public TfgmTramLiveDataConfig getTfgmTramliveData() {
         switch (liveData) {
             case Enabled -> {
                 return new TestTramLiveDataConfig();

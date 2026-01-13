@@ -21,7 +21,7 @@ public class LiveDataModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        TfgmTramLiveDataConfig liveConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveConfig = config.getTfgmTramliveData();
         if  (liveConfig==null) {
             logger.warn("tfgm live data disabled");
             bind(LiveDataFetcher.class).to(DummyLiveDataFetcher.class);

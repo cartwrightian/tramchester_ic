@@ -31,7 +31,7 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     @Inject
     public LoadRailTimetableRecords(TramchesterConfig config, RailDataRecordFactory factory,
                                     UnzipFetchedData.Ready ready, RailDataFilenameRepository filenameRepository) {
-        final RailConfig railConfig = config.getRailConfig();
+        final RailConfig railConfig = config.getRail();
         enabled = (railConfig != null);
         this.factory = factory;
 

@@ -19,7 +19,7 @@ public class StationClosuresTest {
     void shouldNotHaveClosuresInThePast() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled);
 
-        List<GTFSSourceConfig> dataSources = testConfig.getGTFSDataSource();
+        List<GTFSSourceConfig> dataSources = testConfig.getGtfsSourceConfig();
         assertEquals(1, dataSources.size());
 
         GTFSSourceConfig tfgmDataSource = dataSources.getFirst();

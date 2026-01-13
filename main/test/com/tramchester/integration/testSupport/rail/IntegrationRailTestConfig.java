@@ -34,7 +34,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         return List.of(railRemoteDataSource, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 
@@ -52,7 +52,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public RailConfig getRailConfig() {
+    public RailConfig getRail() {
        return new TestRailConfig();
     }
 
@@ -87,12 +87,12 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
     public int getQueryInterval() { return 20; }
 
     @Override
-    public OpenLdbConfig getOpenldbwsConfig() {
+    public OpenLdbConfig getOpenLdb() {
         return new TestOpenLdbConfig();
     }
 
     @Override
-    public OpenRailDataConfig getOpenRailDataConfig() {
+    public OpenRailDataConfig getOpenRailData() {
         return new OpenRailDataTestConfig();
     }
 

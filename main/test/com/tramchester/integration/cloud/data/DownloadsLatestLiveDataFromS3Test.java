@@ -67,7 +67,7 @@ class DownloadsLatestLiveDataFromS3Test {
         }
 
         @Override
-        public TfgmTramLiveDataConfig getLiveDataConfig() {
+        public TfgmTramLiveDataConfig getTfgmTramliveData() {
             return liveDataConfig;
         }
     }

@@ -154,7 +154,7 @@ public class ValidateKnownLocalityTest {
 
         final GetsFileModTime getsFileModTime = componentContainer.get(GetsFileModTime.class);
 
-        final List<GTFSSourceConfig> configs = config.getGTFSDataSource();
+        final List<GTFSSourceConfig> configs = config.getGtfsSourceConfig();
         final Optional<GTFSSourceConfig> findConfig = configs.stream().filter(config -> config.getDataSourceId() == dataSourceID).findFirst();
         assertFalse(findConfig.isEmpty());
 

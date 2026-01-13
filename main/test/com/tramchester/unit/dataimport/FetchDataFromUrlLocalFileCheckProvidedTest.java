@@ -277,7 +277,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         }
 
         @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        public List<RemoteDataSourceConfig> getRemoteSources() {
             return Collections.singletonList(new DatabaseRemoteDataSourceConfig(dataPath));
         }
     }

@@ -87,7 +87,7 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
         if (!liveDataEnabled) {
             logger.warn("Live data is not enable for this config");
         }
-        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveDataConfig = config.getTfgmTramliveData();
         logger.info("s3bucket is " + liveDataConfig.getS3Bucket() + " s3prefix is " + liveDataConfig.getS3Prefix());
 
         try {

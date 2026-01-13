@@ -42,7 +42,7 @@ public class TransportDataReaderFactory {
     @PostConstruct
     public void start() {
         logger.info("start");
-        tramchesterConfig.getGTFSDataSource().forEach(sourceConfig -> {
+        tramchesterConfig.getGtfsSourceConfig().forEach(sourceConfig -> {
             logger.info("Creating reader for config " + sourceConfig.getName());
 
             // sanity check on remote data source being present, get data path from here

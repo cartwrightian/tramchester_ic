@@ -94,7 +94,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         // remove postCodeDatasourceConfig for now
         return Arrays.asList(remoteDataSourceConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
     }

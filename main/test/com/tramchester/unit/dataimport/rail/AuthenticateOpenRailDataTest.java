@@ -126,7 +126,7 @@ public class AuthenticateOpenRailDataTest extends EasyMockSupport {
         }
 
         @Override
-        public OpenRailDataConfig getOpenRailDataConfig() {
+        public OpenRailDataConfig getOpenRailData() {
             return new OpenRailDataConfig() {
                 @Override
                 public String getUsername() {

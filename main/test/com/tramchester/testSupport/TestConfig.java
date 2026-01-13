@@ -64,7 +64,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public List<GTFSSourceConfig> getGTFSDataSource() {
+    public List<GTFSSourceConfig> getGtfsSourceConfig() {
         return getDataSourceFORTESTING();
     }
 
@@ -164,7 +164,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+    public SwaggerBundleConfiguration getSwagger() {
         SwaggerBundleConfiguration bundleConfiguration = new SwaggerBundleConfiguration();
         bundleConfiguration.setResourcePackage("com.tramchester.resources");
         return bundleConfiguration;
@@ -180,7 +180,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public TfgmTramLiveDataConfig getLiveDataConfig() {
+    public TfgmTramLiveDataConfig getTfgmTramliveData() {
         return null;
     }
 
@@ -190,7 +190,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         return Collections.emptyList();
     }
 

@@ -41,7 +41,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
         healthCheck = new LiveDataS3UploadHealthCheck(providesLocalNow,
                 countsUploadedLiveData, configuration, serviceTimeLimits);
-        expectedDuration = Duration.of(2 * configuration.getLiveDataConfig().getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
+        expectedDuration = Duration.of(2 * configuration.getTfgmTramliveData().getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
     }
 
     @Test

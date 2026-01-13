@@ -136,7 +136,7 @@ class StationResourceTest {
 
         List<StationClosureDTO> response = result.readEntity(new GenericType<>() {});
 
-        Set<StationClosures> expected = config.getGTFSDataSource().stream().
+        Set<StationClosures> expected = config.getGtfsSourceConfig().stream().
                 flatMap(source -> source.getStationClosures().stream()).
                 collect(Collectors.toSet());
 

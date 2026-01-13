@@ -59,7 +59,7 @@ class FindStationsByNumberLinksTramTest {
     @Test
     void shouldNotDuplicateWithConfig() {
 
-        List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
+        List<GTFSSourceConfig> dataSources = config.getGtfsSourceConfig();
         assertEquals(1, dataSources.size());
 
         GTFSSourceConfig dataSource = dataSources.getFirst();

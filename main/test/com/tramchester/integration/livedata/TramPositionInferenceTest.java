@@ -76,8 +76,8 @@ class TramPositionInferenceTest {
     @Test
     @LiveDataMessagesTest
     void needApiKeyPresentToFetchData() {
-        assertNotNull(testConfig.getLiveDataConfig().getDataSubscriptionKey(), "subscription key null");
-        assertFalse(testConfig.getLiveDataConfig().getDataSubscriptionKey().isEmpty(), "no subscription key present");
+        assertNotNull(testConfig.getTfgmTramliveData().getDataSubscriptionKey(), "subscription key null");
+        assertFalse(testConfig.getTfgmTramliveData().getDataSubscriptionKey().isEmpty(), "no subscription key present");
     }
 
     @Test

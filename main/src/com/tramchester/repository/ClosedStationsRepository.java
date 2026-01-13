@@ -56,7 +56,7 @@ public class ClosedStationsRepository {
     @PostConstruct
     public void start() {
         logger.info("starting");
-        config.getGTFSDataSource().forEach(source -> {
+        config.getGtfsSourceConfig().forEach(source -> {
             Set<StationClosures> closures = new HashSet<>(source.getStationClosures());
             if (!closures.isEmpty()) {
                 captureClosedStationsFromConfig(closures);

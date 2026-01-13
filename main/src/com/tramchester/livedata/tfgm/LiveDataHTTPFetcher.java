@@ -27,7 +27,7 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
 
     @Inject
     public LiveDataHTTPFetcher(TramchesterConfig config) {
-        this.config = config.getLiveDataConfig();
+        this.config = config.getTfgmTramliveData();
     }
 
     @PostConstruct

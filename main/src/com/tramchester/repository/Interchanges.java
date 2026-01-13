@@ -80,7 +80,7 @@ public class Interchanges implements InterchangeRepository {
             populateInterchangesFor(mode, linkThreshhold);
         });
 
-        addAdditionalInterchanges(config.getGTFSDataSource());
+        addAdditionalInterchanges(config.getGtfsSourceConfig());
         addMultiModeStations();
 
         // Need to do this last, as checking if one of the neighbours is an interchange is required

@@ -36,7 +36,7 @@ public class UploadRemoteSourceData {
 
     public boolean upload(String prefixForS3Key) {
         logger.info("Upload data sources to " + prefixForS3Key);
-        final List<RemoteDataSourceConfig> remoteSources = config.getRemoteDataSourceConfig();
+        final List<RemoteDataSourceConfig> remoteSources = config.getRemoteSources();
 
         Set<DataSourceID> toSkip = remoteSources.stream().
                 filter(RemoteDataSourceConfig::getSkipUpload).

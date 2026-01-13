@@ -160,7 +160,7 @@ class UploadRemoteSourceDataToS3Test {
         }
 
         @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        public List<RemoteDataSourceConfig> getRemoteSources() {
             return Collections.singletonList(dataSource);
         }
     }

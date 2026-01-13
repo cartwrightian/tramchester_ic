@@ -81,7 +81,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         IntegrationTramTestConfig configWithwalks = new IntegrationTramTestConfig(Collections.emptyList(), IntegrationTramTestConfig.Caching.Disabled,
                 walks);
 
-        Optional<GTFSSourceConfig> findTFGM = configWithwalks.getGTFSDataSource().stream().
+        Optional<GTFSSourceConfig> findTFGM = configWithwalks.getGtfsSourceConfig().stream().
                 filter(source -> source.getDataSourceId().equals(DataSourceID.tfgm)).findFirst();
 
         GTFSSourceConfig tfgmConfig = findTFGM.orElseThrow();

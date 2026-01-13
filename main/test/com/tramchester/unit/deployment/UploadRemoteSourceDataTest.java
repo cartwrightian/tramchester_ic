@@ -120,7 +120,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         }
 
         @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        public List<RemoteDataSourceConfig> getRemoteSources() {
             return remoteConfigs;
         }
 

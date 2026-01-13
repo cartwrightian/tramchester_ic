@@ -58,8 +58,7 @@ public class AppConfiguration extends TramchesterConfig {
     private Integer recentStopsToShow;
 
     @Valid
-    @JsonProperty("swagger")
-    private SwaggerBundleConfiguration swaggerBundleConfiguration;
+    private SwaggerBundleConfiguration swagger;
 
     private Integer dataExpiryThreshold;
     
@@ -79,28 +78,21 @@ public class AppConfiguration extends TramchesterConfig {
     private Integer maxWalkingConnections;
 
     @Valid
-    @JsonProperty("gtfsSourceConfig")
     private List<GTFSSourceConfig> gtfsSourceConfig;
 
     @Valid
-    @JsonProperty("remoteSources")
-    private List<RemoteDataSourceConfig> remoteDataConfig;
+    private List<RemoteDataSourceConfig> remoteSources;
 
     //@NotNull
-    @JsonProperty("graphDBConfig")
     private GraphDBConfig graphDBConfig;
 
-    @JsonProperty("tfgmTramliveData")
-    private TfgmTramLiveDataAppConfig tramLiveDataAppConfig;
+    private TfgmTramLiveDataAppConfig tfgmTramliveData;
 
-    @JsonProperty("openLdb")
-    private OpenLdbAppConfig openLdbConfig;
+    private OpenLdbAppConfig openLdb;
 
-    @JsonProperty("openRailData")
-    private OpenRailDataAppConfig openRailDataConfig;
+    private OpenRailDataAppConfig openRailData;
 
-    @JsonProperty("rail")
-    private RailAppConfig railConfig;
+    private RailAppConfig rail;
 
     @NotNull
     private BoundingBox bounds;
@@ -123,7 +115,6 @@ public class AppConfiguration extends TramchesterConfig {
     @NotNull
     private String distributionBucket;
 
-    @JsonProperty("neighbourConfig")
     private NeighbourAppConfig neighbourConfig;
 
     private Boolean cachingDisabled;
@@ -139,6 +130,8 @@ public class AppConfiguration extends TramchesterConfig {
 
     @NotNull
     private Boolean inMemoryGraph;
+
+    ///  GETTERS
 
     @JsonProperty("instanceDataUrl")
     @Override
@@ -176,9 +169,10 @@ public class AppConfiguration extends TramchesterConfig {
         return recentStopsToShow;
     }
 
+    @JsonProperty("swagger")
     @Override
-    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
-        return swaggerBundleConfiguration;
+    public SwaggerBundleConfiguration getSwagger() {
+        return swagger;
     }
 
     @JsonProperty("dataExpiryThreshold")
@@ -274,6 +268,7 @@ public class AppConfiguration extends TramchesterConfig {
         return changeAtInterchangeOnly;
     }
 
+    @JsonProperty("neighbourConfig")
     @Override
     public NeighbourConfig getNeighbourConfig() {
         return neighbourConfig;
@@ -285,38 +280,45 @@ public class AppConfiguration extends TramchesterConfig {
         return maxJourneyDuration;
     }
 
+    @JsonProperty("gtfsSourceConfig")
     @Valid
     @Override
-    public List<GTFSSourceConfig> getGTFSDataSource() {
+    public List<GTFSSourceConfig> getGtfsSourceConfig() {
         return gtfsSourceConfig;
     }
 
+    @JsonProperty("remoteSources")
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return remoteDataConfig;
+    public List<RemoteDataSourceConfig> getRemoteSources() {
+        return remoteSources;
     }
 
     // optional
+    @JsonProperty("tfgmTramliveData")
     @Override
-    public TfgmTramLiveDataConfig getLiveDataConfig() {
-        return tramLiveDataAppConfig;
+    public TfgmTramLiveDataConfig getTfgmTramliveData() {
+        return tfgmTramliveData;
     }
 
+    @JsonProperty("openLdb")
     @Override
-    public OpenLdbConfig getOpenldbwsConfig() {
-        return openLdbConfig;
+    public OpenLdbConfig getOpenLdb() {
+        return openLdb;
     }
 
+    @JsonProperty("openRailData")
     @Override
-    public OpenRailDataConfig getOpenRailDataConfig() {
-        return openRailDataConfig;
+    public OpenRailDataConfig getOpenRailData() {
+        return openRailData;
     }
 
+    @JsonProperty("rail")
     @Override
-    public RailConfig getRailConfig() {
-        return railConfig;
+    public RailConfig getRail() {
+        return rail;
     }
 
+    @JsonProperty("graphDBConfig")
     @Valid
     @Override
     public GraphDBConfig getGraphDBConfig() {

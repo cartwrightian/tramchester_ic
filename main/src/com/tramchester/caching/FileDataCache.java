@@ -93,7 +93,7 @@ public class FileDataCache implements DataCache {
 
         // TODO Currently clear cache if any data source has refreshed, in future maybe link to Ready dependency chain??
 
-        Set<DataSourceID> refreshedSources = config.getRemoteDataSourceConfig().stream().
+        Set<DataSourceID> refreshedSources = config.getRemoteSources().stream().
                 map(RemoteDataSourceConfig::getName).
                 map(DataSourceID::findOrUnknown).
                 filter(remoteDataRefreshed::refreshed).collect(Collectors.toSet());

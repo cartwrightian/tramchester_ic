@@ -78,7 +78,7 @@ public class PublishLiveDataToSNSCLI extends BaseCLI {
             latch.countDown();
         });
 
-        TfgmTramLiveDataConfig liveConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveConfig = config.getTfgmTramliveData();
         Long refreshSeconds = liveConfig.getRefreshPeriodSeconds();
 
         TimerTask task = new TimerTask() {

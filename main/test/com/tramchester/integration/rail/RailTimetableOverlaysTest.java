@@ -64,13 +64,13 @@ public class RailTimetableOverlaysTest {
 
 
         @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        public List<RemoteDataSourceConfig> getRemoteSources() {
             return Collections.emptyList();
             //return List.of(remoteNaptanXMLConfig, remoteNPTGconfig);
         }
 
         @Override
-        public RailConfig getRailConfig() {
+        public RailConfig getRail() {
             return new RailConfig() {
 
                 @Override

@@ -67,7 +67,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         logger.info("starting");
 
-        config.getGTFSDataSource().forEach(source -> {
+        config.getGtfsSourceConfig().forEach(source -> {
             final boolean hasDBFlag = hasDBFlag(source);
 
             final String sourceName = source.getName();

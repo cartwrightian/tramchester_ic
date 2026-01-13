@@ -17,7 +17,7 @@ public class TramWithPostcodesEnabled extends IntegrationTramTestConfig {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         return Arrays.asList(remoteTFGMConfig, postCodeDatasourceConfig);
     }
 

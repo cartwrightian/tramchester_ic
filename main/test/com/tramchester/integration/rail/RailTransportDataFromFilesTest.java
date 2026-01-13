@@ -292,7 +292,7 @@ public class RailTransportDataFromFilesTest {
 
         DataSourceInfo info = transportData.getDataSourceInfo(DataSourceID.openRailData); //dataSourceInfos.get(0);
         assertEquals(DataSourceID.openRailData, info.getID());
-        assertEquals(config.getRailConfig().getModes(), info.getModes());
+        assertEquals(config.getRail().getModes(), info.getModes());
 
     }
 

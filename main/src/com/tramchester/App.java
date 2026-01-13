@@ -156,7 +156,7 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new SwaggerBundle<>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
-                final SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
+                final SwaggerBundleConfiguration bundleConfiguration = configuration.getSwagger();
                 bundleConfiguration.setVersion(getBuildNumber());
                 return bundleConfiguration;
             }
@@ -243,7 +243,7 @@ public class App extends Application<AppConfiguration>  {
         // only enable live data present in config
         if (configuration.liveTfgmTramDataEnabled()) {
             logger.info("Start tram live data");
-            initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
+            initLiveDataMetricAndHealthcheck(configuration.getTfgmTramliveData(), environment, executor, metricRegistry);
         } else {
             logger.info("Tram live data disabled");
         }
