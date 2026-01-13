@@ -1,6 +1,6 @@
 %[shared/server.yml]
 
-dataExpiryThreadhold: 3
+dataExpiryThreshold: 3
 cacheFolder: data/cache
 
 inMemoryGraph: false

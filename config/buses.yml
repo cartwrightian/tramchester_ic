@@ -8,7 +8,7 @@ graphDBConfig:
   enableDiagnostics: ${ENABLE_DB_DIAG:- false }
 
 cacheFolder: data/cacheBuses
-dataExpiryThreadhold: 3
+dataExpiryThreshold: 3
 
 gtfsSourceConfig:
   -

@@ -91,7 +91,7 @@ public class CompareNeo4JWithInMemoryTest {
         calculatorInMem = new RouteCalculatorTestFacade(componentContainerInMemory, txnInMem);
         calculatorNeo4J = new RouteCalculatorTestFacade(componentContainerNeo4J, txnNeo4J);
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
-        maxNumResults = config.getMaxNumResults();
+        maxNumResults = config.getMaxNumberResults();
 
     }
 

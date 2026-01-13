@@ -113,7 +113,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         diversionRepository = componentContainer.get(StationsWithDiversionRepository.class);
 
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxNumResults = config.getMaxNumResults();
+        maxNumResults = config.getMaxNumberResults();
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         maxChanges = 2;
     }

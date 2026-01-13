@@ -77,7 +77,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract int getMaxWait();
 
     // max number of results to return via the API
-    public abstract int getMaxNumResults();
+    public abstract int getMaxNumberResults();
 
     // number of queries to do for each given time, spaced by QueryInterval below
     public abstract int getNumberQueries();
@@ -94,7 +94,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract SwaggerBundleConfiguration getSwaggerBundleConfiguration();
 
     // number of days before data expiry to start warning
-    public abstract int getDataExpiryThreadhold();
+    public abstract int getDataExpiryThreshold();
 
     // remove the (Purple Line) part of the route name?
     //public abstract boolean getRemoveRouteNameSuffix();
@@ -172,7 +172,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public abstract long getCalcTimeoutMillis();
 
-    public abstract long GetCloudWatchMetricsFrequencyMinutes();
+    public abstract long getCloudWatchMetricsFrequencyMinutes();
 
     public abstract boolean getPlanningEnabled();
 

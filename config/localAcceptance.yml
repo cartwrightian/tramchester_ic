@@ -8,7 +8,7 @@ inMemoryGraph: true
 #  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
 
 cacheFolder: data/cache
-dataExpiryThreadhold: 3
+dataExpiryThreshold: 3
 
 %[shared/tfgm_trams.yml]
 %[shared/tfgm_live_data.yml]

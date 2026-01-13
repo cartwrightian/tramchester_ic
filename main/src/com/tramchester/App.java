@@ -253,7 +253,7 @@ public class App extends Application<AppConfiguration>  {
             logger.info("start cloudwatch metrics");
             final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                     container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
-            cloudWatchReporter.start(configuration.GetCloudWatchMetricsFrequencyMinutes(), TimeUnit.MINUTES);
+            cloudWatchReporter.start(configuration.getCloudWatchMetricsFrequencyMinutes(), TimeUnit.MINUTES);
         } else {
             logger.warn("Cloudwatch metrics are disabled in config");
         }

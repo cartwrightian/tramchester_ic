@@ -88,7 +88,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
         stationRepository = componentContainer.get(StationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
-        maxNumResults = config.getMaxNumResults();
+        maxNumResults = config.getMaxNumberResults();
 
         when = YorkStreetWorks2025.getStartDate().plusDays(1);
 

@@ -93,7 +93,7 @@ public class RouteCalculatorTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
-        maxNumResults = config.getMaxNumResults();
+        maxNumResults = config.getMaxNumberResults();
     }
 
     @AfterEach

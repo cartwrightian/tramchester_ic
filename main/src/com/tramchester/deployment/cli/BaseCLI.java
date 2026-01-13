@@ -40,7 +40,15 @@ public abstract class BaseCLI {
         }
 
         final TramchesterConfig config = container.get(TramchesterConfig.class);
-        boolean success = run(logger, container, config);
+
+        final boolean success;
+        if (config.getInMemoryGraph()) {
+            display("InMemory database is enabled, cannot build neo4j graph");
+            success = false;
+        } else {
+            success = run(logger, container, config);
+        }
+
         container.close();
         return success;
     }

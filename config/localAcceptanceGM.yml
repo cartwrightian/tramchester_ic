@@ -6,7 +6,7 @@ graphDBConfig:
   neo4jPagecacheMemory: 1000m
   memoryTransactionGlobalMaxSize: 650m
 
-dataExpiryThreadhold: 3
+dataExpiryThreshold: 3
 cacheFolder: data/cache
 
 gtfsSourceConfig:

@@ -79,7 +79,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public long GetCloudWatchMetricsFrequencyMinutes() {
+    public long getCloudWatchMetricsFrequencyMinutes() {
         return 10;
     }
 
@@ -149,7 +149,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public int getMaxNumResults() {
+    public int getMaxNumberResults() {
         return 5;
     }
 
@@ -171,7 +171,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public int getDataExpiryThreadhold() { return 3; }
+    public int getDataExpiryThreshold() { return 3; }
 
 
     @Override

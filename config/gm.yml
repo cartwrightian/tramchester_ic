@@ -3,7 +3,7 @@
 inMemoryGraph: false
 
 cacheFolder: data/cache/gm
-dataExpiryThreadhold: 3
+dataExpiryThreshold: 3
 
 graphDBConfig:
   graphName: databases/gm_rail.db

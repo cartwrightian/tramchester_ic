@@ -80,7 +80,7 @@ numOfNearestStopsToOffer: 5
 numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
-dataExpiryThreadhold: 3
+dataExpiryThreshold: 3
 changeAtInterchangeOnly: true
 
 %[shared/infra.yml]

@@ -7,7 +7,7 @@ graphDBConfig:
   memoryTransactionGlobalMaxSize: 0m
 
 cacheFolder: data/cacheFrequency
-dataExpiryThreadhold: 3
+dataExpiryThreshold: 3
 
 gtfsSourceConfig:
   -

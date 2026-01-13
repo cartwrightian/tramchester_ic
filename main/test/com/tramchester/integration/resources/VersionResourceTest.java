@@ -68,7 +68,7 @@ class VersionResourceTest {
         assertEquals(expectedModes.size(), result.size());
         assertTrue(expectedModes.containsAll(result));
         assertFalse(results.getPostcodesEnabled());
-        assertEquals(configuration.getMaxNumResults(), results.getNumberJourneysToDisplay());
+        assertEquals(configuration.getMaxNumberResults(), results.getNumberJourneysToDisplay());
     }
 
     @Test
@@ -85,7 +85,7 @@ class VersionResourceTest {
         assertEquals(expectedModes.size(), result.size());
         assertTrue(expectedModes.containsAll(result));
         assertFalse(results.getPostcodesEnabled());
-        assertEquals(configuration.getMaxNumResults(), results.getNumberJourneysToDisplay());
+        assertEquals(configuration.getMaxNumberResults(), results.getNumberJourneysToDisplay());
     }
 
 }

@@ -316,7 +316,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getNumOfNearestStopsToOffer(), testConfig.getNumOfNearestStopsToOffer(), "NumOfNearestStopsToOffer");
         assertEquals(expected.getNumOfNearestStopsForWalking(), testConfig.getNumOfNearestStopsForWalking(), "NumOfNearestStopsForWalking");
         assertEquals(expected.getRecentStopsToShow(), testConfig.getRecentStopsToShow(), "RecentStopsToShow");
-        assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults(), "MaxNumResults");
+        assertEquals(expected.getMaxNumberResults(), testConfig.getMaxNumberResults(), "MaxNumResults");
         assertEquals(expected.getDistributionBucket(), testConfig.getDistributionBucket(), "distributionBucket");
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
         assertEquals(expected.getDepthFirst(), testConfig.getDepthFirst(), "depthFirst");

@@ -35,7 +35,7 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     }
 
     public Result checkForDate(LocalDate currentDate) {
-        int days = config.getDataExpiryThreadhold();
+        int days = config.getDataExpiryThreshold();
 
         LocalDate validUntil = feedInfo.validUntil();
 
