@@ -168,8 +168,13 @@ class ConfigMismatchTest {
     void shouldHaveCheckFilenameForDBSourceMatchDBNameForLocal() throws ConfigurationException, IOException {
         AppConfiguration normalConfig = loadConfigFromFile("local.yml");
 
-        RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteDataSourceConfig(), DataSourceID.database);
-        assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
+        if (normalConfig.getInMemoryGraph()) {
+            // TODO Assert remote config for DB is not present
+        }
+        else {
+            RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteDataSourceConfig(), DataSourceID.database);
+            assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
+        }
     }
 
     @Disabled("remote DM disabled for now on GM config setting")
@@ -340,7 +345,7 @@ class ConfigMismatchTest {
             assertEquals(expected.getBounds(), testConfig.getBounds(), "bounds");
         }
 
-        checkDBConfig(expected, testConfig);
+        checkDBAndLiveDataConfig(expected, testConfig);
 
         checkGTFSSourceConfig(expected, testConfig, Category.Closures.not(excluded));
 
@@ -405,11 +410,15 @@ class ConfigMismatchTest {
         assertEquals(expected.getOnlyMarkedInterchanges(), testConfig.getOnlyMarkedInterchanges());
     }
 
-    private void checkDBConfig(AppConfiguration expected, AppConfiguration testConfig) {
-        GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
-        GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
-        assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(),
-                "neo4jPagecacheMemory");
+    private void checkDBAndLiveDataConfig(AppConfiguration expected, AppConfiguration testConfig) {
+        if (expected.getInMemoryGraph()) {
+            assertEquals(expected.getInMemoryGraph(), testConfig.getInMemoryGraph());
+        } else {
+            GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
+            GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
+            assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(),
+                    "neo4jPagecacheMemory");
+        }
 
         TfgmTramLiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
 

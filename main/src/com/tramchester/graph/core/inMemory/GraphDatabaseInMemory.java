@@ -30,7 +30,6 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @PostConstruct
     public void start() {
-        logger.warn("EXPERIMENTAL");
         if (started.get()) {
             throw new RuntimeException("Already started");
         }

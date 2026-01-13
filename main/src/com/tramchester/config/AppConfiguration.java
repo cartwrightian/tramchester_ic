@@ -104,7 +104,7 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("remoteSources")
     private List<RemoteDataSourceConfig> remoteDataConfig;
 
-    @NotNull
+    //@NotNull
     @JsonProperty("graphDBConfig")
     private GraphDBConfig graphDBConfig;
 

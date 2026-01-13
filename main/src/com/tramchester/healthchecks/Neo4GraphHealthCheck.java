@@ -4,31 +4,33 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.graph.core.GraphDatabase;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.nio.file.Path;
 
 @LazySingleton
-public class GraphHealthCheck extends TramchesterHealthCheck {
-    private static final Logger logger = LoggerFactory.getLogger(GraphHealthCheck.class);
+public class Neo4GraphHealthCheck extends TramchesterHealthCheck {
+    private static final Logger logger = LoggerFactory.getLogger(Neo4GraphHealthCheck.class);
 
     private static final long TIMEOUT_MILLIS = 5;
     private final GraphDatabase graphDatabase;
     private final TramchesterConfig config;
-    private final Path dbPath;
+    private final boolean neo4J;
 
     @Inject
-    public GraphHealthCheck(GraphDatabase graphDatabase, ServiceTimeLimits serviceTimeLimits, TramchesterConfig config) {
+    public Neo4GraphHealthCheck(GraphDatabase graphDatabase, ServiceTimeLimits serviceTimeLimits, TramchesterConfig config) {
         super(serviceTimeLimits);
         this.graphDatabase = graphDatabase;
         this.config = config;
-        dbPath = config.getGraphDBConfig().getDbPath();
+        this.neo4J = !config.getInMemoryGraph();
     }
 
     @Override
     protected Result check() {
+        final Path dbPath = config.getGraphDBConfig().getDbPath();
+
         if (graphDatabase.isAvailable(TIMEOUT_MILLIS)) {
             final String available = "Graph DB available at " + dbPath;
             logger.info(available);
@@ -46,6 +48,6 @@ public class GraphHealthCheck extends TramchesterHealthCheck {
 
     @Override
     public boolean isEnabled() {
-        return config.getPlanningEnabled();
+        return config.getPlanningEnabled() && neo4J;
     }
 }

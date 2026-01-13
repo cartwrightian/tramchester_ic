@@ -177,7 +177,11 @@ public class SQSSubscriberFactory {
             // only process and delete one message at a time due to way rest of live data works
             final String text = extractMostUpToDateMessageBody(msgs);
 
-            deleteMessages(msgs);
+            if (!deleteMessages(msgs)) {
+                // only warning here since message retention is set to 60 seconds for the live data feed
+                logger.warn("Failed to delete all received messages");
+            }
+            msgs.clear();
 
             return text;
         }
@@ -223,20 +227,31 @@ public class SQSSubscriberFactory {
             return attributesResult.attributes().get(QueueAttributeName.QUEUE_ARN);
         }
 
-        private void deleteMessages(final List<Message> messages) {
+        private boolean deleteMessages(final List<Message> messages) {
 
+            boolean allDeleted = false;
             try {
                 final List<DeleteMessageBatchRequestEntry> entries = messages.stream().
-                        map(msg -> DeleteMessageBatchRequestEntry.builder().id(msg.messageId()).build()).
+                        map(SQSSubscriberFactory::createDeleteRequest).
                         toList();
-                DeleteMessageBatchRequest batchRequest = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
-                sqsClient.deleteMessageBatch(batchRequest);
+                final DeleteMessageBatchRequest batchRequest = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
+                final DeleteMessageBatchResponse response = sqsClient.deleteMessageBatch(batchRequest);
 
-                logger.info(format("Queue: %s deleted %s messages", queueUrl, messages.size()));
+                if (response.hasSuccessful()) {
+                    final List<DeleteMessageBatchResultEntry> success = response.successful();
+                    logger.info(format("Deleted (%s out of %s) messages", success.size(), messages.size()));
+                    allDeleted = (success.size() == messages.size());
+                }
+                if (response.hasFailed()) {
+                    final List<BatchResultErrorEntry> failed = response.failed();
+                    // only warning here since message retention is set to 60 seconds for the live data feed
+                    logger.warn(format("Failed to delete (%s out of %s) messages: %s", failed.size(), messages.size(), failed));
+                }
             }
             catch (SdkClientException | SqsException awsSdkException) {
                 logger.error(format("Unable to delete %s messages from queue %s", messages.size(), queueUrl), awsSdkException);
             }
+            return allDeleted;
         }
 
         private String extractPayloadFrom(JsonObject jsonObject) {
@@ -283,5 +298,11 @@ public class SQSSubscriberFactory {
                       ]
                     }""", queueArn, topicArn);
         }
+    }
+
+    private static DeleteMessageBatchRequestEntry createDeleteRequest(Message msg) {
+        return DeleteMessageBatchRequestEntry.builder().
+                id(msg.messageId()).
+                receiptHandle(msg.receiptHandle()).build();
     }
 }

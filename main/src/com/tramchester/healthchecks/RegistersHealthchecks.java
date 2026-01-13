@@ -24,7 +24,7 @@ public class RegistersHealthchecks {
     @Inject
     public RegistersHealthchecks(DataExpiryHealthCheckFactory dataExpiryHealthCheckFactory,
                                  NewDataAvailableHealthCheckFactory newDataAvailableHealthCheckFactory,
-                                 GraphHealthCheck graphHealthCheck,
+                                 Neo4GraphHealthCheck neo4GraphHealthCheck,
                                  LiveDataHealthCheck liveDataHealthCheck,
                                  LiveDataMessagesHealthCheck liveDataMessagesHealthCheck,
                                  LiveDataS3UploadHealthCheck liveDataS3UploadHealthCheck,
@@ -36,7 +36,7 @@ public class RegistersHealthchecks {
 
         addIfEnabled(dataExpiryHealthCheckFactory.getHealthChecks());
         addIfEnabled(newDataAvailableHealthCheckFactory.getHealthChecks());
-        addIfEnabled(graphHealthCheck);
+        addIfEnabled(neo4GraphHealthCheck);
         addIfEnabled(clientForS3Healthcheck);
         addIfEnabled(sendMetricsToCloudWatchHealthcheck);
 
