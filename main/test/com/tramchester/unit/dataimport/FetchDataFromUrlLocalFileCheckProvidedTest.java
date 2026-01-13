@@ -1,8 +1,8 @@
 package com.tramchester.unit.dataimport;
 
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
@@ -27,8 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
-    private final DataSourceID dataSourceID = DataSourceID.database;
-    private final URI expectedDownloadURL = URI.create(TestEnv.getDatabaseRemoteURL());
+    private DataSourceID dataSourceID; // = DataSourceID.database;
+    private URI expectedDownloadURL; // = URI.create(TestEnv.getDatabaseRemoteURL());
+    private Path statusCheckFile;
 
     private FetchDataFromUrl fetchDataFromUrl;
     private GetsFileModTime getsFileModTime;
@@ -39,7 +40,6 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
     private ZonedDateTime expiredFileTime;
     private RemoteDataSourceConfig remoteDataSourceConfig;
     private S3DownloadAndModTime s3Downloader;
-    private Path statusCheckFile;
     private List<Pair<String, String>> expectedHeaders;
     private HeaderForDatasourceFactory headerFactory;
     private List<Pair<String, String>> emptyHeaders;
@@ -47,15 +47,21 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
 
-        TramchesterConfig config = new LocalTestConfig(Path.of("dataFolder"));
+        Path dataFolder = Path.of("dataFolder");
+
+        remoteDataSourceConfig = new TestRemoteConfig(dataFolder);
+        LocalTestConfig localConfig = new LocalTestConfig(dataFolder, remoteDataSourceConfig);
+        dataSourceID = localConfig.getDataSourceId();
 
         providesLocalNow = createMock(ProvidesNow.class);
+
         HttpDownloadAndModTime httpDownloader = createMock(HttpDownloadAndModTime.class);
+
         getsFileModTime = createMock(GetsFileModTime.class);
         s3Downloader = createMock(S3DownloadAndModTime.class);
         headerFactory = createMock(HeaderForDatasourceFactory.class);
 
-        remoteDataSourceConfig = config.getDataRemoteSourceConfig(dataSourceID);
+        expectedDownloadURL = URI.create(remoteDataSourceConfig.getDataUrl());
 
         final String targetZipFilename = remoteDataSourceConfig.getDownloadFilename();
         final Path path = remoteDataSourceConfig.getDownloadPath();
@@ -64,7 +70,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         statusCheckFile = path.resolve(remoteDataSourceConfig.getModTimeCheckFilename());
 
         downloadedDataRepository = new DownloadedRemotedDataRepository();
-        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow, downloadedDataRepository,
+        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, localConfig, providesLocalNow, downloadedDataRepository,
                 getsFileModTime, headerFactory);
 
         startTime = TestEnv.UTCNow();
@@ -89,7 +95,6 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         EasyMock.expect(getsFileModTime.exists(statusCheckFile)).andReturn(true);
         EasyMock.expect(getsFileModTime.getFor(statusCheckFile)).andReturn(expiredFileTime);
-        //EasyMock.expect(headerFactory.getFor(dataSourceID)).andReturn(expectedHeaders);
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
         EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, expiredFileTime, false, emptyHeaders)).andReturn(status);
@@ -98,7 +103,6 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         replayAll();
         fetchDataFromUrl.start();
-        //Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(dataSourceID));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(dataSourceID));
@@ -271,12 +275,11 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
     }
 
-
     private static class LocalTestConfig extends TestConfig {
-        private final Path dataPath;
+        private final RemoteDataSourceConfig dataSourceConfig;
 
-        private LocalTestConfig(Path dataPath) {
-            this.dataPath = dataPath;
+        private LocalTestConfig(Path dataPath, RemoteDataSourceConfig dataSourceConfig) {
+            this.dataSourceConfig = dataSourceConfig;
         }
 
         @Override
@@ -286,7 +289,23 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         @Override
         public List<RemoteDataSourceConfig> getRemoteSources() {
-            return Collections.singletonList(new DatabaseRemoteDataSourceConfig(dataPath));
+            return Collections.singletonList(dataSourceConfig);
+        }
+
+        public DataSourceID getDataSourceId() {
+            return dataSourceConfig.getDataSourceId();
+        }
+    }
+
+    private class TestRemoteConfig extends DatabaseRemoteDataSourceConfig {
+
+        public TestRemoteConfig(Path datapath) {
+            super(datapath);
+        }
+
+        @Override
+        public ConfigReference<Boolean> getSkip() {
+            return new ConfigReference<>(false);
         }
     }
 }

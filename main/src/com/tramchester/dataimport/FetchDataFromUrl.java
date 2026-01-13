@@ -2,6 +2,7 @@ package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DownloadedConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
@@ -46,7 +47,7 @@ public class FetchDataFromUrl {
     private final GetsFileModTime getsFileModTime;
     private final HeaderForDatasourceFactory headerFactory;
 
-    private List<DownloadedConfig> downloadConfigs;
+    private final List<DownloadedConfig> downloadConfigs;
     private final TramchesterConfig config;
 
     @Inject
@@ -68,12 +69,15 @@ public class FetchDataFromUrl {
     @PostConstruct
     public void start() {
         logger.info("start");
-        //this.downloadedConfigs = new ArrayList<>(config.getRemoteSources());
-        downloadConfigs.addAll(config.getRemoteSources());
+        for (RemoteDataSourceConfig remoteSource : config.getRemoteSources()) {
+            if (remoteSource.getSkip().resolve(config)) {
+                logger.warn("Skipping load of " + remoteSource.getName());
+            } else {
+                logger.info("Adding " + remoteSource.getName());
+                downloadConfigs.add(remoteSource);
+            }
+        }
 
-//        if (this.downloadedConfigs == null) {
-//            throw new RuntimeException("configs was null, use empty list if no sources needed");
-//        }
         fetchData();
         logger.info("started");
     }
@@ -86,8 +90,6 @@ public class FetchDataFromUrl {
     public void fetchData() {
 
         downloadConfigs.forEach(sourceConfig -> {
-
-            Boolean skip = sourceConfig.getSkip().resolve(config);
 
             final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
             final String targetFile = sourceConfig.getDownloadFilename();
