@@ -169,10 +169,13 @@ class ConfigMismatchTest {
         AppConfiguration normalConfig = loadConfigFromFile("local.yml");
 
         if (normalConfig.getInMemoryGraph()) {
-            // TODO Assert remote config for DB is not present
+            RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteSources(), DataSourceID.database);
+            assertTrue(remoteConfig.getSkip().resolve(normalConfig));
         }
         else {
             RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteSources(), DataSourceID.database);
+            assertFalse(remoteConfig.getSkip().resolve(normalConfig));
+
             assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
         }
     }

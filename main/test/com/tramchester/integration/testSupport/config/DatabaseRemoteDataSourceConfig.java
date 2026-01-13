@@ -1,5 +1,6 @@
 package com.tramchester.integration.testSupport.config;
 
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestEnv;
@@ -32,6 +33,11 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getDataUrl() {
         return TestEnv.getDatabaseRemoteURL();
+    }
+
+    @Override
+    public ConfigReference<Boolean> getSkip() {
+        return new ConfigReference<>("inMemoryGraph");
     }
 
     @Override

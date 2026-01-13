@@ -16,7 +16,6 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
     public abstract String getDataCheckUrl();
 
     // url where data is located
-
     @Override
     public abstract String getDataUrl();
 
@@ -31,22 +30,6 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
     @JsonIgnore
     public DataSourceID getDataSourceId() {
         return DataSourceID.findOrUnknown(getName());
-    }
-
-    @Override
-    public String toString() {
-        return "RemoteDataSourceConfig {"+
-                "dataCheckURL: '"+getDataCheckUrl()+"' " +
-                "dataURL: '"+getDataUrl()+"' " +
-                "downloadFilename: '"+getDownloadFilename()+"' " +
-                "name: '"+getName()+"' " +
-                "dataSourceId: '"+getDataSourceId()+"' " +
-                "dataPath: '"+getDataPath()+"' " +
-                "downloadPath: '"+getDownloadPath()+"' " +
-                "defaultExpiry: '" + getDefaultExpiry() +"' " +
-                "mandatory: '" + isMandatory() +"' " +
-                "modTimeCheckFilename: '" + getModTimeCheckFilename() +"' " +
-                "}";
     }
 
     // place to put downloaded file
@@ -77,5 +60,21 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
 
     public boolean getSkipUpload() {
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "RemoteDataSourceConfig {"+
+                "dataCheckURL: '"+getDataCheckUrl()+"' " +
+                "dataURL: '"+getDataUrl()+"' " +
+                "downloadFilename: '"+getDownloadFilename()+"' " +
+                "name: '"+getName()+"' " +
+                "dataSourceId: '"+getDataSourceId()+"' " +
+                "dataPath: '"+getDataPath()+"' " +
+                "downloadPath: '"+getDownloadPath()+"' " +
+                "defaultExpiry: '" + getDefaultExpiry() +"' " +
+                "mandatory: '" + isMandatory() +"' " +
+                "modTimeCheckFilename: '" + getModTimeCheckFilename() +"' " +
+                "}";
     }
 }

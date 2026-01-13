@@ -1,5 +1,6 @@
 package com.tramchester.integration.testSupport.nptg;
 
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.nptg.NPTGXMLDataLoader;
 
@@ -35,6 +36,11 @@ public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
     @Override
     public boolean checkOnlyIfExpired() {
         return false;
+    }
+
+    @Override
+    public ConfigReference<Boolean> getSkip() {
+        return new ConfigReference<>(false);
     }
 
     @Override

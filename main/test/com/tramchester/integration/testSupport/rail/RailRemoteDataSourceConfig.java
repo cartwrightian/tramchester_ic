@@ -1,5 +1,6 @@
 package com.tramchester.integration.testSupport.rail;
 
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 
@@ -66,6 +67,11 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getName() {
         return "openRailData";
+    }
+
+    @Override
+    public ConfigReference<Boolean> getSkip() {
+        return new ConfigReference<>(false);
     }
 
     @Override

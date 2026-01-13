@@ -3,6 +3,7 @@ package com.tramchester.integration.cloud.data;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -195,6 +196,11 @@ class UploadRemoteSourceDataToS3Test {
         @Override
         public boolean checkOnlyIfExpired() {
             return false;
+        }
+
+        @Override
+        public ConfigReference<Boolean> getSkip() {
+            return new ConfigReference<>(false);
         }
 
         @Override

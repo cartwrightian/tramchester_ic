@@ -13,7 +13,6 @@ import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -85,7 +84,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+        //Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(DataSourceID.tfgm));
@@ -107,7 +107,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.update(destinationFile, startTime.plusMinutes(30))).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(DataSourceID.tfgm));
@@ -127,7 +128,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(DataSourceID.tfgm));
@@ -145,7 +147,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, startTime, true, headers)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(DataSourceID.tfgm));
@@ -180,7 +183,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.update(destinationFile, time)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(DataSourceID.tfgm));
@@ -216,7 +220,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.update(destinationFile, remoteModTime)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
 
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
@@ -243,7 +248,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(httpDownloader.getStatusFor(redirectedURL, fileModTime, true, headers)).andStubReturn(redirect);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
 
     }
@@ -273,7 +279,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.update(destinationFile, time)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(DataSourceID.tfgm));
@@ -296,7 +303,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime, true, headers)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertTrue(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
@@ -317,7 +325,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime, headers)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertTrue(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
@@ -335,7 +344,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, invalidTime, headers)).andReturn(statusWithoutValidModTime);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertTrue(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
@@ -354,7 +364,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
                 andReturn(new URLStatus(expectedDownloadURL, NOT_FOUND));
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.refreshed(DataSourceID.tfgm));
         assertFalse(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
@@ -371,7 +382,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true, headers)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.hasFileFor(DataSourceID.tfgm));
 

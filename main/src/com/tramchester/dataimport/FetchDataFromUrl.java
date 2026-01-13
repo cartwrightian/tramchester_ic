@@ -2,7 +2,7 @@ package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DownloadedConfig;
-import com.tramchester.config.HasRemoteDataSourceConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import jakarta.inject.Inject;
@@ -40,33 +40,40 @@ public class FetchDataFromUrl {
 
     private final HttpDownloadAndModTime httpDownloader;
     private final S3DownloadAndModTime s3Downloader;
-    private final List<DownloadedConfig> configs;
+
     private final ProvidesNow providesLocalNow;
     private final DownloadedRemotedDataRepository downloadedDataRepository;
     private final GetsFileModTime getsFileModTime;
     private final HeaderForDatasourceFactory headerFactory;
 
+    private List<DownloadedConfig> downloadConfigs;
+    private final TramchesterConfig config;
+
     @Inject
     public FetchDataFromUrl(HttpDownloadAndModTime httpDownloader, S3DownloadAndModTime s3Downloader,
-                            HasRemoteDataSourceConfig config, ProvidesNow providesLocalNow,
+                            TramchesterConfig config, ProvidesNow providesLocalNow,
                             DownloadedRemotedDataRepository downloadedDataRepository,
                             GetsFileModTime getsFileModTime, HeaderForDatasourceFactory headerFactory) {
         this.httpDownloader = httpDownloader;
         this.s3Downloader = s3Downloader;
-        this.configs = new ArrayList<>(config.getRemoteSources());
         this.providesLocalNow = providesLocalNow;
-
         this.downloadedDataRepository = downloadedDataRepository;
         this.getsFileModTime = getsFileModTime;
         this.headerFactory = headerFactory;
+
+        this.config = config;
+        this.downloadConfigs = new ArrayList<>();
     }
 
     @PostConstruct
     public void start() {
         logger.info("start");
-        if (this.configs==null) {
-            throw new RuntimeException("configs was null, use empty list if no sources needed");
-        }
+        //this.downloadedConfigs = new ArrayList<>(config.getRemoteSources());
+        downloadConfigs.addAll(config.getRemoteSources());
+
+//        if (this.downloadedConfigs == null) {
+//            throw new RuntimeException("configs was null, use empty list if no sources needed");
+//        }
         fetchData();
         logger.info("started");
     }
@@ -78,7 +85,10 @@ public class FetchDataFromUrl {
 
     public void fetchData() {
 
-        configs.forEach(sourceConfig -> {
+        downloadConfigs.forEach(sourceConfig -> {
+
+            Boolean skip = sourceConfig.getSkip().resolve(config);
+
             final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
             final String targetFile = sourceConfig.getDownloadFilename();
 

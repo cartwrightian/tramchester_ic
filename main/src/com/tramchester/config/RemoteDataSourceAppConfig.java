@@ -22,6 +22,7 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     private final Boolean mandatory;
     private final Boolean skipUpload;
     private final Boolean checkOnlyIfExpired;
+    private final ConfigReference<Boolean> skip;
 
     @JsonCreator
     public RemoteDataSourceAppConfig(@JsonProperty(value = "dataCheckURL", required = true) String dataCheckURL,
@@ -34,7 +35,8 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
                                      @JsonProperty(value = "modTimeCheckFilename") String modTimeCheckFilename,
                                      @JsonProperty(value = "mandatory") Boolean mandatory,
                                      @JsonProperty(value = "skipUpload") Boolean skipUpload,
-                                     @JsonProperty(value = "checkOnlyIfExpired") Boolean checkOnlyIfExpired) {
+                                     @JsonProperty(value = "checkOnlyIfExpired") Boolean checkOnlyIfExpired,
+                                     @JsonProperty(value = "skip") ConfigReference<Boolean> skip) {
         this.dataCheckURL = dataCheckURL;
         this.dataURL = dataURL;
         this.dataPath = dataPath;
@@ -46,6 +48,12 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
         this.mandatory = mandatory;
         this.skipUpload = skipUpload;
         this.checkOnlyIfExpired = checkOnlyIfExpired;
+        this.skip = skip;
+    }
+
+    @Override
+    public ConfigReference<Boolean> getSkip() {
+        return skip;
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -98,7 +97,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+        //Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(dataSourceID));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(dataSourceID));
@@ -121,7 +121,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.update(destinationFile, startTime.plusMinutes(30))).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+        //Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(dataSourceID));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(dataSourceID));
@@ -140,7 +141,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.update(destinationFile, startTime)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(dataSourceID));
         assertEquals(destinationFile, downloadedDataRepository.fileFor(dataSourceID));
@@ -158,7 +160,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, startTime, false, emptyHeaders)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.refreshed(dataSourceID));
         assertEquals(statusCheckFile, downloadedDataRepository.fileFor(dataSourceID));
@@ -181,7 +184,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, modTime, false, emptyHeaders)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.refreshed(dataSourceID));
         assertTrue(downloadedDataRepository.hasFileFor(dataSourceID));
@@ -202,7 +206,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime, emptyHeaders)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+        //Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(dataSourceID));
         assertTrue(downloadedDataRepository.hasFileFor(dataSourceID));
@@ -220,7 +225,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, URLStatus.invalidTime, emptyHeaders)).andReturn(statusWithoutValidModTime);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertTrue(downloadedDataRepository.refreshed(dataSourceID));
         assertTrue(downloadedDataRepository.hasFileFor(dataSourceID));
@@ -239,7 +245,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
                 andReturn(new URLStatus(expectedDownloadURL, 404));
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.refreshed(dataSourceID));
         assertFalse(downloadedDataRepository.hasFileFor(dataSourceID));
@@ -257,7 +264,8 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
                 emptyHeaders)).andReturn(status);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        fetchDataFromUrl.start();
+//        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
         assertFalse(downloadedDataRepository.hasFileFor(dataSourceID));
 
