@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 @JsonPropertyOrder({"nodes", "relationships"})
 @LazySingleton
 public class GraphCore implements Graph {
@@ -164,14 +166,27 @@ public class GraphCore implements Graph {
             final NodeIdInMemory beginId = begin.getId();
             final NodeIdInMemory endId = end.getId();
 
-            checkAndUpdateExistingRelationships(relationshipType, beginId, endId);
+            boolean existing = checkAndUpdateExistingRelationships(relationshipType, beginId, endId);
 
-            final int id = idFactory.getNextRelationshipId();
-            final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
-                    new RelationshipIdInMemory(id), beginId, endId);
+            if (existing) {
+                final GraphRelationshipInMemory find = getSingleRelationshipMutable(beginId, GraphDirection.Outgoing, relationshipType);
+                if (find==null) {
+                    String msg = format("Could not find existing relationship between %s and %s", begin, end);
+                    throw new RuntimeException(msg);
+                }
+                if (!find.getEndId().equals(endId)) {
+                    String msg = format("Mismatch on an existing relationship %s between %s and %s", find, begin, end);
+                    throw new RuntimeException(msg);
+                }
+                return find;
+            } else {
+                final int id = idFactory.getNextRelationshipId();
+                final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
+                        new RelationshipIdInMemory(id), beginId, endId);
 
-            insertRelationship(relationshipType, relationship, beginId, endId);
-            return relationship;
+                insertRelationship(relationshipType, relationship, beginId, endId);
+                return relationship;
+            }
         }
     }
 
@@ -192,20 +207,28 @@ public class GraphCore implements Graph {
         return relationship;
     }
 
-    private void checkAndUpdateExistingRelationships(final TransportRelationshipTypes relationshipType, final NodeIdInMemory beginId,
+    private boolean checkAndUpdateExistingRelationships(final TransportRelationshipTypes relationshipType, final NodeIdInMemory beginId,
                                                      final NodeIdInMemory endId) {
         final NodeIdPair idPair = NodeIdPair.of(beginId, endId);
+
+        final boolean existing;
         if (existingRelationships.containsKey(idPair)) {
-            if (existingRelationships.get(idPair).contains(relationshipType)) {
+            final EnumSet<TransportRelationshipTypes> relationshipsForPair = existingRelationships.get(idPair);
+            if (relationshipsForPair.contains(relationshipType)) {
                 String message = "Already have relationship of type " + relationshipType + " between " + beginId + " and " + endId;
-                logger.error(message);
-                throw new RuntimeException(message);
+                logger.warn(message);
+                existing = true;
+                //throw new RuntimeException(message);
             } else {
-                existingRelationships.get(idPair).add(relationshipType);
+                existing = false;
+                relationshipsForPair.add(relationshipType);
             }
         } else {
             existingRelationships.put(idPair, EnumSet.of(relationshipType));
+            existing = false;
         }
+
+        return existing;
     }
 
     /***
