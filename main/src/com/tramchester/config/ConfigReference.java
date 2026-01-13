@@ -15,14 +15,13 @@ public class ConfigReference<T> {
 
     private final String config;
     private T resolved;
-    private Class<T> theClass;
 
     public ConfigReference(@JsonProperty("config") String config) {
         this.config = config;
     }
 
-    public ConfigReference(T hardcodedForTest) {
-        this.resolved = hardcodedForTest;
+    public ConfigReference(T defaultValue) {
+        this.resolved = defaultValue;
         this.config = "";
     }
 
@@ -33,11 +32,11 @@ public class ConfigReference<T> {
 
         final Reflections reflections = new Reflections(AppConfiguration.class);
 
-        Set<Method> all = reflections.get(Methods.of(AppConfiguration.class));
+        final Set<Method> all = reflections.get(Methods.of(AppConfiguration.class));
 
-        Stream<Method> annotatedMethods = all.stream().filter(method -> method.isAnnotationPresent(JsonProperty.class));
+        final Stream<Method> annotatedMethods = all.stream().filter(method -> method.isAnnotationPresent(JsonProperty.class));
 
-        Optional<Method> found = annotatedMethods.
+        final Optional<Method> found = annotatedMethods.
                 filter(method -> method.getDeclaredAnnotation(JsonProperty.class).value().equals(config)).
                 findFirst();
 

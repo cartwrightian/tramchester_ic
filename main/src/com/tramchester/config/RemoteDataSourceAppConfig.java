@@ -53,6 +53,9 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
 
     @Override
     public ConfigReference<Boolean> getSkip() {
+        if (skip==null) {
+            return new ConfigReference<>(false);
+        }
         return skip;
     }
 

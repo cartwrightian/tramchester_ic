@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -70,7 +71,8 @@ public class FetchDataFromUrl {
     public void start() {
         logger.info("start");
         for (RemoteDataSourceConfig remoteSource : config.getRemoteSources()) {
-            if (remoteSource.getSkip().resolve(config)) {
+            final ConfigReference<Boolean> skip = remoteSource.getSkip();
+            if (skip.resolve(config)) {
                 logger.warn("Skipping load of " + remoteSource.getName());
             } else {
                 logger.info("Adding " + remoteSource.getName());

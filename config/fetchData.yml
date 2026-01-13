@@ -3,7 +3,7 @@
 dataExpiryThreshold: 3
 cacheFolder: data/cache
 
-inMemoryGraph: false
+inMemoryGraph: true
 graphDBConfig:
   graphName: databases/tramchester.db
   neo4jPagecacheMemory: 100m

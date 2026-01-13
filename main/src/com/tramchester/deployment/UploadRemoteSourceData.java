@@ -6,12 +6,11 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.domain.DataSourceID;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,24 +33,25 @@ public class UploadRemoteSourceData {
         this.remoteDataRefreshed = remoteDataRefreshed;
     }
 
-    public boolean upload(String prefixForS3Key) {
+    public boolean upload(final String prefixForS3Key) {
         logger.info("Upload data sources to " + prefixForS3Key);
         final List<RemoteDataSourceConfig> remoteSources = config.getRemoteSources();
 
         Set<DataSourceID> toSkip = remoteSources.stream().
+                filter(source -> source.getSkip().resolve(config)).
                 filter(RemoteDataSourceConfig::getSkipUpload).
                 map(RemoteDataSourceConfig::getDataSourceId).
                 collect(Collectors.toSet());
 
         if (!toSkip.isEmpty()) {
-            logger.info("Will skip uploading following sources " + toSkip);
+            logger.warn("Will skip uploading following sources " + toSkip);
         }
 
-        List<DataSourceID> remoteWithFiles = new ArrayList<>(remoteSources.stream().
+        final List<DataSourceID> remoteWithFiles = remoteSources.stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
                 filter(id -> !toSkip.contains(id)).
                 filter(remoteDataRefreshed::hasFileFor).
-                toList());
+                toList();
 
         if (remoteWithFiles.isEmpty()) {
             logger.error("No remote sources had files");

@@ -175,7 +175,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
 
         @Override
         public ConfigReference<Boolean> getSkip() {
-            return null;
+            return new ConfigReference<>(false);
         }
 
         @Override
