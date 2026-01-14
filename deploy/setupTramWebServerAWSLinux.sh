@@ -70,7 +70,8 @@ logger -s invoke start script
 export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
 export RELEASE_NUMBER="$BUILD"
 logger Start tramchester for $PLACE
-export JAVA_OPTS="-Xmx1550m"
+# was -Xmx1550m" for neo4j based DB
+export JAVA_OPTS="-Xmx750m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
 logger -s Finish Web bootstrap script for "$BUILD" and "$PLACE"

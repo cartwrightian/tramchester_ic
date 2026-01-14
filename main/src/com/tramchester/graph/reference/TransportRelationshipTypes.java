@@ -6,7 +6,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum TransportRelationshipTypes { //implements RelationshipType {
+public enum TransportRelationshipTypes {
     TRAM_GOES_TO,
     BUS_GOES_TO,
     TRAIN_GOES_TO,

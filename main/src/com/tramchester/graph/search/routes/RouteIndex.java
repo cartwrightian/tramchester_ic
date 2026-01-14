@@ -128,8 +128,10 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
 
             routeList.sort(Comparator.comparing(Route::getId));
             for (short i = 0; i < routeList.size(); i++) {
-                mapRouteIdToIndex.put(routeList.get(i), i);
-                mapIndexToRouteId.put(i, routeList.get(i));
+                final Route route = routeList.get(i);
+                mapRouteIdToIndex.put(route, i);
+                mapIndexToRouteId.put(i, route);
+                logger.info(String.format("Added index %s for route %s", i, route.getId()));
             }
         }
 
@@ -152,24 +154,25 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
             stream.forEach(item -> {
                 final IdFor<Route> routeId = item.getRouteId();
                 if (!routeRepository.hasRouteId(routeId)) {
-                    String message = "RouteId not found in repository: " + routeId;
+                    final String message = "RouteId not found in repository: " + routeId;
                     logger.error(message);
                     missingRouteIds.add(routeId);
-                    //throw new RuntimeException(message);
                 }
-                Route route = routeRepository.getRouteById(routeId);
-                mapRouteIdToIndex.put(route, item.getIndex());
-                mapIndexToRouteId.put(item.getIndex(), route);
+                final Route route = routeRepository.getRouteById(routeId);
+                final short index = item.getIndex();
+                mapRouteIdToIndex.put(route, index);
+                mapIndexToRouteId.put(index, route);
+                logger.info(String.format("Loaded index %s for route %s", index, routeId));
             });
             if (!missingRouteIds.isEmpty()) {
-                String msg = format("The following routeIds present in index file but not the route repository (size %s) %s",
+                final String msg = format("The following routeIds present in index file but not the route repository (size %s) %s",
                         routeRepository.numberOfRoutes(), missingRouteIds);
                 // TODO debug?
                 logger.warn("Routes in repo: " + HasId.asIds(routeRepository.getRoutes()));
                 throw new FileDataCache.CacheLoadException(msg);
             }
             if (mapRouteIdToIndex.size() != numberOfRoutes) {
-                String msg = "Mismatch on number of routes, from index got: " + mapRouteIdToIndex.size() +
+                final String msg = "Mismatch on number of routes, from index got: " + mapRouteIdToIndex.size() +
                         " but repository has: " + numberOfRoutes;
                 logger.error(msg);
                 throw new FileDataCache.CacheLoadException(msg);
@@ -207,9 +210,11 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
 
         public short getIndexFor(final Route route) {
             if (!(mapRouteIdToIndex.containsKey(route))) {
-                String message = format("No index for route %s, is cache file %s outdated? ",
+                final String message = format("No index found for route %s, is cache file %s outdated? ",
                         route.getId(), getFilename());
                 logger.error(message);
+                mapIndexToRouteId.forEach((key, value) ->
+                        logger.warn("Index Contents: " + key + " -> " + value.getId()));
                 throw new RuntimeException(message);
             }
             return mapRouteIdToIndex.get(route);
@@ -222,11 +227,15 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
         public RoutePair getPairFor(final RouteIndexPair indexPair) {
             final Route first = mapIndexToRouteId.get(indexPair.first());
             if (first==null) {
-                throw new RuntimeException("Could not find first Route for index " + indexPair);
+                String msg = "Could not find first Route for index " + indexPair;
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
             final Route second = mapIndexToRouteId.get(indexPair.second());
             if (second==null) {
-                throw new RuntimeException("Could not find second Route for index " + indexPair);
+                String msg = "Could not find second Route for index " + indexPair;
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
 
             return new RoutePair(first, second);

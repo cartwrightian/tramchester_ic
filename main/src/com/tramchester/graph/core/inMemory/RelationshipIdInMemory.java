@@ -12,8 +12,7 @@ public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<R
     private final int id;
 
     @JsonCreator
-    public RelationshipIdInMemory(
-            @JsonProperty("id") int id) {
+    public RelationshipIdInMemory(@JsonProperty("id") int id) {
         this.id = id;
     }
 

@@ -31,7 +31,7 @@ public class MutableTransactionGraph implements Graph {
         this.parent = parent;
         this.localGraph = new GraphCore(graphIdFactory);
 
-        localGraph.start();
+        localGraph.doStart(true);
 
         locallyCreatedRelationships = new HashSet<>();
         locallyCreatedNodes = new HashSet<>();
@@ -273,7 +273,7 @@ public class MutableTransactionGraph implements Graph {
 
     @Override
     public void close(final GraphTransaction owningTransaction) {
-        localGraph.stop();
+        localGraph.doStop(true);
         locallyCreatedNodes.clear();
         locallyCreatedRelationships.clear();
         relationshipsToDelete.clear();

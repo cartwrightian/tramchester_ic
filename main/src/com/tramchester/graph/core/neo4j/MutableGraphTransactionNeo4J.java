@@ -273,15 +273,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
         return idFactory.getIdFor(node);
     }
 
-//    @Override
-//    public ImmutableGraphRelationship lastFrom(final Path path) {
-//        final Relationship last = path.lastRelationship();
-//        if (last==null) {
-//            return null;
-//        }
-//        return wrapRelationship(last);
-//    }
-
     @Override
     public Iterable<GraphNode> iter(final Iterable<Node> iterable) {
         return new Iterable<>() {
@@ -303,17 +294,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
     public GraphNode getEndNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getEndNode());
     }
-
-//    @Override
-//    public GraphNodeId getPreviousNodeId(final GraphPath path) {
-//        final GraphPathNeo4j graphPathNeo4j = (GraphPathNeo4j) path;
-//        final Relationship last = graphPathNeo4j.lastRelationship();
-//        if (last == null) {
-//            return null;
-//        } else {
-//            return idFactory.getIdFor(last.getStartNode());
-//        }
-//    }
 
     /***
      * Diagnostic support only @See GraphTestHelper

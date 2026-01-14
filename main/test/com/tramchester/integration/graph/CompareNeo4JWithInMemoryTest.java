@@ -42,7 +42,6 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@Disabled("can no longer reproduce as test is passing now")
 public class CompareNeo4JWithInMemoryTest {
 
     private static GuiceContainerDependencies componentContainerNeo4J;
@@ -117,6 +116,25 @@ public class CompareNeo4JWithInMemoryTest {
     }
 
     @Test
+    void shouldHaveSameCountsForRelationships() {
+        long totalInMem = 0;
+        long totalNeo4J = 0 ;
+        for(TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
+            long inMem = inMemoryCounts.numberOf(relationshipType);
+            long neo4J = neo4JCounts.numberOf(relationshipType);
+            assertEquals(neo4J, inMem, "Mismatch for " + relationshipType);
+            totalInMem += inMem;
+            totalNeo4J += neo4J;
+        }
+
+        assertEquals(totalNeo4J, totalInMem);
+        // todo visualvm shows 483 755 relationships - this seems too high
+        assertEquals(483755, totalInMem, "temporary, this will change");
+
+    }
+
+    @Disabled("no longer needed")
+    @Test
     void compareWithGraphWithFailureForSpecificStartStation() {
         GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
 
@@ -142,6 +160,7 @@ public class CompareNeo4JWithInMemoryTest {
         }
     }
 
+    @Disabled("no longer needed")
     @Test
     void compareWithGraphWithFailureForStationNodes() {
         GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
@@ -166,6 +185,7 @@ public class CompareNeo4JWithInMemoryTest {
         });
     }
 
+    @Disabled("no longer needed")
     @Test
     void compareWithGraphWithFailureFoRouteStationNodes() {
         GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
@@ -190,15 +210,8 @@ public class CompareNeo4JWithInMemoryTest {
         });
     }
 
-    @Test
-    void shouldHaveSameCountsForRelationships() {
-        for(TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
-            long inMem = inMemoryCounts.numberOf(relationshipType);
-            long neo4J = neo4JCounts.numberOf(relationshipType);
-            assertEquals(neo4J, inMem, "Mismatch for " + relationshipType);
-        }
-    }
 
+    @Disabled("no longer needed")
     @Test
     void shouldReproSpecificMismatchOnPlatformEntry() {
         IdFor<Station> stationId = Station.createId("9400ZZMASLE");
@@ -218,11 +231,13 @@ public class CompareNeo4JWithInMemoryTest {
 
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldHaveRelationshipsAtStationNodes() {
         checkForType(stationRepository.getStations());
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldHaveRelationshipsAtPlatformNodes() {
         PlatformRepository platformRepository = componentContainerInMemory.get(PlatformRepository.class);
@@ -231,6 +246,7 @@ public class CompareNeo4JWithInMemoryTest {
     }
 
 
+    @Disabled("no longer needed")
     @Test
     void shouldCheckConsistencyAtSpecificRouteStation() {
         Station station = HoltTown.from(stationRepository);
@@ -248,6 +264,7 @@ public class CompareNeo4JWithInMemoryTest {
 
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldCompareSameJourney() {
 
@@ -269,6 +286,7 @@ public class CompareNeo4JWithInMemoryTest {
         assertEquals(journeysNeo4J, journeysInMem);
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldCheckForConsistencyWhenInMemFails() {
         TramDate when = TestEnv.testDay();
@@ -283,6 +301,7 @@ public class CompareNeo4JWithInMemoryTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldWalkGraphForVeloPark() {
         Station item = VeloPark.from(stationRepository);
