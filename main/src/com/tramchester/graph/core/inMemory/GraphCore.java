@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.spi.LoggingEventBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -57,27 +58,39 @@ public class GraphCore implements Graph {
         existingRelationships = new ConcurrentHashMap<>();
 
         // TODO into config and consolidate with neo4j diag option?
-        diagnostics = true;
+        diagnostics = false;
     }
 
 
     @PostConstruct
     public void start() {
-        logger.info("Starting");
+        doStart(false);
+    }
+
+    protected void doStart(final boolean local) {
+        final String postfix = local ? "local" : "global";
+        final LoggingEventBuilder level = local ? logger.atDebug() : logger.atInfo();
+
+        level.log("Starting " + postfix);
         for(GraphLabel label : GraphLabel.values()) {
             labelsToNodes.put(label, new HashSet<>());
         }
         relationshipTypeCounts.reset();
-        logger.info("started");
+        level.log("started " + postfix);
     }
 
     @PreDestroy
     public void stop() {
-        logger.info("stop");
+        doStop(false);
+    }
+
+    protected void doStop(final boolean local) {
+        final String postfix = local ? "local" : "global";
+        final LoggingEventBuilder level = local ? logger.atDebug() : logger.atInfo();
+
+        level.log("stop " + postfix);
 
         synchronized (nodesAndEdges) {
-//            nextGraphNodeId.set(0);
-//            nextRelationshipId.set(0);
 
             nodesAndEdges.clear();
             relationshipsForNodes.clear();
@@ -88,7 +101,7 @@ public class GraphCore implements Graph {
             labelsToNodes.clear();
         }
 
-        logger.info("stopped");
+        level.log("stopped " + postfix);
     }
 
     static GraphCore createFrom(final NodesAndEdges incoming, GraphIdFactory graphIdFactory) {
