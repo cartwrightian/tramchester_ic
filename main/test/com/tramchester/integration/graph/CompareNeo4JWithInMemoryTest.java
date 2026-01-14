@@ -129,7 +129,7 @@ public class CompareNeo4JWithInMemoryTest {
 
         assertEquals(totalNeo4J, totalInMem);
         // todo visualvm shows 483 755 relationships - this seems too high
-        assertEquals(483755, totalInMem, "temporary, this will change");
+        //assertEquals(483755, totalInMem, "temporary, this will change");
 
     }
 

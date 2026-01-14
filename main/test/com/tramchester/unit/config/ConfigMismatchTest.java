@@ -301,6 +301,7 @@ class ConfigMismatchTest {
     }
 
     private void validateCoreParameters(Collection<Category> excluded, AppConfiguration expected, AppConfiguration testConfig) {
+        assertEquals(expected.getInMemoryGraph(), testConfig.getInMemoryGraph(), "InMemory");
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");
         assertEquals(expected.getChangeAtInterchangeOnly(), testConfig.getChangeAtInterchangeOnly(), "ChangeAtInterchangeOnly");
