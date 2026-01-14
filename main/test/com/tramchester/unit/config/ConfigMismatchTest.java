@@ -300,14 +300,6 @@ class ConfigMismatchTest {
 
     }
 
-//    private void checkRailDataVersionFor(AppConfiguration appConfig) {
-//        String version = appConfig.getRailConfig().getVersion();
-//        RemoteDataSourceConfig dataSourceConfig = appConfig.getDataRemoteSourceConfig(DataSourceID.openRailData);
-//        String zip = String.format("ttis%s.zip", version);
-//        assertTrue(dataSourceConfig.getDataUrl().contains(zip),
-//                "Rail config and data source config mismatch? version:"+version+" Url: "+dataSourceConfig.getDataUrl());
-//    }
-
     private void validateCoreParameters(Collection<Category> excluded, AppConfiguration expected, AppConfiguration testConfig) {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");

@@ -6,6 +6,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import static com.tramchester.domain.reference.TFGMRouteNames.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2026,1,3);
+    public static final TramDate latestCutoverDate = TramDate.of(2026,1,11);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -74,13 +75,14 @@ public class KnownTramRoute {
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
-//        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-//
-//        } else { // Not Sunday
-//            routes.add(find.apply(Green));
-//        }
+        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            if (date.isAfter(TramDate.of(2026, 1, 31))) {
+                routes.add(find.apply(Green));
+            }
+        } else { // Not Sunday
+            routes.add(find.apply(Green));
+        }
 
-        routes.add(find.apply(Green));
         routes.add(find.apply(Yellow));
         routes.add(find.apply(Blue));
         routes.add(find.apply(Red));
