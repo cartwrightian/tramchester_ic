@@ -6,12 +6,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.search.ArrivalHandler;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -29,7 +28,7 @@ public abstract class TramRouteEvaluator {
     protected final Set<GraphNodeId> destinationNodeIds;
     protected final ServiceReasons reasons;
     protected final PreviousVisits previousVisits;
-    protected final LowestCostSeen bestResultSoFar;
+    protected final ArrivalHandler bestResultSoFar;
     protected final boolean diagEnabled;
     protected final int maxWaitMins;
     protected final int maxInitialWaitMins;
@@ -44,7 +43,7 @@ public abstract class TramRouteEvaluator {
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final TramchesterConfig config,
                               final GraphTransaction txn, final Set<GraphNodeId> destinationNodeIds,
                               final ServiceReasons reasons, final PreviousVisits previousVisits,
-                              final LowestCostSeen bestResultSoFar, final GraphNodeId startNodeId,
+                              final ArrivalHandler bestResultSoFar, final GraphNodeId startNodeId,
                               final EnumSet<TransportMode> requestedModes, Running running,
                               final EnumSet<TransportMode> destinationModes,
                               final TramDuration maxInitialWait) {
@@ -129,12 +128,15 @@ public abstract class TramRouteEvaluator {
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges, totalCostSoFar);
-        } else if (bestResultSoFar.everArrived()) { // Not arrived for current journey, but we have seen at least one prior success
-            final TramDuration lowestCostSeen = bestResultSoFar.getLowestDuration();
-            if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
-                // already longer that current shortest, no need to continue
-                return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
-            }
+//        }
+//        else if (bestResultSoFar.everArrived()) { // Not arrived for current journey, but we have seen at least one prior success
+//            final TramDuration lowestCostSeen = bestResultSoFar.getLowestDuration();
+//            if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
+//                // already longer that current shortest, no need to continue
+//                return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
+//            }
+        } else if (bestResultSoFar.alreadyLonger(totalCostSoFar)) {
+            return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
         }
 
         reasons.recordState(journeyState);

@@ -1,14 +1,16 @@
 package com.tramchester.graph.caches;
 
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.search.ArrivalHandler;
 import com.tramchester.graph.search.ImmutableJourneyState;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LowestCostSeenForQueryTime {
+public class LowestCostSeenForQueryTime implements ArrivalHandler {
 //    private final AtomicReference<TramDuration> lowestCost;
 //    private final AtomicInteger lowestNumChanges;
     private final ConcurrentMap<TramTime, TramDuration> lowestCostForQuery; // for a query time
@@ -23,7 +25,7 @@ public class LowestCostSeenForQueryTime {
         arrived = new AtomicInteger(0);
     }
 
-    public TramDuration getLowestDuration() {
+    private TramDuration getLowestDuration() {
         return lowestCostForQuery.values().stream().min(TramDuration::compareTo).orElse(TramDuration.MAX_VALUE);
     }
 
@@ -31,7 +33,7 @@ public class LowestCostSeenForQueryTime {
         return lowestNumChangesForQuery.values().stream().min(Integer::compareTo).orElse(Integer.MAX_VALUE);
     }
 
-    public boolean everArrived() {
+    private boolean everArrived() {
         return arrived.get()>0;
     }
 
@@ -77,6 +79,15 @@ public class LowestCostSeenForQueryTime {
 //        final boolean durationLower = journeyState.getTotalDurationSoFar().compareTo(getLowestDuration()) <= 0;
 //        return  durationLower && journeyState.getNumberChanges() <= getLowestNumChanges();
 
+    }
+
+    @Override
+    public boolean alreadyLonger(final TramDuration totalCostSoFar) {
+        if (everArrived()) { // Not arrived for current journey, but we have seen at least one prior success
+            final TramDuration lowestCostSeen = getLowestDuration();
+            return Durations.greaterThan(totalCostSoFar, lowestCostSeen);
+        }
+        return false;
     }
 
     public synchronized void setLowestCost(final TramTime queryTime, final ImmutableJourneyState journeyState) {

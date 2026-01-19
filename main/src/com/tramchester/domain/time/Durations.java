@@ -2,6 +2,7 @@ package com.tramchester.domain.time;
 
 import java.time.Duration;
 
+// TODO into TramDurations
 public class Durations {
 
     private static final ComparisonFunction GreaterThanOrEquals = result -> result>=0;

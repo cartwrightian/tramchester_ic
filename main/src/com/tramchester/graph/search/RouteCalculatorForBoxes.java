@@ -17,7 +17,6 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
@@ -119,7 +118,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 logger.debug(format("Finding shortest path for %s --> %s for %s", startBox, destinations, journeyRequest));
             }
             final LocationSet<Station> startingStations = startBox.getStations();
-            final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
+            final ArrivalHandler lowestCostSeenForBox = ArrivalHandler.get();
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 

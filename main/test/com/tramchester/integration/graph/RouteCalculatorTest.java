@@ -516,7 +516,6 @@ public class RouteCalculatorTest {
         assertNotEquals(1, uniqueDepartureTimes.size(), "Only got one time for " + journeys);
     }
 
-    @Disabled("Not an issue at front end")
     @Test
     void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
 

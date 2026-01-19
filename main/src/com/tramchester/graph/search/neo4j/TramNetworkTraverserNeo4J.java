@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.neo4j.CreateGraphTraverser;
 import com.tramchester.graph.core.neo4j.GraphPathNeo4j;
@@ -73,7 +72,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
 
     @Override
     public Stream<GraphPath> findPaths(final PathRequest pathRequest,
-                                       final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
+                                       final PreviousVisits previousVisits, final ServiceReasons reasons, final ArrivalHandler arrivalHandler,
                                        final TowardsDestination towardsDestination,
                                        final Running running) {
 
@@ -88,7 +87,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
         final GraphNodeId startNodeId = startNode.getId();
 
         final TramRouteEvaluatorNeo4J tramRouteEvaluator = new TramRouteEvaluatorNeo4J(pathRequest,
-                destinationNodeIds, reasons, previousVisits, lowestCostSeen, config,
+                destinationNodeIds, reasons, previousVisits, arrivalHandler, config,
                 startNodeId, txn, running);
 
         final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);

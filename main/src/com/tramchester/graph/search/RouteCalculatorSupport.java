@@ -15,7 +15,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.*;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
@@ -126,7 +125,7 @@ public abstract class RouteCalculatorSupport {
     }
 
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
-                                              final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
+                                              final PreviousVisits previousSuccessfulVisit, final ArrivalHandler arrivalHandler,
                                               final Running running, final TramNetworkTraverserFactory traverserFactory,
                                               TowardsDestination towardsDestination) {
         if (fullLogging) {
@@ -139,7 +138,7 @@ public abstract class RouteCalculatorSupport {
 
         final TramNetworkTraverser tramNetworkTraverser = traverserFactory.get(txn);
 
-        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
+        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, arrivalHandler,
                 towardsDestination, running);
 
         return paths.map(path -> new TimedPath(path, pathRequest));
@@ -277,7 +276,7 @@ public abstract class RouteCalculatorSupport {
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
 
-        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
+        final ArrivalHandler arrivalHandler = ArrivalHandler.get();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
@@ -290,7 +289,7 @@ public abstract class RouteCalculatorSupport {
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
                                 journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(), journeyRequest.getMaxNumberOfJourneys()))).
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination)).
+                        createPreviousVisits(journeyRequest), arrivalHandler, running, traverserFactory, towardsDestination)).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
@@ -329,7 +328,7 @@ public abstract class RouteCalculatorSupport {
 
         logger.info("Journey Constraints: " + journeyConstraints);
 
-        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
+        final ArrivalHandler lowestCostSeen = ArrivalHandler.get();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
