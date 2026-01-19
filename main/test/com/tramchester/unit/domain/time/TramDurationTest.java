@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.time.TramDuration;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TramDurationTest {
 
@@ -65,6 +65,27 @@ public class TramDurationTest {
         TramDuration result = mapper.readValue(text, TramDuration.class);
 
         assertEquals(duration, result);
+    }
+
+    @Test
+    void shouldCompareWithOtherDurations() {
+        TramDuration durationA = TramDuration.ofMinutes(1);
+        TramDuration durationB = TramDuration.ofMinutes(42);
+
+        assertTrue(durationA.compareTo(durationB) < 0);
+        assertTrue(durationB.compareTo(durationA) > 0);
+        assertEquals(0, durationA.compareTo(durationA));
+    }
+
+    @Test
+    void shouldHaveComparisonHelperMethodsForCleanerCode() {
+        TramDuration durationA = TramDuration.ofMinutes(1);
+        TramDuration durationB = TramDuration.ofMinutes(42);
+
+        assertTrue(durationA.lessThan(durationB));
+        assertFalse(durationA.lessThan(durationA));
+        assertTrue(durationB.moreThan(durationA));
+        assertFalse(durationB.moreThan(durationB));
     }
 
 }

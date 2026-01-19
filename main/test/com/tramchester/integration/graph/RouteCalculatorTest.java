@@ -499,6 +499,23 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
+    @Disabled("WIP")
+    @Test
+    void shouldProvideASpreadOfDepartureTimes() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 45), maxNumResults, 1);
+
+        List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);
+
+        assertEquals(maxNumResults, journeys.size());
+
+        Set<TramTime> uniqueDepartureTimes = journeys.stream().
+                map(Journey::getDepartTime).
+                collect(Collectors.toSet());
+
+        assertFalse(uniqueDepartureTimes.isEmpty());
+        assertNotEquals(1, uniqueDepartureTimes.size(), "Only got one time for " + journeys);
+    }
+
     @Disabled("Not an issue at front end")
     @Test
     void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {

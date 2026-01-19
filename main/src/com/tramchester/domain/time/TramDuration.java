@@ -16,7 +16,13 @@ import java.util.concurrent.ConcurrentMap;
 @JsonDeserialize(using = TramDurationDeserializer.class)
 public class TramDuration implements Comparable<TramDuration> {
 
-    private static final Factory factory = new Factory();
+    private static final Factory factory;
+    public static final TramDuration MAX_VALUE;
+
+    static {
+        factory = new Factory();
+        MAX_VALUE = TramDuration.ofMinutes(Integer.MAX_VALUE);
+    }
     private final Duration duration;
 
     public static final TramDuration ZERO = factory.fromSeconds(0);
@@ -124,6 +130,14 @@ public class TramDuration implements Comparable<TramDuration> {
 
     public TramDuration plusSeconds(final int seconds) {
         return factory.fromDuration(duration.plusSeconds(seconds));
+    }
+
+    public boolean lessThan(TramDuration other) {
+        return duration.compareTo(other.duration) < 0;
+    }
+
+    public boolean moreThan(TramDuration other) {
+        return duration.compareTo(other.duration) > 0;
     }
 
     // Factory

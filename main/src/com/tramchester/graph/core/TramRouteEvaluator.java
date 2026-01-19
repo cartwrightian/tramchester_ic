@@ -83,7 +83,7 @@ public abstract class TramRouteEvaluator {
             endNodeProps= Collections.emptyList();
         }
 
-        GraphNodeId previousNodeId = graphPath.getPreviousNodeId(txn);
+        final GraphNodeId previousNodeId = graphPath.getPreviousNodeId(txn);
         final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), previousNodeId, endNodeProps);
 
         // TODO WIP Spike
@@ -118,7 +118,8 @@ public abstract class TramRouteEvaluator {
         return heuristicsReason.getEvaluationAction();
     }
 
-    private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
+    private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState,
+                                        final GraphNode nextNode,
                                         final EnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
@@ -293,14 +294,15 @@ public abstract class TramRouteEvaluator {
 
     @NotNull
     private synchronized HeuristicsReason processArrivalAtDest(final ImmutableJourneyState journeyState, final HowIGotHere howIGotHere,
-                                                               final int numberChanges, TramDuration totalCostSoFar) {
+                                                               final int numberChanges, final TramDuration totalCostSoFar) {
 
         // todo if was on diversion at any stage then change behaviour here?
 
-        // todo set a thresh-hold on this rather than just having to be lower?
-        if (bestResultSoFar.isLower(journeyState)) {
+        final TramTime queryTime = serviceHeuristics.getActualQueryTime();
+
+        if (bestResultSoFar.isLower(queryTime, journeyState)) {
             // a better route than seen so far
-            bestResultSoFar.setLowestCost(journeyState);
+            bestResultSoFar.setLowestCost(queryTime, journeyState);
             return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
         }
 

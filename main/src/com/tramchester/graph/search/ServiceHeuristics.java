@@ -259,4 +259,8 @@ public class ServiceHeuristics {
     public boolean isDiagnostics() {
         return diagnostics;
     }
+
+    public TramTime getActualQueryTime() {
+        return actualQueryTime;
+    }
 }

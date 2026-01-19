@@ -98,8 +98,6 @@ class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
         previousSuccessfulVisit = createMock(PreviousVisits.class);
         CreateJourneyDiagnostics failedJourneyDiagnostics = createMock(CreateJourneyDiagnostics.class);
 
-//        contentsRepository = createMock(NodeContentsRepository.class);
-
         providesNow = createMock(ProvidesNow.class);
 
         config = new TestConfig() {
@@ -147,7 +145,6 @@ class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
         Node previousNode = createMock(Node.class);
         EasyMock.expect(previousRelationship.getStartNode()).andReturn(previousNode);
         EasyMock.expect(path.lastRelationship()).andReturn(previousRelationship);
-                        //EasyMock.expect(txn.getPreviousNodeId(graphPath)).andReturn(previousNodeId);
         EasyMock.expect(txn.getGraphIdFor(previousNode)).andReturn(previousNodeId);
 
         EasyMock.expect(serviceHeuristics.isDiagnostics()).andStubReturn(false);
@@ -226,23 +223,23 @@ class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
         EasyMock.expect(journeyState.getTotalDurationSoFar()).andReturn(duration);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(7);
 
-        //EasyMock.expect(journeyState.approxPosition()).andStubReturn(TramStations.ExchangeSquare.getId());
         journeyState.approxPosition();
         EasyMock.expectLastCall().andStubReturn(TramStations.ExchangeSquare.getLocationId());
+
+        EasyMock.expect(serviceHeuristics.getActualQueryTime()).andStubReturn(queryTime);
 
         branchState.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
         EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).
                 andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
 
-        EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(true);
+        EasyMock.expect(lowestCostSeen.isLower(queryTime, journeyState)).andReturn(true);
         EasyMock.expect(journeyState.getTraversalStateType()).andStubReturn(TraversalStateType.PlatformState);
 
-        lowestCostSeen.setLowestCost(journeyState);
+        lowestCostSeen.setLowestCost(queryTime, journeyState);
         EasyMock.expectLastCall();
 
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
@@ -293,19 +290,19 @@ class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
         EasyMock.expect(journeyState.getTraversalStateType()).andStubReturn(TraversalStateType.PlatformState);
 
-        //EasyMock.expect(journeyState.approxPosition()).andStubReturn(TramStations.ExchangeSquare.getId());
         journeyState.approxPosition();
         EasyMock.expectLastCall().andStubReturn(TramStations.ExchangeSquare.getLocationId());
 
         branchState.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
         EasyMock.expect(node.getLabels()).andReturn(labels);
+
+        EasyMock.expect(serviceHeuristics.getActualQueryTime()).andStubReturn(queryTime);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
 
-        EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(false);
+        EasyMock.expect(lowestCostSeen.isLower(queryTime, journeyState)).andReturn(false);
         EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(5);
 
         previousSuccessfulVisit.cacheVisitIfUseful(HeuristicsReasons.ArrivedMoreChanges(howIGotHere, 10, duration), node, journeyState, labels);
@@ -330,19 +327,19 @@ class TramRouteEvaluatorNeo4JTest extends EasyMockSupport {
         EasyMock.expect(journeyState.getTotalDurationSoFar()).andReturn(duration);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(2);
         EasyMock.expect(journeyState.getTraversalStateType()).andStubReturn(TraversalStateType.PlatformState);
-        //EasyMock.expect(journeyState.approxPosition()).andStubReturn(TramStations.ExchangeSquare.getId());
         journeyState.approxPosition();
         EasyMock.expectLastCall().andStubReturn(TramStations.ExchangeSquare.getLocationId());
 
         branchState.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
         EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
         EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(5);
-        EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(false);
+        EasyMock.expect(lowestCostSeen.isLower(queryTime, journeyState)).andReturn(false);
+
+        EasyMock.expect(serviceHeuristics.getActualQueryTime()).andStubReturn(queryTime);
 
         previousSuccessfulVisit.cacheVisitIfUseful(HeuristicReasonsOK.Arrived(howIGotHere, duration, 2), node, journeyState, labels);
         EasyMock.expectLastCall();
