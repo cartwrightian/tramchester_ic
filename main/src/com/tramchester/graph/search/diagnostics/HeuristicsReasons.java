@@ -115,8 +115,21 @@ public class HeuristicsReasons {
         return new HeuristicReasonWithAttribute<>(ReasonCode.HigherCost, howIGotHere, duration, false, TramDuration::toString);
     }
 
+    public static HeuristicsReason MoreChanges(HowIGotHere howIGotHere, int numberChanges) {
+        return new HeuristicReasonWithAttribute<>(ReasonCode.MoreChanges, howIGotHere, numberChanges, false, Object::toString);
+    }
+
+    public static HeuristicsReason ArrivalsLimit(HowIGotHere howIGotHere, int numberArrivals) {
+        return new HeuristicReasonWithAttribute<>(ReasonCode.ArrivalsLimit, howIGotHere, numberArrivals, false, Object::toString);
+    }
+
     public static HeuristicsReason ArrivedMoreChanges(HowIGotHere howIGotHere, int numberChanges, TramDuration duration) {
         return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedMoreChanges, howIGotHere, duration, numberChanges, false,
+                TramDuration::toString, Object::toString);
+    }
+
+    public static HeuristicsReason ArrivedSameChanges(HowIGotHere howIGotHere, int numberChanges, TramDuration duration) {
+        return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedSameChanges, howIGotHere, duration, numberChanges, false,
                 TramDuration::toString, Object::toString);
     }
 

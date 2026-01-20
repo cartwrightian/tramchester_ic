@@ -98,7 +98,7 @@ public class PreviousVisits implements ReportsCacheStats {
     }
 
     public HeuristicsReason getPreviousResult(final ImmutableJourneyState journeyState,
-                                              final EnumSet<GraphLabel> labels, HowIGotHere howIGotHere) {
+                                              final EnumSet<GraphLabel> labels, final HowIGotHere howIGotHere) {
 
         if (cachingDisabled) {
             return HeuristicsReasons.CacheMiss(howIGotHere);

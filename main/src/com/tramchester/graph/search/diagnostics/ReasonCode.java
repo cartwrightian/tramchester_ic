@@ -21,10 +21,13 @@ public enum ReasonCode {
     AlreadySeenTime,
     TransportModeWrong,
     HigherCost,
+    MoreChanges,
     SameTrip,
 
     ArrivedMoreChanges,
     ArrivedLater,
+    ArrivedSameChanges,
+    ArrivalsLimit,
 
     ReturnedToStart,
     TooManyChanges,
@@ -65,12 +68,12 @@ public enum ReasonCode {
                     -> GraphEvaluationAction.INCLUDE_AND_CONTINUE;
             case Arrived
                     -> GraphEvaluationAction.INCLUDE_AND_PRUNE;
-            case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections,
-                    TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate,
-                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, RouteNotOnQueryDate,
-                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenRouteStation,
-                    TransportModeWrong, SameTrip, DestinationUnavailableAtTime, AlreadySeenTime,
-                 ArrivedMoreChanges, ArrivedLater, SearchStopped, AlreadyBoarded
+            case HigherCost, MoreChanges, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections,
+                 TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate,
+                 AlreadyDeparted, StationClosed, TooManyNeighbourConnections, RouteNotOnQueryDate,
+                 ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenRouteStation,
+                 TransportModeWrong, SameTrip, DestinationUnavailableAtTime, AlreadySeenTime,
+                 ArrivedMoreChanges, ArrivedSameChanges, ArrivedLater, SearchStopped, AlreadyBoarded, ArrivalsLimit
                     -> GraphEvaluationAction.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,

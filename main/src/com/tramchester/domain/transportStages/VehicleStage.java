@@ -140,11 +140,11 @@ public class VehicleStage implements TransportStage<Station, Station> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        VehicleStage stage = (VehicleStage) o;
+        VehicleStage otherStage = (VehicleStage) o;
 
-        if (!firstStation.equals(stage.firstStation)) return false;
-        if (!lastStation.equals(stage.lastStation)) return false;
-        return trip.equals(stage.trip);
+        if (!firstStation.equals(otherStage.firstStation)) return false;
+        if (!lastStation.equals(otherStage.lastStation)) return false;
+        return trip.equals(otherStage.trip);
     }
 
     @Override

@@ -141,6 +141,8 @@ public abstract class RouteCalculatorSupport {
         final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, arrivalHandler,
                 towardsDestination, running);
 
+        logger.info("Arrivals " + arrivalHandler);
+
         return paths.map(path -> new TimedPath(path, pathRequest));
     }
 

@@ -128,15 +128,15 @@ public abstract class TramRouteEvaluator {
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges, totalCostSoFar);
-//        }
-//        else if (bestResultSoFar.everArrived()) { // Not arrived for current journey, but we have seen at least one prior success
-//            final TramDuration lowestCostSeen = bestResultSoFar.getLowestDuration();
-//            if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
-//                // already longer that current shortest, no need to continue
-//                return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
-//            }
-        } else if (bestResultSoFar.alreadyLonger(totalCostSoFar)) {
-            return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
+        } else {
+            final TramTime tramTime =  serviceHeuristics.getActualQueryTime();
+            if (bestResultSoFar.alreadyLonger(tramTime, totalCostSoFar)) {
+                return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
+            } else if (bestResultSoFar.alreadyMoreChanges(tramTime, numberChanges)) {
+                return reasons.recordReason(HeuristicsReasons.MoreChanges(howIGotHere, numberChanges));
+            } else if (bestResultSoFar.overArrivalsLimit(tramTime)) {
+                return reasons.recordReason(HeuristicsReasons.ArrivalsLimit(howIGotHere, bestResultSoFar.getArrivalsLimit()));
+            }
         }
 
         reasons.recordState(journeyState);
@@ -300,24 +300,33 @@ public abstract class TramRouteEvaluator {
 
         // todo if was on diversion at any stage then change behaviour here?
 
-        final TramTime queryTime = serviceHeuristics.getActualQueryTime();
+        final TramTime tramTime = serviceHeuristics.getActualQueryTime();
 
-        if (bestResultSoFar.isLower(queryTime, journeyState)) {
-            // a better route than seen so far
-            bestResultSoFar.setLowestCost(queryTime, journeyState);
+        bestResultSoFar.recordArrival(serviceHeuristics.getActualQueryTime());
+
+        final ArrivalHandler.Outcome timingOutcome = bestResultSoFar.checkDuration(tramTime, journeyState);
+        if (timingOutcome == ArrivalHandler.Outcome.Better) {
+            // found a better route than seen so far
+            bestResultSoFar.setLowestCost(tramTime, journeyState);
             return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
         }
 
-        final int lowestNumChanges = bestResultSoFar.getLowestNumChanges();
-        if (numberChanges == lowestNumChanges) {
-            return reasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHere, totalCostSoFar, numberChanges));
-        } else if (numberChanges < lowestNumChanges) {
-            // fewer hops can be a useful option
-            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
-        } else {
-            // found a route, but longer or more hops than current shortest
-            return reasons.recordReason(HeuristicsReasons.ArrivedMoreChanges(howIGotHere, numberChanges, totalCostSoFar));
-        }
+        // TODO Re-instate
+
+//        if (timingOutcome == ArrivalHandler.Outcome.Worse) {
+//            return reasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHere, totalCostSoFar, numberChanges));
+//        }
+
+        // else Same on timings
+
+        ArrivalHandler.Outcome changesOutcome = bestResultSoFar.checkChanges(tramTime, numberChanges);
+
+        return switch (changesOutcome) {
+            case Better -> reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
+            case Same -> reasons.recordReason(HeuristicsReasons.ArrivedSameChanges(howIGotHere, numberChanges, totalCostSoFar));
+            case Worse -> reasons.recordReason(HeuristicsReasons.ArrivedMoreChanges(howIGotHere, numberChanges, totalCostSoFar));
+        };
+
     }
 
     public boolean matchesDestination(final GraphNodeId graphNodeId) {

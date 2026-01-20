@@ -38,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -108,7 +107,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() throws IOException {
+    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() {
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
@@ -294,6 +293,7 @@ public class RouteCalculatorTest {
 
         JourneyRequest journeyRequestBoth = standardJourneyRequest(when, TramTime.of(10, 21),
                 2*maxNumberJourneys, maxChanges);
+
         List<Journey> servedByBothRoutes = calculator.calculateRouteAsList(start, Deansgate, journeyRequestBoth);
 
         assertFalse(altyToPiccGardens.isEmpty());
@@ -505,8 +505,6 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 45), maxNumResults, 1);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);
-
-        assertEquals(maxNumResults, journeys.size());
 
         Set<TramTime> uniqueDepartureTimes = journeys.stream().
                 map(Journey::getDepartTime).

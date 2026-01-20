@@ -65,7 +65,7 @@ public class RouteCalculatorTestFacade {
     }
 
     public @NotNull List<Journey> calculateRouteAsList(final Location<?> start, final Location<?> dest, final JourneyRequest request) {
-        Running running = new TimesOutRunner(Duration.ofSeconds(30));
+        final Running running = new TimesOutRunner(Duration.ofSeconds(30));
         final Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request, running);
         final List<Journey> result = stream.toList();
         stream.close();
