@@ -13,12 +13,14 @@ public class ConfigDTO {
     private boolean postcodesEnabled;
     private int numberJourneysToDisplay;
     private String environmentName;
+    private int maxNumberChanges;
 
     public ConfigDTO(Collection<TransportMode> modes, TramchesterConfig config) {
         this.modes = new ArrayList<>(modes);
         this.postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
         this.numberJourneysToDisplay = config.getMaxNumberResults();
         this.environmentName = config.getEnvironmentName();
+        this.maxNumberChanges = config.getMaxNumberChanges();
     }
 
     public ConfigDTO() {
@@ -45,5 +47,9 @@ public class ConfigDTO {
                 ", numberJourneysToDisplay=" + numberJourneysToDisplay +
                 ", environmentName='" + environmentName + '\'' +
                 '}';
+    }
+
+    public int getMaxNumberChanges() {
+        return maxNumberChanges;
     }
 }

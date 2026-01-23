@@ -161,6 +161,7 @@ function getTransportModesThenStations(app, beta) {
         .then(function (response) {
             app.networkError = false;
             app.modes = response.data.modes;
+            app.maxChanges = response.data.maxNumberChanges;
             app.selectedModes = app.modes; // start with all modes selected
             app.postcodesEnabled = response.data.postcodesEnabled;
             app.numberJourneysToDisplay = response.data.numberJourneysToDisplay;
@@ -330,7 +331,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         arriveBy: false,
         time: getCurrentTime(),
         date: getCurrentDate(),
-        maxChanges: 2,                  // todo from server side
+        maxChanges: -1,                  // todo from server side
         journeys: null,
         notes: [],
         liveDepartureResponse: null,
