@@ -330,7 +330,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         arriveBy: false,
         time: getCurrentTime(),
         date: getCurrentDate(),
-        maxChanges: 3,                  // todo from server side
+        maxChanges: 2,                  // todo from server side
         journeys: null,
         notes: [],
         liveDepartureResponse: null,
