@@ -38,6 +38,11 @@ public class UnitTestOfGraphConfig extends TestConfig {
     }
 
     @Override
+    public int getMaxNumberChanges() {
+        return 2;
+    }
+
+    @Override
     public int getQueryInterval() {
         return 6;
     }

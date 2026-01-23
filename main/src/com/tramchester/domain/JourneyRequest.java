@@ -55,6 +55,10 @@ public class JourneyRequest {
         cachingDisabled = false;
         warnIfNoResults = true;
         diagnosticsReceived = new AtomicBoolean(false);
+
+        if (maxChanges.get()>2) {
+            throw new RuntimeException("Finding out where it's too high, got " + maxChanges);
+        }
     }
 
     public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {

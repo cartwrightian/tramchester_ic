@@ -82,7 +82,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");
         }
-        coreState.setJourneyClock(boardingTime);
+        coreState.boardingTime(boardingTime);
         this.boardingTime = boardingTime;
         this.journeyOffset = currentCost;
     }
@@ -223,6 +223,20 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public TramTime getQueryTime() {
+        return coreState.getQueryTime();
+    }
+
+    /***
+     * Will be invalid time if never boarded
+     * @return time of first boarding
+     */
+    @Override
+    public TramTime getFirstBoardTime() {
+        return coreState.firstBoardTime;
+    }
+
+    @Override
     public TramDuration getTotalDurationSoFar() {
         return traversalState.getTotalDuration();
     }
@@ -241,11 +255,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     public LocationId<?> approxPosition() {
         return coreState.getLastVisited();
     }
-
-//    @Override
-//    public boolean justBoarded() {
-//        return traversalState.getStateType().equals(TraversalStateType.JustBoardedState);
-//    }
 
     @Override
     public boolean duplicatedBoardingSeen() {
@@ -292,6 +301,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         private boolean hasBegun;
         private TramTime journeyClock;
+        private TramTime firstBoardTime;
+
         private TransportMode currentMode;
         private int numberOfBoardings;
         private int numberOfWalkingConnections;
@@ -299,33 +310,37 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private int numberOfDiversionsTaken;
         private boolean currentlyOnDiversion;
         private LocationId<?> lastSeenStation;
+
+        private final TramTime queryTime;
         private final List<LocationId<?>> boardingLocations;
         private boolean duplicatedBoardingSeen;
 
         public CoreState(final TramTime queryTime) {
-            this(queryTime, false, 0,
+            this(queryTime, queryTime, false, 0,
                     TransportMode.NotSet, 0, 0,
-                    false, 0, LocationId.wrap(Station.InvalidId()), new ArrayList<>(), false);
+                    false, 0, LocationId.wrap(Station.InvalidId()),
+                    new ArrayList<>(), false, TramTime.invalid());
         }
 
         // COPY cons
         // NOTE: Don't pass by Ref, create duplicates for collections etc
         public CoreState(final CoreState previous) {
-            this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
+            this(previous.queryTime, previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
                     previous.numberNeighbourConnections,
                     previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation.copy(),
                     new ArrayList<>(previous.boardingLocations),
                     //false);
-                    previous.duplicatedBoardingSeen);
+                    previous.duplicatedBoardingSeen, previous.firstBoardTime);
         }
 
-        private CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings,
+        private CoreState(final TramTime queryTime, final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings,
                                                   final TransportMode currentMode, final int numberOfWalkingConnections,
                                                   final int numberNeighbourConnections, final boolean currentlyOnDiversion,
                                                   final int numberOfDiversionsTaken, final LocationId<?> lastSeenStation,
                                                   final List<LocationId<?>> boardingLocations,
-                                                    final boolean duplicatedBoardingSeen) {
+                                                    final boolean duplicatedBoardingSeen, TramTime firstBoardTime) {
             this.hasBegun = hasBegun;
+            this.queryTime = queryTime;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
             this.numberOfBoardings = numberOfBoardings;
@@ -336,6 +351,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this.lastSeenStation = lastSeenStation;
             this.boardingLocations = boardingLocations;
             this.duplicatedBoardingSeen = duplicatedBoardingSeen;
+            this.firstBoardTime = firstBoardTime;
         }
 
         public void incrementWalkingConnections() {
@@ -360,7 +376,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 boardingLocations.add(lastSeenStation);
             }
             currentMode = mode;
-            hasBegun = true;
+            if (!hasBegun) {
+                // can't set first board time here as don't know really time of boarding until we see a Minute Node,
+                // see: RecordTime
+                hasBegun = true;
+            }
         }
 
         public void setJourneyClock(final TramTime time) {
@@ -477,6 +497,17 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public boolean duplicatedBoardingSeen() {
             return duplicatedBoardingSeen;
+        }
+
+        public TramTime getQueryTime() {
+            return queryTime;
+        }
+
+        public void boardingTime(final TramTime boardingTime) {
+            setJourneyClock(boardingTime);
+            if (!firstBoardTime.isValid()) {
+                firstBoardTime = boardingTime;
+            }
         }
     }
 

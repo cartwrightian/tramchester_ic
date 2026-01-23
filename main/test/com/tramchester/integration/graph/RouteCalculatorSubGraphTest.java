@@ -51,6 +51,7 @@ class RouteCalculatorSubGraphTest {
     private EnumSet<TransportMode> modes;
     private LocationJourneyPlannerTestFacade locationJourneyPlannerTestFacade;
     private StationRepository stationRepository;
+    private int maxChanges;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -90,6 +91,9 @@ class RouteCalculatorSubGraphTest {
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
         modes = TramsOnly;
+
+        maxChanges = config.getMaxNumberChanges();
+
     }
 
     @AfterEach
@@ -101,18 +105,18 @@ class RouteCalculatorSubGraphTest {
     void reproduceIssueEdgePerTrip() {
 
         validateAtLeastOneJourney(StPetersSquare, Deansgate,
-                new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration, 1, modes));
+                new JourneyRequest(when, tramTime, false, maxChanges, maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Cornbrook, Pomona,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, 2,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, maxChanges,
                         maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Deansgate, Cornbrook,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, maxChanges,
                         maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Deansgate, Pomona,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, maxChanges,
                         maxJourneyDuration, 1, modes));
 
     }
@@ -146,7 +150,7 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveWalkAtEnd() {
 
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, maxChanges,
                 maxJourneyDuration,1, modes);
         //journeyRequest.setDiag(true);
 
@@ -165,7 +169,7 @@ class RouteCalculatorSubGraphTest {
     void shouldHaveSimpleOneStopJourneyLateNight() {
         // last tram now earlier
         TramTime time = TramTime.of(23,40);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 maxJourneyDuration, 1, modes);
 //        journeyRequest.setDiag(true);
         List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Pomona, journeyRequest);
@@ -217,7 +221,7 @@ class RouteCalculatorSubGraphTest {
 
     @NotNull
     private List<Journey> getJourneys(TramStations start, TramStations destination, TramDate when, long maxNumberJourneys) {
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, maxChanges,
                 maxJourneyDuration, maxNumberJourneys, modes);
         return calculator.calculateRouteAsList(start,destination, journeyRequest);
     }

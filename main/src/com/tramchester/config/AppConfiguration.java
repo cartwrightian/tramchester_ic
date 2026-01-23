@@ -66,6 +66,9 @@ public class AppConfiguration extends TramchesterConfig {
     private Integer maxJourneyDuration;
 
     @NotNull
+    private Integer maxNumberChanges;
+
+    @NotNull
     private Boolean changeAtInterchangeOnly;
 
     @NotNull
@@ -149,6 +152,12 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxNumberResults() {
         return maxNumberResults;
+    }
+
+    @JsonProperty("maxNumberChanges")
+    @Override
+    public int getMaxNumberChanges() {
+        return maxNumberChanges;
     }
 
     @JsonProperty("numberQueries")

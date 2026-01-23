@@ -14,6 +14,9 @@ public interface ImmutableJourneyState extends HasTransportMode {
     ImmutableTraversalState getTraversalState();
 
     TraversalStateType getTraversalStateType();
+    TramTime getQueryTime();
+    TramTime getFirstBoardTime();
+
     TramTime getJourneyClock();
     int getNumberChanges();
     int getNumberWalkingConnections();
@@ -27,4 +30,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
 
     boolean duplicatedBoardingSeen();
     boolean justBoarded();
+
 }

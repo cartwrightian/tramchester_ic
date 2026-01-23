@@ -70,6 +70,10 @@ public class JourneyQueryDTO  {
         this.diagnostics = diagnostics;
         this.modes = Collections.emptySet();
         this.maxNumResults = null;
+
+        if (maxChanges>2) {
+            throw new RuntimeException("Finding out where this is too high");
+        }
     }
 
     public static JourneyQueryDTO create(LocalDate date, TramTime time, Location<?> start, Location<?> dest,

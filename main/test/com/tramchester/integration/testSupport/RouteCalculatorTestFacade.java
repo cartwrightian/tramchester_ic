@@ -11,6 +11,7 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.diagnostics.DiagnosticsToGraphViz;
 import com.tramchester.repository.StationGroupsRepository;
@@ -35,6 +36,7 @@ public class RouteCalculatorTestFacade {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorTestFacade.class);
 
     private final TramRouteCalculator routeCalculator;
+    private final TramRouteCalculator arriveByRouteCalculator;
     private final StationRepository stationRepository;
     private final GraphTransaction txn;
     private final StationGroupsRepository stationGroupsRepository;
@@ -42,6 +44,7 @@ public class RouteCalculatorTestFacade {
 
     public  RouteCalculatorTestFacade(ComponentContainer componentContainer, GraphTransaction txn) {
         this.routeCalculator = componentContainer.get(TramRouteCalculator.class);
+        this.arriveByRouteCalculator = componentContainer.get(RouteCalculatorArriveBy.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         this.txn = txn;
@@ -65,15 +68,15 @@ public class RouteCalculatorTestFacade {
     }
 
     public @NotNull List<Journey> calculateRouteAsList(final Location<?> start, final Location<?> dest, final JourneyRequest request) {
+        final TramRouteCalculator calculator = request.getArriveBy() ? arriveByRouteCalculator : routeCalculator;
+
         final Running running = new TimesOutRunner(Duration.ofSeconds(30));
-        final Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request, running);
+        final Stream<Journey> stream = calculator.calculateRoute(txn, start, dest, request, running);
         final List<Journey> result = stream.toList();
         stream.close();
         if (request.getDiagnosticsEnabled()) {
             if (request.hasReceivedDiagnostics()) {
-
                 final JourneyDiagnostics diagnostics = request.getDiagnostics();
-
                 createGraphFile(start, dest, diagnostics, request, !result.isEmpty());
             } else {
                 throw new RuntimeException("Diagnostics requested, but not received");

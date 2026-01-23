@@ -154,6 +154,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public int getMaxNumberChanges() {
+        return 2;
+    }
+
+    @Override
     public long getCalcTimeoutMillis() {
         return 3500;
     }

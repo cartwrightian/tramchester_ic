@@ -260,7 +260,4 @@ public class ServiceHeuristics {
         return diagnostics;
     }
 
-    public TramTime getActualQueryTime() {
-        return actualQueryTime;
-    }
 }

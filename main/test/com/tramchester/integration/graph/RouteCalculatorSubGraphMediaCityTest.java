@@ -85,6 +85,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private RouteCalculationCombinations<Station> combinations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
+    private int maxChanges;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -115,6 +116,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+        maxChanges = config.getMaxNumberChanges();
         stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
@@ -205,8 +207,6 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveSalfordQuayToStPeters() {
         final TramTime time = TramTime.of(8, 5);
 
-        // 2 -> 4
-        int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
@@ -270,8 +270,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         final TramTime time = TramTime.of(8, 5);
 
-        // 2 -> 4
-        int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
@@ -328,7 +326,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, maxChanges,
                 maxJourneyDuration, 1, getRequestedModes());
         List<Journey> results = calculator.calculateRouteAsList(TramStations.Pomona, MediaCityUK, journeyRequest);
         assertFalse(results.isEmpty());
@@ -374,7 +372,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date) {
-        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
+        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
                 maxJourneyDuration, 1, getRequestedModes());
         List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
         assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", start, dest, date, time));

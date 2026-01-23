@@ -129,12 +129,11 @@ public abstract class TramRouteEvaluator {
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges, totalCostSoFar);
         } else {
-            final TramTime tramTime =  serviceHeuristics.getActualQueryTime();
-            if (bestResultSoFar.alreadyLonger(tramTime, totalCostSoFar)) {
+            if (bestResultSoFar.alreadyLonger(journeyState)) {
                 return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
-            } else if (bestResultSoFar.alreadyMoreChanges(tramTime, numberChanges)) {
+            } else if (bestResultSoFar.alreadyMoreChanges(journeyState, numberChanges)) {
                 return reasons.recordReason(HeuristicsReasons.MoreChanges(howIGotHere, numberChanges));
-            } else if (bestResultSoFar.overArrivalsLimit(tramTime)) {
+            } else if (bestResultSoFar.overArrivalsLimit(journeyState)) {
                 return reasons.recordReason(HeuristicsReasons.ArrivalsLimit(howIGotHere, bestResultSoFar.getArrivalsLimit()));
             }
         }
@@ -300,26 +299,22 @@ public abstract class TramRouteEvaluator {
 
         // todo if was on diversion at any stage then change behaviour here?
 
-        final TramTime tramTime = serviceHeuristics.getActualQueryTime();
+        bestResultSoFar.recordArrival(journeyState);
 
-        bestResultSoFar.recordArrival(serviceHeuristics.getActualQueryTime());
-
-        final ArrivalHandler.Outcome timingOutcome = bestResultSoFar.checkDuration(tramTime, journeyState);
+        final ArrivalHandler.Outcome timingOutcome = bestResultSoFar.checkDuration(journeyState);
         if (timingOutcome == ArrivalHandler.Outcome.Better) {
             // found a better route than seen so far
-            bestResultSoFar.setLowestCost(tramTime, journeyState);
+            bestResultSoFar.setLowestCost(journeyState);
             return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
         }
 
-        // TODO Re-instate
-
-//        if (timingOutcome == ArrivalHandler.Outcome.Worse) {
-//            return reasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHere, totalCostSoFar, numberChanges));
-//        }
+        if (timingOutcome == ArrivalHandler.Outcome.Worse) {
+            return reasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHere, totalCostSoFar, numberChanges));
+        }
 
         // else Same on timings
 
-        ArrivalHandler.Outcome changesOutcome = bestResultSoFar.checkChanges(tramTime, numberChanges);
+        final ArrivalHandler.Outcome changesOutcome = bestResultSoFar.checkChanges(journeyState, numberChanges);
 
         return switch (changesOutcome) {
             case Better -> reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));

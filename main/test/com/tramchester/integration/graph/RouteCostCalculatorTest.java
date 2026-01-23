@@ -79,6 +79,12 @@ class RouteCostCalculatorTest {
     }
 
     @Test
+    void shouldReproduceIssueFromAltyToCornbrook() throws InvalidDurationException {
+        TramDuration result = routeCostCalculator.getAverageCostBetween(txn, altrincham, Cornbrook.from(stationRepository), when, modes);
+        assertEquals(TramDuration.ofMinutes(21), result);
+    }
+
+    @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
         assertEquals(TramDuration.ofMinutes(56), routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
         assertEquals(TramDuration.ofMinutes(54), routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));

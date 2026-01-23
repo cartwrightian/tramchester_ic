@@ -75,7 +75,6 @@ public abstract class RouteCalculatorSupport {
         this.config = config;
         this.closedStationsRepository = closedStationsRepository;
         this.cacheMetrics = cacheMetrics;
-//        this.branchSelectorFactory = branchSelectorFactory;
         this.interchangeRepository = interchangeRepository;
         this.createQueryTimes = createQueryTimes;
         this.runningRoutesAndServices = runningRoutesAndServices;
@@ -127,7 +126,7 @@ public abstract class RouteCalculatorSupport {
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                               final PreviousVisits previousSuccessfulVisit, final ArrivalHandler arrivalHandler,
                                               final Running running, final TramNetworkTraverserFactory traverserFactory,
-                                              TowardsDestination towardsDestination) {
+                                              final TowardsDestination towardsDestination) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -278,6 +277,7 @@ public abstract class RouteCalculatorSupport {
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
 
+        // TODO Handling arrive by
         final ArrivalHandler arrivalHandler = ArrivalHandler.get();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);

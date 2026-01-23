@@ -43,11 +43,13 @@ class JourneyPlannerLocationResourceTest {
 
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
+    private int maxChanges;
 
     @BeforeEach
     void beforeEachTestRuns() {
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
         when = TestEnv.testDay();
+        maxChanges = appExtension.getConfiguration().getMaxNumberChanges();
     }
 
     @Test
@@ -274,7 +276,7 @@ class JourneyPlannerLocationResourceTest {
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 
-            TramStations.Ashton, false, 3);
+            TramStations.Ashton, false, maxChanges);
         
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         Set<JourneyDTO> journeys = plan.getJourneys();
@@ -293,7 +295,7 @@ class JourneyPlannerLocationResourceTest {
         TramTime queryTime = TramTime.of(23,0);
         int walkingTime = 13;
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime.plusMinutes(walkingTime), NavigationRoad, destination, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime.plusMinutes(walkingTime), NavigationRoad, destination, false, maxChanges);
 
         JourneyPlanRepresentation directFromStationNoWalking = journeyPlanner.getJourneyPlan(query);
 
@@ -306,7 +308,7 @@ class JourneyPlannerLocationResourceTest {
     private Set<JourneyDTO> validateJourneyFromLocation(KnownLocations start, FakeStation destination, TramTime queryTime,
                                                         boolean arriveBy, TramDate when) {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start.location(), destination, arriveBy, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start.location(), destination, arriveBy, maxChanges);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         return validateJourneyPresent(plan, query);
@@ -314,7 +316,7 @@ class JourneyPlannerLocationResourceTest {
 
     private Set<JourneyDTO> validateJourneyToLocation(FakeStation start, KnownLocations destination, TramTime queryTime, boolean arriveBy) {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy, maxChanges);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         return validateJourneyPresent(plan, query);

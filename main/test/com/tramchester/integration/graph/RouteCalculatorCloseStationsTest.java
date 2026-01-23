@@ -43,9 +43,6 @@ class RouteCalculatorCloseStationsTest {
     private static TramDate begin;
     private static TramDate end;
 
-    // see note below on DB deletion
-    private static List<StationClosures> closedStations;
-
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
 
@@ -54,7 +51,8 @@ class RouteCalculatorCloseStationsTest {
         begin = UpcomingDates.avoidChristmasDate(when.plusWeeks(1));
         end = begin.plusWeeks(1);
 
-        closedStations = Arrays.asList(
+        // see note below on DB deletion
+        List<StationClosures> closedStations = Arrays.asList(
                 new StationClosuresListForTest(Shudehill, new DateRange(begin, end), true),
                 new StationClosuresListForTest(PiccadillyGardens, new DateRange(begin, end), false));
 
@@ -98,7 +96,7 @@ class RouteCalculatorCloseStationsTest {
     void shouldHandlePartialClosure() {
         // appears to be an issue with data more than 1 week out with missing routes for ExchangeSquare and other stations...
         JourneyRequest journeyRequest = new JourneyRequest(begin.plusDays(1), TramTime.of(8,0), false,
-                3, TramDuration.ofMinutes(120), 1, getRequestedModes());
+                2, TramDuration.ofMinutes(120), 1, getRequestedModes());
         List<Journey> result = calculator.calculateRouteAsList(ExchangeSquare, StPetersSquare, journeyRequest);
         assertFalse(result.isEmpty(), "no journey for " + journeyRequest);
     }

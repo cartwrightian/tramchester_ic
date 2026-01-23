@@ -1,7 +1,6 @@
 package com.tramchester.graph.caches;
 
 import com.tramchester.domain.time.TramDuration;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.ImmutableJourneyState;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,12 +54,13 @@ public class LowestCostSeenSimple implements com.tramchester.graph.search.Arriva
     }
 
     @Override
-    public void recordArrival(TramTime queryTime) {
+    public void recordArrival(ImmutableJourneyState journeyState) {
         // no-op
     }
 
     @Override
-    public Outcome checkDuration(TramTime tramTime, ImmutableJourneyState journeyState) {
+    public Outcome checkDuration(ImmutableJourneyState journeyState) {
+
         boolean existingfunctionallity = isLower(journeyState);
         if (existingfunctionallity) {
             return Outcome.Better;
@@ -70,7 +70,7 @@ public class LowestCostSeenSimple implements com.tramchester.graph.search.Arriva
     }
 
     @Override
-    public Outcome checkChanges(TramTime tramTime, int numberChanges) {
+    public Outcome checkChanges(ImmutableJourneyState journeyState, int numberChanges) {
         if (numberChanges<lowestNumChanges.get()) {
             return Outcome.Better;
         } else {
@@ -79,24 +79,25 @@ public class LowestCostSeenSimple implements com.tramchester.graph.search.Arriva
     }
 
     @Override
-    public synchronized void setLowestCost(TramTime tramTime, final ImmutableJourneyState journeyState) {
+    public synchronized void setLowestCost(final ImmutableJourneyState journeyState) {
         arrived.incrementAndGet();
         lowestNumChanges.getAndSet(journeyState.getNumberChanges());
         lowestCost.getAndSet(journeyState.getTotalDurationSoFar());
     }
 
     @Override
-    public boolean alreadyLonger(TramTime tramTime, TramDuration totalCostSoFar) {
+    public boolean alreadyLonger(final ImmutableJourneyState journeyState) {
+        final TramDuration totalCostSoFar = journeyState.getTotalDurationSoFar();
         return totalCostSoFar.moreThan(lowestCost.get());
     }
 
     @Override
-    public boolean alreadyMoreChanges(TramTime tramTime, int numberChanges) {
+    public boolean alreadyMoreChanges(ImmutableJourneyState journeyState, int numberChanges) {
         return false;
     }
 
     @Override
-    public boolean overArrivalsLimit(TramTime tramTime) {
+    public boolean overArrivalsLimit(ImmutableJourneyState journeyState) {
         return false;
     }
 }

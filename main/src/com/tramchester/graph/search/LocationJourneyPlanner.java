@@ -66,26 +66,24 @@ public class LocationJourneyPlanner {
         final boolean walkAtStart = start.getLocationType().isWalk();
         final boolean walkAtEnd = destination.getLocationType().isWalk();
 
+        final TramRouteCalculator calculator = journeyRequest.getArriveBy() ? routeCalculatorArriveBy : routeCalculator;
+
         if (walkAtStart && walkAtEnd) {
-            return quickestRouteWalkAtStartAndEnd(txn, start, destination, journeyRequest);
+            return quickestRouteWalkAtStartAndEnd(calculator, txn, start, destination, journeyRequest);
         }
         if (walkAtStart) {
-            return quickRouteWalkAtStart(txn, start, destination, journeyRequest);
+            return quickRouteWalkAtStart(calculator, txn, start, destination, journeyRequest);
         }
         if (walkAtEnd) {
-            return quickestRouteWalkAtEnd(txn, start, destination, journeyRequest);
+            return quickestRouteWalkAtEnd(calculator, txn, start, destination, journeyRequest);
         }
 
         // station => station
         final Running running = () -> true;
-        if (journeyRequest.getArriveBy()) {
-            return routeCalculatorArriveBy.calculateRoute(txn, start, destination, journeyRequest, running);
-        } else {
-            return routeCalculator.calculateRoute(txn, start, destination, journeyRequest, running);
-        }
+        return calculator.calculateRoute(txn, start, destination, journeyRequest, running);
     }
 
-    private Stream<Journey> quickRouteWalkAtStart(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+    private Stream<Journey> quickRouteWalkAtStart(final TramRouteCalculator calculator, final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
                                                   final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
@@ -111,18 +109,19 @@ public class LocationJourneyPlanner {
         final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
         final Stream<Journey> journeys;
         Running running = () -> true;
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
-        } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
-        }
+        journeys = calculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+//        if (journeyRequest.getArriveBy()) {
+//            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+//        } else {
+//            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+//        }
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+    private Stream<Journey> quickestRouteWalkAtEnd(final TramRouteCalculator calculator, final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
                                                    final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
@@ -145,11 +144,8 @@ public class LocationJourneyPlanner {
         final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn);
 
         final MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
-        //final List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
-
-        //nodesAndRelationships.addAll(addedRelationships);
 
         final LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).
@@ -162,11 +158,7 @@ public class LocationJourneyPlanner {
 
         final Stream<Journey> journeys;
         final Running running = () -> true;
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
-        } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
-        }
+        journeys = calculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);
@@ -174,7 +166,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtStartAndEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> dest,
+    private Stream<Journey> quickestRouteWalkAtStartAndEnd(final TramRouteCalculator calculator, final MutableGraphTransaction txn, final Location<?> start, final Location<?> dest,
                                                            final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", start, dest, journeyRequest));
 
@@ -202,14 +194,16 @@ public class LocationJourneyPlanner {
         /// CALC
         Stream<Journey> journeys;
         Running running = () -> true;
-//        final GraphTransaction immutable = txn.asImmutable();
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
-                    journeyRequest, numberOfChanges, running);
-        } else {
-            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
-                    journeyRequest, numberOfChanges, running);
-        }
+
+        journeys = calculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
+                journeyRequest, numberOfChanges, running);
+//        if (journeyRequest.getArriveBy()) {
+//            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
+//                    journeyRequest, numberOfChanges, running);
+//        } else {
+//            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
+//                    journeyRequest, numberOfChanges, running);
+//        }
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);

@@ -41,9 +41,12 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     @Override
     public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running) {
         try {
-            final TramDuration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final TramDuration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(),
+                    journeyRequest.getRequestedModes());
+            logger.info("Arrive by requested, cost to destination " + destination.getId() + " is " + costToDest);
             final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
             final JourneyRequest updatedRequest = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
+
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, updatedRequest));
             return routeCalculator.calculateRoute(txn, start, destination, updatedRequest, running);
         } catch (InvalidDurationException invalidDurationException) {

@@ -109,8 +109,9 @@ class RouteCalculatorForBoundingBoxTest {
 
         long maxNumberOfJourneys = 3;
 
+        int maxChanges = testConfig.getMaxNumberChanges();
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
-                false, 3, TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
+                false, maxChanges, TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
                 TramsOnly);
 
         Station destination = StPetersSquare.from(stationRepository);

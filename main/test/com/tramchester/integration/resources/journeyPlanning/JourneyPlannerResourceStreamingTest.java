@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.time.TramTime;
@@ -28,11 +29,6 @@ public class JourneyPlannerResourceStreamingTest {
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
 
-//    @AfterAll
-//    static void afterAll() {
-//        appExtension.after();
-//    }
-
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
@@ -41,7 +37,9 @@ public class JourneyPlannerResourceStreamingTest {
 
     @Test
     void shouldGetResultsAsStream() throws IOException {
-        final int maxChanges = 3;
+        TramchesterConfig config = appExtension.getConfiguration();
+        final int maxChanges = config.getMaxNumberChanges();
+
         final boolean arriveBy = false;
 
         List<JourneyDTO> journeyDTOS = journeyPlanner.getJourneyPlanStreamed(when, TramTime.of(11,45),

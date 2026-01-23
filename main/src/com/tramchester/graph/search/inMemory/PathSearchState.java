@@ -44,7 +44,7 @@ public class PathSearchState {
     }
 
     public TramDuration getCurrentCost(final SearchStateKey stateKey) {
-        return currentCost.getOrDefault(stateKey, FindPathsForJourney.NotVisitiedDuration);
+        return currentCost.getOrDefault(stateKey, FindPathsForJourney.NotVisitedDuration);
     }
 
     public void updateCost(final SearchStateKey stateKey, final TramDuration duration) {

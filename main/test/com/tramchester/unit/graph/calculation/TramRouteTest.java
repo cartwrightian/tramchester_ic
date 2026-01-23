@@ -104,7 +104,8 @@ class TramRouteTest {
     }
 
     @NotNull
-    private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
+    private JourneyRequest createJourneyRequest(TramTime queryTime) {
+        final int maxChanges = config.getMaxNumberChanges();
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
                 TramDuration.ofMinutes(config.getMaxJourneyDuration()), 3, modes);
     }
@@ -128,7 +129,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestSimpleJourneyIsPossible() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
                 transportData.getSecond(), journeyRequest).
@@ -158,7 +159,7 @@ class TramRouteTest {
     void shouldHaveJourneyWithLocationBasedStartViaComposite() {
         Location<?> origin = nearAltrincham.location();
 
-        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7, 57), 0);
+        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7, 57));
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecond(),
                 journeyRequest, 3);
@@ -185,7 +186,7 @@ class TramRouteTest {
         TramTime tramBoard = TramTime.of(8,11);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
-                createJourneyRequest(queryTime, 0), 2);
+                createJourneyRequest(queryTime), 2);
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey -> {
@@ -212,7 +213,7 @@ class TramRouteTest {
 
     @Test
     void shouldHaveWalkDirectFromStart() {
-        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime);
         final Location<?> start = nearWythenshaweHosp.location();
         final Station destination = transportData.getSecond();
 
@@ -239,7 +240,7 @@ class TramRouteTest {
 
     @Test
     void shouldHaveWalkDirectAtEnd() {
-        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime);
         final Station start = transportData.getSecond();
         final Location<?> destination = nearWythenshaweHosp.location();
 
@@ -262,7 +263,7 @@ class TramRouteTest {
 
     @Test
     void shouldHaveWalkAtStartAndEnd() {
-        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 2);
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         final Location<?> start = nearWythenshaweHosp.location();
         final Location<?> destination = atMancArena.location();
@@ -304,7 +305,7 @@ class TramRouteTest {
     @Test
     void shouldHaveJourneyWithLocationBasedEnd() {
 
-        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         final Location<?> destination = atMancArena.location();
         final Station start = transportData.getSecond();
@@ -321,7 +322,7 @@ class TramRouteTest {
                 destination,
                 journeyRequest, 3);
 
-        assertEquals(2, journeys.size());
+        assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size());
@@ -348,17 +349,17 @@ class TramRouteTest {
 
     @Test
     void shouldTestSimpleJourneyIsPossibleToInterchangeFromSecondStation() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getSecond(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
 
-        assertEquals(2, journeys.size(), journeys.toString());
+        assertEquals(1, journeys.size(), journeys.toString());
     }
 
     @Test
     void shouldTestSimpleJourneyIsPossibleToInterchange() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
@@ -375,7 +376,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestSimpleJourneyIsNotPossible() {
-        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0), 1);
+        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0));
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(),
@@ -386,7 +387,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestJourneyEndOverWaitLimitIsPossible() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
                 transportData.getLast(), journeyRequest).collect(Collectors.toSet());
@@ -397,7 +398,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestNoJourneySecondToStart() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getSecond(),
                 transportData.getFirst(), journeyRequest).collect(Collectors.toSet());
@@ -406,13 +407,13 @@ class TramRouteTest {
 
     @Test
     void shouldTestJourneyInterchangeToFive() {
-        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7,56), 0);
+        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7,56));
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         assertTrue(journeys.isEmpty());
 
-        JourneyRequest journeyRequestB = createJourneyRequest(TramTime.of(8, 10), 3);
+        JourneyRequest journeyRequestB = createJourneyRequest(TramTime.of(8, 10));
         journeys = calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequestB).collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
@@ -421,7 +422,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
                 transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
@@ -432,7 +433,7 @@ class TramRouteTest {
 
     @Test
     void shouldReturnZeroJourneysIfStartOutOfRange() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
                 nearGreenwichLondon, journeyRequest,3);
@@ -441,7 +442,7 @@ class TramRouteTest {
 
     @Test
     void shouldReturnZeroJourneysIfDestOutOfRange() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(nearGreenwichLondon,
                 transportData.getFirst(), journeyRequest,3);
@@ -450,7 +451,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestJourneyEndOverWaitLimitViaInterchangeLocationFinishIsPossible() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
 
         // nearStockportBus == station 5
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
@@ -467,7 +468,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestJourneyAnotherWaitLimitViaInterchangeIsPossible() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime);
         List<Station> expectedPath = Arrays.asList(transportData.getFirst(),
                 transportData.getSecond(), transportData.getInterchange(), transportData.getFifthStation());
 

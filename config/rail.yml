@@ -58,6 +58,7 @@ bounds:
 planningEnabled: true
 maxWait: 30
 numberQueries: 3
+maxNumberChanges: 2
 queryInterval: 20
 depthFirst: true
 maxNumberResults: 5

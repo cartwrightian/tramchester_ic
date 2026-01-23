@@ -98,6 +98,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         assertTrue(TransportMode.isTram(state));
         assertEquals(boardingTime, state.getJourneyClock());
+        assertEquals(boardingTime, state.getFirstBoardTime());
     }
 
     @Test
@@ -147,14 +148,21 @@ class JourneyStateTest extends EasyMockSupport {
 
         TramTime boardingTime = TramTime.of(9, 30);
         state.board(TransportMode.Tram, node, true);
-        state.recordTime(boardingTime,TramDuration.ofMinutes(10));
+        state.recordTime(boardingTime, TramDuration.ofMinutes(10));
         assertEquals(boardingTime, state.getJourneyClock());
+
+        assertEquals(boardingTime, state.getFirstBoardTime());
 
         state.updateTotalCost(TramDuration.ofMinutes(15)); // 15 - 10
         assertEquals(boardingTime.plusMinutes(5), state.getJourneyClock());
 
+        assertEquals(boardingTime, state.getFirstBoardTime());
+
         state.updateTotalCost(TramDuration.ofMinutes(20));  // 20 - 10
         assertEquals(boardingTime.plusMinutes(10), state.getJourneyClock());
+
+        assertEquals(boardingTime, state.getFirstBoardTime());
+
     }
 
     @Test
@@ -189,6 +197,8 @@ class JourneyStateTest extends EasyMockSupport {
         state.beginTrip(tripId1);
         assertFalse(state.alreadyDeparted(tripId1));
 
+        assertEquals(TramTime.of(9,30), state.getFirstBoardTime());
+
         state.leave(TransportMode.Tram, TramDuration.ofMinutes(25), node);                            // 25 mins cost, offset is 15 mins
         assertEquals(TramTime.of(9,45), state.getJourneyClock()); // should be depart tram time
         assertTrue(state.alreadyDeparted(tripId1));
@@ -198,6 +208,7 @@ class JourneyStateTest extends EasyMockSupport {
         state.recordTime(TramTime.of(9,50),TramDuration.ofMinutes(25));
         state.beginTrip(tripId2);
         assertEquals(TramTime.of(9,50), state.getJourneyClock()); // should be depart tram time
+        assertEquals(TramTime.of(9,30), state.getFirstBoardTime());
 
         state.leave(TransportMode.Tram, TramDuration.ofMinutes(35), node);                            // 35-25 = 10 mins
         assertEquals(TramTime.of(10,0), state.getJourneyClock());

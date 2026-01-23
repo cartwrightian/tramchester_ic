@@ -96,7 +96,7 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
 
         final TramDuration result = findPathsForJourney.findShortestPathsTo(endNode, routeAvailableFilter);
 
-        if (result.equals(FindPathsForJourney.NotVisitiedDuration)) {
+        if (result.equals(FindPathsForJourney.NotVisitedDuration)) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
                     startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
             logger.error(message);

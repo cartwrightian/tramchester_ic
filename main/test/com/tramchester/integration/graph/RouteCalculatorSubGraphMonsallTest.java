@@ -104,8 +104,9 @@ class RouteCalculatorSubGraphMonsallTest {
 
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, TramDate date, int numStages) {
         long maxNumberOfJourneys = 1;
+        int maxChanges = config.getMaxNumberChanges();
         JourneyRequest journeyRequest = new JourneyRequest(date, time,
-                false, 3, TramDuration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
+                false, maxChanges, TramDuration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
         List<Journey> journeys = calculator.calculateRouteAsList(start, destination, journeyRequest);
 
         Assertions.assertFalse(journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));

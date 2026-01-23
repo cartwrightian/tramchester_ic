@@ -95,6 +95,7 @@ maxWait: 25
 numberQueries: 3
 queryInterval: 10
 maxNumberResults: 5
+maxNumberChanges: 2
 maxWalkingConnections: 3
 depthFirst: true
 maxJourneyDuration: 155

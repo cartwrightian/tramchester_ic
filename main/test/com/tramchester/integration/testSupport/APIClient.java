@@ -30,7 +30,7 @@ public class APIClient {
 
     APIClient(Client client, String baseURL, String endPoint) {
         this.url = baseURL + "/api/" + endPoint;
-        WebTarget target = client.target(url);
+        final WebTarget target = client.target(url);
         target.property(ClientProperties.READ_TIMEOUT, TIMEOUT_MS);
 
         builder = target.request(MediaType.APPLICATION_JSON);
@@ -71,8 +71,14 @@ public class APIClient {
         return builder.get();
     }
 
-    private Response post(Entity<?> entity) {
-        return builder.post(entity);
+    private Response post(final Entity<?> entity) {
+        try {
+            return builder.post(entity);
+        } catch (Exception exception) {
+            String msg = "Caught exception during post with timeout set to " + TIMEOUT_MS + "ms";
+            logger.error(msg);
+            throw new RuntimeException(msg, exception);
+        }
     }
 
     public Response getApiResponse() {

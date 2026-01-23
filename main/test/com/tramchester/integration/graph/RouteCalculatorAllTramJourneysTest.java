@@ -65,7 +65,7 @@ public class RouteCalculatorAllTramJourneysTest {
 
         final TramTime time = TramTime.of(8, 5);
 
-        JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(2);
+        JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(testConfig.getMaxNumberChanges());
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);

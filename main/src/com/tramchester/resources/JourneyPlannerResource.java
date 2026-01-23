@@ -124,6 +124,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             final int diff = journeyDTOS.size()-filtered.size();
             if (diff!=0) {
                 logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
+            } else {
+                logger.info(format("No filtering, returning %s journeys", journeyDTOS.size()));
             }
 
             // TODO likely this will only remain for the diag API, with streamed for the production one
@@ -178,7 +180,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                         @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
                                         @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
                                         @Context UriInfo uriInfo) {
-        logger.info("Got journey query " + query);
+        logger.info("Got streamed journey query " + query);
 
         // diagnostics not supported for streamed response, no way to send them via the stream
 
@@ -213,7 +215,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             return buildResponse(Response.ok(jsonStreamingOutput), start, dest, cookie, uriInfo, secure);
 
         } catch(Exception exception) {
-            logger.error("Problem processing response", exception);
+            logger.error("Problem processing streamed response", exception);
             return Response.serverError().build();
         }
     }

@@ -37,7 +37,7 @@ public class ShortestPath {
                 map(GraphPath::getTotalCost).
                 min(TramDuration::compareTo);
 
-        return minimum.orElse(FindPathsForJourney.NotVisitiedDuration);
+        return minimum.orElse(FindPathsForJourney.NotVisitedDuration);
 
     }
 
@@ -85,8 +85,8 @@ public class ShortestPath {
             currentCost = new HashMap<>();
             nodeQueue = new PriorityQueue<>();
 
-            currentCost.put(id, FindPathsForJourney.NotVisitiedDuration);
-            nodeQueue.add(new NodeSearchState(id, FindPathsForJourney.NotVisitiedDuration, initialPath));
+            currentCost.put(id, FindPathsForJourney.NotVisitedDuration);
+            nodeQueue.add(new NodeSearchState(id, FindPathsForJourney.NotVisitedDuration, initialPath));
         }
 
         public boolean hasNodes() {

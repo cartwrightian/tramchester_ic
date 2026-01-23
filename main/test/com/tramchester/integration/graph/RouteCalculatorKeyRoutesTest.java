@@ -47,6 +47,7 @@ class RouteCalculatorKeyRoutesTest {
     private JourneyRequest journeyRequest;
     private TramDuration maxJourneyDuration;
     private EnumSet<TransportMode> modes;
+    private int maxChanges;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -66,7 +67,7 @@ class RouteCalculatorKeyRoutesTest {
         when = TestEnv.testDay();
         modes = TramsOnly;
         maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
-        int maxChanges = 4;
+        maxChanges = testConfig.getMaxNumberChanges();
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, maxChanges,
                 maxJourneyDuration, 1, modes);
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
@@ -144,7 +145,7 @@ class RouteCalculatorKeyRoutesTest {
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
 
         TramDate testDate = UpcomingDates.avoidChristmasDate(when);
-        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
+        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, maxChanges,
                 maxJourneyDuration, 1, modes);
         Running running = () -> true;
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request,

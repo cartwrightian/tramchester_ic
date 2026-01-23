@@ -79,6 +79,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // max number of results to return via the API
     public abstract int getMaxNumberResults();
 
+    public abstract int getMaxNumberChanges();
+
     // number of queries to do for each given time, spaced by QueryInterval below
     public abstract int getNumberQueries();
 

@@ -66,7 +66,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
         EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate, modes)).andReturn(duration);
         TramTime requiredDepartTime = arriveByTime.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
 
-        JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(5);
+        JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(2);
 
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(localDate, requiredDepartTime, true,
                 maxChanges, TramDuration.ofMinutes(120), maxNumberOfJourneys, modes);
