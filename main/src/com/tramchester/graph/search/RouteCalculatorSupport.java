@@ -224,8 +224,8 @@ public abstract class RouteCalculatorSupport {
         return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
     }
 
-    public static TramDuration getMaxInitialWaitFor(List<? extends BoundingBoxWithStations> startingBoxes, TramchesterConfig config) {
-        Optional<TramDuration> findMaxInitialWait = startingBoxes.stream().
+    public static TramDuration getMaxInitialWaitFor(final List<? extends BoundingBoxWithStations> startingBoxes, final TramchesterConfig config) {
+        final Optional<TramDuration> findMaxInitialWait = startingBoxes.stream().
                 flatMap(box -> box.getStations().stream()).
                 map(station -> TramchesterConfig.getMaxInitialWaitFor(station, config))
                 .max(TramDuration::compareTo);
@@ -365,7 +365,8 @@ public abstract class RouteCalculatorSupport {
         final GraphNode startNode = getLocationNodeSafe(txn, start);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
 
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), start,
+                journeyRequest.getDate(), journeyRequest.getRequestedModes());
 
         final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
 
@@ -404,7 +405,8 @@ public abstract class RouteCalculatorSupport {
                                                    JourneyRequest journeyRequest, int numberOfChanges, Running running)
     {
         final GraphNode startNode = getLocationNodeSafe(txn, start);
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), start,
+                journeyRequest.getDate(), journeyRequest.getRequestedModes());
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
@@ -420,7 +422,8 @@ public abstract class RouteCalculatorSupport {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks, journeyRequest.getDate(),
+                journeyRequest.getRequestedModes());
 
         TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
 
@@ -438,7 +441,8 @@ public abstract class RouteCalculatorSupport {
                                                            int numberOfChanges, Running running) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks,
+                journeyRequest.getDate(), journeyRequest.getRequestedModes());
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 

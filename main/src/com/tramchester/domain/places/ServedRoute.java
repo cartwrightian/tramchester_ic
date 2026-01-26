@@ -3,7 +3,10 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -11,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +24,7 @@ public class ServedRoute {
 
     private final LocationId<?> locationId;
     private final Set<RouteAndService> routeAndServices;
-    private final Map<RouteAndService, TimeRange> timeWindows;
+    private final Map<TimeWindowsKey, TimeRange> timeWindows;
 
     private final IdSet<Route> routeIds; // for performance, significant
     private final EnumSet<TransportMode> allServedModes; // for performance, significant
@@ -33,21 +37,7 @@ public class ServedRoute {
         allServedModes = EnumSet.noneOf(TransportMode.class);
     }
 
-    public void add(final Route route, final Service service, final TramTime callingTime) {
-        final RouteAndService routeAndService = new RouteAndService(route, service);
-        routeAndServices.add(routeAndService);
 
-        if (callingTime.isValid()) {
-            if (timeWindows.containsKey(routeAndService)) {
-                timeWindows.get(routeAndService).updateToInclude(callingTime);
-            } else {
-                timeWindows.put(routeAndService, TimeRangePartial.of(callingTime));
-            }
-        }
-
-        routeIds.add(route.getId());
-        allServedModes.add(route.getTransportMode());
-    }
 
     public boolean isEmpty() {
         return routeAndServices.isEmpty();
@@ -73,6 +63,7 @@ public class ServedRoute {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(tramDate)).
                 filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
+                map(TimeWindowsKey::from).
                 map(timeWindows::get);
     }
 
@@ -111,7 +102,7 @@ public class ServedRoute {
     }
 
     private boolean hasTimeRangerOverlap(final TimeRange range, final RouteAndService routeAndService) {
-        return timeWindows.get(routeAndService).anyOverlap(range);
+        return timeWindows.get(TimeWindowsKey.from(routeAndService)).anyOverlap(range);
     }
 
     @Override
@@ -127,5 +118,84 @@ public class ServedRoute {
         return Collections.unmodifiableSet(allServedModes);
     }
 
+    public boolean addFor(final IdFor<Station> id, final Set<Route> routes, final Function<StopCall, TramTime> getTime) {
+
+        final Set<Trip> callingTrips = routes.stream().
+                flatMap(route -> route.getTrips().stream()).
+                filter(trip -> trip.callsAt(id)).
+                collect(Collectors.toSet());
+
+        final Stream<StopCall> stationStopCalls = callingTrips.stream().
+                map(Trip::getStopCalls).
+                map(stopCalls -> stopCalls.getStopFor(id)).
+                filter(StopCall::callsAtStation);
+
+        return stationStopCalls.
+                map(stopCall -> addForStopCall(stopCall, getTime)).
+                reduce(false, (a,b) -> a || b);
+    }
+
+    public boolean addFor(final InterchangeStation interchangeStation,
+                           final Set<Route> routes, final Function<StopCall, TramTime> getTime) {
+
+        // trips via routes so include linked pick up routes for interchanges
+        final Set<Trip> callingTrips = routes.stream().
+                flatMap(route -> route.getTrips().stream()).
+                filter(trip -> trip.callsAt(interchangeStation)).
+                collect(Collectors.toSet());
+
+        // TODO just a stream
+        final Stream<StopCall> stationStopCalls = callingTrips.stream().
+                map(Trip::getStopCalls).
+                map(stopCalls -> stopCalls.getStopFor(interchangeStation)).
+                filter(StopCall::callsAtStation);
+
+        return stationStopCalls.
+                map(stopCall -> addForStopCall(stopCall, getTime)).
+                reduce(false, (a,b) -> a || b);
+    }
+
+    private boolean addForStopCall(final StopCall stopCall, final Function<StopCall, TramTime> getTime) {
+        final TramTime time = getTime.apply(stopCall);
+        if (!time.isValid()) {
+            //logger.warn(format("Invalid time %s for %s %s", time, locationId, stopCall));
+            return false;
+        }
+        add(stopCall, time);
+        return true;
+    }
+
+    private void add(final StopCall stopCall, final TramTime callingTime) {
+
+        final Trip trip = stopCall.getTrip();
+
+        final Route route = trip.getRoute();
+        final Service service = trip.getService();
+
+        final RouteAndService routeAndService = new RouteAndService(route, service);
+        routeAndServices.add(routeAndService);
+
+        final TimeWindowsKey key = TimeWindowsKey.from(routeAndService);
+        if (callingTime.isValid()) {
+            if (timeWindows.containsKey(key)) {
+                timeWindows.get(key).updateToInclude(callingTime);
+            } else {
+                timeWindows.put(key, TimeRangePartial.of(callingTime));
+            }
+        }
+
+        routeIds.add(route.getId());
+        allServedModes.add(route.getTransportMode());
+    }
+
+    private record TimeWindowsKey (IdFor<Route> routeId, IdFor<Service> serviceId) {
+        public TimeWindowsKey(RouteAndService routeAndService) {
+            this(routeAndService.getRoute().getId(), routeAndService.getServiceId());
+        }
+
+        public static TimeWindowsKey from(RouteAndService routeAndService) {
+            return new TimeWindowsKey(routeAndService);
+        }
+    }
 
 }

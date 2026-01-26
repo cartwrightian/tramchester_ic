@@ -3,11 +3,16 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Objects;
 import java.util.Set;
 
+/***
+ * A combine of a route and service
+ * Supports ServedRoute and Station Availability checking
+ */
 class RouteAndService {
 
     private final Route route;
@@ -59,5 +64,9 @@ class RouteAndService {
                 "route=" + route.getId() +
                 ", service=" + service.getId() +
                 '}';
+    }
+
+    public IdFor<Service> getServiceId() {
+        return service.getId();
     }
 }

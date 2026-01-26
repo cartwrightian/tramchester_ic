@@ -146,7 +146,7 @@ public class JourneyConstraints {
         }
         final TramTime end = destinationsAvailable.getEnd();
         if (end.isNextDay()) {
-            TramTime realEnd = destinationsAvailable.forFollowingDay().getEnd();
+            final TramTime realEnd = destinationsAvailable.forFollowingDay().getEnd();
             return !time.isAfter(realEnd);
         } else {
             if (time.isAfter(end)) {

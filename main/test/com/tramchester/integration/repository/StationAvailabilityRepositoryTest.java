@@ -8,7 +8,10 @@ import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.ServedRoute;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -19,6 +22,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
@@ -30,7 +34,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.time.DayOfWeek;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -106,6 +112,52 @@ public class StationAvailabilityRepositoryTest {
     }
 
     @Test
+    void shouldGetDifferentTimeRangesForDifferentDays() {
+        Station station = Altrincham.from(stationRepository);
+        LocationCollection destinations = LocationCollectionSingleton.of(station);
+
+        TramDate monday = TestEnv.nextMonday();
+        TramDate friday = monday.plusDays(4);
+        assertEquals(DayOfWeek.FRIDAY, friday.getDayOfWeek());
+
+        TimeRange mondayTimes = availabilityRepository.getAvailableTimesFor(destinations, monday);
+        TimeRange fridayTimes = availabilityRepository.getAvailableTimesFor(destinations, friday);
+
+        assertNotEquals(mondayTimes, fridayTimes);
+    }
+
+    @Test
+    void shouldHaveExpectedServedRoutesForLocation() {
+        Station station = Altrincham.from(stationRepository);
+
+        ServedRoute dropOffs = availabilityRepository.getServedPickUpRouteFor(station.getLocationId());
+
+        TramDate monday = TestEnv.nextMonday();
+
+        // late services from Alty run to Old Trafford
+        TimeRange timeRange = TimeRange.of(TramTime.of(0,16), TramTime.of(0,30));
+        Set<Route> tooLate = dropOffs.getRoutes(monday, timeRange, modes);
+        assertTrue(tooLate.isEmpty(), tooLate.toString());
+    }
+
+    @Test
+    void shouldNotGetUnexpectedLateNightService() {
+        Station station = Altrincham.from(stationRepository);
+        LocationCollection destinations = LocationCollectionSingleton.of(station);
+
+        TramDate monday = TestEnv.nextMonday();
+
+        TimeRange mondayTimes = availabilityRepository.getAvailableTimesFor(destinations, monday);
+
+        //  late services from Alty run to Old Trafford
+
+
+        assertTrue(mondayTimes.contains(TramTime.of(23,55)), "Unexpected time range " + mondayTimes);
+        assertFalse(mondayTimes.contains(TramTime.of(0,30)), "Unexpected time range " + mondayTimes);
+
+    }
+
+    @Test
     void shouldNotBeAvailableIfModesWrong() {
 
         Station stPeters = StPetersSquare.from(stationRepository);
@@ -129,9 +181,53 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(results.isEmpty(), "for " + timeRange + " missing routes from " + altrincham);
 
         TimeRange timeRangeCrossMidnight = TimeRangePartial.of(TramTime.of(23, 59), TramDuration.ZERO, TramDuration.ofMinutes(maxDuration));
-        Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight, modes);
-        assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
 
+        Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight, modes);
+
+        // trams run Alty to Old Trafford
+        assertFalse(pickupRoutes.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
+
+        Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(altrincham, when, timeRangeCrossMidnight, modes);
+        assertFalse(dropoffRoutes.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
+
+    }
+
+    @DataExpiryTest
+    @Test
+    void shouldHaveCorrectLateNightServicesAtEndOfLine() {
+        Station altrincham = Altrincham.from(stationRepository);
+
+        TripRepository tripRepos = componentContainer.get(TripRepository.class);
+        Set<Trip> trips = tripRepos.getTripsCallingAt(altrincham, when);
+
+        Set<StopCall> stopCalls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
+                filter(StopCall::callsAtStation).
+                filter(stopCall -> stopCall.getStation().equals(altrincham)).
+                collect(Collectors.toSet());
+
+        Optional<TramTime> findLatestArrival = stopCalls.stream().map(StopCall::getArrivalTime).max(TramTime::compareTo);
+        assertTrue(findLatestArrival.isPresent());
+        TramTime latestArrival = findLatestArrival.get();
+
+        Optional<TramTime> findLatestDepart = stopCalls.stream().map(StopCall::getDepartureTime).max(TramTime::compareTo);
+        assertTrue(findLatestDepart.isPresent());
+        TramTime latestDepart = findLatestDepart.get();
+
+        TimeRange timeRange = TimeRange.of(latestArrival, latestDepart);
+        boolean result = availabilityRepository.isAvailable(altrincham, when, timeRange, modes);
+
+        assertTrue(result, "missing late night services");
+    }
+
+    @DataExpiryTest
+    @Test
+    void shouldNotHaveLateNightServicesAtEndOfLine() {
+        Station altrincham = Altrincham.from(stationRepository);
+
+        TimeRange timeRange = TimeRange.of(TramTime.nextDay(0,40), TramTime.nextDay(0,45));
+        boolean result = availabilityRepository.isAvailable(altrincham, when, timeRange, modes);
+
+        assertFalse(result, "unexpected late night services");
     }
 
     @DataExpiryTest

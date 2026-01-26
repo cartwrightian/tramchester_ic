@@ -5,7 +5,6 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,10 +30,10 @@ public class StationAvailabilityRepository {
     // TODO Need to tidy up handling of different location types here, it is messy and inconsistent
 
     // NOTE: use routes here since they tend to have specific times ranges, whereas services end up 24x7 some stations
-    private final Map<LocationId<?>, ServedRoute> pickupsForLocation;
-    private final Map<LocationId<?>, ServedRoute> dropoffsForLocation;
+    private final Map<LocationId<?>, ServedRoute> pickupsForLocations;
+    private final Map<LocationId<?>, ServedRoute> dropoffsForLocations;
 
-    private final Map<LocationId<?>, Set<Service>> servicesForLocation;
+    private final Map<LocationId<?>, Set<Service>> servicesForLocations;
 
     private final StationRepository stationRepository;
     private final ClosedStationsRepository closedStationsRepository;
@@ -54,9 +52,9 @@ public class StationAvailabilityRepository {
         this.tripRepository = tripRepository;
         this.interchangeRepository = interchangeRepository;
 
-        pickupsForLocation = new HashMap<>();
-        dropoffsForLocation = new HashMap<>();
-        servicesForLocation = new HashMap<>();
+        pickupsForLocations = new HashMap<>();
+        dropoffsForLocations = new HashMap<>();
+        servicesForLocations = new HashMap<>();
     }
 
     @PostConstruct
@@ -70,18 +68,18 @@ public class StationAvailabilityRepository {
         addServicesForStations();
 
         logger.info(format("started, from %s stations add entries %s for pickups and %s for dropoff",
-                stations.size(), pickupsForLocation.size(), dropoffsForLocation.size()));
+                stations.size(), pickupsForLocations.size(), dropoffsForLocations.size()));
     }
 
     private void addServicesForStations() {
         logger.info("Add services for stations");
-        stationRepository.getStations().forEach(station -> servicesForLocation.put(station.getLocationId(), new HashSet<>()));
+        stationRepository.getStations().forEach(station -> servicesForLocations.put(station.getLocationId(), new HashSet<>()));
 
         // TODO is this incorrect in the case of interchange locations ??
         tripRepository.getTrips().stream().
                 flatMap(trip -> trip.getStopCalls().stream()).
                 filter(StopCall::callsAtStation).
-                forEach(stopCall -> servicesForLocation.get(stopCall.getLocationId()).add(stopCall.getService()));
+                forEach(stopCall -> servicesForLocations.get(stopCall.getLocationId()).add(stopCall.getService()));
     }
 
     private void addForStation(final Station station) {
@@ -100,110 +98,83 @@ public class StationAvailabilityRepository {
 
     private void addInterchangeStation(final InterchangeStation interchangeStation, final boolean diagnostic) {
         final LocationId<?> locationId = interchangeStation.getLocationId();
-        if (!addFor(dropoffsForLocation, interchangeStation, interchangeStation.getDropoffRoutes(), StopCall::getArrivalTime)) {
+        final ServedRoute dropOffsAtLocation = getDropOffsFor(locationId);
+        if (!dropOffsAtLocation.addFor(interchangeStation, interchangeStation.getDropoffRoutes(), StopCall::getArrivalTime)) {
             if (diagnostic) {
                 logger.debug("No dropoffs for interchange " + interchangeStation.getId());
             }
-            dropoffsForLocation.put(locationId, new ServedRoute(locationId)); // empty
         }
-        if (!addFor(pickupsForLocation, interchangeStation, interchangeStation.getPickupRoutes(), StopCall::getDepartureTime)) {
+
+        final ServedRoute pickupsAtLocation = getPickupsFor(locationId);
+        if (!pickupsAtLocation.addFor(interchangeStation, interchangeStation.getPickupRoutes(), StopCall::getDepartureTime)) {
             if (diagnostic) {
                 logger.debug("No pickups for interchange " + interchangeStation.getId());
             }
-            pickupsForLocation.put(locationId, new ServedRoute(locationId)); // empty
         }
+
     }
 
-    private void addStation(final Station station,final boolean diagnostic) {
+    private void addStation(final Station station, final boolean diagnostic) {
         final LocationId<Station> locationId = station.getLocationId();
-        if (!addFor(dropoffsForLocation, station, station.getDropoffRoutes(), StopCall::getArrivalTime)) {
+        final ServedRoute dropOffsAtLocation = getDropOffsFor(locationId);
+        if (!dropOffsAtLocation.addFor(station.getId(), station.getDropoffRoutes(), StopCall::getArrivalTime)) {
             if (diagnostic) {
                 logger.debug("No dropoffs for station " + station.getId());
             }
-            dropoffsForLocation.put(locationId, new ServedRoute(locationId)); // empty
         }
-        if (!addFor(pickupsForLocation, station, station.getPickupRoutes(), StopCall::getDepartureTime)) {
+
+        final ServedRoute pickupsAtLocation = getPickupsFor(locationId);
+        if (!pickupsAtLocation.addFor(station.getId(), station.getPickupRoutes(), StopCall::getDepartureTime)) {
             if (diagnostic) {
-                logger.debug("No pickups for station " + station.getId());
+                logger.debug("No pikcups for station " + station.getId());
             }
-            pickupsForLocation.put(locationId, new ServedRoute(locationId)); // empty
         }
-    }
-
-    private boolean addFor(final Map<LocationId<?>, ServedRoute> forLocations, final Station station,
-                           final Set<Route> routes, final Function<StopCall, TramTime> getTime) {
-
-        // trips via routes so incldue linked pick up routes for interchanges
-        final Set<Trip> callingTrips = routes.stream().
-                //filter(route -> hasRoutes.servesRoutePickup(route) || hasRoutes.servesRouteDropOff(route)).
-                flatMap(route -> route.getTrips().stream()).
-                filter(trip -> trip.callsAt(station.getId())).
-                collect(Collectors.toSet());
-
-        final Stream<StopCall> stationStopCalls = callingTrips.stream().
-                map(Trip::getStopCalls).
-                map(stopCalls -> stopCalls.getStopFor(station.getId())).
-                filter(StopCall::callsAtStation);
-
-        return stationStopCalls.
-                map(stopCall -> addForStopCall(forLocations, station.getLocationId(), stopCall, getTime)).
-                reduce(false, (a,b) -> a || b);
 
     }
 
-    private boolean addFor(final Map<LocationId<?>, ServedRoute> forLocations, final InterchangeStation interchangeStation,
-                           final Set<Route> routes, final Function<StopCall, TramTime> getTime) {
-        // trips via routes so include linked pick up routes for interchanges
-        // TODO just a stream
-        final Set<Trip> callingTrips = routes.stream().
-                //filter(route -> hasRoutes.servesRoutePickup(route) || hasRoutes.servesRouteDropOff(route)).
-                flatMap(route -> route.getTrips().stream()).
-                filter(trip -> trip.callsAt(interchangeStation)).
-                collect(Collectors.toSet());
-
-        // TODO just a stream
-        final Set<StopCall> stationStopCalls = callingTrips.stream().
-                map(Trip::getStopCalls).
-                map(stopCalls -> stopCalls.getStopFor(interchangeStation)).
-                filter(StopCall::callsAtStation).
-                collect(Collectors.toSet());
-
-        return stationStopCalls.stream().
-                map(stopCall -> addForStopCall(forLocations, interchangeStation.getLocationId(), stopCall, getTime)).
-                reduce(false, (a,b) -> a || b);
-    }
-
-
-    private boolean addForStopCall(final Map<LocationId<?>, ServedRoute> forLocations, final LocationId<?> locationId, final StopCall stopCall,
-                       final Function<StopCall, TramTime> getTime) {
-        final TramTime time = getTime.apply(stopCall);
-        if (!time.isValid()) {
-            logger.warn(format("Invalid time %s for %s %s", time, locationId, stopCall));
-            return false;
+    private ServedRoute getPickupsFor(final LocationId<?> locationId) {
+        final ServedRoute pickupsAtLocation;
+        if (pickupsForLocations.containsKey(locationId)) {
+            pickupsAtLocation = dropoffsForLocations.get(locationId);
+        } else {
+            pickupsAtLocation = new ServedRoute(locationId);
+            pickupsForLocations.put(locationId, pickupsAtLocation);
         }
-        addForRoute(forLocations, locationId, stopCall.getTrip().getRoute(), stopCall.getService(), time);
-        return true;
+        return pickupsAtLocation;
     }
 
-    private void addForRoute(final Map<LocationId<?>, ServedRoute> forLocations, final LocationId<?> locationId, final Route route,
-                        final Service service, final TramTime time) {
-        if (!forLocations.containsKey(locationId)) {
-            forLocations.put(locationId, new ServedRoute(locationId));
+    private ServedRoute getDropOffsFor(final LocationId<?> locationId) {
+        final ServedRoute dropOffsAtLocation;
+        if (dropoffsForLocations.containsKey(locationId)) {
+            dropOffsAtLocation = dropoffsForLocations.get(locationId);
+        } else {
+            dropOffsAtLocation = new ServedRoute(locationId);
+            dropoffsForLocations.put(locationId, dropOffsAtLocation);
         }
-        forLocations.get(locationId).add(route, service, time);
+        return dropOffsAtLocation;
     }
 
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-        pickupsForLocation.clear();
-        dropoffsForLocation.clear();
-        servicesForLocation.clear();
+        pickupsForLocations.clear();
+        dropoffsForLocations.clear();
+        servicesForLocations.clear();
         logger.info("Stopped");
     }
 
     public boolean isAvailable(final Location<?> location, final TramDate date, final TimeRange timeRange,
                                final EnumSet<TransportMode> requestedModes) {
+        return isAvailable(location, date, timeRange, requestedModes, true);
+    }
+
+    public boolean isAvailablePickups(final Location<?> location, final TramDate date, final TimeRange timeRange,
+                               final EnumSet<TransportMode> requestedModes) {
+        return isAvailable(location, date, timeRange, requestedModes, false);
+    }
+
+    public boolean isAvailable(final Location<?> location, final TramDate date, final TimeRange timeRange,
+                               final EnumSet<TransportMode> requestedModes, boolean requireDropoff) {
 
         if (location.getLocationType()==LocationType.StationGroup) {
             final StationLocalityGroup stationGroup = (StationLocalityGroup) location;
@@ -219,14 +190,14 @@ public class StationAvailabilityRepository {
             return false;
         }
 
-        if (!pickupsForLocation.containsKey(locationId)) {
+        if (!pickupsForLocations.containsKey(locationId)) {
             throw new RuntimeException("Missing pickups for " + locationId);
         }
-        if (!dropoffsForLocation.containsKey(locationId)) {
+        if (!dropoffsForLocations.containsKey(locationId)) {
             throw new RuntimeException("Missing dropoffs for " + locationId);
         }
 
-        final Set<Service> services = servicesForLocation.get(locationId);
+        final Set<Service> services = servicesForLocations.get(locationId);
 
         boolean modesMatch = services.stream().
                 anyMatch(service -> service.anyOverlapWith(requestedModes));
@@ -242,8 +213,16 @@ public class StationAvailabilityRepository {
             logger.warn("No services date overlap for " + locationId);
         }
 
-        return pickupsForLocation.get(locationId).anyAvailable(date, timeRange, requestedModes) &&
-                dropoffsForLocation.get(locationId).anyAvailable(date, timeRange, requestedModes);
+        final ServedRoute pickupsAtLocation = pickupsForLocations.get(locationId);
+
+        if (requireDropoff) {
+            final ServedRoute dropoffsAtLocation = dropoffsForLocations.get(locationId);
+            return pickupsAtLocation.anyAvailable(date, timeRange, requestedModes) &&
+                    dropoffsAtLocation.anyAvailable(date, timeRange, requestedModes);
+        } else {
+            return pickupsAtLocation.anyAvailable(date, timeRange, requestedModes);
+        }
+
     }
 
     private boolean isGroupAvailable(final StationLocalityGroup stationGroup, final TramDate date, final TimeRange timeRange,
@@ -266,12 +245,12 @@ public class StationAvailabilityRepository {
             return getPickupRoutesFor(closedStation, date, timeRange, modes);
         }
 
-        if (!pickupsForLocation.containsKey(locationId)) {
+        if (!pickupsForLocations.containsKey(locationId)) {
             // todo maybe into the none interchance case below?
             throw new RuntimeException("No pickups for " + locationId);
         }
 
-        final ServedRoute servedRoute = pickupsForLocation.get(locationId);
+        final ServedRoute servedRoute = pickupsForLocations.get(locationId);
         return servedRoute.getRoutes(date, timeRange, modes);
 
     }
@@ -299,11 +278,11 @@ public class StationAvailabilityRepository {
 
         final LocationId<?> locationId = location.getLocationId();
 
-        if (!dropoffsForLocation.containsKey(locationId)) {
+        if (!dropoffsForLocations.containsKey(locationId)) {
             throw new RuntimeException("No dropoffs for " + locationId);
         }
 
-        return dropoffsForLocation.get(locationId).getRoutes(date, timeRange, modes);
+        return dropoffsForLocations.get(locationId).getRoutes(date, timeRange, modes);
     }
 
     private Set<Route> getDropoffRoutesForGroup(StationLocalityGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
@@ -315,7 +294,7 @@ public class StationAvailabilityRepository {
     private Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         logger.warn(closedStation.getStationId() + " is closed, using linked stations for dropoffs");
         return closedStation.getDiversionAroundClosure().stream().
-                flatMap(linked -> dropoffsForLocation.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
+                flatMap(linked -> dropoffsForLocations.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
@@ -328,7 +307,7 @@ public class StationAvailabilityRepository {
     private Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         logger.warn(closedStation.getStationId() + " is closed, using linked stations for pickups");
         return closedStation.getDiversionAroundClosure().stream().
-                flatMap(linked -> pickupsForLocation.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
+                flatMap(linked -> pickupsForLocations.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
@@ -339,18 +318,24 @@ public class StationAvailabilityRepository {
     }
 
     public long size() {
-        return pickupsForLocation.size() + dropoffsForLocation.size();
+        return pickupsForLocations.size() + dropoffsForLocations.size();
+    }
+
+    public ServedRoute getServedPickUpRouteFor(final LocationId<?> location) {
+        return dropoffsForLocations.get(location);
     }
 
     public TimeRange getAvailableTimesFor(final LocationCollection destinations, final TramDate tramDate) {
 
         final EnumSet<TransportMode> modes = destinations.getModes();
 
-        final Set<TimeRange> ranges = destinations.locationStream().
+        Stream<ServedRoute> servedRouteStream = destinations.locationStream().
                 flatMap(locations -> expand(locations).locationStream()).
                 map(Location::getLocationId).
-                filter(dropoffsForLocation::containsKey).
-                map(dropoffsForLocation::get).
+                filter(dropoffsForLocations::containsKey).
+                map(dropoffsForLocations::get);
+
+        final Set<TimeRange> ranges = servedRouteStream.
                 flatMap(servedRoute -> servedRoute.getTimeRanges(tramDate, modes)).
                 collect(Collectors.toSet());
 

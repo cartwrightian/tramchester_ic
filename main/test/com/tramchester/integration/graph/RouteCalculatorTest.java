@@ -465,6 +465,12 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldHandlePastMidnightDirectAltrinchamNOffTraffordBackToDepot() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,15), maxNumResults, maxChanges);
+        assertGetAndCheckJourneys(journeyRequest, Altrincham, OldTrafford);
+    }
+
+    @Test
     void shouldHandleAfterMidnightDirectCentral() {
         TramDate testDate = when;
 
@@ -492,6 +498,16 @@ public class RouteCalculatorTest {
     void shouldAltrinchamToShawAndCrompton() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,45), maxNumResults, 2);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, ShawAndCrompton);
+    }
+
+    // TODO very WIP
+    @Test
+    void shouldVictoriaToShawAndCrompton() {
+        // slow for in memory for JourneyPlannerResourceTest
+        for (int i = 0; i < 1; i++) {
+            JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,15), maxNumResults, 2);
+            assertGetAndCheckJourneys(journeyRequest, Victoria, ShawAndCrompton);
+        }
     }
 
     @Test
