@@ -50,7 +50,7 @@ s3 {
 version = buildNumber
 
 ext {
-    dropwizardVersion = '5.0.0'
+    dropwizardVersion = '5.0.1'
     jacksonVersion = '2.20.0'
     awsSdkVersion = '2.34.6'
 }
