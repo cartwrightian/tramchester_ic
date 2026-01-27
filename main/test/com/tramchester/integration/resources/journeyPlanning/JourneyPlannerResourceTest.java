@@ -266,6 +266,7 @@ public class JourneyPlannerResourceTest {
                     Cornbrook.getName(),
                     Deansgate.getName(),
                     Piccadilly.getName(),
+                    PiccadillyGardens.getName(),
                     StPetersSquare.getName());
 
             // multiple possible places to change depending on timetable etc

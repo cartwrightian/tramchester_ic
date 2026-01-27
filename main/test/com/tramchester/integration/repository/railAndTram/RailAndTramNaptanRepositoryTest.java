@@ -5,6 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
@@ -118,9 +119,9 @@ class RailAndTramNaptanRepositoryTest {
     void shouldHaveNamesFromNaptanData() {
         NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
 
-        IdSet<Station> stopIds = agecroftRoadStops.stream().map(Station::createId).collect(IdSet.idCollector());
+        ImmutableIdSet<Station> stopIds = agecroftRoadStops.stream().map(Station::createId).collect(IdSet.idCollector());
 
-        IdSet<Station> missing = stopIds.stream().filter(id -> !naptanRepository.containsActo(id)).collect(IdSet.idCollector());
+        ImmutableIdSet<Station> missing = stopIds.stream().filter(id -> !naptanRepository.containsActo(id)).collect(IdSet.idCollector());
 
         assertTrue(missing.isEmpty(), "missing " + missing);
 

@@ -7,10 +7,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
@@ -241,7 +238,7 @@ public class StationRepositoryTest {
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
 
-        IdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
+        ImmutableIdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
 
         assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + "\n found " + pickups);
 
@@ -265,7 +262,7 @@ public class StationRepositoryTest {
         assertEquals(1, pickups.size());
         assertTrue(pickups.contains(getRed(when).getId()), pickups.toString());
 
-        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
+        ImmutableIdSet<Route> dropOffs = station.getDropoffRoutes().stream().
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
             

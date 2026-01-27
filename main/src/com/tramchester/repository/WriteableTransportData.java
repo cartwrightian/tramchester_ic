@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
@@ -46,7 +46,7 @@ public interface WriteableTransportData {
     ////
 
     Set<Service> getServicesWithoutCalendar();
-    IdSet<Service> getServicesWithZeroDays();
+    ImmutableIdSet<Service> getServicesWithZeroDays();
 
     ////
 

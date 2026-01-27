@@ -10,7 +10,7 @@ import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
@@ -229,7 +229,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     }
 
     @JsonIgnore
-    public IdSet<Trip> getTripIds() {
+    public ImmutableIdSet<Trip> getTripIds() {
         return relationshipProperties.getTripIds();
     }
 

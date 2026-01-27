@@ -3,7 +3,7 @@ package com.tramchester.unit.graph.neo4J;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphNode;
@@ -76,9 +76,9 @@ public class GraphPropsNeo4JTest {
         MutableGraphRelationship serviceRelationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.TO_SERVICE);
 
         // add maxTripsForService trip id's to the relationship
-        IdSet<Trip> unsortedTripIds = GraphPropsTest.addRandomTripIdsToRelationship(serviceRelationship);
+        ImmutableIdSet<Trip> unsortedTripIds = GraphPropsTest.addRandomTripIdsToRelationship(serviceRelationship);
 
-        IdSet<Trip> fromService = serviceRelationship.getTripIds();
+        ImmutableIdSet<Trip> fromService = serviceRelationship.getTripIds();
         assertEquals(maxTripsForService, fromService.size());
         assertTrue(unsortedTripIds.containsAll(fromService));
 

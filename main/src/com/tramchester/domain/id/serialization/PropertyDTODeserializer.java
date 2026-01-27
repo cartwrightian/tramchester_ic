@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -89,7 +89,7 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
         return new PropertyDTO.PropertyDTOValue(value);
     }
 
-    private IdSet<?> deserializeIdSet(DeserializationContext context, TypeDeserializer typeDeserializer, JsonNode valueNode, ObjectCodec objectCodec) throws IOException {
+    private ImmutableIdSet<? extends CoreDomain> deserializeIdSet(DeserializationContext context, TypeDeserializer typeDeserializer, JsonNode valueNode, ObjectCodec objectCodec) throws IOException {
         final IdSetDeserializer deserializer = new IdSetDeserializer();
         JsonParser parser = valueNode.traverse(objectCodec);
         parser.nextToken();

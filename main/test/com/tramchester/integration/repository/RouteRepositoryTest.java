@@ -8,6 +8,7 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -170,7 +171,7 @@ public class RouteRepositoryTest {
 
         IdSet<Route> knownTramRoutes = getFor(when).stream().map(TestRoute::getId).collect(IdSet.idCollector());
 
-        IdSet<Route> diffA = IdSet.disjunction(running, knownTramRoutes);
+        ImmutableIdSet<Route> diffA = IdSet.disjunction(running, knownTramRoutes);
         assertTrue(diffA.isEmpty(), diffA.toString());
 
         assertEquals(knownTramRoutes.size(), running.size());

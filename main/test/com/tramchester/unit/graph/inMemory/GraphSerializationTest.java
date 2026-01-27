@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -136,7 +136,7 @@ public class GraphSerializationTest {
             assertEquals(42, result.getStopSeqNumber());
             assertEquals(cost, result.getCost());
             assertEquals(routeStationId, result.getRouteStationId());
-            IdSet<Trip> trips = result.getTripIds();
+            ImmutableIdSet<Trip> trips = result.getTripIds();
             assertEquals(2, trips.size());
             assertTrue(trips.contains(tripA));
             assertTrue(trips.contains(tripB));
@@ -166,7 +166,7 @@ public class GraphSerializationTest {
         assertEquals(relationship, result);
 
         try {
-            IdSet<Trip> trips = result.getTripIds();
+            ImmutableIdSet<Trip> trips = result.getTripIds();
             assertEquals(2, trips.size());
             assertTrue(trips.contains(tripA));
             assertTrue(trips.contains(tripB));

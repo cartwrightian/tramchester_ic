@@ -7,7 +7,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.MarginInMeters;
@@ -46,7 +46,7 @@ public class ClosedStationFactory {
 
         final Set<Station> diversionsAround;
         if (closure.hasDiversionsAroundClosure()) {
-            final IdSet<Station> diversionsAroundClosure = closure.getDiversionsAroundClosure();
+            final ImmutableIdSet<Station> diversionsAroundClosure = closure.getDiversionsAroundClosure();
             logger.info(format("Using config provided stations %s for diversions around closed station %s", diversionsAroundClosure, stationId));
             diversionsAround = getStations(diversionsAroundClosure);
         } else {
@@ -56,7 +56,7 @@ public class ClosedStationFactory {
 
         final Set<Station> diversionsToFrom;
         if (closure.hasDiversionsToFromClosure()) {
-            final IdSet<Station> diversionsToFromClosure = closure.getDiversionsToFromClosure();
+            final ImmutableIdSet<Station> diversionsToFromClosure = closure.getDiversionsToFromClosure();
             logger.info(format("Using config provided stations %s for diversions to/from closed station %s", diversionsToFromClosure, stationId));
             diversionsToFrom = getStations(diversionsToFromClosure);
         } else {
@@ -71,7 +71,7 @@ public class ClosedStationFactory {
         }
     }
 
-    private Set<Station> getStations(IdSet<Station> stationIds) {
+    private Set<Station> getStations(ImmutableIdSet<Station> stationIds) {
         return stationIds.stream().map(stationRepository::getStationById).collect(Collectors.toSet());
     }
 
@@ -91,7 +91,7 @@ public class ClosedStationFactory {
         return found;
     }
 
-    public Closure createFor(final StationClosures closureConfig, final IdSet<Station> stationIds) {
+    public Closure createFor(final StationClosures closureConfig, final ImmutableIdSet<Station> stationIds) {
         final DateRange dateRange = closureConfig.getDateRange();
 
         final boolean fullyClosed = closureConfig.isFullyClosed();

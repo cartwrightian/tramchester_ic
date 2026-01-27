@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -160,7 +161,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
 
         if (mode==TransportMode.Bus) {
             // convert to localities
-            final IdSet<StationLocalityGroup> localityIds = stations.stream().
+            final ImmutableIdSet<StationLocalityGroup> localityIds = stations.stream().
                     map(Location::getLocalityId).
                     map(StationLocalityGroup::createId).
                     filter(IdFor::isValid).

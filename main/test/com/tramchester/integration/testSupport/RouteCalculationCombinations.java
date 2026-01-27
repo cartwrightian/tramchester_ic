@@ -10,6 +10,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -213,9 +214,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final EnumSet<TransportMode> modes) {
-            final IdSet<Station> endRoutes = routeEndRepository.getStations(modes);
+            final ImmutableIdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             // sanity check, primarily for rail
-            IdSet<Station> missingStations = endRoutes.stream().
+            ImmutableIdSet<Station> missingStations = endRoutes.stream().
                     filter(stationIdFor -> !stationRepository.hasStationId(stationIdFor)).
                     collect(IdSet.idCollector());
             if (missingStations.isEmpty()) {
@@ -230,8 +231,8 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
             public LocationIdPairSet<Station> endOfRoutesToInterchanges(final EnumSet<TransportMode> modes) {
-            final IdSet<Station> interchanges = getInterchangesFor(modes);
-            final IdSet<Station> endRoutes = routeEndRepository.getStations(modes);
+            final ImmutableIdSet<Station> interchanges = getInterchangesFor(modes);
+            final ImmutableIdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             return createJourneyPairs(interchanges, endRoutes, date);
         }
 
@@ -240,7 +241,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> interchangeToInterchange(final EnumSet<TransportMode> modes) {
-            final IdSet<Station> interchanges = getInterchangesFor(modes);
+            final ImmutableIdSet<Station> interchanges = getInterchangesFor(modes);
             return createJourneyPairs(interchanges, interchanges, date);
         }
 
@@ -249,19 +250,19 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
             public LocationIdPairSet<Station> interchangeToEndRoutes(final EnumSet<TransportMode> modes) {
-            final IdSet<Station> interchanges = getInterchangesFor(modes);
-            final IdSet<Station> endRoutes = routeEndRepository.getStations(modes);
+            final ImmutableIdSet<Station> interchanges = getInterchangesFor(modes);
+            final ImmutableIdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             return createJourneyPairs(endRoutes, interchanges, date);
         }
 
-        private IdSet<Station> getInterchangesFor(final EnumSet<TransportMode> modes) {
+        private ImmutableIdSet<Station> getInterchangesFor(final EnumSet<TransportMode> modes) {
             return interchangeRepository.getAllInterchanges().stream().
                     map(InterchangeStation::getStationId).
                     filter(stationId -> stationRepository.getStationById(stationId).anyOverlapWith(modes)).
                     collect(IdSet.idCollector());
         }
 
-        private LocationIdPairSet<Station> createJourneyPairs(IdSet<Station> starts, IdSet<Station> ends, TramDate date) {
+        private LocationIdPairSet<Station> createJourneyPairs(ImmutableIdSet<Station> starts, ImmutableIdSet<Station> ends, TramDate date) {
             LocationIdPairSet<Station> combinations = new LocationIdPairSet<>();
             for (IdFor<Station> start : starts) {
                 for (IdFor<Station> dest : ends) {

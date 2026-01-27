@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramDuration;
@@ -207,7 +208,7 @@ public class StopCallRepositoryTest {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());
         assertEquals(12, stopsBetween.size());
 
-        IdSet<Station> unique = new IdSet<>(stopsBetween);
+        ImmutableIdSet<Station> unique = new IdSet<>(stopsBetween);
         assertEquals(unique.size(), stopsBetween.size());
     }
 

@@ -52,7 +52,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     private final EnumSet<NaptanStopType> requiredStopTypes;
 
-    private Map<IdFor<NPTGLocality>, IdSet<NaptanRecord>> localities;
+    private Map<IdFor<NPTGLocality>, ImmutableIdSet<NaptanRecord>> localities;
 
     @Inject
     public NaptanRepositoryContainer(NaptanDataCallbackImporter naptanDataImporter, NPTGRepository nptgRepository,
@@ -113,7 +113,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     private void populateLocalityMap() {
-        final Collector<NaptanRecord, IdSet<NaptanRecord>, IdSet<NaptanRecord>> collector = IdSet.collector();
+        final Collector<NaptanRecord, IdSet<NaptanRecord>, ImmutableIdSet<NaptanRecord>> collector = ImmutableIdSet.collector();
         localities = stops.getValuesStream().collect(Collectors.groupingBy(NaptanRecord::getLocalityId, collector));
     }
 

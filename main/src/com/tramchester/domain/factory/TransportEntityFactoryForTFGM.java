@@ -191,7 +191,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
     @Override
     public void logDiagnostics(final WriteableTransportData writeableTransportData) {
-        IdSet<Station> relevantMissing = missingFromNaptan.stream().
+        ImmutableIdSet<Station> relevantMissing = missingFromNaptan.stream().
                 filter(writeableTransportData::hasStationId).
                 collect(IdSet.idCollector());
         if (!relevantMissing.isEmpty()) {

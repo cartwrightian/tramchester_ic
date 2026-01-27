@@ -6,7 +6,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
@@ -187,7 +187,7 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
      * Note: Assumes only called for relationships having TRIP_ID_LIST property, i.e. SERVICE_TO relationship type
      ***/
     @Override
-    public IdSet<Trip> getTripIds() {
+    public ImmutableIdSet<Trip> getTripIds() {
         return sharedRelationshipCache.getTripIds(relationshipId, key -> underlying.getTripIds());
        // return underlying.getTripIds();
     }

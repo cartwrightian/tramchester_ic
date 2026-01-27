@@ -8,7 +8,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
@@ -148,7 +148,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
     }
 
     private void reportZeroDaysServices(WriteableTransportData buildable) {
-        IdSet<Service> noDayServices = buildable.getServicesWithZeroDays();
+        ImmutableIdSet<Service> noDayServices = buildable.getServicesWithZeroDays();
         if (!noDayServices.isEmpty()) {
             logger.warn("The following services do no operate on any days per calendar.txt file " + noDayServices);
         }

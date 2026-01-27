@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -187,10 +188,10 @@ public class GraphComparisons {
                 }
             } else if (key.equals(TRIP_ID_LIST.getText())) {
                 final String[] arrayA = (String[]) valueA;
-                final IdSet<Trip> tripsB = (IdSet<Trip>) valueB;
+                final ImmutableIdSet<Trip> tripsB = (ImmutableIdSet<Trip>) valueB;
                 if (arrayA.length == tripsB.size()) {
                     final List<String> stringsA = Arrays.asList(arrayA);
-                    final IdSet<Trip> tripsA = stringsA.stream().map(Trip::createId).collect(IdSet.idCollector());
+                    final ImmutableIdSet<Trip> tripsA = stringsA.stream().map(Trip::createId).collect(IdSet.idCollector());
                     matched = tripsA.equals(tripsB);
                 } else {
                     if (logging) {

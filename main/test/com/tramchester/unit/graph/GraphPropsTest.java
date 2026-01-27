@@ -9,10 +9,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.RailRouteId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -428,7 +425,7 @@ public class GraphPropsTest {
         // add maxTripsForService trip id's to the relationship
         IdSet<Trip> unsortedTripIds = addRandomTripIdsToRelationship(serviceRelationship);
 
-        IdSet<Trip> fromService = serviceRelationship.getTripIds();
+        ImmutableIdSet<Trip> fromService = serviceRelationship.getTripIds();
         assertEquals(maxTripsForService, fromService.size());
         assertTrue(unsortedTripIds.containsAll(fromService));
 
@@ -466,7 +463,7 @@ public class GraphPropsTest {
 
         assertTrue(relationship.hasTripIdInList(tripA));
 
-        IdSet<Trip> result = relationship.getTripIds();
+        ImmutableIdSet<Trip> result = relationship.getTripIds();
 
         assertEquals(2, result.size());
         assertTrue(result.contains(tripA));

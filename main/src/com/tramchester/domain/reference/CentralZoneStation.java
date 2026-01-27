@@ -2,6 +2,7 @@ package com.tramchester.domain.reference;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
@@ -34,7 +35,7 @@ public enum CentralZoneStation {
         return Station.createId(stationId);
     }
 
-    public static final IdSet<Station> ids;
+    public static final ImmutableIdSet<Station> ids;
 
     static {
         ids = Arrays.stream(CentralZoneStation.values()).map(CentralZoneStation::getId).collect(IdSet.idCollector());

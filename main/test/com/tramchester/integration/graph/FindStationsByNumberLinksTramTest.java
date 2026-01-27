@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
@@ -68,7 +69,7 @@ class FindStationsByNumberLinksTramTest {
 
         IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
-        IdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
+        ImmutableIdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
 
         assertTrue(inConfigAndStationsWithLinks.isEmpty(), "\nFound also in config " + inConfigAndStationsWithLinks +
                 " \nstations with links were " + stationWithLinks);
@@ -83,7 +84,7 @@ class FindStationsByNumberLinksTramTest {
 
                 StPetersSquare,
                 PiccadillyGardens,
-                //Piccadilly,
+                Piccadilly,
                 MarketStreet,
                 TraffordBar,
                 Cornbrook,
@@ -91,14 +92,14 @@ class FindStationsByNumberLinksTramTest {
                 StWerburghsRoad,
                 Pomona,
                 Broadway,
-                HarbourCity
-                //Shudehill
+                HarbourCity,
+                Shudehill
                 //VeloPark,
                 //HoltTown
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);
-        IdSet<Station> diff = IdSet.disjunction(found, expected);
+        ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);
 
         assertTrue(diff.isEmpty(), diff + " between expected:\n" + expected + " \nfound:" + found);
 

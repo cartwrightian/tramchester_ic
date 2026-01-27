@@ -14,6 +14,7 @@ import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
@@ -84,12 +85,12 @@ public class ValidateKnownLocalityTest {
 
     @Test
     void shouldHaveStationsWithinBounds() {
-        Map<KnownLocality, IdSet<Station>> outOfBounds = new HashMap<>();
+        Map<KnownLocality, ImmutableIdSet<Station>> outOfBounds = new HashMap<>();
         for(KnownLocality knownLocality : KnownLocality.GreaterManchester) {
             StationLocalityGroup stationGroup = knownLocality.from(stationGroupsRepository);
 
             LocationSet<Station> contained = stationGroup.getAllContained();
-            IdSet<Station> outside = contained.stream().
+            ImmutableIdSet<Station> outside = contained.stream().
                     filter(station -> !boundingBox.contained(station.getLatLong())).
                     collect(IdSet.collector());
             if (!outside.isEmpty()) {
@@ -123,14 +124,14 @@ public class ValidateKnownLocalityTest {
 
         assertFalse(allIds.isEmpty(), "validate");
 
-        Map<KnownLocality, IdSet<Station>> results = new HashMap<>();
+        Map<KnownLocality, ImmutableIdSet<Station>> results = new HashMap<>();
         GreaterManchester.forEach(knowLocality -> {
             StationLocalityGroup group = knowLocality.from(stationGroupsRepository);
             Set<NaptanRecord> records = naptanRepository.getRecordsForLocality(group.getLocalityId());
 
             final IdSet<Station> fromGroup = group.getAllContained().stream().collect(IdSet.collector());
 
-            final IdSet<Station> actoCodesFromNaptanAlsoInStops = records.stream().
+            final ImmutableIdSet<Station> actoCodesFromNaptanAlsoInStops = records.stream().
                     map(NaptanRecord::getId).
                     map(id -> StringIdFor.convert(id, Station.class)).
                     filter(allIds::contains).
@@ -138,7 +139,7 @@ public class ValidateKnownLocalityTest {
 
             assertFalse(actoCodesFromNaptanAlsoInStops.isEmpty(), "validate");
 
-            final IdSet<Station> inNaptanOnly = actoCodesFromNaptanAlsoInStops.stream().
+            final ImmutableIdSet<Station> inNaptanOnly = actoCodesFromNaptanAlsoInStops.stream().
                     filter(code -> !fromGroup.contains(code)).
                     collect(IdSet.idCollector());
 

@@ -7,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.CentralZoneStation;
@@ -117,10 +118,10 @@ public class RoutePairToInterchangeRepositoryTest {
                 Victoria,
                 //Deansgate,
                 Cornbrook,
-                TraffordBar
-                //Piccadilly,
-                //PiccadillyGardens
-                //Shudehill
+                TraffordBar,
+                Piccadilly,
+                PiccadillyGardens,
+                Shudehill
                 ).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());
@@ -131,7 +132,7 @@ public class RoutePairToInterchangeRepositoryTest {
             expected.add(TramStations.Deansgate.getId());
         }
 
-        IdSet<Station> diff = IdSet.disjunction(expected, stationIds);
+        ImmutableIdSet<Station> diff = IdSet.disjunction(expected, stationIds);
 
         assertEquals(IdSet.emptySet(), diff, "mismatch between expected " + expected + " and " + stationIds);
 

@@ -14,10 +14,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramDateSet;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -183,7 +180,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<Station> allStations = transportData.getStations(TramsOnly);
 
-        IdSet<Route> noPickups = allTramRoutes.stream().
+        ImmutableIdSet<Route> noPickups = allTramRoutes.stream().
                 filter(route -> allStations.stream().noneMatch(station -> station.servesRoutePickup(route))).
                 collect(IdSet.collector());
 
@@ -341,7 +338,7 @@ public class TransportDataFromFilesTramTest {
         long tripsSize = transportData.getTrips().stream().filter(trip -> trip.getTransportMode()==Tram).count();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = allTramRoutes.stream().map(Route::getTrips).
+        ImmutableIdSet<Trip> tripIdsFromSvcs = allTramRoutes.stream().map(Route::getTrips).
                 flatMap(Trips::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
@@ -411,7 +408,7 @@ public class TransportDataFromFilesTramTest {
                 filter(stationId -> !closedStationRepository.isStationClosed(stationId, when)).
                 collect(IdSet.idCollector());
 
-        IdSet<Station> disjunction = IdSet.disjunction(expected, result);
+        ImmutableIdSet<Station> disjunction = IdSet.disjunction(expected, result);
         assertTrue(disjunction.isEmpty(), disjunction + " diff between \n expected " + expected + " and \n result " + result);
 
     }

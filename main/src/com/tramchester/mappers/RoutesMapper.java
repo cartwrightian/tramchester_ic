@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Trips;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -54,7 +54,7 @@ public class RoutesMapper {
 
     @NotNull
     private RouteDTO getLocationsAlong(final Route route, final boolean includeNotStopping) {
-        final IdSet<Station> startStations = route.getStartStations();
+        final ImmutableIdSet<Station> startStations = route.getStartStations();
 
         // Note: assumption is that longest sequence of stations found for a route is correct......
         Optional<List<Station>> longestSequence = startStations.stream().

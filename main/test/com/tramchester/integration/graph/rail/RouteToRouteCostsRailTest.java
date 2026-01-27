@@ -7,6 +7,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -121,7 +122,7 @@ public class RouteToRouteCostsRailTest {
     @Disabled("spike only")
     @Test
     void shouldSpikeEquivalentRoutesWhereSetOfInterchangesAreSame() {
-        Map<IdSet<Station>, Set<Route>> results = new HashMap<>(); // unique set of interchanges -> routes with those interchanges
+        Map<ImmutableIdSet<Station>, Set<Route>> results = new HashMap<>(); // unique set of interchanges -> routes with those interchanges
 
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 

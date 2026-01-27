@@ -6,6 +6,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.OverheadDisplayLines;
@@ -103,12 +104,12 @@ class LiveDataHTTPFetcherTest {
 
         assertFalse(departureInfos.isEmpty());
 
-        IdSet<Station> destinations = departureInfos.stream().flatMap(entry -> entry.getDueTrams().stream()).
+        ImmutableIdSet<Station> destinations = departureInfos.stream().flatMap(entry -> entry.getDueTrams().stream()).
                 map(UpcomingDeparture::getDestinationId).collect(IdSet.idCollector());
 
         IdSet<Station> expected = transportData.getStations().stream().collect(IdSet.collector());
 
-        IdSet<Station> mismatch = destinations.stream().filter(destinationId -> !expected.contains(destinationId)).
+        ImmutableIdSet<Station> mismatch = destinations.stream().filter(destinationId -> !expected.contains(destinationId)).
                 collect(IdSet.idCollector());
 
         assertTrue(mismatch.isEmpty(), mismatch.toString());

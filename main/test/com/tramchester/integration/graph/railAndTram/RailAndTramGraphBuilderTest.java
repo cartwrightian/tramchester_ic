@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -135,7 +136,7 @@ class RailAndTramGraphBuilderTest {
     void shouldHaveOneNodePerRouteStation() {
         Set<RouteStation> routeStations = stationRepository.getRouteStations();
 
-        IdSet<RouteStation> noTramRouteStationNode = routeStations.stream().
+        ImmutableIdSet<RouteStation> noTramRouteStationNode = routeStations.stream().
                 filter(routeStation -> routeStation.getTransportModes().contains(TransportMode.Tram)).
                 filter(routeStation -> txn.findNode(routeStation) == null).
                 collect(IdSet.collector());
@@ -147,7 +148,7 @@ class RailAndTramGraphBuilderTest {
                 filter(RouteStation::isActive). // rail data has 'passed' stations
                 collect(Collectors.toSet());
 
-        IdSet<RouteStation> noTrainRouteStationNode = trainRouteStations.stream().
+        ImmutableIdSet<RouteStation> noTrainRouteStationNode = trainRouteStations.stream().
                 filter(routeStation -> txn.findNode(routeStation) == null).
                 collect(IdSet.collector());
 
@@ -160,12 +161,12 @@ class RailAndTramGraphBuilderTest {
     void shouldHaveExpectedInterchangesInTheGraph() {
         InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
-        IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
+        ImmutableIdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
         Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
-        IdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
+        ImmutableIdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
 
         assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
     }

@@ -7,7 +7,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
@@ -68,7 +68,7 @@ public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
 
     IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn);
 
-    IdSet<Trip> getTripIds();
+    ImmutableIdSet<Trip> getTripIds();
 
     DateRange getDateRange();
 

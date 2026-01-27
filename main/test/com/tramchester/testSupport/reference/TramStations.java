@@ -113,7 +113,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return new LatLong(lat, lon);
     }
 
-    public static IdSet<Station> ids(TramStations... values) {
+    public static ImmutableIdSet<Station> ids(TramStations... values) {
         return Stream.of(values).map(FakeStation::getId).collect(IdSet.idCollector());
     }
 

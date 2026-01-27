@@ -52,6 +52,6 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
         }
     }
 
-    IdSet<Station> getStartStations();
+    ImmutableIdSet<Station> getStartStations();
 
 }

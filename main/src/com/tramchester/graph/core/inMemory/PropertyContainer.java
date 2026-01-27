@@ -2,6 +2,7 @@ package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
@@ -83,7 +84,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     public void addTripId(final IdFor<Trip> tripId) {
         final IdSet<Trip> existing = getTripIds();
 
-        final IdSet<Trip> updated;
+        final ImmutableIdSet<Trip> updated;
         if (existing.isEmpty()) {
             updated = IdSet.singleton(tripId);
         } else {

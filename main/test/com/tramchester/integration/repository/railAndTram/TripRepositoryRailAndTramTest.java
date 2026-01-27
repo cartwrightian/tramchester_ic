@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -45,7 +46,7 @@ class TripRepositoryRailAndTramTest {
     void shouldGetTripsWithSensibleLength() {
         Set<Trip> trips = repository.getTrips();
 
-        IdSet<Trip> tooShort = trips.stream().filter(trip -> trip.getStopCalls().totalNumber(false) <= 1)
+        ImmutableIdSet<Trip> tooShort = trips.stream().filter(trip -> trip.getStopCalls().totalNumber(false) <= 1)
                 .collect(IdSet.collector());
 
         assertTrue(tooShort.isEmpty(), tooShort.toString());

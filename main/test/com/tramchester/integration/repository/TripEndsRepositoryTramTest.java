@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -51,7 +52,7 @@ class TripEndsRepositoryTramTest {
 
         assertTrue(results.contains(Rochdale.getId()));
 
-        IdSet<Station> missing = getEndOfTheLine().stream().map(TramStations::getId).
+        ImmutableIdSet<Station> missing = getEndOfTheLine().stream().map(TramStations::getId).
                 filter(eolId -> !results.contains(eolId)).
                 collect(IdSet.idCollector());
 

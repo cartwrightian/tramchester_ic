@@ -2,7 +2,7 @@ package com.tramchester.testSupport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -320,7 +320,7 @@ public class DiagramCreator {
                 text = "(" + edge.getCost() + ")";
             }
         }
-        IdSet<Trip> tripIds = edge.getTripIds();
+        ImmutableIdSet<Trip> tripIds = edge.getTripIds();
         if (!tripIds.isEmpty()) {
             if (!text.isEmpty()) {
                 text = text + System.lineSeparator();

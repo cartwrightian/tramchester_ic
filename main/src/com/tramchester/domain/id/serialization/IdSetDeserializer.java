@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.StringIdFor;
 import org.reflections.Reflections;
 
@@ -19,12 +20,12 @@ import java.util.Set;
 import static com.tramchester.domain.id.serialization.IdSetSerializer.CONTAINS_FIELD_NAME;
 import static com.tramchester.domain.id.serialization.IdSetSerializer.ITEMS_FIELD_NAME;
 
-public class IdSetDeserializer extends JsonDeserializer<IdSet<?>> {
+public class IdSetDeserializer extends JsonDeserializer<ImmutableIdSet<? extends CoreDomain>> {
 
     private static final Reflections reflections = new Reflections(CoreDomain.class.getPackageName());
 
     @Override
-    public IdSet<?> deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
+    public ImmutableIdSet<? extends CoreDomain> deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
         final ObjectCodec objectCodec = jsonParser.getCodec();
         final JsonNode node = objectCodec.readTree(jsonParser);
 
@@ -41,7 +42,7 @@ public class IdSetDeserializer extends JsonDeserializer<IdSet<?>> {
 
         final JsonNode itemsNode = node.get(ITEMS_FIELD_NAME);
         if (itemsNode instanceof ArrayNode arrayNode) {
-            final IdSet<? extends CoreDomain> theSet = arrayNode.valueStream().
+            final ImmutableIdSet<? extends CoreDomain> theSet = arrayNode.valueStream().
                     filter(JsonNode::isTextual).
                     map(JsonNode::asText).
                     map(txt -> StringIdFor.createId(txt, contentsType)).

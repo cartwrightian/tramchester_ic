@@ -348,7 +348,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public IdSet<Service> getServicesWithZeroDays() {
+    public ImmutableIdSet<Service> getServicesWithZeroDays() {
         IdSet<Service> noDayServices = new IdSet<>();
         services.getValues().stream().filter(MutableService::hasCalendar).forEach(service -> {
                     ServiceCalendar calendar = service.getCalendar();

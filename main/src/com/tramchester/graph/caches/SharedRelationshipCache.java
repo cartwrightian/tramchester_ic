@@ -6,7 +6,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.core.GraphRelationshipId;
 import com.tramchester.repository.ReportsCacheStats;
@@ -55,12 +55,12 @@ public class SharedRelationshipCache implements ReportsCacheStats {
         return List.of(tripIdCache.stats("tripIds"), tripIdListCache.stats("tripIdList"));
     }
 
-    public IdSet<Trip> getTripIds(final GraphRelationshipId relationshipId, final Function<GraphRelationshipId, IdSet<Trip>> fetcher) {
+    public ImmutableIdSet<Trip> getTripIds(final GraphRelationshipId relationshipId, final Function<GraphRelationshipId, ImmutableIdSet<Trip>> fetcher) {
         return tripIdListCache.get(relationshipId, fetcher);
     }
 
-    public boolean hasTripIdInList(final IdFor<Trip> tripId, final GraphRelationshipId relationshipId, final Function<GraphRelationshipId, IdSet<Trip>> fetcher) {
-        final IdSet<Trip> trips = tripIdListCache.get(relationshipId, fetcher);
+    public boolean hasTripIdInList(final IdFor<Trip> tripId, final GraphRelationshipId relationshipId, final Function<GraphRelationshipId, ImmutableIdSet<Trip>> fetcher) {
+        final ImmutableIdSet<Trip> trips = tripIdListCache.get(relationshipId, fetcher);
         return trips.contains(tripId);
     }
 
@@ -74,7 +74,7 @@ public class SharedRelationshipCache implements ReportsCacheStats {
 
     private static class IdSetCache<T extends CoreDomain> implements ClearGraphId<GraphRelationshipId> {
 
-        private final Cache<GraphRelationshipId, IdSet<T>> cache;
+        private final Cache<GraphRelationshipId, ImmutableIdSet<T>> cache;
 
         private IdSetCache() {
             cache = Caffeine.newBuilder().
@@ -83,7 +83,7 @@ public class SharedRelationshipCache implements ReportsCacheStats {
                     build();
         }
 
-        public IdSet<T> get(GraphRelationshipId relationshipId, Function<GraphRelationshipId, IdSet<T>> fetcher) {
+        public ImmutableIdSet<T> get(GraphRelationshipId relationshipId, Function<GraphRelationshipId, ImmutableIdSet<T>> fetcher) {
             return cache.get(relationshipId, fetcher);
         }
 

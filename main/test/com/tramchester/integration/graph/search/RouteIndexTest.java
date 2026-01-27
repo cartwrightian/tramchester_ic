@@ -10,6 +10,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -130,11 +131,11 @@ public class RouteIndexTest extends EasyMockSupport {
     private void macthesRouteRepository(Stream<RouteIndexData> loaded) {
         List<RouteIndexData> resultsForIndex = loaded.toList();
 
-        IdSet<Route> expected = routeRepository.getRoutes().stream().collect(IdSet.collector());
+        ImmutableIdSet<Route> expected = routeRepository.getRoutes().stream().collect(IdSet.collector());
 
         assertEquals(expected.size(), resultsForIndex.size());
 
-        IdSet<Route> idsFromIndex = resultsForIndex.stream().map(RouteIndexData::getRouteId).collect(IdSet.idCollector());
+        ImmutableIdSet<Route> idsFromIndex = resultsForIndex.stream().map(RouteIndexData::getRouteId).collect(IdSet.idCollector());
         assertEquals(expected, idsFromIndex);
     }
 

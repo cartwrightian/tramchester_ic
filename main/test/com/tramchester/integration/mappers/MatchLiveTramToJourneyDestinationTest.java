@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -137,7 +138,7 @@ public class MatchLiveTramToJourneyDestinationTest {
             fail(e);
         }
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyStations.getEnd().getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyStations.getEnd().getId());
 
         LocalDateTime now = TestEnv.LocalNow();
         TramTime time = TramTime.ofHourMins(now.toLocalTime());

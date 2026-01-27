@@ -15,7 +15,7 @@ import static com.tramchester.domain.reference.TFGMRouteNames.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2026,1,11);
+    public static final TramDate latestCutoverDate = TramDate.of(2026,1,19);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -76,8 +76,10 @@ public class KnownTramRoute {
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.isAfter(TramDate.of(2026, 1, 31))) {
+            if (date.isBefore(TramDate.of(2026, 2, 8))) {
                 routes.add(find.apply(Green));
+            } else if (date.equals(TramDate.of(2026, 2, 8))){
+                routes.add(find.apply(BusOne));
             }
         } else { // Not Sunday
             routes.add(find.apply(Green));

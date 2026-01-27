@@ -15,6 +15,7 @@ import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -112,7 +113,7 @@ class TransportDataFromFilesBusTest {
     void shouldHaveNotHaveRoutesWithZeroTrips() {
         Set<Route> routes = transportData.getRoutes();
 
-        IdSet<Route> emptyRoutes = routes.stream().
+        ImmutableIdSet<Route> emptyRoutes = routes.stream().
                 filter(route -> route.getTrips().isEmpty()).
                 map(Route::getId).
                 collect(IdSet.idCollector());
@@ -189,7 +190,7 @@ class TransportDataFromFilesBusTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
+        ImmutableIdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
                 flatMap(Trips::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());

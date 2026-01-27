@@ -166,7 +166,7 @@ public class RailTransportDataFromFilesTest {
         assertFalse(result);
 
         Set<RouteStation> routeStations = transportData.getRouteStations();
-        IdSet<Station> unwantedRouteStations = routeStations.stream().
+        ImmutableIdSet<Station> unwantedRouteStations = routeStations.stream().
                 map(routeStation -> routeStation.getStation().getId()).
                 filter(unwantedStation::equals).collect(IdSet.idCollector());
         assertTrue(unwantedRouteStations.isEmpty());

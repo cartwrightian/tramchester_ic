@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -127,9 +128,9 @@ public class TraversalStateTest extends EasyMockSupport {
 
         assertEquals(cornbrook.getPlatforms().size(), outbounds.size(), outbounds.toString());
 
-        IdSet<Platform> platformIds = outbounds.stream().map(relationship -> relationship.getEndNode(txn).getPlatformId()).collect(IdSet.idCollector());
+        ImmutableIdSet<Platform> platformIds = outbounds.stream().map(relationship -> relationship.getEndNode(txn).getPlatformId()).collect(IdSet.idCollector());
 
-        IdSet<Platform> fromStation = cornbrook.getPlatforms().stream().map(HasId::getId).collect(IdSet.idCollector());
+        ImmutableIdSet<Platform> fromStation = cornbrook.getPlatforms().stream().map(HasId::getId).collect(IdSet.idCollector());
 
         assertEquals(fromStation, platformIds);
     }
@@ -168,9 +169,9 @@ public class TraversalStateTest extends EasyMockSupport {
 
         assertEquals(cornbrook.getPlatforms().size(), outbounds.size(), outbounds.toString());
 
-        IdSet<Platform> platformIds = outbounds.stream().map(relationship -> relationship.getEndNode(txn).getPlatformId()).collect(IdSet.idCollector());
+        ImmutableIdSet<Platform> platformIds = outbounds.stream().map(relationship -> relationship.getEndNode(txn).getPlatformId()).collect(IdSet.idCollector());
 
-        IdSet<Platform> fromStation = cornbrook.getPlatforms().stream().map(HasId::getId).collect(IdSet.idCollector());
+        ImmutableIdSet<Platform> fromStation = cornbrook.getPlatforms().stream().map(HasId::getId).collect(IdSet.idCollector());
 
         assertEquals(fromStation, platformIds);
     }

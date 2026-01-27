@@ -8,10 +8,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilter;
@@ -143,7 +140,7 @@ public class Interchanges implements InterchangeRepository {
     private void populateInterchangesFor(final TransportMode mode, final int linkThreshhold) {
 
         logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
-        final IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
+        final ImmutableIdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
 
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
         Set<Station> foundViaLinks = foundIdsViaLinks.stream().
@@ -197,7 +194,7 @@ public class Interchanges implements InterchangeRepository {
 
     private void addAdditionalInterchangesForSource(final GTFSSourceConfig dataSource) {
         final String name = dataSource.getName();
-        final IdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
+        final ImmutableIdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
         logger.info("For source " + name + " attempt to add " + additionalInterchanges.size() + " interchange stations");
 
         Set<Station> validStationsFromConfig = additionalInterchanges.stream().
@@ -217,7 +214,7 @@ public class Interchanges implements InterchangeRepository {
         }
 
         if (validStationsFromConfig.size() != additionalInterchanges.size()) {
-            final IdSet<Station> invalidIds = additionalInterchanges.stream().
+            final ImmutableIdSet<Station> invalidIds = additionalInterchanges.stream().
                     filter(id -> !stationRepository.hasStationId(id)).collect(IdSet.idCollector());
             logger.error("For " + name + " additional interchange station ids invalid:" + invalidIds);
         }

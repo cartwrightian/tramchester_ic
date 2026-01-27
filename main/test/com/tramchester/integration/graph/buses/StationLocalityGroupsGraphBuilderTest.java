@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TramDuration;
@@ -105,13 +106,13 @@ public class StationLocalityGroupsGraphBuilderTest {
         StationLocalityGroup group = stationGroupsRepository.getStationGroup(stationGroupId);
 
         LocationSet<Station> containedLocations = group.getAllContained();
-        IdSet<Station> containedIds = containedLocations.stream().collect(IdSet.collector());
+        ImmutableIdSet<Station> containedIds = containedLocations.stream().collect(IdSet.collector());
         assertFalse(containedIds.isEmpty());
         // same number of child nodes as locations in the group
         assertEquals(containedLocations.size(), childLinks.size());
 
         List<GraphNode> childNodes = childLinks.stream().map(relationship -> relationship.getEndNode(txn)).toList();
-        IdSet<Station> childLocationIds = childNodes.stream().map(GraphNode::getStationId).collect(IdSet.idCollector());
+        ImmutableIdSet<Station> childLocationIds = childNodes.stream().map(GraphNode::getStationId).collect(IdSet.idCollector());
 
         assertEquals(containedIds, childLocationIds);
 

@@ -6,18 +6,18 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public class IdSetSerializer extends StdSerializer<IdSet<?>> {
+public class IdSetSerializer extends StdSerializer<ImmutableIdSet<? extends com.tramchester.domain.CoreDomain>> {
 
     public static final String CONTAINS_FIELD_NAME = "contains";
     public static final String ITEMS_FIELD_NAME = "items";
     public static final String ID_SET = "idSet";
 
-    protected IdSetSerializer(Class<IdSet<?>> t) {
+    protected IdSetSerializer(Class<ImmutableIdSet<? extends com.tramchester.domain.CoreDomain>> t) {
         super(t);
     }
 
@@ -26,17 +26,17 @@ public class IdSetSerializer extends StdSerializer<IdSet<?>> {
     }
 
     @Override
-    public void serializeWithType(IdSet<?> value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+    public void serializeWithType(ImmutableIdSet<? extends com.tramchester.domain.CoreDomain> value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
         serialize(value, gen);
     }
 
 
     @Override
-    public void serialize(IdSet<?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(ImmutableIdSet<? extends com.tramchester.domain.CoreDomain> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         serialize(value, gen);
     }
 
-    private static void serialize(IdSet<?> value, JsonGenerator gen) throws IOException {
+    private static void serialize(ImmutableIdSet<? extends com.tramchester.domain.CoreDomain> value, JsonGenerator gen) throws IOException {
         Optional<? extends IdFor<?>> anyItem = value.stream().findAny();
 
         if (anyItem.isPresent()) {

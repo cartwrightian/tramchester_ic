@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -25,7 +26,7 @@ public class TripEndsRepository {
     private static final Logger logger = LoggerFactory.getLogger(TripEndsRepository.class);
 
     private final TripRepository tripRepository;
-    private final Map<TransportMode, IdSet<Station>> firstAndLastStops;
+    private final Map<TransportMode, ImmutableIdSet<Station>> firstAndLastStops;
     private final Set<TransportMode> enabledModes;
     private final StationRepository stationRepository;
 
@@ -46,7 +47,7 @@ public class TripEndsRepository {
             final IdSet<Station> firstStops = getFirstStopsFor(mode);
             final IdSet<Station> lastStops = getLastStopsFor(mode);
 
-            final IdSet<Station> allStops = firstStops.addAll(lastStops);
+            final ImmutableIdSet<Station> allStops = firstStops.addAll(lastStops);
 
             firstAndLastStops.put(mode, allStops);
 
@@ -95,7 +96,7 @@ public class TripEndsRepository {
     @PreDestroy
     public void stop() {
         logger.info("Stop");
-        firstAndLastStops.values().forEach(IdSet::clear);
+        //firstAndLastStops.values().forEach(IdSet::clear);
         firstAndLastStops.clear();
         logger.info("stopped");
     }

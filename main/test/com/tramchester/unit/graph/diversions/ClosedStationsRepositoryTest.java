@@ -13,6 +13,7 @@ import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -148,7 +149,7 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
         Set<Station> stations = Collections.singleton(Altrincham.fake());
 
-        IdSet<Station> closedStationIds = IdSet.wrap(Set.of(Deansgate.getId(), Cornbrook.getId(), StPetersSquare.getId()));
+        ImmutableIdSet<Station> closedStationIds = IdSet.wrap(Set.of(Deansgate.getId(), Cornbrook.getId(), StPetersSquare.getId()));
         EasyMock.expect(closeStationFactory.createFor(closedConfig, closedStationIds)).
                 andReturn(new Closure(new DateTimeRange(dateRangeA, TimeRange.AllDay()),
                         stations, true));

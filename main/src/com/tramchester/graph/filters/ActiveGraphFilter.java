@@ -6,6 +6,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.places.Station;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     private final IdSet<Route> routeIds;
-    private final IdSet<Service> serviceIds;
+    private final ImmutableIdSet<Service> serviceIds;
     private final IdSet<Station> stationsIds;
     private final IdSet<Agency> agencyIds;
 

@@ -3,6 +3,7 @@ package com.tramchester.integration.repository.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -48,11 +49,11 @@ public class StationRepositoryBusTest {
     @Test
     void shouldNotDuplicateNames() {
 
-        IdSet<Station> stopIds = agecroftRoadStops.stream().map(Station::createId).collect(IdSet.idCollector());
+        ImmutableIdSet<Station> stopIds = agecroftRoadStops.stream().map(Station::createId).collect(IdSet.idCollector());
 
         assertEquals(4, stopIds.size());
 
-        IdSet<Station> missing = stopIds.stream().filter(id -> !stationRepository.hasStationId(id)).collect(IdSet.idCollector());
+        ImmutableIdSet<Station> missing = stopIds.stream().filter(id -> !stationRepository.hasStationId(id)).collect(IdSet.idCollector());
 
         assertTrue(missing.isEmpty(), "missing " + missing);
 

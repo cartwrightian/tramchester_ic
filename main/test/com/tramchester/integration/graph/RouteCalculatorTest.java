@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
@@ -116,7 +117,8 @@ public class RouteCalculatorTest {
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
-        Set<String> expectedChanges = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, Victoria, MarketStreet).
+        Set<String> expectedChanges = Stream.of(Cornbrook, StPetersSquare, Deansgate,
+                        Piccadilly, PiccadillyGardens, Victoria, MarketStreet).
                 map(TramStations::getName).collect(Collectors.toSet());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
@@ -310,7 +312,7 @@ public class RouteCalculatorTest {
 
         assertFalse(servedByBothRoutes.isEmpty());
 
-        IdSet<Route> routesForBoth = servedByBothRoutes.stream().
+        ImmutableIdSet<Route> routesForBoth = servedByBothRoutes.stream().
                 flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
         assertEquals(2, routesForBoth.size(), "Did use both available routes " + routesForBoth);
 

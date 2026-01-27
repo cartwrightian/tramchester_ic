@@ -89,7 +89,7 @@ public class MutableTransactionGraph implements Graph {
         }
     }
 
-    private GraphNodeInMemory copyNodeIntoLocal(final NodeIdInMemory nodeId, final boolean includeRelationships) {
+    private synchronized GraphNodeInMemory copyNodeIntoLocal(final NodeIdInMemory nodeId, final boolean includeRelationships) {
         if (!parent.hasNodeId(nodeId)) {
             throw new RuntimeException("Could node find node with id " + nodeId);
         }

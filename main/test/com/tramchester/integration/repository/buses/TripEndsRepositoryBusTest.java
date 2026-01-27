@@ -3,6 +3,7 @@ package com.tramchester.integration.repository.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -49,7 +50,7 @@ class TripEndsRepositoryBusTest {
 
     @Test
     void shouldHaveExpectedNumberOfEndOfRouteStations() {
-        IdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
+        ImmutableIdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
 
         assertEquals(950, result.size());
     }

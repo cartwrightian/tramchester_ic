@@ -15,6 +15,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
@@ -86,7 +87,7 @@ public class ClosedStationsRepository {
                 final List<IdFor<Station>> stationIdsBetween = stopCallRepository.
                         getStopcallsBetween(pair.getBeginId(), pair.getEndId(), dateRange);
 
-                final IdSet<Station> closedStationsIds = stationIdsBetween.stream().collect(IdSet.idCollector());
+                final ImmutableIdSet<Station> closedStationsIds = stationIdsBetween.stream().collect(IdSet.idCollector());
 
                 final Closure closure = closedStationFactory.createFor(closureConfig, closedStationsIds);
                 closedStationContainer.addStationsFor(closure, stationIdsBetween);
@@ -280,7 +281,7 @@ public class ClosedStationsRepository {
                 return Collections.emptySet();
             }
 
-            final IdSet<Station> closedStationsIds = forDatasource.get(sourceId);
+            final ImmutableIdSet<Station> closedStationsIds = forDatasource.get(sourceId);
             return closedStationsIds.stream().map(closedStations::get).collect(Collectors.toSet());
 
 //        return closedStations.stream().
@@ -393,7 +394,7 @@ public class ClosedStationsRepository {
                 return true;
             }
 
-            final IdSet<Station> locationsWithAClosure = locations.stream().
+            final ImmutableIdSet<Station> locationsWithAClosure = locations.stream().
                     map(HasId::getId).
                     filter(closuresForStation::containsKey).
                     collect(IdSet.idCollector());

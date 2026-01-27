@@ -201,7 +201,9 @@ class JourneyPlannerLocationResourceTest {
         assertFalse(journeys.isEmpty());
 
         JourneyDTO firstJourney = journeys.getFirst();
-        assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.toDate(when)), firstJourney.getFirstDepartureTime() + " was not before " + when);
+        LocalDateTime firstDepartureTime = firstJourney.getFirstDepartureTime();
+        LocalDateTime queryTimeDate = queryTime.toDate(when);
+        assertTrue(firstDepartureTime.isBefore(queryTimeDate), firstDepartureTime + " was not before " + queryTimeDate);
 
         List<SimpleStageDTO> stages = firstJourney.getStages();
         assertEquals(TransportMode.Tram, stages.getFirst().getMode());

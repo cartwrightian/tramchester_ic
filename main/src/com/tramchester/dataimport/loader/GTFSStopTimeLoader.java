@@ -4,10 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -86,7 +83,7 @@ public class GTFSStopTimeLoader {
             return;
         }
 
-        final IdSet<Station> closedButNotLoaded = stationClosures.stream().
+        final ImmutableIdSet<Station> closedButNotLoaded = stationClosures.stream().
                 flatMap(stationClosure -> getStationsFrom(stationClosure.getStations()).stream()).
                 filter(stationId -> !buildable.hasStationId(stationId)).
                 collect(IdSet.idCollector());

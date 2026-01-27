@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -132,7 +133,7 @@ class KnownTramRouteTest {
 
     private String shortNameMatch(Function<TramDate, KnownTramRouteEnum> function, TramDate date) {
         String shortName = function.apply(date).shortName();
-        IdSet<Route> matchedShortNames = getLoadedTramRoutes(date).
+        ImmutableIdSet<Route> matchedShortNames = getLoadedTramRoutes(date).
                 filter(route -> route.getShortName().equals(shortName)).
                 map(Route::getId).
                 collect(IdSet.idCollector());
@@ -148,7 +149,7 @@ class KnownTramRouteTest {
             IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(TestRoute::getId).
                     collect(IdSet.idCollector());
 
-            IdSet<Route> mismatch = IdSet.disjunction(loadedIds, knownTramOnDates);
+            ImmutableIdSet<Route> mismatch = IdSet.disjunction(loadedIds, knownTramOnDates);
 
             assertTrue(mismatch.isEmpty(), "on " + date + " MISMATCH \n" + mismatch + "\n between LOADED \n" + loadedIds + " AND \n" + knownTramOnDates);
         });
@@ -182,7 +183,7 @@ class KnownTramRouteTest {
         Stream<TramDate> dateRange = DateRange.of(start, when.plusWeeks(4)).stream().
                 filter(UpcomingDates::validTestDate);
 
-        SortedMap<TramDate, IdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
+        SortedMap<TramDate, ImmutableIdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
 
         dateRange.forEach(date -> {
             final IdSet<Route> known = KnownTramRoute.getFor(date).stream().

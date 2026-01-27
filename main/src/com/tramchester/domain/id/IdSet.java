@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Location;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collector;
@@ -21,7 +22,7 @@ import java.util.stream.Stream;
 
 @JsonSerialize(using = IdSetSerializer.class)
 @JsonDeserialize(using = IdSetDeserializer.class)
-public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
+public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
 
     @JsonIgnore
     private final Set<IdFor<T>> theSet;
@@ -71,7 +72,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(other.theSet);
     }
 
-    public static <LOCATION extends Location<LOCATION>> IdSet<LOCATION> from(LocationIdPair<LOCATION> locationIdPair) {
+    public static <LOCATION extends Location<LOCATION>> ImmutableIdSet<LOCATION> from(LocationIdPair<LOCATION> locationIdPair) {
         final IdSet<LOCATION> results = new IdSet<>();
         results.add(locationIdPair.getBeginId());
         results.add(locationIdPair.getEndId());
@@ -88,10 +89,12 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return this;
     }
 
+    @Override
     public int size() {
         return theSet.size();
     }
 
+    @Override
     public boolean contains(IdFor<T> id) {
         return theSet.contains(id);
     }
@@ -101,6 +104,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
     }
 
     @JsonIgnore
+    @Override
     public boolean isEmpty() {
         return theSet.isEmpty();
     }
@@ -109,6 +113,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         theSet.remove(id);
     }
 
+    @Override
     public Stream<IdFor<T>> stream() {
         return theSet.stream();
     }
@@ -171,9 +176,8 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         };
     }
 
-    @NotNull
     @Override
-    public Iterator<IdFor<T>> iterator() {
+    public @NotNull Iterator<IdFor<T>> iterator() {
         return theSet.iterator();
     }
 
@@ -202,8 +206,15 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return theSet.hashCode();
     }
 
-    public boolean containsAll(IdSet<T> other) {
-        return theSet.containsAll(other.theSet);
+    @Override
+    public boolean containsAll(final ImmutableIdSet<T> other) {
+        IdSet<T> theOther = (IdSet<T>) other;
+        return theSet.containsAll(theOther.theSet);
+    }
+
+    @Override
+    public boolean containsNoneOf(final ImmutableIdSet<T> other) {
+        return stream().noneMatch(other::contains);
     }
 
     /***
@@ -218,11 +229,11 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(SetUtils.disjunction(setA.theSet, setB.theSet));
     }
 
-    public static <T extends HasId<T> & CoreDomain> IdSet<T> union(final IdSet<T> setA, final IdSet<T> setB) {
+    public static <T extends HasId<T> & CoreDomain> ImmutableIdSet<T> union(final IdSet<T> setA, final IdSet<T> setB) {
         return new IdSet<>(SetUtils.union(setA.theSet, setB.theSet));
     }
 
-    public static <T extends CoreDomain> IdSet<T> intersection(final IdSet<T> setA, final IdSet<T> setB) {
+    public static <T extends CoreDomain> ImmutableIdSet<T> intersection(final IdSet<T> setA, final IdSet<T> setB) {
         return new IdSet<>(SetUtils.intersection(setA.theSet, setB.theSet));
     }
 
