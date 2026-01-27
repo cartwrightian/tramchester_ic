@@ -331,6 +331,14 @@ public class JourneyPlannerResourceTest {
     }
 
     @Test
+    void shouldCorrectlyQueryAfterMidnight() {
+        JourneyPlanRepresentation results = validateAtLeastOneJourney(Altrincham,
+                OldTrafford, when, TramTime.of(0,15));
+
+        assertFalse(results.getJourneys().isEmpty() );
+    }
+
+    @Test
     void shouldFilterOutJourneysWithSameDepartArrivePathButDiffChanges() {
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(TestEnv.testDay(), TramTime.of(10, 43), Altrincham, Ashton, false, 1);

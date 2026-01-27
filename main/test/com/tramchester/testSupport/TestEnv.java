@@ -76,8 +76,11 @@ public class TestEnv {
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
+    // validated via TripRepositoryTest
+    public static TramTime EarliestTramTime = TramTime.of(4,58);
+
     public static GraphDBType getDefaultDBTYpe() {
-        return GraphDBType.Neo4J;
+        return GraphDBType.InMemory;
     }
 
     public static AppConfiguration GET() {

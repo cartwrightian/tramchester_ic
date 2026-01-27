@@ -188,7 +188,13 @@ public abstract class RouteCalculatorSupport {
     }
 
     protected PreviousVisits createPreviousVisits(final JourneyRequest journeyRequest) {
-        boolean cacheDisabled = config.getDepthFirst() || journeyRequest.getCachingDisabled();
+        boolean cacheDisabled = journeyRequest.getCachingDisabled();
+        if (!config.getInMemoryGraph()) {
+            cacheDisabled = cacheDisabled || config.getDepthFirst();
+        }
+        if (cacheDisabled) {
+            logger.warn("Caching is disabled");
+        }
         return new PreviousVisits(cacheDisabled, countsNodes);
     }
 

@@ -1,16 +1,20 @@
 package com.tramchester.domain.presentation.DTO.query;
 
 import com.fasterxml.jackson.annotation.*;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 @JsonTypeName("JourneyQuery")
@@ -91,6 +95,33 @@ public class JourneyQueryDTO  {
     public static JourneyQueryDTO create(TramDate date, TramTime time, Location<?> start, Location<?> dest,
                                          boolean arriveBy, int maxChanges) {
         return create(date.toLocalDate(), time, start, dest, arriveBy, maxChanges, false);
+    }
+
+    @JsonIgnore
+    public static JourneyRequest toJourneyRequest(final TramchesterConfig config, final JourneyQueryDTO dto) {
+        // if no modes provided then default to all modes currently configured
+        final EnumSet<TransportMode> modes = dto.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(dto.getModes());
+        final TramDate date = dto.getTramDate();
+        final LocalTime time = dto.getTime();
+
+        TramTime queryTime = TramTime.ofHourMins(time);
+        if (queryTime.between(TramTime.of(0,0), TramTime.of(4,0))) {
+            queryTime = TramTime.nextDay(queryTime);
+        }
+
+        final boolean arriveBy = dto.isArriveBy();
+        final int maxChanges = dto.getMaxChanges();
+        final TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+
+        int maxNumberResults = (dto.getMaxNumResults()==null) ? config.getMaxNumberResults() : dto.getMaxNumResults();
+
+        JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, JourneyRequest.MaxNumberOfChanges.of(maxChanges),
+                maxJourneyDuration, maxNumberResults, modes);
+
+        if (dto.diagnostics!=null) {
+            journeyRequest.setDiag(dto.diagnostics);
+        }
+        return journeyRequest;
     }
 
     @Override

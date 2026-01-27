@@ -221,19 +221,22 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     }
 
     private JourneyRequest createJourneyRequest(final JourneyQueryDTO query) {
-        // if no modes provided then default to all modes currently configured
-        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
-        final TramDate date = query.getTramDate();
-        final LocalTime time = query.getTime();
-        final boolean arriveBy = query.isArriveBy();
-        final int maxChanges = query.getMaxChanges();
-        final TramTime queryTime = TramTime.ofHourMins(time);
-        final TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
-        int maxNumberResults = (query.getMaxNumResults()==null) ? config.getMaxNumberResults() : query.getMaxNumResults();
+        return JourneyQueryDTO.toJourneyRequest(config, query);
 
-        return new JourneyRequest(date, queryTime, arriveBy, JourneyRequest.MaxNumberOfChanges.of(maxChanges),
-                maxJourneyDuration,  maxNumberResults, modes);
+//        // if no modes provided then default to all modes currently configured
+//        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
+//        final TramDate date = query.getTramDate();
+//        final LocalTime time = query.getTime();
+//        final boolean arriveBy = query.isArriveBy();
+//        final int maxChanges = query.getMaxChanges();
+//        final TramTime queryTime = TramTime.ofHourMins(time);
+//        final TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+//
+//        int maxNumberResults = (query.getMaxNumResults()==null) ? config.getMaxNumberResults() : query.getMaxNumResults();
+//
+//        return new JourneyRequest(date, queryTime, arriveBy, JourneyRequest.MaxNumberOfChanges.of(maxChanges),
+//                maxJourneyDuration,  maxNumberResults, modes);
     }
 
     private Response buildResponse(Response.ResponseBuilder responseBuilder, Location<?> start, Location<?> dest, Cookie cookie,

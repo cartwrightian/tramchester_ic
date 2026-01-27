@@ -18,7 +18,9 @@ import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_EXE_P
 import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_VERBOSE_LOG_PROPERTY;
 
 
-// Fix binary verification issue
+// https://googlechromelabs.github.io/chrome-for-testing/
+
+// Fix binary verification issue (No longer seems needed)
 // https://timonweb.com/misc/fixing-error-chromedriver-cannot-be-opened-because-the-developer-cannot-be-verified-unable-to-launch-the-chrome-browser-on-mac-os/
 // xattr -d com.apple.quarantine $CHROMEDRIVER_PATH
 

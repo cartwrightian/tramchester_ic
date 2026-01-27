@@ -259,6 +259,18 @@ public class TripRepositoryTest {
         assertFalse(sundayTrips.isEmpty());
     }
 
+    @Test
+    void shouldFindEarliestTrip() {
+        // supports testing
+        Optional<TramTime> findFirst = tripRepository.getTrips().stream().
+                map(Trip::departTime).
+                min(TramTime::compareTo);
+        assertFalse(findFirst.isEmpty());
+
+        TramTime first = findFirst.get();
+        assertEquals(TestEnv.EarliestTramTime, first);
+    }
+
     private Stream<Station> getOpenStations(final TramDate date) {
         return stationRepository.getStations(TramsOnly).stream().
                 filter(station -> !UpcomingDates.hasClosure(station, date));
