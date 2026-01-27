@@ -17,6 +17,10 @@ public interface ImmutableIdSet<T extends CoreDomain> extends Iterable<IdFor<T>>
 
     boolean contains(IdFor<T> id);
 
+    ImmutableIdSet<T> createAppend(IdFor<T> id);
+
+    ImmutableIdSet<T> createRemove(IdFor<T> id);
+
     @JsonIgnore
     boolean isEmpty();
 

@@ -5,6 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.repository.StationRepository;
@@ -28,7 +29,7 @@ public class MatchLiveTramToJourneyDestination {
         this.stopOrderChecker = stopOrderChecker;
     }
 
-    public boolean matchesJourneyDestination(final UpcomingDeparture upcomingDeparture, final IdSet<Station> origChangeStationsId,
+    public boolean matchesJourneyDestination(final UpcomingDeparture upcomingDeparture, final ImmutableIdSet<Station> origChangeStationsId,
                                                     final IdFor<Station> journeyDestinationId) {
         return switch (upcomingDeparture.getMode()) {
             case Tram -> matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, origChangeStationsId, journeyDestinationId);
@@ -38,16 +39,15 @@ public class MatchLiveTramToJourneyDestination {
         };
     }
 
-    public boolean matchesJourneyDestinationWhenAllWithinBounds(final UpcomingDeparture dueTram, final IdSet<Station> origChangeStationsId,
+    public boolean matchesJourneyDestinationWhenAllWithinBounds(final UpcomingDeparture dueTram, final ImmutableIdSet<Station> origChangeStationsId,
                                                                 final IdFor<Station> journeyDestinationId) {
 
         // this should no longer happen...todo except for tests....?
-        final IdSet<Station> changeStationIds;
+        final ImmutableIdSet<Station> changeStationIds;
         if (origChangeStationsId.contains(journeyDestinationId)) {
             logger.warn("original destinations " + origChangeStationsId + " incorrectly contains "
                     + journeyDestinationId + " so removing");
-            changeStationIds = IdSet.copy(origChangeStationsId);
-            changeStationIds.remove(journeyDestinationId);
+            changeStationIds = origChangeStationsId.createRemove(journeyDestinationId);
         } else {
             changeStationIds = origChangeStationsId;
         }
@@ -116,7 +116,8 @@ public class MatchLiveTramToJourneyDestination {
         return IdSet.anyOverlap(routesToCheck, dropOffs);
     }
 
-    private boolean matchesJourneyDestinationForTrain(UpcomingDeparture upcomingDeparture, IdSet<Station> origChangeStationsId, IdFor<Station> journeyDestinationId) {
+    private boolean matchesJourneyDestinationForTrain(final UpcomingDeparture upcomingDeparture,
+                                                      final ImmutableIdSet<Station> origChangeStationsId, final IdFor<Station> journeyDestinationId) {
         if (stationRepository.hasStationId(upcomingDeparture.getDestinationId())) {
             return matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, origChangeStationsId, journeyDestinationId);
         }

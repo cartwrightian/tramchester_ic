@@ -82,13 +82,13 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Override
     public void addTripId(final IdFor<Trip> tripId) {
-        final IdSet<Trip> existing = getTripIds();
+        final ImmutableIdSet<Trip> existing = getTripIds();
 
         final ImmutableIdSet<Trip> updated;
         if (existing.isEmpty()) {
             updated = IdSet.singleton(tripId);
         } else {
-            updated = IdSet.copy(existing).add(tripId);
+            updated = existing.createAppend(tripId); //IdSet.copy(existing).add(tripId);
         }
         setProperty(TRIP_ID_LIST, updated);
     }
@@ -99,9 +99,9 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     }
 
     @Override
-    public IdSet<Trip> getTripIds() {
+    public ImmutableIdSet<Trip> getTripIds() {
         if (hasProperty(TRIP_ID_LIST)) {
-            return (IdSet<Trip>) getProperty(TRIP_ID_LIST);
+            return (ImmutableIdSet<Trip>) getProperty(TRIP_ID_LIST);
         } else {
             return IdSet.emptySet();
         }

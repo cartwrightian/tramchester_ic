@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -75,9 +76,10 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations, EnumSet.of(Tram));
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().
-                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure,
+                        journeyDestinations, journeyDestination.getId())).toList();
 
         assertFalse(trams.isEmpty());
     }
@@ -91,7 +93,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations, EnumSet.of(Train));
         assertFalse(all.isEmpty());
@@ -119,7 +121,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations, EnumSet.of(Train));
         assertFalse(all.isEmpty());

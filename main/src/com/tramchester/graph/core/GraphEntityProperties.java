@@ -94,7 +94,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
         boolean hasTripIdInList(IdFor<Trip> tripId);
 
-        IdSet<Trip> getTripIds();
+        ImmutableIdSet<Trip> getTripIds();
 
         void setCost(TramDuration cost);
 

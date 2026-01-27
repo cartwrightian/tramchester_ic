@@ -67,7 +67,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations);
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().
                 filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
 
@@ -84,7 +84,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations);
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
 
         assertFalse(all.isEmpty());
 
@@ -138,7 +138,7 @@ public class MatchLiveTramToJourneyDestinationTest {
             fail(e);
         }
 
-        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyStations.getEnd().getId());
+        //ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyStations.getEnd().getId());
 
         LocalDateTime now = TestEnv.LocalNow();
         TramTime time = TramTime.ofHourMins(now.toLocalTime());

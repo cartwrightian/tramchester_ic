@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
@@ -79,7 +80,7 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
         final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date, modes).stream().
                 filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
 
-        final IdSet<Route> available = IdSet.from(routesRunningOn);
+        final ImmutableIdSet<Route> available = IdSet.from(routesRunningOn);
 
         final ShortestPath findPathsForJourney = new ShortestPath(txn, startNode);
 

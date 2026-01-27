@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -42,7 +42,7 @@ public interface GTFSSourceConfig extends TransportDataSourceConfig {
 
     // additional interchanges
     // interchange to add to those auto discovered by the interchange repository
-    IdSet<Station> getAdditionalInterchanges();
+    ImmutableIdSet<Station> getAdditionalInterchanges();
 
     default EnumSet<TransportMode> getTransportModes() {
         final EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);

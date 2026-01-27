@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -90,7 +90,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public IdSet<Station> getAdditionalInterchanges() {
+    public ImmutableIdSet<Station> getAdditionalInterchanges() {
         return StringIdFor.createIds(additionalInterchanges, Station.class);
     }
 

@@ -2,7 +2,7 @@ package com.tramchester.livedata.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
@@ -30,19 +30,19 @@ public class DeparturesMapper {
     }
 
     public Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate, List<JourneyDTO> journeys) {
-        final IdSet<Station> changeStations = mapJourneyDTOToStations.getAllChangeStations(journeys);
+        final ImmutableIdSet<Station> changeStations = mapJourneyDTOToStations.getAllChangeStations(journeys);
         final IdFor<Station> finalStation = mapJourneyDTOToStations.getFinalStationId(journeys);
         return mapToDTO(dueTrams, lastUpdate, changeStations, finalStation);
     }
 
-    private Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, final LocalDateTime lastUpdate, final IdSet<Station> changeStations,
+    private Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, final LocalDateTime lastUpdate, final ImmutableIdSet<Station> changeStations,
                                       final IdFor<Station> finalStation) {
         return dueTrams.stream().
                     map(dueTram -> getDepartureDTO(lastUpdate, dueTram, changeStations, finalStation))
                     .collect(Collectors.toSet());
     }
 
-    private DepartureDTO getDepartureDTO(LocalDateTime lastUpdate, UpcomingDeparture dueTram, IdSet<Station> changeStations,
+    private DepartureDTO getDepartureDTO(LocalDateTime lastUpdate, UpcomingDeparture dueTram, ImmutableIdSet<Station> changeStations,
                                       IdFor<Station> finalStation) {
         boolean matchesJourney = matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, changeStations, finalStation);
         return new DepartureDTO(dueTram.getDisplayLocation(), dueTram, lastUpdate, matchesJourney);

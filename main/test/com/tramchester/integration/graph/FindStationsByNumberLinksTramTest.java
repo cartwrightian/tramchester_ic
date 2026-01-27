@@ -65,14 +65,19 @@ class FindStationsByNumberLinksTramTest {
 
         GTFSSourceConfig dataSource = dataSources.getFirst();
         assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
-        IdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
+        ImmutableIdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
 
         IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
-        ImmutableIdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
+//        ImmutableIdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
+//
+//        assertTrue(inConfigAndStationsWithLinks.isEmpty(), "\nFound also in config " + inConfigAndStationsWithLinks +
+//                " \nstations with links were " + stationWithLinks);
 
-        assertTrue(inConfigAndStationsWithLinks.isEmpty(), "\nFound also in config " + inConfigAndStationsWithLinks +
+        assertTrue(stationWithLinks.containsNoneOf(additionalInterchanges), "\nFound also in config " + additionalInterchanges +
                 " \nstations with links were " + stationWithLinks);
+        assertTrue(additionalInterchanges.containsNoneOf(stationWithLinks), "\nFound also in config " + stationWithLinks +
+                " \nstations with links were " + additionalInterchanges);
     }
 
     @Test

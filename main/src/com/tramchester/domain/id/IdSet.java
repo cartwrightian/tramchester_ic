@@ -36,11 +36,11 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         theSet = new HashSet<>();
     }
 
-    public IdSet(Set<IdFor<T>> set) {
+    public IdSet(final Set<IdFor<T>> set) {
         this(set, true);
     }
 
-    public static <W extends CoreDomain> IdSet<W> wrap(final Set<IdFor<W>> set) {
+    public static <W extends CoreDomain> ImmutableIdSet<W> wrap(final Set<IdFor<W>> set) {
         return new IdSet<>(set, false);
     }
 
@@ -53,7 +53,7 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         theSet.addAll(ids);
     }
 
-    public static <T extends CoreDomain> IdSet<T> singleton(final IdFor<T> id) {
+    public static <T extends CoreDomain> ImmutableIdSet<T> singleton(final IdFor<T> id) {
         final IdSet<T> result = new IdSet<>();
         result.add(id);
         return result;
@@ -63,7 +63,7 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return new IdSet<>(Collections.emptySet());
     }
 
-    public static <S extends CoreDomain & HasId<S>> IdSet<S> from(final Set<S> items) {
+    public static <S extends CoreDomain & HasId<S>> ImmutableIdSet<S> from(final Set<S> items) {
         final Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
         return wrap(ids);
     }
@@ -99,6 +99,16 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return theSet.contains(id);
     }
 
+    @Override
+    public ImmutableIdSet<T> createAppend(final IdFor<T> id) {
+        return copy(this).add(id);
+    }
+
+    @Override
+    public ImmutableIdSet<T> createRemove(final IdFor<T> id) {
+        return copy(this).remove(id);
+    }
+
     public void clear() {
         theSet.clear();
     }
@@ -109,8 +119,9 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return theSet.isEmpty();
     }
 
-    public void remove(IdFor<T> id) {
+    public IdSet<T> remove(final IdFor<T> id) {
         theSet.remove(id);
+        return this;
     }
 
     @Override
@@ -182,7 +193,7 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
     }
 
     @Override
-    public void forEach(Consumer<? super IdFor<T>> action) {
+    public void forEach(final Consumer<? super IdFor<T>> action) {
         theSet.forEach(action);
     }
 
@@ -208,7 +219,7 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
 
     @Override
     public boolean containsAll(final ImmutableIdSet<T> other) {
-        IdSet<T> theOther = (IdSet<T>) other;
+        final IdSet<T> theOther = (IdSet<T>) other;
         return theSet.containsAll(theOther.theSet);
     }
 

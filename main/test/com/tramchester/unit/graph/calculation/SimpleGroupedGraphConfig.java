@@ -3,6 +3,7 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -26,7 +27,7 @@ public class SimpleGroupedGraphConfig extends UnitTestOfGraphConfig {
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Tram);
-        final IdSet<Station> additionalInterchanges = IdSet.singleton(TramStations.Cornbrook.getId());
+        final ImmutableIdSet<Station> additionalInterchanges = IdSet.singleton(TramStations.Cornbrook.getId());
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
                 GTFSTransportationType.tram, Tram, additionalInterchanges, compositeStationModes,
                 Collections.emptyList(), TramDuration.ofMinutes(13), Collections.emptyList());

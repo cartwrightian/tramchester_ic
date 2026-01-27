@@ -2,6 +2,7 @@ package com.tramchester.graph.core.neo4j;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -111,7 +112,7 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     @Override
-    public IdSet<Trip> getTripIds() {
+    public ImmutableIdSet<Trip> getTripIds() {
         if (!hasProperty(tripIdListProperty)) {
             return IdSet.emptySet();
         }
