@@ -88,7 +88,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         if (existing.isEmpty()) {
             updated = IdSet.singleton(tripId);
         } else {
-            updated = existing.createAppend(tripId); //IdSet.copy(existing).add(tripId);
+            updated = existing.createAppend(tripId);
         }
         setProperty(TRIP_ID_LIST, updated);
     }
