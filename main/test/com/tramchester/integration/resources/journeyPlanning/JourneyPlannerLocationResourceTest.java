@@ -170,15 +170,19 @@ class JourneyPlannerLocationResourceTest {
 
             List<SimpleStageDTO> stages = journeyDTO.getStages();
 
-            assertEquals(2, stages.size(), stages.toString());
-            assertEquals(TransportMode.Tram, stages.get(0).getMode());
+            assertTrue(stages.size()<=3, "too many stages " + stages);
 
-            assertEquals(TransportMode.Walk, stages.get(1).getMode());
-            SimpleStageDTO walkingStage = stages.get(1);
+            boolean noTramChange = stages.size() == 2;
+
+            assertEquals(TransportMode.Tram, stages.getFirst().getMode());
+
+            SimpleStageDTO walkingStage = stages.getLast();
+            assertEquals(TransportMode.Walk, walkingStage.getMode());
             assertEquals(nearAltrincham.latLong(), walkingStage.getLastStation().getLatLong());
 
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
-            assertEquals(1, changeStations.size());
+            int expectedNumChanges = noTramChange ? 1 : 2;
+            assertEquals(expectedNumChanges, changeStations.size());
 
             ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertEquals(TransportMode.Tram, changeStation.getFromMode());

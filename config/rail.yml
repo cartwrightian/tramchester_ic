@@ -5,12 +5,12 @@
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 
-inMemoryGraph: false
+inMemoryGraph: true
 graphDBConfig:
-  graphName: databases/naional_rail.db
-  neo4jPagecacheMemory: 1000m
-  memoryTransactionGlobalMaxSize: 650m
-  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
+#  graphName: databases/naional_rail.db
+#  neo4jPagecacheMemory: 1000m
+#  memoryTransactionGlobalMaxSize: 650m
+#  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
 
 gtfsSourceConfig: []
 rail:
