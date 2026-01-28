@@ -81,7 +81,6 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
             return theId.equals(thatContainedId.theId) && domainType.equals(thatContainedId.domainType);
         }
         return false;
-
     }
 
     @Override

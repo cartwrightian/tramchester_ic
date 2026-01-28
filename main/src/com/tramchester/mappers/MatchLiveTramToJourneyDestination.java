@@ -39,22 +39,21 @@ public class MatchLiveTramToJourneyDestination {
         };
     }
 
-    public boolean matchesJourneyDestinationWhenAllWithinBounds(final UpcomingDeparture dueTram, final ImmutableIdSet<Station> origChangeStationsId,
-                                                                final IdFor<Station> journeyDestinationId) {
+    public boolean matchesJourneyDestinationWhenAllWithinBounds(final UpcomingDeparture dueTram, final ImmutableIdSet<Station> origChangeStationIds,
+                                                                final IdFor<Station> destId) {
 
         // this should no longer happen...todo except for tests....?
         final ImmutableIdSet<Station> changeStationIds;
-        if (origChangeStationsId.contains(journeyDestinationId)) {
-            logger.warn("original destinations " + origChangeStationsId + " incorrectly contains "
-                    + journeyDestinationId + " so removing");
-            changeStationIds = origChangeStationsId.createRemove(journeyDestinationId);
+        if (origChangeStationIds.contains(destId)) {
+            logger.warn("original destinations " + origChangeStationIds + " incorrectly contains " + destId + " so removing");
+            changeStationIds = IdSet.copyThenRemove(origChangeStationIds, destId);
         } else {
-            changeStationIds = origChangeStationsId;
+            changeStationIds = origChangeStationIds;
         }
 
         final IdFor<Station> dueDestinationId = dueTram.getDestinationId();
 
-        if (journeyDestinationId.equals(dueDestinationId)) {
+        if (destId.equals(dueDestinationId)) {
             // quick win, tram is going to our final destination
             return true;
         }
@@ -63,14 +62,14 @@ public class MatchLiveTramToJourneyDestination {
         final TramDate date = TramDate.of(dueTram.getDate());
 
         // check for trams "towards" our destination
-        final Station journeyDestination = stationRepository.getStationById(journeyDestinationId);
+        final Station journeyDestination = stationRepository.getStationById(destId);
         final IdSet<Route> journeyDestinationDropOffs = journeyDestination.getDropoffRoutes().stream().collect(IdSet.collector());
 
         final Station dueTramFinalDestination = stationRepository.getStationById(dueTram.getDestinationId());
 
         if (anyRouteOverlap(dueTramFinalDestination, journeyDestinationDropOffs)) {
-            final boolean callsAtDest = stopOrderChecker.check(date, displayLocation, journeyDestinationId, dueDestinationId) ||
-                    stopOrderChecker.check(date, displayLocation, dueDestinationId, journeyDestinationId);
+            final boolean callsAtDest = stopOrderChecker.check(date, displayLocation, destId, dueDestinationId) ||
+                    stopOrderChecker.check(date, displayLocation, dueDestinationId, destId);
             if (callsAtDest) {
                 return true; // else check on change stations
             }
@@ -99,7 +98,7 @@ public class MatchLiveTramToJourneyDestination {
         }
 
         // todo into debug
-        logger.info("Did not match due tram " + dueTram + " with any of " + changeStationIds + " or " + journeyDestinationId);
+        logger.info("Did not match due tram " + dueTram + " with any of " + changeStationIds + " or " + destId);
         return false;
 
     }

@@ -13,7 +13,6 @@ import com.tramchester.domain.places.Location;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collector;
@@ -79,6 +78,16 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return results;
     }
 
+    public static <S extends CoreDomain> ImmutableIdSet<S> copyThenAppend(final ImmutableIdSet<S> existing, final IdFor<S> id) {
+        final IdSet<S> theExisting = (IdSet<S>) existing;
+        return copy(theExisting).add(id);
+    }
+
+    public static <S extends CoreDomain> ImmutableIdSet<S> copyThenRemove(final ImmutableIdSet<S> existing, final IdFor<S> id) {
+        final IdSet<S> theExisting = (IdSet<S>) existing;
+        return copy(theExisting).remove(id);
+    }
+
     public IdSet<T> addAll(final IdSet<T> other) {
         theSet.addAll(other.theSet);
         return this;
@@ -99,15 +108,15 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return theSet.contains(id);
     }
 
-    @Override
-    public ImmutableIdSet<T> createAppend(final IdFor<T> id) {
-        return copy(this).add(id);
-    }
+//    @Override
+//    public ImmutableIdSet<T> createAppend(final IdFor<T> id) {
+//        return copy(this).add(id);
+//    }
 
-    @Override
-    public ImmutableIdSet<T> createRemove(final IdFor<T> id) {
-        return copy(this).remove(id);
-    }
+//    @Override
+//    public ImmutableIdSet<T> createRemove(final IdFor<T> id) {
+//        return copy(this).remove(id);
+//    }
 
     public void clear() {
         theSet.clear();
