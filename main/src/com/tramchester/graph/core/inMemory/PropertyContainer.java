@@ -3,6 +3,7 @@ package com.tramchester.graph.core.inMemory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
@@ -82,26 +83,39 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Override
     public void addTripId(final IdFor<Trip> tripId) {
-        final ImmutableIdSet<Trip> existing = getTripIds();
 
-        final ImmutableIdSet<Trip> updated;
+        final TripIdSet existing = getTripGraphIds();
+
+        final TripIdSet updated;
         if (existing.isEmpty()) {
-            updated = IdSet.singleton(tripId);
+            updated = TripIdSet.singleton(tripId);
         } else {
-            updated = IdSet.copyThenAppend(existing, tripId);
+            updated = existing.copyThenAppend(tripId);
         }
         setProperty(TRIP_ID_LIST, updated);
     }
 
+    private TripIdSet getTripGraphIds() {
+        if (hasProperty(TRIP_ID_LIST)) {
+            return (TripIdSet) getProperty(TRIP_ID_LIST);
+        } else {
+            return TripIdSet.empty();
+        }
+    }
+
     @Override
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
-        return getTripIds().contains(tripId);
+        if (hasProperty(TRIP_ID_LIST)) {
+            return getTripGraphIds().contains(tripId);
+        } else {
+            return false;
+        }
     }
 
     @Override
     public ImmutableIdSet<Trip> getTripIds() {
         if (hasProperty(TRIP_ID_LIST)) {
-            return (ImmutableIdSet<Trip>) getProperty(TRIP_ID_LIST);
+            return getTripGraphIds();
         } else {
             return IdSet.emptySet();
         }

@@ -30,7 +30,7 @@ public class PropertyDTOSerializer extends StdSerializer<PropertyDTO.PropertyDTO
     public void serializeWithType(PropertyDTO.PropertyDTOValue propertyDTOValue, JsonGenerator generator, SerializerProvider provider,
                                   TypeSerializer typeSerializer) throws IOException {
 
-        Object dtoValue = propertyDTOValue.getValue();
+        final Object dtoValue = propertyDTOValue.getValue();
         if (dtoValue instanceof EnumSet<? extends Enum<?>> enumSet) {
             serializeEnumSet(generator, enumSet);
         } else {

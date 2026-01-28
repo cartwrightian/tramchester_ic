@@ -22,10 +22,6 @@ public interface ImmutableIdSet<T extends CoreDomain> extends Iterable<IdFor<T>>
 
     Stream<IdFor<T>> stream();
 
-    boolean containsAll(ImmutableIdSet<T> other);
-
-    boolean containsNoneOf(ImmutableIdSet<T> other);
-
     static <T extends HasId<T> & CoreDomain> Collector<T, IdSet<T>, ImmutableIdSet<T>> collector() {
         return new Collector<>() {
             @Override
@@ -55,4 +51,13 @@ public interface ImmutableIdSet<T extends CoreDomain> extends Iterable<IdFor<T>>
         };
     }
 
+    // test support
+
+    default boolean containsAll(final ImmutableIdSet<T> other) {
+        return other.stream().allMatch(this::contains);
+    }
+
+    default boolean containsNoneOf(final ImmutableIdSet<T> other) {
+        return other.stream().noneMatch(this::contains);
+    }
 }

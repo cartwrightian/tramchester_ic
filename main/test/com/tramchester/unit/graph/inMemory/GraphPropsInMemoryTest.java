@@ -429,7 +429,7 @@ public class GraphPropsInMemoryTest {
                 sorted(Comparator.comparing(IdFor::getGraphId)).
                 toList();
 
-        IdSet<Trip> directFromRelationship = (IdSet<Trip>) underlying.getPropertyForTesting(TRIP_ID_LIST);
+        TripIdSet directFromRelationship = (TripIdSet) underlying.getPropertyForTesting(TRIP_ID_LIST);
         assertEquals(maxTripsForService, directFromRelationship.size());
 
         assertTrue(directFromRelationship.containsAll(unsortedTripIds));

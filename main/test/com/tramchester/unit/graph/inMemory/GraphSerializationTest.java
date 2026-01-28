@@ -7,6 +7,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.RouteStationId;
+import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramDuration;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -125,7 +127,7 @@ public class GraphSerializationTest {
 
         String text = serializeToString(relationship);
 
-        GraphRelationshipInMemory result = deserializeFromString(text);
+        GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
 
         assertEquals(relationship, result);
 
@@ -150,6 +152,21 @@ public class GraphSerializationTest {
     }
 
     @Test
+    void shouldRoundTripTripIdSet() {
+
+        TripIdSet idSet = new TripIdSet(Arrays.asList("tripA","tripB"));
+
+        String text = serializeToString(idSet);
+
+        TripIdSet result = deserializeFromString(text, TripIdSet.class);
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(Trip.createId("tripA")));
+        assertTrue(result.contains(Trip.createId("tripB")));
+
+    }
+
+    @Test
     void shouldRoundTripGraphRelationshipIdSet()  {
         GraphRelationshipInMemory relationship = createRelationship();
 
@@ -161,7 +178,7 @@ public class GraphSerializationTest {
 
         String text = serializeToString(relationship);
 
-        GraphRelationshipInMemory result = deserializeFromString(text);
+        GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
 
         assertEquals(relationship, result);
 
@@ -185,7 +202,7 @@ public class GraphSerializationTest {
 
         String text = serializeToString(relationship);
 
-        GraphRelationshipInMemory result = deserializeFromString(text);
+        GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
 
         assertEquals(relationship, result);
 
@@ -207,7 +224,7 @@ public class GraphSerializationTest {
 
         String text = serializeToString(relationship);
 
-        GraphRelationshipInMemory result = deserializeFromString(text);
+        GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
 
         assertEquals(relationship, result);
 
@@ -227,7 +244,7 @@ public class GraphSerializationTest {
 
         String text = serializeToString(relationship);
 
-        GraphRelationshipInMemory result = deserializeFromString(text);
+        GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
 
         assertEquals(relationship, result);
 
@@ -238,20 +255,20 @@ public class GraphSerializationTest {
         }
     }
 
-    private String serializeToString(GraphRelationshipInMemory relationship) {
+    private String serializeToString(Object object) {
         try {
-            return mapper.writeValueAsString(relationship);
+            return mapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             fail("failed to serialise", e);
             return null;
         }
     }
 
-    private GraphRelationshipInMemory deserializeFromString(final String text) {
+    private <T> T deserializeFromString(final String text, Class<T> theClass) {
         try {
-            return mapper.readValue(text, GraphRelationshipInMemory.class);
+            return mapper.readValue(text, theClass);
         } catch (JsonProcessingException e) {
-            fail("Unable to deserialize " + text,e);
+            fail("Unable to deserialize " + text + " as " + theClass ,e);
             return null;
         }
     }

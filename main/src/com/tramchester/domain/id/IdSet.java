@@ -78,11 +78,6 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return results;
     }
 
-    public static <S extends CoreDomain> ImmutableIdSet<S> copyThenAppend(final ImmutableIdSet<S> existing, final IdFor<S> id) {
-        final IdSet<S> theExisting = (IdSet<S>) existing;
-        return copy(theExisting).add(id);
-    }
-
     public static <S extends CoreDomain> ImmutableIdSet<S> copyThenRemove(final ImmutableIdSet<S> existing, final IdFor<S> id) {
         final IdSet<S> theExisting = (IdSet<S>) existing;
         return copy(theExisting).remove(id);
@@ -107,16 +102,6 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
     public boolean contains(IdFor<T> id) {
         return theSet.contains(id);
     }
-
-//    @Override
-//    public ImmutableIdSet<T> createAppend(final IdFor<T> id) {
-//        return copy(this).add(id);
-//    }
-
-//    @Override
-//    public ImmutableIdSet<T> createRemove(final IdFor<T> id) {
-//        return copy(this).remove(id);
-//    }
 
     public void clear() {
         theSet.clear();
@@ -214,27 +199,24 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
 
-        IdSet<?> idSet = (IdSet<?>) o;
+        final Class<?> otherClass = o.getClass();
+        if (otherClass.equals(getClass())) {
+            final IdSet<T> other = (IdSet<T>) o;
+            return this.theSet.equals(other.theSet);
+        } else if (ImmutableIdSet.class.isAssignableFrom(otherClass)) {
+            final ImmutableIdSet<T> other = (ImmutableIdSet<T>) o;
+            return other.size()==size() && other.containsAll(this);
+        } else {
+            return false;
+        }
 
-        return theSet.equals(idSet.theSet);
     }
 
     @Override
     public int hashCode() {
         return theSet.hashCode();
-    }
-
-    @Override
-    public boolean containsAll(final ImmutableIdSet<T> other) {
-        final IdSet<T> theOther = (IdSet<T>) other;
-        return theSet.containsAll(theOther.theSet);
-    }
-
-    @Override
-    public boolean containsNoneOf(final ImmutableIdSet<T> other) {
-        return stream().noneMatch(other::contains);
     }
 
     /***

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -22,6 +23,7 @@ import org.reflections.Reflections;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.serialization.IdSetSerializer.ID_SET;
 import static com.tramchester.domain.id.serialization.PropertyDTOSerializer.*;
@@ -58,14 +60,12 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
             }
             else if (valueNode.has(DURATION_FIELD_NAME)) {
                 value = deserializeTramDuration(context, typeDeserializer, valueNode, objectCodec);
-//                DurationDeserializer deserializer = new DurationDeserializer();
-//                JsonParser parser = valueNode.get(DURATION_FIELD_NAME).traverse(objectCodec);
-//                parser.nextToken();
-//                value = deserializer.deserialize(parser, context);
             } else if (valueNode.has(TRANSPORT_MODE_FIELD_NAME)) {
-                JsonNode textNode = valueNode.get(TRANSPORT_MODE_FIELD_NAME);
-                String txt = textNode.asText();
+                final JsonNode textNode = valueNode.get(TRANSPORT_MODE_FIELD_NAME);
+                final String txt = textNode.asText();
                 value = TransportMode.valueOf(txt);
+            } else if (valueNode.has(TripIdSet.class.getSimpleName())) {
+                value = deserializeTripIdSet(jsonParser, valueNode.get(TripIdSet.class.getSimpleName()));
             }
             else {
                 final JsonParser valueNodeParser = valueNode.traverse();
@@ -110,7 +110,25 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
         return deserializer.deserializeWithType(parser, context, typeDeserializer);
     }
 
-    private EnumSet<?> deserializeEnumSet(JsonParser jsonParser, JsonNode enumSetNode) throws JsonParseException {
+    private TripIdSet deserializeTripIdSet(JsonParser jsonParser, JsonNode listNode) throws JsonParseException {
+        if (!listNode.isObject()) {
+            throw new JsonParseException(jsonParser, "Expected object for TripIdList " + listNode);
+        }
+
+        if (!listNode.has("ids")) {
+            throw new JsonParseException(jsonParser, "Missings ids field for TripIdList " + listNode);
+        }
+
+        final Stream<JsonNode> contents = listNode.get("ids").valueStream();
+
+        final Set<String> ids = contents.filter(JsonNode::isTextual).
+                map(JsonNode::asText).
+                collect(Collectors.toSet());
+
+        return new TripIdSet(ids);
+    }
+
+    private EnumSet<?> deserializeEnumSet(final JsonParser jsonParser, JsonNode enumSetNode) throws JsonParseException {
         if (!enumSetNode.isObject()) {
             throw new JsonParseException(jsonParser, "Expected object for EnumSet " + enumSetNode);
         }
