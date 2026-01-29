@@ -125,7 +125,7 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
                 map(JsonNode::asText).
                 collect(Collectors.toSet());
 
-        return new TripIdSet(ids);
+        return TripIdSet.create(ids);
     }
 
     private EnumSet<?> deserializeEnumSet(final JsonParser jsonParser, JsonNode enumSetNode) throws JsonParseException {

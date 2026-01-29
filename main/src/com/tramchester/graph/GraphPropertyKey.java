@@ -46,8 +46,8 @@ public enum GraphPropertyKey {
 
     private final String text;
 
-    GraphPropertyKey(String text) {
-        this.text = text;
+    GraphPropertyKey(final String text) {
+        this.text = text.intern();
     }
 
     public static <C extends CoreDomain> GraphPropertyKey getFor(Class<C> klass) {

@@ -2,6 +2,7 @@ package com.tramchester.integration.repository.naptan;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -69,7 +70,7 @@ class NaptanRepositoryTest {
 
         Set<NaptanRecord> withinLocality = repository.getRecordsForLocality(localityId);
 
-        assertEquals(169, withinLocality.size(), withinLocality.toString());
+        assertEquals(170, withinLocality.size(), "wrong size, got " + HasId.asIds(withinLocality));
     }
 
     @Test

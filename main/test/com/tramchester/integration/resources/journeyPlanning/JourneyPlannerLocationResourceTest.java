@@ -197,7 +197,9 @@ class JourneyPlannerLocationResourceTest {
         int numberOfStages = 2;
 
         List<JourneyDTO> journeys = results.stream().
-                filter(journeyDTO -> journeyDTO.getStages().size() == numberOfStages).toList();
+                filter(journeyDTO -> journeyDTO.getStages().size() == numberOfStages).
+                sorted(Comparator.comparing(JourneyDTO::getFirstDepartureTime)).
+                toList();
         assertFalse(journeys.isEmpty());
 
         JourneyDTO firstJourney = journeys.getFirst();

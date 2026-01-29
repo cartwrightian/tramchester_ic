@@ -61,7 +61,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
 
     /***
      * Serialisation support only
-     * @return contianed id
+     * @return contained id
      */
     public String getContainedId() {
         return theId;

@@ -7,9 +7,13 @@ import com.tramchester.domain.input.Trip;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 public class TripIdSet implements ImmutableIdSet<Trip> {
+
+    private static final Factory factory = new Factory();
 
     @JsonIgnore
     private final Set<String> graphIds;
@@ -18,14 +22,17 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
     private static final TripIdSet empty = new TripIdSet(Collections.emptySet());
 
     @JsonCreator
-    public TripIdSet(final @JsonProperty("ids") List<String> graphIds) {
-        this(new HashSet<>(graphIds));
+    public static TripIdSet create(final @JsonProperty("ids") List<String> graphIds) {
+        return create(new HashSet<>(graphIds));
     }
 
-    public TripIdSet(final Set<String> graphIds) {
+    public static TripIdSet create(final Set<String> graphIds) {
+        return factory.create(graphIds);
+    }
+
+    private TripIdSet(final Set<String> graphIds) {
         this.graphIds = graphIds;
     }
-
 
     public static TripIdSet empty() {
         return empty;
@@ -68,7 +75,7 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
     public TripIdSet copyThenAppend(final IdFor<Trip> tripId) {
         final HashSet<String> copy = new HashSet<>(this.graphIds);
         copy.add(tripId.getGraphId());
-        return new TripIdSet(copy);
+        return create(copy);
     }
 
     @Override
@@ -88,5 +95,20 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
     @Override
     public int hashCode() {
         return Objects.hashCode(graphIds);
+    }
+
+    private static class Factory {
+
+        // causes OOM issue, need cleverer approach
+        private final ConcurrentMap<Set<String>, TripIdSet> cache;
+
+        private Factory() {
+            cache = new ConcurrentHashMap<>();
+        }
+
+        public TripIdSet create(final Set<String> graphIds) {
+            return new TripIdSet(graphIds);
+            //return cache.computeIfAbsent(graphIds, TripIdSet::new);
+        }
     }
 }
