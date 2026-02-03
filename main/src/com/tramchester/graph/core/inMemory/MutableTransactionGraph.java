@@ -96,10 +96,15 @@ public class MutableTransactionGraph implements Graph {
         if (localGraph.hasNodeId(nodeId)) {
             return localGraph.getNodeMutable(nodeId);
         }
+
+
         final GraphNodeInMemory original = parent.getNodeMutable(nodeId);
         final GraphNodeInMemory result = localGraph.insertNode(original.copy(), original.getLabels());
 
         if (includeRelationships) {
+            // potentially problematic, since only the getRelationshipsIdsFor is synchronized, and the parent
+            // collection might get updated before the forEach below completes
+            // TODO push into parent where can ensure synchronization
             final Stream<RelationshipIdInMemory> relNotCopiedIn = parent.
                     getRelationshipsIdsFor(nodeId).
                     filter(relId -> !localGraph.hasRelationshipId(relId));
@@ -119,6 +124,7 @@ public class MutableTransactionGraph implements Graph {
         }
 
         final GraphRelationshipInMemory original = parent.getRelationship(relId);
+
         final GraphNodeInMemory begin = copyNodeIntoLocal(original.getStartId(), false);
         final GraphNodeInMemory end = copyNodeIntoLocal(original.getEndId(), false);
         return localGraph.insertRelationship(original.getType(), original.copy(), begin.getId(), end.getId());

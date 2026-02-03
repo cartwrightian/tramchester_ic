@@ -32,7 +32,7 @@ public class GraphCore implements Graph {
 
     private final ConcurrentMap<GraphLabel, Set<NodeIdInMemory>> labelsToNodes;
 
-    private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
+    private final RelationshipsForNodes relationshipsForNodes;
     private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> relationshipTypesBetweenNodes;
     private final RelationshipTypeCounts relationshipTypeCounts;
     private final boolean diagnostics;
@@ -50,7 +50,7 @@ public class GraphCore implements Graph {
 
         nodesAndEdges = new NodesAndEdges();
 
-        relationshipsForNodes = new ConcurrentHashMap<>();
+        relationshipsForNodes = new RelationshipsForNodes();
         labelsToNodes = new ConcurrentHashMap<>();
         relationshipTypeCounts = new RelationshipTypeCounts();
         relationshipTypesBetweenNodes = new ConcurrentHashMap<>();
@@ -234,12 +234,7 @@ public class GraphCore implements Graph {
      * @return true if added a new relationship
      */
     private boolean putInboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
-        synchronized (relationshipsForNodes) {
-            if (!relationshipsForNodes.containsKey(nodeId)) {
-                relationshipsForNodes.put(nodeId, new RelationshipsForNode());
-            }
-            return relationshipsForNodes.get(nodeId).putInbound(relationshipId);
-        }
+        return relationshipsForNodes.addInboundFor(nodeId, relationshipId);
     }
 
     /***
@@ -249,12 +244,7 @@ public class GraphCore implements Graph {
      * @return true if added a new relationship
      */
     private boolean putOutboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
-        synchronized (relationshipsForNodes) {
-            if (!relationshipsForNodes.containsKey(nodeId)) {
-                relationshipsForNodes.put(nodeId, new RelationshipsForNode());
-            }
-            return relationshipsForNodes.get(nodeId).putOutbound(relationshipId);
-        }
+        return relationshipsForNodes.addOutboundFor(nodeId, relationshipId);
     }
 
     @Override
@@ -264,7 +254,7 @@ public class GraphCore implements Graph {
 
     @Override
     public Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(final NodeIdInMemory id, final GraphDirection direction) {
-        final RelationshipsForNode relationshipsForNode = relationshipsForNodes.getOrDefault(id, RelationshipsForNode.empty());
+        final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
         return switch (direction) {
                     case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
                     case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode);
@@ -333,15 +323,7 @@ public class GraphCore implements Graph {
             }
 
             // relationships
-            if (relationshipsForNodes.containsKey(id)) {
-                final RelationshipsForNode forNode = relationshipsForNodes.get(id);
-                if (!forNode.isEmpty()) {
-                    String msg = "Node " + id + " still has relationships " + relationshipsForNodes;
-                    logger.error(msg);
-                    throw new GraphException(msg);
-                }
-                relationshipsForNodes.remove(id);
-            }
+            relationshipsForNodes.remove(id);
             // label map
             final EnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
             labels.forEach(label -> labelsToNodes.get(label).remove(id));
@@ -351,10 +333,7 @@ public class GraphCore implements Graph {
     }
 
     private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId) {
-        if (relationshipsForNodes.containsKey(graphNodeId)) {
-            final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(graphNodeId);
-            relationshipsForNode.remove(relationshipId);
-        }
+        relationshipsForNodes.removeFrom(graphNodeId, relationshipId);
     }
 
     @Override
@@ -477,6 +456,12 @@ public class GraphCore implements Graph {
                 '}';
     }
 
+    /***
+     * Test support
+     * @param a
+     * @param b
+     * @return true if same
+     */
     public static boolean same(final GraphCore a, final GraphCore b) {
         if (!GraphIdFactory.same(a.idFactory, b.idFactory)) {
             logger.error("check same idFactory" + a.idFactory + "!=" + b.idFactory);
@@ -485,7 +470,7 @@ public class GraphCore implements Graph {
         if (!a.nodesAndEdges.equals(b.nodesAndEdges)) {
             logger.error("check same nodesAndEdges" + a.nodesAndEdges + "!=" + b.nodesAndEdges);
         }
-        if (!same(a.relationshipsForNodes, b.relationshipsForNodes)) {
+        if (!same(a.relationshipsForNodes.theMap, b.relationshipsForNodes.theMap)) {
             return false;
         }
         if (!same(a.relationshipTypesBetweenNodes, b.relationshipTypesBetweenNodes)) {
@@ -541,40 +526,13 @@ public class GraphCore implements Graph {
     }
 
     Stream<RelationshipIdInMemory> getRelationshipsIdsFor(final NodeIdInMemory nodeId) {
-        synchronized (relationshipsForNodes) {
-            if (relationshipsForNodes.containsKey(nodeId)) {
-                final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(nodeId);
-                return relationshipsForNode.getRelationshipIds();
-            } else {
-                return Stream.empty();
-            }
-        }
+        return relationshipsForNodes.getRelationshipIdsFor(nodeId);
     }
 
-    private static class NodeIdPair {
-        private final GraphNodeId first;
-        private final GraphNodeId second;
-
-        public static NodeIdPair of(NodeIdInMemory begin, NodeIdInMemory end) {
-            return new NodeIdPair(begin, end);
-        }
-
-        private NodeIdPair(GraphNodeId first, GraphNodeId second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            NodeIdPair that = (NodeIdPair) o;
-            return Objects.equals(first, that.first) && Objects.equals(second, that.second);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(first, second);
-        }
+    private record NodeIdPair(GraphNodeId first, GraphNodeId second) {
+            public static NodeIdPair of(NodeIdInMemory begin, NodeIdInMemory end) {
+                return new NodeIdPair(begin, end);
+            }
     }
 
     /***
@@ -616,6 +574,59 @@ public class GraphCore implements Graph {
         @Override
         public int hashCode() {
             return Objects.hashCode(theMap);
+        }
+    }
+
+    private static class RelationshipsForNodes {
+        private final ConcurrentMap<GraphNodeId, RelationshipsForNode> theMap;
+
+        private RelationshipsForNodes() {
+            theMap = new ConcurrentHashMap<>();
+        }
+
+        public synchronized void clear() {
+            theMap.clear();
+        }
+
+        public synchronized Stream<RelationshipIdInMemory> getRelationshipIdsFor(final NodeIdInMemory nodeId) {
+            return theMap.getOrDefault(nodeId, RelationshipsForNode.empty()).getRelationshipIds();
+        }
+
+        public synchronized boolean addInboundFor(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
+            final RelationshipsForNode relationshipsForNode = theMap.computeIfAbsent(nodeId, key -> new RelationshipsForNode());
+            return relationshipsForNode.putInbound(relationshipId);
+        }
+
+        public synchronized boolean addOutboundFor(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
+            final RelationshipsForNode relationshipsForNode = theMap.computeIfAbsent(nodeId, key -> new RelationshipsForNode());
+            return relationshipsForNode.putOutbound(relationshipId);
+        }
+
+        public synchronized RelationshipsForNode get(final NodeIdInMemory id) {
+            return theMap.getOrDefault(id, RelationshipsForNode.empty());
+        }
+
+        public synchronized void remove(final NodeIdInMemory id) {
+            if (theMap.containsKey(id)) {
+                final RelationshipsForNode forNode = theMap.get(id);
+                if (!forNode.isEmpty()) {
+                    String msg = "Node " + id + " still has relationships " + forNode;
+                    logger.error(msg);
+                    throw new GraphException(msg);
+                }
+                theMap.remove(id);
+            }
+        }
+
+        public synchronized void removeFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId) {
+            if (theMap.containsKey(graphNodeId)) {
+                final RelationshipsForNode relationshipsForNode = theMap.get(graphNodeId);
+                relationshipsForNode.remove(relationshipId);
+            }
+        }
+
+        public long size() {
+            return theMap.size();
         }
     }
 }

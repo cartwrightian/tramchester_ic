@@ -42,6 +42,13 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         return new TripIdSet(Collections.singleton(tripId.getGraphId()));
     }
 
+
+    public TripIdSet copyThenAppend(final IdFor<Trip> tripId) {
+        final Set<String> copy = new HashSet<>(this.graphIds);
+        copy.add(tripId.getGraphId());
+        return create(copy);
+    }
+
     @Override
     public int size() {
         return graphIds.size();
@@ -72,11 +79,6 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         return new ArrayList<>(graphIds);
     }
 
-    public TripIdSet copyThenAppend(final IdFor<Trip> tripId) {
-        final HashSet<String> copy = new HashSet<>(this.graphIds);
-        copy.add(tripId.getGraphId());
-        return create(copy);
-    }
 
     @Override
     public String toString() {

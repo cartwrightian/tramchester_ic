@@ -22,11 +22,15 @@ class RelationshipsForNode {
     }
 
     public Stream<GraphRelationshipInMemory> getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
-        return outboundIds.stream().map(source::get);
+        synchronized (outboundIds) {
+            return outboundIds.stream().map(source::get);
+        }
     }
 
     public Stream<GraphRelationshipInMemory> getInbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
-        return inboundIds.stream().map(source::get);
+        synchronized (inboundIds) {
+            return inboundIds.stream().map(source::get);
+        }
     }
 
     /***
@@ -51,16 +55,18 @@ class RelationshipsForNode {
         }
     }
 
-    public void remove(final RelationshipIdInMemory relationshipId) {
+    public boolean remove(final RelationshipIdInMemory relationshipId) {
+        boolean flag;
         synchronized (outboundIds) {
-            outboundIds.remove(relationshipId);
+            flag = outboundIds.remove(relationshipId);
         }
         synchronized (inboundIds) {
-            inboundIds.remove(relationshipId);
+            flag = flag || inboundIds.remove(relationshipId);
         }
+        return flag;
     }
 
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return outboundIds.isEmpty() && inboundIds.isEmpty();
     }
 
@@ -84,7 +90,7 @@ class RelationshipsForNode {
         return Objects.hash(outboundIds, inboundIds);
     }
 
-    public Stream<RelationshipIdInMemory> getRelationshipIds() {
+    public synchronized Stream<RelationshipIdInMemory> getRelationshipIds() {
         return Stream.concat(outboundIds.stream(), inboundIds.stream());
     }
 }
