@@ -42,13 +42,11 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         return factory.create(new HashSet<>(graphIds));
     }
 
-    ////////
-
     public TripIdSet copyThenAppend(final IdFor<Trip> tripId) {
-        final Set<String> copy = new HashSet<>(this.graphIds);
-        copy.add(tripId.getGraphId());
-        return factory.create(copy);
+        return factory.copyThenAppend(graphIds, tripId.getGraphId());
     }
+
+    ////////
 
     @Override
     public int size() {
@@ -56,7 +54,7 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
     }
 
     @Override
-    public boolean contains(IdFor<Trip> id) {
+    public boolean contains(final IdFor<Trip> id) {
         return graphIds.contains(id.getGraphId());
     }
 
@@ -79,7 +77,6 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
     List<String> getIds() {
         return new ArrayList<>(graphIds);
     }
-
 
     @Override
     public String toString() {
@@ -115,6 +112,12 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
             return new TripIdSet(ImmutableSet.copyOf(graphIds));
             //return new TripIdSet(graphIds);
             //return cache.computeIfAbsent(graphIds, TripIdSet::new);
+        }
+
+        public TripIdSet copyThenAppend(ImmutableSet<@NotNull String> graphIds, String graphId) {
+            final Set<String> copy = new HashSet<>(graphIds);
+            copy.add(graphId);
+            return create(copy);
         }
     }
 }
