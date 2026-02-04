@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DataUpdateTest
 public class RailDataFilenameRepositoryTest {
 
-    public static final String CURRENT_VERSION = "729";
+    public static final String CURRENT_VERSION = "736";
 
     private static GuiceContainerDependencies componentContainer;
     private RailDataFilenameRepository repository;
