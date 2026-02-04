@@ -171,12 +171,12 @@ public class TransactionManagerTest {
 
             EnumSet<TransportRelationshipTypes> relationshipTypes = EnumSet.copyOf(Arrays.asList(TransportRelationshipTypes.forPlanning()));
 
-            List<GraphRelationship> initialSearch = GraphHelper.getRouteStationRelationships(txn, routeStation, Outgoing, relationshipTypes);
+            List<GraphRelationship> initialSearch = GraphHelper.getRelationshipsForRouteStation(txn, routeStation, Outgoing, relationshipTypes);
             assertTrue(initialSearch.isEmpty());
 
             MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.DEPART);
 
-            List<GraphRelationship> result = GraphHelper.getRouteStationRelationships(txn, routeStation, Outgoing, relationshipTypes);
+            List<GraphRelationship> result = GraphHelper.getRelationshipsForRouteStation(txn, routeStation, Outgoing, relationshipTypes);
             assertFalse(result.isEmpty());
 
             assertTrue(result.contains(relationship));

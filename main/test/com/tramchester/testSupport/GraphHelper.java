@@ -16,8 +16,8 @@ import java.util.List;
 public class GraphHelper {
     private static final Logger logger = LoggerFactory.getLogger(GraphHelper.class);
 
-    public static List<GraphRelationship> getRouteStationRelationships(GraphTransaction txn, RouteStation routeStation, GraphDirection graphDirection,
-                                                                       EnumSet<TransportRelationshipTypes> relationshipTypes) {
+    public static List<GraphRelationship> getRelationshipsForRouteStation(GraphTransaction txn, RouteStation routeStation, GraphDirection graphDirection,
+                                                                          EnumSet<TransportRelationshipTypes> relationshipTypes) {
         final GraphNode node = txn.findNode(routeStation);
         if (node==null) {
             logger.info("Did not find node for " + routeStation.getId());

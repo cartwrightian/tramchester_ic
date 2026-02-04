@@ -154,7 +154,7 @@ public class GraphSerializationTest {
     @Test
     void shouldRoundTripTripIdSet() {
 
-        TripIdSet idSet = TripIdSet.create(Arrays.asList("tripA","tripB"));
+        TripIdSet idSet = TripIdSet.deserialize(Arrays.asList("tripA","tripB"));
 
         String text = serializeToString(idSet);
 

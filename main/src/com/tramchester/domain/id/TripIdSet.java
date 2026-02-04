@@ -3,6 +3,7 @@ package com.tramchester.domain.id;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableSet;
 import com.tramchester.domain.input.Trip;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,37 +17,37 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
     private static final Factory factory = new Factory();
 
     @JsonIgnore
-    private final Set<String> graphIds;
+    private final ImmutableSet<@NotNull String> graphIds;
 
-    @JsonIgnore
-    private static final TripIdSet empty = new TripIdSet(Collections.emptySet());
-
-    @JsonCreator
-    public static TripIdSet create(final @JsonProperty("ids") List<String> graphIds) {
-        return create(new HashSet<>(graphIds));
+    private TripIdSet(final ImmutableSet<@NotNull String> graphIds) {
+        this.graphIds = graphIds;
     }
+
+    // creation helpers
 
     public static TripIdSet create(final Set<String> graphIds) {
         return factory.create(graphIds);
     }
 
-    private TripIdSet(final Set<String> graphIds) {
-        this.graphIds = graphIds;
-    }
-
     public static TripIdSet empty() {
-        return empty;
+        return Factory.empty;
     }
 
-    public static TripIdSet singleton(IdFor<Trip> tripId) {
-        return new TripIdSet(Collections.singleton(tripId.getGraphId()));
+    public static TripIdSet singleton(final IdFor<Trip> tripId) {
+        return factory.create(Collections.singleton(tripId.getGraphId()));
     }
 
+    @JsonCreator
+    public static TripIdSet deserialize(final @JsonProperty("ids") List<String> graphIds) {
+        return factory.create(new HashSet<>(graphIds));
+    }
+
+    ////////
 
     public TripIdSet copyThenAppend(final IdFor<Trip> tripId) {
         final Set<String> copy = new HashSet<>(this.graphIds);
         copy.add(tripId.getGraphId());
-        return create(copy);
+        return factory.create(copy);
     }
 
     @Override
@@ -101,6 +102,8 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
 
     private static class Factory {
 
+        private static final TripIdSet empty = new TripIdSet(ImmutableSet.of());
+
         // causes OOM issue, need cleverer approach
         private final ConcurrentMap<Set<String>, TripIdSet> cache;
 
@@ -109,7 +112,8 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         }
 
         public TripIdSet create(final Set<String> graphIds) {
-            return new TripIdSet(graphIds);
+            return new TripIdSet(ImmutableSet.copyOf(graphIds));
+            //return new TripIdSet(graphIds);
             //return cache.computeIfAbsent(graphIds, TripIdSet::new);
         }
     }

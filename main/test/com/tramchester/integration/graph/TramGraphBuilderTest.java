@@ -305,7 +305,6 @@ class TramGraphBuilderTest {
 
     }
 
-    //@DisabledUntilDate(year = 2025, month = 10, day = 31)
     @Test
     void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -870,6 +869,21 @@ class TramGraphBuilderTest {
         // graphAndFileConsistencyCheckOutbounds(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
     }
 
+    @Test
+    void shouldCountNumberOfUniqueSetsOfTripId() {
+        // so that can work out if optimisation here is a good option
+        long allRelationships = txn.findRelationships(TO_SERVICE).count();
+
+        Set<ImmutableIdSet<Trip>> unique = txn.findRelationships(TO_SERVICE).
+                map(GraphRelationship::getTripIds).
+                collect(Collectors.toSet());
+
+        int uniqueSize = unique.size();
+        double percentage = 100D * (double) uniqueSize / allRelationships;
+
+        assertEquals(18D, Math.ceil(percentage));
+    }
+
     private void checkOutboundConsistency(TramStations tramStation, TFGMRouteNames knownRoute) {
         Station station = tramStation.from(stationRepository);
         Route route = tramRouteHelper.getOneRoute(knownRoute, when);
@@ -980,6 +994,6 @@ class TramGraphBuilderTest {
     }
 
     private List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection graphDirection, EnumSet<TransportRelationshipTypes> transportRelationshipTypes) {
-        return GraphHelper.getRouteStationRelationships(txn, routeStation, graphDirection, transportRelationshipTypes);
+        return GraphHelper.getRelationshipsForRouteStation(txn, routeStation, graphDirection, transportRelationshipTypes);
     }
 }
