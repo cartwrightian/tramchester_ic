@@ -8,14 +8,10 @@ import com.tramchester.domain.input.Trip;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 public class TripIdSet implements ImmutableIdSet<Trip> {
-
-    private static final Factory factory = new Factory();
-
+    
     @JsonIgnore
     private final ImmutableSet<@NotNull String> graphIds;
 
@@ -23,27 +19,9 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         this.graphIds = graphIds;
     }
 
-    // creation helpers
-
-    public static TripIdSet create(final Set<String> graphIds) {
-        return factory.create(graphIds);
-    }
-
-    public static TripIdSet empty() {
-        return Factory.empty;
-    }
-
-    public static TripIdSet singleton(final IdFor<Trip> tripId) {
-        return factory.create(Collections.singleton(tripId.getGraphId()));
-    }
-
     @JsonCreator
     public static TripIdSet deserialize(final @JsonProperty("ids") List<String> graphIds) {
-        return factory.create(new HashSet<>(graphIds));
-    }
-
-    public TripIdSet copyThenAppend(final IdFor<Trip> tripId) {
-        return factory.copyThenAppend(graphIds, tripId.getGraphId());
+        return Factory.deserialize(new HashSet<>(graphIds));
     }
 
     ////////
@@ -97,27 +75,37 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         return Objects.hashCode(graphIds);
     }
 
-    private static class Factory {
+    public static class Factory {
 
-        private static final TripIdSet empty = new TripIdSet(ImmutableSet.of());
-
-        // causes OOM issue, need cleverer approach
-        private final ConcurrentMap<Set<String>, TripIdSet> cache;
+        public static final TripIdSet Empty = new TripIdSet(ImmutableSet.of());
 
         private Factory() {
-            cache = new ConcurrentHashMap<>();
         }
 
-        public TripIdSet create(final Set<String> graphIds) {
+        public static TripIdSet empty() {
+            return Empty;
+        }
+
+        private static TripIdSet create(final Set<String> graphIds) {
             return new TripIdSet(ImmutableSet.copyOf(graphIds));
-            //return new TripIdSet(graphIds);
-            //return cache.computeIfAbsent(graphIds, TripIdSet::new);
         }
 
-        public TripIdSet copyThenAppend(ImmutableSet<@NotNull String> graphIds, String graphId) {
+        public static TripIdSet deserialize(final Set<String> ids) {
+            return create(ids);
+        }
+
+        public static TripIdSet copyThenAppend(final TripIdSet existing, final IdFor<Trip> tripId) {
+            return copyThenAppend(existing.graphIds, tripId.getGraphId());
+        }
+
+        private static TripIdSet copyThenAppend(ImmutableSet<@NotNull String> graphIds, String graphId) {
             final Set<String> copy = new HashSet<>(graphIds);
             copy.add(graphId);
             return create(copy);
+        }
+
+        public static TripIdSet singleton(IdFor<Trip> tripId) {
+            return create(Collections.singleton(tripId.getGraphId()));
         }
     }
 }

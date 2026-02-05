@@ -88,9 +88,9 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
         final TripIdSet updated;
         if (existing.isEmpty()) {
-            updated = TripIdSet.singleton(tripId);
+            updated = TripIdSet.Factory.singleton(tripId);
         } else {
-            updated = existing.copyThenAppend(tripId);
+            updated = TripIdSet.Factory.copyThenAppend(existing,tripId);
         }
         setProperty(TRIP_ID_LIST, updated);
     }
@@ -99,7 +99,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         if (hasProperty(TRIP_ID_LIST)) {
             return (TripIdSet) getProperty(TRIP_ID_LIST);
         } else {
-            return TripIdSet.empty();
+            return TripIdSet.Factory.empty();
         }
     }
 
