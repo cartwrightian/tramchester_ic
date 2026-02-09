@@ -117,6 +117,8 @@ public class RouteCalculatorTest {
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
+        journeyRequest.setDiag(true);
+
         Set<String> expectedChanges = Stream.of(Cornbrook, StPetersSquare, Deansgate,
                         Piccadilly, PiccadillyGardens, Victoria, MarketStreet).
                 map(TramStations::getName).collect(Collectors.toSet());

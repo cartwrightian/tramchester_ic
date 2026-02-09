@@ -8,10 +8,13 @@ import com.tramchester.domain.input.Trip;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 public class TripIdSet implements ImmutableIdSet<Trip> {
-    
+
     @JsonIgnore
     private final ImmutableSet<@NotNull String> graphIds;
 
@@ -75,9 +78,34 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         return Objects.hashCode(graphIds);
     }
 
+    public static class Container {
+        private final AtomicInteger usage;
+        private final TripIdSet tripIdSet;
+
+        public Container(AtomicInteger usage, TripIdSet tripIdSet) {
+            this.usage = usage;
+            this.tripIdSet = tripIdSet;
+        }
+
+        public Container(final TripIdSet tripIdSet) {
+            this(new AtomicInteger(0), tripIdSet);
+        }
+
+        public int decrementUsage() {
+            return usage.decrementAndGet();
+        }
+
+        public void incrementUsage() {
+            usage.incrementAndGet();
+        }
+    }
+
     public static class Factory {
 
         public static final TripIdSet Empty = new TripIdSet(ImmutableSet.of());
+
+        // naive initial implementation
+        private static final ConcurrentMap<ImmutableSet<@NotNull String>, Container> cache = new ConcurrentHashMap<>();
 
         private Factory() {
         }
@@ -87,8 +115,14 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         }
 
         private static TripIdSet create(final Set<String> graphIds) {
-            return new TripIdSet(ImmutableSet.copyOf(graphIds));
+            final ImmutableSet<@NotNull String> theIds = ImmutableSet.copyOf(graphIds);
+            final TripIdSet tripIdSet = new TripIdSet(theIds);
+            final Container container = cache.computeIfAbsent(theIds, key -> new Container(tripIdSet));
+            container.incrementUsage();
+            return container.tripIdSet;
         }
+
+        // helpers
 
         public static TripIdSet deserialize(final Set<String> ids) {
             return create(ids);
@@ -101,6 +135,13 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
         private static TripIdSet copyThenAppend(ImmutableSet<@NotNull String> graphIds, String graphId) {
             final Set<String> copy = new HashSet<>(graphIds);
             copy.add(graphId);
+            if (cache.containsKey(graphIds)) {
+                Container container = cache.get(graphIds);
+                int currentCount = container.decrementUsage();
+                if (currentCount==0) {
+                    cache.remove(graphIds);
+                }
+            }
             return create(copy);
         }
 
