@@ -279,7 +279,8 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     }
 
     @JsonIgnore
-    public Map<String,Object> getAllProperties() {
+    @Override
+    public Map<GraphPropertyKey, Object> getAllProperties() {
         return getAllProperties(relationshipProperties);
     }
 

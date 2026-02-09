@@ -1,6 +1,7 @@
 package com.tramchester.graph.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Map;
 
@@ -11,7 +12,7 @@ public interface GraphEntity<T extends GraphId> {
     @JsonIgnore
     boolean isRelationship();
 
-    Map<String, Object> getAllProperties();
+    Map<GraphPropertyKey, Object> getAllProperties();
 
     T getId();
 

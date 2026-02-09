@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.google.common.collect.ImmutableMap;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -15,7 +16,6 @@ import com.tramchester.graph.core.GraphEntityProperties;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -56,11 +56,8 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Deprecated
     @Override
-    public Map<String, Object> getAllProperties() {
-        // TODO Update i/f to GraphPropertyKey
-        return props.entrySet().
-                stream().
-                collect(Collectors.toMap(entry -> entry.getKey().getText(), Map.Entry::getValue));
+    public Map<GraphPropertyKey, Object> getAllProperties() {
+        return ImmutableMap.copyOf(props);
     }
 
     @Override

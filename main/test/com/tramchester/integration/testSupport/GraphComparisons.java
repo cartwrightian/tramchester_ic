@@ -7,6 +7,7 @@ import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -50,10 +51,10 @@ public class GraphComparisons {
             final GraphNode destinationNode = outgoingNeo4J.getEndNode(txnNeo4J);
 
             final TransportRelationshipTypes type = outgoingNeo4J.getType();
-            final Map<String, Object> relationshipProps = outgoingNeo4J.getAllProperties();
+            final Map<GraphPropertyKey, Object> relationshipProps = outgoingNeo4J.getAllProperties();
 
             // Note: have to match relationships via end node labels and props
-            final Map<String, Object> endNodeProps = destinationNode.getAllProperties();
+            final Map<GraphPropertyKey, Object> endNodeProps = destinationNode.getAllProperties();
             final EnumSet<GraphLabel> endNodeLabels = destinationNode.getLabels();
 
             // types
@@ -65,7 +66,7 @@ public class GraphComparisons {
             // relationship props
             final List<GraphRelationship> matchProps = matchType.stream().
                     filter(relat -> {
-                        final Map<String, Object> allProperties = fixUpDayOffsetIfNeeded(relat.getAllProperties());
+                        final Map<GraphPropertyKey, Object> allProperties = fixUpDayOffsetIfNeeded(relat.getAllProperties());
                         return compareProps(relationshipProps, allProperties, false);
                     }).toList();
             assertFalse(matchProps.isEmpty(), "mismatch on relationship props " + prettyPrintProps(relationshipProps) + " not matching any of " + matchType);
@@ -92,7 +93,7 @@ public class GraphComparisons {
 
     }
 
-    private String prettyPrintProps(Map<String, Object> props) {
+    private String prettyPrintProps(Map<GraphPropertyKey, Object> props) {
         List<String> strings = props.entrySet().stream().map(item -> String.format("%s=%s", item.getKey(), prettyPrintObj(item.getValue()))).toList();
         StringBuilder builder = new StringBuilder();
         builder.append('{');
@@ -114,16 +115,16 @@ public class GraphComparisons {
         }
     }
 
-    private Map<String, Object> fixUpDayOffsetIfNeeded(Map<String, Object> properties) {
-        if (properties.containsKey(TIME.getText())) {
-            if (properties.containsKey(DAY_OFFSET.getText())) {
+    private Map<GraphPropertyKey, Object> fixUpDayOffsetIfNeeded(Map<GraphPropertyKey, Object> properties) {
+        if (properties.containsKey(TIME)) {
+            if (properties.containsKey(DAY_OFFSET)) {
                 return properties;
             }
             // else need to add flag
-            final TramTime time = (TramTime) properties.get(TIME.getText());
+            final TramTime time = (TramTime) properties.get(TIME);
             if (time.isNextDay()) {
-                final HashMap<String, Object> replacement = new HashMap<>(properties);
-                replacement.put(DAY_OFFSET.getText(), true);
+                final HashMap<GraphPropertyKey, Object> replacement = new HashMap<>(properties);
+                replacement.put(DAY_OFFSET, true);
                 return replacement;
             }
         }
@@ -132,7 +133,7 @@ public class GraphComparisons {
     }
 
     // TODO Push comparisons into test help and add logging
-    private boolean compareProps(Map<String, Object> propsA, Map<String, Object> propsB, boolean logging) {
+    private boolean compareProps(Map<GraphPropertyKey, Object> propsA, Map<GraphPropertyKey, Object> propsB, boolean logging) {
         final String diag = propsA + " vs " + propsB;
         if (propsA.size()!=propsB.size()) {
             if (logging) {
@@ -141,8 +142,8 @@ public class GraphComparisons {
 
             return false;
         }
-        final Set<String> keysA = propsA.keySet();
-        final Set<String> keysB = propsB.keySet();
+        final Set<GraphPropertyKey> keysA = propsA.keySet();
+        final Set<GraphPropertyKey> keysB = propsB.keySet();
         if (!keysA.equals(keysB)) {
             if (logging) {
                 logger.error("mismatch on key set " + keysA + " vs " + keysB);
@@ -150,21 +151,21 @@ public class GraphComparisons {
             return false;
         }
 
-        final Map<String, Object> mismatch = new HashMap<>();
-        for(final String key : keysA) {
+        final Map<GraphPropertyKey, Object> mismatch = new HashMap<>();
+        for(final GraphPropertyKey key : keysA) {
             final Object valueA = propsA.get(key);
             final Object valueB = propsB.get(key);
 
             final String diagOnProp = " for key: %s A:%s vs B:%s".formatted(key, valueA, valueB);
 
             final boolean matched;
-            if (key.equals(COST.getText())) {
+            if (key.equals(COST)) {
                 long seconds = (long) valueA;
                 matched = Duration.ofSeconds(seconds).equals(valueB);
                 if ((!matched) && logging) {
                     logger.error("mismatch on duration " + diagOnProp);
                 }
-            } else if (key.equals(TRANSPORT_MODES.getText())) {
+            } else if (key.equals(TRANSPORT_MODES)) {
                 final short[] arrayA = (short[]) valueA;
                 final EnumSet<TransportMode> itemsB = (EnumSet<TransportMode>) valueB;
                 if (arrayA.length==itemsB.size()) {
@@ -180,13 +181,13 @@ public class GraphComparisons {
                 if ((!matched) && logging) {
                     logger.error("mismatch on modes " + diagOnProp);
                 }
-            } else if (key.equals(TRANSPORT_MODE.getText())) {
+            } else if (key.equals(TRANSPORT_MODE)) {
                 final TransportMode expectedMode = TransportMode.fromNumber((Short) valueA);
                 matched = expectedMode.equals(valueB);
                 if ((!matched) && logging) {
                     logger.error("mismatch on mode " + diagOnProp);
                 }
-            } else if (key.equals(TRIP_ID_LIST.getText())) {
+            } else if (key.equals(TRIP_ID_LIST)) {
                 final String[] arrayA = (String[]) valueA;
                 final ImmutableIdSet<Trip> tripsB = (ImmutableIdSet<Trip>) valueB;
                 if (arrayA.length == tripsB.size()) {
@@ -202,10 +203,10 @@ public class GraphComparisons {
                 if ((!matched) && logging) {
                     logger.error("mismatch on trip ids " + diagOnProp);
                 }
-            } else if (key.equals(TIME.getText())) {
+            } else if (key.equals(TIME)) {
                 final String txtA = valueA.toString();
                 TramTime timeA = TramTime.parse(txtA);
-                final boolean dayOffset = (Boolean) propsA.getOrDefault(DAY_OFFSET.getText(), false);
+                final boolean dayOffset = (Boolean) propsA.getOrDefault(DAY_OFFSET, false);
                 if (dayOffset) {
                     timeA = TramTime.nextDay(timeA);
                 }
@@ -235,9 +236,9 @@ public class GraphComparisons {
         return mismatch.isEmpty();
     }
 
-    public void checkProps(final GraphEntity graphEntityA, final GraphEntity graphEntityB) {
-        final Map<String, Object> propsA = graphEntityA.getAllProperties();
-        final Map<String, Object> propsB = graphEntityB.getAllProperties();
+    public void checkProps(final GraphEntity<?> graphEntityA, final GraphEntity<?> graphEntityB) {
+        final Map<GraphPropertyKey, Object> propsA = graphEntityA.getAllProperties();
+        final Map<GraphPropertyKey, Object> propsB = graphEntityB.getAllProperties();
 
         compareProps(propsA, propsB, false);
     }
@@ -253,7 +254,7 @@ public class GraphComparisons {
                     toList();
             assertFalse(beginAndEndMatch.isEmpty(), "Did not match begin " + startId + " and end " + endId + " for any of " + listB);
 
-            final Map<String, Object> expectedProps = expected.getAllProperties();
+            final Map<GraphPropertyKey, Object> expectedProps = expected.getAllProperties();
             final Set<GraphRelationship> match = beginAndEndMatch.stream().
                     filter(graphRelationship -> compareProps(expectedProps, graphRelationship.getAllProperties(), false)).
                     collect(Collectors.toSet());
@@ -290,7 +291,7 @@ public class GraphComparisons {
                     filter(relationship -> relationship.isType(typeA)).toList();
             assertFalse(typeMatches.isEmpty());
 
-            final Map<String, Object> expectedProps = relationshipA.getAllProperties();
+            final Map<GraphPropertyKey, Object> expectedProps = relationshipA.getAllProperties();
             final Set<GraphRelationship> match = typeMatches.stream().
                     filter(graphRelationship -> compareProps(expectedProps, graphRelationship.getAllProperties(), false)).
                     collect(Collectors.toSet());

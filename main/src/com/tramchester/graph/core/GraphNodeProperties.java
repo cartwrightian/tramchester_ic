@@ -285,7 +285,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     }
 
     @JsonIgnore
-    public Map<String,Object> getAllProperties() {
+    public Map<GraphPropertyKey,Object> getAllProperties() {
         return getAllProperties(graphProps);
     }
 

@@ -56,7 +56,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
         return entity.getProperty(graphPropertyKey);
     }
 
-    protected Map<String, Object> getAllProperties(final E entity) {
+    protected Map<GraphPropertyKey, Object> getAllProperties(final E entity) {
         return entity.getAllProperties();
     }
 
@@ -66,7 +66,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
         Object getProperty(final GraphPropertyKey graphPropertyKey);
 
-        Map<String, Object> getAllProperties();
+        Map<GraphPropertyKey, Object> getAllProperties();
 
         boolean hasProperty(final GraphPropertyKey graphPropertyKey);
 

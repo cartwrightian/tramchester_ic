@@ -14,6 +14,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -66,7 +67,7 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     }
 
     @Override
-    public Map<String, Object> getAllProperties() {
+    public Map<GraphPropertyKey, Object> getAllProperties() {
         return underlying.getAllProperties();
     }
 

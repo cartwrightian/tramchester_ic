@@ -15,6 +15,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -40,8 +41,9 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     @Override
-    public Map<String, Object> getAllProperties() {
-        return entity.getAllProperties();
+    public Map<GraphPropertyKey, Object> getAllProperties() {
+        return entity.getAllProperties().entrySet().stream().
+                collect(Collectors.toMap(entry ->  GraphPropertyKey.parse(entry.getKey()), Map.Entry::getValue));
     }
 
     @Override

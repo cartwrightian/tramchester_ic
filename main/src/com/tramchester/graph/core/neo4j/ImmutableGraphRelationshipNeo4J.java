@@ -134,7 +134,7 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public Map<String, Object> getAllProperties() {
+    public Map<GraphPropertyKey, Object> getAllProperties() {
         return underlying.getAllProperties();
     }
 

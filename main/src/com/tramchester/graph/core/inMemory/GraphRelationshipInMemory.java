@@ -77,7 +77,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     @JsonGetter("properties")
     public List<PropertyDTO> getProperties() {
         return getAllProperties().entrySet().stream().
-                filter(entry -> !entry.getKey().equals(DAY_OFFSET.getText())).
+                filter(entry -> !entry.getKey().equals(DAY_OFFSET)).
                 map(PropertyDTO::fromMapEntry).toList();
     }
 

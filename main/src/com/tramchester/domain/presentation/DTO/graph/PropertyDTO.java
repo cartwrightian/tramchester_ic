@@ -9,6 +9,7 @@ import com.tramchester.domain.id.serialization.PropertyDTOSerializer;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Map;
 import java.util.Objects;
@@ -43,8 +44,8 @@ public class PropertyDTO {
     }
 
     // called direct by getters on the Node and Relationship implementations
-    public static PropertyDTO fromMapEntry(final Map.Entry<String, Object> entry) {
-        return new PropertyDTO(entry.getKey(), entry.getValue());
+    public static PropertyDTO fromMapEntry(final Map.Entry<GraphPropertyKey, Object> entry) {
+        return new PropertyDTO(entry.getKey().getText(), entry.getValue());
     }
 
     @JsonProperty("key")
