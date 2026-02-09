@@ -18,6 +18,7 @@ import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -42,6 +43,13 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     }
 
     protected abstract void invalidateCache();
+
+    @Override
+    public Map<DataSourceID, String> getStoredVersions() {
+        return DataSourceID.InDatabase().stream().
+                filter(id -> hasProperty(DataSourceID.getGraphKey(id))).
+                collect(Collectors.toMap(id -> id, id -> (String)getProperty(DataSourceID.getGraphKey(id))));
+    }
 
     @Override
     public void setTime(final TramTime tramTime) {
@@ -95,8 +103,8 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @Override
     public void set(final DataSourceInfo nameAndVersion) {
-        final DataSourceID sourceID = nameAndVersion.getID();
-        graphProps.setProperty(sourceID.name(), nameAndVersion.getVersion());
+        final GraphPropertyKey key = DataSourceID.getGraphKey(nameAndVersion.getID());
+        graphProps.setProperty(key, nameAndVersion.getVersion());
         invalidateCache();
     }
 
@@ -146,6 +154,11 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         invalidateCache();
     }
 
+    @Override
+    public void set(final Trip trip) {
+        set(trip, graphProps);
+    }
+
     ///// GET //////////////////////////////////////////////////
 
     // NOTE: Transaction closed exceptions will occur if keep reference to node beyond lifetime of the original transaction
@@ -154,8 +167,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @Override
     public TransportMode getTransportMode() {
         return graphProps.getTransportMode();
-//        short number = (short) getProperty(TRANSPORT_MODE, graphProps);
-//        return TransportMode.fromNumber(number);
     }
 
     @JsonIgnore
@@ -167,11 +178,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     public IdFor<Station> getStationId() {
         return getIdFor(Station.class, graphProps);
-    }
-
-    @Override
-    public void set(final Trip trip) {
-        set(trip, graphProps);
     }
 
     @JsonIgnore
@@ -279,7 +285,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
 
-    //@JsonGetter("properties")
     @JsonIgnore
     public Map<String,Object> getAllProperties() {
         return getAllProperties(graphProps);

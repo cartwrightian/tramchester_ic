@@ -47,7 +47,7 @@ public class GraphDatabaseStoredVersions {
             return false;
         }
 
-        Map<String, String> versionsFromDB = databaseMetaInfo.getVersions(transaction);
+        Map<DataSourceID, String> versionsFromDB = databaseMetaInfo.getVersions(transaction);
 
         Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
 
@@ -57,20 +57,19 @@ public class GraphDatabaseStoredVersions {
         }
 
         Map<DataSourceInfo, Boolean> upToDate = checkIfDatasourcesUpToDate(dataSourceInfo, versionsFromDB);
-        boolean allSourcesUpToDate = upToDate.values().stream().allMatch(flag -> flag);
-        return allSourcesUpToDate;
+        return upToDate.values().stream().allMatch(flag -> flag);
     }
 
-    private static Map<DataSourceInfo, Boolean> checkIfDatasourcesUpToDate(Set<DataSourceInfo> dataSourceInfo,
-                                                                           Map<String, String> versionsFromDB) {
+    private static Map<DataSourceInfo, Boolean> checkIfDatasourcesUpToDate(final Set<DataSourceInfo> dataSourceInfo,
+                                                                           final Map<DataSourceID, String> versionsFromDB) {
         final Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
         dataSourceInfo.forEach(sourceInfo -> {
-            DataSourceID sourceName = sourceInfo.getID();
-            String name = sourceName.name();
-            logger.info("Checking version for " + sourceName);
+            DataSourceID sourceID = sourceInfo.getID();
+            //String name = sourceName.name();
+            logger.info("Checking version for " + sourceID);
 
-            if (versionsFromDB.containsKey(name)) {
-                String graphValue = versionsFromDB.get(name);
+            if (versionsFromDB.containsKey(sourceID)) {
+                String graphValue = versionsFromDB.get(sourceID);
                 boolean matches = sourceInfo.getVersion().equals(graphValue);
                 upToDate.put(sourceInfo, matches);
                 if (matches) {
@@ -81,7 +80,7 @@ public class GraphDatabaseStoredVersions {
                 }
             } else {
                 upToDate.put(sourceInfo, false);
-                logger.warn("Could not find version for " + name + " properties were " + versionsFromDB);
+                logger.warn("Could not find version for " + sourceID + " properties were " + versionsFromDB);
             }
         });
         return upToDate;

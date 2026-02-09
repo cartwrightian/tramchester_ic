@@ -1,6 +1,7 @@
 package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.core.GraphNode;
@@ -12,11 +13,7 @@ import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
+import java.util.*;
 
 
 @LazySingleton
@@ -39,21 +36,26 @@ public class GraphDatabaseMetaInfo {
         txn.createNode(GraphLabel.NEIGHBOURS_ENABLED);
     }
 
-    public Map<String, String> getVersions(final GraphTransaction txn) {
-        Stream<GraphNode> query = txn.findNodes(GraphLabel.VERSION);
+    public Map<DataSourceID, String> getVersions(final GraphTransaction txn) {
+        List<GraphNode> query = txn.findNodes(GraphLabel.VERSION).toList();
 
-        Map<String, String> versions = new HashMap<>();
-        query.forEach(versionNode -> {
-            final Map<String, Object> nodeProps = versionNode.getAllProperties();
-            logger.info("Got properties for VERSION node " + nodeProps.toString());
-            nodeProps.forEach((key, value) -> versions.put(key, value.toString()));
-        });
+        if (query.isEmpty()) {
+            logger.warn("version node not found");
+            return Collections.emptyMap();
+        }
+        if (query.size()!=1) {
+            String message = "Wrong number of VERSION nodes " + query;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
 
-        return versions;
+        final GraphNode versionNode = query.getFirst();
+
+        return versionNode.getStoredVersions();
     }
 
     public void createVersionNode(MutableGraphTransaction tx, DataSourceRepository dataSourceRepository) {
-        Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
+        final Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
         logger.info("Setting version data in DB for " + dataSourceInfo);
         MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
         dataSourceInfo.forEach(node::set);

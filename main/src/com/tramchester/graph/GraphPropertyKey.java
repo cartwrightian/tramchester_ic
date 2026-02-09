@@ -46,7 +46,13 @@ public enum GraphPropertyKey {
     END_DATE("end_date"),
     START_TIME("start_time"),
     END_TIME("end_time"),
-    ALL_DAY("all_day");
+    ALL_DAY("all_day"),
+
+    NPTG_VERSION("nptg_version"),
+    TFGM_VERSION("tfgm_version"),
+    POSTCODE_VERSION("postcode_version"),
+    NAPTAN_VERSION("naptan_version"),
+    OPENRAILDATA_VERSION("openraildata_version");
 
     private final String text;
 

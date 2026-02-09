@@ -2,10 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -36,11 +33,9 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MultiDB
@@ -100,6 +95,26 @@ public class GraphPropsTest {
         IdFor<RouteStation> result = relationship.getRouteStationId();
 
         assertEquals(id, result);
+    }
+
+    @Test
+    void shouldSetAndGetVersionInformation() {
+        MutableGraphNode node = txn.createNode(GraphLabel.VERSION);
+
+        DataSourceInfo tfgmInfo = new DataSourceInfo(DataSourceID.tfgm, "1.2", TestEnv.UTCNow(), TramsOnly);
+        DataSourceInfo openRailInfo = new DataSourceInfo(DataSourceID.openRailData, "998", TestEnv.UTCNow(), EnumSet.of(TransportMode.Train));
+
+        node.set(tfgmInfo);
+        node.set(openRailInfo);
+
+        Map<DataSourceID, String> results = node.getStoredVersions();
+
+        assertEquals(2, results.size());
+        assertTrue(results.containsKey(DataSourceID.tfgm));
+        assertEquals("1.2", results.get(DataSourceID.tfgm));
+        assertTrue(results.containsKey(DataSourceID.openRailData));
+        assertEquals("998", results.get(DataSourceID.openRailData));
+
     }
 
     @Test

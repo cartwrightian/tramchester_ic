@@ -104,10 +104,11 @@ public class MutableTransactionGraph implements Graph {
         if (includeRelationships) {
             // potentially problematic, since only the getRelationshipsIdsFor is synchronized, and the parent
             // collection might get updated before the forEach below completes
-            // TODO push into parent where can ensure synchronization
-            final Stream<RelationshipIdInMemory> relNotCopiedIn = parent.
+            // WORKAROUND copy into local list
+            // TODO Longer term fix ??
+            final List<RelationshipIdInMemory> relNotCopiedIn = parent.
                     getRelationshipsIdsFor(nodeId).
-                    filter(relId -> !localGraph.hasRelationshipId(relId));
+                    filter(relId -> !localGraph.hasRelationshipId(relId)).toList();
 
             relNotCopiedIn.forEach(this::copyRelationshipIntoLocal);
         }

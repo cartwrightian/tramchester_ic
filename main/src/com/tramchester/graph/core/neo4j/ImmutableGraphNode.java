@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.neo4j;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -200,6 +201,11 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     @Override
     public String getWalkId() {
         return underlying.getWalkId();
+    }
+
+    @Override
+    public Map<DataSourceID, String> getStoredVersions() {
+        return underlying.getStoredVersions();
     }
 
     @Override
