@@ -15,12 +15,13 @@ import com.tramchester.graph.core.GraphEntityProperties;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
 final class PropertyContainer implements GraphEntityProperties.GraphProps<PropertyContainer> {
 
-    private final ConcurrentMap<String, Object> props;
+    private final ConcurrentMap<GraphPropertyKey, Object> props;
 
     PropertyContainer() {
         this(new ConcurrentHashMap<>());
@@ -31,7 +32,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         properties.forEach(prop -> setProperty(GraphPropertyKey.parse(prop.getKey()), prop.getContainedValue()));
     }
 
-    private PropertyContainer(ConcurrentHashMap<String, Object> props) {
+    private PropertyContainer(ConcurrentHashMap<GraphPropertyKey, Object> props) {
         this.props = props;
     }
 
@@ -41,30 +42,34 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     }
 
     @Override
-    public void setProperty(final String key, final Object value) {
+    public void setProperty(final GraphPropertyKey key, final Object value) {
         props.put(key, value);
     }
 
     @Override
-    public Object getProperty(final String key) {
+    public Object getProperty(final GraphPropertyKey key) {
         if (props.containsKey(key)) {
             return props.get(key);
         }
         throw new RuntimeException("No such property " + key);
     }
 
+    @Deprecated
     @Override
     public Map<String, Object> getAllProperties() {
-        return new HashMap<>(props);
+        // TODO Update i/f to GraphPropertyKey
+        return props.entrySet().
+                stream().
+                collect(Collectors.toMap(entry -> entry.getKey().getText(), Map.Entry::getValue));
     }
 
     @Override
-    public boolean hasProperty(final String key) {
+    public boolean hasProperty(final GraphPropertyKey key) {
         return props.containsKey(key);
     }
 
     @Override
-    public void removeProperty(final String key) {
+    public void removeProperty(final GraphPropertyKey key) {
         props.remove(key);
     }
 

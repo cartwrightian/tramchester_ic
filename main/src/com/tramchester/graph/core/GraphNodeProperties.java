@@ -97,7 +97,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @Override
     public void setTransportMode(final TransportMode mode) {
         graphProps.setTransportMode(mode);
-        //graphProps.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
         invalidateCache();
     }
 

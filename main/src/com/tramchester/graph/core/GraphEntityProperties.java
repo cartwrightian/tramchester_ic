@@ -62,31 +62,15 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
     public interface GraphProps<IMPL extends GraphProps<IMPL>> {
 
-        void setProperty(String key, Object value);
+        void setProperty(final GraphPropertyKey graphPropertyKey, final Object value);
 
-        default void setProperty(final GraphPropertyKey graphPropertyKey, final Object value) {
-            setProperty(graphPropertyKey.getText(), value);
-        }
-
-        Object getProperty(String text);
-
-        default Object getProperty(final GraphPropertyKey graphPropertyKey) {
-            return getProperty(graphPropertyKey.getText());
-        }
+        Object getProperty(final GraphPropertyKey graphPropertyKey);
 
         Map<String, Object> getAllProperties();
 
-        default boolean hasProperty(final GraphPropertyKey graphPropertyKey) {
-            return hasProperty(graphPropertyKey.getText());
-        }
+        boolean hasProperty(final GraphPropertyKey graphPropertyKey);
 
-        boolean hasProperty(String key);
-
-        void removeProperty(String key);
-
-        default void removeProperty(final GraphPropertyKey graphPropertyKey) {
-            removeProperty(graphPropertyKey.getText());
-        }
+        void removeProperty(final GraphPropertyKey graphPropertyKey);
 
         void setTime(TramTime tramTime);
 

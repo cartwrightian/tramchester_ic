@@ -30,13 +30,13 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     @Override
-    public void setProperty(final String key, final Object value) {
-        entity.setProperty(key, value);
+    public void setProperty(final GraphPropertyKey key, final Object value) {
+        entity.setProperty(key.getText(), value);
     }
 
     @Override
-    public Object getProperty(final String key) {
-        return entity.getProperty(key);
+    public Object getProperty(final GraphPropertyKey key) {
+        return entity.getProperty(key.getText());
     }
 
     @Override
@@ -45,13 +45,13 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     @Override
-    public boolean hasProperty(final String key) {
-        return entity.hasProperty(key);
+    public boolean hasProperty(final GraphPropertyKey key) {
+        return entity.hasProperty(key.getText());
     }
 
     @Override
-    public void removeProperty(String key) {
-        entity.removeProperty(key);
+    public void removeProperty(final GraphPropertyKey key) {
+        entity.removeProperty(key.getText());
     }
 
     @Override
