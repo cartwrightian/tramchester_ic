@@ -10,6 +10,10 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
     PLATFORM_ID("platform_id"),
@@ -46,6 +50,12 @@ public enum GraphPropertyKey {
 
     private final String text;
 
+    static final Map<String, GraphPropertyKey> theMap = createMapping();
+
+    private static Map<String, GraphPropertyKey> createMapping() {
+        return Arrays.stream(values()).collect(Collectors.toMap(value -> value.text, value -> value));
+    }
+
     GraphPropertyKey(final String text) {
         this.text = text.intern();
     }
@@ -76,6 +86,10 @@ public enum GraphPropertyKey {
             return STATION_GROUP_ID;
         }
         throw new RuntimeException("Missing key for type" + klass);
+    }
+
+    public static GraphPropertyKey parse(final String text) {
+        return theMap.get(text);
     }
 
     public String getText() {

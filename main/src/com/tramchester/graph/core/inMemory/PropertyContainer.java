@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphEntityProperties;
 
 import java.util.*;
@@ -27,7 +28,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     public PropertyContainer(final List<PropertyDTO> properties) {
         this();
-        properties.forEach(prop -> setProperty(prop.getKey(), prop.getContainedValue()));
+        properties.forEach(prop -> setProperty(GraphPropertyKey.parse(prop.getKey()), prop.getContainedValue()));
     }
 
     private PropertyContainer(ConcurrentHashMap<String, Object> props) {
@@ -69,16 +70,16 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Override
     public void setTime(final TramTime tramTime) {
-        setProperty(TIME.getText(), tramTime);
+        setProperty(TIME, tramTime);
         // to allow backwards compatible comparison with props in Neo4J
         if (tramTime.isNextDay()) {
-            setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
+            setProperty(DAY_OFFSET, tramTime.isNextDay());
         }
     }
 
     @Override
     public TramTime getTime() {
-        return (TramTime) getProperty(TIME.getText());
+        return (TramTime) getProperty(TIME);
     }
 
     @Override

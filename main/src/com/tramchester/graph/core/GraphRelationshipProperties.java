@@ -49,7 +49,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     protected abstract void invalidateCache();
 
     public Object getPropertyForTesting(final GraphPropertyKey graphPropertyKey) {
-        return relationshipProperties.getProperty(graphPropertyKey.getText());
+        return relationshipProperties.getProperty(graphPropertyKey);
     }
 
     @Override
@@ -66,7 +66,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @Override
     public void setHour(final int hour) {
-        relationshipProperties.setProperty(HOUR.getText(), hour);
+        relationshipProperties.setProperty(HOUR, hour);
         invalidateCache();
     }
 
@@ -84,18 +84,18 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @Override
     public boolean hasProperty(final GraphPropertyKey propertyKey) {
-        return relationshipProperties.hasProperty(propertyKey.getText());
+        return relationshipProperties.hasProperty(propertyKey);
     }
 
     @Override
     public void setRouteStationId(final IdFor<RouteStation> routeStationId) {
-        relationshipProperties.setProperty(ROUTE_STATION_ID.getText(), routeStationId.getGraphId());
+        relationshipProperties.setProperty(ROUTE_STATION_ID, routeStationId.getGraphId());
         invalidateCache();
     }
 
     @Override
     public void setStopSeqNum(final int sequenceNumber) {
-        relationshipProperties.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
+        relationshipProperties.setProperty(STOP_SEQ_NUM, sequenceNumber);
         invalidateCache();
     }
 
@@ -111,7 +111,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public int getStopSeqNumber() {
-        return (int) relationshipProperties.getProperty(STOP_SEQ_NUM.getText());
+        return (int) relationshipProperties.getProperty(STOP_SEQ_NUM);
     }
 
     @Override
@@ -123,13 +123,13 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @Override
     public void setTimeRange(final TimeRange timeRange) {
         if (timeRange.allDay()) {
-            relationshipProperties.setProperty(ALL_DAY.getText(), "");
-            relationshipProperties.removeProperty(START_TIME.getText());
-            relationshipProperties.removeProperty(END_TIME.getText());
+            relationshipProperties.setProperty(ALL_DAY, "");
+            relationshipProperties.removeProperty(START_TIME);
+            relationshipProperties.removeProperty(END_TIME);
         } else {
             setStartTime(timeRange.getStart());
             setEndTime(timeRange.getEnd());
-            relationshipProperties.removeProperty(ALL_DAY.getText());
+            relationshipProperties.removeProperty(ALL_DAY);
         }
         invalidateCache();
     }
@@ -139,7 +139,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for start time next");
         }
-        relationshipProperties.setProperty(START_TIME.getText(), tramTime.asLocalTime());
+        relationshipProperties.setProperty(START_TIME, tramTime.asLocalTime());
         invalidateCache();
     }
 
@@ -148,19 +148,19 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for end time next");
         }
-        relationshipProperties.setProperty(END_TIME.getText(), tramTime.asLocalTime());
+        relationshipProperties.setProperty(END_TIME, tramTime.asLocalTime());
         invalidateCache();
     }
 
     @Override
     public void setEndDate(final LocalDate localDate) {
-        relationshipProperties.setProperty(END_DATE.getText(), localDate);
+        relationshipProperties.setProperty(END_DATE, localDate);
         invalidateCache();
     }
 
     @Override
     public void setStartDate(final LocalDate localDate) {
-        relationshipProperties.setProperty(START_DATE.getText(), localDate);
+        relationshipProperties.setProperty(START_DATE, localDate);
         invalidateCache();
     }
 
@@ -199,7 +199,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public int getHour() {
-        return (int) relationshipProperties.getProperty(HOUR.getText());
+        return (int) relationshipProperties.getProperty(HOUR);
     }
 
     @JsonIgnore
@@ -211,7 +211,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public TimeRange getTimeRange() {
-        if (relationshipProperties.hasProperty(ALL_DAY.getText())) {
+        if (relationshipProperties.hasProperty(ALL_DAY)) {
             return TimeRange.AllDay();
         } else {
             final TramTime start = getStartTime();
@@ -301,25 +301,25 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     private LocalDate getEndDate() {
-        return (LocalDate) relationshipProperties.getProperty(END_DATE.getText());
+        return (LocalDate) relationshipProperties.getProperty(END_DATE);
     }
 
     @JsonIgnore
     private LocalDate getStartDate() {
-        return (LocalDate) relationshipProperties.getProperty(START_DATE.getText());
+        return (LocalDate) relationshipProperties.getProperty(START_DATE);
     }
 
     @JsonIgnore
     @Override
     public TramTime getStartTime() {
-        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(START_TIME.getText());
+        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(START_TIME);
         return TramTime.ofHourMins(localTime);
     }
 
     @JsonIgnore
     @Override
     public TramTime getEndTime() {
-        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(END_TIME.getText());
+        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(END_TIME);
         return TramTime.ofHourMins(localTime);
     }
 

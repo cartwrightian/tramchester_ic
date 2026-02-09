@@ -20,14 +20,14 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
     private static final Logger logger = LoggerFactory.getLogger(GraphEntityProperties.class);
 
     protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(final C domainItem, final E entity) {
-        entity.setProperty(domainItem.getProp().getText(), domainItem.getId().getGraphId());
+        entity.setProperty(domainItem.getProp(), domainItem.getId().getGraphId());
     }
 
     protected <C extends CoreDomain> IdFor<C> getIdFor(final Class<C> klass, final E entity) {
         final GraphPropertyKey key = GraphPropertyKey.getFor(klass);
 
         try {
-            final String value = entity.getProperty(key.getText()).toString();
+            final String value = entity.getProperty(key).toString();
             if (RouteStation.class.equals(klass)) {
                 return getIdForRouteStation(value);
             } else {
@@ -47,13 +47,13 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
     }
 
     protected RouteStationId getRouteStationId(final E entity) {
-        final String value = entity.getProperty(ROUTE_STATION_ID.getText()).toString();
+        final String value = entity.getProperty(ROUTE_STATION_ID).toString();
         return RouteStationId.parse(value);
     }
 
     // public to support testing
     protected Object getProperty(final GraphPropertyKey graphPropertyKey, final E entity) {
-        return entity.getProperty(graphPropertyKey.getText());
+        return entity.getProperty(graphPropertyKey);
     }
 
     protected Map<String, Object> getAllProperties(final E entity) {
@@ -61,8 +61,6 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
     }
 
     public interface GraphProps<IMPL extends GraphProps<IMPL>> {
-
-        // TODO String -> GraphPropertyKey here
 
         void setProperty(String key, Object value);
 
@@ -85,6 +83,10 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
         boolean hasProperty(String key);
 
         void removeProperty(String key);
+
+        default void removeProperty(final GraphPropertyKey graphPropertyKey) {
+            removeProperty(graphPropertyKey.getText());
+        }
 
         void setTime(TramTime tramTime);
 

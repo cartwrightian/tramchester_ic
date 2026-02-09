@@ -7,6 +7,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphEntityProperties;
 import org.neo4j.graphdb.Entity;
 
@@ -19,8 +20,6 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPropsNeo4J> {
     private final Entity entity;
-
-    private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private GraphPropsNeo4J(final Entity entity) {
         this.entity = entity;
@@ -57,16 +56,16 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
 
     @Override
     public void setTime(TramTime tramTime) {
-        setProperty(TIME.getText(), tramTime.asLocalTime());
+        setProperty(TIME, tramTime.asLocalTime());
         if (tramTime.isNextDay()) {
-            setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
+            setProperty(DAY_OFFSET, tramTime.isNextDay());
         }
     }
 
     @Override
     public TramTime getTime() {
-        final LocalTime localTime = (LocalTime) getProperty(TIME.getText());
-        final boolean nextDay = hasProperty(DAY_OFFSET.getText());
+        final LocalTime localTime = (LocalTime) getProperty(TIME);
+        final boolean nextDay = hasProperty(DAY_OFFSET);
         if (nextDay) {
             return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
         }
@@ -74,10 +73,10 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     @Override
-    public void addTripId(IdFor<Trip> tripId) {
+    public void addTripId(final IdFor<Trip> tripId) {
         final String text = tripId.getGraphId();
-        if (!(hasProperty(tripIdListProperty))) {
-            setProperty(tripIdListProperty, new String[]{text});
+        if (!(hasProperty(TRIP_ID_LIST))) {
+            setProperty(TRIP_ID_LIST, new String[]{text});
             return;
         }
         // else
@@ -94,7 +93,7 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
         replacement[length] = text;
         // keep array sorted, so can use BinarySearch
         Arrays.sort(replacement);
-        setProperty(tripIdListProperty, replacement);
+        setProperty(TRIP_ID_LIST, replacement);
     }
 
     @Override
@@ -108,12 +107,12 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     private String[] getTripIdList() {
-        return (String[]) getProperty(tripIdListProperty);
+        return (String[]) getProperty(TRIP_ID_LIST);
     }
 
     @Override
     public ImmutableIdSet<Trip> getTripIds() {
-        if (!hasProperty(tripIdListProperty)) {
+        if (!hasProperty(TRIP_ID_LIST)) {
             return IdSet.emptySet();
         }
         final String[] existing = getTripIdList();
@@ -124,7 +123,7 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     @Override
     public void setCost(final TramDuration cost) {
         final long seconds = cost.toSeconds();
-        setProperty(COST.getText(), seconds);
+        setProperty(COST, seconds);
     }
 
     @Override
@@ -151,7 +150,7 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     public void addTransportMode(final TransportMode mode) {
 
         final short modeNumber = mode.getNumber();
-        final String key = TRANSPORT_MODES.getText();
+        final GraphPropertyKey key = TRANSPORT_MODES;
 
         if (!hasProperty(key)) {
             // INIT
@@ -175,11 +174,11 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
 
     @Override
     public EnumSet<TransportMode> getTransportModes() {
-        if (!hasProperty(TRANSPORT_MODES.getText())) {
+        if (!hasProperty(TRANSPORT_MODES)) {
             return EnumSet.noneOf(TransportMode.class);
         }
 
-        final short[] existing = (short[]) getProperty(TRANSPORT_MODES.getText());
+        final short[] existing = (short[]) getProperty(TRANSPORT_MODES);
         return TransportMode.fromNumbers(existing);
     }
 
