@@ -3,6 +3,7 @@ package com.tramchester.graph.core.inMemory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -136,7 +137,7 @@ public class GraphCore implements Graph {
             target.nodesAndEdges.addNode(id, node);
 
             // update labels for the node
-            final EnumSet<GraphLabel> labels = node.getLabels();
+            final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
             labels.forEach(label -> target.labelsToNodes.get(label).add(id));
         });
         // using loaded id's work out new next node id
@@ -329,7 +330,7 @@ public class GraphCore implements Graph {
             // relationships
             relationshipsForNodes.remove(id);
             // label map
-            final EnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
+            final ImmutableEnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
             labels.forEach(label -> labelsToNodes.get(label).remove(id));
             // the node
             nodesAndEdges.removeNode(id);
@@ -516,7 +517,7 @@ public class GraphCore implements Graph {
 
             final Stream<GraphNodeInMemory> nodesFromChild = mutatedGraph.getUpdatedNodes();
             nodesFromChild.forEach(node -> {
-                insertNode(node, node.getLabels());
+                insertNode(node, ImmutableEnumSet.createEnumSet(node.getLabels()));
                 node.setClean();
             });
 

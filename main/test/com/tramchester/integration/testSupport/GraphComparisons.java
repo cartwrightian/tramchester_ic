@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -55,7 +56,7 @@ public class GraphComparisons {
 
             // Note: have to match relationships via end node labels and props
             final Map<GraphPropertyKey, Object> endNodeProps = destinationNode.getAllProperties();
-            final EnumSet<GraphLabel> endNodeLabels = destinationNode.getLabels();
+            final ImmutableEnumSet<GraphLabel> endNodeLabels = destinationNode.getLabels();
 
             // types
             final List<GraphRelationship> matchType = inMemoryNode.getRelationships(txnInMem, Outgoing, type).toList();

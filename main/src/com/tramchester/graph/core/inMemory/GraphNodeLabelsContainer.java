@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.EnumSet;
@@ -18,8 +19,8 @@ public class GraphNodeLabelsContainer {
         return labels.contains(graphLabel);
     }
 
-    public EnumSet<GraphLabel> getLabels() {
-        return labels;
+    public ImmutableEnumSet<GraphLabel> getLabels() {
+        return ImmutableEnumSet.copyOf(labels);
     }
 
     public void add(final GraphLabel label) {

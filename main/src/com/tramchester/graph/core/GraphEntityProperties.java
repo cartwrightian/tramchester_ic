@@ -96,7 +96,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
         IMPL copy();
 
-        EnumSet<GraphPropertyKey> getUnused();
+        Set<GraphPropertyKey> getUnused();
     }
 
 }

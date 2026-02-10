@@ -1,8 +1,8 @@
 package com.tramchester.graph.search;
 
-import com.google.common.collect.Sets;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -115,7 +115,7 @@ public class ServiceHeuristics {
     }
 
     public HeuristicsReason interestedInHour(final HowIGotHere howIGotHere, final TramTime currentTime,
-                                          final ServiceReasons reasons, final int maxWait, final EnumSet<GraphLabel> hourLabels) {
+                                          final ServiceReasons reasons, final int maxWait, final ImmutableEnumSet<GraphLabel> hourLabels) {
         reasons.incrementTotalChecked();
 
         final int hourAtNode = GraphLabel.getHourFrom(hourLabels);
@@ -158,10 +158,10 @@ public class ServiceHeuristics {
 
     }
 
-    public HeuristicsReason checkModes(final EnumSet<GraphLabel> modelLabels, final EnumSet<GraphLabel> requestedModeLabels,
+    public HeuristicsReason checkModes(final ImmutableEnumSet<GraphLabel> modelLabels, final EnumSet<GraphLabel> requestedModeLabels,
                                        final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         // todo more efficient way for intersection on EnumSets?
-        if (Sets.intersection(modelLabels, requestedModeLabels).isEmpty()) {
+        if (modelLabels.intersectionWith(requestedModeLabels).isEmpty()) {
             return reasons.recordReason(HeuristicsReasons.TransportModeWrong(howIGotHere));
         }
         return valid(ReasonCode.TransportModeOk, howIGotHere, reasons);
@@ -169,11 +169,11 @@ public class ServiceHeuristics {
 
 
     public HeuristicsReason checkModesMatchForFinalChange(final int currentNumberOfChanges,
-                                                          final EnumSet<GraphLabel> nodeLabels, final EnumSet<GraphLabel> destinationLabels,
+                                                          final ImmutableEnumSet<GraphLabel> nodeLabels, final EnumSet<GraphLabel> destinationLabels,
                                                           final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         // TODO potential optimisation where only one mode is configured, in which case this check does nothing
         if (currentNumberOfChanges==penultimateChange) {
-            if (Sets.intersection(nodeLabels, destinationLabels).isEmpty()) {
+            if (nodeLabels.intersectionWith(destinationLabels).isEmpty()) {
                 return reasons.recordReason(HeuristicsReasons.StationNotReachable(howIGotHere, ReasonCode.TransportModeWrong));
             }
         }

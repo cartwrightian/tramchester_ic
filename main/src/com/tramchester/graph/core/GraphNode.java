@@ -2,6 +2,7 @@ package com.tramchester.graph.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
@@ -58,7 +59,7 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     boolean hasLabel(GraphLabel graphLabel);
 
-    EnumSet<GraphLabel> getLabels();
+    ImmutableEnumSet<GraphLabel> getLabels();
 
     boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
@@ -80,7 +81,7 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     // but different RouteIds
     @JsonIgnore
     default IdFor<? extends CoreDomain> getCoreDomainId() {
-        final EnumSet<GraphLabel> labels = getLabels();
+        final ImmutableEnumSet<GraphLabel> labels = getLabels();
         final List<GraphLabel> matched = labels.stream().filter(GraphLabel.CoreDomain::contains).distinct().toList();
         if (matched.size()==1) {
             final GraphLabel label = matched.getFirst();

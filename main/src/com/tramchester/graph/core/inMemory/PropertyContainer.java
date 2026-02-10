@@ -19,11 +19,11 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 final class PropertyContainer implements GraphEntityProperties.GraphProps<PropertyContainer> {
 
-    private static final int INITIAL_SIZE = 4;
+    //private static final int INITIAL_SIZE = 4;
 
     private final EnumMap<GraphPropertyKey, Object> props;
-    private final boolean diagnostics;
     private final EnumSet<GraphPropertyKey> used;
+    private final boolean diagnostics;
 
     PropertyContainer(final boolean diagnostics) {
         this(new EnumMap<>(GraphPropertyKey.class), diagnostics);
@@ -37,7 +37,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     private PropertyContainer(final EnumMap<GraphPropertyKey, Object> props, final boolean diagnostics) {
         this.props = props;
         this.diagnostics = diagnostics;
-        used = EnumSet.noneOf(GraphPropertyKey.class);
+        used = diagnostics ? EnumSet.noneOf(GraphPropertyKey.class) : null;
     }
 
     @Override
@@ -81,10 +81,14 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     }
 
     @Override
-    public EnumSet<GraphPropertyKey> getUnused() {
-        final EnumSet<GraphPropertyKey> results = EnumSet.copyOf(props.keySet());
-        results.removeAll(used);
-        return results;
+    public Set<GraphPropertyKey> getUnused() {
+        if (used==null) {
+            return GraphPropertyKey.EmptySet;
+        } else {
+            final EnumSet<GraphPropertyKey> results = EnumSet.copyOf(props.keySet());
+            results.removeAll(used);
+            return results;
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.neo4j;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -61,7 +62,7 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels() {
+    public ImmutableEnumSet<GraphLabel> getLabels() {
         return GraphReferenceMapper.from(node.getLabels());
     }
 

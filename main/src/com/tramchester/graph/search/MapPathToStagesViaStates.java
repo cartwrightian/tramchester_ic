@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -25,7 +26,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
@@ -78,7 +78,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         pathMapper.process(initial, new PathMapper.ForGraphNode() {
             @Override
             public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final TramDuration currentCost) {
-                final EnumSet<GraphLabel> labels = node.getLabels();
+                final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
                 try {
                     final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
                     logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());

@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph.neo4J;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
 import com.tramchester.graph.reference.GraphLabel;
@@ -92,7 +93,7 @@ public class GraphLabelTest {
 
     @Test
     void shouldGetFromIterable() {
-        EnumSet<GraphLabel> graphLabels = EnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23);
+        ImmutableEnumSet<GraphLabel> graphLabels = ImmutableEnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23);
 
         Set<Label> labels = graphLabels.stream().map(mapper::get).collect(Collectors.toSet());
 
@@ -104,7 +105,7 @@ public class GraphLabelTest {
             }
         };
 
-        EnumSet<GraphLabel> result = GraphReferenceMapper.from(iterable);
+        ImmutableEnumSet<GraphLabel> result = GraphReferenceMapper.from(iterable);
         assertEquals(graphLabels, result);
     }
 

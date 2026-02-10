@@ -15,6 +15,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -190,7 +191,7 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     @Override
-    public EnumSet<GraphPropertyKey> getUnused() {
+    public Set<GraphPropertyKey> getUnused() {
         return EnumSet.noneOf(GraphPropertyKey.class);
     }
 

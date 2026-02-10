@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -43,6 +44,10 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         this.id = id;
         this.labels = new GraphNodeLabelsContainer(this, labels);
         dirtyCount = new AtomicInteger(0);
+    }
+
+    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, ImmutableEnumSet<GraphLabel> labels) {
+        this(propertyContainer, id, ImmutableEnumSet.createEnumSet(labels));
     }
 
     public GraphNodeInMemory copy() {
@@ -103,7 +108,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels() {
+    public ImmutableEnumSet<GraphLabel> getLabels() {
         return labels.getLabels();
     }
 

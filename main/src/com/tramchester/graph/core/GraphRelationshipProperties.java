@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -338,7 +339,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     }
 
     @JsonIgnore
-    public EnumSet<GraphPropertyKey> getUnusedProps() {
+    public Set<GraphPropertyKey> getUnusedProps() {
         return relationshipProperties.getUnused();
     }
 }

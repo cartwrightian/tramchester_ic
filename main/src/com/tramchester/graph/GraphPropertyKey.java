@@ -10,8 +10,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public enum GraphPropertyKey {
@@ -53,6 +52,8 @@ public enum GraphPropertyKey {
     POSTCODE_VERSION("postcode_version"),
     NAPTAN_VERSION("naptan_version"),
     OPENRAILDATA_VERSION("openraildata_version");
+
+    public static final Set<GraphPropertyKey> EmptySet = Collections.unmodifiableSet(EnumSet.noneOf(GraphPropertyKey.class));
 
     private final String text;
 

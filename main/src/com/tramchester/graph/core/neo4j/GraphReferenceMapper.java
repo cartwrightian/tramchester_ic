@@ -1,8 +1,9 @@
 package com.tramchester.graph.core.neo4j;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.RelationshipType;
 
@@ -64,7 +65,7 @@ public class GraphReferenceMapper {
         return dest;
     }
 
-    public static EnumSet<GraphLabel> from(final Iterable<Label> iter) {
+    public static ImmutableEnumSet<GraphLabel> from(final Iterable<Label> iter) {
         // results from perf test, seconds
 
         // 1.221
@@ -72,7 +73,7 @@ public class GraphReferenceMapper {
         for(final Label item : iter) {
             result.add(GraphLabel.valueOf(item.name()));
         }
-        return result;
+        return ImmutableEnumSet.copyOf(result);
 
         // 1.284
 //        final EnumSet<GraphLabel> result = EnumSet.noneOf(GraphLabel.class);

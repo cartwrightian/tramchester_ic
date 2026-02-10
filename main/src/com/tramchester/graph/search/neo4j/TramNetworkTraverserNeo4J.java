@@ -2,6 +2,7 @@ package com.tramchester.graph.search.neo4j;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -26,7 +27,6 @@ import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
@@ -172,7 +172,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
 
         final GraphNode endPathNode =  path.getEndNode(txn); // txn.fromEnd(path);
 
-        final EnumSet<GraphLabel> labels = endPathNode.getLabels();
+        final ImmutableEnumSet<GraphLabel> labels = endPathNode.getLabels();
 
         final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
                 journeyStateForChildren, cost);

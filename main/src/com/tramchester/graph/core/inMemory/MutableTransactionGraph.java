@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -97,9 +98,9 @@ public class MutableTransactionGraph implements Graph {
             return localGraph.getNodeMutable(nodeId);
         }
 
-
         final GraphNodeInMemory original = parent.getNodeMutable(nodeId);
-        final GraphNodeInMemory result = localGraph.insertNode(original.copy(), original.getLabels());
+        final GraphNodeInMemory result = localGraph.insertNode(original.copy(),
+                ImmutableEnumSet.createEnumSet(original.getLabels()));
 
         if (includeRelationships) {
             // potentially problematic, since only the getRelationshipsIdsFor is synchronized, and the parent

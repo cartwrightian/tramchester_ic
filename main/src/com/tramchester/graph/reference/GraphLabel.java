@@ -1,5 +1,6 @@
 package com.tramchester.graph.reference;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
@@ -77,7 +78,18 @@ public enum GraphLabel { //implements Label {
     }
 
     // TODO performance
+    @Deprecated
     public static int getHourFrom(final EnumSet<GraphLabel> labels) {
+        for (int hour = 0; hour < 24 ; hour++) {
+            if (labels.contains(hourLabels[hour])) {
+                return hour;
+            }
+        }
+        throw new RuntimeException("Could not find hour from " + labels);
+    }
+
+    // TODO performance
+    public static int getHourFrom(ImmutableEnumSet<GraphLabel> labels) {
         for (int hour = 0; hour < 24 ; hour++) {
             if (labels.contains(hourLabels[hour])) {
                 return hour;
@@ -89,6 +101,5 @@ public enum GraphLabel { //implements Label {
     public static GraphLabel from(final String name) {
         return valueOf(name);
     }
-
 
 }

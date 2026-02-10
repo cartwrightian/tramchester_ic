@@ -1,6 +1,7 @@
 package com.tramchester.graph.core;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
@@ -69,7 +70,7 @@ public abstract class TramRouteEvaluator {
         final GraphNode nextNode = graphPath.getEndNode(txn);
 
         // reuse these, label operations on nodes are expensive
-        final EnumSet<GraphLabel> labels = nextNode.getLabels();
+        final ImmutableEnumSet<GraphLabel> labels = nextNode.getLabels();
 
         final List<PropertyDTO> endNodeProps;
         if (serviceHeuristics.isDiagnostics()) {
@@ -119,7 +120,7 @@ public abstract class TramRouteEvaluator {
 
     private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState,
                                         final GraphNode nextNode,
-                                        final EnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
+                                        final ImmutableEnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 

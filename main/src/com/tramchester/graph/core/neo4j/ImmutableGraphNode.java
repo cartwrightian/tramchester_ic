@@ -3,6 +3,7 @@ package com.tramchester.graph.core.neo4j;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
@@ -128,7 +129,7 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels() {
+    public ImmutableEnumSet<GraphLabel> getLabels() {
         return sharedNodeCache.getLabels(nodeId, nodeId -> underlying.getLabels());
     }
 

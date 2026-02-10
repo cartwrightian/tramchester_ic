@@ -422,7 +422,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         final boolean isInterchange = interchangeRepository.isInterchange(station);
 
-
         // If Bus, for example, we board to/from station, for trams it is from the platform
         final MutableGraphNode platformOrStation = station.hasPlatforms() ? stationAndPlatformNodeCache.getPlatform(tx, stopCall.getPlatform().getId())
                 : stationAndPlatformNodeCache.getStation(tx, station.getId());
