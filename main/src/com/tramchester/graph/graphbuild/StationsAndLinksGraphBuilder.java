@@ -6,6 +6,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
+import static com.tramchester.graph.reference.GraphLabel.ROUTE_STATION;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
@@ -278,7 +280,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private MutableGraphNode createRouteStationNode(final MutableGraphTransaction tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
 
-        final boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID, routeStation.getId().getGraphId());
+        final boolean hasAlready = tx.hasAnyMatching(ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID, routeStation.getId().getGraphId());
 
         if (hasAlready) {
             final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();
@@ -292,7 +294,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final TransportMode mode = routeStation.getRoute().getTransportMode();
         final GraphLabel modeLabel = GraphLabel.forMode(mode);
 
-        final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.ROUTE_STATION, modeLabel);
+        final ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSet.of(ROUTE_STATION, modeLabel);
 
         final MutableGraphNode routeStationNode = createGraphNode(tx, labels);
 

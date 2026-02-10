@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.SharedNodeCache;
@@ -16,7 +17,6 @@ import org.neo4j.graphalgo.BasicEvaluationContext;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +82,8 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
     }
 
     @Override
-    public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
-        final Label[] toApply = relationshipTypeFactory.getLabels(labels);
+    public MutableGraphNode createNode(final ImmutableEnumSet<GraphLabel> labels) {
+        final Label[] toApply = relationshipTypeFactory.getLabels(ImmutableEnumSet.createEnumSet(labels));
         //labels.toArray(toApply);
         final Node node = txn.createNode(toApply);
         return wrapNodeAsMutable(node);

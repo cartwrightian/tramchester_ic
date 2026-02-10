@@ -3,6 +3,7 @@ package com.tramchester.unit.graph.inMemory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -28,6 +29,7 @@ import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.graph.reference.GraphLabel.INTERCHANGE;
 import static com.tramchester.graph.reference.GraphLabel.STATION;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,7 +69,7 @@ public class GraphSerializationTest {
     @Test
     void shouldRoundTripGraphNode()  {
         NodeIdInMemory id = new NodeIdInMemory(678);
-        EnumSet<GraphLabel> labels = EnumSet.of(STATION, GraphLabel.INTERCHANGE);
+        ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSet.of(STATION, INTERCHANGE);
         GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(id, labels, false);
 
         TramTime tramTime = TramTime.of(11, 42);

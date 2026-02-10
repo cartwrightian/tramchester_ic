@@ -27,7 +27,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     // push labels into graph, so can do the validation check etc
     private final GraphNodeLabelsContainer labels;
 
-    public GraphNodeInMemory(final NodeIdInMemory id, final EnumSet<GraphLabel> labels, final boolean diagnostics) {
+    public GraphNodeInMemory(final NodeIdInMemory id, final ImmutableEnumSet<GraphLabel> labels, final boolean diagnostics) {
         this(new PropertyContainer(diagnostics), id, labels);
     }
 
@@ -36,19 +36,19 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
             @JsonProperty("nodeId") final NodeIdInMemory id,
             @JsonProperty("labels") final EnumSet<GraphLabel> labels,
             @JsonProperty("properties") List<PropertyDTO> properties) {
-        this(new PropertyContainer(properties), id, labels);
+        this(new PropertyContainer(properties), id, ImmutableEnumSet.copyOf(labels));
     }
 
-    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, EnumSet<GraphLabel> labels) {
+    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, ImmutableEnumSet<GraphLabel> labels) {
         super(propertyContainer);
         this.id = id;
         this.labels = new GraphNodeLabelsContainer(this, labels);
         dirtyCount = new AtomicInteger(0);
     }
 
-    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, ImmutableEnumSet<GraphLabel> labels) {
-        this(propertyContainer, id, ImmutableEnumSet.createEnumSet(labels));
-    }
+//    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, ImmutableEnumSet<GraphLabel> labels) {
+//        this(propertyContainer, id, ImmutableEnumSet.createEnumSet(labels));
+//    }
 
     public GraphNodeInMemory copy() {
         return new GraphNodeInMemory(super.copyProperties(), id, labels.getLabels());
@@ -107,9 +107,15 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         return labels.contains(graphLabel);
     }
 
+    @JsonIgnore
     @Override
     public ImmutableEnumSet<GraphLabel> getLabels() {
         return labels.getLabels();
+    }
+
+    @JsonProperty(value = "labels")
+    EnumSet<GraphLabel> getLabelsForSerialization() {
+        return ImmutableEnumSet.createEnumSet(labels.getLabels());
     }
 
     @Override

@@ -86,4 +86,8 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
     public int size() {
         return contained.size();
     }
+
+    public boolean isEmpty() {
+        return contained.isEmpty();
+    }
 }

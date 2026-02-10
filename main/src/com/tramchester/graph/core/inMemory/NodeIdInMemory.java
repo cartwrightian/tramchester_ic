@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
@@ -14,14 +15,14 @@ import java.util.Objects;
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
     @JsonIgnore
-    private final EnumSet<GraphLabel> labels; // diagnostics only
+    private final ImmutableEnumSet<GraphLabel> labels; // diagnostics only
 
     @JsonCreator
     public NodeIdInMemory(@JsonProperty("id") final int id) {
-        this(id, EnumSet.noneOf(GraphLabel.class));
+        this(id, ImmutableEnumSet.noneOf(GraphLabel.class));
     }
 
-    public NodeIdInMemory(final int id, final EnumSet<GraphLabel> labels) {
+    public NodeIdInMemory(final int id, final ImmutableEnumSet<GraphLabel> labels) {
         this.id = id;
         this.labels = labels;
     }

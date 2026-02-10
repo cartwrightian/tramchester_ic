@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -8,13 +9,12 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public interface Graph {
 
     // mutable
-    GraphNodeInMemory createNode(EnumSet<GraphLabel> labels);
+    GraphNodeInMemory createNode(ImmutableEnumSet<GraphLabel> labels);
 
     GraphRelationshipInMemory createRelationship(TransportRelationshipTypes relationshipType,
                                                  GraphNodeInMemory begin,

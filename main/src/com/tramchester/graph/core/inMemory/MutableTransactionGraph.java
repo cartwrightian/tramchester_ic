@@ -12,7 +12,6 @@ import com.tramchester.metrics.Timing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +40,7 @@ public class MutableTransactionGraph implements Graph {
     }
 
     @Override
-    public synchronized GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
+    public synchronized GraphNodeInMemory createNode(final ImmutableEnumSet<GraphLabel> labels) {
         final GraphNodeInMemory result = localGraph.createNode(labels);
         locallyCreatedNodes.add(result.getId());
         return result;
@@ -99,8 +98,7 @@ public class MutableTransactionGraph implements Graph {
         }
 
         final GraphNodeInMemory original = parent.getNodeMutable(nodeId);
-        final GraphNodeInMemory result = localGraph.insertNode(original.copy(),
-                ImmutableEnumSet.createEnumSet(original.getLabels()));
+        final GraphNodeInMemory result = localGraph.insertNode(original.copy(), original.getLabels());
 
         if (includeRelationships) {
             // potentially problematic, since only the getRelationshipsIdsFor is synchronized, and the parent

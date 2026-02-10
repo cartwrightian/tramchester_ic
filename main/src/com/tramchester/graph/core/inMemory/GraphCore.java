@@ -154,7 +154,7 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
+    public GraphNodeInMemory createNode(final ImmutableEnumSet<GraphLabel> labels) {
         synchronized (nodesAndEdges) {
             final int id = idFactory.getNextNodeId();
             final NodeIdInMemory idInMemory;
@@ -168,7 +168,7 @@ public class GraphCore implements Graph {
         }
     }
 
-    synchronized GraphNodeInMemory insertNode(final GraphNodeInMemory nodeToInsert, final EnumSet<GraphLabel> labels) {
+    synchronized GraphNodeInMemory insertNode(final GraphNodeInMemory nodeToInsert, final ImmutableEnumSet<GraphLabel> labels) {
         final NodeIdInMemory id = nodeToInsert.getId();
         nodesAndEdges.addNode(id, nodeToInsert);
         labels.forEach(label -> labelsToNodes.get(label).add(id));
@@ -517,7 +517,7 @@ public class GraphCore implements Graph {
 
             final Stream<GraphNodeInMemory> nodesFromChild = mutatedGraph.getUpdatedNodes();
             nodesFromChild.forEach(node -> {
-                insertNode(node, ImmutableEnumSet.createEnumSet(node.getLabels()));
+                insertNode(node, node.getLabels());
                 node.setClean();
             });
 

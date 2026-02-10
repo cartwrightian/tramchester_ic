@@ -7,10 +7,10 @@ import java.util.EnumSet;
 
 public class GraphNodeLabelsContainer {
 
-    private final EnumSet<GraphLabel> labels;
+    private ImmutableEnumSet<GraphLabel> labels;
     private final GraphNodeInMemory parent;
 
-    public GraphNodeLabelsContainer(final GraphNodeInMemory parent, final EnumSet<GraphLabel> labels) {
+    public GraphNodeLabelsContainer(final GraphNodeInMemory parent, final ImmutableEnumSet<GraphLabel> labels) {
         this.labels = labels;
         this.parent = parent;
     }
@@ -20,11 +20,13 @@ public class GraphNodeLabelsContainer {
     }
 
     public ImmutableEnumSet<GraphLabel> getLabels() {
-        return ImmutableEnumSet.copyOf(labels);
+        return labels;
     }
 
     public void add(final GraphLabel label) {
-        labels.add(label);
+        final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(labels);
+        updated.add(label);
+        labels = ImmutableEnumSet.copyOf(updated);
         parent.invalidateCache();
     }
 

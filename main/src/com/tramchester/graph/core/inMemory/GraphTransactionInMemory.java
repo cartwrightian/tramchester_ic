@@ -3,6 +3,7 @@ package com.tramchester.graph.core.inMemory;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
@@ -48,11 +49,11 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public MutableGraphNode createNode(final GraphLabel graphLabel) {
-        return createNode(EnumSet.of(graphLabel));
+        return createNode(ImmutableEnumSet.of(graphLabel));
     }
 
     @Override
-    public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
+    public MutableGraphNode createNode(final ImmutableEnumSet<GraphLabel> labels) {
         return graph.createNode(labels);
     }
 
