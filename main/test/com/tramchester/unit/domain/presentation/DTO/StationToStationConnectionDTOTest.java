@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
@@ -15,7 +16,6 @@ import tech.units.indriya.unit.Units;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.util.EnumSet;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
@@ -36,7 +36,7 @@ class StationToStationConnectionDTOTest extends EasyMockSupport {
         final Station altrincham = Altrincham.fake();
         final Station stPeters = StPetersSquare.fake();
 
-        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Bus, TransportMode.Tram);
+        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(TransportMode.Bus, TransportMode.Tram);
 
         Quantity<Length> distance = Quantities.getQuantity(42.5768D, Units.METRE);
         StationToStationConnection stationLink = new StationToStationConnection(altrincham, stPeters, modes,

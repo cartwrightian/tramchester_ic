@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.neo4j;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -176,9 +177,9 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         if (!hasProperty(TRANSPORT_MODES)) {
-            return EnumSet.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         }
 
         final short[] existing = (short[]) getProperty(TRANSPORT_MODES);

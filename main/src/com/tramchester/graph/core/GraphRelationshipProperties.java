@@ -5,6 +5,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -246,7 +247,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         return relationshipProperties.getTransportModes();
     }
 

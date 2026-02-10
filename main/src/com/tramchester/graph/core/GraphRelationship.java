@@ -3,6 +3,7 @@ package com.tramchester.graph.core;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -19,8 +20,6 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-
-import java.util.EnumSet;
 
 public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
 
@@ -40,7 +39,7 @@ public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
 
     GraphNodeId getEndNodeId(GraphTransaction txn);
 
-    EnumSet<TransportMode> getTransportModes() ;
+    ImmutableEnumSet<TransportMode> getTransportModes() ;
 
     TransportRelationshipTypes getType();
 

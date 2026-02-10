@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -23,13 +24,13 @@ public class StationToStationConnection {
     }
 
     private final StationPair pair;
-    private final EnumSet<TransportMode> linkingModes;
+    private final ImmutableEnumSet<TransportMode> linkingModes;
     private final LinkType linkType;
 
     private final Quantity<Length> distanceBetweenInMeters;
     private final TramDuration connectionTime;
 
-    public StationToStationConnection(Station begin, Station end, EnumSet<TransportMode> linkingModes, LinkType linkType,
+    public StationToStationConnection(Station begin, Station end, ImmutableEnumSet<TransportMode> linkingModes, LinkType linkType,
                                       Quantity<Length> distanceBetweenInMeters, TramDuration connectionTime) {
         this.linkType = linkType;
         this.distanceBetweenInMeters = distanceBetweenInMeters;
@@ -40,7 +41,7 @@ public class StationToStationConnection {
         this.hashCode = Objects.hash(pair, linkingModes, linkType, distanceBetweenInMeters);
     }
 
-    public static StationToStationConnection createForWalk(Station begin, Station end, EnumSet<TransportMode> linkingModes,
+    public static StationToStationConnection createForWalk(Station begin, Station end, ImmutableEnumSet<TransportMode> linkingModes,
                                                            LinkType linkType, Geography geography) {
         final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
         final TramDuration walkingDuration = geography.getWalkingDuration(begin, end);
@@ -86,7 +87,7 @@ public class StationToStationConnection {
      * NOT the modes of the stations themselves which might be subset of linking modes
      * @return The transport modes that link these two stations i.e. Walk
      */
-    public Set<TransportMode> getLinkingModes() {
+    public ImmutableEnumSet<TransportMode> getLinkingModes() {
         return linkingModes;
     }
 

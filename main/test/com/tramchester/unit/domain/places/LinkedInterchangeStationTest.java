@@ -3,6 +3,7 @@ package com.tramchester.unit.domain.places;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -61,7 +62,7 @@ public class LinkedInterchangeStationTest {
     @Test
     void shouldHaveCreateLinkedInterchangeAndAddLink() {
 
-        EnumSet<TransportMode> modes = EnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Walk);
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         TramDuration walkingTime = TramDuration.ofMinutes(4);
 
@@ -120,7 +121,7 @@ public class LinkedInterchangeStationTest {
     @Test
     void shouldHaveCreateLinkedInterchange() {
 
-        EnumSet<TransportMode> modes = EnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Walk);
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         TramDuration walkingTime = TramDuration.ofMinutes(4);
 
@@ -161,7 +162,7 @@ public class LinkedInterchangeStationTest {
 
     @Test
     void shouldHaveCreateLinkedInterchangeMultipleLinks() {
-        EnumSet<TransportMode> modes = EnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Walk);
 
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         TramDuration walkingTime = TramDuration.ofMinutes(4);

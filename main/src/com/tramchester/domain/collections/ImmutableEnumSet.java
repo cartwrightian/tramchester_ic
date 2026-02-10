@@ -1,7 +1,6 @@
 package com.tramchester.domain.collections;
 
 import com.google.common.collect.Sets;
-import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
@@ -18,27 +17,27 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         this.contained = contained;
     }
 
-    public static ImmutableEnumSet<GraphLabel> copyOf(final EnumSet<GraphLabel> enumSet) {
-        return new ImmutableEnumSet<>(EnumSet.copyOf(enumSet));
+    public static <S extends Enum<S>> ImmutableEnumSet<S> copyOf(final Set<S> set) {
+        return new ImmutableEnumSet<>(EnumSet.copyOf(set));
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> noneOf(Class<S> theClass) {
         return new ImmutableEnumSet<>(EnumSet.noneOf(theClass));
     }
 
-    public static  <S extends Enum<S>> EnumSet<S> createEnumSet(ImmutableEnumSet<S> labels) {
+    public static  <S extends Enum<S>> EnumSet<S> createEnumSet(final ImmutableEnumSet<S> labels) {
         return EnumSet.copyOf(labels.contained);
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> range(S itemA, S itemB) {
+    public static <S extends Enum<S>> ImmutableEnumSet<S> range(final S itemA, final S itemB) {
         return new ImmutableEnumSet<>(EnumSet.range(itemA, itemB));
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> of(S item) {
+    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S item) {
         return new ImmutableEnumSet<>(EnumSet.of(item));
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> of(S itemA, S itemB) {
+    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB) {
         return new ImmutableEnumSet<>(EnumSet.of(itemA, itemB));
     }
 
@@ -46,7 +45,7 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         return contained.stream();
     }
 
-    public boolean contains(T item) {
+    public boolean contains(final T item) {
         return contained.contains(item);
     }
 
@@ -62,6 +61,14 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
 
     public Sets.SetView<T> intersectionWith(final Set<T> other) {
         return Sets.intersection(contained, other);
+    }
+
+    public int size() {
+        return contained.size();
+    }
+
+    public boolean isEmpty() {
+        return contained.isEmpty();
     }
 
     @Override
@@ -83,11 +90,4 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
                 '}';
     }
 
-    public int size() {
-        return contained.size();
-    }
-
-    public boolean isEmpty() {
-        return contained.isEmpty();
-    }
 }

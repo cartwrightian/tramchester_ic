@@ -2,6 +2,7 @@ package com.tramchester.graph.core;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -92,7 +93,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
         void addTransportMode(TransportMode mode);
 
-        EnumSet<TransportMode> getTransportModes();
+        ImmutableEnumSet<TransportMode> getTransportModes();
 
         IMPL copy();
 

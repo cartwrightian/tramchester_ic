@@ -2,6 +2,7 @@ package com.tramchester.graph.core.neo4j;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -25,7 +26,6 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.internal.helpers.collection.Iterables;
 
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -99,7 +99,7 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         return underlying.getTransportModes();
     }
 

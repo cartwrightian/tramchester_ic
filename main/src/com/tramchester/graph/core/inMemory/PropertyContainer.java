@@ -1,6 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.google.common.collect.ImmutableMap;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -183,12 +184,12 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         if (hasProperty(TRANSPORT_MODES)) {
-            Set<TransportMode> theSet = (Set<TransportMode>) getProperty(TRANSPORT_MODES);
-            return EnumSet.copyOf(theSet);
+            final Set<TransportMode> theSet = (Set<TransportMode>) getProperty(TRANSPORT_MODES);
+            return ImmutableEnumSet.copyOf(theSet);
         } else {
-            return EnumSet.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         }
     }
 

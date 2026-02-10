@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -144,7 +143,7 @@ public class GraphSerializationTest {
             assertEquals(2, trips.size());
             assertTrue(trips.contains(tripA));
             assertTrue(trips.contains(tripB));
-            assertEquals(EnumSet.of(Bus,Tram), result.getTransportModes());
+            assertEquals(ImmutableEnumSet.of(Bus,Tram), result.getTransportModes());
 
         }
         catch(ClassCastException e) {
@@ -209,7 +208,7 @@ public class GraphSerializationTest {
         assertEquals(relationship, result);
 
         try {
-            assertEquals(EnumSet.of(Bus,Tram), result.getTransportModes());
+            assertEquals(ImmutableEnumSet.of(Bus,Tram), result.getTransportModes());
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);

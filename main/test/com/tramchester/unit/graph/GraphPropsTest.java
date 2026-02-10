@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -395,7 +396,7 @@ public class GraphPropsTest {
 
         relationship.addTransportMode(TransportMode.Train);
 
-        Set<TransportMode> result = relationship.getTransportModes();
+        ImmutableEnumSet<TransportMode> result = relationship.getTransportModes();
         assertEquals(1, result.size());
         assertTrue(result.contains(TransportMode.Train));
 

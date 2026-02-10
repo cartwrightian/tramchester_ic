@@ -7,6 +7,7 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Location;
@@ -87,7 +88,7 @@ public class Neighbours implements NeighboursRepository {
         logger.info(format("Adding neighbouring stations for range %s and diff modes only %s",
                 marginInMeters, DIFF_MODES_ONLY));
 
-        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
+        final ImmutableEnumSet<TransportMode> walk = ImmutableEnumSet.of(Walk);
         final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
 
         stationRepository.getActiveStationStream().
@@ -130,7 +131,7 @@ public class Neighbours implements NeighboursRepository {
     }
 
     private void addFromConfig(final StationPair pair) {
-        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
+        final ImmutableEnumSet<TransportMode> walk = ImmutableEnumSet.of(Walk);
         final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
 
         final Station begin = pair.getBegin();

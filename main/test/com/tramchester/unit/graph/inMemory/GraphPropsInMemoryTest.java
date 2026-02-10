@@ -6,6 +6,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -34,7 +35,10 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
 import static org.junit.jupiter.api.Assertions.*;
@@ -374,7 +378,7 @@ public class GraphPropsInMemoryTest {
 
         relationship.addTransportMode(TransportMode.Train);
 
-        Set<TransportMode> result = relationship.getTransportModes();
+        ImmutableEnumSet<TransportMode> result = relationship.getTransportModes();
         assertEquals(1, result.size());
         assertTrue(result.contains(TransportMode.Train));
 

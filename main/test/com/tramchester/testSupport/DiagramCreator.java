@@ -1,6 +1,7 @@
 package com.tramchester.testSupport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
@@ -193,7 +194,7 @@ public class DiagramCreator {
             addLine(builder, format("\"%s\"->\"%s\" [color=\"%s\"];\n", startNodeId, endNodeId,
                     getColorFor(relationshipType)));
         } else if (relationshipType== LINKED) {
-            Set<TransportMode> modes = edge.getTransportModes();
+            ImmutableEnumSet<TransportMode> modes = edge.getTransportModes();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes,
                     getColorFor(relationshipType)));
         } else {

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -10,7 +11,6 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 public abstract class  FindLinkedStations {
@@ -35,7 +35,7 @@ public abstract class  FindLinkedStations {
         final Station start = stationRepository.getStationById(startId);
         final Station end = stationRepository.getStationById(endId);
 
-        final EnumSet<TransportMode> modes = relationship.getTransportModes();
+        final ImmutableEnumSet<TransportMode> modes = relationship.getTransportModes();
 
         return StationToStationConnection.createForWalk(start, end, modes, StationToStationConnection.LinkType.Linked, geography);
     }

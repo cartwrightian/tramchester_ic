@@ -3,6 +3,7 @@ package com.tramchester.unit.graph.calculation;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -67,7 +67,7 @@ class GraphQueriesTests {
 
         assertEquals(6, links.size());
 
-        EnumSet<TransportMode> modes = EnumSet.of(Tram);
+        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Tram);
         assertTrue(matches(links, modes, transportData.getFirst(), transportData.getSecond()));
         assertTrue(matches(links, modes, transportData.getSecond(), transportData.getInterchange()));
         assertTrue(matches(links, modes, transportData.getInterchange(), transportData.getFourthStation()));
@@ -77,7 +77,7 @@ class GraphQueriesTests {
 
     }
 
-    private boolean matches(Set<StationToStationConnection> links, EnumSet<TransportMode> modes, Station begin, Station end) {
+    private boolean matches(Set<StationToStationConnection> links, ImmutableEnumSet<TransportMode> modes, Station begin, Station end) {
         return links.stream().
                 filter(link -> link.getLinkType()== StationToStationConnection.LinkType.Linked).
                 filter(link -> link.getLinkingModes().equals(modes)).

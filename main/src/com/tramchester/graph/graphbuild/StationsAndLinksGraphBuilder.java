@@ -246,7 +246,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).findFirst();
 
             find.ifPresent(existingRelationship -> {
-                final EnumSet<TransportMode> currentModes = existingRelationship.getTransportModes();
+                final ImmutableEnumSet<TransportMode> currentModes = existingRelationship.getTransportModes();
                 if (!currentModes.contains(mode)) {
                     existingRelationship.addTransportMode(mode);
                 }

@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -81,7 +81,7 @@ class FindLinkedStationsTest {
     }
 
     private StationToStationConnection createLink(TramStations stationA, TramStations stationB) {
-        final EnumSet<TransportMode> tram = EnumSet.of(Tram);
+        final ImmutableEnumSet<TransportMode> tram = ImmutableEnumSet.of(Tram);
         return StationToStationConnection.createForWalk(stationA.from(stationRepository), stationB.from(stationRepository),
                 tram, StationToStationConnection.LinkType.Linked, geography);
     }
