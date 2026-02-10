@@ -48,4 +48,5 @@ public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<R
     public void recordIdTo(final GraphIdFactory idFactory) {
         idFactory.captureRelationshipId(id);
     }
+
 }

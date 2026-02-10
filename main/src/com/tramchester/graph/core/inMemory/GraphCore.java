@@ -88,6 +88,10 @@ public class GraphCore implements Graph {
 
         level.log("stop " + postfix);
 
+        if (diagnostics && !local) {
+            nodesAndEdges.logUnusedProperties(logger);
+        }
+
         synchronized (nodesAndEdges) {
 
             nodesAndEdges.clear();
@@ -158,7 +162,7 @@ public class GraphCore implements Graph {
             } else {
                 idInMemory = new NodeIdInMemory(id);
             }
-            final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(idInMemory, labels);
+            final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(idInMemory, labels, diagnostics);
             return insertNode(graphNodeInMemory, labels);
         }
     }
@@ -182,7 +186,7 @@ public class GraphCore implements Graph {
 
             final int id = idFactory.getNextRelationshipId();
             final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
-                    new RelationshipIdInMemory(id), beginId, endId);
+                    new RelationshipIdInMemory(id), beginId, endId, diagnostics);
 
             insertRelationship(relationshipType, relationship, beginId, endId);
             return relationship;

@@ -87,17 +87,9 @@ public enum TransportRelationshipTypes {
         return GoesTo.contains(type);
     }
 
-//    public static boolean goesTo(final ImmutableGraphRelationship relationship) {
-//        return GoesTo.contains(relationship.getType());
-//    }
-
     public static TransportRelationshipTypes from(final String name) {
         return valueOf(name);
     }
-
-//    public static TransportRelationshipTypes from(final Relationship relationship) {
-//        return valueOf(relationship.getType().name());
-//    }
 
     public static TransportRelationshipTypes[] forModes(final EnumSet<TransportMode> transportModes) {
         final Set<TransportRelationshipTypes> unique = transportModes.stream().

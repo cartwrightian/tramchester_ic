@@ -21,24 +21,30 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 final class PropertyContainer implements GraphEntityProperties.GraphProps<PropertyContainer> {
 
-    private final ConcurrentMap<GraphPropertyKey, Object> props;
+    private static final int INITIAL_SIZE = 4;
 
-    PropertyContainer() {
-        this(new ConcurrentHashMap<>());
+    private final ConcurrentMap<GraphPropertyKey, Object> props;
+    private final boolean diagnostics;
+    private final EnumSet<GraphPropertyKey> used;
+
+    PropertyContainer(final boolean diagnostics) {
+        this(new ConcurrentHashMap<>(INITIAL_SIZE), diagnostics);
     }
 
     public PropertyContainer(final List<PropertyDTO> properties) {
-        this();
+        this(false);
         properties.forEach(prop -> setProperty(GraphPropertyKey.parse(prop.getKey()), prop.getContainedValue()));
     }
 
-    private PropertyContainer(ConcurrentHashMap<GraphPropertyKey, Object> props) {
+    private PropertyContainer(final ConcurrentHashMap<GraphPropertyKey, Object> props, final boolean diagnostics) {
         this.props = props;
+        this.diagnostics = diagnostics;
+        used = EnumSet.noneOf(GraphPropertyKey.class);
     }
 
     @Override
     public PropertyContainer copy() {
-        return new PropertyContainer(new ConcurrentHashMap<>(props));
+        return new PropertyContainer(new ConcurrentHashMap<>(props), diagnostics);
     }
 
     @Override
@@ -49,6 +55,9 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     @Override
     public Object getProperty(final GraphPropertyKey key) {
         if (props.containsKey(key)) {
+            if (diagnostics) {
+                used.add(key);
+            }
             return props.get(key);
         }
         throw new RuntimeException("No such property " + key);
@@ -62,12 +71,22 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Override
     public boolean hasProperty(final GraphPropertyKey key) {
+        if (diagnostics) {
+            used.add(key);
+        }
         return props.containsKey(key);
     }
 
     @Override
     public void removeProperty(final GraphPropertyKey key) {
         props.remove(key);
+    }
+
+    @Override
+    public EnumSet<GraphPropertyKey> getUnused() {
+        final EnumSet<GraphPropertyKey> results = EnumSet.copyOf(props.keySet());
+        results.removeAll(used);
+        return results;
     }
 
     @Override

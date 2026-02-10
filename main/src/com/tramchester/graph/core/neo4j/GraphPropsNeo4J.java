@@ -189,4 +189,9 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public EnumSet<GraphPropertyKey> getUnused() {
+        return EnumSet.noneOf(GraphPropertyKey.class);
+    }
+
 }

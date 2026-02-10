@@ -26,8 +26,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     // push labels into graph, so can do the validation check etc
     private final GraphNodeLabelsContainer labels;
 
-    public GraphNodeInMemory(final NodeIdInMemory id, final EnumSet<GraphLabel> labels) {
-        this(new PropertyContainer(), id, labels);
+    public GraphNodeInMemory(final NodeIdInMemory id, final EnumSet<GraphLabel> labels, final boolean diagnostics) {
+        this(new PropertyContainer(diagnostics), id, labels);
     }
 
     @JsonCreator
@@ -67,7 +67,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @JsonGetter("properties")
     public List<PropertyDTO> getProperties() {
         return getAllProperties().entrySet().stream().
-                filter(entry -> !entry.getKey().equals(DAY_OFFSET)).
+                filter(entry -> entry.getKey()!=DAY_OFFSET).
                 map(PropertyDTO::fromMapEntry).toList();
     }
 

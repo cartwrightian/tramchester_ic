@@ -68,7 +68,7 @@ public class GraphSerializationTest {
     void shouldRoundTripGraphNode()  {
         NodeIdInMemory id = new NodeIdInMemory(678);
         EnumSet<GraphLabel> labels = EnumSet.of(STATION, GraphLabel.INTERCHANGE);
-        GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(id, labels);
+        GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(id, labels, false);
 
         TramTime tramTime = TramTime.of(11, 42);
         graphNodeInMemory.setTime(tramTime);
@@ -278,7 +278,7 @@ public class GraphSerializationTest {
         NodeIdInMemory idB = new NodeIdInMemory(679);
         RelationshipIdInMemory id = new RelationshipIdInMemory(42);
         return new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
-                idA, idB);
+                idA, idB, false);
     }
 
 }

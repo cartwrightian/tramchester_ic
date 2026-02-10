@@ -3,6 +3,11 @@ package com.tramchester.graph.core.inMemory;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -136,5 +141,18 @@ public class NodesAndEdges {
             throw new RuntimeException("Cannot delete, did not find " + relId);
         }
         relationships.remove(relId);
+    }
+
+    public void logUnusedProperties(final Logger logger) {
+        final Map<TransportRelationshipTypes, EnumSet<GraphPropertyKey>> unusedPerType = relationships.values().stream().
+                map(relationship -> Pair.of(relationship.getType(), relationship.getUnusedProps())).
+                filter(pair -> !pair.getValue().isEmpty()).
+                collect(Collectors.toMap(Pair::getKey, Pair::getValue, (setA, setB) -> EnumSet.copyOf(SetUtils.intersection(setA, setB))));
+
+        unusedPerType.entrySet().forEach(entry -> {
+            if (!entry.getValue().isEmpty()) {
+                logger.warn("Unused properties for " + entry);
+            }
+        });
     }
 }

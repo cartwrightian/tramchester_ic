@@ -324,7 +324,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             svcRelationship = createRelationship(tx, routeStationNode, svcNode, TO_SERVICE);
             svcRelationship.set(service);
             svcRelationship.setCost(TramDuration.ZERO);
-            svcRelationship.set(route);
+            //svcRelationship.set(route);
         } else {
             // note: switch of direction here, can't use OUTGOING from routeStationStart since has multiple links to services
             svcRelationship = svcNode.getSingleRelationshipMutable(tx, TO_SERVICE, GraphDirection.Incoming);
@@ -482,13 +482,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final MutableGraphRelationship boardRelationship = createRelationship(txn, platformOrStation, routeStationNode, boardType);
 
         boardRelationship.setCost(TramDuration.ZERO);
-        boardRelationship.setRouteStationId(routeStationId);
-        boardRelationship.set(route);
-        boardRelationship.set(station);
+//        boardRelationship.setRouteStationId(routeStationId);
+//        boardRelationship.set(route);
+//        boardRelationship.set(station);
         // No platform ID on buses
-        if (stop.hasPlatfrom()) {
-            boardRelationship.set(stop.getPlatform());
-        }
+//        if (stop.hasPlatfrom()) {
+//            boardRelationship.set(stop.getPlatform());
+//        }
         boardingDepartNodeCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
@@ -543,13 +543,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
         final MutableGraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
         // properties on relationship
-        goesToRelationship.set(trip);
 
         final TramDuration cost = TramTime.difference(endStop.getArrivalTime(), departureTime);
         goesToRelationship.setCost(cost);
+        goesToRelationship.set(trip);
         // TODO Still useful?
-        goesToRelationship.set(trip.getService());
-        goesToRelationship.set(route);
+        //goesToRelationship.set(trip.getService());
+        //goesToRelationship.set(route);
         goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
     }
 

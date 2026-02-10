@@ -337,4 +337,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         }
     }
 
+    public EnumSet<GraphPropertyKey> getUnusedProps() {
+        return relationshipProperties.getUnused();
+    }
 }

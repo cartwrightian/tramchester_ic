@@ -35,7 +35,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
             }
         }
         catch (org.neo4j.graphdb.NotFoundException notFound) {
-            String msg = String.format("Failed to get property %s from properties %s", key, entity.getAllProperties());
+            String msg = String.format("Failed to get property %s from %s", key, entity);
             logger.error(msg);
             throw new RuntimeException(msg, notFound);
         }
@@ -95,6 +95,8 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
         EnumSet<TransportMode> getTransportModes();
 
         IMPL copy();
+
+        EnumSet<GraphPropertyKey> getUnused();
     }
 
 }

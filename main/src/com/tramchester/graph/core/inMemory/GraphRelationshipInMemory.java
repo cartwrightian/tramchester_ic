@@ -25,8 +25,8 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     private final AtomicInteger dirtyCount;
 
     public GraphRelationshipInMemory(TransportRelationshipTypes relationshipType, RelationshipIdInMemory id,
-                                     NodeIdInMemory startId, NodeIdInMemory endId) {
-        this(new PropertyContainer(), relationshipType, id, startId, endId);
+                                     NodeIdInMemory startId, NodeIdInMemory endId, boolean diagnostics) {
+        this(new PropertyContainer(diagnostics), relationshipType, id, startId, endId);
     }
 
     @JsonCreator
