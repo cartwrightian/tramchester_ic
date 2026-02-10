@@ -14,8 +14,6 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphEntityProperties;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -23,12 +21,12 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     private static final int INITIAL_SIZE = 4;
 
-    private final ConcurrentMap<GraphPropertyKey, Object> props;
+    private final EnumMap<GraphPropertyKey, Object> props;
     private final boolean diagnostics;
     private final EnumSet<GraphPropertyKey> used;
 
     PropertyContainer(final boolean diagnostics) {
-        this(new ConcurrentHashMap<>(INITIAL_SIZE), diagnostics);
+        this(new EnumMap<>(GraphPropertyKey.class), diagnostics);
     }
 
     public PropertyContainer(final List<PropertyDTO> properties) {
@@ -36,7 +34,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         properties.forEach(prop -> setProperty(GraphPropertyKey.parse(prop.getKey()), prop.getContainedValue()));
     }
 
-    private PropertyContainer(final ConcurrentHashMap<GraphPropertyKey, Object> props, final boolean diagnostics) {
+    private PropertyContainer(final EnumMap<GraphPropertyKey, Object> props, final boolean diagnostics) {
         this.props = props;
         this.diagnostics = diagnostics;
         used = EnumSet.noneOf(GraphPropertyKey.class);
@@ -44,7 +42,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Override
     public PropertyContainer copy() {
-        return new PropertyContainer(new ConcurrentHashMap<>(props), diagnostics);
+        return new PropertyContainer(new EnumMap<>(props), diagnostics);
     }
 
     @Override
