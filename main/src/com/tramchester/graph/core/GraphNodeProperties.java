@@ -16,6 +16,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -297,4 +298,8 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         return graphProps.getProperty(propertyKey);
     }
 
+    @JsonIgnore
+    public EnumSet<GraphPropertyKey> getUnusedProps() {
+        return graphProps.getUnused();
+    }
 }

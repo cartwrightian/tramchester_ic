@@ -269,7 +269,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             platformNode.set(platform);
             platformNode.set(station);
             platformNode.setPlatformNumber(platform);
-            setTransportMode(station, platformNode);
+            // no longer needed?
+            //setTransportMode(station, platformNode);
 
             stationAndPlatformNodeCache.putPlatform(platform.getId(), platformNode);
         }

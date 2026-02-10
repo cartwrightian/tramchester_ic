@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -147,12 +148,28 @@ public class NodesAndEdges {
         final Map<TransportRelationshipTypes, EnumSet<GraphPropertyKey>> unusedPerType = relationships.values().stream().
                 map(relationship -> Pair.of(relationship.getType(), relationship.getUnusedProps())).
                 filter(pair -> !pair.getValue().isEmpty()).
-                collect(Collectors.toMap(Pair::getKey, Pair::getValue, (setA, setB) -> EnumSet.copyOf(SetUtils.intersection(setA, setB))));
+                collect(Collectors.toMap(Pair::getKey, Pair::getValue, NodesAndEdges::getIntersectionSafe));
 
         unusedPerType.entrySet().forEach(entry -> {
             if (!entry.getValue().isEmpty()) {
                 logger.warn("Unused properties for " + entry);
             }
         });
+
+        Map<EnumSet<GraphLabel>, EnumSet<GraphPropertyKey>> unusedPerLabels = nodes.values().stream().
+                map(node -> Pair.of(node.getLabels(), node.getUnusedProps())).
+                filter(pair -> !pair.getValue().isEmpty()).
+                collect(Collectors.toMap(Pair::getKey, Pair::getValue, NodesAndEdges::getIntersectionSafe));
+
+        unusedPerLabels.entrySet().forEach(entry -> {
+            if (!entry.getValue().isEmpty()) {
+                logger.warn("Unused properties for " + entry);
+            }
+        });
+    }
+
+    private static EnumSet<GraphPropertyKey> getIntersectionSafe(final EnumSet<GraphPropertyKey> setA, final EnumSet<GraphPropertyKey> setB) {
+        final SetUtils.SetView<GraphPropertyKey> intersection = SetUtils.intersection(setA, setB);
+        return intersection.isEmpty() ? EnumSet.noneOf(GraphPropertyKey.class) : EnumSet.copyOf(intersection);
     }
 }

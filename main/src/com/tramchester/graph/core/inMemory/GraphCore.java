@@ -136,7 +136,7 @@ public class GraphCore implements Graph {
             target.nodesAndEdges.addNode(id, node);
 
             // update labels for the node
-            EnumSet<GraphLabel> labels = node.getLabels();
+            final EnumSet<GraphLabel> labels = node.getLabels();
             labels.forEach(label -> target.labelsToNodes.get(label).add(id));
         });
         // using loaded id's work out new next node id
