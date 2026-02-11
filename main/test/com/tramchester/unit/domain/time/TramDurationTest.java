@@ -40,6 +40,16 @@ public class TramDurationTest {
     }
 
     @Test
+    void shouldHaveSameObject() {
+        assertSame(TramDuration.ZERO, TramDuration.ZERO);
+        assertSame(TramDuration.ofMinutes(11), TramDuration.ofMinutes(11));
+        assertSame(TramDuration.ofHours(42), TramDuration.ofHours(42));
+        assertSame(TramDuration.ofSeconds(111), TramDuration.ofSeconds(111));
+        assertSame(TramDuration.Invalid, TramDuration.Invalid);
+
+    }
+
+    @Test
     void shouldTruncateToMinutes() {
         TramDuration tramDurationA = TramDuration.ofSeconds(10);
         assertEquals(0, tramDurationA.truncateToMinutes().toSeconds());

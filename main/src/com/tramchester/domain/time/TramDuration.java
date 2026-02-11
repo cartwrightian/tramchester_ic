@@ -17,16 +17,18 @@ import java.util.concurrent.ConcurrentMap;
 public class TramDuration implements Comparable<TramDuration> {
 
     private static final Factory factory;
-    public static final TramDuration MAX_VALUE;
 
+    public static final TramDuration MAX_VALUE;
+    public static final TramDuration ZERO;
+    public static final TramDuration Invalid;
     static {
         factory = new Factory();
         MAX_VALUE = TramDuration.ofMinutes(Integer.MAX_VALUE);
+        ZERO = factory.fromSeconds(0);
+        Invalid = TramDuration.ofMinutes(-999);
     }
-    private final Duration duration;
 
-    public static final TramDuration ZERO = factory.fromSeconds(0);
-    public static TramDuration Invalid = ofMinutes(-999);
+    private final Duration duration;
 
     private TramDuration(Duration duration) {
         this.duration = duration;
@@ -143,22 +145,21 @@ public class TramDuration implements Comparable<TramDuration> {
     // Factory
 
     private static class Factory {
-        private final ConcurrentMap<Long, Duration> secondsToDuration;
+        private final ConcurrentMap<Long, TramDuration> secondsToDuration;
 
         private Factory() {
             secondsToDuration = new ConcurrentHashMap<>();
-            secondsToDuration.put(0L, Duration.ZERO);
+            secondsToDuration.put(0L, from(Duration.ZERO));
         }
 
         public TramDuration fromSeconds(final long seconds) {
-            final Duration contained = secondsToDuration.computeIfAbsent(seconds, Duration::ofSeconds);
-            return from(contained);
+           return secondsToDuration.computeIfAbsent(seconds, key -> from(Duration.ofSeconds(seconds)));
         }
 
         public TramDuration fromDuration(final Duration duration) {
             final Duration actual = duration.truncatedTo(ChronoUnit.SECONDS);
             final long seconds = actual.toSeconds();
-            return from(secondsToDuration.computeIfAbsent(seconds, item -> actual));
+            return fromSeconds(seconds);
         }
     }
 
