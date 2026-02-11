@@ -70,7 +70,7 @@ public class GraphLabelTest {
     void shouldGetGraphLabelsFromModes() {
         ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
-        EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
+        ImmutableEnumSet<GraphLabel> results = GraphLabel.forModes(modes);
         int size = modes.size() - 2; // Ferry&Ship->Ferry, Rail&RailReplacementBus->Train
         assertEquals(size, results.size());
     }
@@ -79,8 +79,8 @@ public class GraphLabelTest {
     void shouldGetSetOfLabelsForModes() {
         ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
-        EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
-        assertEquals(GraphLabel.TransportModes, results);
+        ImmutableEnumSet<GraphLabel> results = GraphLabel.forModes(modes);
+        assertEquals(ImmutableEnumSet.copyOf(GraphLabel.TransportModes), results);
     }
 
     private static @NotNull ImmutableEnumSet<TransportMode> getTransportModes() {

@@ -15,8 +15,6 @@ import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
-
 public class ServiceHeuristics {
 
     private static final Logger logger;
@@ -158,7 +156,7 @@ public class ServiceHeuristics {
 
     }
 
-    public HeuristicsReason checkModes(final ImmutableEnumSet<GraphLabel> modelLabels, final EnumSet<GraphLabel> requestedModeLabels,
+    public HeuristicsReason checkModes(final ImmutableEnumSet<GraphLabel> modelLabels, final ImmutableEnumSet<GraphLabel> requestedModeLabels,
                                        final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         if (!modelLabels.anyIntersectionWith(requestedModeLabels)) {
             return reasons.recordReason(HeuristicsReasons.TransportModeWrong(howIGotHere));
@@ -168,7 +166,7 @@ public class ServiceHeuristics {
 
 
     public HeuristicsReason checkModesMatchForFinalChange(final int currentNumberOfChanges,
-                                                          final ImmutableEnumSet<GraphLabel> nodeLabels, final EnumSet<GraphLabel> destinationLabels,
+                                                          final ImmutableEnumSet<GraphLabel> nodeLabels, final ImmutableEnumSet<GraphLabel> destinationLabels,
                                                           final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         // TODO potential optimisation where only one mode is configured, in which case this check does nothing
         if (currentNumberOfChanges==penultimateChange) {

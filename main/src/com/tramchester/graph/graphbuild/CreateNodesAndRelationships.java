@@ -30,7 +30,7 @@ public class CreateNodesAndRelationships {
 
     protected GraphNode createStationNode(final MutableGraphTransaction tx, final Station station) {
 
-        final EnumSet<GraphLabel> labels = GraphLabel.forModes(station.getTransportModes());
+        final EnumSet<GraphLabel> labels = ImmutableEnumSet.createEnumSet(GraphLabel.forModes(station.getTransportModes()));
         labels.add(GraphLabel.STATION);
         if (station.hasPlatforms()) {
             labels.add(GraphLabel.HAS_PLATFORMS);

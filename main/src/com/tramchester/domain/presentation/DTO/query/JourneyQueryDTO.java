@@ -101,7 +101,7 @@ public class JourneyQueryDTO  {
     public static JourneyRequest toJourneyRequest(final TramchesterConfig config, final JourneyQueryDTO dto) {
         // if no modes provided then default to all modes currently configured
         final ImmutableEnumSet<TransportMode> modes = dto.getModes().isEmpty() ?
-                ImmutableEnumSet.copyOf(config.getTransportModes()) : ImmutableEnumSet.copyOf(dto.getModes());
+                config.getTransportModesImmutable() : ImmutableEnumSet.copyOf(dto.getModes());
         final TramDate date = dto.getTramDate();
         final LocalTime time = dto.getTime();
 

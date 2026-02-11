@@ -4,7 +4,6 @@ import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -67,10 +66,8 @@ public enum GraphLabel { //implements Label {
         };
     }
 
-    public static EnumSet<GraphLabel> forModes(final ImmutableEnumSet<TransportMode> modes) {
-        return modes.stream().
-                map(GraphLabel::forMode).
-                collect(Collectors.toCollection( () -> EnumSet.noneOf(GraphLabel.class)));
+    public static ImmutableEnumSet<GraphLabel> forModes(final ImmutableEnumSet<TransportMode> modes) {
+        return modes.convertTo(GraphLabel.class, GraphLabel::forMode);
     }
 
     public static GraphLabel getHourLabel(final int hour) {

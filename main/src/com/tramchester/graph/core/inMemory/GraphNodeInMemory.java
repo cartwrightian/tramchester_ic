@@ -46,10 +46,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         dirtyCount = new AtomicInteger(0);
     }
 
-//    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, ImmutableEnumSet<GraphLabel> labels) {
-//        this(propertyContainer, id, ImmutableEnumSet.createEnumSet(labels));
-//    }
-
     public GraphNodeInMemory copy() {
         return new GraphNodeInMemory(super.copyProperties(), id, labels.getLabels());
     }
@@ -133,8 +129,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes relationshipType) {
         return getRelationships(txn, direction, EnumSet.of(relationshipType));
-//        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-//        return inMemory.getRelationshipImmutable(id, direction, EnumSet.of(relationshipType)).map(item -> item);
     }
 
     @Override
@@ -172,10 +166,12 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @Override
     public synchronized void addLabel(final MutableGraphTransaction txn, final GraphLabel label) {
-        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        final GraphTransactionInMemory inMemoryTxn = (GraphTransactionInMemory) txn;
         labels.add(label);
-        inMemory.addLabel(id, label);
-        //invalidateCache();
+        // update labels to nodes mapping in GraphCore
+        inMemoryTxn.addLabel(id, label);
+        // Labels not cached
+        // invalidateCache();
     }
 
     @Override

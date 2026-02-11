@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
@@ -118,5 +120,12 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
 
         // slow
         //return !SetUtils.intersection(modesA, modesB).isEmpty();
+    }
+
+    public <D extends Enum<D>> ImmutableEnumSet<D> convertTo(final Class<D> targetClass, final Function<T,D> convert) {
+        final EnumSet<D> converted = contained.stream().
+                map(convert).
+                collect(Collectors.toCollection(() -> EnumSet.noneOf(targetClass)));
+        return new ImmutableEnumSet<>(converted);
     }
 }

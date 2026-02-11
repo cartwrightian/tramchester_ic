@@ -207,6 +207,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     void addLabel(final NodeIdInMemory id, final GraphLabel label) {
+        // update labels to nodes mapping
         graph.addLabel(id, label);
     }
 

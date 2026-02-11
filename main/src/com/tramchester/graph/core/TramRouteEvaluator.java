@@ -34,12 +34,12 @@ public abstract class TramRouteEvaluator {
     protected final int maxWaitMins;
     protected final int maxInitialWaitMins;
     protected final GraphNodeId startNodeId;
-    protected final EnumSet<GraphLabel> requestedLabels;
+    protected final ImmutableEnumSet<GraphLabel> requestedLabels;
     protected final GraphTransaction txn;
     protected final boolean depthFirst;
     protected final Running running;
     protected final Set<GraphNodeId> seenTimeNode;
-    protected final EnumSet<GraphLabel> destinationLabels;
+    protected final ImmutableEnumSet<GraphLabel> destinationLabels;
 
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final TramchesterConfig config,
                               final GraphTransaction txn, final Set<GraphNodeId> destinationNodeIds,

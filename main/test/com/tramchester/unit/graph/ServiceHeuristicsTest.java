@@ -30,7 +30,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
-import java.util.EnumSet;
 
 import static com.tramchester.graph.reference.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
@@ -617,18 +616,18 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         // always ok if modes match
         for (int i = 0; i < maxChanges; i++) {
             assertTrue(serviceHeuristics.checkModesMatchForFinalChange(i, ImmutableEnumSet.of(TRAM),
-                    EnumSet.of(TRAM), howIGotHere, reasons).isValid());
+                    ImmutableEnumSet.of(TRAM), howIGotHere, reasons).isValid());
         }
 
         // ok as long as not penultimate change if modes diff
         for (int i = 0; i < maxChanges-1; i++) {
             assertTrue(serviceHeuristics.checkModesMatchForFinalChange(i, ImmutableEnumSet.of(TRAM),
-                    EnumSet.of(TRAIN), howIGotHere, reasons).isValid());
+                    ImmutableEnumSet.of(TRAIN), howIGotHere, reasons).isValid());
         }
 
         // no ok if modes mismatch and this is the last change
         assertFalse(serviceHeuristics.checkModesMatchForFinalChange(maxChanges-1, ImmutableEnumSet.of(TRAM),
-                EnumSet.of(TRAIN), howIGotHere, reasons).isValid());
+                ImmutableEnumSet.of(TRAIN), howIGotHere, reasons).isValid());
 
         verifyAll();
     }

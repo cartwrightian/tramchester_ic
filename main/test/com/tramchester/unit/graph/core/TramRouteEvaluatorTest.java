@@ -455,7 +455,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     void shouldExcludeIfStationIsClosed() throws TramchesterException {
 
         final ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSet.of(ROUTE_STATION, TRAM);
-        EnumSet<GraphLabel> requestedLabels = EnumSet.of(TRAM);
+        ImmutableEnumSet<GraphLabel> requestedLabels = ImmutableEnumSet.of(TRAM);
 
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
@@ -519,10 +519,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(createValidReason(DurationOk));
         EasyMock.expect(serviceHeuristics.checkNumberNeighbourConnections(0, howIGotHere, reasons)).
                 andStubReturn(createValidReason(NeighbourConnectionsOk));
-        EasyMock.expect(serviceHeuristics.checkModes(labels, EnumSet.of(TRAM), howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.checkModes(labels, ImmutableEnumSet.of(TRAM), howIGotHere, reasons)).
                 andStubReturn(createValidReason(TransportModeOk));
         EasyMock.expect(serviceHeuristics.checkModesMatchForFinalChange(0, ImmutableEnumSet.of(ROUTE_STATION, TRAM),
-                EnumSet.of(TRAM), howIGotHere, reasons)).andStubReturn(createValidReason(NumChangesOK));
+                ImmutableEnumSet.of(TRAM), howIGotHere, reasons)).andStubReturn(createValidReason(NumChangesOK));
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState(startNodeId);
