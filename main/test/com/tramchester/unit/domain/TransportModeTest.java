@@ -18,8 +18,8 @@ public class TransportModeTest {
         ImmutableEnumSet<TransportMode> modesB = ImmutableEnumSet.of(Bus, Walk);
         ImmutableEnumSet<TransportMode> modesC = ImmutableEnumSet.of(Ship, Subway);
 
-        assertTrue(TransportMode.anyIntersection(modesA, modesB));
-        assertFalse(TransportMode.anyIntersection(modesB, modesC));
+        assertTrue(modesA.anyIntersectionWith(modesB));
+        assertFalse(modesB.anyIntersectionWith(modesC));
     }
 
     @Test
@@ -49,6 +49,6 @@ public class TransportModeTest {
 
     @Test
     void shouldCheckForOverlaps() {
-        assertFalse(TransportMode.anyIntersection(TramsOnly, RailOnly));
+        assertFalse(TransportMode.TramsOnly.anyIntersectionWith(RailOnly));
     }
 }

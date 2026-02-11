@@ -63,14 +63,6 @@ public enum TransportMode implements HasTransportMode {
         return ImmutableEnumSet.copyOf(result);
     }
 
-    public static boolean anyIntersection(final ImmutableEnumSet<TransportMode> modesA, final ImmutableEnumSet<TransportMode> modesB) {
-        return modesA.anyIntersectionWith(modesB);
-    }
-
-    public static boolean anyIntersection(final Set<TransportMode> modesA, final ImmutableEnumSet<TransportMode> modesB) {
-        return modesB.anyIntersectionWith(modesA);
-    }
-
     public static ImmutableEnumSet<TransportMode> parseCSV(final String csv) {
         final String[] divided = csv.split(",");
         return ImmutableEnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));

@@ -168,7 +168,7 @@ public class MutableService implements Service {
 
     @Override
     public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> other) {
-        return TransportMode.anyIntersection(this.modes, other);
+        return other.anyIntersectionWith(modes);
     }
 
 }

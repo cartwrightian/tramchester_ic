@@ -110,7 +110,7 @@ public class MutableStation implements Station {
 
     @Override
     public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> other) {
-        return TransportMode.anyIntersection(modes, other);
+        return other.anyIntersectionWith(modes);
     }
 
     @Override

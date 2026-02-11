@@ -115,7 +115,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
 
     @Override
     public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> other) {
-        return TransportMode.anyIntersection(allModes, other);
+        return other.anyIntersectionWith(allModes);
     }
 
     @Override
