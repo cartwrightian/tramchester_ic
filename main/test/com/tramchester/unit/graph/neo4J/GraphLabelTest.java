@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.graph.reference.GraphLabel.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -48,10 +49,21 @@ public class GraphLabelTest {
     }
 
     @Test
-    void shouldGetHourFromLabels() {
-        EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.TRAM, GraphLabel.TRAIN, GraphLabel.HOUR, GraphLabel.HOUR_4);
-        int result = GraphLabel.getHourFrom(labels);
-        assertEquals(4, result);
+    void shouldGetHourFromSetOfLabels() {
+        ImmutableEnumSet<GraphLabel> setA = ImmutableEnumSet.of(HOUR, HOUR_9);
+        assertEquals(9, GraphLabel.getHourFrom(setA));
+
+        ImmutableEnumSet<GraphLabel> setB = ImmutableEnumSet.of(HOUR, HOUR_23);
+        assertEquals(23, GraphLabel.getHourFrom(setB));
+    }
+
+    @Test
+    void shouldRoundTripHours() {
+        for (int hour = 0; hour <23; hour++) {
+            GraphLabel label = GraphLabel.getHourLabel(hour);
+            int result = getHourFrom(ImmutableEnumSet.of(HOUR, label));
+            assertEquals(hour, result);
+        }
     }
 
     @Test
@@ -93,7 +105,7 @@ public class GraphLabelTest {
 
     @Test
     void shouldGetFromIterable() {
-        ImmutableEnumSet<GraphLabel> graphLabels = ImmutableEnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23);
+        ImmutableEnumSet<GraphLabel> graphLabels = ImmutableEnumSet.range(GraphLabel.HOUR_0, HOUR_23);
 
         Set<Label> labels = graphLabels.stream().map(mapper::get).collect(Collectors.toSet());
 
@@ -112,7 +124,7 @@ public class GraphLabelTest {
     @Disabled("performance testing")
     @Test
     void performanceTestForFromIterable() {
-        final Set<Label> labels = EnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23).stream().
+        final Set<Label> labels = EnumSet.range(GraphLabel.HOUR_0, HOUR_23).stream().
                 map(graphLabel -> mapper.get(graphLabel)).
                 collect(Collectors.toSet());
 
@@ -129,14 +141,14 @@ public class GraphLabelTest {
         }
     }
 
-    @Disabled("performance testing")
-    @Test
-    void performanceTestForGetHourFrom() {
-        final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.TRAM, GraphLabel.TRAIN, GraphLabel.HOUR, GraphLabel.HOUR_4);
-
-        for (int i = 0; i < 1000000000; i++) {
-            GraphLabel.getHourFrom(labels);
-        }
-    }
+//    @Disabled("performance testing")
+//    @Test
+//    void performanceTestForGetHourFrom() {
+//        final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.TRAM, GraphLabel.TRAIN, GraphLabel.HOUR, GraphLabel.HOUR_4);
+//
+//        for (int i = 0; i < 1000000000; i++) {
+//            GraphLabel.getHourFrom(labels);
+//        }
+//    }
 
 }

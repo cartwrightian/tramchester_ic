@@ -45,8 +45,8 @@ public enum GraphLabel { //implements Label {
 
     public static final EnumSet<GraphLabel> TransportModes = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
 
-    // Currently here to support testing and deriving a Id<CoreDomain> for Nodes
-    public static final EnumSet<GraphLabel> CoreDomain = EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE);
+    public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSet.copyOf(
+            EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE));
 
     static {
         hourLabels = new GraphLabel[24];
@@ -78,18 +78,7 @@ public enum GraphLabel { //implements Label {
     }
 
     // TODO performance
-    @Deprecated
-    public static int getHourFrom(final EnumSet<GraphLabel> labels) {
-        for (int hour = 0; hour < 24 ; hour++) {
-            if (labels.contains(hourLabels[hour])) {
-                return hour;
-            }
-        }
-        throw new RuntimeException("Could not find hour from " + labels);
-    }
-
-    // TODO performance
-    public static int getHourFrom(ImmutableEnumSet<GraphLabel> labels) {
+    public static int getHourFrom(final ImmutableEnumSet<GraphLabel> labels) {
         for (int hour = 0; hour < 24 ; hour++) {
             if (labels.contains(hourLabels[hour])) {
                 return hour;
