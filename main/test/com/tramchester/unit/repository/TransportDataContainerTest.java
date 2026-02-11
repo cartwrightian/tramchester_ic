@@ -7,10 +7,9 @@ import com.tramchester.repository.TransportDataContainer;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
-import java.util.EnumSet;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TransportDataContainerTest {
@@ -25,9 +24,9 @@ class TransportDataContainerTest {
 
         TransportDataContainer container = new TransportDataContainer(providesLocalNow, "local");
 
-        DataSourceInfo dataSourceA = new DataSourceInfo(DataSourceID.tfgm, "v1", plusOneHour, EnumSet.of(Tram));
-        DataSourceInfo dataSourceB = new DataSourceInfo(DataSourceID.unknown, "v1", minusOneHour, EnumSet.of(Bus));
-        DataSourceInfo dataSourceC = new DataSourceInfo(DataSourceID.openRailData, "v1", baseTime, EnumSet.of(Tram));
+        DataSourceInfo dataSourceA = new DataSourceInfo(DataSourceID.tfgm, "v1", plusOneHour, TramsOnly);
+        DataSourceInfo dataSourceB = new DataSourceInfo(DataSourceID.unknown, "v1", minusOneHour, BusesOnly);
+        DataSourceInfo dataSourceC = new DataSourceInfo(DataSourceID.openRailData, "v1", baseTime, TramsOnly);
 
         container.addDataSourceInfo(dataSourceA);
         container.addDataSourceInfo(dataSourceB);

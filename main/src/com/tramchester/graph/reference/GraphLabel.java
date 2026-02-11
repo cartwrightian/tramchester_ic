@@ -88,4 +88,9 @@ public enum GraphLabel { //implements Label {
         return valueOf(name);
     }
 
+    public ImmutableEnumSet<GraphLabel> addTo(ImmutableEnumSet<GraphLabel> labels) {
+        final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(labels);
+        updated.add(this);
+        return ImmutableEnumSet.copyOf(updated);
+    }
 }

@@ -31,8 +31,9 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         return EnumSet.copyOf(labels.contained);
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> range(final S itemA, final S itemB) {
-        return new ImmutableEnumSet<>(EnumSet.range(itemA, itemB));
+    public static <S extends Enum<S>> ImmutableEnumSet<S> range(final S begin, final S end
+    ) {
+        return new ImmutableEnumSet<>(EnumSet.range(begin, end));
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S item) {
@@ -47,13 +48,13 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         return new ImmutableEnumSet<>(EnumSet.of(itemA, itemB, itemC));
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> add(final ImmutableEnumSet<S> setA, final ImmutableEnumSet<S> setB) {
+    public static <S extends Enum<S>> ImmutableEnumSet<S> join(final ImmutableEnumSet<S> setA, final ImmutableEnumSet<S> setB) {
         final EnumSet<S> result = EnumSet.copyOf(setA.contained);
         result.addAll(setB.contained);
         return new ImmutableEnumSet<>(result);
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> allOf(Class<S> theClass) {
+    public static <S extends Enum<S>> ImmutableEnumSet<S> allOf(final Class<S> theClass) {
         return new ImmutableEnumSet<>(EnumSet.allOf(theClass));
     }
 
@@ -127,5 +128,15 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
                 map(convert).
                 collect(Collectors.toCollection(() -> EnumSet.noneOf(targetClass)));
         return new ImmutableEnumSet<>(converted);
+    }
+
+    public void addAllTo(EnumSet<T> mutableTarget) {
+        mutableTarget.addAll(contained);
+    }
+
+    public ImmutableEnumSet<T> without(final Set<T> remove) {
+        final EnumSet<T> filtered = EnumSet.copyOf(contained);
+        filtered.removeAll(remove);
+        return new ImmutableEnumSet<>(filtered);
     }
 }

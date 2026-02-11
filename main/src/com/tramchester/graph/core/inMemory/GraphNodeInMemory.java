@@ -170,8 +170,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         labels.add(label);
         // update labels to nodes mapping in GraphCore
         inMemoryTxn.addLabel(id, label);
-        // Labels not cached
-        // invalidateCache();
     }
 
     @Override

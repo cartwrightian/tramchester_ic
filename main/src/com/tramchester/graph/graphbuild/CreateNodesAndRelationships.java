@@ -30,11 +30,14 @@ public class CreateNodesAndRelationships {
 
     protected GraphNode createStationNode(final MutableGraphTransaction tx, final Station station) {
 
-        final EnumSet<GraphLabel> labels = ImmutableEnumSet.createEnumSet(GraphLabel.forModes(station.getTransportModes()));
+        //ImmutableEnumSet.createEnumSet(GraphLabel.forModes(station.getTransportModes()));
+        final EnumSet<GraphLabel> labels = EnumSet.noneOf(GraphLabel.class);
+        GraphLabel.forModes(station.getTransportModes()).addAllTo(labels);
         labels.add(GraphLabel.STATION);
         if (station.hasPlatforms()) {
             labels.add(GraphLabel.HAS_PLATFORMS);
         }
+
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
         final MutableGraphNode stationNode = createGraphNode(tx, ImmutableEnumSet.copyOf(labels));
         stationNode.set(station);

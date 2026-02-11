@@ -1,18 +1,18 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.ZonedDateTime;
-import java.util.EnumSet;
 
 public class DataSourceInfo {
 
     private final DataSourceID sourceID;
     private final String version;
     private final ZonedDateTime lastModTime;
-    private final EnumSet<TransportMode> modes;
+    private final ImmutableEnumSet<TransportMode> modes;
 
-    public DataSourceInfo(DataSourceID sourceID, String version, ZonedDateTime lastModTime, EnumSet<TransportMode> modes) {
+    public DataSourceInfo(DataSourceID sourceID, String version, ZonedDateTime lastModTime, ImmutableEnumSet<TransportMode> modes) {
         this.sourceID = sourceID;
         this.version = version;
         this.lastModTime = lastModTime;
@@ -41,7 +41,7 @@ public class DataSourceInfo {
         return lastModTime;
     }
 
-    public EnumSet<TransportMode> getModes() {
+    public ImmutableEnumSet<TransportMode> getModes() {
         return modes;
     }
 

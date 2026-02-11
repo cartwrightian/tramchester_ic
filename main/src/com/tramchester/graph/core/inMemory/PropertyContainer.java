@@ -160,7 +160,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     }
 
     @Override
-    public void setTransportMode(TransportMode transportMode) {
+    public void setTransportMode(final TransportMode transportMode) {
         setProperty(TRANSPORT_MODE, transportMode);
     }
 
@@ -178,9 +178,10 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
             current = EnumSet.noneOf(TransportMode.class);
         }
 
-        final EnumSet<TransportMode> updated = EnumSet.copyOf(current);
-        updated.add(mode);
-        setProperty(TRANSPORT_MODES, updated);
+        final EnumSet<TransportMode> replacement = EnumSet.copyOf(current);
+        replacement.add(mode);
+
+        setProperty(TRANSPORT_MODES, replacement);
     }
 
     @Override

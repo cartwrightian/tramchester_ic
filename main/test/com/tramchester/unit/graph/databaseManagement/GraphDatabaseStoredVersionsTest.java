@@ -19,8 +19,8 @@ import java.util.*;
 
 import static com.tramchester.domain.DataSourceID.naptanxml;
 import static com.tramchester.domain.DataSourceID.tfgm;
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -88,8 +88,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", URLStatus.invalidTime, EnumSet.of(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, EnumSet.of(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", URLStatus.invalidTime, TramsOnly));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, BusesOnly));
 
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
@@ -114,8 +114,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, EnumSet.of(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, EnumSet.of(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, TramsOnly));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, BusesOnly));
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
         versionMap.put(tfgm, "v1.1");
@@ -138,8 +138,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, EnumSet.of(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, EnumSet.of(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, TramsOnly));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, BusesOnly));
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
         versionMap.put(tfgm, "v1.1");
@@ -161,7 +161,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, EnumSet.of(Tram)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, TramsOnly));
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
         versionMap.put(tfgm, "v1.1");

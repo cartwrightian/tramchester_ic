@@ -56,7 +56,7 @@ public class GraphReferenceMapper {
         return labelMap.get(graphLabel);
     }
 
-    public Label[] getLabels(final EnumSet<GraphLabel> labels) {
+    public Label[] getLabels(final ImmutableEnumSet<GraphLabel> labels) {
         final Label[] dest = new Label[labels.size()];
         int count = 0;
         for (final GraphLabel label : labels) {

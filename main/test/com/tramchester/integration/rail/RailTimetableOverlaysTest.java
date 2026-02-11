@@ -7,6 +7,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -79,8 +79,8 @@ public class RailTimetableOverlaysTest {
                 }
 
                 @Override
-                public EnumSet<TransportMode> getModes() {
-                    return EnumSet.of(TransportMode.Train);
+                public ImmutableEnumSet<TransportMode> getModes() {
+                    return ImmutableEnumSet.of(TransportMode.Train);
                 }
 
                 @Override

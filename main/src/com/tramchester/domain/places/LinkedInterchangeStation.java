@@ -44,7 +44,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
             throw new RuntimeException(format("Attempt to add duplicated link %s to %s", stationLink, links));
         }
         links.add(stationLink);
-        allModes.addAll(ImmutableEnumSet.createEnumSet(stationLink.getContainedModes()));
+        stationLink.getContainedModes().addAllTo(allModes);
     }
 
     @Override

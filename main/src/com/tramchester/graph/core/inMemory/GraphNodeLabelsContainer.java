@@ -3,8 +3,6 @@ package com.tramchester.graph.core.inMemory;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.reference.GraphLabel;
 
-import java.util.EnumSet;
-
 public class GraphNodeLabelsContainer {
 
     private ImmutableEnumSet<GraphLabel> labels;
@@ -24,9 +22,8 @@ public class GraphNodeLabelsContainer {
     }
 
     public void add(final GraphLabel label) {
-        final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(labels);
-        updated.add(label);
-        labels = ImmutableEnumSet.copyOf(updated);
+        labels = label.addTo(labels);
+        // needed to ensure Node marked as Dirty
         parent.invalidateCache();
     }
 

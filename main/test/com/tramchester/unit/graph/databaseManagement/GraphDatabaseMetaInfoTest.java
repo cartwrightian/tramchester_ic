@@ -20,8 +20,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.DataSourceID.*;
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
@@ -169,8 +169,8 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
         MutableGraphNode graphNode = createMock(MutableGraphNode.class);
 
-        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", URLStatus.invalidTime, EnumSet.of(Tram));
-        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", URLStatus.invalidTime, EnumSet.of(Bus));
+        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", URLStatus.invalidTime, TramsOnly);
+        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", URLStatus.invalidTime, BusesOnly);
 
         Set<DataSourceInfo> sourceInfo = new HashSet<>(Arrays.asList(infoA, infoB));
 

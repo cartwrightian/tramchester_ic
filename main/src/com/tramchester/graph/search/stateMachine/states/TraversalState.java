@@ -8,8 +8,9 @@ import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
+
+import static com.tramchester.graph.reference.GraphLabel.*;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
@@ -81,23 +82,22 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     public TraversalState nextState(final ImmutableEnumSet<GraphLabel> originalLabels, final GraphNode node,
                                     final JourneyStateUpdate journeyState, final TramDuration cost) {
 
-        final boolean isInterchange = originalLabels.contains(GraphLabel.INTERCHANGE);
-        final boolean hasPlatforms = originalLabels.contains(GraphLabel.HAS_PLATFORMS);
+        final boolean isInterchange = originalLabels.contains(INTERCHANGE);
+        final boolean hasPlatforms = originalLabels.contains(HAS_PLATFORMS);
 
         // TODO assumption here that performance is ok as using EnumSet for these operations
-        final EnumSet<GraphLabel> otherLabels = ImmutableEnumSet.createEnumSet(originalLabels);
-        otherLabels.removeAll(GraphLabel.TransportModes);
+        ImmutableEnumSet<GraphLabel> otherLabels = originalLabels.without(TransportModes);
 
         final GraphLabel actualNodeType;
         final int numLabels = otherLabels.size();
         if (numLabels==1) {
             actualNodeType = otherLabels.iterator().next();
-        } else if (numLabels==2 && otherLabels.contains(GraphLabel.ROUTE_STATION)) {
-            actualNodeType = GraphLabel.ROUTE_STATION;
-        } else if (otherLabels.contains(GraphLabel.STATION)) {
-            actualNodeType = GraphLabel.STATION;
-        } else if (otherLabels.contains(GraphLabel.HOUR)) {
-            actualNodeType = GraphLabel.HOUR;
+        } else if (numLabels==2 && otherLabels.contains(ROUTE_STATION)) {
+            actualNodeType = ROUTE_STATION;
+        } else if (otherLabels.contains(STATION)) {
+            actualNodeType = STATION;
+        } else if (otherLabels.contains(HOUR)) {
+            actualNodeType = HOUR;
         } else {
             throw new RuntimeException("Not a station, unexpected multi-label condition: " + originalLabels +
                     " without modes: " + otherLabels);

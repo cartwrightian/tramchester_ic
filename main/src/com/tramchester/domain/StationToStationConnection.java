@@ -108,7 +108,7 @@ public class StationToStationConnection {
 //        final Set<TransportMode> modes = ImmutableEnumSet.createEnumSet(pair.getBegin().getTransportModes());
 //        modes.addAll(pair.getEnd().getTransportModes());
 //        return ImmutableEnumSet.copyOf(modes);
-        return ImmutableEnumSet.add(pair.getBegin().getTransportModes(), pair.getEnd().getTransportModes());
+        return ImmutableEnumSet.join(pair.getBegin().getTransportModes(), pair.getEnd().getTransportModes());
     }
 
     public LinkType getLinkType() {

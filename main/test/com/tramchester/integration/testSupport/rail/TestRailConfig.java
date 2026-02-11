@@ -2,11 +2,11 @@ package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.config.RailConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 
 import java.nio.file.Path;
-import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -16,12 +16,12 @@ public class TestRailConfig implements RailConfig {
     public static final int INITIAL_WAIT_MINS = 60;
 
     @Override
-        public boolean getOnlyMarkedInterchanges() {
+    public boolean getOnlyMarkedInterchanges() {
             return true;
         }
 
-        @Override
-        public DataSourceID getDataSourceId() {
+    @Override
+    public DataSourceID getDataSourceId() {
             return DataSourceID.openRailData;
         }
 
@@ -31,28 +31,13 @@ public class TestRailConfig implements RailConfig {
     }
 
     @Override
-        public Path getDataPath() {
+    public Path getDataPath() {
             return Path.of("data/openRailData");
         }
 
-//    @Override
-//    public Path getStations(String version) {
-//        return Path.of(remoteConfig.getFilePrefix(version) + ".MSN");
-//    }
-//
-//    @Override
-//    public Path getTimetable(String version) {
-//        return Path.of(remoteConfig.getFilePrefix(version) + ".MCA");
-//    }
-
     @Override
-    public EnumSet<TransportMode> getModes() {
-        return EnumSet.of(Train, RailReplacementBus);
+    public ImmutableEnumSet<TransportMode> getModes() {
+        return ImmutableEnumSet.of(Train, RailReplacementBus);
     }
-
-//    @Override
-//    public String getVersion() {
-//        return RailRemoteDataSourceConfig.VERSION;
-//    }
 
 }

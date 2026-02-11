@@ -36,6 +36,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.IOException;
 import java.util.*;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MultiDB
@@ -101,9 +103,8 @@ public class GraphPropsTest {
     void shouldSetAndGetVersionInformation() {
         MutableGraphNode node = txn.createNode(GraphLabel.VERSION);
 
-        DataSourceInfo tfgmInfo = new DataSourceInfo(DataSourceID.tfgm, "1.2", TestEnv.UTCNow(),
-                ImmutableEnumSet.createEnumSet(TransportMode.TramsOnly));
-        DataSourceInfo openRailInfo = new DataSourceInfo(DataSourceID.openRailData, "998", TestEnv.UTCNow(), EnumSet.of(TransportMode.Train));
+        DataSourceInfo tfgmInfo = new DataSourceInfo(DataSourceID.tfgm, "1.2", TestEnv.UTCNow(), TramsOnly);
+        DataSourceInfo openRailInfo = new DataSourceInfo(DataSourceID.openRailData, "998", TestEnv.UTCNow(), RailOnly);
 
         node.set(tfgmInfo);
         node.set(openRailInfo);

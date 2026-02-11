@@ -2,10 +2,10 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class ConfigDTO {
@@ -15,8 +15,8 @@ public class ConfigDTO {
     private String environmentName;
     private int maxNumberChanges;
 
-    public ConfigDTO(Collection<TransportMode> modes, TramchesterConfig config) {
-        this.modes = new ArrayList<>(modes);
+    public ConfigDTO(final ImmutableEnumSet<TransportMode> modes, final TramchesterConfig config) {
+        this.modes = new ArrayList<>(ImmutableEnumSet.createEnumSet(modes));
         this.postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
         this.numberJourneysToDisplay = config.getMaxNumberResults();
         this.environmentName = config.getEnvironmentName();

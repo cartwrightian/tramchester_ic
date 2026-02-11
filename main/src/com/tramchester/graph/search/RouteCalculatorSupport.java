@@ -245,7 +245,7 @@ public abstract class RouteCalculatorSupport {
 
     protected ImmutableEnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
         // need to take into account if a location is an interchange
-        return ImmutableEnumSet.add(interchangeRepository.getInterchangeModes(destinations), destinations.getModes());
+        return ImmutableEnumSet.join(interchangeRepository.getInterchangeModes(destinations), destinations.getModes());
 
 //        final ImmutableEnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
 //        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
