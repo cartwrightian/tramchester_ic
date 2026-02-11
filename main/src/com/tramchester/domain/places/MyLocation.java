@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
@@ -14,7 +15,6 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Set;
 
 public class MyLocation implements Location<MyLocation> {
@@ -94,12 +94,12 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        return EnumSet.of(TransportMode.Walk);
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
+        return ImmutableEnumSet.of(TransportMode.Walk);
     }
 
     @Override
-    public boolean anyOverlapWith(EnumSet<TransportMode> modes) {
+    public boolean anyOverlapWith(ImmutableEnumSet<TransportMode> modes) {
         return modes.contains(TransportMode.Walk);
     }
 

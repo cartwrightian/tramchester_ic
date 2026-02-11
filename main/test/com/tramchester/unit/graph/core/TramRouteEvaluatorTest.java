@@ -160,7 +160,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         // todo into mock
         Running running = () -> isRunning;
-        final EnumSet<TransportMode> destinationModes = TramsOnly;
+        final ImmutableEnumSet<TransportMode> destinationModes = TramsOnly;
         return new TramRouteEvaluator(serviceHeuristics, config, txn, destinationNodeIds, reasons, previousSuccessfulVisit,
                 arrivalHandler, startNodeId, TramsOnly, running, destinationModes, maxInitialWait) {
             @Override

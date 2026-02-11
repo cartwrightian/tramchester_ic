@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -40,7 +41,7 @@ public class BusRouteToRouteCostsTest {
     private StationGroupsRepository stationGroupsRepository;
     private TramDate date;
     private TimeRange wholeDayRange;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {

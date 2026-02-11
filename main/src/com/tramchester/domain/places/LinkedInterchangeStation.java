@@ -3,6 +3,7 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.HasRoutes;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -43,7 +44,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
             throw new RuntimeException(format("Attempt to add duplicated link %s to %s", stationLink, links));
         }
         links.add(stationLink);
-        allModes.addAll(stationLink.getContainedModes());
+        allModes.addAll(ImmutableEnumSet.createEnumSet(stationLink.getContainedModes()));
     }
 
     @Override
@@ -108,15 +109,14 @@ public class LinkedInterchangeStation implements InterchangeStation {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        return allModes;
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
+        return ImmutableEnumSet.copyOf(allModes);
     }
 
     @Override
-    public boolean anyOverlapWith(final EnumSet<TransportMode> other) {
+    public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> other) {
         return TransportMode.anyIntersection(allModes, other);
     }
-
 
     @Override
     public String toString() {

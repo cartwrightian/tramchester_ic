@@ -91,7 +91,7 @@ public class RunningRoutesAndServicesTest {
         TramDate when = getMiddleOfThreeConsec(route);
         assertNotNull(when, "failed to find any route operating on three consecutive dates");
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModesImmutable());
 
         IdFor<Route> routeId = route.getId();
 
@@ -146,7 +146,7 @@ public class RunningRoutesAndServicesTest {
             previousDay = when.minusDays(1);
         }
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModesImmutable());
 
         Route altyToBuryRoute = helper.getGreen(previousDay); // helper.getOneRoute(KnownTramRoute.getGreen(previousDay), previousDay);
 
@@ -198,7 +198,7 @@ public class RunningRoutesAndServicesTest {
         assertFalse(tuesdayServices.isEmpty(), "found no weekday services for " + tuesdayDate);
 
         // weekday services on Tuesday also running Friday
-        RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(fridayDate, config.getTransportModes());
+        RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(fridayDate, config.getTransportModesImmutable());
         Set<Service> weekdayFiltered = weekdayServices.stream().
                 filter(svc -> filterForNextFriday.isServiceRunningByDate(svc.getId(), false))
                 .collect(Collectors.toSet());

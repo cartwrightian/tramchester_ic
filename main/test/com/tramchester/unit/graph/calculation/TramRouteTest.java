@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
@@ -61,7 +62,7 @@ class TramRouteTest {
     private TramDate queryDate;
     private TramTime queryTime;
     private MutableGraphTransaction txn;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAllTestRuns(GraphDBType graphType) throws IOException {
@@ -122,7 +123,7 @@ class TramRouteTest {
     void shouldHaveRoutesSetupCorrectly() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
-        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate, EnumSet.of(Tram));
+        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate, TramsOnly);
 
         assertEquals(routeRepository.numberOfRoutes(), running.size());
     }

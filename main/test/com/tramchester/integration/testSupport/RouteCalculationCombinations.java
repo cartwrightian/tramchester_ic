@@ -5,6 +5,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -188,6 +189,10 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> createStationPairsForAll(final EnumSet<TransportMode> modes) {
+            return createStationPairsForAll(ImmutableEnumSet.copyOf(modes));
+        }
+
+        public LocationIdPairSet<Station> createStationPairsForAll(final ImmutableEnumSet<TransportMode> modes) {
 
             final Set<Station> allStations = stationRepository.getStations(modes);
 
@@ -210,10 +215,15 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final TransportMode mode) {
-            return endOfRoutesToEndOfRoutes(EnumSet.of(mode));
+            return endOfRoutesToEndOfRoutes(ImmutableEnumSet.of(mode));
         }
 
         public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final EnumSet<TransportMode> modes) {
+            return endOfRoutesToEndOfRoutes(ImmutableEnumSet.copyOf(modes));
+        }
+
+
+        public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final ImmutableEnumSet<TransportMode> modes) {
             final ImmutableIdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             // sanity check, primarily for rail
             ImmutableIdSet<Station> missingStations = endRoutes.stream().
@@ -230,7 +240,11 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return endOfRoutesToInterchanges(EnumSet.of(mode));
         }
 
-            public LocationIdPairSet<Station> endOfRoutesToInterchanges(final EnumSet<TransportMode> modes) {
+        public LocationIdPairSet<Station> endOfRoutesToInterchanges(final EnumSet<TransportMode> modes) {
+            return endOfRoutesToInterchanges(ImmutableEnumSet.copyOf(modes));
+        }
+
+        public LocationIdPairSet<Station> endOfRoutesToInterchanges(final ImmutableEnumSet<TransportMode> modes) {
             final ImmutableIdSet<Station> interchanges = getInterchangesFor(modes);
             final ImmutableIdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             return createJourneyPairs(interchanges, endRoutes, date);
@@ -241,6 +255,10 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> interchangeToInterchange(final EnumSet<TransportMode> modes) {
+            return interchangeToInterchange(ImmutableEnumSet.copyOf(modes));
+        }
+
+        public LocationIdPairSet<Station> interchangeToInterchange(final ImmutableEnumSet<TransportMode> modes) {
             final ImmutableIdSet<Station> interchanges = getInterchangesFor(modes);
             return createJourneyPairs(interchanges, interchanges, date);
         }
@@ -249,13 +267,17 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return interchangeToEndRoutes(EnumSet.of(mode));
         }
 
-            public LocationIdPairSet<Station> interchangeToEndRoutes(final EnumSet<TransportMode> modes) {
+        public LocationIdPairSet<Station> interchangeToEndRoutes(final EnumSet<TransportMode> modes) {
+            return interchangeToEndRoutes(ImmutableEnumSet.copyOf(modes));
+        }
+
+            public LocationIdPairSet<Station> interchangeToEndRoutes(final ImmutableEnumSet<TransportMode> modes) {
             final ImmutableIdSet<Station> interchanges = getInterchangesFor(modes);
             final ImmutableIdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             return createJourneyPairs(endRoutes, interchanges, date);
         }
 
-        private ImmutableIdSet<Station> getInterchangesFor(final EnumSet<TransportMode> modes) {
+        private ImmutableIdSet<Station> getInterchangesFor(final ImmutableEnumSet<TransportMode> modes) {
             return interchangeRepository.getAllInterchanges().stream().
                     map(InterchangeStation::getStationId).
                     filter(stationId -> stationRepository.getStationById(stationId).anyOverlapWith(modes)).

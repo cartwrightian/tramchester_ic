@@ -6,6 +6,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
@@ -218,8 +219,9 @@ public abstract class RouteCalculatorSupport {
     }
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
-                                         EnumSet<TransportMode> requestedModes, int numChanges,
-                                         JourneyConstraints journeyConstraints, TramDuration maxInitialWait, boolean diagnosticsRequested, long maxNumberJourneys) {
+                                         ImmutableEnumSet<TransportMode> requestedModes, int numChanges,
+                                         JourneyConstraints journeyConstraints, TramDuration maxInitialWait,
+                                         boolean diagnosticsRequested, long maxNumberJourneys) {
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
                 actualQueryTime, numChanges, diagnosticsRequested);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait,
@@ -241,12 +243,14 @@ public abstract class RouteCalculatorSupport {
         return findMaxInitialWait.get();
     }
 
-    protected EnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
+    protected ImmutableEnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
         // need to take into account if a location is an interchange
-        final EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
-        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
-        results.addAll(interchangeModes);
-        return results;
+        return ImmutableEnumSet.add(interchangeRepository.getInterchangeModes(destinations), destinations.getModes());
+
+//        final ImmutableEnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
+//        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
+//        results.addAll(interchangeModes);
+//        return results;
     }
 
     protected Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
@@ -260,7 +264,7 @@ public abstract class RouteCalculatorSupport {
             return Stream.empty();
         }
 
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
         final TramDate tramDate = journeyRequest.getDate();
@@ -274,7 +278,7 @@ public abstract class RouteCalculatorSupport {
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
-        final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
+        final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
@@ -327,9 +331,9 @@ public abstract class RouteCalculatorSupport {
 
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
 
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
-        final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
+        final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routesAndServicesFilter,
                 closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);

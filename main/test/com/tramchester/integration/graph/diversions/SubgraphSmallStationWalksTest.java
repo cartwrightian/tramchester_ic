@@ -6,6 +6,7 @@ import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -90,7 +90,7 @@ class SubgraphSmallStationWalksTest {
         txn.close();
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
     }
 

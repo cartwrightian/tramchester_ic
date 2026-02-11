@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -27,11 +28,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
-
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
@@ -45,7 +43,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     private TramDate date;
     private RouteToRouteCosts routeToRouteCosts;
-    private EnumSet<TransportMode> allTransportModes;
+    private ImmutableEnumSet<TransportMode> allTransportModes;
     private RailRouteHelper railRouteHelper;
 
     @BeforeAll
@@ -63,7 +61,7 @@ public class RailAndTramRouteToRouteCostsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         date = TestEnv.testDay();
-        allTransportModes = EnumSet.allOf(TransportMode.class);
+        allTransportModes = ImmutableEnumSet.allOf(TransportMode.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         stationRepository = componentContainer.get(StationRepository.class);
         railRouteHelper = new RailRouteHelper(componentContainer);
@@ -73,9 +71,8 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldValidHopsBetweenTramAndRailLongRange() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        EnumSet<TransportMode> all = allTransportModes;
         int result = getPossibleMinChanges(tram(Bury), rail(Stockport),
-                all, date, timeRange);
+                allTransportModes, date, timeRange);
 
         assertEquals(1, result);
         //assertEquals(2, result.getMax());
@@ -106,8 +103,9 @@ public class RailAndTramRouteToRouteCostsTest {
         assertEquals(0, result);
     }
 
-    private int getPossibleMinChanges(Station being, Station end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
-        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+    private int getPossibleMinChanges(Station being, Station end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false,
+                JourneyRequest.MaxNumberOfChanges.of(1),
                 TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
@@ -140,7 +138,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
         // should find a result since Altrincham -> Altincham Rail -> Stockport iff neighbours enabled
         int result = getPossibleMinChanges(tram(Altrincham), rail(Stockport),
-                EnumSet.of(Train), date, timeRange);
+                RailOnly, date, timeRange);
 
         assertEquals(0, result);
     }
@@ -159,10 +157,8 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        EnumSet<TransportMode> preferredModes = EnumSet.of(Tram);
-
         int result = getPossibleMinChanges(tram(TramStations.Bury), rail(Stockport),
-                preferredModes, date, timeRange);
+                TramsOnly, date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, result);
     }
@@ -171,9 +167,8 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldHaveCorrectHopsBetweenRailStationsOnly() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        EnumSet<TransportMode> preferredModes = EnumSet.of(Train);
         int result = getPossibleMinChanges(rail(ManchesterPiccadilly), rail(Stockport),
-                preferredModes, date, timeRange);
+                RailOnly, date, timeRange);
 
         assertEquals(0, result); // non stop
     }

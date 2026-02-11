@@ -3,6 +3,7 @@ package com.tramchester.mappers;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Trips;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -45,7 +46,7 @@ public class RoutesMapper {
         logger.info("started");
     }
 
-    public List<RouteDTO> getRouteDTOs(final TramDate date, EnumSet<TransportMode> modes) {
+    public List<RouteDTO> getRouteDTOs(final TramDate date, ImmutableEnumSet<TransportMode> modes) {
         final Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(date, modes);
         logger.info("Get routeDTOs for " + date + " from " + asIds(routesOnDate));
 

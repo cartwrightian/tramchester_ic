@@ -19,13 +19,13 @@ import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.inMemory.FindPathsForJourney;
 import com.tramchester.graph.search.inMemory.ShortestPath;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
@@ -33,11 +33,10 @@ import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -105,7 +104,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
         assertMinutesEquals(41, costCalculator.getAverageCostBetween(txn,
-                transportData.getFirst(), transportData.getLast(), queryDate, EnumSet.of(Tram)));
+                transportData.getFirst(), transportData.getLast(), queryDate, TramsOnly));
 
 //        assertEquals(-1, costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
     }
@@ -227,7 +226,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, int maxNumberChanges) {
         TramDuration maxDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         return new JourneyRequest(date, time, false, maxNumberChanges, maxDuration,
-                3, EnumSet.of(Tram));
+                3, TramsOnly);
     }
 
 }

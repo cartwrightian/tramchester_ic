@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -23,11 +24,11 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -99,8 +100,8 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, stockport, manchesterPiccadilly);
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return EnumSet.of(TransportMode.Train);
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return RailOnly;
     }
 
     @Test

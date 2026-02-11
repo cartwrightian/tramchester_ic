@@ -45,8 +45,8 @@ public abstract class TramRouteEvaluator {
                               final GraphTransaction txn, final Set<GraphNodeId> destinationNodeIds,
                               final ServiceReasons reasons, final PreviousVisits previousVisits,
                               final ArrivalHandler bestResultSoFar, final GraphNodeId startNodeId,
-                              final EnumSet<TransportMode> requestedModes, Running running,
-                              final EnumSet<TransportMode> destinationModes,
+                              final ImmutableEnumSet<TransportMode> requestedModes, Running running,
+                              final ImmutableEnumSet<TransportMode> destinationModes,
                               final TramDuration maxInitialWait) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;

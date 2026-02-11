@@ -23,12 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -142,7 +141,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         LocalDateTime now = TestEnv.LocalNow();
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
-        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, EnumSet.of(Tram));
+        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, TramsOnly);
 
 
     }

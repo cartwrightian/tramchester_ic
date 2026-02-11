@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -120,7 +121,7 @@ class LocationJourneyPlannerTest {
         });
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
     }
 

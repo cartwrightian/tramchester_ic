@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.LocationId;
@@ -15,7 +16,6 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -230,17 +230,17 @@ public class MutablePlatform implements Platform {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         Set<TransportMode> modes = Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
                 map(Route::getTransportMode).collect(Collectors.toSet());
         if (modes.isEmpty()) {
-            return EnumSet.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         }
-        return EnumSet.copyOf(modes);
+        return ImmutableEnumSet.copyOf(modes);
     }
 
     @Override
-    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+    public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> modes) {
         return servesRoutesDropoff.stream().anyMatch(route -> modes.contains(route.getTransportMode()))
                 || servesRoutesPickup.stream().anyMatch(route -> modes.contains(route.getTransportMode()));
     }

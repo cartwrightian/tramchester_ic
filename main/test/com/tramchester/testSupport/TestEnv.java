@@ -9,6 +9,7 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
@@ -342,9 +343,9 @@ public class TestEnv {
     }
 
     public static class Modes {
-        public static final EnumSet<TransportMode> TramsOnly = EnumSet.of(Tram);
-        public static final EnumSet<TransportMode> BusesOnly = EnumSet.of(Bus);
-        public static final EnumSet<TransportMode> RailOnly = EnumSet.of(Train);
-        public static final EnumSet<TransportMode> TrainAndTram = EnumSet.of(Train, Tram, RailReplacementBus);
+        public static final ImmutableEnumSet<TransportMode> TramsOnly = ImmutableEnumSet.of(Tram);
+        public static final ImmutableEnumSet<TransportMode> BusesOnly = ImmutableEnumSet.of(Bus);
+        public static final ImmutableEnumSet<TransportMode> RailOnly = ImmutableEnumSet.of(Train);
+        public static final ImmutableEnumSet<TransportMode> TrainAndTram = ImmutableEnumSet.of(Train, Tram, RailReplacementBus);
     }
 }

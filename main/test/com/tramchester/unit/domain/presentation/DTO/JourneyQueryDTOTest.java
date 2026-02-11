@@ -135,7 +135,7 @@ public class JourneyQueryDTOTest {
 
         @Override
         public EnumSet<TransportMode> getTransportModes() {
-            return TramsOnly;
+            return EnumSet.of(TransportMode.Tram);
         }
 
         @Override

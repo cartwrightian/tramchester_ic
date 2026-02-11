@@ -102,7 +102,8 @@ public class GraphPropsTest {
     void shouldSetAndGetVersionInformation() {
         MutableGraphNode node = txn.createNode(GraphLabel.VERSION);
 
-        DataSourceInfo tfgmInfo = new DataSourceInfo(DataSourceID.tfgm, "1.2", TestEnv.UTCNow(), TramsOnly);
+        DataSourceInfo tfgmInfo = new DataSourceInfo(DataSourceID.tfgm, "1.2", TestEnv.UTCNow(),
+                ImmutableEnumSet.createEnumSet(TramsOnly));
         DataSourceInfo openRailInfo = new DataSourceInfo(DataSourceID.openRailData, "998", TestEnv.UTCNow(), EnumSet.of(TransportMode.Train));
 
         node.set(tfgmInfo);

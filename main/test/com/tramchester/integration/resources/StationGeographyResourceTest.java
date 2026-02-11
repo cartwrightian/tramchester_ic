@@ -4,7 +4,6 @@ import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.NPTGLocality;
@@ -37,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -152,6 +151,6 @@ class StationGeographyResourceTest {
         Double distance = 42D; // not used in the equality for the DTO
         return new StationToStationConnectionDTO(DTOFactory.createLocationRefWithPosition(begin.fake()),
                 DTOFactory.createLocationRefWithPosition(end.fake()),
-                ImmutableEnumSet.of(Tram), distance, linkType);
+                TramsOnly, distance, linkType);
     }
 }

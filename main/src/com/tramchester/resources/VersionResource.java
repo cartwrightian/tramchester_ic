@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.Version;
 import com.tramchester.domain.reference.TransportMode;
@@ -59,7 +60,7 @@ public class VersionResource implements APIResource {
         logger.info("Get config");
 
         final boolean beta = betaRaw!=null;
-        final Set<TransportMode> modes = repository.getModes(beta);
+        final Set<TransportMode> modes = ImmutableEnumSet.createEnumSet(repository.getModes(beta));
 
         final ConfigDTO configDTO = new ConfigDTO(modes, config);
 

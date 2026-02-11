@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
@@ -25,7 +26,7 @@ public class LocationDTO implements HasIdForDTO{
         this.id = new IdForDTO(source.getId());
         this.name = source.getName();
         this.latLong = source.getLatLong();
-        this.transportModes = source.getTransportModes();
+        this.transportModes = ImmutableEnumSet.createEnumSet(source.getTransportModes());
         this.locationType = source.getLocationType();
         this.platforms = platforms;
         this.routes = routes;

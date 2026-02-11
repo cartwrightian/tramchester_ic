@@ -6,6 +6,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.caching.DataCache;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
@@ -20,8 +21,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-
-import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.reference.KnownBusRoute.AltrinchamMacclesfield;
@@ -76,7 +75,7 @@ public class RouterInterconnectRepositoryBusesTest {
         Route routeB = routeHelper.getOneRoute(AltrinchamMacclesfield, date);
 
 
-        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, EnumSet.of(Bus));
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, ImmutableEnumSet.of(Bus));
         RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
 
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);

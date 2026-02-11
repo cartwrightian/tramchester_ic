@@ -5,6 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
@@ -27,13 +28,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -74,7 +74,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        List<UpcomingDeparture> all = getAllDepartures(journeyStations, EnumSet.of(Tram));
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations, TramsOnly);
 
         ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().
@@ -95,7 +95,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
 
         ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
 
-        List<UpcomingDeparture> all = getAllDepartures(journeyStations, EnumSet.of(Train));
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations, RailOnly);
         assertFalse(all.isEmpty());
 
         List<UpcomingDeparture> depsTowardsLondon = all.stream().filter(dep -> dep.getDestinationId().equals(euston.getId())).toList();
@@ -123,7 +123,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
 
         ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
 
-        List<UpcomingDeparture> all = getAllDepartures(journeyStations, EnumSet.of(Train));
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations, RailOnly);
         assertFalse(all.isEmpty());
 
         List<UpcomingDeparture> matching = all.stream().
@@ -138,7 +138,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
     }
 
 
-    private List<UpcomingDeparture> getAllDepartures(final StationPair journeyStations, EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getAllDepartures(final StationPair journeyStations, ImmutableEnumSet<TransportMode> modes) {
         final CountDownLatch latch = new CountDownLatch(1);
 
         // need to wait until we have some live data

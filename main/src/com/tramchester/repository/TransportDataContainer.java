@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
@@ -162,7 +163,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Station> getStations(final EnumSet<TransportMode> modes) {
+    public Set<Station> getStations(final ImmutableEnumSet<TransportMode> modes) {
         return stationsById.getValuesStream().
                 filter(station -> station.anyOverlapWith(modes)).
                 collect(Collectors.toSet());
@@ -240,7 +241,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Service> getServices(final EnumSet<TransportMode> modes) {
+    public Set<Service> getServices(final ImmutableEnumSet<TransportMode> modes) {
         return services.getValuesStream().
                 filter(service -> service.anyOverlapWith(modes)).
                 collect(Collectors.toSet());
@@ -276,7 +277,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Platform> getPlatforms(final EnumSet<TransportMode> modes) {
+    public Set<Platform> getPlatforms(final ImmutableEnumSet<TransportMode> modes) {
         return platforms.getValuesStream().
                 filter(platform -> platform.anyOverlapWith(modes)).
                 collect(Collectors.toSet());
@@ -442,7 +443,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Route> getRoutes(Set<TransportMode> modes) {
+    public Set<Route> getRoutes(final ImmutableEnumSet<TransportMode> modes) {
         return routes.getValuesStream().filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
     }
 
@@ -462,7 +463,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Service> getServicesOnDate(final TramDate date,  final EnumSet<TransportMode> modes) {
+    public Set<Service> getServicesOnDate(final TramDate date,  final ImmutableEnumSet<TransportMode> modes) {
         // TODO PERFORMANCE OF service.getCalendar().operatesOn(date)
         return services.
                 filterStream(service -> service.anyOverlapWith(modes) && service.getCalendar().operatesOn(date)).
@@ -470,7 +471,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Route> getRoutesRunningOn(TramDate date, EnumSet<TransportMode> modes) {
+    public Set<Route> getRoutesRunningOn(TramDate date, ImmutableEnumSet<TransportMode> modes) {
         return routes.filterStream(route -> route.isAvailableOn(date) && modes.contains(route.getTransportMode())).collect(Collectors.toSet());
     }
 

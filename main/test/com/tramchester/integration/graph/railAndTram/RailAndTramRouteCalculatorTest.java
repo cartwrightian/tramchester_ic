@@ -30,8 +30,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
-import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramStations.Eccles;
 import static org.junit.jupiter.api.Assertions.*;
@@ -182,7 +181,7 @@ public class RailAndTramRouteCalculatorTest {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, CHANGES, maxDurationFromConfig,
-                1, EnumSet.of(Tram, Train));
+                1, TrainAndTram);
 
 //        journeyRequest.setDiag(true);
 
@@ -272,7 +271,7 @@ public class RailAndTramRouteCalculatorTest {
 
         // get a duplicate journey when set to 5 here...
         JourneyRequest request = new JourneyRequest(date, time, false, 1,
-                TramDuration.ofMinutes(240), 5, EnumSet.of(Tram, Train));
+                TramDuration.ofMinutes(240), 5, TrainAndTram);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(Altrincham, Stockport, request);
 
@@ -287,7 +286,7 @@ public class RailAndTramRouteCalculatorTest {
         TramDate date = TestEnv.testDay();
 
         JourneyRequest request = new JourneyRequest(date, time, false, 0,
-                TramDuration.ofMinutes(30), 1, EnumSet.of(Train));
+                TramDuration.ofMinutes(30), 1, RailOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(Altrincham, NavigationRaod, request);
 
@@ -309,7 +308,7 @@ public class RailAndTramRouteCalculatorTest {
         TramDate date = TestEnv.testDay();
 
         JourneyRequest request = new JourneyRequest(date, time, false, 0,
-                TramDuration.ofMinutes(3), 1, EnumSet.of(Tram, Train));
+                TramDuration.ofMinutes(3), 1, TrainAndTram);
 
         //return tramStation.from(stationRepository);
         //return railStation.from(stationRepository);
@@ -346,7 +345,7 @@ public class RailAndTramRouteCalculatorTest {
         TramTime time = TramTime.of(14,25);
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                TramDuration.ofMinutes(240), 1, EnumSet.of(Tram, Train));
+                TramDuration.ofMinutes(240), 1, TrainAndTram);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(Altrincham, Stockport, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
@@ -371,7 +370,7 @@ public class RailAndTramRouteCalculatorTest {
         TramTime time = TramTime.of(10,30);
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                TramDuration.ofMinutes(240), 3, EnumSet.of(Train));
+                TramDuration.ofMinutes(240), 3, RailOnly);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(TramStations.Altrincham, Stockport, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -415,11 +414,9 @@ public class RailAndTramRouteCalculatorTest {
     void shouldTakeDirectTrainViaWalkWhenOnlyTrainModeSelected() {
         TramTime time = TramTime.of(14,25);
 
-        EnumSet<TransportMode> trainOnly = EnumSet.of(Train);
-
         TramDate date = TramDate.of(2022, 10,14);
         JourneyRequest request = new JourneyRequest(date, time, false, 1,
-                TramDuration.ofMinutes(240), 1, trainOnly);
+                TramDuration.ofMinutes(240), 1, RailOnly);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(TramStations.Altrincham, Stockport, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -456,7 +453,7 @@ public class RailAndTramRouteCalculatorTest {
     void shouldNotHaveManPiccToStockportWhenTramOnly() {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                TramDuration.ofMinutes(30), 1, EnumSet.of(Tram));
+                TramDuration.ofMinutes(30), 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(ManchesterPiccadilly, Stockport, request);
         assertTrue(journeys.isEmpty());

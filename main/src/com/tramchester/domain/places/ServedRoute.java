@@ -2,6 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -44,7 +45,7 @@ public class ServedRoute {
     }
 
     // TODO Remove date filtering here?
-    public Set<Route> getRoutes(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
+    public Set<Route> getRoutes(final TramDate date, final TimeRange range, final ImmutableEnumSet<TransportMode> modes) {
         final Set<Route> results = getRouteForDateAndTimeRange(date, range, modes);
         if (range.intoNextDay()) {
             final TimeRange nextDayRange = range.forFollowingDay();
@@ -59,7 +60,7 @@ public class ServedRoute {
         return results;
     }
 
-    public Stream<TimeRange> getTimeRanges(final TramDate tramDate, final EnumSet<TransportMode> modes) {
+    public Stream<TimeRange> getTimeRanges(final TramDate tramDate, final ImmutableEnumSet<TransportMode> modes) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(tramDate)).
                 filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
@@ -69,7 +70,7 @@ public class ServedRoute {
 
     // TODO Remove date filtering here?
     @NotNull
-    private Set<Route> getRouteForDateAndTimeRange(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
+    private Set<Route> getRouteForDateAndTimeRange(final TramDate date, final TimeRange range, final ImmutableEnumSet<TransportMode> modes) {
         return routeAndServices.stream().
                 filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
@@ -78,14 +79,14 @@ public class ServedRoute {
                 collect(Collectors.toSet());
     }
 
-    private boolean anyRouteForDateAndTimeRange(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
+    private boolean anyRouteForDateAndTimeRange(final TramDate date, final TimeRange range, final ImmutableEnumSet<TransportMode> modes) {
         return routeAndServices.stream().
                 filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
                 anyMatch(routeAndService -> hasTimeRangerOverlap(range, routeAndService));
     }
 
-    public boolean anyAvailable(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
+    public boolean anyAvailable(final TramDate date, final TimeRange range, final ImmutableEnumSet<TransportMode> modes) {
         if (anyRouteForDateAndTimeRange(date, range, modes)) {
             return true;
         }

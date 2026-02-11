@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -46,7 +47,7 @@ class RouteCalculatorKeyRoutesTest {
     private RouteCalculationCombinations<Station> combinations;
     private JourneyRequest journeyRequest;
     private TramDuration maxJourneyDuration;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
     private int maxChanges;
 
     @BeforeAll

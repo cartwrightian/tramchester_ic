@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -22,10 +23,9 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.function.BiFunction;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +41,7 @@ class BusRouteCostCalculatorTest {
     private StationRepository stationRepository;
 
     private final TramDate date = TestEnv.testDay();
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -67,7 +67,7 @@ class BusRouteCostCalculatorTest {
         stockport = KnownLocality.Stockport.from(stationGroupRepository);
         shudehill = KnownLocality.Shudehill.from(stationGroupRepository);
 
-        modes = EnumSet.of(Bus);
+        modes = BusesOnly;
 
         routeCost = componentContainer.get(RouteCostCalculator.class);
 

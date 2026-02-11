@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.closures.Closure;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
@@ -161,7 +162,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         logger.info(format("Get stations with %s of %s,%s", margin, lat, lon));
 
-        EnumSet<TransportMode> modes = transportModeRepository.getModes();
+        ImmutableEnumSet<TransportMode> modes = transportModeRepository.getModes();
 
         LatLong latLong = new LatLong(lat,lon);
 
@@ -187,7 +188,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         TransportMode mode = TransportMode.valueOf(rawMode);
 
-        EnumSet<TransportMode> modes = EnumSet.of(mode);
+        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(mode);
 
         LatLong latLong = new LatLong(lat,lon);
 
@@ -210,7 +211,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie, @QueryParam("modes") String rawModes) {
         logger.info(format("Get recent stations for cookie %s", cookie));
 
-        final EnumSet<TransportMode> modes;
+        final ImmutableEnumSet<TransportMode> modes;
         if (rawModes!=null) {
             modes = TransportMode.parseCSV(rawModes);
         } else {

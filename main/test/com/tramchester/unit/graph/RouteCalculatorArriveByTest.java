@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -22,7 +23,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -60,7 +60,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Stream<Journey> journeyStream = Stream.empty();
 
-        EnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TramsOnly;
 
         TramDuration duration = TramDuration.ofMinutes(15);
         EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate, modes)).andReturn(duration);

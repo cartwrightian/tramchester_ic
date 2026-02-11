@@ -1,5 +1,6 @@
 package com.tramchester.graph.reference;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
@@ -91,7 +92,7 @@ public enum TransportRelationshipTypes {
         return valueOf(name);
     }
 
-    public static TransportRelationshipTypes[] forModes(final EnumSet<TransportMode> transportModes) {
+    public static TransportRelationshipTypes[] forModes(final ImmutableEnumSet<TransportMode> transportModes) {
         final Set<TransportRelationshipTypes> unique = transportModes.stream().
                 map(TransportRelationshipTypes::forMode).collect(Collectors.toSet());
 

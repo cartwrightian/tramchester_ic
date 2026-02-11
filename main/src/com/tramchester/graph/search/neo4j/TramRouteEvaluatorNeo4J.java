@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.neo4j;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -17,7 +18,6 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.PathEvaluator;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 public class TramRouteEvaluatorNeo4J extends TramRouteEvaluator implements PathEvaluator<JourneyState> {
@@ -36,8 +36,8 @@ public class TramRouteEvaluatorNeo4J extends TramRouteEvaluator implements PathE
     public TramRouteEvaluatorNeo4J(final ServiceHeuristics serviceHeuristics, final Set<GraphNodeId> destinationNodeIds,
                                    final ServiceReasons reasons,
                                    final PreviousVisits previousVisits, final ArrivalHandler arrivalHandler, final TramchesterConfig config,
-                                   final GraphNodeId startNodeId, final EnumSet<TransportMode> requestedModes,
-                                   final EnumSet<TransportMode> destinationModes,
+                                   final GraphNodeId startNodeId, final ImmutableEnumSet<TransportMode> requestedModes,
+                                   final ImmutableEnumSet<TransportMode> destinationModes,
                                    final TramDuration maxInitialWait, final GraphTransaction txn, Running running) {
         super(serviceHeuristics, config, txn, destinationNodeIds, reasons, previousVisits, arrivalHandler, startNodeId, requestedModes,
                 running, destinationModes, maxInitialWait);

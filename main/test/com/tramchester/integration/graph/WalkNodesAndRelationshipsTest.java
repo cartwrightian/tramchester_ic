@@ -6,7 +6,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
@@ -27,6 +26,7 @@ import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_FROM_STATION;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
@@ -60,7 +60,7 @@ public class WalkNodesAndRelationshipsTest {
         TramDuration maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
 
         journeyRequest = new JourneyRequest(TestEnv.testDay(), TramTime.of(9, 0), false,
-                0, maxJourneyDuration, 1, EnumSet.of(TransportMode.Tram));
+                0, maxJourneyDuration, 1, TramsOnly);
 
         // init graph build
         componentContainer.get(LocationJourneyPlanner.class);

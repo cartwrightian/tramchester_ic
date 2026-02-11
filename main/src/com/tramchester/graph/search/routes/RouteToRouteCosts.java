@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
@@ -83,7 +84,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @NotNull
     private static StationAvailabilityFacade getAvailabilityFacade(final StationAvailabilityRepository availabilityRepository,
                                                                    final TramDate date, final TimeRange timeRange,
-                                                                   final EnumSet<TransportMode> requestedModes) {
+                                                                   final ImmutableEnumSet<TransportMode> requestedModes) {
         return new StationAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
     }
 
@@ -150,7 +151,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * @return number of change
      */
     public int getPossibleMinChanges(StationLocalityGroup start, StationLocalityGroup end, TramDate date, TimeRange time,
-                                     EnumSet<TransportMode> modes) {
+                                     ImmutableEnumSet<TransportMode> modes) {
         return getPossibleMinChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
     }
 
@@ -163,7 +164,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     public int getPossibleMinChanges(final LocationSet<Station> starts, final LocationSet<Station> destinations,
                                      final TramDate date, final TimeRange timeRange,
-                                     final EnumSet<TransportMode> requestedModes) {
+                                     final ImmutableEnumSet<TransportMode> requestedModes) {
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             logger.info("Found Neighbours for " + HasId.asIds(starts) + " and " + HasId.asIds(destinations));
@@ -200,7 +201,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public int getNumberOfChanges(final Location<?> start, final LocationSet<Station> destinations,
                                   final JourneyRequest journeyRequest, TimeRange timeRange) {
         final TramDate date = journeyRequest.getDate();
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(start, date, timeRange, requestedModes);
         final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destinations, date, timeRange, requestedModes);
@@ -216,7 +217,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public int getNumberOfChanges(final LocationSet<Station> starts, final Location<?> destination,
                                   final JourneyRequest journeyRequest, TimeRange timeRange) {
         final TramDate date = journeyRequest.getDate();
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(starts, date, timeRange, requestedModes);
         final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange, requestedModes);
@@ -229,7 +230,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private int getPossibleMinChanges(final Location<?> startLocation, final Location<?> destLocation,
-                                     final EnumSet<TransportMode> requestedModes, final TramDate date, final TimeRange timeRange) {
+                                     final ImmutableEnumSet<TransportMode> requestedModes, final TramDate date, final TimeRange timeRange) {
 
         // TODO requested modes is problematic when we have an interchange station that has multiple modes?
 
@@ -292,7 +293,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     public int getPossibleMinChanges(final Route routeA, final Route routeB, final TramDate date,
-                                     final TimeRange timeRange, final EnumSet<TransportMode> requestedModes) {
+                                     final TimeRange timeRange, final ImmutableEnumSet<TransportMode> requestedModes) {
         final StationAvailabilityFacade interchangesOperating = getAvailabilityFacade(availabilityRepository, date,
                 timeRange, requestedModes);
         return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
@@ -306,7 +307,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     public LowestCostsForDestRoutes getLowestCostCalculatorFor(final LocationCollection destinations, final TramDate date,
                                                                final TimeRange timeRange,
-                                                               final EnumSet<TransportMode> requestedModes) {
+                                                               final ImmutableEnumSet<TransportMode> requestedModes) {
         final Set<Route> destinationRoutes = destinations.locationStream().
                 map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange, requestedModes)).
                 flatMap(Collection::stream).
@@ -317,7 +318,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private int getNumberOfHops(final Set<Route> startRoutes, final Set<Route> destinationRoutes, final TramDate date,
                                             final StationAvailabilityFacade interchangesOperating,
-                                            final int closureOffset, final EnumSet<TransportMode> requestedModes) {
+                                            final int closureOffset, final ImmutableEnumSet<TransportMode> requestedModes) {
         if (DEBUG_ENABLED) {
             logger.debug(format("Compute number of changes between %s and %s on %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
@@ -371,12 +372,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private Set<Route> dropoffRoutesFor(final LocationSet<Station> locations, final TramDate date, final TimeRange timeRange,
-                                        final EnumSet<TransportMode> modes) {
+                                        final ImmutableEnumSet<TransportMode> modes) {
         return availabilityRepository.getDropoffRoutesFor(locations, date, timeRange, modes);
     }
 
     private Set<Route> pickupRoutesFor(final LocationSet<Station> locations, final TramDate date, final TimeRange timeRange,
-                                       final EnumSet<TransportMode> modes) {
+                                       final ImmutableEnumSet<TransportMode> modes) {
         return availabilityRepository.getPickupRoutesFor(locations, date, timeRange, modes);
     }
 
@@ -397,7 +398,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         public LowestCostForDestinations(final BetweenRoutesCostRepository routeToRouteCosts, final RouteIndexPairFactory pairFactory,
                                          final Set<Route> destinationRoutes,
-                                         final TramDate date, final TimeRange time, final EnumSet<TransportMode> requestedModes,
+                                         final TramDate date, final TimeRange time, final ImmutableEnumSet<TransportMode> requestedModes,
                                          final StationAvailabilityRepository availabilityRepository) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             this.pairFactory = pairFactory;
@@ -480,13 +481,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     static class StationAvailabilityFacade implements ReportsCacheStats {
         private final TramDate date;
         private final TimeRange time;
-        private final EnumSet<TransportMode> modes;
+        private final ImmutableEnumSet<TransportMode> modes;
         private final StationAvailabilityRepository availabilityRepository;
 
         private final Cache<IdFor<Station>, Boolean> cache;
 
         private StationAvailabilityFacade(final StationAvailabilityRepository availabilityRepository, final TramDate date,
-                                          final TimeRange time, final EnumSet<TransportMode> modes) {
+                                          final TimeRange time, final ImmutableEnumSet<TransportMode> modes) {
             this.availabilityRepository = availabilityRepository;
             this.date = date;
             this.time = time;

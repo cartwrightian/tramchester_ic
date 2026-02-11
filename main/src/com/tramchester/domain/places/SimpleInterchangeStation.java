@@ -1,11 +1,11 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.id.HasId.asId;
@@ -81,12 +81,12 @@ public class SimpleInterchangeStation implements InterchangeStation {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         return station.getTransportModes();
     }
 
     @Override
-    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+    public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> modes) {
         return station.anyOverlapWith(modes);
     }
 

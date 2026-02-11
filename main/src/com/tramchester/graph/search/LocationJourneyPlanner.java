@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -25,7 +26,9 @@ import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -210,7 +213,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    public Set<StationWalk> getStationWalks(final Location<?> location, final EnumSet<TransportMode> modes) {
+    public Set<StationWalk> getStationWalks(final Location<?> location, final ImmutableEnumSet<TransportMode> modes) {
 
         int maxResults = config.getNumOfNearestStopsForWalking();
         final List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin, modes);

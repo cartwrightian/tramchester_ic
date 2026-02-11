@@ -7,6 +7,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -32,13 +33,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,7 +58,7 @@ public class RouteToRouteCostsTest {
     private TramRouteHelper routeHelper;
     private RouteRepository routeRepository;
     private StationRepository stationRepository;
-    private final EnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TramsOnly;
     private TramDate date;
     private TimeRange timeRange;
 
@@ -159,7 +160,7 @@ public class RouteToRouteCostsTest {
         assertEquals(1, getMinCost(result));
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
                 TramDuration.ofMinutes(120), 1, modes);
@@ -174,7 +175,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        int result = getPossibleMinChanges(start, end, EnumSet.of(Train), date, timeRange);
+        int result = getPossibleMinChanges(start, end, RailOnly, date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, getMinCost(result));
 

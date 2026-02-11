@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -19,7 +20,7 @@ public class LocationRefDTO implements HasIdForDTO {
     public LocationRefDTO(Location<?> location) {
         this.id = IdForDTO.createFor(location);
         this.name = location.getName();
-        this.transportModes = location.getTransportModes();
+        this.transportModes = ImmutableEnumSet.createEnumSet(location.getTransportModes());
         this.locationType = location.getLocationType();
         this.pickUp = location.hasPickup();
         this.dropOff = location.hasDropoff();

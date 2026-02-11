@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -184,14 +185,13 @@ class SubgraphSmallClosedStationsDiversionsTest {
         Location<?> destination = Piccadilly.from(stationRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
-        EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        int costs = getPossibleMinChanges(start, destination, mode, when, timeRange);
+        int costs = getPossibleMinChanges(start, destination, TramsOnly, when, timeRange);
 
         assertEquals(0, costs);
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),

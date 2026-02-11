@@ -1,14 +1,13 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
-
-import java.util.EnumSet;
 
 public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTransportModes, CoreDomain, HasGraphLabel {
     // A station that serves a specific route
@@ -56,12 +55,12 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
      * @return Singleton containing the transport mode
      */
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        return EnumSet.of(route.getTransportMode());
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
+        return ImmutableEnumSet.of(route.getTransportMode());
     }
 
     @Override
-    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+    public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> modes) {
         return modes.contains(route.getTransportMode());
     }
 

@@ -1,8 +1,10 @@
 package com.tramchester.livedata.repository;
 
+import com.google.common.collect.Sets;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -17,13 +19,11 @@ import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.openLdb.TrainDeparturesRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import jakarta.inject.Inject;
-import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,7 +53,7 @@ public class DeparturesRepository {
     }
 
     public List<UpcomingDeparture> getDueForLocation(final Location<?> location, final LocalDate date, final TramTime time,
-                                                     final EnumSet<TransportMode> modes) {
+                                                     final ImmutableEnumSet<TransportMode> modes) {
         logger.info(format("Get due %s services at %s for %s %s", modes, location.getId(), date, time));
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes);
@@ -83,7 +83,7 @@ public class DeparturesRepository {
         };
     }
 
-    private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final ImmutableEnumSet<TransportMode> modes) {
         if (!platform.anyOverlapWith(modes)) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
             return Collections.emptyList();
@@ -95,7 +95,7 @@ public class DeparturesRepository {
                 toList();
     }
 
-    private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final ImmutableEnumSet<TransportMode> modes) {
         final MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
@@ -108,7 +108,7 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final ImmutableEnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 filter(station -> station.anyOverlapWith(modes)).
                 flatMap(station -> getStationDepartures(station, modes).stream()).
@@ -116,8 +116,8 @@ public class DeparturesRepository {
 
     }
 
-    private List<UpcomingDeparture> getStationDepartures(final Station station, final EnumSet<TransportMode> modes) {
-        final SetUtils.SetView<TransportMode> toFetch = SetUtils.intersection(station.getTransportModes(), modes);
+    private List<UpcomingDeparture> getStationDepartures(final Station station, final ImmutableEnumSet<TransportMode> modes) {
+        Sets.SetView<TransportMode> toFetch = station.getTransportModes().intersectionWith(modes);
 
         if (toFetch.isEmpty()) {
             logger.error(format("Station modes %s and filter modes %s do not overlap", station.getId(), modes));

@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -136,7 +136,8 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        final List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, EnumSet.of(TransportMode.Tram));
+        final List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange,
+                ImmutableEnumSet.of(TransportMode.Tram));
 
         if (routesBetween.isEmpty()) {
             logger.warn("No active routes between " + pair);

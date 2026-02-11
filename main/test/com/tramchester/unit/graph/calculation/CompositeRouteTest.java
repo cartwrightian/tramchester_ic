@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -17,12 +18,12 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.testSupport.testTags.MultiDB;
@@ -32,7 +33,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -119,7 +119,8 @@ class CompositeRouteTest {
     void shouldCheckServiceIsRunning() {
         RunningRoutesAndServices runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
         Service svcA = transportData.getServiceById(Service.createId("serviceAId"));
-        RunningRoutesAndServices.FilterForDate running = runningRoutesAndServices.getFor(queryDate, config.getTransportModes());
+        RunningRoutesAndServices.FilterForDate running = runningRoutesAndServices.getFor(queryDate,
+                ImmutableEnumSet.copyOf(config.getTransportModes()));
         assertTrue(running.isServiceRunningByTime(svcA.getId(), queryTime, 10), svcA.toString());
     }
 
@@ -205,7 +206,7 @@ class CompositeRouteTest {
 
     @Test
     void shouldHaveRouteCosts() throws InvalidDurationException {
-        EnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TramsOnly;
 
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate, modes));

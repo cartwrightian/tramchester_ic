@@ -31,7 +31,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
@@ -279,7 +278,7 @@ class KnownTramRouteTest {
 
     @NotNull
     private Stream<Route> getLoadedTramRoutes(final TramDate date) {
-        return routeRepository.getRoutesRunningOn(date, EnumSet.of(Tram)).stream();
+        return routeRepository.getRoutesRunningOn(date, TramsOnly).stream();
     }
 
 }

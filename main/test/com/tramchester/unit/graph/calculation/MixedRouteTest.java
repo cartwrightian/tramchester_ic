@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -52,7 +53,7 @@ class MixedRouteTest {
     private TramDate queryDate;
     private TramTime queryTime;
     private GraphTransaction txn;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
@@ -84,7 +85,7 @@ class MixedRouteTest {
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
 
-        modes = config.getTransportModes();
+        modes = ImmutableEnumSet.copyOf(config.getTransportModes());
     }
 
     @AfterEach

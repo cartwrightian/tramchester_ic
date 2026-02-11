@@ -16,7 +16,6 @@ import tech.units.indriya.unit.Units;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.*;
@@ -81,7 +80,7 @@ public class LinkedInterchangeStationTest {
         LinkedInterchangeStation tramInterchange = new LinkedInterchangeStation(tramToTrain);
 
         assertTrue(tramInterchange.isMultiMode());
-        assertEquals(EnumSet.of(Tram, Train), tramInterchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, Train), tramInterchange.getTransportModes());
 
         assertEquals(tramId, tramInterchange.getStationId());
         assertEquals(tramStation, tramInterchange.getStation());
@@ -99,7 +98,7 @@ public class LinkedInterchangeStationTest {
         pickupRoutes = tramInterchange.getPickupRoutes();
         assertEquals(3, pickupRoutes.size());
 
-        assertEquals(EnumSet.of(Tram, Train, Bus), tramInterchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, Train, Bus), tramInterchange.getTransportModes());
 
 
 //        InterchangeStation trainInterchange = new LinkedInterchangeStation(trainToTram);

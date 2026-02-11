@@ -2,6 +2,7 @@ package com.tramchester.domain.time;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
@@ -11,7 +12,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -35,7 +35,7 @@ public class CreateQueryTimes {
         maxWaitMins = config.getMaxWait();
     }
 
-    public List<TramTime> generate(final TramTime initialQueryTime, final Location<?> location, final TramDate date, final EnumSet<TransportMode> modes) {
+    public List<TramTime> generate(final TramTime initialQueryTime, final Location<?> location, final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
 
         Stream<TramTime> durations = IntStream.range(0, numberQueries).
                 mapToObj(index -> initialQueryTime.plusMinutes(index * interval)).
@@ -55,7 +55,7 @@ public class CreateQueryTimes {
         return TimeRange.of(time, time.plusMinutes(maxWaitMins));
     }
 
-    public List<TramTime> generate(TramTime initialQueryTime, Set<StationWalk> stationWalks, TramDate date, EnumSet<TransportMode> modes) {
+    public List<TramTime> generate(TramTime initialQueryTime, Set<StationWalk> stationWalks, TramDate date, ImmutableEnumSet<TransportMode> modes) {
 
         Stream<TramTime> durations = IntStream.range(0, numberQueries).
                 mapToObj(index -> initialQueryTime.plusMinutes(index * interval)).
@@ -71,7 +71,7 @@ public class CreateQueryTimes {
         return result;
     }
 
-    private boolean available(Set<StationWalk> stationWalks, TramDate date, TramTime time, EnumSet<TransportMode> modes) {
+    private boolean available(Set<StationWalk> stationWalks, TramDate date, TramTime time, ImmutableEnumSet<TransportMode> modes) {
         return stationWalks.stream().
                 anyMatch(stationWalk -> availabilityRepository.isAvailablePickups(stationWalk.getStation(), date,
                         rangeFor(time.plus(stationWalk.getCost().truncateToMinutes())), modes));

@@ -80,7 +80,7 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldGetStopCallsForAStation() {
-        Set<Service> servicesForDate = serviceRepository.getServicesOnDate(when, config.getTransportModes());
+        Set<Service> servicesForDate = serviceRepository.getServicesOnDate(when, config.getTransportModesImmutable());
 
         final IdFor<Station> stationId = TramStations.ManAirport.getId();
 

@@ -3,6 +3,7 @@ package com.tramchester.unit.repository;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -34,7 +35,7 @@ class TransportModeRepositoryTest {
         TramchesterConfig config = createConfig(configModes);
 
         TransportModeRepository repository = new TransportModeRepository(config);
-        Set<TransportMode> modes = repository.getModes();
+        ImmutableEnumSet<TransportMode> modes = repository.getModes();
 
         assertEquals(1, modes.size());
         assertTrue(modes.contains(TransportMode.Tram));
@@ -49,7 +50,7 @@ class TransportModeRepositoryTest {
         TramchesterConfig config = createConfig(configModes);
 
         TransportModeRepository repository = new TransportModeRepository(config);
-        Set<TransportMode> modes = repository.getModes();
+        ImmutableEnumSet<TransportMode> modes = repository.getModes();
 
         assertEquals(2, modes.size());
         assertTrue(modes.contains(TransportMode.Tram));
@@ -77,7 +78,7 @@ class TransportModeRepositoryTest {
         TramchesterConfig config = new ModeConfig(dataSources);
 
         TransportModeRepository repository = new TransportModeRepository(config);
-        Set<TransportMode> modes = repository.getModes();
+        ImmutableEnumSet<TransportMode> modes = repository.getModes();
 
         assertEquals(3, modes.size());
         assertTrue(modes.contains(TransportMode.Tram));

@@ -9,6 +9,7 @@ import com.tramchester.dataimport.data.RoutePairInterconnectsData;
 import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
@@ -36,13 +37,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,7 +57,7 @@ public class RouteInterconnectRepositoryTest {
     private TramDate date;
     private RouteCostMatrix routeMatrix;
     private RouteIndex routeIndex;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
     private RouteRepository routeRepository;
     private InterchangeRepository interchangeRepository;
     private RouteInterconnectRepository repository;
@@ -95,7 +94,7 @@ public class RouteInterconnectRepositoryTest {
         repository = componentContainer.get(RouteInterconnectRepository.class);
 
         date = TestEnv.testDay();
-        modes = EnumSet.of(Tram);
+        modes = TramsOnly;
     }
 
     @Test

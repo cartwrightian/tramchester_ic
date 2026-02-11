@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation.DTO.query;
 import com.fasterxml.jackson.annotation.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
@@ -14,7 +15,6 @@ import com.tramchester.domain.time.TramTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Set;
 
 @JsonTypeName("JourneyQuery")
@@ -100,7 +100,8 @@ public class JourneyQueryDTO  {
     @JsonIgnore
     public static JourneyRequest toJourneyRequest(final TramchesterConfig config, final JourneyQueryDTO dto) {
         // if no modes provided then default to all modes currently configured
-        final EnumSet<TransportMode> modes = dto.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(dto.getModes());
+        final ImmutableEnumSet<TransportMode> modes = dto.getModes().isEmpty() ?
+                ImmutableEnumSet.copyOf(config.getTransportModes()) : ImmutableEnumSet.copyOf(dto.getModes());
         final TramDate date = dto.getTramDate();
         final LocalTime time = dto.getTime();
 

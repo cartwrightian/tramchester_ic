@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
@@ -8,7 +9,6 @@ import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,7 +22,7 @@ public class JourneyRequest {
     private final TramDuration maxJourneyDuration;
     private final long maxNumberOfJourneys;
 
-    private final EnumSet<TransportMode> requestedModes;
+    private final ImmutableEnumSet<TransportMode> requestedModes;
 
     private boolean diagRequested;
     private boolean warnIfNoResults;
@@ -32,12 +32,13 @@ public class JourneyRequest {
     private JourneyDiagnostics journeyDiagnostics;
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
-                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
-        this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys, requestedModes);
+                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, ImmutableEnumSet<TransportMode> requestedModes) {
+        this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys,
+                requestedModes);
     }
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,
-                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
+                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, ImmutableEnumSet<TransportMode> requestedModes) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
@@ -146,7 +147,7 @@ public class JourneyRequest {
                 '}';
     }
 
-    public EnumSet<TransportMode> getRequestedModes() {
+    public ImmutableEnumSet<TransportMode> getRequestedModes() {
         return requestedModes;
     }
 

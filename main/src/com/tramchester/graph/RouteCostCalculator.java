@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
@@ -27,15 +28,15 @@ public interface RouteCostCalculator {
             GROUPED_TO_CHILD);
 
     TramDuration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, GraphNode endNode,
-                                       TramDate date, EnumSet<TransportMode> modes) throws InvalidDurationException;
+                                       TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException;
 
     TramDuration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date,
-                                       EnumSet<TransportMode> modes) throws InvalidDurationException;
+                                       ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException;
 
     // startNode must have been found within supplied txn
     TramDuration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, Location<?> endStation,
-                                       TramDate date, EnumSet<TransportMode> modes) throws InvalidDurationException;
+                                       TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException;
 
     TramDuration getAverageCostBetween(GraphTransaction txn, Location<?> startStation, Location<?> endStation,
-                                       TramDate date, EnumSet<TransportMode> modes) throws InvalidDurationException;
+                                       TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException;
 }

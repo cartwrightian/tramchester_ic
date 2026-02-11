@@ -8,10 +8,7 @@ import com.tramchester.mappers.Geography;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 public class StationToStationConnection {
 
@@ -107,10 +104,11 @@ public class StationToStationConnection {
      * The transport modes of the contained stations, not the modes linking the stations
      * @return set of modes
      */
-    public EnumSet<TransportMode> getContainedModes() {
-        final Set<TransportMode> modes = new HashSet<>(pair.getBegin().getTransportModes());
-        modes.addAll(pair.getEnd().getTransportModes());
-        return EnumSet.copyOf(modes);
+    public ImmutableEnumSet<TransportMode> getContainedModes() {
+//        final Set<TransportMode> modes = ImmutableEnumSet.createEnumSet(pair.getBegin().getTransportModes());
+//        modes.addAll(pair.getEnd().getTransportModes());
+//        return ImmutableEnumSet.copyOf(modes);
+        return ImmutableEnumSet.add(pair.getBegin().getTransportModes(), pair.getEnd().getTransportModes());
     }
 
     public LinkType getLinkType() {

@@ -39,7 +39,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running) {
+    public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest,
+                                          Running running) {
         try {
             final TramDuration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(),
                     journeyRequest.getRequestedModes());

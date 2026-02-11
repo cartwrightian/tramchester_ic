@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -103,12 +104,12 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        return modes;
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
+        return ImmutableEnumSet.copyOf(modes);
     }
 
     @Override
-    public boolean anyOverlapWith(final EnumSet<TransportMode> other) {
+    public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> other) {
         return TransportMode.anyIntersection(modes, other);
     }
 

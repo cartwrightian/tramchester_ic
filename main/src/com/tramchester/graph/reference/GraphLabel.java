@@ -67,7 +67,7 @@ public enum GraphLabel { //implements Label {
         };
     }
 
-    public static EnumSet<GraphLabel> forModes(final EnumSet<TransportMode> modes) {
+    public static EnumSet<GraphLabel> forModes(final ImmutableEnumSet<TransportMode> modes) {
         return modes.stream().
                 map(GraphLabel::forMode).
                 collect(Collectors.toCollection( () -> EnumSet.noneOf(GraphLabel.class)));

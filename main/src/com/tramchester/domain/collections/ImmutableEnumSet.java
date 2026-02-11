@@ -41,6 +41,20 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         return new ImmutableEnumSet<>(EnumSet.of(itemA, itemB));
     }
 
+    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC) {
+        return new ImmutableEnumSet<>(EnumSet.of(itemA, itemB, itemC));
+    }
+
+    public static <S extends Enum<S>> ImmutableEnumSet<S> add(final ImmutableEnumSet<S> setA, final ImmutableEnumSet<S> setB) {
+        final EnumSet<S> result = EnumSet.copyOf(setA.contained);
+        result.addAll(setB.contained);
+        return new ImmutableEnumSet<>(result);
+    }
+
+    public static <S extends Enum<S>> ImmutableEnumSet<S> allOf(Class<S> theClass) {
+        return new ImmutableEnumSet<>(EnumSet.allOf(theClass));
+    }
+
     public Stream<T> stream() {
         return contained.stream();
     }
@@ -61,6 +75,10 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
 
     public Sets.SetView<T> intersectionWith(final Set<T> other) {
         return Sets.intersection(contained, other);
+    }
+
+    public Sets.SetView<T> intersectionWith(final ImmutableEnumSet<T> other) {
+        return Sets.intersection(contained, other.contained);
     }
 
     public int size() {

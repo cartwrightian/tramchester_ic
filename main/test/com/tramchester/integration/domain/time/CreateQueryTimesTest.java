@@ -3,6 +3,7 @@ package com.tramchester.integration.domain.time;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class CreateQueryTimesTest {
     private int mins;
     private TramDate date;
 
-    private final EnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TramsOnly;
     private StationRepository stationRepository;
 
     @BeforeAll

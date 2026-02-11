@@ -2,6 +2,7 @@ package com.tramchester.graph.search.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -19,7 +20,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,29 +37,29 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
     }
 
     @Override
-    public TramDuration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, GraphNode endNode, TramDate date, EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, GraphNode endNode, TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, date, modes);
     }
 
     @Override
-    public TramDuration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date, EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, date, modes);
     }
 
     @Override
-    public TramDuration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, Location<?> endStation, TramDate date, EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, Location<?> endStation, TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode endNode = txn.findNode(endStation);
         return calculateLeastCost(txn, startNode, endNode, date, modes);
     }
 
     @Override
-    public TramDuration getAverageCostBetween(GraphTransaction txn, Location<?> startStation, Location<?> endStation, TramDate date, EnumSet<TransportMode> modes) throws InvalidDurationException {
+    public TramDuration getAverageCostBetween(GraphTransaction txn, Location<?> startStation, Location<?> endStation, TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, date, modes);
     }
 
     private TramDuration getCostBetween(final GraphTransaction txn, final Location<?> startLocation, final Location<?> endLocation,
-                                    final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                    final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
@@ -75,7 +75,7 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
 
     // startNode and endNode must have been found within supplied txn
     private TramDuration calculateLeastCost(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                        final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                        final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
 
         final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date, modes).stream().
                 filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());

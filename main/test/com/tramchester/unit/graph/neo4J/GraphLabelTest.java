@@ -56,7 +56,7 @@ public class GraphLabelTest {
 
     @Test
     void shouldGetGraphLabelsFromModes() {
-        EnumSet<TransportMode> modes = getTransportModes();
+        ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
         EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
         int size = modes.size() - 2; // Ferry&Ship->Ferry, Rail&RailReplacementBus->Train
@@ -65,19 +65,19 @@ public class GraphLabelTest {
 
     @Test
     void shouldGetSetOfLabelsForModes() {
-        EnumSet<TransportMode> modes = getTransportModes();
+        ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
         EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
         assertEquals(GraphLabel.TransportModes, results);
     }
 
-    private static @NotNull EnumSet<TransportMode> getTransportModes() {
+    private static @NotNull ImmutableEnumSet<TransportMode> getTransportModes() {
         EnumSet<TransportMode> modes = EnumSet.allOf(TransportMode.class);
         modes.remove(TransportMode.Connect);
         modes.remove(TransportMode.NotSet);
         modes.remove(TransportMode.Unknown);
         modes.remove(TransportMode.Walk); // TODO inconsistency on use of QUERY_NODE for walks, needs sorting out
-        return modes;
+        return ImmutableEnumSet.copyOf(modes);
     }
 
     @Test

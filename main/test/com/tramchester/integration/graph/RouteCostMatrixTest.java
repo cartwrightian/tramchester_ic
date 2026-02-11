@@ -136,7 +136,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveUniqueDegreeForEachRoutePair() {
-        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, config.getTransportModes());
+        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, config.getTransportModesImmutable());
 
         assertFalse(onDate.isEmpty());
 

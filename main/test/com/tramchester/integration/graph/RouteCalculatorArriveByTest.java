@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +47,7 @@ public class RouteCalculatorArriveByTest {
 
     private int maxChanges;
 
-    private static EnumSet<TransportMode> requestedModes;
+    private static ImmutableEnumSet<TransportMode> requestedModes;
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();

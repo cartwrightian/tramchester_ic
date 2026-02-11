@@ -80,7 +80,7 @@ public class RouteCostMatrixBusTest {
 
     @Test
     void shouldHaveUniqueDegreeForEachRoutePair() {
-        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, tramchesterConfig.getTransportModes());
+        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, tramchesterConfig.getTransportModesImmutable());
 
         assertFalse(onDate.isEmpty());
 

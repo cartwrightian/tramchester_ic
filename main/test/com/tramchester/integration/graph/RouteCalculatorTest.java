@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
@@ -69,7 +70,7 @@ public class RouteCalculatorTest {
 
     private int maxChanges;
 
-    private static EnumSet<TransportMode> requestedModes;
+    private static ImmutableEnumSet<TransportMode> requestedModes;
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();

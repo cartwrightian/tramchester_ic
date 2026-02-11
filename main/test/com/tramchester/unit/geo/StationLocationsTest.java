@@ -2,6 +2,7 @@ package com.tramchester.unit.geo;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -22,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,7 +33,7 @@ class StationLocationsTest extends EasyMockSupport {
     private StationRepository stationRepository;
     private NaptanRepository naptanRespository;
     private Geography geography;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeEach
     void onceBeforeEachTest() {
@@ -42,7 +44,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository, geography);
 
-        modes = EnumSet.of(TransportMode.Tram);
+        modes = TramsOnly;
     }
 
     @Test

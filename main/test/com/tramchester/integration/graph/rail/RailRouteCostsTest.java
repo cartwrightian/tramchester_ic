@@ -3,20 +3,19 @@ package com.tramchester.integration.graph.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
-
-import java.util.EnumSet;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
@@ -32,7 +31,7 @@ public class RailRouteCostsTest {
     private Station wilmslow;
 
     private final TramDate date = TestEnv.testDay();
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -58,7 +57,7 @@ public class RailRouteCostsTest {
         manPicc = ManchesterPiccadilly.from(stationRepository);
         wilmslow = Wilmslow.from(stationRepository);
 
-        modes = EnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
+        modes = ImmutableEnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
     }
 
     /***

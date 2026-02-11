@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
@@ -25,7 +26,6 @@ import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public class StationAvailabilityRepositoryBusTest {
     private StationRepository stationRepository;
     private TramDate when;
     private ClosedStationsRepository closedStationRepository;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
     private StationGroupsRepository stationGroupRepository;
     private TimeRange morningRange;
     private TimeRange eveningRange;
@@ -80,7 +80,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         Station stPeters = BusStations.StopAtAltrinchamInterchange.from(stationRepository);
 
-        EnumSet<TransportMode> otherModes = EnumSet.of(TransportMode.Ferry);
+        ImmutableEnumSet<TransportMode> otherModes = ImmutableEnumSet.of(TransportMode.Ferry);
         boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRangePartial.of(of(8,45), of(10,45)), otherModes);
 
         assertFalse(duringTheDay);

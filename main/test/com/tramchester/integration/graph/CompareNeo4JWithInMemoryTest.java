@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -38,6 +39,7 @@ import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_PLATFORM;
 import static com.tramchester.integration.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -241,7 +243,7 @@ public class CompareNeo4JWithInMemoryTest {
     @Test
     void shouldHaveRelationshipsAtPlatformNodes() {
         PlatformRepository platformRepository = componentContainerInMemory.get(PlatformRepository.class);
-        Set<Platform> platforms = platformRepository.getPlatforms(EnumSet.of(TransportMode.Tram));
+        Set<Platform> platforms = platformRepository.getPlatforms(TramsOnly);
         checkForType(platforms);
     }
 
@@ -270,7 +272,7 @@ public class CompareNeo4JWithInMemoryTest {
 
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
-        EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
+        ImmutableEnumSet<TransportMode> requestedModes = TramsOnly;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0,
                 maxJourneyDuration, maxNumResults, requestedModes);
 
@@ -291,7 +293,7 @@ public class CompareNeo4JWithInMemoryTest {
     void shouldCheckForConsistencyWhenInMemFails() {
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
-        EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
+        ImmutableEnumSet<TransportMode> requestedModes = TramsOnly;
         TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         long maxNumResults = 3;
 

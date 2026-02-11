@@ -3,6 +3,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
@@ -53,7 +54,7 @@ class LocationDTOTest {
         LocationDTO dto = factory.createLocationDTO(testStation); //new LocationDTO(testStation);
 
         assertEquals(IdForDTO.createFor(testStation), dto.getId());
-        assertEquals(testStation.getTransportModes(), dto.getTransportModes());
+        assertEquals(testStation.getTransportModes(), ImmutableEnumSet.copyOf(dto.getTransportModes()));
         assertEquals(testStation.getName(), dto.getName());
         assertEquals(testStation.getLatLong(), dto.getLatLong());
         assertTrue(dto.isTram());

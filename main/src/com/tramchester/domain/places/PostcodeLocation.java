@@ -1,7 +1,11 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PostcodeLocationId;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -10,7 +14,6 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -91,12 +94,12 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        return EnumSet.of(TransportMode.Walk);
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
+        return ImmutableEnumSet.of(TransportMode.Walk);
     }
 
     @Override
-    public boolean anyOverlapWith(EnumSet<TransportMode> modes) {
+    public boolean anyOverlapWith(ImmutableEnumSet<TransportMode> modes) {
         return modes.contains(TransportMode.Walk);
     }
 

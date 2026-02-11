@@ -9,7 +9,6 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -22,8 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
-
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -77,7 +75,7 @@ public class GTFSStopTimeLoaderTest {
 
         assertTrue(buildable.hasStationId(TramStations.MarketStreet.getId()));
         assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS, buildable.getStations().size());
-        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,buildable.getStations(EnumSet.of(TransportMode.Tram)).size());
+        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,buildable.getStations(TramsOnly).size());
 
     }
 

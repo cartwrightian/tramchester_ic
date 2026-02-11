@@ -2,6 +2,7 @@ package com.tramchester.graph.core.neo4j;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -27,7 +28,6 @@ import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -59,13 +59,13 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
 
     @Override
     public TramDuration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                              final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                              final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     @Override
     public TramDuration getAverageCostBetween(final GraphTransaction txn, final Location<?> station, final GraphNode endNode, final TramDate date,
-                                              final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                              final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
@@ -73,19 +73,19 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
     // startNode must have been found within supplied txn
     @Override
     public TramDuration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final Location<?> endStation,
-                                              final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                              final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode endNode = txn.findNode(endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     @Override
     public TramDuration getAverageCostBetween(final GraphTransaction txn, final Location<?> startStation, final Location<?> endStation,
-                                              final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                              final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date, modes);
     }
 
     private TramDuration getCostBetween(final GraphTransaction txn, final Location<?> startLocation, final Location<?> endLocation,
-                                    final GraphPropertyKey key, final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                    final GraphPropertyKey key, final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
@@ -101,7 +101,7 @@ public class RouteCostCalculatorNeo4J implements RouteCostCalculator {
 
     // startNode and endNode must have been found within supplied txn
     private TramDuration calculateLeastCost(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                        final GraphPropertyKey key, final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+                                        final GraphPropertyKey key, final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
 
         final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date, modes).stream().
                 filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());

@@ -3,6 +3,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.*;
@@ -20,12 +21,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,7 +80,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expectLastCall().andReturn(Bury.fake());
 
         replayAll();
-        Set<Location<?>> locations = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
+        Set<Location<?>> locations = mapper.from(recentJourneys, ImmutableEnumSet.allOf(TransportMode.class));
         verifyAll();
 
         assertEquals(timestampedIds.size(), locations.size());
@@ -104,7 +105,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expect(locationRepository.hasLocation(LocationType.Station, buryIdForDTO)).andReturn(false);
 
         replayAll();
-        Set<Location<?>> locations = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
+        Set<Location<?>> locations = mapper.from(recentJourneys, ImmutableEnumSet.allOf(TransportMode.class));
         verifyAll();
 
         assertEquals(1, locations.size());
@@ -132,7 +133,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expectLastCall().andReturn(stockportRail);
 
         replayAll();
-        Set<Location<?>> all = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
+        Set<Location<?>> all = mapper.from(recentJourneys, ImmutableEnumSet.allOf(TransportMode.class));
         verifyAll();
 
         assertEquals(2, all.size());
@@ -164,8 +165,8 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expectLastCall().andStubReturn(stockportRail);
 
         replayAll();
-        Set<Location<?>> tramStations = mapper.from(recentJourneys, EnumSet.of(TransportMode.Tram));
-        Set<Location<?>> trainStations = mapper.from(recentJourneys, EnumSet.of(TransportMode.Train));
+        Set<Location<?>> tramStations = mapper.from(recentJourneys, TramsOnly);
+        Set<Location<?>> trainStations = mapper.from(recentJourneys, ImmutableEnumSet.of(TransportMode.Train));
         verifyAll();
 
         assertEquals(2, tramStations.size());

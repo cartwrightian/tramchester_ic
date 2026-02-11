@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +38,7 @@ public class RouteCalculatorInMemoryTest {
     public static final Path GRAPH_FILENAME_OK = Path.of("RouteCalcInMemoryTest.json");
     public static final Path GRAPH_FILENAME_FAIL = Path.of("RouteCalcInMemoryTest_failed.json");
 
-    private static EnumSet<TransportMode> requestedModes;
+    private static ImmutableEnumSet<TransportMode> requestedModes;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private static GraphDatabase database;

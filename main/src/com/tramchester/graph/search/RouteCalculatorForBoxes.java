@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -30,7 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -206,7 +210,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(date);
 
-        EnumSet<TransportMode> destinationsModes = interchangeRepository.getInterchangeModes(destinations);
+        ImmutableEnumSet<TransportMode> destinationsModes = interchangeRepository.getInterchangeModes(destinations);
 
         return new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinationsModes, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);

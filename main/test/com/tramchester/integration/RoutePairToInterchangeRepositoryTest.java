@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -42,7 +42,7 @@ public class RoutePairToInterchangeRepositoryTest {
     private static TramchesterConfig config;
 
     private TramRouteHelper routeHelper;
-    private final EnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TramsOnly;
     private TramDate date;
     private RoutePairToInterchangeRepository repository;
 

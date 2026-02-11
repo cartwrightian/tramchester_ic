@@ -94,7 +94,7 @@ public class Neighbours implements NeighboursRepository {
         stationRepository.getActiveStationStream().
                 filter(station -> station.getGridPosition().isValid()).
                 forEach(begin -> {
-                    final EnumSet<TransportMode> beginModes = begin.getTransportModes();
+                    final ImmutableEnumSet<TransportMode> beginModes = begin.getTransportModes();
                     // nearby could be any transport mode
                     Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                             filter(nearby -> !nearby.equals(begin)).

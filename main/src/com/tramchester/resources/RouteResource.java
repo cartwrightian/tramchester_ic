@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,14 +14,15 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.Response;
-
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class RouteResource implements APIResource, ExperimentalAPIMarker {
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
 
-    public static final EnumSet<TransportMode> ALL_MODES = EnumSet.allOf(TransportMode.class);
+    public static final ImmutableEnumSet<TransportMode> ALL_MODES = ImmutableEnumSet.allOf(TransportMode.class);
 
     private final RoutesMapper routesMapper;
     private final ProvidesNow providesNow;

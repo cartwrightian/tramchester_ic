@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
@@ -256,7 +257,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertEquals(result, 0);
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
@@ -309,7 +310,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
     }
 

@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -24,7 +25,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -91,8 +91,8 @@ public class AllModesJourneysTest {
         assertFalse(journeys.isEmpty());
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return config.getTransportModes();
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return config.getTransportModesImmutable();
     }
 
     @Test

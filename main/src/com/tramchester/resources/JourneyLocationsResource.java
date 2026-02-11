@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -155,7 +156,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     }
 
     private List<? extends Location<?>> getNearestLocations(MyLocation origin, MarginInMeters margin, TransportMode mode) {
-        EnumSet<TransportMode> modes = EnumSet.of(mode);
+        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(mode);
 
         final List<Station> stations = stationLocations.nearestStationsSorted(origin, config.getNumOfNearestStopsToOffer(), margin, modes);
 
@@ -182,7 +183,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie, @QueryParam("modes") String rawModes) {
         logger.info(format("Get recent locations for cookie %s and modes %s", cookie, rawModes));
 
-        final EnumSet<TransportMode> modes;
+        final ImmutableEnumSet<TransportMode> modes;
         if (rawModes!=null) {
             modes = TransportMode.parseCSV(rawModes);
         } else {

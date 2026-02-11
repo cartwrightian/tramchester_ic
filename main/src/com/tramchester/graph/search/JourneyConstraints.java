@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -15,7 +16,6 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 public class JourneyConstraints {
@@ -40,10 +40,10 @@ public class JourneyConstraints {
     private final int maxWalkingConnections;
     private final int maxNumberWalkingConnections;
     private final LowestCostsForDestRoutes lowestCostForDestinations;
-    private final EnumSet<TransportMode> destinationModes; // must account for interchange
+    private final ImmutableEnumSet<TransportMode> destinationModes; // must account for interchange
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
-                              Set<ClosedStation> closedStations, EnumSet<TransportMode> destinationModes,
+                              Set<ClosedStation> closedStations, ImmutableEnumSet<TransportMode> destinationModes,
                               LowestCostsForDestRoutes lowestCostForDestinations, TramDuration maxJourneyDuration,
                               TimeRange destinationsAvailable) {
         this.config = config;
@@ -160,7 +160,7 @@ public class JourneyConstraints {
         return true;
     }
 
-    public EnumSet<TransportMode> getDestinationModes() {
+    public ImmutableEnumSet<TransportMode> getDestinationModes() {
         return destinationModes;
     }
 }

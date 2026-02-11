@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.HasId;
@@ -161,12 +162,12 @@ public class MutableService implements Service {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        return modes;
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
+        return ImmutableEnumSet.copyOf(modes);
     }
 
     @Override
-    public boolean anyOverlapWith(final EnumSet<TransportMode> other) {
+    public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> other) {
         return TransportMode.anyIntersection(this.modes, other);
     }
 

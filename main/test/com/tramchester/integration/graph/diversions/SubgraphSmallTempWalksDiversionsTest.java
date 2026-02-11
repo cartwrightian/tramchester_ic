@@ -7,6 +7,7 @@ import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -171,9 +172,8 @@ class SubgraphSmallTempWalksDiversionsTest {
         Location<?> destination = Piccadilly.from(stationRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
-        EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        int costs = getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
+        int costs = getPossibleMinChanges(start, destination, TramsOnly, when.plusDays(1), timeRange);
 
         assertEquals(0, costs);
     }
@@ -185,14 +185,13 @@ class SubgraphSmallTempWalksDiversionsTest {
         Location<?> destination = PiccadillyGardens.from(stationRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
-        EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        int costs = getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
+        int costs = getPossibleMinChanges(start, destination, TramsOnly, when.plusDays(1), timeRange);
 
         assertEquals(0, costs);
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),

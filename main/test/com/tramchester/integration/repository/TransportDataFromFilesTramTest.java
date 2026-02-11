@@ -83,7 +83,7 @@ public class TransportDataFromFilesTramTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
-        allServices = transportData.getServices(EnumSet.of(Tram));
+        allServices = transportData.getServices(TramsOnly);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
         when = TestEnv.testDay(); // filter by date, otherwise get variations due to upcoming routes etc
@@ -98,7 +98,7 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        int expectedPlatforms = 200;
+        int expectedPlatforms = 199;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 

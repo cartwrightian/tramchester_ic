@@ -9,6 +9,7 @@ import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramDateSet;
@@ -81,7 +82,7 @@ class TransportDataFromFilesBusTest {
         assertWithinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F);
 
         // no platforms represented in bus data
-        Set<Platform> platforms = transportData.getPlatforms(EnumSet.of(Bus));
+        Set<Platform> platforms = transportData.getPlatforms(ImmutableEnumSet.of(Bus));
         assertEquals(0, platforms.size(), platforms.toString());
     }
 
@@ -147,7 +148,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldGetServicesByDate() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(nextSaturday, config.getTransportModes());
+        Set<Service> results = transportData.getServicesOnDate(nextSaturday, config.getTransportModesImmutable());
 
         assertFalse(results.isEmpty());
         long onCorrectDate = results.stream().

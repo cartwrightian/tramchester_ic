@@ -23,13 +23,15 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Connect;
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,7 +135,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     void shouldFindWalkFromStPetersToPiccGardensDuringYorkStreetWork() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 0,
-                maxJourneyDuration, maxNumResults, EnumSet.of(Tram));
+                maxJourneyDuration, maxNumResults, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, PiccadillyGardens, journeyRequest);
 
@@ -155,7 +157,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     void shouldFindWalkFromPiccGardensToStPetersDuringYorkStreetWork() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 0,
-                maxJourneyDuration, maxNumResults, EnumSet.of(Tram));
+                maxJourneyDuration, maxNumResults, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, StPetersSquare, journeyRequest);
 
@@ -165,7 +167,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     @Test
     void shouldFindDeansgateToPiccGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 2,
-                maxJourneyDuration, maxNumResults, EnumSet.of(Tram));
+                maxJourneyDuration, maxNumResults, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Deansgate, PiccadillyGardens, journeyRequest);
 

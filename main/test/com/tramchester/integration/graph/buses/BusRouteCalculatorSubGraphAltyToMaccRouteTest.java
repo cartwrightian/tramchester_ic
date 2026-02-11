@@ -7,6 +7,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -33,7 +34,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -112,7 +112,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
         final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(1000);
         knutfordStations = stationLocations.nearestStationsSorted(KnownLocations.nearKnutsfordBusStation.location(),
-                        10, rangeInMeters, config.getTransportModes()).
+                        10, rangeInMeters, config.getTransportModesImmutable()).
                 stream().
                 filter(station -> station.getName().contains("Bus Station")).
                 collect(Collectors.toList());
@@ -158,7 +158,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         assertFalse(results.isEmpty());
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
         return BusesOnly;
     }
 

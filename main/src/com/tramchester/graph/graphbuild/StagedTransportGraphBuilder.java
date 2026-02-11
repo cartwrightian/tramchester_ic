@@ -5,6 +5,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -34,7 +35,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -430,7 +434,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if (isInterchange) {
             routeStationNode.addLabel(tx, INTERCHANGE);
-            final EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(station);
+            final ImmutableEnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(station);
             GraphLabel.forModes(interchangeModes).forEach(label -> routeStationNode.addLabel(tx, label));
         }
 

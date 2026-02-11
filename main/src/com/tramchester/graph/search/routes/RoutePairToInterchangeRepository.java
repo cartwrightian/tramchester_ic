@@ -3,6 +3,7 @@ package com.tramchester.graph.search.routes;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.InterchangeRepository;
@@ -12,7 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @LazySingleton
@@ -71,7 +75,7 @@ public class RoutePairToInterchangeRepository {
         return routePairToInterchange.containsKey(indexPair);
     }
 
-    public Set<InterchangeStation> getInterchanges(final RoutePair indexPair, final EnumSet<TransportMode> requestedModes) {
+    public Set<InterchangeStation> getInterchanges(final RoutePair indexPair, final ImmutableEnumSet<TransportMode> requestedModes) {
         return routePairToInterchange.get(indexPair).stream().
                 filter(interchangeStation -> interchangeStation.anyOverlapWith(requestedModes)).
                 collect(Collectors.toSet());

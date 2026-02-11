@@ -7,6 +7,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -35,12 +36,12 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -299,8 +300,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
     }
 
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return EnumSet.of(Train, Tram);
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return TrainAndTram;
     }
 
     private static class SubgraphConfig extends RailAndTramGreaterManchesterConfig {

@@ -2,6 +2,7 @@ package com.tramchester.integration.geo;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.MarginInMeters;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BusStationsLocationsTest {
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
-    private static EnumSet<TransportMode> modes;
+    private static ImmutableEnumSet<TransportMode> modes;
 
     private StationLocations stationLocations;
     private MarginInMeters inMeters;
@@ -37,7 +37,7 @@ class BusStationsLocationsTest {
         testConfig = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        modes = testConfig.getTransportModes();
+        modes = testConfig.getTransportModesImmutable();
     }
 
     @BeforeEach

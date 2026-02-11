@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -18,7 +19,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -34,7 +34,7 @@ class RouteCalculatorAllBusJourneysTest {
 
     private TramDate when;
     private RouteCalculationCombinations<StationLocalityGroup> combinations;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
     private StationGroupsRepository stationGroupRepository;
 
     @BeforeAll

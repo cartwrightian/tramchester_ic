@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.*;
@@ -164,17 +165,17 @@ public class StationAvailabilityRepository {
     }
 
     public boolean isAvailable(final Location<?> location, final TramDate date, final TimeRange timeRange,
-                               final EnumSet<TransportMode> requestedModes) {
+                               final ImmutableEnumSet<TransportMode> requestedModes) {
         return isAvailable(location, date, timeRange, requestedModes, true);
     }
 
     public boolean isAvailablePickups(final Location<?> location, final TramDate date, final TimeRange timeRange,
-                               final EnumSet<TransportMode> requestedModes) {
+                               final ImmutableEnumSet<TransportMode> requestedModes) {
         return isAvailable(location, date, timeRange, requestedModes, false);
     }
 
     public boolean isAvailable(final Location<?> location, final TramDate date, final TimeRange timeRange,
-                               final EnumSet<TransportMode> requestedModes, boolean requireDropoff) {
+                               final ImmutableEnumSet<TransportMode> requestedModes, boolean requireDropoff) {
 
         if (location.getLocationType()==LocationType.StationGroup) {
             final StationLocalityGroup stationGroup = (StationLocalityGroup) location;
@@ -226,12 +227,12 @@ public class StationAvailabilityRepository {
     }
 
     private boolean isGroupAvailable(final StationLocalityGroup stationGroup, final TramDate date, final TimeRange timeRange,
-                                     final EnumSet<TransportMode> requestedModes) {
+                                     final ImmutableEnumSet<TransportMode> requestedModes) {
         return stationGroup.getAllContained().stream().anyMatch(station -> isAvailable(station, date, timeRange, requestedModes));
     }
 
     public Set<Route> getPickupRoutesFor(final Location<?> location, final TramDate date, final TimeRange timeRange,
-                                         final EnumSet<TransportMode> modes) {
+                                         final ImmutableEnumSet<TransportMode> modes) {
         final LocationId<?> locationId = location.getLocationId();
 
         if (location.getLocationType()==LocationType.StationGroup) {
@@ -255,14 +256,15 @@ public class StationAvailabilityRepository {
 
     }
 
-    private Set<Route> getPickupRoutesForGroup(final StationLocalityGroup stationGroup, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
+    private Set<Route> getPickupRoutesForGroup(final StationLocalityGroup stationGroup, final TramDate date, final TimeRange timeRange,
+                                               final ImmutableEnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 flatMap(station -> getPickupRoutesFor(station, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
     public Set<Route> getDropoffRoutesFor(final Location<?> location, final TramDate date, final TimeRange timeRange,
-                                          final EnumSet<TransportMode> modes) {
+                                          final ImmutableEnumSet<TransportMode> modes) {
 
         // TODO find way to share logic on station groups, interchanges etc between pickup and dropoff
 
@@ -285,33 +287,34 @@ public class StationAvailabilityRepository {
         return dropoffsForLocations.get(locationId).getRoutes(date, timeRange, modes);
     }
 
-    private Set<Route> getDropoffRoutesForGroup(StationLocalityGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private Set<Route> getDropoffRoutesForGroup(StationLocalityGroup stationGroup, TramDate date, TimeRange timeRange, ImmutableEnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 flatMap(station -> getDropoffRoutesFor(station, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
-    private Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, ImmutableEnumSet<TransportMode> modes) {
         logger.warn(closedStation.getStationId() + " is closed, using linked stations for dropoffs");
         return closedStation.getDiversionAroundClosure().stream().
                 flatMap(linked -> dropoffsForLocations.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getPickupRoutesFor(final LocationSet<Station> locations, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
+    public Set<Route> getPickupRoutesFor(final LocationSet<Station> locations, final TramDate date, final TimeRange timeRange,
+                                         final ImmutableEnumSet<TransportMode> modes) {
         return locations.stream().
                 flatMap(location -> getPickupRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
-    private Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, ImmutableEnumSet<TransportMode> modes) {
         logger.warn(closedStation.getStationId() + " is closed, using linked stations for pickups");
         return closedStation.getDiversionAroundClosure().stream().
                 flatMap(linked -> pickupsForLocations.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getDropoffRoutesFor(LocationSet<Station> locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    public Set<Route> getDropoffRoutesFor(LocationSet<Station> locations, TramDate date, TimeRange timeRange, ImmutableEnumSet<TransportMode> modes) {
         return locations.stream().
                 flatMap(location -> getDropoffRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
@@ -327,7 +330,7 @@ public class StationAvailabilityRepository {
 
     public TimeRange getAvailableTimesFor(final LocationCollection destinations, final TramDate tramDate) {
 
-        final EnumSet<TransportMode> modes = destinations.getModes();
+        final ImmutableEnumSet<TransportMode> modes = destinations.getModes();
 
         Stream<ServedRoute> servedRouteStream = destinations.locationStream().
                 flatMap(locations -> expand(locations).locationStream()).

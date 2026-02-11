@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,7 +76,7 @@ public class StationRepositoryTest {
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getGreen(when);
 
-        Set<Station> allStations = stationRepository.getStations(EnumSet.of(Tram));
+        Set<Station> allStations = stationRepository.getStations(TramsOnly);
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
@@ -114,7 +115,7 @@ public class StationRepositoryTest {
 
     @Test
     void shouldHaveAtLeastOnePlatformForEveryStation() {
-        Set<Station> stations = stationRepository.getStations(EnumSet.of(Tram));
+        Set<Station> stations = stationRepository.getStations(TramsOnly);
         Set<Station> noPlatforms = stations.stream().filter(station -> station.getPlatforms().isEmpty()).collect(Collectors.toSet());
         assertEquals(Collections.emptySet(),noPlatforms);
     }

@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
@@ -30,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.EnumSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -78,7 +78,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         final TramDuration maxDuration = TramDuration.ofMinutes(gridQueryDTO.getMaxDuration());
 
         // todo into parameters
-        final EnumSet<TransportMode> allModes = config.getTransportModes();
+        final ImmutableEnumSet<TransportMode> allModes = ImmutableEnumSet.copyOf(config.getTransportModes());
 
         int maxChanges = gridQueryDTO.getMaxChanges();
         final JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,

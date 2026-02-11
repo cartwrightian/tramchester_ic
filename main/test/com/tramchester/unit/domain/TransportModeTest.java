@@ -7,15 +7,17 @@ import org.junit.jupiter.api.Test;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TransportModeTest {
 
     @Test
     void intersectAsExpected() {
-        EnumSet<TransportMode> modesA = EnumSet.of(Bus, Subway);
-        EnumSet<TransportMode> modesB = EnumSet.of(Bus, Walk);
-        EnumSet<TransportMode> modesC = EnumSet.of(Ship, Subway);
+        ImmutableEnumSet<TransportMode> modesA = ImmutableEnumSet.of(Bus, Subway);
+        ImmutableEnumSet<TransportMode> modesB = ImmutableEnumSet.of(Bus, Walk);
+        ImmutableEnumSet<TransportMode> modesC = ImmutableEnumSet.of(Ship, Subway);
 
         assertTrue(TransportMode.anyIntersection(modesA, modesB));
         assertFalse(TransportMode.anyIntersection(modesB, modesC));
@@ -41,9 +43,13 @@ public class TransportModeTest {
 
         String text = "Walk,Bus,Ship";
 
-        EnumSet<TransportMode> result = TransportMode.parseCSV(text);
+        ImmutableEnumSet<TransportMode> result = TransportMode.parseCSV(text);
 
-        assertEquals(EnumSet.of(Bus, Walk, Ship), result);
+        assertEquals(ImmutableEnumSet.of(Bus, Walk, Ship), result);
+    }
 
+    @Test
+    void shouldCheckForOverlaps() {
+        assertFalse(TransportMode.anyIntersection(TramsOnly, RailOnly));
     }
 }
