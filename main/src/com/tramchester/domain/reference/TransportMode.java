@@ -24,8 +24,8 @@ public enum TransportMode implements HasTransportMode {
 
     Unknown((short)999);
 
-    public static final ImmutableEnumSet<TransportMode> WalkOnly = ImmutableEnumSet.of(Walk);
-    public static final ImmutableEnumSet<TransportMode> TramsOnly = ImmutableEnumSet.of(Tram);
+    public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
+    public static final ImmutableEnumSet<TransportMode> TramsOnly = Tram.singleton();
 
     private static final Map<Short, TransportMode> index;
 
@@ -39,8 +39,12 @@ public enum TransportMode implements HasTransportMode {
     @JsonIgnore
     private final short graphId;
 
+//    @JsonIgnore
+//    private final ImmutableEnumSet<TransportMode> singleton;
+
     TransportMode(final short graphId) {
         this.graphId = graphId;
+        //singleton = ImmutableEnumSet.of(this);
     }
 
     public static boolean isTram(final HasTransportMode item) {
@@ -76,5 +80,9 @@ public enum TransportMode implements HasTransportMode {
 
     public short getNumber() {
         return graphId;
+    }
+
+    public ImmutableEnumSet<TransportMode> singleton() {
+        return ImmutableEnumSet.of(this);
     }
 }

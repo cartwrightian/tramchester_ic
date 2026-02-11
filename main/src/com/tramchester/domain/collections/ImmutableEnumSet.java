@@ -19,12 +19,16 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         this.contained = contained;
     }
 
+    private static <C extends Enum<C>> ImmutableEnumSet<C> createFrom(final EnumSet<C> source) {
+        return new ImmutableEnumSet<>(source);
+    }
+
     public static <S extends Enum<S>> ImmutableEnumSet<S> copyOf(final Set<S> set) {
-        return new ImmutableEnumSet<>(EnumSet.copyOf(set));
+        return createFrom(EnumSet.copyOf(set));
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> noneOf(Class<S> theClass) {
-        return new ImmutableEnumSet<>(EnumSet.noneOf(theClass));
+        return createFrom(EnumSet.noneOf(theClass));
     }
 
     public static  <S extends Enum<S>> EnumSet<S> createEnumSet(final ImmutableEnumSet<S> labels) {
@@ -33,29 +37,35 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> range(final S begin, final S end
     ) {
-        return new ImmutableEnumSet<>(EnumSet.range(begin, end));
+        return createFrom(EnumSet.range(begin, end));
     }
 
+    /***
+     * Use singleton() where possible
+     * @param item item to place into Set
+     * @return Immutable Enum Set
+     * @param <S> Must be an Enum
+     */
     public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S item) {
-        return new ImmutableEnumSet<>(EnumSet.of(item));
+        return createFrom(EnumSet.of(item));
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB) {
-        return new ImmutableEnumSet<>(EnumSet.of(itemA, itemB));
+        return createFrom(EnumSet.of(itemA, itemB));
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC) {
-        return new ImmutableEnumSet<>(EnumSet.of(itemA, itemB, itemC));
+        return createFrom(EnumSet.of(itemA, itemB, itemC));
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> join(final ImmutableEnumSet<S> setA, final ImmutableEnumSet<S> setB) {
         final EnumSet<S> result = EnumSet.copyOf(setA.contained);
         result.addAll(setB.contained);
-        return new ImmutableEnumSet<>(result);
+        return createFrom(result);
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> allOf(final Class<S> theClass) {
-        return new ImmutableEnumSet<>(EnumSet.allOf(theClass));
+        return createFrom(EnumSet.allOf(theClass));
     }
 
     public Stream<T> stream() {
@@ -130,7 +140,7 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         return new ImmutableEnumSet<>(converted);
     }
 
-    public void addAllTo(EnumSet<T> mutableTarget) {
+    public void addAllTo(final EnumSet<T> mutableTarget) {
         mutableTarget.addAll(contained);
     }
 

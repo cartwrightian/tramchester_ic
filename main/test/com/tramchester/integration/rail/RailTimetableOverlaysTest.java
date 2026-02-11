@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled("WIP")
@@ -80,7 +81,7 @@ public class RailTimetableOverlaysTest {
 
                 @Override
                 public ImmutableEnumSet<TransportMode> getModes() {
-                    return ImmutableEnumSet.of(TransportMode.Train);
+                    return Train.singleton();
                 }
 
                 @Override

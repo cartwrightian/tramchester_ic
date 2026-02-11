@@ -215,7 +215,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final TransportMode mode) {
-            return endOfRoutesToEndOfRoutes(ImmutableEnumSet.of(mode));
+            return endOfRoutesToEndOfRoutes(mode.singleton());
         }
 
         public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final ImmutableEnumSet<TransportMode> modes) {

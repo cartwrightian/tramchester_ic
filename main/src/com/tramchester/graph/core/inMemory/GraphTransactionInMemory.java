@@ -49,7 +49,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     @Override
     public MutableGraphNode createNode(final GraphLabel graphLabel) {
-        return createNode(ImmutableEnumSet.of(graphLabel));
+        return createNode(graphLabel.singleton());
     }
 
     @Override

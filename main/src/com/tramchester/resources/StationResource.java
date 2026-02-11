@@ -188,7 +188,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         final TransportMode mode = TransportMode.valueOf(rawMode);
 
-        final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(mode);
+        final ImmutableEnumSet<TransportMode> modes = mode.singleton();
 
         LatLong latLong = new LatLong(lat,lon);
 

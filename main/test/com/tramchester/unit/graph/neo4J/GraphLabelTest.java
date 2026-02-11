@@ -30,7 +30,6 @@ public class GraphLabelTest {
         mapper.start();
     }
 
-
     @Test
     void shouldHaveLabelForEachValidMode() {
         Set<TransportMode> modes = Arrays.stream(TransportMode.values()).

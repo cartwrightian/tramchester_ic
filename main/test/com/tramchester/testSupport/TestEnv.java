@@ -344,8 +344,8 @@ public class TestEnv {
     }
 
     public static class Modes {
-        public static final ImmutableEnumSet<TransportMode> BusesOnly = ImmutableEnumSet.of(Bus);
-        public static final ImmutableEnumSet<TransportMode> RailOnly = ImmutableEnumSet.of(Train);
+        public static final ImmutableEnumSet<TransportMode> BusesOnly = Bus.singleton();
+        public static final ImmutableEnumSet<TransportMode> RailOnly = Train.singleton();
         public static final ImmutableEnumSet<TransportMode> TrainAndTram = ImmutableEnumSet.of(Train, Tram, RailReplacementBus);
     }
 }

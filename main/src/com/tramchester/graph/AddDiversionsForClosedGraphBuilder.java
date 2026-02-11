@@ -271,9 +271,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
 
             final MutableGraphNode firstNode = txn.findNodeMutable(first);
-
-//            Stream<ImmutableGraphRelationship> alreadyPresent = firstNode.getRelationships(txn, Direction.OUTGOING, DIVERSION);
-
             final MutableGraphNode secondNode = txn.findNodeMutable(second);
 
             firstNode.addLabel(txn, GraphLabel.HAS_DIVERSION);

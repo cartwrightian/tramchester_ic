@@ -56,7 +56,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
      */
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        return ImmutableEnumSet.of(route.getTransportMode());
+        return route.getTransportMode().singleton();
     }
 
     @Override

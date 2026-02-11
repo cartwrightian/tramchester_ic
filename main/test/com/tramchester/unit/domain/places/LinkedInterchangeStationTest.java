@@ -61,7 +61,7 @@ public class LinkedInterchangeStationTest {
     @Test
     void shouldHaveCreateLinkedInterchangeAndAddLink() {
 
-        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> modes = Walk.singleton();
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         TramDuration walkingTime = TramDuration.ofMinutes(4);
 

@@ -108,6 +108,6 @@ public class TripEndsRepository {
     }
 
     public IdSet<Station> getStations(final TransportMode transportMode) {
-        return getStations(ImmutableEnumSet.of(transportMode));
+        return getStations(transportMode.singleton());
     }
 }

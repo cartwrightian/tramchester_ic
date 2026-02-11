@@ -66,7 +66,7 @@ class PlatformTest {
         assertEquals(1, transportModes.size());
         assertTrue(transportModes.contains(tramTestRoute.getTransportMode()));
 
-        assertTrue(platform.anyOverlapWith(ImmutableEnumSet.of(tramTestRoute.getTransportMode())));
+        assertTrue(platform.anyOverlapWith(tramTestRoute.getTransportMode().singleton()));
 
     }
 

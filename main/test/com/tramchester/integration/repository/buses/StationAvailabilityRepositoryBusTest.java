@@ -29,6 +29,7 @@ import org.junit.jupiter.api.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Ferry;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
@@ -80,8 +81,8 @@ public class StationAvailabilityRepositoryBusTest {
 
         Station stPeters = BusStations.StopAtAltrinchamInterchange.from(stationRepository);
 
-        ImmutableEnumSet<TransportMode> otherModes = ImmutableEnumSet.of(TransportMode.Ferry);
-        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRangePartial.of(of(8,45), of(10,45)), otherModes);
+        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when,
+                TimeRangePartial.of(of(8,45), of(10,45)), Ferry.singleton());
 
         assertFalse(duringTheDay);
 

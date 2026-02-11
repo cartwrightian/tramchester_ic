@@ -53,7 +53,7 @@ public enum GraphLabel { //implements Label {
             hourLabels[hour] = GraphLabel.valueOf(format("HOUR_%d", hour));
         }
     }
-
+    
     public static GraphLabel forMode(final TransportMode mode) {
         return switch (mode) {
             case Tram -> TRAM;
@@ -92,5 +92,9 @@ public enum GraphLabel { //implements Label {
         final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(labels);
         updated.add(this);
         return ImmutableEnumSet.copyOf(updated);
+    }
+
+    public ImmutableEnumSet<GraphLabel> singleton() {
+        return ImmutableEnumSet.of(this);
     }
 }
