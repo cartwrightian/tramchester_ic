@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,7 +79,7 @@ public class StationAvailabilityRepositoryTest {
         tramRouteHelper = new TramRouteHelper(componentContainer);
 
         when = TestEnv.testDay();
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
     }
 
     @Test
@@ -291,7 +290,7 @@ public class StationAvailabilityRepositoryTest {
 
         UpcomingDates.getUpcomingDates().forEach(date -> {
 
-            Set<Station> shouldBeAvailable =  stationRepository.getStations(TramsOnly).stream().
+            Set<Station> shouldBeAvailable =  stationRepository.getStations(TransportMode.TramsOnly).stream().
                     filter(Location::isActive).
                     filter(station -> !UpcomingDates.hasClosure(station, date, earlyRange)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
@@ -313,7 +312,7 @@ public class StationAvailabilityRepositoryTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 45), TramTime.of(16, 45));
 
         Station victoria = Victoria.from(stationRepository);
-        Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TramsOnly);
+        Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
         Route yellowInbound = tramRouteHelper.getYellow(when);
         Route blueInbound = tramRouteHelper.getPink(when);
@@ -325,7 +324,7 @@ public class StationAvailabilityRepositoryTest {
 
         assertTrue(dropOffs.contains(greenOutbound));
 
-        Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TramsOnly);
+        Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
         assertEquals(5, pickups.size());
         assertTrue(pickups.contains(yellowInbound));

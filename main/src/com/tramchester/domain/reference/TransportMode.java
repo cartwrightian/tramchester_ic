@@ -24,6 +24,9 @@ public enum TransportMode implements HasTransportMode {
 
     Unknown((short)999);
 
+    public static final ImmutableEnumSet<TransportMode> WalkOnly = ImmutableEnumSet.of(Walk);
+    public static final ImmutableEnumSet<TransportMode> TramsOnly = ImmutableEnumSet.of(Tram);
+
     private static final Map<Short, TransportMode> index;
 
     static {

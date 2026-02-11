@@ -22,7 +22,6 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled("too slow, useful for performance testing only?")
@@ -52,7 +51,7 @@ class RouteCalculatorAllBusJourneysTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkGroupOpen(componentContainer));
         stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
     }

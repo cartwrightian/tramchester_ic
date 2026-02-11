@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -165,8 +165,8 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expectLastCall().andStubReturn(stockportRail);
 
         replayAll();
-        Set<Location<?>> tramStations = mapper.from(recentJourneys, TramsOnly);
-        Set<Location<?>> trainStations = mapper.from(recentJourneys, ImmutableEnumSet.of(TransportMode.Train));
+        Set<Location<?>> tramStations = mapper.from(recentJourneys, TransportMode.TramsOnly);
+        Set<Location<?>> trainStations = mapper.from(recentJourneys, RailOnly);
         verifyAll();
 
         assertEquals(2, tramStations.size());

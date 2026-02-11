@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JourneyQueryDTOTest {
@@ -86,7 +85,7 @@ public class JourneyQueryDTOTest {
         assertEquals(dto.getTime(), result.getOriginalTime().asLocalTime());
         assertEquals(dto.getMaxChanges(), result.getMaxChanges().get());
         assertEquals(dto.isArriveBy(), result.getArriveBy());
-        assertEquals(TramsOnly, result.getRequestedModes());
+        assertEquals(TransportMode.TramsOnly, result.getRequestedModes());
         assertEquals(config.getMaxJourneyDuration(), result.getMaxJourneyDuration().getMinutesSafe());
         assertEquals(dto.getDiagnostics(), result.getDiagnosticsEnabled());
         assertEquals(42, result.getMaxNumberOfJourneys());

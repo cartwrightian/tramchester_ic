@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -68,7 +67,7 @@ class GraphQueriesTests {
 
         assertEquals(6, links.size());
 
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
         assertTrue(matches(links, modes, transportData.getFirst(), transportData.getSecond()));
         assertTrue(matches(links, modes, transportData.getSecond(), transportData.getInterchange()));
         assertTrue(matches(links, modes, transportData.getInterchange(), transportData.getFourthStation()));

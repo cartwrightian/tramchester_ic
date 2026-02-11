@@ -40,7 +40,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,7 +57,7 @@ public class RouteToRouteCostsTest {
     private TramRouteHelper routeHelper;
     private RouteRepository routeRepository;
     private StationRepository stationRepository;
-    private final ImmutableEnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
     private TramDate date;
     private TimeRange timeRange;
 

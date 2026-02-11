@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.Geography;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +81,7 @@ class FindLinkedStationsTest {
 
     private StationToStationConnection createLink(TramStations stationA, TramStations stationB) {
         return StationToStationConnection.createForWalk(stationA.from(stationRepository), stationB.from(stationRepository),
-                TramsOnly, StationToStationConnection.LinkType.Linked, geography);
+                TransportMode.TramsOnly, StationToStationConnection.LinkType.Linked, geography);
     }
 
 }

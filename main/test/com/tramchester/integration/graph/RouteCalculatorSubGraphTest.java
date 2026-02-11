@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -94,7 +93,7 @@ class RouteCalculatorSubGraphTest {
         tramTime = TramTime.of(8, 0);
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
 
         maxChanges = config.getMaxNumberChanges();
 

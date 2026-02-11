@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -58,7 +57,7 @@ public class RouteCalculatorArriveByTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
         config = tramchesterConfig;
-        requestedModes = TramsOnly;
+        requestedModes = TransportMode.TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

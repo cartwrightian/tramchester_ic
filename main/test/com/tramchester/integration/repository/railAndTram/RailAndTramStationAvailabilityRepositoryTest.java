@@ -7,6 +7,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
@@ -103,7 +104,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
     void shouldHaveExpectedPickupsForTheLinkedTramStationWhenOnlyTrain() {
         Station manPicc = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(manPicc, when, timeRange, TramsOnly);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(manPicc, when, timeRange, TransportMode.TramsOnly);
 
         long tramRoutes = results.stream().filter(route -> route.getTransportMode()==Tram).count();
         assertNotEquals(0, tramRoutes);
@@ -127,7 +128,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         // should get the linked Tram routes from the Train Station since Alty Tram station is linked
 
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamRail, when, timeRange, TramsOnly);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamRail, when, timeRange, TransportMode.TramsOnly);
 
         assertEquals(2, results.size(),
                 timeRange + " missing routes from " + altrinchamRail.getId() + " got " + HasId.asIds(results));

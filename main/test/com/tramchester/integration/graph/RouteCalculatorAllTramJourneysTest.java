@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -53,7 +52,7 @@ public class RouteCalculatorAllTramJourneysTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
@@ -61,7 +60,7 @@ public class RouteCalculatorAllTramJourneysTest {
     void shouldFindRouteEachStationToEveryOtherStream() {
 
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).
-                createStationPairsForAll(TramsOnly);
+                createStationPairsForAll(TransportMode.TramsOnly);
 
         final TramTime time = TramTime.of(8, 5);
 

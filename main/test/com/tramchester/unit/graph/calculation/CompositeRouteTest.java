@@ -36,7 +36,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.KnownLocations.nearKnutsfordBusStation;
@@ -106,7 +105,7 @@ class CompositeRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 2, TramsOnly);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 2, TransportMode.TramsOnly);
     }
 
     @AfterEach
@@ -206,7 +205,7 @@ class CompositeRouteTest {
 
     @Test
     void shouldHaveRouteCosts() throws InvalidDurationException {
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
 
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate, modes));

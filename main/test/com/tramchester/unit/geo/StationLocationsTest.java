@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +43,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository, geography);
 
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
     }
 
     @Test

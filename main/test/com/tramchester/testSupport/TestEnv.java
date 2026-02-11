@@ -330,6 +330,7 @@ public class TestEnv {
         return TEST_SQS_QUEUE+ getEnv();
     }
 
+
     private static String getEnv() {
         String text = System.getenv("PLACE");
         if (text==null) {
@@ -343,7 +344,6 @@ public class TestEnv {
     }
 
     public static class Modes {
-        public static final ImmutableEnumSet<TransportMode> TramsOnly = ImmutableEnumSet.of(Tram);
         public static final ImmutableEnumSet<TransportMode> BusesOnly = ImmutableEnumSet.of(Bus);
         public static final ImmutableEnumSet<TransportMode> RailOnly = ImmutableEnumSet.of(Train);
         public static final ImmutableEnumSet<TransportMode> TrainAndTram = ImmutableEnumSet.of(Train, Tram, RailReplacementBus);

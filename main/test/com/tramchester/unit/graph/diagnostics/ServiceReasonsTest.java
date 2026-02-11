@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,7 +42,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
     void onceBeforeEachTestRuns() {
         TramTime time = TramTime.of(13, 45);
         JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
-                false, 2, TramDuration.ofHours(1), 1, TramsOnly);
+                false, 2, TramDuration.ofHours(1), 1, TransportMode.TramsOnly);
         providesLocalNow = new ProvidesLocalNow();
 
         failedJourneyDiagnostics = createMock(CreateJourneyDiagnostics.class);
@@ -71,7 +70,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
     void shouldProvideDiagnostics() {
         TramTime time = TramTime.of(13, 45);
         JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
-                false, 2, TramDuration.ofHours(1), 1, TramsOnly);
+                false, 2, TramDuration.ofHours(1), 1, TransportMode.TramsOnly);
 
         Station dest = TramStations.Piccadilly.fake();
         LocationCollection destinations = LocationCollectionSingleton.of(dest);

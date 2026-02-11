@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.integration.graph.RouteCalculatorTest.TXN_TIMEOUT;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,7 +52,7 @@ public class RouteCalculatorInMemoryTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new IntegrationTramTestConfig(GraphDBType.InMemory, IntegrationTramTestConfig.Caching.Enabled);
-        requestedModes = TramsOnly;
+        requestedModes = TransportMode.TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);

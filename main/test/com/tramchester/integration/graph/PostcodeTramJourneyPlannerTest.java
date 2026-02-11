@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeTramJourneyPlannerTest {
@@ -86,7 +85,7 @@ class PostcodeTramJourneyPlannerTest {
         //TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
         return Stream.of(
                 new JourneyRequest(when, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes),
                 new JourneyRequest(when, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));

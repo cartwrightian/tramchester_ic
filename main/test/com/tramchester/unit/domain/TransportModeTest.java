@@ -8,7 +8,6 @@ import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TransportModeTest {

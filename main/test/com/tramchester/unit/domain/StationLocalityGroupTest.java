@@ -15,7 +15,7 @@ import java.util.*;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StationLocalityGroupTest {
@@ -58,7 +58,7 @@ class StationLocalityGroupTest {
         assertEquals(1, transportModes.size());
         assertTrue(transportModes.contains(Tram));
 
-        assertTrue(groupedStations.anyOverlapWith(TramsOnly));
+        assertTrue(groupedStations.anyOverlapWith(TransportMode.TramsOnly));
 
         LocationSet<Station> contained = groupedStations.getAllContained();
         assertEquals(1, contained.size());
@@ -110,8 +110,8 @@ class StationLocalityGroupTest {
         assertTrue(transportModes.contains(Bus));
 
         assertTrue(stationGroup.anyOverlapWith(ImmutableEnumSet.of(Tram,Bus)));
-        assertTrue(stationGroup.anyOverlapWith(ImmutableEnumSet.of(Bus)));
-        assertTrue(stationGroup.anyOverlapWith(TramsOnly));
+        assertTrue(stationGroup.anyOverlapWith(BusesOnly));
+        assertTrue(stationGroup.anyOverlapWith(TransportMode.TramsOnly));
 
         assertEquals(2, stationGroup.getDropoffRoutes().size());
         assertEquals(1, stationGroup.getPickupRoutes().size());

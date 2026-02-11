@@ -11,6 +11,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -108,7 +108,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
         TramTime time = TramTime.of(9,0);
         // max changes 1->2 due to eccles bus replacement
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2, maxDurationFromConfig,
-                1, TramsOnly);
+                1, TransportMode.TramsOnly);
 
         //journeyRequest.setDiag(true);
 

@@ -218,11 +218,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return endOfRoutesToEndOfRoutes(ImmutableEnumSet.of(mode));
         }
 
-        public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final EnumSet<TransportMode> modes) {
-            return endOfRoutesToEndOfRoutes(ImmutableEnumSet.copyOf(modes));
-        }
-
-
         public LocationIdPairSet<Station> endOfRoutesToEndOfRoutes(final ImmutableEnumSet<TransportMode> modes) {
             final ImmutableIdSet<Station> endRoutes = routeEndRepository.getStations(modes);
             // sanity check, primarily for rail

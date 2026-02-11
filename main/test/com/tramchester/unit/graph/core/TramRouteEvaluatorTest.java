@@ -48,7 +48,6 @@ import java.util.*;
 import static com.tramchester.graph.reference.GraphLabel.*;
 import static com.tramchester.graph.search.diagnostics.GraphEvaluationAction.*;
 import static com.tramchester.graph.search.diagnostics.ReasonCode.*;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.ExchangeSquare;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -112,7 +111,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         queryTime = TramTime.of(8, 15);
         JourneyRequest journeyRequest = new JourneyRequest(
                 UpcomingDates.nextSaturday(), queryTime, false,
-                config.getMaxNumberChanges(), TramDuration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
+                config.getMaxNumberChanges(), TramDuration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TransportMode.TramsOnly);
         reasons = new ServiceReasons(journeyRequest, queryTime, providesNow, failedJourneyDiagnostics);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
@@ -146,7 +145,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramDate queryDate = TestEnv.testDay();
         TowardsDestination towardsDestination =  new TowardsDestination(destinationStations);
         StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
-                towardsDestination, config, TramsOnly);
+                towardsDestination, config, TransportMode.TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
@@ -160,9 +159,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         // todo into mock
         Running running = () -> isRunning;
-        final ImmutableEnumSet<TransportMode> destinationModes = TramsOnly;
+        final ImmutableEnumSet<TransportMode> destinationModes = TransportMode.TramsOnly;
         return new TramRouteEvaluator(serviceHeuristics, config, txn, destinationNodeIds, reasons, previousSuccessfulVisit,
-                arrivalHandler, startNodeId, TramsOnly, running, destinationModes, maxInitialWait) {
+                arrivalHandler, startNodeId, TransportMode.TramsOnly, running, destinationModes, maxInitialWait) {
             @Override
             public GraphEvaluationAction evaluate(GraphPath graphPath, ImmutableJourneyState journeyState) {
                 return super.evaluate(graphPath, journeyState);

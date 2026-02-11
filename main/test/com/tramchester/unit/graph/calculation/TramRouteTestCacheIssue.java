@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -29,7 +30,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("for diagnosing cache issue, repeat until fail")
@@ -75,7 +75,7 @@ class TramRouteTestCacheIssue {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 3, TramsOnly);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 3, TransportMode.TramsOnly);
     }
 
     @Test

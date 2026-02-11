@@ -37,7 +37,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -122,7 +121,7 @@ class LocationJourneyPlannerTest {
     }
 
     private ImmutableEnumSet<TransportMode> getRequestedModes() {
-        return TramsOnly;
+        return TransportMode.TramsOnly;
     }
 
     @Test
@@ -395,7 +394,7 @@ class LocationJourneyPlannerTest {
     void shouldGetExpectedStationWalks() {
         LocationJourneyPlanner journeyPlanner = componentContainer.get(LocationJourneyPlanner.class);
 
-        Set<StationWalk> walks = journeyPlanner.getStationWalks(nearPiccGardens.location(), TramsOnly);
+        Set<StationWalk> walks = journeyPlanner.getStationWalks(nearPiccGardens.location(), TransportMode.TramsOnly);
 
         assertEquals(3, walks.size(), walks.toString());
 

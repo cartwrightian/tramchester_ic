@@ -6,6 +6,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -25,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -85,7 +85,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @Test
     void ShouldReproIssueWithMediaCityToVelopark() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                1, maxJourneyDuration, 2, TramsOnly);
+                1, maxJourneyDuration, 2, TransportMode.TramsOnly);
 //        request.setDiag(true);
 
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());

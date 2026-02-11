@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -151,6 +151,6 @@ class StationGeographyResourceTest {
         Double distance = 42D; // not used in the equality for the DTO
         return new StationToStationConnectionDTO(DTOFactory.createLocationRefWithPosition(begin.fake()),
                 DTOFactory.createLocationRefWithPosition(end.fake()),
-                TramsOnly, distance, linkType);
+                TransportMode.TramsOnly, distance, linkType);
     }
 }

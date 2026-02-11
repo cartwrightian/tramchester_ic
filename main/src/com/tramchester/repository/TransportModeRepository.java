@@ -8,11 +8,13 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+
 @LazySingleton
 public class TransportModeRepository {
     private static final Logger logger = LoggerFactory.getLogger(TransportModeRepository.class);
 
-    public static final ImmutableEnumSet<TransportMode> ProductionModes = ImmutableEnumSet.of(TransportMode.Tram);
+    public static final ImmutableEnumSet<TransportMode> ProductionModes = TramsOnly;
 
     private final ImmutableEnumSet<TransportMode> enabledModes;
     private final boolean inProduction;

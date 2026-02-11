@@ -5,6 +5,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -30,7 +31,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,7 +91,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         EasyMock.expect(departuresRepository.forStation(pair.getEnd())).andReturn(Collections.singletonList(departureFromEnd));
 
         TimeRange cutoffTimeRange = TimeRange.of(startTime, startTime.plusMinutes(costBetweenStations));
-        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TramsOnly)).
+        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TransportMode.TramsOnly)).
                 andReturn(Collections.singletonList(tramRoute.fake()));
 
         replayAll();
@@ -124,7 +124,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         EasyMock.expect(departuresRepository.forStation(pair.getEnd())).andReturn(Collections.singletonList(departureFromEnd));
 
         TimeRange cutoffTimeRange = TimeRange.of(startTime, startTime.plusMinutes(costBetweenStationsMins));
-        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TramsOnly)).
+        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TransportMode.TramsOnly)).
                 andReturn(Collections.singletonList(tramRoute.fake()));
 
         replayAll();
@@ -158,7 +158,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
 
         // 3.45 round up to 4 mins
         TimeRange cutoffTimeRange = TimeRange.of(startTime, startTime.plusMinutes(4));
-        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TramsOnly)).
+        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TransportMode.TramsOnly)).
                 andReturn(Collections.singletonList(tramRoute.fake()));
 
         replayAll();
@@ -192,7 +192,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         EasyMock.expect(departuresRepository.forStation(pair.getEnd())).andReturn(Collections.singletonList(departureFromEnd));
 
         TimeRange cutoffTimeRange = TimeRange.of(startTime, startTime.plusMinutes(costBetweenStations));
-        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TramsOnly)).
+        EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TransportMode.TramsOnly)).
                 andReturn(Collections.singletonList(tramRoute.fake()));
 
         replayAll();

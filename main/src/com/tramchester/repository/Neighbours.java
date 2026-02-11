@@ -29,7 +29,7 @@ import javax.measure.quantity.Length;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Walk;
+import static com.tramchester.domain.reference.TransportMode.WalkOnly;
 import static java.lang.String.format;
 
 /***
@@ -88,7 +88,6 @@ public class Neighbours implements NeighboursRepository {
         logger.info(format("Adding neighbouring stations for range %s and diff modes only %s",
                 marginInMeters, DIFF_MODES_ONLY));
 
-        final ImmutableEnumSet<TransportMode> walk = ImmutableEnumSet.of(Walk);
         final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
 
         stationRepository.getActiveStationStream().
@@ -99,7 +98,7 @@ public class Neighbours implements NeighboursRepository {
                     Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                             filter(nearby -> !nearby.equals(begin)).
                             filter(nearby -> DIFF_MODES_ONLY && !nearby.anyOverlapWith(beginModes)).
-                            map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, linkType, geography)).
+                            map(nearby -> StationToStationConnection.createForWalk(begin, nearby, WalkOnly, linkType, geography)).
                             collect(Collectors.toSet());
                     if (!links.isEmpty()) {
                         neighbours.put(begin.getId(), links);
@@ -131,7 +130,7 @@ public class Neighbours implements NeighboursRepository {
     }
 
     private void addFromConfig(final StationPair pair) {
-        final ImmutableEnumSet<TransportMode> walk = ImmutableEnumSet.of(Walk);
+        final ImmutableEnumSet<TransportMode> walk = WalkOnly;
         final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
 
         final Station begin = pair.getBegin();

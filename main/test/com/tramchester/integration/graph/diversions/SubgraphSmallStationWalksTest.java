@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Connect;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -91,7 +90,7 @@ class SubgraphSmallStationWalksTest {
     }
 
     private ImmutableEnumSet<TransportMode> getRequestedModes() {
-        return TramsOnly;
+        return TransportMode.TramsOnly;
     }
 
     @Test

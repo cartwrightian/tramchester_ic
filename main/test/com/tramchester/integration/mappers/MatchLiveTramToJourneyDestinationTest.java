@@ -6,6 +6,7 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -141,7 +141,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         LocalDateTime now = TestEnv.LocalNow();
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
-        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, TramsOnly);
+        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, TransportMode.TramsOnly);
 
 
     }

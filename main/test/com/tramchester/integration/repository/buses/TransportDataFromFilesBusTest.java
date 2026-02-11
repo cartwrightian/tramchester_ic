@@ -9,7 +9,6 @@ import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.*;
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramDateSet;
@@ -33,7 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -82,7 +81,7 @@ class TransportDataFromFilesBusTest {
         assertWithinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F);
 
         // no platforms represented in bus data
-        Set<Platform> platforms = transportData.getPlatforms(ImmutableEnumSet.of(Bus));
+        Set<Platform> platforms = transportData.getPlatforms(BusesOnly);
         assertEquals(0, platforms.size(), platforms.toString());
     }
 

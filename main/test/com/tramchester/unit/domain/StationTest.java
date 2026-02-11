@@ -23,7 +23,6 @@ import java.util.Set;
 import static com.tramchester.domain.MutableAgency.Walking;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;

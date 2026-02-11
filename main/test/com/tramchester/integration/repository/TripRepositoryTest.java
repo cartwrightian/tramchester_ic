@@ -14,6 +14,7 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TFGMRouteNames;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramDuration;
@@ -36,7 +37,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -248,7 +248,7 @@ public class TripRepositoryTest {
 
         TramDate nextSunday = UpcomingDates.nextSunday();
 
-        Set<Service> sundayServices = serviceRepository.getServicesOnDate(nextSunday, TramsOnly);
+        Set<Service> sundayServices = serviceRepository.getServicesOnDate(nextSunday, TransportMode.TramsOnly);
 
         Set<Trip> cornbrookTrips = tripRepository.getTrips().stream().
                 filter(trip -> trip.callsAt(Cornbrook.getId())).collect(Collectors.toSet());
@@ -272,7 +272,7 @@ public class TripRepositoryTest {
     }
 
     private Stream<Station> getOpenStations(final TramDate date) {
-        return stationRepository.getStations(TramsOnly).stream().
+        return stationRepository.getStations(TransportMode.TramsOnly).stream().
                 filter(station -> !UpcomingDates.hasClosure(station, date));
     }
 

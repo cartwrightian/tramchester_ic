@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
@@ -94,7 +93,7 @@ class TramRouteTest {
 
         geography = componentContainer.get(Geography.class);
 
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
 
         txn = database.beginTxMutable();
 
@@ -123,7 +122,7 @@ class TramRouteTest {
     void shouldHaveRoutesSetupCorrectly() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
-        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate, TramsOnly);
+        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate, TransportMode.TramsOnly);
 
         assertEquals(routeRepository.numberOfRoutes(), running.size());
     }

@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -25,7 +26,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,7 +63,7 @@ public class RailAndTramRouteRepositoryTest {
     void shouldHaveExpectedNumberOfTramRoutes() {
         int numberTramRoutes = 7;
 
-        Set<Route> tramRoutes = routeRepository.getRoutes(TramsOnly);
+        Set<Route> tramRoutes = routeRepository.getRoutes(TransportMode.TramsOnly);
         assertEquals(numberTramRoutes, tramRoutes.size());
 
         Set<Route> railRoutes = routeRepository.getRoutes(RailOnly);

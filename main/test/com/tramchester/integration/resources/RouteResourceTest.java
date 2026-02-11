@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static com.tramchester.testSupport.reference.TramStations.Victoria;
@@ -123,7 +122,7 @@ class RouteResourceTest {
     void shouldGetRoutesFilteredByDate() {
         TramDate date = TestEnv.testDay();
 
-        Set<Route> expected = routeRepository.getRoutesRunningOn(date, TramsOnly); // see also known tram route test that checks this number makes known number of routes
+        Set<Route> expected = routeRepository.getRoutesRunningOn(date, TransportMode.TramsOnly); // see also known tram route test that checks this number makes known number of routes
 
         String queryString = String.format("routes/filtered?date=%s", date.format(dateFormatDashes));
 

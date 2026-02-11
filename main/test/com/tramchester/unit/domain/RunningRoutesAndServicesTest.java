@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,7 +55,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
     @Test
     void shouldHaveRunningForDate() {
 
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
 
         EasyMock.expect(routeRepository.getRoutesRunningOn(date,modes)).andReturn(singleton(routeA));
         EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(singleton(serviceA));
@@ -84,7 +83,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
     @Test
     void shouldHaveRunningForTimeSameDay() {
 
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
 
         final IdFor<Service> serviceAId = Service.createId("serviceAId");
         final IdFor<Service> serviceBId = Service.createId("serviceBId");
@@ -129,7 +128,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         final IdFor<Service> serviceAId = Service.createId("serviceAId");
         final IdFor<Service> serviceBId = Service.createId("serviceBId");
 
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
 
         EasyMock.expect(routeRepository.getRoutesRunningOn(date, modes)).andReturn(new HashSet<>(Arrays.asList(routeA, routeB)));
         EasyMock.expect(routeRepository.getRoutesRunningOn(date.plusDays(1), modes)).andReturn(Collections.emptySet());
@@ -174,7 +173,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
     void shouldHaveRunningForPreviousDay() {
         final IdFor<Service> serviceAId = Service.createId("serviceAId");
 
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
 
         EasyMock.expect(routeRepository.getRoutesRunningOn(date, modes)).andReturn(Collections.emptySet());
         EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(Collections.emptySet());
@@ -205,7 +204,7 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
     @Test
     void shouldIncludeFollowingDayIfTramTimeIsNextDay() {
 
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
 
         EasyMock.expect(routeRepository.getRoutesRunningOn(date, modes)).andReturn(singleton(routeA));
         EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(singleton(serviceA));

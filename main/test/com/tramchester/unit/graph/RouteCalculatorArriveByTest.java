@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 class RouteCalculatorArriveByTest extends EasyMockSupport {
@@ -60,7 +59,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Stream<Journey> journeyStream = Stream.empty();
 
-        ImmutableEnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
 
         TramDuration duration = TramDuration.ofMinutes(15);
         EasyMock.expect(costCalculator.getAverageCostBetween(txn, start, destinationId, localDate, modes)).andReturn(duration);

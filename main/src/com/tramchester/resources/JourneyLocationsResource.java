@@ -155,8 +155,8 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
         return Response.ok(results).build();
     }
 
-    private List<? extends Location<?>> getNearestLocations(MyLocation origin, MarginInMeters margin, TransportMode mode) {
-        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(mode);
+    private List<? extends Location<?>> getNearestLocations(final MyLocation origin, final MarginInMeters margin, final TransportMode mode) {
+        final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(mode);
 
         final List<Station> stations = stationLocations.nearestStationsSorted(origin, config.getNumOfNearestStopsToOffer(), margin, modes);
 

@@ -20,7 +20,6 @@ import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,7 +62,7 @@ class RouteCostCalculatorTest {
         mediaCity = MediaCityUK.from(stationRepository);
         airport = ManAirport.from(stationRepository);
 
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
     }
 
     @AfterEach

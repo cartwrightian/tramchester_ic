@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -24,7 +25,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static java.lang.String.format;
 
 class RouteCalculatorSubGraphMonsallTest {
@@ -106,7 +106,7 @@ class RouteCalculatorSubGraphMonsallTest {
         long maxNumberOfJourneys = 1;
         int maxChanges = config.getMaxNumberChanges();
         JourneyRequest journeyRequest = new JourneyRequest(date, time,
-                false, maxChanges, TramDuration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
+                false, maxChanges, TramDuration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TransportMode.TramsOnly);
         List<Journey> journeys = calculator.calculateRouteAsList(start, destination, journeyRequest);
 
         Assertions.assertFalse(journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));

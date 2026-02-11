@@ -14,6 +14,7 @@ import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -39,7 +40,6 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -96,7 +96,7 @@ public class TraversalStateTest extends EasyMockSupport {
         TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
 
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                towardsDestination, config, TramsOnly);
+                towardsDestination, config, TransportMode.TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -140,7 +140,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                towardsDestination, config, TramsOnly);
+                towardsDestination, config, TransportMode.TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -181,7 +181,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(Bury.from(stationRepository));
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                towardsDestination, config, TramsOnly);
+                towardsDestination, config, TransportMode.TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 

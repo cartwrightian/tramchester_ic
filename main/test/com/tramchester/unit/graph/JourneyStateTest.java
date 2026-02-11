@@ -27,7 +27,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyStateTest extends EasyMockSupport {
@@ -56,7 +55,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(station);
         StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
-                towardsDestination, config, TramsOnly);
+                towardsDestination, config, TransportMode.TramsOnly);
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);

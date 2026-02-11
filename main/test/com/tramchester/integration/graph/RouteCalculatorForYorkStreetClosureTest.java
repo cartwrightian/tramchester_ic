@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -32,7 +33,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Connect;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -124,7 +124,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     void shouldFindWalkFromStPetersToPiccDuringYorkStreetWork() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 2,
-                maxJourneyDuration, maxNumResults, TramsOnly);
+                maxJourneyDuration, maxNumResults, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, Piccadilly, journeyRequest);
 
@@ -135,7 +135,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     void shouldFindWalkFromStPetersToPiccGardensDuringYorkStreetWork() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 0,
-                maxJourneyDuration, maxNumResults, TramsOnly);
+                maxJourneyDuration, maxNumResults, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, PiccadillyGardens, journeyRequest);
 
@@ -146,7 +146,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     void shouldFindWalkFromPiccToStPetersToDuringYorkStreetWork() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 2,
-                maxJourneyDuration, maxNumResults, TramsOnly);
+                maxJourneyDuration, maxNumResults, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, StPetersSquare, journeyRequest);
 
@@ -157,7 +157,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     void shouldFindWalkFromPiccGardensToStPetersDuringYorkStreetWork() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 0,
-                maxJourneyDuration, maxNumResults, TramsOnly);
+                maxJourneyDuration, maxNumResults, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, StPetersSquare, journeyRequest);
 
@@ -167,7 +167,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     @Test
     void shouldFindDeansgateToPiccGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,0), false, 2,
-                maxJourneyDuration, maxNumResults, TramsOnly);
+                maxJourneyDuration, maxNumResults, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Deansgate, PiccadillyGardens, journeyRequest);
 

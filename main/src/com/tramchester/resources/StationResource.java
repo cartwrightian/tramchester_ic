@@ -186,9 +186,9 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         logger.info(format("Get stations with %s of %s,%s and mode %s", margin, lat, lon, rawMode));
 
-        TransportMode mode = TransportMode.valueOf(rawMode);
+        final TransportMode mode = TransportMode.valueOf(rawMode);
 
-        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(mode);
+        final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(mode);
 
         LatLong latLong = new LatLong(lat,lon);
 

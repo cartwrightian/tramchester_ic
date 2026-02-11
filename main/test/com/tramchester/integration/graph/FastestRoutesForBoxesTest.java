@@ -11,6 +11,7 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -35,7 +36,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FastestRoutesForBoxesTest {
@@ -120,7 +120,7 @@ class FastestRoutesForBoxesTest {
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(
                 TestEnv.testDay(), time, false, 2,
-                TramDuration.ofMinutes(120), 3, TramsOnly);
+                TramDuration.ofMinutes(120), 3, TransportMode.TramsOnly);
 
         RequestStopStream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 

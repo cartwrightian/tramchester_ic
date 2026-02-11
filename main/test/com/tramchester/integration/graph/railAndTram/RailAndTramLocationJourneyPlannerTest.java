@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.Piccadilly;
 import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
@@ -107,7 +106,7 @@ class RailAndTramLocationJourneyPlannerTest {
     void shouldHaveDirectWalkFromPiccadily() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
-                false, 1, maxJourneyDuration, maxNumberOfJourneys, TramsOnly);
+                false, 1, maxJourneyDuration, maxNumberOfJourneys, TransportMode.TramsOnly);
 
         Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(Piccadilly, nearPiccGardens, journeyRequest, 2);
 

@@ -17,6 +17,8 @@ import com.tramchester.graph.reference.GraphLabel;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.WalkOnly;
+
 public class MyLocation implements Location<MyLocation> {
 
     @Deprecated
@@ -95,7 +97,7 @@ public class MyLocation implements Location<MyLocation> {
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        return ImmutableEnumSet.of(TransportMode.Walk);
+        return WalkOnly;
     }
 
     @Override

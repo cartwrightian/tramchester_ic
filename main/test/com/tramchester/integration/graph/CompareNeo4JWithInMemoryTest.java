@@ -39,7 +39,6 @@ import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_PLATFORM;
 import static com.tramchester.integration.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -243,7 +242,7 @@ public class CompareNeo4JWithInMemoryTest {
     @Test
     void shouldHaveRelationshipsAtPlatformNodes() {
         PlatformRepository platformRepository = componentContainerInMemory.get(PlatformRepository.class);
-        Set<Platform> platforms = platformRepository.getPlatforms(TramsOnly);
+        Set<Platform> platforms = platformRepository.getPlatforms(TransportMode.TramsOnly);
         checkForType(platforms);
     }
 
@@ -272,7 +271,7 @@ public class CompareNeo4JWithInMemoryTest {
 
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
-        ImmutableEnumSet<TransportMode> requestedModes = TramsOnly;
+        ImmutableEnumSet<TransportMode> requestedModes = TransportMode.TramsOnly;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0,
                 maxJourneyDuration, maxNumResults, requestedModes);
 
@@ -293,7 +292,7 @@ public class CompareNeo4JWithInMemoryTest {
     void shouldCheckForConsistencyWhenInMemFails() {
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
-        ImmutableEnumSet<TransportMode> requestedModes = TramsOnly;
+        ImmutableEnumSet<TransportMode> requestedModes = TransportMode.TramsOnly;
         TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         long maxNumResults = 3;
 

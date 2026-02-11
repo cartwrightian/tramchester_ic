@@ -50,7 +50,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
@@ -311,7 +310,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private ImmutableEnumSet<TransportMode> getRequestedModes() {
-        return TramsOnly;
+        return TransportMode.TramsOnly;
     }
 
     @Test

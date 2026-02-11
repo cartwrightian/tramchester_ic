@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -31,7 +32,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -156,7 +156,7 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        final Set<Route> loaded = routeRepository.getRoutesRunningOn(when, TramsOnly);
+        final Set<Route> loaded = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly);
 
         assertEquals(loaded.size(), KnownTramRoute.getFor(when).size());
     }
@@ -278,7 +278,7 @@ class KnownTramRouteTest {
 
     @NotNull
     private Stream<Route> getLoadedTramRoutes(final TramDate date) {
-        return routeRepository.getRoutesRunningOn(date, TramsOnly).stream();
+        return routeRepository.getRoutesRunningOn(date, TransportMode.TramsOnly).stream();
     }
 
 }

@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -104,7 +103,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
         assertMinutesEquals(41, costCalculator.getAverageCostBetween(txn,
-                transportData.getFirst(), transportData.getLast(), queryDate, TramsOnly));
+                transportData.getFirst(), transportData.getLast(), queryDate, TransportMode.TramsOnly));
 
 //        assertEquals(-1, costCalculator.getAverageCostBetween(txn, transportData.getLast(), transportData.getFirst(), queryDate));
     }
@@ -226,7 +225,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, int maxNumberChanges) {
         TramDuration maxDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         return new JourneyRequest(date, time, false, maxNumberChanges, maxDuration,
-                3, TramsOnly);
+                3, TransportMode.TramsOnly);
     }
 
 }

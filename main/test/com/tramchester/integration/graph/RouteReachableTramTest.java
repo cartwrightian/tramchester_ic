@@ -8,6 +8,7 @@ import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramDuration;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,7 +62,7 @@ class RouteReachableTramTest {
         Station next = stationRepository.getStationById(NavigationRoad.getId());
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,30), TramDuration.ofMinutes(30), TramDuration.ofMinutes(30));
-        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange, TramsOnly);
+        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange, TransportMode.TramsOnly);
 
         IdSet<Route> routeIds = results.stream().collect(IdSet.collector());
 

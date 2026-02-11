@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -43,7 +42,7 @@ public class CreateQueryTimesTest {
     private int mins;
     private TramDate date;
 
-    private final ImmutableEnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
     private StationRepository stationRepository;
 
     @BeforeAll

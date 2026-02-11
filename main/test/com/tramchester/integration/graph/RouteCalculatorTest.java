@@ -50,7 +50,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.Durations.greaterOrEquals;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getGreen;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getPurple;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -81,7 +80,7 @@ public class RouteCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
         config = tramchesterConfig;
-        requestedModes = TramsOnly;
+        requestedModes = TransportMode.TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

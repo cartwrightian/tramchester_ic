@@ -33,7 +33,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -74,7 +73,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        List<UpcomingDeparture> all = getAllDepartures(journeyStations, TramsOnly);
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations, TransportMode.TramsOnly);
 
         ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().

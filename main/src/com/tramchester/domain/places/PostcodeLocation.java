@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.WalkOnly;
+
 public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain, HasId<PostcodeLocation> {
 
     private final PostcodeLocationId id;
@@ -95,7 +97,7 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        return ImmutableEnumSet.of(TransportMode.Walk);
+        return WalkOnly;
     }
 
     @Override

@@ -31,7 +31,6 @@ import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -66,7 +65,7 @@ class RouteCalculatorKeyRoutesTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
         maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         maxChanges = testConfig.getMaxNumberChanges();
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, maxChanges,

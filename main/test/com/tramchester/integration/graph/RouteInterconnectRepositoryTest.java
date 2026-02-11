@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,7 +93,7 @@ public class RouteInterconnectRepositoryTest {
         repository = componentContainer.get(RouteInterconnectRepository.class);
 
         date = TestEnv.testDay();
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
     }
 
     @Test
@@ -322,7 +321,7 @@ public class RouteInterconnectRepositoryTest {
 
         short greenIndex = routeIndex.indexFor(greenInbound.getId());
 
-        Set<Route> routes = routeRepository.getRoutes(TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        Set<Route> routes = routeRepository.getRoutes(TransportMode.TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         int numberOfRoutes = routeRepository.numberOfRoutes();
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);

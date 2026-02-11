@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.*;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,7 +41,7 @@ public class RoutePairToInterchangeRepositoryTest {
     private static TramchesterConfig config;
 
     private TramRouteHelper routeHelper;
-    private final ImmutableEnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
     private TramDate date;
     private RoutePairToInterchangeRepository repository;
 
