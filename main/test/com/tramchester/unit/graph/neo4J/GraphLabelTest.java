@@ -17,8 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.reference.GraphLabel.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphLabelTest {
 
@@ -75,11 +74,16 @@ public class GraphLabelTest {
     }
 
     @Test
+    void shouldHaveSameSingleton() {
+        assertSame(TRAM.singleton(), TRAM.singleton());
+    }
+
+    @Test
     void shouldGetSetOfLabelsForModes() {
         ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
         ImmutableEnumSet<GraphLabel> results = GraphLabel.forModes(modes);
-        assertEquals(ImmutableEnumSet.copyOf(GraphLabel.TransportModes), results);
+        assertEquals(ImmutableEnumSet.copyOf(GraphLabel.TransportModesLabels), results);
     }
 
     private static @NotNull ImmutableEnumSet<TransportMode> getTransportModes() {

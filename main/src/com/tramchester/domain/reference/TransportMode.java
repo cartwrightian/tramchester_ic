@@ -39,12 +39,12 @@ public enum TransportMode implements HasTransportMode {
     @JsonIgnore
     private final short graphId;
 
-//    @JsonIgnore
-//    private final ImmutableEnumSet<TransportMode> singleton;
+    @JsonIgnore
+    private final ImmutableEnumSet<TransportMode> singleton;
 
     TransportMode(final short graphId) {
         this.graphId = graphId;
-        //singleton = ImmutableEnumSet.of(this);
+        singleton = ImmutableEnumSet.of(this);
     }
 
     public static boolean isTram(final HasTransportMode item) {
@@ -83,6 +83,6 @@ public enum TransportMode implements HasTransportMode {
     }
 
     public ImmutableEnumSet<TransportMode> singleton() {
-        return ImmutableEnumSet.of(this);
+        return singleton;
     }
 }

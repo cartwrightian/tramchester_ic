@@ -42,7 +42,7 @@ public enum GraphLabel { //implements Label {
 
     private static final GraphLabel[] hourLabels;
 
-    public static final EnumSet<GraphLabel> TransportModes = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
+    public static final EnumSet<GraphLabel> TransportModesLabels = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
 
     public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSet.copyOf(
             EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE));
@@ -53,7 +53,13 @@ public enum GraphLabel { //implements Label {
             hourLabels[hour] = GraphLabel.valueOf(format("HOUR_%d", hour));
         }
     }
-    
+
+    private final ImmutableEnumSet<GraphLabel> singleton;
+
+    GraphLabel() {
+        singleton = ImmutableEnumSet.of(this);
+    }
+
     public static GraphLabel forMode(final TransportMode mode) {
         return switch (mode) {
             case Tram -> TRAM;
@@ -95,6 +101,6 @@ public enum GraphLabel { //implements Label {
     }
 
     public ImmutableEnumSet<GraphLabel> singleton() {
-        return ImmutableEnumSet.of(this);
+        return singleton;
     }
 }

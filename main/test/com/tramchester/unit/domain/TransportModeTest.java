@@ -51,4 +51,9 @@ public class TransportModeTest {
     void shouldCheckForOverlaps() {
         assertFalse(TransportMode.TramsOnly.anyIntersectionWith(RailOnly));
     }
+
+    @Test
+    void shouldHaveSameSingleton() {
+        assertSame(Walk.singleton(), Walk.singleton());
+    }
 }
