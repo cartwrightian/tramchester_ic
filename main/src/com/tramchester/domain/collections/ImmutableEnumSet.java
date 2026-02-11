@@ -3,9 +3,7 @@ package com.tramchester.domain.collections;
 import com.google.common.collect.Sets;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -271,9 +269,13 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
 
         @Override
         public ImmutableEnumSet<T> without(final Set<T> remove) {
-            final EnumSet<T> filtered = EnumSet.copyOf(contained);
+            final List<T> filtered = new ArrayList<>(contained);
             filtered.removeAll(remove);
-            return new Many<>(filtered);
+            if (filtered.size()==1) {
+                return new One<>(filtered.getFirst());
+            } else {
+                return ImmutableEnumSet.createFrom(EnumSet.copyOf(filtered));
+            }
         }
 
     }

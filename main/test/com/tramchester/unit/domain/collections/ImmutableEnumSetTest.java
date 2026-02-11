@@ -118,6 +118,10 @@ public class ImmutableEnumSetTest {
         assertEquals(2, withoutB.size());
         assertFalse(withoutB.contains(Tram));
 
+        ImmutableEnumSet<TransportMode> withoutC = set.without(EnumSet.of(Walk, Tram));
+        assertEquals(1, withoutC.size());
+        assertTrue(withoutB.contains(RailReplacementBus));
+
         EnumSet<TransportMode> resultAdd = EnumSet.of(Bus);
         set.addAllTo(resultAdd);
         assertEquals(4, resultAdd.size());
