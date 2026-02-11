@@ -73,10 +73,6 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
         contained.forEach(action);
     }
 
-    public Sets.SetView<T> intersectionWith(final Set<T> other) {
-        return Sets.intersection(contained, other);
-    }
-
     public Sets.SetView<T> intersectionWith(final ImmutableEnumSet<T> other) {
         return Sets.intersection(contained, other.contained);
     }
@@ -108,4 +104,19 @@ public class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T> {
                 '}';
     }
 
+    public boolean anyIntersectionWith(final ImmutableEnumSet<T> other) {
+        return anyIntersectionWith(other.contained);
+    }
+
+    public boolean anyIntersectionWith(final Set<T> other) {
+        for (final T item:other) {
+            if (contains(item)) {
+                return true;
+            }
+        }
+        return false;
+
+        // slow
+        //return !SetUtils.intersection(modesA, modesB).isEmpty();
+    }
 }

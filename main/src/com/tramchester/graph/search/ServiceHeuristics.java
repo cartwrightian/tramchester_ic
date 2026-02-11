@@ -160,8 +160,7 @@ public class ServiceHeuristics {
 
     public HeuristicsReason checkModes(final ImmutableEnumSet<GraphLabel> modelLabels, final EnumSet<GraphLabel> requestedModeLabels,
                                        final HowIGotHere howIGotHere, final ServiceReasons reasons) {
-        // todo more efficient way for intersection on EnumSets?
-        if (modelLabels.intersectionWith(requestedModeLabels).isEmpty()) {
+        if (!modelLabels.anyIntersectionWith(requestedModeLabels)) {
             return reasons.recordReason(HeuristicsReasons.TransportModeWrong(howIGotHere));
         }
         return valid(ReasonCode.TransportModeOk, howIGotHere, reasons);
@@ -173,7 +172,7 @@ public class ServiceHeuristics {
                                                           final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         // TODO potential optimisation where only one mode is configured, in which case this check does nothing
         if (currentNumberOfChanges==penultimateChange) {
-            if (nodeLabels.intersectionWith(destinationLabels).isEmpty()) {
+            if (!nodeLabels.anyIntersectionWith(destinationLabels)) {
                 return reasons.recordReason(HeuristicsReasons.StationNotReachable(howIGotHere, ReasonCode.TransportModeWrong));
             }
         }

@@ -64,25 +64,11 @@ public enum TransportMode implements HasTransportMode {
     }
 
     public static boolean anyIntersection(final ImmutableEnumSet<TransportMode> modesA, final ImmutableEnumSet<TransportMode> modesB) {
-        for (final TransportMode mode:modesA) {
-            if (modesB.contains(mode)) {
-                return true;
-            }
-        }
-        return false;
-        // slow
-        //return !SetUtils.intersection(modesA, modesB).isEmpty();
+        return modesA.anyIntersectionWith(modesB);
     }
 
     public static boolean anyIntersection(final Set<TransportMode> modesA, final ImmutableEnumSet<TransportMode> modesB) {
-        for (final TransportMode mode:modesA) {
-            if (modesB.contains(mode)) {
-                return true;
-            }
-        }
-        return false;
-        // slow
-        //return !SetUtils.intersection(modesA, modesB).isEmpty();
+        return modesB.anyIntersectionWith(modesA);
     }
 
     public static ImmutableEnumSet<TransportMode> parseCSV(final String csv) {
