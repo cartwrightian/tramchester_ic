@@ -50,6 +50,11 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
+    public int getHour() {
+        return GraphLabel.getHourFrom(getLabels());
+    }
+
+    @Override
     public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNode end,
                                                          final TransportRelationshipTypes relationshipType) {
 

@@ -36,6 +36,7 @@ public enum GraphLabel { //implements Label {
     COMPOSITES_ADDED,
 
     // Order for HOUR_N matters, used in sorting
+    // - not used for inMemory
     HOUR_0, HOUR_1, HOUR_2, HOUR_3, HOUR_4, HOUR_5, HOUR_6, HOUR_7,
     HOUR_8, HOUR_9, HOUR_10, HOUR_11, HOUR_12, HOUR_13, HOUR_14, HOUR_15,
     HOUR_16, HOUR_17, HOUR_18, HOUR_19, HOUR_20, HOUR_21, HOUR_22, HOUR_23;
@@ -76,11 +77,20 @@ public enum GraphLabel { //implements Label {
         return modes.convertTo(GraphLabel.class, GraphLabel::forMode);
     }
 
+    /***
+     * Neo4J only - not used for inMemory
+     * @param hour hour of the day
+     * @return corresponding Graph Node Label
+     */
     public static GraphLabel getHourLabel(final int hour) {
         return hourLabels[hour];
     }
 
-    // TODO performance
+    /***
+     * Neo4J only - not used for inMemory
+     * @param labels labels from a Node
+     * @return corresponding hour of the day
+     */
     public static int getHourFrom(final ImmutableEnumSet<GraphLabel> labels) {
         for (int hour = 0; hour < 24 ; hour++) {
             if (labels.contains(hourLabels[hour])) {

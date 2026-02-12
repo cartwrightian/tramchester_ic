@@ -227,7 +227,8 @@ public abstract class TramRouteEvaluator {
         // -->Hour
         // check hour
         if (nodeLabels.contains(GraphLabel.HOUR)) {
-            final HeuristicsReason interestedInHour = serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, nodeLabels);
+            final HeuristicsReason interestedInHour = serviceHeuristics.interestedInHour(howIGotHere, visitingTime,
+                    reasons, timeToWait, nodeLabels, nextNode);
             if (!interestedInHour.isValid()) {
                 return interestedInHour;
             }

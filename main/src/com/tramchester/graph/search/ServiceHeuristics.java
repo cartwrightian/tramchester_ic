@@ -30,10 +30,11 @@ public class ServiceHeuristics {
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
     private final int penultimateChange;
     private final boolean diagnostics;
+    private final boolean inMemory;
 
     public ServiceHeuristics(StationRepository stationRepository,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
-                             int currentChangesLimit, boolean diagnostics) {
+                             int currentChangesLimit, boolean diagnostics, boolean inMemory) {
         this.stationRepository = stationRepository;
 
         this.journeyConstraints = journeyConstraints;
@@ -42,6 +43,7 @@ public class ServiceHeuristics {
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
         penultimateChange = currentChangesLimit>1 ? currentChangesLimit-1 : currentChangesLimit;
         this.diagnostics = diagnostics;
+        this.inMemory = inMemory;
     }
     
     public HeuristicsReason checkServiceDateAndTime(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons,
@@ -113,10 +115,16 @@ public class ServiceHeuristics {
     }
 
     public HeuristicsReason interestedInHour(final HowIGotHere howIGotHere, final TramTime currentTime,
-                                          final ServiceReasons reasons, final int maxWait, final ImmutableEnumSet<GraphLabel> hourLabels) {
+                                             final ServiceReasons reasons, final int maxWait,
+                                             final ImmutableEnumSet<GraphLabel> hourLabels, GraphNode nextNode) {
         reasons.incrementTotalChecked();
 
-        final int hourAtNode = GraphLabel.getHourFrom(hourLabels);
+        final int hourAtNode;
+        if (inMemory) {
+            hourAtNode = nextNode.getHour();
+        } else {
+            hourAtNode = GraphLabel.getHourFrom(hourLabels);
+        }
 
         // todo check if valid, maybe the destination is open in the following hour for example
 //        if (!journeyConstraints.destinationsAvailable(hourRange)) {

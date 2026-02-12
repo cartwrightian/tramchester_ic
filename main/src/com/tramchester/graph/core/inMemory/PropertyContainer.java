@@ -160,6 +160,14 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     }
 
     @Override
+    public int getHour() {
+        if (hasProperty(HOUR)) {
+            return (int) getProperty(HOUR);
+        }
+        throw new RuntimeException("Hour is missing for " + this);
+    }
+
+    @Override
     public void setTransportMode(final TransportMode transportMode) {
         setProperty(TRANSPORT_MODE, transportMode);
     }

@@ -196,4 +196,9 @@ public class GraphPropsNeo4J implements GraphEntityProperties.GraphProps<GraphPr
         return EnumSet.noneOf(GraphPropertyKey.class);
     }
 
+    @Override
+    public int getHour() {
+        throw new RuntimeException("Use GraphLabels to get hour for neo4J");
+    }
+
 }

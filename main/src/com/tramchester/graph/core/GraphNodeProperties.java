@@ -14,7 +14,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.Map;
 import java.util.Set;
@@ -171,8 +170,9 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @JsonIgnore
     @Override
-    public int getHour() {
-        return GraphLabel.getHourFrom(getLabels());
+    public int getHour()
+    {
+        return graphProps.getHour();
     }
 
     @JsonIgnore

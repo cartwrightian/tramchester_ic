@@ -98,6 +98,8 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
         IMPL copy();
 
         Set<GraphPropertyKey> getUnused();
+
+        int getHour();
     }
 
 }
