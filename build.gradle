@@ -358,7 +358,7 @@ tasks.register('all', JavaExec) {
 }
 
 tasks.register('unit', Test) {
-    dependsOn 'compileJava','unitInMem'
+    dependsOn 'compileJava','unitNeo4J'
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
@@ -445,7 +445,7 @@ tasks.register('busTest', Test) {
     }
 }
 
-tasks.register('unitInMem', Test) {
+tasks.register('unitNeo4J', Test) {
     dependsOn 'compileJava'
     useJUnitPlatform {
         includeTags "MultiDB"
@@ -453,7 +453,7 @@ tasks.register('unitInMem', Test) {
     filter {
         includeTestsMatching "com.tramchester.unit.*"
     }
-    systemProperty("com.tramchester.dbType", "InMemory")
+    systemProperty("com.tramchester.dbType", "Neo4J")
     testLogging {
         events = logEvents
         exceptionFormat = "full" // default is "short"
