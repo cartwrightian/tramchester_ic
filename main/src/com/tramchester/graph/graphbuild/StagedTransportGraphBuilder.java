@@ -329,7 +329,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (!existing) {
             svcRelationship = createRelationship(tx, routeStationNode, svcNode, TO_SERVICE);
             svcRelationship.set(service);
-            svcRelationship.setCost(TramDuration.ZERO);
+            //svcRelationship.setCost(TramDuration.ZERO);
             //svcRelationship.set(route);
         } else {
             // note: switch of direction here, can't use OUTGOING from routeStationStart since has multiple links to services
@@ -619,7 +619,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
             // service node -> time node
             final MutableGraphRelationship serviceNodeToHour = createRelationship(tx, serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
-            serviceNodeToHour.setCost(TramDuration.ZERO);
+            //serviceNodeToHour.setCost(TramDuration.ZERO);
             serviceNodeToHour.setHour(hour);
         }
 

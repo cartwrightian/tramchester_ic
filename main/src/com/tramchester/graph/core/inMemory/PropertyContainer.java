@@ -89,7 +89,6 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         if (used==null) {
             return GraphPropertyKey.EmptySet;
         } else {
-
             final EnumSet<GraphPropertyKey> results = EnumSet.copyOf(props.keySet());
             results.removeAll(used);
             return results;
@@ -206,5 +205,12 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "PropertyContainer{" +
+                "props=" + props +
+                ", used=" + used +
+                ", diagnostics=" + diagnostics +
+                '}';
+    }
 }
