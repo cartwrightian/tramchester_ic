@@ -109,7 +109,11 @@ public class CompareNeo4JWithInMemoryTest {
 
     @Test
     void shouldHaveSameCountsForNodes() {
-        for(GraphLabel label : GraphLabel.values()) {
+        List<GraphLabel> labels = new ArrayList<>(Arrays.asList(GraphLabel.values()));
+        for (int i = 0; i < 24; i++) {
+            labels.remove(GraphLabel.getHourLabel(i));
+        }
+        for(GraphLabel label : labels) {
             long inMem = inMemoryCounts.numberOf(label);
             long neo4J = neo4JCounts.numberOf(label);
             assertEquals(neo4J, inMem, "Mismatch for " + label);

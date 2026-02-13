@@ -57,7 +57,7 @@ public class GraphCore implements Graph {
         relationshipTypesBetweenNodes = new ConcurrentHashMap<>();
 
         // TODO into config and consolidate with neo4j diag option?
-        diagnostics = false;
+        diagnostics = true;
     }
 
 

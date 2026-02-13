@@ -83,9 +83,13 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Override
     public Set<GraphPropertyKey> getUnused() {
+        if (props.isEmpty()) {
+            return GraphPropertyKey.EmptySet;
+        }
         if (used==null) {
             return GraphPropertyKey.EmptySet;
         } else {
+
             final EnumSet<GraphPropertyKey> results = EnumSet.copyOf(props.keySet());
             results.removeAll(used);
             return results;

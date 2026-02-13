@@ -595,9 +595,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final MutableGraphNode hourNode = hourNodeCache.getHourNode(tx, svcNode.getId(),
                 departureTime.getHourOfDay());
         final MutableGraphRelationship fromPrevious = createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
-        fromPrevious.setCost(TramDuration.ZERO);
-        fromPrevious.setTime(departureTime);
-        fromPrevious.set(trip);
+        //fromPrevious.setCost(TramDuration.ZERO);
+        // No longer used
+//        fromPrevious.setTime(departureTime);
+//        fromPrevious.set(trip);
 
         return timeNode;
     }

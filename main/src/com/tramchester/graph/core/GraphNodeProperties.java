@@ -170,8 +170,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @JsonIgnore
     @Override
-    public int getHour()
-    {
+    public int getHour() {
         return graphProps.getHour();
     }
 
