@@ -358,10 +358,22 @@ tasks.register('all', JavaExec) {
 }
 
 tasks.register('unit', Test) {
-    dependsOn 'compileJava','unitNeo4J'
+    dependsOn 'compileJava', 'archUnit', 'unitNeo4J'
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
+    }
+    testLogging {
+        events = logEvents
+        exceptionFormat = "full" // default is "short"
+    }
+}
+
+tasks.register('archUnit', Test) {
+    dependsOn 'compileJava'
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "com.tramchester.architecture.*"
     }
     testLogging {
         events = logEvents
