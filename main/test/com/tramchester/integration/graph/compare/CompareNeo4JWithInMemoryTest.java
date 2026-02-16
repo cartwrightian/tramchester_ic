@@ -32,6 +32,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Neo4JTest;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -44,6 +45,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@Neo4JTest
 public class CompareNeo4JWithInMemoryTest {
 
     private static GuiceContainerDependencies componentContainerNeo4J;

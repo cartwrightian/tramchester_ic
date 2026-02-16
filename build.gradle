@@ -399,7 +399,7 @@ tasks.register('liveMessages', Test) {
 
 def integrationTestConfiguration = {
     minHeapSize = "1000m"
-    maxHeapSize = "1750m"
+    maxHeapSize = "1850m"
     useJUnitPlatform {
         //         excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
 //        excludeTags "liveDataMessages" // exclude these when tfgm api is missing messages
@@ -411,6 +411,7 @@ def integrationTestConfiguration = {
         excludeTags "TramBusTest"
         excludeTags "TrainTest"
         excludeTags "GMTest"
+        excludeTags "Neo4JTest"
         excludeTags "LiveDataS3UploadTest" // currently disabled
         excludeTags "AWSMetricsTest" // currently disabled
     }

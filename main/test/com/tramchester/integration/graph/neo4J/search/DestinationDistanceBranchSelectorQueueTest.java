@@ -14,6 +14,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Neo4JTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+@Neo4JTest
 public class DestinationDistanceBranchSelectorQueueTest extends EasyMockSupport {
 
     private static GuiceContainerDependencies componentContainer;

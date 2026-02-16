@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.Neo4JTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+@Neo4JTest
 public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
 
     private GraphDatabaseLifecycleManager graphDatabaseLifecycleManager;

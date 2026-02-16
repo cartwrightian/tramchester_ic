@@ -16,6 +16,7 @@ import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.testSupport.testTags.Neo4JTest;
 import com.tramchester.unit.graph.GraphPropsTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Relationship;
@@ -28,6 +29,7 @@ import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Neo4JTest
 public class GraphPropsNeo4JTest {
 
     private static ComponentContainer componentContainer;

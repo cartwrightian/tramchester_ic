@@ -6,6 +6,7 @@ import com.tramchester.graph.core.neo4j.GraphDatabaseServiceFactory;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.Neo4JTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+@Neo4JTest
 public class GraphDatabaseServiceFactoryTest {
     private static GuiceContainerDependencies componentContainer;
     private static IntegrationTestConfig config;

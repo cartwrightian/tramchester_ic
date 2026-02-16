@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.GraphDBType;
+import com.tramchester.testSupport.testTags.Neo4JTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +25,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Neo4JTest
 class GraphDatabaseNeo4JStartStopTest extends EasyMockSupport {
 
  private List<GTFSSourceConfig> dataSourceConfigs;

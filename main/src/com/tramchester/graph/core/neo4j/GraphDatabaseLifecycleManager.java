@@ -44,6 +44,7 @@ public class GraphDatabaseLifecycleManager {
         logger.info("Create or load graph " + graphFile);
         this.graphDBConfig = configuration.getGraphDBConfig();
 
+
         // outside of normal dependency injection due to start up requirements
         GraphDatabaseService databaseService = serviceFactory.create();
 
@@ -63,7 +64,10 @@ public class GraphDatabaseLifecycleManager {
 
         logger.info("graph db started at:" + graphFile);
 
-        return databaseService;
+        throw new RuntimeException("Should not be running");
+
+
+        //return databaseService;
     }
 
     private GraphDatabaseService createGraphDatabaseService(DataSourceRepository dataSourceRepository, Path graphFile,
