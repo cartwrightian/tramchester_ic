@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph;
+package com.tramchester.integration.graph.compare;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
@@ -18,6 +18,7 @@ import com.tramchester.graph.core.GraphNodeProperties;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.*;
+import com.tramchester.graph.core.inMemory.persist.SaveGraph;
 import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;

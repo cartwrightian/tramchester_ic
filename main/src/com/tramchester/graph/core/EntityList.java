@@ -1,7 +1,5 @@
-package com.tramchester.domain.collections;
+package com.tramchester.graph.core;
 
-import com.tramchester.graph.core.GraphEntity;
-import com.tramchester.graph.core.GraphId;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

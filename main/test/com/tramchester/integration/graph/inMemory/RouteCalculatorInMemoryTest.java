@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.SaveGraph;
+import com.tramchester.graph.core.inMemory.persist.SaveGraph;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;

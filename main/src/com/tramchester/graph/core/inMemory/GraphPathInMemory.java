@@ -1,6 +1,6 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.tramchester.domain.collections.EntityList;
+import com.tramchester.graph.core.EntityList;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;

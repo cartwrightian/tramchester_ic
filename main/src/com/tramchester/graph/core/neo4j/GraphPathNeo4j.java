@@ -3,7 +3,6 @@ package com.tramchester.graph.core.neo4j;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
@@ -112,7 +111,12 @@ public class GraphPathNeo4j implements GraphPath {
     }
 
     @Override
-    public GraphPathInMemory duplicateWith(GraphTransaction txn, GraphNode node) {
+    public GraphPath duplicateWith(GraphTransaction txn, GraphNode node) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public GraphPath duplicateWith(GraphTransaction txn, GraphRelationship graphRelationship) {
         throw new RuntimeException("Not implemented");
     }
 

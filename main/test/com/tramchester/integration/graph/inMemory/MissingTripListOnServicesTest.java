@@ -13,7 +13,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.GraphCore;
 import com.tramchester.graph.core.inMemory.GraphDatabaseInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
-import com.tramchester.graph.core.inMemory.SaveGraph;
+import com.tramchester.graph.core.inMemory.persist.SaveGraph;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;

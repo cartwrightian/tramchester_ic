@@ -52,7 +52,7 @@ public class ShortestPath {
         }
 
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
-        final GraphPathInMemory pathToHere = incomingPath.duplicateWith(txn, currentNode);
+        final GraphPath pathToHere = incomingPath.duplicateWith(txn, currentNode);
         final TramDuration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
 
         final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing).
@@ -64,7 +64,7 @@ public class ShortestPath {
             final GraphNodeId nextNodeId = graphRelationship.getEndNodeId(txn); //nextNode.getId();
             final TramDuration updatedCost = relationshipCost.plus(currentCostToNode);
 
-            final GraphPathInMemory continuePath = pathToHere.duplicateWith(txn, graphRelationship);
+            final GraphPath continuePath = pathToHere.duplicateWith(txn, graphRelationship);
             if (searchState.hasSeen(nextNodeId)) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(nextNodeId);
                 if (updatedCost.compareTo(currentDurationForEnd) < 0) {

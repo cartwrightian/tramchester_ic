@@ -1,7 +1,6 @@
 package com.tramchester.graph.core;
 
 import com.tramchester.domain.time.TramDuration;
-import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 
 public interface GraphPath {
 
@@ -21,6 +20,7 @@ public interface GraphPath {
 
     GraphNodeId getPreviousNodeId(GraphTransaction txn);
 
-    GraphPathInMemory duplicateWith(GraphTransaction txn, GraphNode node);
+    GraphPath duplicateWith(GraphTransaction txn, GraphNode node);
 
+    GraphPath duplicateWith(GraphTransaction txn, GraphRelationship graphRelationship);
 }

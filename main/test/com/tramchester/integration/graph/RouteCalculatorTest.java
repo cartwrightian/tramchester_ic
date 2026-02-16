@@ -28,7 +28,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.SaveGraph;
+import com.tramchester.graph.core.inMemory.persist.SaveGraph;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;

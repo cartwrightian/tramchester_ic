@@ -3,7 +3,6 @@ package com.tramchester.graph.core.inMemory;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -35,7 +34,7 @@ public class NumberOfNodesAndRelationshipsRepositoryInMemory implements NumberOf
     void start() {
         logger.info("start");
 
-        if (graphDatabase instanceof GraphDatabaseNeo4J) {
+        if (!graphDatabase.isInMemory()) {
             throw new RuntimeException("Wrong database type " + graphDatabase);
         }
 

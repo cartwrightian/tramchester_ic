@@ -108,7 +108,7 @@ public class GraphCore implements Graph {
     }
 
     // supports load from file
-    static GraphCore createFrom(final NodesAndEdges incoming, GraphIdFactory graphIdFactory) {
+    public static GraphCore createFrom(final NodesAndEdges incoming, GraphIdFactory graphIdFactory) {
         final GraphCore result = new GraphCore(graphIdFactory);
         result.start();
 
