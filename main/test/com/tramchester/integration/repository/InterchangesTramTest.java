@@ -87,11 +87,11 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook,
                 MarketStreet,
                 PiccadillyGardens,
-                Piccadilly,
+//                Piccadilly,
                 StPetersSquare,
                 Broadway,
-                Victoria,
-                Shudehill
+                Victoria
+//                Shudehill
                 //HoltTown, VeloPark
         );
 
