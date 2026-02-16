@@ -358,7 +358,7 @@ tasks.register('all', JavaExec) {
 }
 
 tasks.register('unit', Test) {
-    dependsOn 'compileJava', 'archUnit', 'unitNeo4J'
+    dependsOn 'compileJava', 'archUnit'
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"

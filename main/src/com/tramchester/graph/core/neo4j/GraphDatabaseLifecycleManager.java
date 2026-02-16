@@ -64,10 +64,8 @@ public class GraphDatabaseLifecycleManager {
 
         logger.info("graph db started at:" + graphFile);
 
-        throw new RuntimeException("Should not be running");
 
-
-        //return databaseService;
+        return databaseService;
     }
 
     private GraphDatabaseService createGraphDatabaseService(DataSourceRepository dataSourceRepository, Path graphFile,
