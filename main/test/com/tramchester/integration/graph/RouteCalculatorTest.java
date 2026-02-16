@@ -116,7 +116,7 @@ public class RouteCalculatorTest {
     void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() {
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
-        
+
         Set<String> expectedChanges = Stream.of(Cornbrook, StPetersSquare, Deansgate,
                         Piccadilly, PiccadillyGardens, Victoria, MarketStreet).
                 map(TramStations::getName).collect(Collectors.toSet());
