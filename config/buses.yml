@@ -1,31 +1,15 @@
-server:
-  applicationContextPath: /
-  rootPath: /api/*
-  applicationConnectors:
-    - type: http
-      port: 8080
-  adminContextPath: /admin
-  adminConnectors:
-    - type: http
-      port: 8081
-  gzip:
-    enabled: true
-    bufferSize: 8KiB
-    minimumEntitySize: 160B
-    syncFlush: true
-    excludedPaths: [ "/api/grid/chunked" ]
-secureHost: tramchester.com
-redirectToSecure: true
-staticAssetCacheTimeSeconds: 300
-inMemoryGraph: false
-graphDBConfig:
-  graphName: databases/buses.db
-  neo4jPagecacheMemory: 300m
-  memoryTransactionGlobalMaxSize: 650m
-  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
-distributionBucket: tramchesternewdist
-environmentName: ${PLACE}
-buildNumber: ${BUILD:- 0}
+%[shared/server.yml]
+
+inMemoryGraph: true
+#graphDBConfig:
+#  graphName: databases/buses.db
+#  neo4jPagecacheMemory: 300m
+#  memoryTransactionGlobalMaxSize: 650m
+#  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
+
+cacheFolder: data/cacheBuses
+dataExpiryThreshold: 3
+
 gtfsSourceConfig:
   -
     name: tfgm
@@ -62,7 +46,6 @@ remoteSources:
     downloadPath: data/nptg
     filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
-cacheFolder: data/cacheBuses
 calcTimeoutMillis: 3500
 bounds:
   minEastings: 333200
@@ -75,6 +58,7 @@ maxWait: 45
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5
+maxNumberChanges: 2
 maxWalkingConnections: 3
 depthFirst: false
 maxJourneyDuration: 180
@@ -84,14 +68,9 @@ numOfNearestStopsToOffer: 5
 numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
-dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: false
-cloudWatchMetricsFrequencyMinutes: 5
 
-swagger:
-  resourcePackage: com.tramchester.resources
-  title: tramchester
+%[shared/infra.yml]
 
 logging:
   level: INFO

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO Rename
 public class EnumMap<T extends EnumMap.HasCodes> {
     private final Map<String, T> codes;
 

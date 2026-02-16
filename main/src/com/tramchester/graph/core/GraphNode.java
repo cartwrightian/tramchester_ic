@@ -1,10 +1,8 @@
 package com.tramchester.graph.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
@@ -20,9 +18,10 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
-public interface GraphNode extends GraphEntity {
+public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     GraphNodeId getId();
 
@@ -60,7 +59,7 @@ public interface GraphNode extends GraphEntity {
 
     boolean hasLabel(GraphLabel graphLabel);
 
-    EnumSet<GraphLabel> getLabels();
+    ImmutableEnumSet<GraphLabel> getLabels();
 
     boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
@@ -76,12 +75,13 @@ public interface GraphNode extends GraphEntity {
 
     Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
+    String getWalkId();
 
     // TODO this isn't a unique ID for all CoreDomain types i.e. there can be multiple Service Nodes with the same ServiceId
     // but different RouteIds
     @JsonIgnore
     default IdFor<? extends CoreDomain> getCoreDomainId() {
-        final EnumSet<GraphLabel> labels = getLabels();
+        final ImmutableEnumSet<GraphLabel> labels = getLabels();
         final List<GraphLabel> matched = labels.stream().filter(GraphLabel.CoreDomain::contains).distinct().toList();
         if (matched.size()==1) {
             final GraphLabel label = matched.getFirst();
@@ -101,4 +101,6 @@ public interface GraphNode extends GraphEntity {
             throw new RuntimeException("Could not match (or too many) " + labels + " with core domain " + GraphLabel.CoreDomain);
         }
     }
+
+    Map<DataSourceID, String> getStoredVersions();
 }

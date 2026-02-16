@@ -6,16 +6,16 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.repository.RouteRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.units.indriya.ComparableQuantity;
 import tech.units.indriya.quantity.Quantities;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import javax.measure.quantity.Speed;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -29,7 +29,7 @@ public class RouteAverageVelocity {
 
     private final RouteRepository routeRepository;
 
-    private static final Duration minLegTime = Duration.ofMinutes(1);
+    private static final TramDuration minLegTime = TramDuration.ofMinutes(1);
 
     private double metersPerSecond;
 
@@ -91,7 +91,7 @@ public class RouteAverageVelocity {
 
         if (gridA.isValid() && gridB.isValid()) {
             final long distanceInMeters = GridPositions.distanceTo(gridA, gridB);
-            final Duration timing = leg.getCost();
+            final TramDuration timing = leg.getCost();
             return (double) distanceInMeters / timing.toSeconds();
         } else {
             return -1;

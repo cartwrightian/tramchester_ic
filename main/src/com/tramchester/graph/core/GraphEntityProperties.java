@@ -2,33 +2,33 @@ package com.tramchester.graph.core;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.id.*;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
-import java.util.Map;
+import java.util.*;
 
-import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
 
-public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
+public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>> {
     private static final Logger logger = LoggerFactory.getLogger(GraphEntityProperties.class);
 
     protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(final C domainItem, final E entity) {
-        entity.setProperty(domainItem.getProp().getText(), domainItem.getId().getGraphId());
+        entity.setProperty(domainItem.getProp(), domainItem.getId().getGraphId());
     }
 
     protected <C extends CoreDomain> IdFor<C> getIdFor(final Class<C> klass, final E entity) {
         final GraphPropertyKey key = GraphPropertyKey.getFor(klass);
 
         try {
-            final String value = entity.getProperty(key.getText()).toString();
+            final String value = entity.getProperty(key).toString();
             if (RouteStation.class.equals(klass)) {
                 return getIdForRouteStation(value);
             } else {
@@ -36,7 +36,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
             }
         }
         catch (org.neo4j.graphdb.NotFoundException notFound) {
-            String msg = String.format("Failed to get property %s from properties %s", key, entity.getAllProperties());
+            String msg = String.format("Failed to get property %s from %s", key, entity);
             logger.error(msg);
             throw new RuntimeException(msg, notFound);
         }
@@ -48,46 +48,56 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps> {
     }
 
     protected RouteStationId getRouteStationId(final E entity) {
-        final String value = entity.getProperty(ROUTE_STATION_ID.getText()).toString();
+        final String value = entity.getProperty(ROUTE_STATION_ID).toString();
         return RouteStationId.parse(value);
-    }
-
-    protected void setTime(final TramTime tramTime, final E entity) {
-        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
-        if (tramTime.isNextDay()) {
-            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
-        }
-    }
-
-    protected TramTime getTime(final E entity) {
-        final LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
-        final boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
-        if (nextDay) {
-            return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
-        }
-        return TramTime.of(localTime.getHour(), localTime.getMinute());
     }
 
     // public to support testing
     protected Object getProperty(final GraphPropertyKey graphPropertyKey, final E entity) {
-        return entity.getProperty(graphPropertyKey.getText());
+        return entity.getProperty(graphPropertyKey);
     }
 
-    protected Map<String, Object> getAllProperties(final E entity) {
+    protected Map<GraphPropertyKey, Object> getAllProperties(final E entity) {
         return entity.getAllProperties();
     }
 
-    public interface GraphProps {
+    public interface GraphProps<IMPL extends GraphProps<IMPL>> {
 
-        void setProperty(String key, Object value);
+        void setProperty(final GraphPropertyKey graphPropertyKey, final Object value);
 
-        Object getProperty(String text);
+        Object getProperty(final GraphPropertyKey graphPropertyKey);
 
-        Map<String, Object> getAllProperties();
+        Map<GraphPropertyKey, Object> getAllProperties();
 
-        boolean hasProperty(String key);
+        boolean hasProperty(final GraphPropertyKey graphPropertyKey);
 
-        void removeProperty(String key);
+        void removeProperty(final GraphPropertyKey graphPropertyKey);
+
+        void setTime(TramTime tramTime);
+
+        TramTime getTime();
+
+        void addTripId(IdFor<Trip> tripId);
+
+        boolean hasTripIdInList(IdFor<Trip> tripId);
+
+        ImmutableIdSet<Trip> getTripIds();
+
+        void setCost(TramDuration cost);
+
+        TramDuration getCost();
+
+        void setTransportMode(TransportMode transportMode);
+
+        TransportMode getTransportMode();
+
+        void addTransportMode(TransportMode mode);
+
+        ImmutableEnumSet<TransportMode> getTransportModes();
+
+        IMPL copy();
+
+        Set<GraphPropertyKey> getUnused();
     }
 
 }

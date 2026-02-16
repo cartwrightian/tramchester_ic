@@ -55,13 +55,13 @@ class DeparturesAfterJourneyResourceTest {
     private Station stationWithNotes;
     private Station stationWithDepartures;
     private PlatformMessageSource platformMessageSource;
-    //private Station destinationForDueTram;
     private IdFor<Station> destinationForDueTramId;
 
     private JourneyResourceTestFacade journeyPlanner;
     private TramDate queryDate;
     private TramTime time;
     private StationRepository stationRepository;
+    private int maxChanges;
 
     @BeforeAll
     public static void onceBeforeAll() {
@@ -105,6 +105,8 @@ class DeparturesAfterJourneyResourceTest {
                 destinationForDueTramId = dueTram.getDestinationId();
             });
         });
+
+        maxChanges = appExtension.getConfiguration().getMaxNumberChanges();
 
     }
 
@@ -151,7 +153,7 @@ class DeparturesAfterJourneyResourceTest {
 
         final Location<?> destinationForDueTram = stationRepository.getStationById(destinationForDueTramId);
         JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, station,
-                destinationForDueTram, false, 3);
+                destinationForDueTram, false, maxChanges);
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(journeyQueryDto);
 
         assertFalse(plan.getJourneys().isEmpty(), "could find journey from " + ((Location<?>) station).getId() + " to " + destinationForDueTram.getId());
@@ -186,7 +188,7 @@ class DeparturesAfterJourneyResourceTest {
 
         Location<?> destinationForDueTram = stationRepository.getStationById(destinationForDueTramId);
         final JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, displayLocation,
-                destinationForDueTram, false, 2);
+                destinationForDueTram, false, maxChanges);
         final JourneyPlanRepresentation plan = journeyPlanner. getJourneyPlan(journeyQueryDto);
 
         assertFalse(plan.getJourneys().isEmpty(), "could find journey from " + displayLocation.getId() + " to " +

@@ -163,12 +163,12 @@ class LiveDataClientForS3Test {
     private static class NoSuchBucketExistsConfig extends TestConfig {
 
         @Override
-        public TfgmTramLiveDataConfig getLiveDataConfig() {
+        public TfgmTramLiveDataConfig getTfgmTramliveData() {
             return new LiveDataConfigNoSuchBuket();
         }
 
         @Override
-        public OpenLdbConfig getOpenldbwsConfig() {
+        public OpenLdbConfig getOpenLdb() {
             return new TestOpenLdbConfig();
         }
 

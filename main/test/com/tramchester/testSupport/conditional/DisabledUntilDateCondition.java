@@ -16,8 +16,8 @@ public class DisabledUntilDateCondition implements ExecutionCondition {
 
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-        LocalDate now = LocalDate.now();
-        AnnotatedElement element = context.getElement().orElse(null);
+        final LocalDate now = LocalDate.now();
+        final AnnotatedElement element = context.getElement().orElse(null);
         return findAnnotationFor(element).
                 map(matched -> createResult(matched, now)).
                 orElse(ENABLED_NOT_PRESENT);

@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -43,7 +43,7 @@ public class RouteReachable {
     }
 
     // supports position inference on live data
-    public List<Route> getRoutesFromStartToNeighbour(StationPair pair, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    public List<Route> getRoutesFromStartToNeighbour(StationPair pair, TramDate date, TimeRange timeRange, ImmutableEnumSet<TransportMode> modes) {
         List<Route> results = new ArrayList<>();
         final Station startStation = pair.getBegin();
         final Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange, modes);
@@ -59,7 +59,7 @@ public class RouteReachable {
                     Stream<GraphRelationship> edges = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE);
 
                     edges.forEach(edge -> {
-                        final IdFor<Station> endNodeStationId = edge.getEndStationId();
+                        final IdFor<Station> endNodeStationId = edge.getEndStationId(txn);
 
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);

@@ -25,7 +25,7 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-class VersionResourceTest {
+class VersionAndConfigResourceTest {
 
     private static final IntegrationTramTestConfig configuration = new ResourceTramTestConfig<>(VersionResource.class);
 
@@ -42,10 +42,10 @@ class VersionResourceTest {
     @Test
     void shouldGetVersion() {
 
-        Response responce = APIClient.getApiResponse(factory, endPoint);
-        assertEquals(200, responce.getStatus());
+        Response response = APIClient.getApiResponse(factory, endPoint);
+        assertEquals(200, response.getStatus());
 
-        Version version = responce.readEntity(Version.class);
+        Version version = response.readEntity(Version.class);
 
         String build = System.getenv("BUILD");
         if (build==null) {
@@ -55,20 +55,21 @@ class VersionResourceTest {
     }
 
     @Test
-    void shouldGetTransportModes() {
+    void shouldGetConfig() {
         Set<TransportMode> expectedModes = configuration.getTransportModes();
 
-        Response responce = APIClient.getApiResponse(factory, endPoint+"/config");
-        assertEquals(200, responce.getStatus());
+        Response response = APIClient.getApiResponse(factory, endPoint+"/config");
+        assertEquals(200, response.getStatus());
 
-        ConfigDTO results = responce.readEntity(ConfigDTO.class);
+        ConfigDTO results = response.readEntity(ConfigDTO.class);
 
         List<TransportMode> result = results.getModes();
 
         assertEquals(expectedModes.size(), result.size());
         assertTrue(expectedModes.containsAll(result));
         assertFalse(results.getPostcodesEnabled());
-        assertEquals(configuration.getMaxNumResults(), results.getNumberJourneysToDisplay());
+        assertEquals(configuration.getMaxNumberResults(), results.getNumberJourneysToDisplay());
+        assertEquals(configuration.getMaxNumberChanges(), results.getMaxNumberChanges());
     }
 
     @Test
@@ -85,7 +86,7 @@ class VersionResourceTest {
         assertEquals(expectedModes.size(), result.size());
         assertTrue(expectedModes.containsAll(result));
         assertFalse(results.getPostcodesEnabled());
-        assertEquals(configuration.getMaxNumResults(), results.getNumberJourneysToDisplay());
+        assertEquals(configuration.getMaxNumberResults(), results.getNumberJourneysToDisplay());
     }
 
 }

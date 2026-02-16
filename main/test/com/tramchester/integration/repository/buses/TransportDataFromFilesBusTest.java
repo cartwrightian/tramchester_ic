@@ -15,6 +15,7 @@ import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -31,7 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,7 +81,7 @@ class TransportDataFromFilesBusTest {
         assertWithinNPercent(NUM_TFGM_BUS_STATIONS, numStations, 0.1F);
 
         // no platforms represented in bus data
-        Set<Platform> platforms = transportData.getPlatforms(EnumSet.of(Bus));
+        Set<Platform> platforms = transportData.getPlatforms(BusesOnly);
         assertEquals(0, platforms.size(), platforms.toString());
     }
 
@@ -112,7 +113,7 @@ class TransportDataFromFilesBusTest {
     void shouldHaveNotHaveRoutesWithZeroTrips() {
         Set<Route> routes = transportData.getRoutes();
 
-        IdSet<Route> emptyRoutes = routes.stream().
+        ImmutableIdSet<Route> emptyRoutes = routes.stream().
                 filter(route -> route.getTrips().isEmpty()).
                 map(Route::getId).
                 collect(IdSet.idCollector());
@@ -146,7 +147,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldGetServicesByDate() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(nextSaturday, config.getTransportModes());
+        Set<Service> results = transportData.getServicesOnDate(nextSaturday, config.getTransportModesImmutable());
 
         assertFalse(results.isEmpty());
         long onCorrectDate = results.stream().
@@ -189,7 +190,7 @@ class TransportDataFromFilesBusTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
+        ImmutableIdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
                 flatMap(Trips::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
@@ -213,8 +214,8 @@ class TransportDataFromFilesBusTest {
 
         assertFalse(exceptionalDatesForServices.isEmpty());
 
-        assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
-        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
+        assertEquals(1,  config.getGtfsSourceConfig().size(), "expected only one data source");
+        GTFSSourceConfig sourceConfig = config.getGtfsSourceConfig().get(0);
         TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         exceptionalDatesForServices.forEach(exception -> {

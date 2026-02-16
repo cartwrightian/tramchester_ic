@@ -5,13 +5,16 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -25,17 +28,15 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @TrainTest
 public class RouteToRouteCostsRailTest {
-    public static final EnumSet<TransportMode> TRAIN = EnumSet.of(Train);
     private static ComponentContainer componentContainer;
     private static TramDate date;
 
@@ -91,18 +92,18 @@ public class RouteToRouteCostsRailTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenStockportAndManPicc() {
-        assertEquals(0, getPossibleMinChanges(stockport, manPicc, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(stockport, manPicc, RailOnly, date, timeRange));
     }
 
     @Test
     void shouldHaveExpectedNumberHopsChangesManToStockport() {
-        assertEquals(0, getPossibleMinChanges(manPicc, stockport, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(manPicc, stockport, RailOnly, date, timeRange));
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
@@ -112,16 +113,16 @@ public class RouteToRouteCostsRailTest {
         Station navigationRaod = stationRepository.getStationById(NavigationRaod.getId());
         Station stockport = stationRepository.getStationById(Stockport.getId());
 
-        assertEquals(0, getPossibleMinChanges(altrincham, navigationRaod, TRAIN, date, timeRange));
-        assertEquals(0, getPossibleMinChanges(navigationRaod, stockport, TRAIN, date, timeRange));
-        assertEquals(0, getPossibleMinChanges(altrincham, stockport, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(altrincham, navigationRaod, RailOnly, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(navigationRaod, stockport, RailOnly, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(altrincham, stockport, RailOnly, date, timeRange));
 
     }
 
     @Disabled("spike only")
     @Test
     void shouldSpikeEquivalentRoutesWhereSetOfInterchangesAreSame() {
-        Map<IdSet<Station>, Set<Route>> results = new HashMap<>(); // unique set of interchanges -> routes with those interchanges
+        Map<ImmutableIdSet<Station>, Set<Route>> results = new HashMap<>(); // unique set of interchanges -> routes with those interchanges
 
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 

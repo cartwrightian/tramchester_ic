@@ -14,8 +14,6 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
     @BeforeEach
     void beforeEachTestRuns() {
         String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint";
-        //String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled";
-        //"trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type";
         super.before(StopTimeData.class, header);
     }
 
@@ -26,13 +24,13 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertEquals(stopTimeData.getTripId() , "1679_1");
-        assertEquals(stopTimeData.getArrivalTime() , TramTime.of(6, 41));
-        assertEquals(stopTimeData.getDepartureTime() , TramTime.of(6, 42));
-        assertEquals(stopTimeData.getStopId() , "103701");
-        assertEquals(stopTimeData.getStopSequence() , 1);
-        assertEquals(stopTimeData.getPickupType() , GTFSPickupDropoffType.Regular);
-        assertEquals(stopTimeData.getDropOffType() , GTFSPickupDropoffType.None);
+        assertEquals("1679_1", stopTimeData.getTripId());
+        assertEquals(TramTime.of(6, 41), stopTimeData.getArrivalTime());
+        assertEquals(TramTime.of(6, 42), stopTimeData.getDepartureTime());
+        assertEquals("103701", stopTimeData.getStopId());
+        assertEquals(1, stopTimeData.getStopSequence());
+        assertEquals(GTFSPickupDropoffType.Regular, stopTimeData.getPickupType());
+        assertEquals(GTFSPickupDropoffType.None, stopTimeData.getDropOffType());
 
         assertTrue(stopTimeData.isValid());
     }

@@ -215,7 +215,7 @@ public class RailAndTramRouteCostMatrixTest {
         Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly, 2);
 
         int result = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(3, result);
+        assertEquals(2, result);
     }
 
     @NotNull

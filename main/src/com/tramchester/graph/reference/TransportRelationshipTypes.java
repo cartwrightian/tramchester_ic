@@ -1,12 +1,13 @@
 package com.tramchester.graph.reference;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum TransportRelationshipTypes { //implements RelationshipType {
+public enum TransportRelationshipTypes {
     TRAM_GOES_TO,
     BUS_GOES_TO,
     TRAIN_GOES_TO,
@@ -87,19 +88,11 @@ public enum TransportRelationshipTypes { //implements RelationshipType {
         return GoesTo.contains(type);
     }
 
-//    public static boolean goesTo(final ImmutableGraphRelationship relationship) {
-//        return GoesTo.contains(relationship.getType());
-//    }
-
     public static TransportRelationshipTypes from(final String name) {
         return valueOf(name);
     }
 
-//    public static TransportRelationshipTypes from(final Relationship relationship) {
-//        return valueOf(relationship.getType().name());
-//    }
-
-    public static TransportRelationshipTypes[] forModes(final EnumSet<TransportMode> transportModes) {
+    public static TransportRelationshipTypes[] forModes(final ImmutableEnumSet<TransportMode> transportModes) {
         final Set<TransportRelationshipTypes> unique = transportModes.stream().
                 map(TransportRelationshipTypes::forMode).collect(Collectors.toSet());
 

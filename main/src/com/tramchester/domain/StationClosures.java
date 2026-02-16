@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.config.StationsConfig;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 
@@ -23,12 +23,12 @@ public interface StationClosures {
     @JsonIgnore
     boolean hasDiversionsAroundClosure();
 
-    IdSet<Station> getDiversionsAroundClosure();
+    ImmutableIdSet<Station> getDiversionsAroundClosure();
 
     @JsonIgnore
     boolean hasDiversionsToFromClosure();
 
-    IdSet<Station> getDiversionsToFromClosure();
+    ImmutableIdSet<Station> getDiversionsToFromClosure();
 
     @Deprecated
     static boolean areEqual(StationClosures a, Object other) {

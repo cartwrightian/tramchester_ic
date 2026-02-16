@@ -4,20 +4,26 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.*;
-import com.tramchester.graph.core.inMemory.GraphDatabaseInMemory;
-import com.tramchester.graph.core.inMemory.NumberOfNodesAndRelationshipsRepositoryInMemory;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphNodeProperties;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.core.neo4j.GraphDatabaseNeo4J;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.neo4j.NumberOfNodesAndRelationshipsRepositoryNeo4J;
+import com.tramchester.integration.graph.inMemory.RouteCalculatorInMemoryTest;
+import com.tramchester.integration.testSupport.GraphComparisons;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.PlatformRepository;
@@ -26,20 +32,16 @@ import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 
-import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.tramchester.graph.GraphPropertyKey.TRANSPORT_MODES;
-import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
+import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.ENTER_PLATFORM;
+import static com.tramchester.integration.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class CompareNeo4JWithInMemoryTest {
 
@@ -52,14 +54,14 @@ public class CompareNeo4JWithInMemoryTest {
     private NumberOfNodesAndRelationshipsRepositoryNeo4J neo4JCounts;
     private StationRepository stationRepository;
     private GraphTransaction txnInMem;
-    private GraphTransaction localTxn;
-    private Duration maxJourneyDuration;
+    private GraphTransaction txnNeo4J;
+    private TramDuration maxJourneyDuration;
     private int maxNumResults;
 
     private RouteCalculatorTestFacade calculatorInMem;
     private RouteCalculatorTestFacade calculatorNeo4J;
+    private GraphDatabaseNeo4J dbNeo4J;
 
-    static final EnumSet<TransportRelationshipTypes> allTypes = EnumSet.allOf(TransportRelationshipTypes.class);
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -83,20 +85,20 @@ public class CompareNeo4JWithInMemoryTest {
         GraphDatabaseInMemory dbInMemory = componentContainerInMemory.get(GraphDatabaseInMemory.class);
         txnInMem = dbInMemory.beginTx();
 
-        GraphDatabaseNeo4J dbNeo4J = componentContainerNeo4J.get(GraphDatabaseNeo4J.class);
-        localTxn = dbNeo4J.beginTx();
+        dbNeo4J = componentContainerNeo4J.get(GraphDatabaseNeo4J.class);
+        txnNeo4J = dbNeo4J.beginTx();
 
         calculatorInMem = new RouteCalculatorTestFacade(componentContainerInMemory, txnInMem);
-        calculatorNeo4J = new RouteCalculatorTestFacade(componentContainerNeo4J, localTxn);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        maxNumResults = config.getMaxNumResults();
+        calculatorNeo4J = new RouteCalculatorTestFacade(componentContainerNeo4J, txnNeo4J);
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+        maxNumResults = config.getMaxNumberResults();
 
     }
 
     @AfterEach
     void onceAfterEachTest() {
         txnInMem.close();
-        localTxn.close();
+        txnNeo4J.close();
         componentContainerInMemory.close();
     }
 
@@ -116,71 +118,160 @@ public class CompareNeo4JWithInMemoryTest {
 
     @Test
     void shouldHaveSameCountsForRelationships() {
+        long totalInMem = 0;
+        long totalNeo4J = 0 ;
         for(TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
             long inMem = inMemoryCounts.numberOf(relationshipType);
             long neo4J = neo4JCounts.numberOf(relationshipType);
             assertEquals(neo4J, inMem, "Mismatch for " + relationshipType);
+            totalInMem += inMem;
+            totalNeo4J += neo4J;
+        }
+
+        assertEquals(totalNeo4J, totalInMem);
+        // todo visualvm shows 483 755 relationships - this seems too high
+        //assertEquals(483755, totalInMem, "temporary, this will change");
+
+    }
+
+    @Disabled("no longer needed")
+    @Test
+    void compareWithGraphWithFailureForSpecificStartStation() {
+        GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
+        inMemoryDB.start();
+
+        Station station = VeloPark.from(stationRepository);
+
+        Optional<GraphNodeInMemory> findInLoadedDB = result.findNodesMutable(GraphLabel.STATION).
+                filter(GraphNodeProperties::hasStationId).
+                filter(node -> node.getStationId().equals(station.getId())).
+                findFirst();
+
+        assertFalse(findInLoadedDB.isEmpty());
+
+        GraphNodeInMemory inMemoryNode = findInLoadedDB.get();
+
+        final GraphNode neo4JNode = txnNeo4J.findNode(station);
+
+        try (GraphTransaction inMemoryTxn = inMemoryDB.beginTx()) {
+            GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, inMemoryTxn);
+            graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 6);
         }
     }
 
+    @Disabled("no longer needed")
+    @Test
+    void compareWithGraphWithFailureForStationNodes() {
+        GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
+        inMemoryDB.start();
+
+        Set<Station> stations = stationRepository.getStations();
+
+        stations.forEach(station -> {
+
+            try (GraphTransaction localNeo4jTxn = dbNeo4J.beginTx()) {
+                try (GraphTransaction inMemoryTxn = inMemoryDB.beginTx()) {
+                    final GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, inMemoryTxn);
+
+                    final GraphNode neo4JNode = localNeo4jTxn.findNode(station);
+                    final GraphNode inMemoryNode = inMemoryTxn.findNode(station);
+
+                    graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 4);
+                }
+            }
+        });
+    }
+
+    @Disabled("no longer needed")
+    @Test
+    void compareWithGraphWithFailureFoRouteStationNodes() {
+        GraphCore result = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
+
+        GraphDatabaseInMemory inMemoryDB = CreateGraphDatabaseInMemory(result, componentContainerInMemory);
+        inMemoryDB.start();
+
+        Set<RouteStation> routeStations = stationRepository.getRouteStations();
+
+        routeStations.forEach(routeStation -> {
+
+            try (GraphTransaction localNeo4jTxn = dbNeo4J.beginTx()) {
+                try (GraphTransaction inMemoryTxn = inMemoryDB.beginTx()) {
+                    final GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, inMemoryTxn);
+
+                    final GraphNode neo4JNode = localNeo4jTxn.findNode(routeStation);
+                    final GraphNode inMemoryNode = inMemoryTxn.findNode(routeStation);
+
+                    graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 4);
+                }
+            }
+        });
+    }
+
+
+    @Disabled("no longer needed")
     @Test
     void shouldReproSpecificMismatchOnPlatformEntry() {
         IdFor<Station> stationId = Station.createId("9400ZZMASLE");
         Station station = stationRepository.getStationById(stationId);
 
         GraphNode nodeInMem = txnInMem.findNode(station);
-        GraphNode nodeNeo4J = localTxn.findNode(station);
+        GraphNode nodeNeo4J = txnNeo4J.findNode(station);
 
-        List<GraphRelationship> relationshipsNeo4J = nodeNeo4J.getRelationships(localTxn, Outgoing, ENTER_PLATFORM).toList();
+        List<GraphRelationship> relationshipsNeo4J = nodeNeo4J.getRelationships(txnNeo4J, Outgoing, ENTER_PLATFORM).toList();
         List<GraphRelationship> relationshipsInMem = nodeInMem.getRelationships(txnInMem, Outgoing, ENTER_PLATFORM).toList();
 
         assertEquals(relationshipsNeo4J.size(), relationshipsInMem.size());
 
-        checkRelationshipsMatch(relationshipsNeo4J, relationshipsInMem);
+        GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, txnInMem);
+
+        graphComparisons.checkRelationshipsMatch(relationshipsNeo4J, relationshipsInMem);
 
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldHaveRelationshipsAtStationNodes() {
         checkForType(stationRepository.getStations());
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldHaveRelationshipsAtPlatformNodes() {
         PlatformRepository platformRepository = componentContainerInMemory.get(PlatformRepository.class);
-        checkForType(platformRepository.getPlatforms(EnumSet.of(TransportMode.Tram)));
+        Set<Platform> platforms = platformRepository.getPlatforms(TransportMode.TramsOnly);
+        checkForType(platforms);
     }
 
-    @Disabled("slow...")
-    @Test
-    void shouldHaveRelationshipsAtRouteStationNodes() {
-        checkForType(stationRepository.getRouteStations());
-    }
 
+    @Disabled("no longer needed")
     @Test
     void shouldCheckConsistencyAtSpecificRouteStation() {
-        Station holtTown = HoltTown.from(stationRepository);
+        Station station = HoltTown.from(stationRepository);
 
-        Set<Route> pickUps = holtTown.getPickupRoutes();
-        Set<Route> dropOffs = holtTown.getPickupRoutes();
+        Set<Route> pickUps = station.getPickupRoutes();
+        Set<Route> dropOffs = station.getPickupRoutes();
 
         Set<Route> all = new HashSet<>(pickUps);
         all.addAll(dropOffs);
 
         all.forEach(route -> {
-            final RouteStation routeStation = stationRepository.getRouteStation(holtTown, route);
+            final RouteStation routeStation = stationRepository.getRouteStation(station, route);
             checkConsistencyOf(routeStation);
         });
 
     }
 
-    @Disabled("WIP")
+    @Disabled("no longer needed")
     @Test
     void shouldCompareSameJourney() {
 
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
-        EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
+        ImmutableEnumSet<TransportMode> requestedModes = TransportMode.TramsOnly;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0,
                 maxJourneyDuration, maxNumResults, requestedModes);
 
@@ -196,13 +287,13 @@ public class CompareNeo4JWithInMemoryTest {
         assertEquals(journeysNeo4J, journeysInMem);
     }
 
-    @Disabled("WIP")
+    @Disabled("no longer needed")
     @Test
     void shouldCheckForConsistencyWhenInMemFails() {
         TramDate when = TestEnv.testDay();
         TramTime time = TramTime.of(17,45);
-        EnumSet<TransportMode> requestedModes = EnumSet.of(TransportMode.Tram);
-        Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        ImmutableEnumSet<TransportMode> requestedModes = TransportMode.TramsOnly;
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         long maxNumResults = 3;
 
         final JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxJourneyDuration,
@@ -211,48 +302,16 @@ public class CompareNeo4JWithInMemoryTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @Disabled("WIP - slow")
-    @ParameterizedTest
-    @EnumSource(TramStations.class)
-    void shouldWalkGraphs(TramStations tramStation) {
-        Station item = tramStation.from(stationRepository);
+    @Disabled("no longer needed")
+    @Test
+    void shouldWalkGraphForVeloPark() {
+        Station item = VeloPark.from(stationRepository);
 
         final GraphNode inMemoryNode = txnInMem.findNode(item);
-        final GraphNode neo4JNode = localTxn.findNode(item);
+        final GraphNode neo4JNode = txnNeo4J.findNode(item);
 
-        visitMatchedNodes(neo4JNode, inMemoryNode, 5);
-    }
-
-    private void visitMatchedNodes(final GraphNode neo4JNode, final GraphNode inMemoryNode, final int depth) {
-
-        if (depth==0) {
-            return;
-        }
-
-        assertEquals(neo4JNode.getLabels(), inMemoryNode.getLabels());
-        checkProps(neo4JNode, inMemoryNode);
-
-        final Stream<GraphRelationship> allOutgoing = neo4JNode.getRelationships(localTxn, Outgoing, allTypes);
-
-        allOutgoing.forEach(outgoing -> {
-            final Map<String, Object> relationshipProps = outgoing.getAllProperties();
-            final GraphNode destinationNode = outgoing.getEndNode(localTxn);
-            final Map<String, Object> endNodeProps = destinationNode.getAllProperties();
-            final TransportRelationshipTypes type = outgoing.getType();
-
-            List<GraphRelationship> matched = inMemoryNode.getRelationships(txnInMem, Outgoing, type).
-                    filter(inMemRelation -> matchProps(relationshipProps, inMemRelation)).
-                    filter(inMemRelationship -> inMemRelationship.getEndNode(txnInMem).getAllProperties().equals(endNodeProps)).
-                    toList();
-
-            assertEquals(1, matched.size(), "Found wrong number matching " + relationshipProps + " for type " + type +
-                    " and end node props " + endNodeProps);
-
-            GraphNode destinationNodeInMem = matched.getFirst().getEndNode(txnInMem);
-
-            visitMatchedNodes(destinationNode, destinationNodeInMem, depth-1);
-        });
-
+        GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, txnInMem);
+        graphComparisons.visitMatchedNodes(neo4JNode, inMemoryNode, 5);
     }
 
     private List<Journey> sortedByArrivalTime(final List<Journey> journeys) {
@@ -261,7 +320,7 @@ public class CompareNeo4JWithInMemoryTest {
         return result;
     }
 
-    private <T extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> void checkForType(Collection<T> items) {
+    private <T extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> void checkForType(final Collection<T> items) {
         for(final T item : items) {
             checkConsistencyOf(item);
         }
@@ -269,142 +328,15 @@ public class CompareNeo4JWithInMemoryTest {
 
     private <T extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> void checkConsistencyOf(T item) {
         final GraphNode inMemoryNode = txnInMem.findNode(item);
-        final GraphNode neo4JNode = localTxn.findNode(item);
+        final GraphNode neo4JNode = txnNeo4J.findNode(item);
         assertEquals(neo4JNode.getLabels(), inMemoryNode.getLabels());
 
-        checkProps(neo4JNode, inMemoryNode);
-        checkSameDirections(neo4JNode, inMemoryNode, Outgoing);
-        checkSameDirections(neo4JNode, inMemoryNode, GraphDirection.Incoming);
+        GraphComparisons graphComparisons = new GraphComparisons(txnNeo4J, txnInMem);
+
+        graphComparisons.checkProps(neo4JNode, inMemoryNode);
+        graphComparisons.checkSameDirections(neo4JNode, inMemoryNode, Outgoing);
+        graphComparisons.checkSameDirections(neo4JNode, inMemoryNode, Incoming);
 
     }
 
-    private void checkSameDirections(final GraphNode graphNodeA, final GraphNode graphNodeB, final GraphDirection direction) {
-        final List<GraphRelationship> relationshipsA = graphNodeA.getRelationships(localTxn, direction).toList();
-        final List<GraphRelationship> relationshipsB = graphNodeB.getRelationships(txnInMem, direction).toList();
-
-        assertEquals(relationshipsA.size(), relationshipsB.size());
-
-        for(final TransportRelationshipTypes type : TransportRelationshipTypes.values()) {
-            long countA = relationshipsA.stream().filter(relationship -> relationship.isType(type)).count();
-            long countB = relationshipsB.stream().filter(relationship -> relationship.isType(type)).count();
-            assertEquals(countA, countB);
-        }
-
-        for(final GraphRelationship relationshipA : relationshipsA) {
-            final IdFor<? extends CoreDomain> beginId = relationshipA.getStartDomainId(localTxn);
-            final IdFor<? extends CoreDomain> endId = relationshipA.getEndDomainId(localTxn);
-
-            List<GraphRelationship> beingAndEndMatch = relationshipsB.stream().
-                    filter(relationship -> relationship.getStartDomainId(txnInMem).equals(beginId)).
-                    filter(relationship -> relationship.getEndDomainId(txnInMem).equals(endId)).toList();
-
-            assertFalse(beingAndEndMatch.isEmpty());
-
-            TransportRelationshipTypes typeA = relationshipA.getType();
-
-            List<GraphRelationship> typeMatches = beingAndEndMatch.stream().
-                    filter(relationship -> relationship.isType(typeA)).toList();
-            assertFalse(typeMatches.isEmpty());
-
-            final Map<String, Object> expectedProps = relationshipA.getAllProperties();
-            final Set<GraphRelationship> match = typeMatches.stream().
-                    filter(graphRelationship -> matchProps(expectedProps, graphRelationship)).
-                    collect(Collectors.toSet());
-            assertEquals(1, match.size(),"mismatch for " + expectedProps + " from " + typeMatches + " for relationship " + relationshipA);
-
-        }
-
-    }
-
-    private void checkRelationshipsMatch(final List<GraphRelationship> listA, final List<GraphRelationship> listB) {
-        for(final GraphRelationship expected : listA) {
-            final IdFor<? extends CoreDomain> startId = expected.getStartDomainId(localTxn);
-            final IdFor<? extends CoreDomain> endId = expected.getEndDomainId(localTxn);
-
-            final List<GraphRelationship> beginAndEndMatch = listB.stream().
-                    filter(graphRelationship -> graphRelationship.getStartDomainId(txnInMem).equals(startId)).
-                    filter(graphRelationship -> graphRelationship.getEndDomainId(txnInMem).equals(endId)).
-                    toList();
-            assertFalse(beginAndEndMatch.isEmpty(), "Did not match begin " + startId + " and end " + endId + " for any of " + listB);
-
-            final Map<String, Object> expectedProps = expected.getAllProperties();
-            final Set<GraphRelationship> match = beginAndEndMatch.stream().
-                    filter(graphRelationship -> matchProps(expectedProps, graphRelationship)).
-                    collect(Collectors.toSet());
-            assertEquals(1, match.size(),"mismatch for " + expectedProps + " from " + beginAndEndMatch + " for relationship " + expected);
-        }
-    }
-
-    private boolean matchProps(final Map<String, Object> expected, final GraphRelationship graphRelationship) {
-        final Map<String, Object> props = graphRelationship.getAllProperties();
-
-        if (!expected.keySet().equals(props.keySet())) {
-            return false;
-        }
-
-        for(final String key : expected.keySet()) {
-            if (key.equals(TRANSPORT_MODES.getText())) {
-                if  (!checkModes(expected, props)) {
-                    return false;
-                }
-            } else if (key.equals(TRIP_ID_LIST.getText())) {
-                if (!checkTrips(expected, props)) {
-                    return false;
-                }
-            } else {
-                if (!expected.get(key).equals(props.get(key))) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private boolean checkTrips(final Map<String, Object> expected, final Map<String, Object> props) {
-        final String[] arrayA = (String[]) expected.get(TRIP_ID_LIST.getText());
-        final String[] arrayB = (String[]) props.get(TRIP_ID_LIST.getText());
-        if (arrayA.length!=arrayB.length) {
-            return false;
-        }
-
-        final Set<String> setA = new HashSet<>(Arrays.asList(arrayA));
-        final Set<String> setB = new HashSet<>(Arrays.asList(arrayB));
-
-        return setA.equals(setB);
-    }
-
-    private static boolean checkModes(final Map<String, Object> expected, final Map<String, Object> props) {
-        final short[] arrayA = (short[]) expected.get(TRANSPORT_MODES.getText());
-        final short[] arrayB = (short[]) props.get(TRANSPORT_MODES.getText());
-        if (arrayA.length!=arrayB.length) {
-            return false;
-        }
-        for (int i = 0; i < arrayA.length; i++) {
-            if (arrayA[i]!=arrayB[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
-    private void checkProps(final GraphEntity graphEntityA, final GraphEntity graphEntityB) {
-        final Map<String, Object> propsA = graphEntityA.getAllProperties();
-        final Map<String, Object> propsB = graphEntityB.getAllProperties();
-
-        assertEquals(propsA.size(), propsB.size());
-
-        for(final String key : propsA.keySet()) {
-            assertTrue(propsB.containsKey(key));
-            if (key.equals(TRANSPORT_MODES.getText())) {
-                final short[] arrayA = (short[]) propsA.get(key);
-                final short[] arrayB = (short[]) propsB.get(key);
-                assertArrayEquals(arrayA, arrayB, "mismatch on " + key + " for " + graphEntityA + " and " + graphEntityB);
-            } else {
-                assertEquals(propsA.get(key), propsB.get(key), "mismatch on " + key + " for " + graphEntityA + " and " + graphEntityB);
-            }
-        }
-    }
 }

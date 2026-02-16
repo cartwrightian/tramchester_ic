@@ -135,7 +135,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     }
 
     // create a bitmask for route->route changes that are possible on a given date and transport mode
-    public IndexedBitSet createOverlapMatrixFor(final TramDate date, final EnumSet<TransportMode> requestedModes) {
+    public IndexedBitSet createOverlapMatrixFor(final TramDate date, final ImmutableEnumSet<TransportMode> requestedModes) {
 
         final Set<Short> availableOnDate = new HashSet<>();
         for (short index = 0; index < numRoutes; index++) {

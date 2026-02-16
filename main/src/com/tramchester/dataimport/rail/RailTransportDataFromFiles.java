@@ -47,7 +47,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         this.remoteDataRefreshed = remoteDataRefreshed;
         this.enabled = config.hasRailConfig();
-        this.railConfig = config.getRailConfig();
+        this.railConfig = config.getRail();
         this.bounds = config.getBounds();
         this.stationRecordsRepository = stationRecordsRepository;
         this.filenameRepository = filenameRepository;

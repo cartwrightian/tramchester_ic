@@ -1,9 +1,10 @@
 package com.tramchester.graph.search.neo4j;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.caches.LowestCostSeen;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphPath;
 import com.tramchester.graph.core.GraphTransaction;
@@ -17,30 +18,28 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.PathEvaluator;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.Set;
 
 public class TramRouteEvaluatorNeo4J extends TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public TramRouteEvaluatorNeo4J(final PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
                                    final ServiceReasons reasons,
-                                   final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
+                                   final PreviousVisits previousVisits, final ArrivalHandler arrivalHandler, final TramchesterConfig config,
                                    final GraphNodeId startNodeId,
                                    final GraphTransaction txn, Running running) {
         this(pathRequest.getServiceHeuristics(), destinationNodeIds, reasons, previousVisits,
-                bestResultSoFar, config, startNodeId, pathRequest.getRequestedModes(),
+                arrivalHandler, config, startNodeId, pathRequest.getRequestedModes(),
                 pathRequest.getDesintationModes(),
                 pathRequest.getMaxInitialWait(), txn, running);
     }
 
     public TramRouteEvaluatorNeo4J(final ServiceHeuristics serviceHeuristics, final Set<GraphNodeId> destinationNodeIds,
                                    final ServiceReasons reasons,
-                                   final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
-                                   final GraphNodeId startNodeId, final EnumSet<TransportMode> requestedModes,
-                                   final EnumSet<TransportMode> destinationModes,
-                                   final Duration maxInitialWait, final GraphTransaction txn, Running running) {
-        super(serviceHeuristics, config, txn, destinationNodeIds, reasons, previousVisits, bestResultSoFar, startNodeId, requestedModes,
+                                   final PreviousVisits previousVisits, final ArrivalHandler arrivalHandler, final TramchesterConfig config,
+                                   final GraphNodeId startNodeId, final ImmutableEnumSet<TransportMode> requestedModes,
+                                   final ImmutableEnumSet<TransportMode> destinationModes,
+                                   final TramDuration maxInitialWait, final GraphTransaction txn, Running running) {
+        super(serviceHeuristics, config, txn, destinationNodeIds, reasons, previousVisits, arrivalHandler, startNodeId, requestedModes,
                 running, destinationModes, maxInitialWait);
 
     }

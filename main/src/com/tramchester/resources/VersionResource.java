@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.Version;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -21,7 +20,6 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Path("/version")
@@ -59,9 +57,8 @@ public class VersionResource implements APIResource {
         logger.info("Get config");
 
         final boolean beta = betaRaw!=null;
-        final Set<TransportMode> modes = repository.getModes(beta);
 
-        final ConfigDTO configDTO = new ConfigDTO(modes, config);
+        final ConfigDTO configDTO = new ConfigDTO(repository.getModes(beta), config);
 
         logger.info("Returning config " + configDTO);
 

@@ -1,6 +1,7 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.testSupport.reference.KnownLocations.*;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class StationLocationsFromTestDataTest extends EasyMockSupport {
 
     private static TramchesterConfig config;
-    private static EnumSet<TransportMode> modes;
+    private static ImmutableEnumSet<TransportMode> modes;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationLocations stationLocations;
     private StationGroupsRepository compositeStationRepository;
@@ -40,7 +40,7 @@ public class StationLocationsFromTestDataTest extends EasyMockSupport {
     @BeforeAll
     static void onceBeforeAllTestRuns() {
         config = TestEnv.GET();
-        modes = config.getTransportModes();
+        modes = config.getTransportModesImmutable();
     }
 
     @BeforeEach

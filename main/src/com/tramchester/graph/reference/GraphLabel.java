@@ -1,9 +1,9 @@
 package com.tramchester.graph.reference;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -42,16 +42,22 @@ public enum GraphLabel { //implements Label {
 
     private static final GraphLabel[] hourLabels;
 
-    public static final EnumSet<GraphLabel> TransportModes = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
+    public static final EnumSet<GraphLabel> TransportModesLabels = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
 
-    // Currently here to support testing and deriving a Id<CoreDomain> for Nodes
-    public static final EnumSet<GraphLabel> CoreDomain = EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE);
+    public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSet.copyOf(
+            EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE));
 
     static {
         hourLabels = new GraphLabel[24];
         for (int hour = 0; hour < 24; hour++) {
             hourLabels[hour] = GraphLabel.valueOf(format("HOUR_%d", hour));
         }
+    }
+
+    private final ImmutableEnumSet<GraphLabel> singleton;
+
+    GraphLabel() {
+        singleton = ImmutableEnumSet.of(this);
     }
 
     public static GraphLabel forMode(final TransportMode mode) {
@@ -66,10 +72,8 @@ public enum GraphLabel { //implements Label {
         };
     }
 
-    public static EnumSet<GraphLabel> forModes(final EnumSet<TransportMode> modes) {
-        return modes.stream().
-                map(GraphLabel::forMode).
-                collect(Collectors.toCollection( () -> EnumSet.noneOf(GraphLabel.class)));
+    public static ImmutableEnumSet<GraphLabel> forModes(final ImmutableEnumSet<TransportMode> modes) {
+        return modes.convertTo(GraphLabel.class, GraphLabel::forMode);
     }
 
     public static GraphLabel getHourLabel(final int hour) {
@@ -77,7 +81,7 @@ public enum GraphLabel { //implements Label {
     }
 
     // TODO performance
-    public static int getHourFrom(final EnumSet<GraphLabel> labels) {
+    public static int getHourFrom(final ImmutableEnumSet<GraphLabel> labels) {
         for (int hour = 0; hour < 24 ; hour++) {
             if (labels.contains(hourLabels[hour])) {
                 return hour;
@@ -90,5 +94,13 @@ public enum GraphLabel { //implements Label {
         return valueOf(name);
     }
 
+    public ImmutableEnumSet<GraphLabel> addTo(ImmutableEnumSet<GraphLabel> labels) {
+        final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(labels);
+        updated.add(this);
+        return ImmutableEnumSet.copyOf(updated);
+    }
 
+    public ImmutableEnumSet<GraphLabel> singleton() {
+        return singleton;
+    }
 }

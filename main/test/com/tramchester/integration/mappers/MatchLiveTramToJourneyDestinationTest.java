@@ -4,7 +4,9 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -22,12 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -66,7 +66,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations);
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().
                 filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
 
@@ -83,7 +83,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations);
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
 
         assertFalse(all.isEmpty());
 
@@ -137,11 +137,11 @@ public class MatchLiveTramToJourneyDestinationTest {
             fail(e);
         }
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyStations.getEnd().getId());
+        //ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyStations.getEnd().getId());
 
         LocalDateTime now = TestEnv.LocalNow();
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
-        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, EnumSet.of(Tram));
+        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, TransportMode.TramsOnly);
 
 
     }

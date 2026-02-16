@@ -11,6 +11,7 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.graph.search.diagnostics.DiagnosticsToGraphViz;
 import com.tramchester.repository.StationGroupsRepository;
@@ -35,6 +36,7 @@ public class RouteCalculatorTestFacade {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorTestFacade.class);
 
     private final TramRouteCalculator routeCalculator;
+    private final TramRouteCalculator arriveByRouteCalculator;
     private final StationRepository stationRepository;
     private final GraphTransaction txn;
     private final StationGroupsRepository stationGroupsRepository;
@@ -42,6 +44,7 @@ public class RouteCalculatorTestFacade {
 
     public  RouteCalculatorTestFacade(ComponentContainer componentContainer, GraphTransaction txn) {
         this.routeCalculator = componentContainer.get(TramRouteCalculator.class);
+        this.arriveByRouteCalculator = componentContainer.get(RouteCalculatorArriveBy.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         this.txn = txn;
@@ -65,16 +68,16 @@ public class RouteCalculatorTestFacade {
     }
 
     public @NotNull List<Journey> calculateRouteAsList(final Location<?> start, final Location<?> dest, final JourneyRequest request) {
-        Running running = new TimesOutRunner(Duration.ofSeconds(30));
-        final Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request, running);
+        final TramRouteCalculator calculator = request.getArriveBy() ? arriveByRouteCalculator : routeCalculator;
+
+        final Running running = new TimesOutRunner(Duration.ofSeconds(30));
+        final Stream<Journey> stream = calculator.calculateRoute(txn, start, dest, request, running);
         final List<Journey> result = stream.toList();
         stream.close();
         if (request.getDiagnosticsEnabled()) {
             if (request.hasReceivedDiagnostics()) {
-
                 final JourneyDiagnostics diagnostics = request.getDiagnostics();
-
-                createGraphFile(diagnostics, request, !result.isEmpty());
+                createGraphFile(start, dest, diagnostics, request, !result.isEmpty());
             } else {
                 throw new RuntimeException("Diagnostics requested, but not received");
             }
@@ -87,10 +90,9 @@ public class RouteCalculatorTestFacade {
     }
 
 
-    private void createGraphFile(final JourneyDiagnostics journeyDiagnostics, final JourneyRequest journeyRequest, boolean success) {
-        final String fileName = createFilename(journeyRequest, success);
+    private void createGraphFile(Location<?> start, Location<?> dest, final JourneyDiagnostics journeyDiagnostics, final JourneyRequest journeyRequest, boolean success) {
+        final String fileName = createFilename(start, dest, journeyRequest, success);
 
-        logger.warn("Creating diagnostic dot file: " + fileName);
 
         try {
             final StringBuilder builder = new StringBuilder();
@@ -101,21 +103,24 @@ public class RouteCalculatorTestFacade {
             final FileWriter writer = new FileWriter(fileName);
             writer.write(builder.toString());
             writer.close();
-            logger.info(format("Created file %s", fileName));
+
+            logger.warn(format("Created file %s", fileName));
         }
         catch (IOException e) {
             logger.warn("Unable to create diagnostic graph file", e);
         }
     }
 
-    private String createFilename(final JourneyRequest journeyRequest, boolean success) {
+    private String createFilename(Location<?> start, Location<?> dest, final JourneyRequest journeyRequest, boolean success) {
         final String status = success ? "found" : "notfound";
         final String dateString = journeyRequest.getDate().toLocalDate().toString();
-        final String changes = "changes" + journeyRequest.getMaxChanges();
+        final String changes = "maxChn" + journeyRequest.getMaxChanges().get();
         final String postfix = journeyRequest.getUid().toString();
         TramTime queryTime = journeyRequest.getOriginalTime();
 
-        String fileName = format("%s_%s%s_at_%s_%s_%s.dot", status,
+        String fileName = format("%s_%s_to_%s_%s%s_at_%s_%s_%s.dot",
+                status,
+                start.getName(), dest.getName(),
                 queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
                 dateString, changes, postfix);
         fileName = fileName.replaceAll(":","");

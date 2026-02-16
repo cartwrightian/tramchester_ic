@@ -1,5 +1,6 @@
 package com.tramchester.testSupport.tfgm;
 
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestEnv;
@@ -14,13 +15,18 @@ public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
         return new TFGMRemoteDataSourceConfig(downloadPath);
     }
 
+    @Override
+    public ConfigReference<Boolean> getSkip() {
+        return new ConfigReference<>(false);
+    }
+
     private TFGMRemoteDataSourceConfig(Path downloadPath) {
         this.downloadPath = downloadPath;
     }
 
     @Override
     public Path getDataPath() {
-        return downloadPath; //downloadPath.resolve(TestEnv.TFGM_UNZIP_FOLDER);
+        return downloadPath; //.resolve("TfGMgtfs");
     }
 
     @Override

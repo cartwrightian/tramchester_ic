@@ -32,7 +32,7 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
     public LiveDataHealthCheck(TramDepartureRepository repository, ProvidesNow providesNow, StationRepository stationRepository,
                                TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
-        this.config = config.getLiveDataConfig();
+        this.config = config.getTfgmTramliveData();
 
         this.repository = repository;
         this.providesNow = providesNow;

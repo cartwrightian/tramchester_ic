@@ -3,9 +3,11 @@ package com.tramchester.unit.domain.places;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,8 +16,6 @@ import tech.units.indriya.unit.Units;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.*;
@@ -61,9 +61,9 @@ public class LinkedInterchangeStationTest {
     @Test
     void shouldHaveCreateLinkedInterchangeAndAddLink() {
 
-        EnumSet<TransportMode> modes = EnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> modes = Walk.singleton();
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
-        Duration walkingTime = Duration.ofMinutes(4);
+        TramDuration walkingTime = TramDuration.ofMinutes(4);
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
         StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, linkType, distance, walkingTime);
@@ -80,7 +80,7 @@ public class LinkedInterchangeStationTest {
         LinkedInterchangeStation tramInterchange = new LinkedInterchangeStation(tramToTrain);
 
         assertTrue(tramInterchange.isMultiMode());
-        assertEquals(EnumSet.of(Tram, Train), tramInterchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, Train), tramInterchange.getTransportModes());
 
         assertEquals(tramId, tramInterchange.getStationId());
         assertEquals(tramStation, tramInterchange.getStation());
@@ -98,7 +98,7 @@ public class LinkedInterchangeStationTest {
         pickupRoutes = tramInterchange.getPickupRoutes();
         assertEquals(3, pickupRoutes.size());
 
-        assertEquals(EnumSet.of(Tram, Train, Bus), tramInterchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, Train, Bus), tramInterchange.getTransportModes());
 
 
 //        InterchangeStation trainInterchange = new LinkedInterchangeStation(trainToTram);
@@ -120,9 +120,9 @@ public class LinkedInterchangeStationTest {
     @Test
     void shouldHaveCreateLinkedInterchange() {
 
-        EnumSet<TransportMode> modes = EnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> modes = WalkOnly;
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
-        Duration walkingTime = Duration.ofMinutes(4);
+        TramDuration walkingTime = TramDuration.ofMinutes(4);
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
         StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, linkType, distance, walkingTime);
@@ -161,10 +161,10 @@ public class LinkedInterchangeStationTest {
 
     @Test
     void shouldHaveCreateLinkedInterchangeMultipleLinks() {
-        EnumSet<TransportMode> modes = EnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> modes = WalkOnly;
 
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
-        Duration walkingTime = Duration.ofMinutes(4);
+        TramDuration walkingTime = TramDuration.ofMinutes(4);
 
         Route tramPickupB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram3"), "tram route 3 name");
         Route tramDropoffB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeTram4"), "tram route 4 name");

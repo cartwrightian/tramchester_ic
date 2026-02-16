@@ -1,309 +1,52 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
-import com.tramchester.graph.core.GraphRelationshipId;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-@LazySingleton
-public class Graph {
-    private static final Logger logger = LoggerFactory.getLogger(Graph.class);
+public interface Graph {
 
-    private final AtomicInteger nextGraphNodeId;
-    private final AtomicInteger nextRelationshipId;
-    private final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships;
-    private final ConcurrentMap<GraphNodeId, GraphNodeInMemory> nodes;
-    private final ConcurrentMap<GraphNodeId, RelationshipsForNode> relationshipsForNodes;
+    // mutable
+    GraphNodeInMemory createNode(ImmutableEnumSet<GraphLabel> labels);
 
-    private final ConcurrentMap<GraphLabel, Set<GraphNodeId>> labelsToNodes;
-    private final ConcurrentMap<TransportRelationshipTypes, AtomicInteger> relationshipTypeCounts;
+    GraphRelationshipInMemory createRelationship(TransportRelationshipTypes relationshipType,
+                                                 GraphNodeInMemory begin,
+                                                 GraphNodeInMemory end);
 
-    // todo proper transaction handling, rollbacks etc
+    void delete(RelationshipIdInMemory id);
+    void delete(NodeIdInMemory id);
+    void addLabel(NodeIdInMemory id, GraphLabel label);
 
-    public Graph() {
-        nextGraphNodeId = new AtomicInteger(0);
-        nextRelationshipId = new AtomicInteger(0);
-        relationships = new ConcurrentHashMap<>();
-        nodes = new ConcurrentHashMap<>();
-        relationshipsForNodes = new ConcurrentHashMap<>();
-        labelsToNodes = new ConcurrentHashMap<>();
-        relationshipTypeCounts = new ConcurrentHashMap<>();
-    }
+    GraphNodeInMemory getNodeMutable(NodeIdInMemory nodeId);
+    GraphRelationshipInMemory getSingleRelationshipMutable(NodeIdInMemory id, GraphDirection direction,
+                                                           TransportRelationshipTypes transportRelationshipType);
 
-    @PostConstruct
-    public void start() {
-        logger.info("Starting");
-        for(GraphLabel label : GraphLabel.values()) {
-            labelsToNodes.put(label, new HashSet<>());
-        }
-        for(TransportRelationshipTypes type : TransportRelationshipTypes.values()) {
-            relationshipTypeCounts.put(type, new AtomicInteger(0));
-        }
-        logger.info("started");
-    }
+    Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(NodeIdInMemory id, GraphDirection direction);
+    Stream<GraphNodeInMemory> findNodesMutable(GraphLabel graphLabel);
 
-    @PreDestroy
-    public void stop() {
-        logger.info("stop");
-        logger.error("reinstate");
-//        nextGraphNodeId.set(0);
-//        nextRelationshipId.set(0);
-//        relationships.clear();
-//        nodes.clear();
-//        relationshipsForNodes.clear();
-//        labelsToNodes.clear();
-        logger.info("stopped");
-    }
+    // immutable
+    Stream<GraphNode> findNodesImmutable(GraphLabel graphLabel);
+    Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value);
+    GraphNode getNodeImmutable(NodeIdInMemory nodeId);
 
-    public synchronized GraphNodeInMemory createNode(final EnumSet<GraphLabel> labels) {
-        final int id = nextGraphNodeId.getAndIncrement();
-        final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(new NodeIdInMemory(id), labels);
-        final GraphNodeId graphNodeId = graphNodeInMemory.getId();
-        nodes.put(graphNodeId, graphNodeInMemory);
-        labels.forEach(label -> labelsToNodes.get(label).add(graphNodeId));
-        return graphNodeInMemory;
-    }
+    Stream<GraphRelationship> findRelationships(TransportRelationshipTypes type);
 
-    public synchronized GraphRelationshipInMemory createRelationship(final TransportRelationshipTypes relationshipType,
-                                                                     final GraphNodeInMemory begin,
-                                                                     final GraphNodeInMemory end) {
-        final int id = nextRelationshipId.getAndIncrement();
-        final GraphRelationshipInMemory relationship = new GraphRelationshipInMemory(relationshipType,
-                new RelationshipIdInMemory(id), begin, end);
-        final GraphRelationshipId relationshipId = relationship.getId();
-        relationships.put(relationshipId, relationship);
-        addOutboundTo(begin.getId(), relationshipId);
-        addInboundTo(end.getId(), relationshipId);
-        relationshipTypeCounts.get(relationshipType).getAndIncrement();
-        return relationship;
-    }
+    Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction);
+    GraphRelationship getRelationship(RelationshipIdInMemory graphRelationshipId);
 
-    private void addInboundTo(final GraphNodeId id, final GraphRelationshipId relationshipId) {
-        if (!relationshipsForNodes.containsKey(id)) {
-            relationshipsForNodes.put(id, new RelationshipsForNode());
-        }
-        relationshipsForNodes.get(id).addInbound(relationshipId);
-    }
+    long getNumberOf(TransportRelationshipTypes relationshipType);
 
-    private void addOutboundTo(final GraphNodeId id, final GraphRelationshipId relationshipId) {
-        if (!relationshipsForNodes.containsKey(id)) {
-            relationshipsForNodes.put(id, new RelationshipsForNode());
-        }
-        relationshipsForNodes.get(id).addOutbound(relationshipId);
-    }
+    void commit(GraphTransaction owningTransaction);
+    void close(GraphTransaction owningTransaction);
 
-    public Stream<GraphRelationshipInMemory> getRelationshipsFor(final GraphNodeId id, final GraphDirection direction) {
-        if (!nodes.containsKey(id)) {
-            String msg = "No such node " + id;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-        if (relationshipsForNodes.containsKey(id)) {
-            final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
-            return switch (direction) {
-                case Outgoing -> relationshipsForNode.getOutbound(relationships);
-                case Incoming -> relationshipsForNode.getInbound(relationships);
-                case Both -> Stream.concat(relationshipsForNode.getOutbound(relationships),
-                        relationshipsForNode.getInbound(relationships));
-            };
-        } else {
-            logger.info("node " + id + " has not relationships");
-            return Stream.empty();
-        }
-    }
+    Stream<GraphNodeInMemory> getUpdatedNodes();
+    Stream<GraphRelationshipInMemory> getUpdatedRelationships();
 
-    public synchronized void delete(final GraphRelationshipId id) {
-        if (!relationships.containsKey(id)) {
-            String msg = "Cannot delete relationship, missing id " + id;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-        final GraphRelationshipInMemory relationship = relationships.get(id);
-        final GraphNodeId begin = relationship.getStartId();
-        final GraphNodeId end = relationship.getEndId();
-
-        deleteRelationshipFrom(begin, id);
-        deleteRelationshipFrom(end, id);
-
-        relationshipTypeCounts.get(relationship.getType()).getAndDecrement();
-    }
-
-    public synchronized void delete(final GraphNodeId id) {
-        if (!nodes.containsKey(id)) {
-            String msg = "Missing id " + id;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-        // relationships
-        if (relationshipsForNodes.containsKey(id)) {
-            final RelationshipsForNode forNode = relationshipsForNodes.get(id);
-            if (!forNode.isEmpty()) {
-                String msg = "Node " + id + " still has relationships " + relationshipsForNodes;
-                logger.error(msg);
-                throw new GraphException(msg);
-            }
-        }
-        // label map
-        final EnumSet<GraphLabel> labels = nodes.get(id).getLabels();
-        labels.forEach(label -> labelsToNodes.get(label).remove(id));
-        // the node
-        nodes.remove(id);
-    }
-
-    private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final GraphRelationshipId relationshipId) {
-        if (relationshipsForNodes.containsKey(graphNodeId)) {
-            RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(graphNodeId);
-            relationshipsForNode.remove(relationshipId);
-        }
-    }
-
-    public GraphNodeInMemory getNode(final GraphNodeId nodeId) {
-        if (!nodes.containsKey(nodeId)) {
-            String msg = "No such node " + nodeId;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-        return nodes.get(nodeId);
-    }
-
-    public Stream<GraphNodeInMemory> findNodes(final GraphLabel graphLabel) {
-        final Set<GraphNodeId> matchingIds = labelsToNodes.get(graphLabel);
-        return matchingIds.stream().map(nodes::get);
-    }
-
-    public GraphRelationship getRelationship(final GraphRelationshipId graphRelationshipId) {
-        if (relationships.containsKey(graphRelationshipId)) {
-            return relationships.get(graphRelationshipId);
-        } else {
-            String msg = "No such relationship " + graphRelationshipId;
-            logger.error(msg);
-            throw new GraphException(msg);
-        }
-    }
-
-    public synchronized void addLabel(final GraphNodeId id, final GraphLabel label) {
-        labelsToNodes.get(label).add(id);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Graph graph = (Graph) o;
-        return Objects.equals(nextGraphNodeId.get(), graph.nextGraphNodeId.get()) &&
-                Objects.equals(nextRelationshipId.get(), graph.nextRelationshipId.get()) &&
-                Objects.equals(relationships, graph.relationships) &&
-                Objects.equals(nodes, graph.nodes) &&
-                Objects.equals(relationshipsForNodes, graph.relationshipsForNodes) &&
-                Objects.equals(labelsToNodes, graph.labelsToNodes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nextGraphNodeId, nextRelationshipId, relationships, nodes, relationshipsForNodes, labelsToNodes);
-    }
-
-    @Override
-    public String toString() {
-        return "Graph{" +
-                "nextGraphNodeId=" + nextGraphNodeId +
-                ", nextRelationshipId=" + nextRelationshipId +
-                ", relationships=" + relationships +
-                ", nodes=" + nodes +
-                ", relationshipsForNodes=" + relationshipsForNodes +
-                ", labelsToNodes=" + labelsToNodes +
-                '}';
-    }
-
-    @JsonIgnore
-    public long getNumberOf(TransportRelationshipTypes relationshipType) {
-        return relationshipTypeCounts.get(relationshipType).get();
-    }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public Map<GraphNodeId, GraphNodeInMemory> getNodes() {
-        return new TreeMap<>(nodes);
-    }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public Map<GraphRelationshipId, GraphRelationshipInMemory> getRelationships() {
-        return new TreeMap<>(relationships);
-    }
-
-    private static class RelationshipsForNode {
-        private final Set<GraphRelationshipId> outbound;
-        private final Set<GraphRelationshipId> inbound;
-
-        private RelationshipsForNode() {
-            outbound = new HashSet<>();
-            inbound = new HashSet<>();
-        }
-
-        public Stream<GraphRelationshipInMemory> getOutbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
-            return outbound.stream().map(relationships::get);
-        }
-
-        public Stream<GraphRelationshipInMemory> getInbound(final ConcurrentMap<GraphRelationshipId, GraphRelationshipInMemory> relationships) {
-            return inbound.stream().map(relationships::get);
-        }
-
-        public void addOutbound(final GraphRelationshipId relationshipId) {
-            synchronized (outbound) {
-                outbound.add(relationshipId);
-            }
-        }
-
-        public void addInbound(final GraphRelationshipId relationshipId) {
-            synchronized (inbound) {
-                inbound.add(relationshipId);
-            }
-        }
-
-        public void remove(final GraphRelationshipId relationshipId) {
-            synchronized (outbound) {
-                outbound.remove(relationshipId);
-            }
-            synchronized (inbound) {
-                inbound.remove(relationshipId);
-            }
-        }
-
-        public boolean isEmpty() {
-            return outbound.isEmpty() && inbound.isEmpty();
-        }
-
-        @Override
-        public String toString() {
-            return "RelationshipsForNode{" +
-                    "outbound=" + outbound +
-                    ", inbound=" + inbound +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            RelationshipsForNode that = (RelationshipsForNode) o;
-            return Objects.equals(outbound, that.outbound) && Objects.equals(inbound, that.inbound);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(outbound, inbound);
-        }
-    }
 }

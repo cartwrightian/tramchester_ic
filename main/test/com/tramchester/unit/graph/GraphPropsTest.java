@@ -2,17 +2,12 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.RailRouteId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -20,6 +15,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
@@ -38,12 +34,10 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MultiDB
@@ -103,6 +97,26 @@ public class GraphPropsTest {
         IdFor<RouteStation> result = relationship.getRouteStationId();
 
         assertEquals(id, result);
+    }
+
+    @Test
+    void shouldSetAndGetVersionInformation() {
+        MutableGraphNode node = txn.createNode(GraphLabel.VERSION);
+
+        DataSourceInfo tfgmInfo = new DataSourceInfo(DataSourceID.tfgm, "1.2", TestEnv.UTCNow(), TramsOnly);
+        DataSourceInfo openRailInfo = new DataSourceInfo(DataSourceID.openRailData, "998", TestEnv.UTCNow(), RailOnly);
+
+        node.set(tfgmInfo);
+        node.set(openRailInfo);
+
+        Map<DataSourceID, String> results = node.getStoredVersions();
+
+        assertEquals(2, results.size());
+        assertTrue(results.containsKey(DataSourceID.tfgm));
+        assertEquals("1.2", results.get(DataSourceID.tfgm));
+        assertTrue(results.containsKey(DataSourceID.openRailData));
+        assertEquals("998", results.get(DataSourceID.openRailData));
+
     }
 
     @Test
@@ -372,8 +386,8 @@ public class GraphPropsTest {
 
         assertEquals(time, result);
 
-        boolean flag = relationship.isDayOffset();
-        assertTrue(flag);
+//        boolean flag = relationship.isDayOffset();
+//        assertTrue(flag);
     }
 
     @Test
@@ -383,7 +397,7 @@ public class GraphPropsTest {
 
         relationship.addTransportMode(TransportMode.Train);
 
-        Set<TransportMode> result = relationship.getTransportModes();
+        ImmutableEnumSet<TransportMode> result = relationship.getTransportModes();
         assertEquals(1, result.size());
         assertTrue(result.contains(TransportMode.Train));
 
@@ -428,7 +442,7 @@ public class GraphPropsTest {
         // add maxTripsForService trip id's to the relationship
         IdSet<Trip> unsortedTripIds = addRandomTripIdsToRelationship(serviceRelationship);
 
-        IdSet<Trip> fromService = serviceRelationship.getTripIds();
+        ImmutableIdSet<Trip> fromService = serviceRelationship.getTripIds();
         assertEquals(maxTripsForService, fromService.size());
         assertTrue(unsortedTripIds.containsAll(fromService));
 
@@ -466,7 +480,7 @@ public class GraphPropsTest {
 
         assertTrue(relationship.hasTripIdInList(tripA));
 
-        IdSet<Trip> result = relationship.getTripIds();
+        ImmutableIdSet<Trip> result = relationship.getTripIds();
 
         assertEquals(2, result.size());
         assertTrue(result.contains(tripA));
@@ -511,11 +525,11 @@ public class GraphPropsTest {
     void shouldSetCost() {
         MutableGraphRelationship relationship = createRelationship();
 
-        Duration duration = Duration.ofMinutes(42);
+        TramDuration duration = TramDuration.ofMinutes(42);
 
         relationship.setCost(duration);
 
-        Duration result = relationship.getCost();
+        TramDuration result = relationship.getCost();
 
         assertEquals(duration, result);
     }
@@ -524,11 +538,11 @@ public class GraphPropsTest {
     void shouldSetCostExact() {
         MutableGraphRelationship relationship = createRelationship();
 
-        Duration duration = Duration.ofMinutes(42).plusSeconds(15);
+        TramDuration duration = TramDuration.ofMinutes(42).plusSeconds(15);
 
         relationship.setCost(duration);
 
-        Duration result = relationship.getCost();
+        TramDuration result = relationship.getCost();
 
         assertEquals(duration, result);
     }

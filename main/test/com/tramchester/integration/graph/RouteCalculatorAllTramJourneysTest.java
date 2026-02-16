@@ -4,10 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
@@ -19,11 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,7 +35,7 @@ public class RouteCalculatorAllTramJourneysTest {
 
     private TramDate when;
     private RouteCalculationCombinations<Station> combinations;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig config) {
@@ -53,8 +52,7 @@ public class RouteCalculatorAllTramJourneysTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        modes = TramsOnly;
-        //InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        modes = TransportMode.TramsOnly;
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
@@ -62,14 +60,14 @@ public class RouteCalculatorAllTramJourneysTest {
     void shouldFindRouteEachStationToEveryOtherStream() {
 
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).
-                createStationPairsForAll(TramsOnly);
+                createStationPairsForAll(TransportMode.TramsOnly);
 
         final TramTime time = TramTime.of(8, 5);
 
-        JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(2);
+        JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(testConfig.getMaxNumberChanges());
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 

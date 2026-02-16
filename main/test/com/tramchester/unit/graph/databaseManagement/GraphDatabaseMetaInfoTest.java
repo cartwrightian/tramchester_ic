@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.dataimport.URLStatus;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.core.GraphNode;
@@ -18,10 +19,9 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.DataSourceID.naptanxml;
-import static com.tramchester.domain.DataSourceID.tfgm;
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.DataSourceID.*;
+import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
@@ -85,24 +85,24 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     @Test
     void shouldGetVersionMapFromNode() {
-        Map<String, Object> versionMap = new HashMap<>();
-        versionMap.put("A", "4.2");
-        versionMap.put("ZZZ", "81.91");
+        Map<DataSourceID, String> versionMap = new HashMap<>();
+        versionMap.put(tfgm, "4.2");
+        versionMap.put(openRailData, "81.91");
 
         GraphNode graphNode = createMock(GraphNode.class);
 
         EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
-        EasyMock.expect(graphNode.getAllProperties()).andReturn(versionMap);
+        EasyMock.expect(graphNode.getStoredVersions()).andReturn(versionMap);
 
         replayAll();
-        Map<String, String> results = databaseMetaInfo.getVersions(transaction);
+        Map<DataSourceID, String> results = databaseMetaInfo.getVersions(transaction);
         verifyAll();
 
         assertEquals(2, results.size());
-        assertTrue(results.containsKey("A"));
-        assertEquals(results.get("A"), "4.2");
-        assertTrue(results.containsKey("ZZZ"));
-        assertEquals(results.get("ZZZ"), "81.91");
+        assertTrue(results.containsKey(tfgm));
+        assertEquals(results.get(tfgm), "4.2");
+        assertTrue(results.containsKey(openRailData));
+        assertEquals(results.get(openRailData), "81.91");
     }
 
     @Test
@@ -169,8 +169,8 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
         MutableGraphNode graphNode = createMock(MutableGraphNode.class);
 
-        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", URLStatus.invalidTime, EnumSet.of(Tram));
-        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", URLStatus.invalidTime, EnumSet.of(Bus));
+        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", URLStatus.invalidTime, TramsOnly);
+        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", URLStatus.invalidTime, BusesOnly);
 
         Set<DataSourceInfo> sourceInfo = new HashSet<>(Arrays.asList(infoA, infoB));
 

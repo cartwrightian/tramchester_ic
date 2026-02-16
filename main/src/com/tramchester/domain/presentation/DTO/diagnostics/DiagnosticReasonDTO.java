@@ -1,10 +1,12 @@
 package com.tramchester.domain.presentation.DTO.diagnostics;
 
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.search.diagnostics.HeuristicsReason;
 import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
+import java.util.List;
 import java.util.Objects;
 
 public class DiagnosticReasonDTO {
@@ -14,6 +16,7 @@ public class DiagnosticReasonDTO {
     private final TraversalStateType stateType;
     private final String beginId;
     private final String endId;
+    private final List<PropertyDTO> endProps;
 
     public DiagnosticReasonDTO(final HeuristicsReason heuristicsReason) {
         this(heuristicsReason.getReasonCode(), heuristicsReason.textForGraph(), heuristicsReason.isValid(),
@@ -27,6 +30,7 @@ public class DiagnosticReasonDTO {
         this.stateType = howIGotHere.getTraversalStateType();
         this.beginId = beginIdFrom(howIGotHere);
         this.endId = howIGotHere.getEndNodeId().toString();
+        this.endProps = howIGotHere.getEndProperties();
     }
 
     private String beginIdFrom(final HowIGotHere howIGotHere) {
@@ -72,5 +76,9 @@ public class DiagnosticReasonDTO {
 
     public String getEndId() {
         return endId;
+    }
+
+    public List<PropertyDTO> getEndProps() {
+        return endProps;
     }
 }

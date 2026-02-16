@@ -35,10 +35,11 @@ public class RouteCalculatorForBoxesNeo4J extends RouteCalculatorForBoxes {
     @Override
     protected TramNetworkTraverserFactory getTraverserFactoryForGrids(StationsBoxSimpleGrid destinationBox, List<StationsBoxSimpleGrid> startingBoxes) {
 
-        final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
 
         final LocationSet<Station> destinations = destinationBox.getStations();
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
+
+        final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
 
         return new TramNetworkTraverserFactoryNeo4J(super.config, true,
                 selector, destinations, destinationNodeIds);

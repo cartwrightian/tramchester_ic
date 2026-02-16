@@ -3,12 +3,11 @@ package com.tramchester.graph.core;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public interface MutableGraphTransaction extends GraphTransaction {
@@ -17,7 +16,7 @@ public interface MutableGraphTransaction extends GraphTransaction {
 
     MutableGraphNode createNode(GraphLabel graphLabel);
 
-    MutableGraphNode createNode(EnumSet<GraphLabel> labels);
+    MutableGraphNode createNode(ImmutableEnumSet<GraphLabel> labels);
 
     MutableGraphNode getNodeByIdMutable(GraphNodeId nodeId);
 

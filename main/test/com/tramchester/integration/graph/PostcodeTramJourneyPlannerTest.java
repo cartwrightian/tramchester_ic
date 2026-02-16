@@ -4,17 +4,19 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.postcodes.PostcodeRepository;
-import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TestPostcodes;
@@ -27,14 +29,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeTramJourneyPlannerTest {
@@ -42,7 +41,6 @@ class PostcodeTramJourneyPlannerTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
 
     private static final TramDate when = TestEnv.testDay();
     private static TramWithPostcodesEnabled testConfig;
@@ -58,7 +56,6 @@ class PostcodeTramJourneyPlannerTest {
         testConfig = new TramWithPostcodesEnabled();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -68,6 +65,8 @@ class PostcodeTramJourneyPlannerTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner =  new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
@@ -82,11 +81,11 @@ class PostcodeTramJourneyPlannerTest {
 
     // IS USED - see below
     private static Stream<JourneyRequest> getRequest() {
-        Duration maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         //TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
         long maxNumberOfJourneys = 3;
-        EnumSet<TransportMode> modes = TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
         return Stream.of(
                 new JourneyRequest(when, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes),
                 new JourneyRequest(when, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));
@@ -99,7 +98,7 @@ class PostcodeTramJourneyPlannerTest {
         Set<Journey> journeySet =  planner.quickestRouteForLocation(centralLocation, TramStations.Bury, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
-        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
         checkDepartBefore(journeySet, request.getArriveBy());
     }
 
@@ -110,7 +109,7 @@ class PostcodeTramJourneyPlannerTest {
         Set<Journey> journeySet =  planner.quickestRouteForLocation(TramStations.Bury, centralLocation, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
-        journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().get(0).getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().getFirst().getMode()));
         checkDepartBefore(journeySet, request.getArriveBy());
 
     }
@@ -127,7 +126,7 @@ class PostcodeTramJourneyPlannerTest {
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertTrue(journey.getStages().size()>=3));
         // walk at start
-        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
         // walk at end
         journeySet.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
@@ -146,7 +145,7 @@ class PostcodeTramJourneyPlannerTest {
 
     private void checkDepartBefore(Set<Journey> journeySet, boolean arriveBy) {
         if (arriveBy) {
-            journeySet.forEach(journey -> journey.getStages().get(0).getFirstDepartureTime().isBefore(planningTime));
+            journeySet.forEach(journey -> journey.getStages().getFirst().getFirstDepartureTime().isBefore(planningTime));
         }
     }
 }

@@ -2,15 +2,16 @@ package com.tramchester.integration.graph.rail;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -22,20 +23,19 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Hale;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Knutsford;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -110,7 +110,7 @@ class SubGraphAroundKnutsfordRailTest {
 
         TimeRange timeRange = TimeRangePartial.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
 
-        EnumSet<TransportMode> transportModes = EnumSet.of(Train);
+        ImmutableEnumSet<TransportMode> transportModes = RailOnly;
 
         int haleKnutsford = getPossibleMinChanges(hale, knutsford, transportModes, when, timeRange);
         assertEquals(0, haleKnutsford, "expected no changes");
@@ -118,22 +118,22 @@ class SubGraphAroundKnutsfordRailTest {
         int knutsfordToHale = getPossibleMinChanges(knutsford, hale, transportModes, when, timeRange);
         assertEquals(0, knutsfordToHale, "expected no changes");
 
-        Duration maxJourneyDuration = Duration.ofMinutes(60);
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(60);
         validateAtLeastOneJourney(Hale, Knutsford, maxJourneyDuration);
         validateAtLeastOneJourney(Knutsford, Hale, maxJourneyDuration);
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveJourneysBetweenAllStations() {
-        Duration maxJourneyDuration = Duration.ofMinutes(60);
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(60);
 
         for (RailStationIds start: stations) {
             for (RailStationIds destination: stations) {
@@ -147,14 +147,13 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveNoChangesBetweenAllStations() {
         TimeRange timeRange = TimeRangePartial.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
-        EnumSet<TransportMode> transportModes = EnumSet.of(Train);
 
         for (RailStationIds startId: stations) {
             for (RailStationIds destinationId: stations) {
                 if (!startId.equals(destinationId)) {
                     int numberOfChanges = getPossibleMinChanges(startId.from(stationRepository),
                             destinationId.from(stationRepository),
-                            transportModes, when, timeRange);
+                            RailOnly, when, timeRange);
                     assertEquals(0, numberOfChanges);
                 }
             }
@@ -164,7 +163,7 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                Duration.ofMinutes(30), 1, EnumSet.of(Train));
+                TramDuration.ofMinutes(30), 1, RailOnly);
         List<Journey> results = testFacade.calculateRouteAsList(Hale.getId(), Knutsford.getId(), journeyRequest);
         assertFalse(results.isEmpty());
     }
@@ -177,11 +176,10 @@ class SubGraphAroundKnutsfordRailTest {
         creator.create(Path.of(format("%s_trains.dot", "around_hale")), station, 100, false);
     }
 
-    private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest, Duration maxJourneyDuration) {
-        EnumSet<TransportMode> train = EnumSet.of(Train);
+    private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest, TramDuration maxJourneyDuration) {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                maxJourneyDuration, 1, train);
+                maxJourneyDuration, 1, RailOnly);
 
         List<Journey> results = testFacade.calculateRouteAsList(start.getId(), dest.getId(), journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest + " for " + journeyRequest);

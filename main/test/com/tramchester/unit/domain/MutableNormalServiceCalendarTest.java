@@ -99,16 +99,17 @@ class MutableNormalServiceCalendarTest {
         TramDate testDay = TestEnv.testDay();
 
         final TramDate startDate = TramDate.from(TestEnv.LocalNow());
-        final TramDate endDate = testDay.plusWeeks(4);
-
-        ServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(startDate, endDate,
-                DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
         TramDate localDate = startDate;
         int offset = 0;
         while (localDate.isChristmasPeriod()) {
+            offset = offset + 1;
             localDate = startDate.plusWeeks(offset);
         }
+
+        final TramDate endDate = testDay.plusWeeks(4);
+        ServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(startDate, endDate,
+                DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
         Assertions.assertFalse(serviceCalendar.operatesOn(testDay.plusWeeks(offset)));
         assertTrue(serviceCalendar.operatesOn(UpcomingDates.nextSaturday().plusWeeks(offset)));

@@ -1,7 +1,9 @@
 package com.tramchester.graph.core.neo4j;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
@@ -13,6 +15,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -65,7 +68,7 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     }
 
     @Override
-    public Map<String, Object> getAllProperties() {
+    public Map<GraphPropertyKey, Object> getAllProperties() {
         return underlying.getAllProperties();
     }
 
@@ -126,7 +129,7 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels() {
+    public ImmutableEnumSet<GraphLabel> getLabels() {
         return sharedNodeCache.getLabels(nodeId, nodeId -> underlying.getLabels());
     }
 
@@ -167,11 +170,6 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
         return underlying.getOutgoingServiceMatching(txn, tripId);
     }
 
-//    @Override
-//    public Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction) {
-//        return underlying.getAllRelationships(txn, direction);
-//    }
-
     @Override
     public TransportMode getTransportMode() {
         return underlying.getTransportMode();
@@ -200,6 +198,16 @@ public class ImmutableGraphNode implements GraphNode, CreateGraphTraverser {
     @Override
     public BoundingBox getBounds() {
         return underlying.getBounds();
+    }
+
+    @Override
+    public String getWalkId() {
+        return underlying.getWalkId();
+    }
+
+    @Override
+    public Map<DataSourceID, String> getStoredVersions() {
+        return underlying.getStoredVersions();
     }
 
     @Override

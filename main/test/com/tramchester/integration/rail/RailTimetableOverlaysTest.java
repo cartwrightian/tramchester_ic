@@ -7,19 +7,20 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled("WIP")
@@ -64,13 +65,13 @@ public class RailTimetableOverlaysTest {
 
 
         @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        public List<RemoteDataSourceConfig> getRemoteSources() {
             return Collections.emptyList();
             //return List.of(remoteNaptanXMLConfig, remoteNPTGconfig);
         }
 
         @Override
-        public RailConfig getRailConfig() {
+        public RailConfig getRail() {
             return new RailConfig() {
 
                 @Override
@@ -79,8 +80,8 @@ public class RailTimetableOverlaysTest {
                 }
 
                 @Override
-                public EnumSet<TransportMode> getModes() {
-                    return EnumSet.of(TransportMode.Train);
+                public ImmutableEnumSet<TransportMode> getModes() {
+                    return Train.singleton();
                 }
 
                 @Override
@@ -94,8 +95,8 @@ public class RailTimetableOverlaysTest {
                 }
 
                 @Override
-                public Duration getMaxInitialWait() {
-                    return Duration.ofMinutes(45);
+                public TramDuration getMaxInitialWait() {
+                    return TramDuration.ofMinutes(45);
                 }
             };
         }

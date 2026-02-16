@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -16,7 +17,6 @@ import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -174,13 +174,12 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        final Set<TransportMode> transportModes = flatten(Station::getTransportModes);
-        return EnumSet.copyOf(transportModes);
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
+        return flattenEnum(Station::getTransportModes);
     }
 
     @Override
-    public boolean anyOverlapWith(final EnumSet<TransportMode> modes) {
+    public boolean anyOverlapWith(final ImmutableEnumSet<TransportMode> modes) {
         return anyMatch(station -> station.anyOverlapWith(modes));
     }
 
@@ -192,6 +191,13 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
         return groupedStations.stream().
                 flatMap(station -> map.apply(station).stream()).
                 collect(Collectors.toUnmodifiableSet());
+    }
+
+    private <R extends Enum<R>> ImmutableEnumSet<R> flattenEnum(Function<Station, ImmutableEnumSet<R>> map) {
+        final Set<R> collect = groupedStations.stream().
+                flatMap(station -> map.apply(station).stream()).
+                collect(Collectors.toUnmodifiableSet());
+        return ImmutableEnumSet.copyOf(collect);
     }
 
 

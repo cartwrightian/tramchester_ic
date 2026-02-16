@@ -10,6 +10,8 @@ import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.graph.core.GraphDatabase;
@@ -18,13 +20,12 @@ import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchest
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,12 +33,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.Piccadilly;
 import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
 class RailAndTramLocationJourneyPlannerTest {
@@ -50,7 +49,7 @@ class RailAndTramLocationJourneyPlannerTest {
     private final TramDate when = TestEnv.testDay();
     private MutableGraphTransaction txn;
     private LocationJourneyPlannerTestFacade testFacade;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private StationRepository stationRepository;
 
@@ -69,7 +68,7 @@ class RailAndTramLocationJourneyPlannerTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(testConfig.getMaxJourneyDuration());
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         testFacade = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
@@ -107,7 +106,7 @@ class RailAndTramLocationJourneyPlannerTest {
     void shouldHaveDirectWalkFromPiccadily() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
-                false, 1, maxJourneyDuration, maxNumberOfJourneys, TramsOnly);
+                false, 1, maxJourneyDuration, maxNumberOfJourneys, TransportMode.TramsOnly);
 
         Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(Piccadilly, nearPiccGardens, journeyRequest, 2);
 
@@ -115,9 +114,11 @@ class RailAndTramLocationJourneyPlannerTest {
 
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            WalkingFromStationStage first = (WalkingFromStationStage) stages.getFirst();
-            assertEquals(PiccadillyGardens.getId(), first.getFirstStation().getId());
-            assertEquals(nearPiccGardens.latLong(), first.getLastStation().getLatLong());
+            assertEquals(TransportMode.Walk, stages.getFirst().getMode(), "Expected walk, go " + stages.getFirst());
+
+            WalkingFromStationStage walkingStage = (WalkingFromStationStage) stages.getFirst();
+            assertEquals(PiccadillyGardens.getId(), walkingStage.getFirstStation().getId());
+            assertEquals(nearPiccGardens.latLong(), walkingStage.getLastStation().getLatLong());
         });
     }
 

@@ -2,16 +2,17 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -20,6 +21,7 @@ import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.GraphTypeConfigResolver;
 import com.tramchester.testSupport.TestEnv;
@@ -31,7 +33,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,7 @@ class MixedRouteTest {
     private TramDate queryDate;
     private TramTime queryTime;
     private GraphTransaction txn;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
@@ -84,7 +85,7 @@ class MixedRouteTest {
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
 
-        modes = config.getTransportModes();
+        modes = ImmutableEnumSet.copyOf(config.getTransportModes());
     }
 
     @AfterEach
@@ -96,7 +97,7 @@ class MixedRouteTest {
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
         return new JourneyRequest(queryDate, queryTime, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, modes);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, modes);
     }
 
     @Test
@@ -165,7 +166,7 @@ class MixedRouteTest {
         TramTime departTime = vehicleStage.getFirstDepartureTime();
         assertTrue(departTime.isAfter(queryTime));
 
-        assertFalse(vehicleStage.getDuration().isNegative());
+        assertFalse(vehicleStage.getDuration().invalid());
         assertFalse(vehicleStage.getDuration().isZero());
     }
 
@@ -184,7 +185,7 @@ class MixedRouteTest {
 
             TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
                     modes, modesWithPlatforms,
-                    IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13), Collections.emptyList());
+                    IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), TramDuration.ofMinutes(13), Collections.emptyList());
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }
 

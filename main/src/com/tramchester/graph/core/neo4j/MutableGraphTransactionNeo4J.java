@@ -4,20 +4,22 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /***
@@ -80,7 +82,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
     }
 
     @Override
-    public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
+    public MutableGraphNode createNode(final ImmutableEnumSet<GraphLabel> labels) {
         final Label[] toApply = relationshipTypeFactory.getLabels(labels);
         //labels.toArray(toApply);
         final Node node = txn.createNode(toApply);
@@ -128,7 +130,7 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
         return txn.findNodes(label).stream().map(this::wrapNodeAsImmutable);
     }
 
-    private Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
+    public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes relationshipType) {
         final RelationshipType actual = relationshipTypeFactory.get(relationshipType);
         final ResourceIterator<Relationship> found = txn.findRelationships(actual);
         return found.stream().map(this::wrapRelationship);
@@ -210,16 +212,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
         return txn.execute(query);
     }
 
-    @Override
-    public List<GraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final GraphDirection direction,
-                                                                EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        final GraphNode routeStationNode = findNode(routeStation);
-        if (routeStationNode==null) {
-            return Collections.emptyList();
-        }
-        return routeStationNode.getRelationships(this, direction, relationshipTypes).toList();
-    }
-
     public GraphNode wrapNode(final Node node) {
         return wrapNodeAsImmutable(node);
     }
@@ -281,15 +273,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
         return idFactory.getIdFor(node);
     }
 
-//    @Override
-//    public ImmutableGraphRelationship lastFrom(final Path path) {
-//        final Relationship last = path.lastRelationship();
-//        if (last==null) {
-//            return null;
-//        }
-//        return wrapRelationship(last);
-//    }
-
     @Override
     public Iterable<GraphNode> iter(final Iterable<Node> iterable) {
         return new Iterable<>() {
@@ -311,17 +294,6 @@ public class MutableGraphTransactionNeo4J implements GraphTransactionNeo4J, Muta
     public GraphNode getEndNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getEndNode());
     }
-
-//    @Override
-//    public GraphNodeId getPreviousNodeId(final GraphPath path) {
-//        final GraphPathNeo4j graphPathNeo4j = (GraphPathNeo4j) path;
-//        final Relationship last = graphPathNeo4j.lastRelationship();
-//        if (last == null) {
-//            return null;
-//        } else {
-//            return idFactory.getIdFor(last.getStartNode());
-//        }
-//    }
 
     /***
      * Diagnostic support only @See GraphTestHelper

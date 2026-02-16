@@ -50,7 +50,7 @@ public class TrainDeparturesDataFetcher {
     public void start() {
         if (enabled) {
             logger.info("starting");
-            final OpenLdbConfig openLdbConfig = config.getOpenldbwsConfig();
+            final OpenLdbConfig openLdbConfig = config.getOpenLdb();
 
             started = createSOAPService(openLdbConfig.getWSDLLocation());
 

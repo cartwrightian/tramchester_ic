@@ -1,29 +1,43 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.collections.EntityList;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
 public class GraphPathInMemory implements GraphPath {
 
-    private final List<GraphEntity> entityList;
+    private final EntityList entityList;
     private GraphNode lastAddedNode;
     private GraphRelationship lastAddedRelationship;
 
     public GraphPathInMemory() {
-        entityList = new ArrayList<>();
+        entityList = new SimpleEntityList();
     }
 
-    public GraphPathInMemory(final GraphPathInMemory original) {
-        entityList = new ArrayList<>(original.entityList);
+    private GraphPathInMemory(final GraphPathInMemory original) {
+        entityList = original.entityList.branchFrom();
         lastAddedNode = original.lastAddedNode;
         lastAddedRelationship = original.lastAddedRelationship;
     }
 
-    public GraphPathInMemory addNode(final GraphTransaction txn, final GraphNode node) {
+    public GraphPathInMemory duplicate() {
+        return new GraphPathInMemory(this);
+    }
+
+    public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphRelationship graphRelationship) {
+        return duplicate().addRelationship(txn, graphRelationship);
+    }
+
+    @Override
+    public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphNode currentNode) {
+        return duplicate().addNode(txn, currentNode);
+    }
+
+    private GraphPathInMemory addNode(final GraphTransaction txn, final GraphNode node) {
         synchronized (entityList) {
             lastAddedNode = node;
             entityList.add(node);
@@ -31,7 +45,7 @@ public class GraphPathInMemory implements GraphPath {
         return this;
     }
 
-    public GraphPathInMemory addRelationship(final GraphTransaction txn, final GraphRelationship graphRelationship) {
+    private GraphPathInMemory addRelationship(final GraphTransaction txn, final GraphRelationship graphRelationship) {
         synchronized (entityList) {
             if (lastAddedNode==null) {
                 throw new RuntimeException("No last added node for " + this + " trying to add " + graphRelationship);
@@ -53,18 +67,20 @@ public class GraphPathInMemory implements GraphPath {
     }
 
     @Override
-    public Iterable<GraphEntity> getEntities(GraphTransaction txn) {
+    public Iterable<GraphEntity<? extends GraphId>> getEntities(final GraphTransaction txn) {
         return new Iterable<>() {
             @Override
-            public @NotNull Iterator<GraphEntity> iterator() {
-                return entityList.iterator();
+            public @NotNull Iterator<GraphEntity<? extends GraphId>> iterator() {
+                return entityList.Stream().iterator();
             }
         };
     }
 
     @Override
     public GraphNode getStartNode(final GraphTransaction txn) {
-        final Optional<GraphEntity> found = entityList.stream().filter(GraphEntity::isNode).findFirst();
+        final Optional<GraphEntity<? extends GraphId>> found = entityList.Stream().
+                filter(GraphEntity::isNode).
+                findFirst();
         if (found.isEmpty()) {
             throw new RuntimeException("Could not find a start node");
         }
@@ -80,19 +96,19 @@ public class GraphPathInMemory implements GraphPath {
 
     @Override
     public Iterable<GraphNode> getNodes(final GraphTransaction txn) {
-        Stream<GraphNode> stream = entityList.stream().
-                filter(GraphEntity::isNode).
-                map(item -> (GraphNode)item);
         return new Iterable<>() {
             @Override
             public @NotNull Iterator<GraphNode> iterator() {
-                return stream.iterator();
+                return entityList.Stream().
+                        filter(GraphEntity::isNode).
+                        map(item -> (GraphNode)item).
+                        iterator();
             }
         };
     }
 
     @Override
-    public GraphRelationship getLastRelationship(GraphTransaction txn) {
+    public GraphRelationship getLastRelationship(final GraphTransaction txn) {
         synchronized (entityList) {
             return lastAddedRelationship;
         }
@@ -105,19 +121,6 @@ public class GraphPathInMemory implements GraphPath {
             return null;
         }
         return lastRelationship.getStartNodeId(txn);
-    }
-
-    public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphRelationship graphRelationship) {
-        return duplicateThis().addRelationship(txn, graphRelationship);
-    }
-
-    public GraphPathInMemory duplicateThis() {
-        return new GraphPathInMemory(this);
-    }
-
-    @Override
-    public GraphPathInMemory duplicateWith(GraphTransaction txn, GraphNode currentNode) {
-        return duplicateThis().addNode(txn, currentNode);
     }
 
     @Override
@@ -140,18 +143,90 @@ public class GraphPathInMemory implements GraphPath {
     }
 
     @Override
-    public Duration getTotalCost() {
+    public TramDuration getTotalCost() {
         // todo accumulate cost as we go instead
-        final Optional<Duration> total = entityList.stream().
-                filter(GraphEntity::isRelationship).
-                map(entity -> (GraphRelationship) entity).
-                map(GraphRelationship::getCost).
-                reduce(Duration::plus);
-        return total.orElse(Duration.ofSeconds(Integer.MAX_VALUE));
 
+        final Optional<TramDuration> total = entityList.Stream().
+                filter(GraphEntity::isRelationship).
+                map(item -> (GraphRelationship)item).
+                map(GraphRelationship::getCost).
+                reduce(TramDuration::plus);
+
+        return total.orElse(TramDuration.ofSeconds(Integer.MAX_VALUE));
     }
 
     public boolean isEmpty() {
         return entityList.isEmpty();
     }
+
+    public List<GraphId> getEntitiesIds() {
+        return entityList.getIds();
+    }
+
+    private static class SimpleEntityList implements EntityList {
+
+        private final List<GraphEntity<? extends GraphId>> list;
+        private final List<GraphId> ids;
+
+        private SimpleEntityList() {
+            list = new ArrayList<>();
+            ids = new ArrayList<>();
+        }
+
+        private SimpleEntityList(final List<GraphEntity<? extends GraphId>> list, final List<GraphId> ids) {
+            this.list = list;
+            this.ids = ids;
+        }
+
+        @Override
+        public EntityList branchFrom() {
+            return new SimpleEntityList(new ArrayList<>(list), new ArrayList<>(ids));
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return list.isEmpty();
+        }
+
+        @Override
+        public void add(GraphEntity<? extends GraphId> graphEntity) {
+            list.add(graphEntity);
+            ids.add(graphEntity.getId());
+        }
+
+        @Override
+        public @NotNull Stream<GraphEntity<? extends GraphId>> Stream() {
+            return list.stream();
+        }
+
+        @Override
+        public int size() {
+            return list.size();
+        }
+
+        @Override
+        public List<GraphId> getIds() {
+            return ids;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            SimpleEntityList that = (SimpleEntityList) o;
+            return Objects.equals(ids, that.ids);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(ids);
+        }
+
+        @Override
+        public String toString() {
+            return "SimpleEntityList{" +
+                    "list=" + list +
+                    '}';
+        }
+    }
+
 }

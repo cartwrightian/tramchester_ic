@@ -1,10 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.dates.*;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -166,7 +163,7 @@ public class MutableRoute implements Route {
     }
 
     @Override
-    public IdSet<Station> getStartStations() {
+    public ImmutableIdSet<Station> getStartStations() {
         return trips.getStartStations();
     }
 

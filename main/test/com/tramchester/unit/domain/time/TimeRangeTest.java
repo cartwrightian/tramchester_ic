@@ -2,10 +2,10 @@ package com.tramchester.unit.domain.time;
 
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,10 +43,10 @@ public class TimeRangeTest {
         assertFalse(range.contains(timeA.plusMinutes(30)));
         assertFalse(range.contains(timeA.minusMinutes(30)));
 
-        range.updateToInclude(timeA.plus(Duration.ofHours(1)));
+        range.updateToInclude(timeA.plus(TramDuration.ofHours(1)));
         assertTrue(range.contains(timeA.plusMinutes(30)));
 
-        range.updateToInclude(timeA.minus(Duration.ofHours(1)));
+        range.updateToInclude(timeA.minus(TramDuration.ofHours(1)));
         assertTrue(range.contains(timeA.minusMinutes(30)));
 
     }
@@ -55,7 +55,7 @@ public class TimeRangeTest {
     void shouldBehaveOverMidnightBasic() {
         TramTime time = TramTime.of(23,55);
 
-        TimeRange timeRange = TimeRangePartial.of(time, Duration.ZERO, Duration.ofHours(2));
+        TimeRange timeRange = TimeRangePartial.of(time, TramDuration.ZERO, TramDuration.ofHours(2));
 
         assertTrue(timeRange.contains(TramTime.nextDay(1,15)), timeRange.toString());
         assertFalse(timeRange.contains(TramTime.of(1,15)), timeRange.toString());
@@ -65,13 +65,13 @@ public class TimeRangeTest {
     void shouldHaveAnyoverLap() {
         TramTime time = TramTime.of(12,55);
 
-        TimeRange timeRangeA = TimeRangePartial.of(time, Duration.ofHours(2), Duration.ofHours(2));
-        TimeRange timeRangeB = TimeRangePartial.of(time, Duration.ofHours(1), Duration.ofHours(1));
+        TimeRange timeRangeA = TimeRangePartial.of(time, TramDuration.ofHours(2), TramDuration.ofHours(2));
+        TimeRange timeRangeB = TimeRangePartial.of(time, TramDuration.ofHours(1), TramDuration.ofHours(1));
 
         assertTrue(timeRangeA.anyOverlap(timeRangeB));
         assertTrue(timeRangeB.anyOverlap(timeRangeA));
 
-        TimeRange timeRangeC = TimeRangePartial.of(TramTime.of(22,0), Duration.ofHours(1), Duration.ofHours(1));
+        TimeRange timeRangeC = TimeRangePartial.of(TramTime.of(22,0), TramDuration.ofHours(1), TramDuration.ofHours(1));
 
         assertFalse(timeRangeA.anyOverlap(timeRangeC));
         assertFalse(timeRangeC.anyOverlap(timeRangeA));
@@ -85,10 +85,10 @@ public class TimeRangeTest {
 
         TimeRange timeRange = TimeRangePartial.of(begin, end);
 
-        TimeRange beginOverlapsRange = TimeRangePartial.of(TramTime.of(23, 56), Duration.ZERO, Duration.ofHours(2));
+        TimeRange beginOverlapsRange = TimeRangePartial.of(TramTime.of(23, 56), TramDuration.ZERO, TramDuration.ofHours(2));
         assertTrue(timeRange.anyOverlap(beginOverlapsRange));
 
-        TimeRange endOverlaps = TimeRangePartial.of(begin, Duration.ofMinutes(30), Duration.ofMinutes(5));
+        TimeRange endOverlaps = TimeRangePartial.of(begin, TramDuration.ofMinutes(30), TramDuration.ofMinutes(5));
         assertTrue(timeRange.anyOverlap(endOverlaps));
 
     }
@@ -122,7 +122,7 @@ public class TimeRangeTest {
     void shouldBottomAtBeginingOfDay() {
         TramTime time = TramTime.of(0, 14);
 
-        TimeRange range = TimeRangePartial.of(time, Duration.ofMinutes(20), Duration.ofMinutes(12));
+        TimeRange range = TimeRangePartial.of(time, TramDuration.ofMinutes(20), TramDuration.ofMinutes(12));
 
         assertTrue(range.contains(TramTime.of(0,0)));
         assertTrue(range.contains(TramTime.of(0,26)));
@@ -134,7 +134,7 @@ public class TimeRangeTest {
     void shouldBottomAtBeginingOfNextDay() {
         TramTime time = TramTime.nextDay(0, 14);
 
-        TimeRange range = TimeRangePartial.of(time, Duration.ofMinutes(20), Duration.ofMinutes(12));
+        TimeRange range = TimeRangePartial.of(time, TramDuration.ofMinutes(20), TramDuration.ofMinutes(12));
 
         assertTrue(range.contains(TramTime.nextDay(0,0)));
         assertTrue(range.contains(TramTime.nextDay(0,26)));

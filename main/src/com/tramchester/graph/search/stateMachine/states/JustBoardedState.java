@@ -1,11 +1,14 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.core.*;
+import com.tramchester.domain.time.TramDuration;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
@@ -30,7 +33,7 @@ public class JustBoardedState extends RouteStationState {
         }
 
         public JustBoardedState fromPlatformState(JourneyStateUpdate journeyState, final PlatformState platformState, final GraphNode routeStationNode,
-                                                  final Duration cost, final GraphTransaction txn) {
+                                                  final TramDuration cost, final GraphTransaction txn) {
 
             final Stream<GraphRelationship> services = getServices(routeStationNode, txn);
 
@@ -38,7 +41,7 @@ public class JustBoardedState extends RouteStationState {
         }
 
         public JustBoardedState fromNoPlatformStation(JourneyStateUpdate journeyState, final NoPlatformStationState noPlatformStation, final GraphNode routeStationNode,
-                                                      final Duration cost, final GraphTransaction txn) {
+                                                      final TramDuration cost, final GraphTransaction txn) {
 
             final Stream<GraphRelationship> services = getServices(routeStationNode, txn);
 
@@ -57,12 +60,12 @@ public class JustBoardedState extends RouteStationState {
     }
 
     private JustBoardedState(final ImmutableTraversalState traversalState, final Stream<GraphRelationship> outbounds,
-                             JourneyStateUpdate journeyState, final Duration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
+                             JourneyStateUpdate journeyState, final TramDuration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
         super(traversalState, outbounds, journeyState, cost, builder, graphNode);
     }
 
     @Override
-    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode serviceNode, final Duration cost) {
+    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode serviceNode, final TramDuration cost) {
         return towardsService.fromRouteStation(this, serviceNode, cost, txn);
     }
 }

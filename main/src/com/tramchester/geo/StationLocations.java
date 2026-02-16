@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.MixedLocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -174,14 +175,14 @@ public class StationLocations implements StationLocationsRepository {
 
     @Override
     public List<Station> nearestStationsSorted(Location<?> origin, int maxToFind, MarginInMeters rangeInMeters,
-                                               EnumSet<TransportMode> modes) {
+                                               ImmutableEnumSet<TransportMode> modes) {
         return nearestStationsSorted(origin.getGridPosition(), maxToFind, rangeInMeters, modes);
     }
 
     // TODO Use quadrants for this search?
     // TODO Station Groups here?
     public List<Station> nearestStationsSorted(final GridPosition gridPosition, final int maxToFind, final MarginInMeters rangeInMeters,
-                                               final EnumSet<TransportMode> modes) {
+                                               final ImmutableEnumSet<TransportMode> modes) {
 
         final Geography.LocationsSource<Station> source;
         if (modes.isEmpty()) {
@@ -196,7 +197,7 @@ public class StationLocations implements StationLocationsRepository {
                 collect(Collectors.toList());
     }
 
-    private Stream<Station> getStationModeFilteredStations(EnumSet<TransportMode> modes) {
+    private Stream<Station> getStationModeFilteredStations(ImmutableEnumSet<TransportMode> modes) {
         return stationRepository.getActiveStationStream().
                 filter(station -> station.anyOverlapWith(modes));
     }

@@ -1,10 +1,10 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public class LocationCollectionSingleton implements LocationCollection {
@@ -20,7 +20,7 @@ public class LocationCollectionSingleton implements LocationCollection {
     }
 
     @Override
-    public EnumSet<TransportMode> getModes() {
+    public ImmutableEnumSet<TransportMode> getModes() {
         return theLocation.getTransportModes();
     }
 

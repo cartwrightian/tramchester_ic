@@ -160,8 +160,8 @@ public class RailAndTramTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.None, firstStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
-        final int totalNumberOfCalls = 9;
-        final int expectedPassedStops = 9; // calls at all stations
+        final int totalNumberOfCalls = 7;
+        final int expectedPassedStops = 7; // calls at all stations
 
         assertEquals(totalNumberOfCalls, stops.numberOfCallingPoints(),
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));

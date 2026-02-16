@@ -6,12 +6,10 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilter;
@@ -80,7 +78,7 @@ public class Interchanges implements InterchangeRepository {
             populateInterchangesFor(mode, linkThreshhold);
         });
 
-        addAdditionalInterchanges(config.getGTFSDataSource());
+        addAdditionalInterchanges(config.getGtfsSourceConfig());
         addMultiModeStations();
 
         // Need to do this last, as checking if one of the neighbours is an interchange is required
@@ -143,7 +141,7 @@ public class Interchanges implements InterchangeRepository {
     private void populateInterchangesFor(final TransportMode mode, final int linkThreshhold) {
 
         logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
-        final IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
+        final ImmutableIdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
 
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
         Set<Station> foundViaLinks = foundIdsViaLinks.stream().
@@ -197,7 +195,7 @@ public class Interchanges implements InterchangeRepository {
 
     private void addAdditionalInterchangesForSource(final GTFSSourceConfig dataSource) {
         final String name = dataSource.getName();
-        final IdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
+        final ImmutableIdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
         logger.info("For source " + name + " attempt to add " + additionalInterchanges.size() + " interchange stations");
 
         Set<Station> validStationsFromConfig = additionalInterchanges.stream().
@@ -217,7 +215,7 @@ public class Interchanges implements InterchangeRepository {
         }
 
         if (validStationsFromConfig.size() != additionalInterchanges.size()) {
-            final IdSet<Station> invalidIds = additionalInterchanges.stream().
+            final ImmutableIdSet<Station> invalidIds = additionalInterchanges.stream().
                     filter(id -> !stationRepository.hasStationId(id)).collect(IdSet.idCollector());
             logger.error("For " + name + " additional interchange station ids invalid:" + invalidIds);
         }
@@ -298,25 +296,25 @@ public class Interchanges implements InterchangeRepository {
      * @return transport modes for only those destinations that are interchange, which might be none of them
      */
     @Override
-    public EnumSet<TransportMode> getInterchangeModes(final LocationCollection destinations) {
+    public ImmutableEnumSet<TransportMode> getInterchangeModes(final LocationCollection destinations) {
         final Set<TransportMode> modes = destinations.locationStream().
                 filter(this::isInterchange).
                 map(this::getInterchange).
                 flatMap(interchangeStation -> interchangeStation.getTransportModes().stream()).
                 collect(Collectors.toSet());
         if (modes.isEmpty()) {
-            return EnumSet.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         } else {
-            return EnumSet.copyOf(modes);
+            return ImmutableEnumSet.copyOf(modes);
         }
     }
 
     @Override
-    public EnumSet<TransportMode> getInterchangeModes(Location<?> location) {
+    public ImmutableEnumSet<TransportMode> getInterchangeModes(Location<?> location) {
         if (isInterchange(location)) {
             return getInterchange(location).getTransportModes();
         } else {
-            return EnumSet.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         }
     }
 

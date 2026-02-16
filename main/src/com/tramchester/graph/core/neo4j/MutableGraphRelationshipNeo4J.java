@@ -93,17 +93,17 @@ public class MutableGraphRelationshipNeo4J extends GraphRelationshipProperties<G
 //    }
 
     @Override
-    public IdFor<Station> getEndStationId() {
+    public IdFor<Station> getEndStationId(GraphTransaction txn) {
         return getIdFor(Station.class, GraphPropsNeo4J.wrap(relationship.getEndNode()));
     }
 
     @Override
-    public IdFor<Station> getStartStationId() {
+    public IdFor<Station> getStartStationId(GraphTransaction txn) {
         return getIdFor(Station.class, GraphPropsNeo4J.wrap(relationship.getStartNode()));
     }
 
     @Override
-    public IdFor<StationLocalityGroup> getStationGroupId() {
+    public IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn) {
         return getIdFor(StationLocalityGroup.class, GraphPropsNeo4J.wrap(relationship.getEndNode()));
     }
 

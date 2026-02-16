@@ -7,12 +7,14 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.mappers.Geography;
@@ -24,11 +26,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Walk;
+import static com.tramchester.domain.reference.TransportMode.WalkOnly;
 import static java.lang.String.format;
 
 /***
@@ -87,18 +88,17 @@ public class Neighbours implements NeighboursRepository {
         logger.info(format("Adding neighbouring stations for range %s and diff modes only %s",
                 marginInMeters, DIFF_MODES_ONLY));
 
-        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
         final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
 
         stationRepository.getActiveStationStream().
                 filter(station -> station.getGridPosition().isValid()).
                 forEach(begin -> {
-                    final EnumSet<TransportMode> beginModes = begin.getTransportModes();
+                    final ImmutableEnumSet<TransportMode> beginModes = begin.getTransportModes();
                     // nearby could be any transport mode
                     Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                             filter(nearby -> !nearby.equals(begin)).
                             filter(nearby -> DIFF_MODES_ONLY && !nearby.anyOverlapWith(beginModes)).
-                            map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, linkType, geography)).
+                            map(nearby -> StationToStationConnection.createForWalk(begin, nearby, WalkOnly, linkType, geography)).
                             collect(Collectors.toSet());
                     if (!links.isEmpty()) {
                         neighbours.put(begin.getId(), links);
@@ -130,7 +130,7 @@ public class Neighbours implements NeighboursRepository {
     }
 
     private void addFromConfig(final StationPair pair) {
-        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
+        final ImmutableEnumSet<TransportMode> walk = WalkOnly;
         final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
 
         final Station begin = pair.getBegin();
@@ -144,7 +144,7 @@ public class Neighbours implements NeighboursRepository {
         logger.info("Adding " + pair + " as neighbours");
 
         final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
-        final Duration walkingDuration = geography.getWalkingDuration(begin, end);
+        final TramDuration walkingDuration = geography.getWalkingDuration(begin, end);
 
         addNeighbour(begin, new StationToStationConnection(begin, end, walk, linkType, distance, walkingDuration));
         addNeighbour(end, new StationToStationConnection(end, begin, walk, linkType, distance, walkingDuration));

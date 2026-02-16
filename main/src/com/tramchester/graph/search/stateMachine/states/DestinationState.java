@@ -1,10 +1,10 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 /**
@@ -34,25 +34,25 @@ public class DestinationState extends TraversalState
             return TraversalStateType.DestinationState;
         }
 
-        public DestinationState from(NoPlatformStationState noPlatformStation, Duration cost, GraphNode node) {
+        public DestinationState from(NoPlatformStationState noPlatformStation, TramDuration cost, GraphNode node) {
             return new DestinationState(noPlatformStation, cost, node, this);
         }
 
-        public DestinationState from(WalkingState walkingState, Duration cost, GraphNode node) {
+        public DestinationState from(WalkingState walkingState, TramDuration cost, GraphNode node) {
             return new DestinationState(walkingState, cost, node, this);
         }
 
-        public DestinationState from(PlatformStationState platformStationState, Duration cost, GraphNode node) {
+        public DestinationState from(PlatformStationState platformStationState, TramDuration cost, GraphNode node) {
             return new DestinationState(platformStationState, cost, node, this);
         }
 
-        public DestinationState from(GroupedStationState groupedStationState, Duration cost, GraphNode node) {
+        public DestinationState from(GroupedStationState groupedStationState, TramDuration cost, GraphNode node) {
             return new DestinationState(groupedStationState, cost, node, this);
         }
 
     }
 
-    private DestinationState(TraversalState parent, Duration cost, GraphNode node, Towards<DestinationState> builder) {
+    private DestinationState(TraversalState parent, TramDuration cost, GraphNode node, Towards<DestinationState> builder) {
         super(parent, Stream.empty(), cost, builder.getDestination(), node.getId());
     }
 

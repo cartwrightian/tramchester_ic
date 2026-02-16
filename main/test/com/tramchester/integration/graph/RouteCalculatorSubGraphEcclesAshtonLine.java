@@ -2,11 +2,12 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -14,25 +15,24 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Disabled("Just used to track down specific issue")
 class RouteCalculatorSubGraphEcclesAshtonLine {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
+
     private static SubgraphConfig config;
     private static TramRouteHelper tramRouteHelper;
 
@@ -40,7 +40,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private final static TramDate when = TestEnv.testDay();
 
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -51,7 +51,6 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
                 configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
 
         tramRouteHelper = new TramRouteHelper(componentContainer);
 
@@ -70,10 +69,12 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
     }
 
     @AfterEach
@@ -84,7 +85,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @Test
     void ShouldReproIssueWithMediaCityToVelopark() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                1, maxJourneyDuration, 2, TramsOnly);
+                1, maxJourneyDuration, 2, TransportMode.TramsOnly);
 //        request.setDiag(true);
 
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());

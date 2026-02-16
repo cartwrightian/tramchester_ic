@@ -18,6 +18,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -33,14 +34,13 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -135,7 +135,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
     @Test
     void shouldRoundTripForTramRouteIds() {
 
-        final Set<Route> tramRoutes = routeRepository.getRoutes(TramsOnly);
+        final Set<Route> tramRoutes = routeRepository.getRoutes(TransportMode.TramsOnly);
 
         tramRoutes.forEach(tramRoute -> {
             short index = routeIndex.indexFor(tramRoute.getId()); // throws on error
@@ -147,7 +147,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
 
     @Test
     void shouldHaveSameSizeInRepositoryAndRouteIndex() {
-        long inRepository = new HashSet<>(routeRepository.getRoutes(EnumSet.of(Train))).size();
+        long inRepository = new HashSet<>(routeRepository.getRoutes(RailOnly)).size();
 
         long inIndex = routeIndex.sizeFor(Train);
 
@@ -156,7 +156,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
 
     @Test
     void shouldHaveSameRoutesInRepositoryAndRouteIndex() {
-        final Set<Route> trainRoutes = new HashSet<>(routeRepository.getRoutes(EnumSet.of(Train)));
+        final Set<Route> trainRoutes = new HashSet<>(routeRepository.getRoutes(RailOnly));
 
         final Set<Route> missingFromRouteIndex = trainRoutes.stream().
                 filter(route -> !routeIndex.hasIndexFor(route.getId())).collect(Collectors.toSet());
@@ -167,7 +167,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
 
     @Test
     void shouldRoundTripForRailRoutes() {
-        Set<Route> trainRoutes = new HashSet<>(routeRepository.getRoutes(EnumSet.of(Train)));
+        Set<Route> trainRoutes = new HashSet<>(routeRepository.getRoutes(RailOnly));
 
         trainRoutes.forEach(trainRoute -> {
             short index = routeIndex.indexFor(trainRoute.getId());

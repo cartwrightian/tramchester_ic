@@ -2,11 +2,12 @@ package com.tramchester.graph.core.neo4j;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
@@ -14,18 +15,17 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.core.*;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.internal.helpers.collection.Iterables;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -84,7 +84,7 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public Duration getCost() {
+    public TramDuration getCost() {
         return costCache.get();
     }
 
@@ -99,7 +99,7 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         return underlying.getTransportModes();
     }
 
@@ -134,14 +134,14 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public Map<String, Object> getAllProperties() {
+    public Map<GraphPropertyKey, Object> getAllProperties() {
         return underlying.getAllProperties();
     }
 
-    @Override
-    public boolean isDayOffset() {
-        return underlying.isDayOffset();
-    }
+//    @Override
+//    public boolean isDayOffset() {
+//        return underlying.isDayOffset();
+//    }
 
     @Override
     public boolean validOn(final TramDate tramDate) {
@@ -169,25 +169,25 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public IdFor<Station> getEndStationId() {
-        return underlying.getEndStationId();
+    public IdFor<Station> getEndStationId(GraphTransaction txn) {
+        return underlying.getEndStationId(txn);
     }
 
     @Override
-    public IdFor<Station> getStartStationId() {
-        return underlying.getStartStationId();
+    public IdFor<Station> getStartStationId(GraphTransaction txn) {
+        return underlying.getStartStationId(txn);
     }
 
     @Override
-    public IdFor<StationLocalityGroup> getStationGroupId() {
-        return underlying.getStationGroupId();
+    public IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn) {
+        return underlying.getStationGroupId(txn);
     }
 
     /***
      * Note: Assumes only called for relationships having TRIP_ID_LIST property, i.e. SERVICE_TO relationship type
      ***/
     @Override
-    public IdSet<Trip> getTripIds() {
+    public ImmutableIdSet<Trip> getTripIds() {
         return sharedRelationshipCache.getTripIds(relationshipId, key -> underlying.getTripIds());
        // return underlying.getTripIds();
     }
@@ -249,8 +249,8 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     @Override
-    public LocationId<?> getLocationId() {
-        return underlying.getLocationId();
+    public LocationId<?> getLocationId(GraphTransaction txn) {
+        return underlying.getLocationId(txn);
     }
 
     @Override
@@ -269,13 +269,13 @@ public class ImmutableGraphRelationshipNeo4J implements  GraphRelationship {
     }
 
     private class CostCache {
-        private Duration duration;
+        private TramDuration duration;
 
         private CostCache() {
             duration = null;
         }
 
-        synchronized public Duration get() {
+        synchronized public TramDuration get() {
             if (duration==null) {
                 duration = underlying.getCost();
             }

@@ -5,8 +5,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.reference.GraphLabel;
@@ -66,7 +68,7 @@ public class StationLocalityGroupsGraphBuilderTest {
     @Test
     void shouldHaveCostsWithinExpectedBounds() {
         Stream<GraphNode> groupNodes = txn.findNodes(GraphLabel.GROUPED);
-        final Duration walkingDuration = testConfig.getWalkingDuration();
+        final TramDuration walkingDuration = testConfig.getWalkingDuration();
 
         Set<GraphNode> toOthers = groupNodes.filter(node -> node.hasRelationship(txn, GraphDirection.Outgoing, GROUPED_TO_GROUPED)).collect(Collectors.toSet());
 
@@ -77,7 +79,7 @@ public class StationLocalityGroupsGraphBuilderTest {
             assertFalse(outbounds.isEmpty(), node.getAllProperties().toString());
 
             GraphRelationship link = outbounds.getFirst();
-            Duration cost = link.getCost();
+            TramDuration cost = link.getCost();
             assertTrue(cost.compareTo(walkingDuration) <=0, "got " + cost + " more than " + walkingDuration);
 
         });
@@ -104,13 +106,13 @@ public class StationLocalityGroupsGraphBuilderTest {
         StationLocalityGroup group = stationGroupsRepository.getStationGroup(stationGroupId);
 
         LocationSet<Station> containedLocations = group.getAllContained();
-        IdSet<Station> containedIds = containedLocations.stream().collect(IdSet.collector());
+        ImmutableIdSet<Station> containedIds = containedLocations.stream().collect(IdSet.collector());
         assertFalse(containedIds.isEmpty());
         // same number of child nodes as locations in the group
         assertEquals(containedLocations.size(), childLinks.size());
 
         List<GraphNode> childNodes = childLinks.stream().map(relationship -> relationship.getEndNode(txn)).toList();
-        IdSet<Station> childLocationIds = childNodes.stream().map(GraphNode::getStationId).collect(IdSet.idCollector());
+        ImmutableIdSet<Station> childLocationIds = childNodes.stream().map(GraphNode::getStationId).collect(IdSet.idCollector());
 
         assertEquals(containedIds, childLocationIds);
 
@@ -120,7 +122,7 @@ public class StationLocalityGroupsGraphBuilderTest {
             GraphNode endNode = toParent.getEndNode(txn);
             assertEquals(stationGroupNode.getId(), endNode.getId(), "wrong parent for " + childNode.getStationId());
 
-            assertEquals(stationGroupId, toParent.getStationGroupId(), "missing for " + childNode.getStationId());
+            assertEquals(stationGroupId, toParent.getStationGroupId(txn), "missing for " + childNode.getStationId());
         });
     }
 

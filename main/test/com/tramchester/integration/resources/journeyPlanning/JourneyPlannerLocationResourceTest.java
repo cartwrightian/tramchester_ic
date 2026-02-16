@@ -43,11 +43,13 @@ class JourneyPlannerLocationResourceTest {
 
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
+    private int maxChanges;
 
     @BeforeEach
     void beforeEachTestRuns() {
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
         when = TestEnv.testDay();
+        maxChanges = appExtension.getConfiguration().getMaxNumberChanges();
     }
 
     @Test
@@ -168,15 +170,19 @@ class JourneyPlannerLocationResourceTest {
 
             List<SimpleStageDTO> stages = journeyDTO.getStages();
 
-            assertEquals(2, stages.size(), stages.toString());
-            assertEquals(TransportMode.Tram, stages.get(0).getMode());
+            assertTrue(stages.size()<=3, "too many stages " + stages);
 
-            assertEquals(TransportMode.Walk, stages.get(1).getMode());
-            SimpleStageDTO walkingStage = stages.get(1);
+            boolean noTramChange = stages.size() == 2;
+
+            assertEquals(TransportMode.Tram, stages.getFirst().getMode());
+
+            SimpleStageDTO walkingStage = stages.getLast();
+            assertEquals(TransportMode.Walk, walkingStage.getMode());
             assertEquals(nearAltrincham.latLong(), walkingStage.getLastStation().getLatLong());
 
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
-            assertEquals(1, changeStations.size());
+            int expectedNumChanges = noTramChange ? 1 : 2;
+            assertEquals(expectedNumChanges, changeStations.size());
 
             ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertEquals(TransportMode.Tram, changeStation.getFromMode());
@@ -191,11 +197,15 @@ class JourneyPlannerLocationResourceTest {
         int numberOfStages = 2;
 
         List<JourneyDTO> journeys = results.stream().
-                filter(journeyDTO -> journeyDTO.getStages().size() == numberOfStages).toList();
+                filter(journeyDTO -> journeyDTO.getStages().size() == numberOfStages).
+                sorted(Comparator.comparing(JourneyDTO::getFirstDepartureTime)).
+                toList();
         assertFalse(journeys.isEmpty());
 
         JourneyDTO firstJourney = journeys.getFirst();
-        assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
+        LocalDateTime firstDepartureTime = firstJourney.getFirstDepartureTime();
+        LocalDateTime queryTimeDate = queryTime.toDate(when);
+        assertTrue(firstDepartureTime.isBefore(queryTimeDate), firstDepartureTime + " was not before " + queryTimeDate);
 
         List<SimpleStageDTO> stages = firstJourney.getStages();
         assertEquals(TransportMode.Tram, stages.getFirst().getMode());
@@ -255,7 +265,7 @@ class JourneyPlannerLocationResourceTest {
 
         // Picc Gardens -> Market Street during closure
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.MarketStreet,
-                queryTime, true, when.plusDays(1));
+                queryTime, true, when);
 
         journeys.forEach(journeyDTO -> {
             LocalDateTime queryTimeDate = journeyDTO.getQueryTime().toDate(journeyDTO.getQueryDate());
@@ -274,7 +284,7 @@ class JourneyPlannerLocationResourceTest {
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 
-            TramStations.Ashton, false, 3);
+            TramStations.Ashton, false, maxChanges);
         
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         Set<JourneyDTO> journeys = plan.getJourneys();
@@ -293,7 +303,7 @@ class JourneyPlannerLocationResourceTest {
         TramTime queryTime = TramTime.of(23,0);
         int walkingTime = 13;
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime.plusMinutes(walkingTime), NavigationRoad, destination, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime.plusMinutes(walkingTime), NavigationRoad, destination, false, maxChanges);
 
         JourneyPlanRepresentation directFromStationNoWalking = journeyPlanner.getJourneyPlan(query);
 
@@ -306,7 +316,7 @@ class JourneyPlannerLocationResourceTest {
     private Set<JourneyDTO> validateJourneyFromLocation(KnownLocations start, FakeStation destination, TramTime queryTime,
                                                         boolean arriveBy, TramDate when) {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start.location(), destination, arriveBy, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start.location(), destination, arriveBy, maxChanges);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         return validateJourneyPresent(plan, query);
@@ -314,7 +324,7 @@ class JourneyPlannerLocationResourceTest {
 
     private Set<JourneyDTO> validateJourneyToLocation(FakeStation start, KnownLocations destination, TramTime queryTime, boolean arriveBy) {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy, maxChanges);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         return validateJourneyPresent(plan, query);

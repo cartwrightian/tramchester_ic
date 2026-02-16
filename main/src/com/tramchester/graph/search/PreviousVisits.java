@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +56,7 @@ public class PreviousVisits implements ReportsCacheStats {
     // TODO Disable for depth first?
 
     public void cacheVisitIfUseful(final HeuristicsReason reason, final GraphNode node, ImmutableJourneyState journeyState,
-                                   final EnumSet<GraphLabel> labels) {
+                                   final ImmutableEnumSet<GraphLabel> labels) {
         if (cachingDisabled) {
             return;
         }
@@ -98,7 +98,7 @@ public class PreviousVisits implements ReportsCacheStats {
     }
 
     public HeuristicsReason getPreviousResult(final ImmutableJourneyState journeyState,
-                                              final EnumSet<GraphLabel> labels, HowIGotHere howIGotHere) {
+                                              final ImmutableEnumSet<GraphLabel> labels, final HowIGotHere howIGotHere) {
 
         if (cachingDisabled) {
             return HeuristicsReasons.CacheMiss(howIGotHere);

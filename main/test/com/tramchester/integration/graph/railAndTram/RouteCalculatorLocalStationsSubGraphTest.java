@@ -7,6 +7,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -16,6 +17,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -33,14 +35,13 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -140,7 +141,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     void shouldHaveWalkBetweenAdjacentTramAndTrainStation() {
 
         JourneyRequest request = new JourneyRequest(when, time, false, 0,
-                Duration.ofMinutes(3), 1, getRequestedModes());
+                TramDuration.ofMinutes(3), 1, getRequestedModes());
 
         List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsList(tram(TramStations.Altrincham),
                 rail(Altrincham), request));
@@ -153,14 +154,14 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         TransportStage<?, ?> fromTram = fromTramStages.getFirst();
         assertEquals(Connect, fromTram.getMode());
-        assertEquals(Duration.ofSeconds(51), fromTram.getDuration());
+        assertEquals(TramDuration.ofSeconds(51), fromTram.getDuration());
     }
 
     @Test
     void shouldHaveWalkBetweenAdjacentTrainAndTramStation() {
 
         JourneyRequest request = new JourneyRequest(when, time, false, 0,
-                Duration.ofMinutes(3), 1, getRequestedModes());
+                TramDuration.ofMinutes(3), 1, getRequestedModes());
 
         List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsList(rail(Altrincham),
                 tram(TramStations.Altrincham), request));
@@ -173,14 +174,14 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         TransportStage<?, ?> fromTrain = fromTrainStages.getFirst();
         assertEquals(Connect, fromTrain.getMode());
-        assertEquals(Duration.ofSeconds(51), fromTrain.getDuration());
+        assertEquals(TramDuration.ofSeconds(51), fromTrain.getDuration());
     }
 
     @Test
     void shouldTakeDirectTrainAltrinchamToStockportWhenAvailable() {
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(240), 1, getRequestedModes());
+                TramDuration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = rail(Altrincham);
         Station dest = rail(Stockport);
@@ -191,7 +192,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(stages.getFirst().getMode(), Train, "wrong second stage for " + stages);
+            assertEquals(Train, stages.getFirst().getMode(), "wrong second stage for " + stages);
         });
     }
 
@@ -199,7 +200,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     void shouldTakeDirectTrainNavigationRoadToStockportWhenAvailable() {
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(240), 1, getRequestedModes());
+                TramDuration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = rail(NavigationRaod);
         Station dest = rail(Stockport);
@@ -210,7 +211,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(stages.getFirst().getMode(), Train, "wrong second stage for " + stages);
+            assertEquals(Train, stages.getFirst().getMode(), "wrong second stage for " + stages);
         });
     }
 
@@ -218,7 +219,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     void shouldTakeDirectTrainToNavigationRoadWhenAvailable() {
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                TramDuration.ofMinutes(30), 1, getRequestedModes());
 
         Station start = rail(Altrincham);
         Station dest = rail(NavigationRaod);
@@ -229,7 +230,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(stages.getFirst().getMode(), Train, "wrong first stage for " + stages);
+            assertEquals(Train, stages.getFirst().getMode(), "wrong first stage for " + stages);
         });
 
     }
@@ -238,7 +239,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     void shouldTakeDirectTrainAltrinchamTramToStockportRail() {
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(240), 1, getRequestedModes());
+                TramDuration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = tram(TramStations.Altrincham); // TRAM
         Station dest = rail(Stockport);
@@ -250,8 +251,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
-        assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
-        assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
+        assertEquals(Connect, stages.get(0).getMode(), "wrong first stage for " + stages);
+        assertEquals(Train, stages.get(1).getMode(), "wrong second stage for " + stages);
 
     }
 
@@ -260,7 +261,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         TramTime fromStockportTime = TramTime.of(14,5);
         JourneyRequest request = new JourneyRequest(when, fromStockportTime, false, 3,
-                Duration.ofMinutes(240), 1, getRequestedModes());
+                TramDuration.ofMinutes(240), 1, getRequestedModes());
 
         Station start = rail(Stockport); // TRAM
         Station dest = tram(TramStations.Timperley);
@@ -272,16 +273,16 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(3, stages.size(),  "too many stages " + journeys);
-        assertEquals(stages.get(0).getMode(), Train, "wrong first stage for " + journey);
-        assertEquals(stages.get(1).getMode(), Connect, "wrong second stage for " + journey);
-        assertEquals(stages.get(2).getMode(), Tram, "wrong third stage for " + journey);
+        assertEquals(Train, stages.get(0).getMode(), "wrong first stage for " + journey);
+        assertEquals(Connect, stages.get(1).getMode(), "wrong second stage for " + journey);
+        assertEquals(Tram, stages.get(2).getMode(), "wrong third stage for " + journey);
     }
 
     @Test
     void shouldTakeDirectTrainNavigationRoadTramToStockportRail() {
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(240), 3, getRequestedModes());
+                TramDuration.ofMinutes(240), 3, getRequestedModes());
 
         Station start = tram(TramStations.NavigationRoad); // TRAM
         Station dest = rail(Stockport);
@@ -293,14 +294,14 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
-        assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
-        assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
+        assertEquals(Connect, stages.get(0).getMode(), "wrong first stage for " + stages);
+        assertEquals(Train, stages.get(1).getMode(), "wrong second stage for " + stages);
 
     }
 
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return EnumSet.of(Train, Tram);
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return TrainAndTram;
     }
 
     private static class SubgraphConfig extends RailAndTramGreaterManchesterConfig {

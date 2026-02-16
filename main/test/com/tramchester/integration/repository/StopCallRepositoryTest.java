@@ -8,8 +8,10 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
@@ -24,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -79,7 +80,7 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldGetStopCallsForAStation() {
-        Set<Service> servicesForDate = serviceRepository.getServicesOnDate(when, config.getTransportModes());
+        Set<Service> servicesForDate = serviceRepository.getServicesOnDate(when, config.getTransportModesImmutable());
 
         final IdFor<Station> stationId = TramStations.ManAirport.getId();
 
@@ -120,7 +121,7 @@ public class StopCallRepositoryTest {
         assertFalse(costs.isEmpty());
         assertTrue(costs.consistent(), costs.toString());
 
-        assertEquals(Duration.ofMinutes(3), costs.min(), costs.toString());
+        assertEquals(TramDuration.ofMinutes(3), costs.min(), costs.toString());
     }
 
     @Test
@@ -207,7 +208,7 @@ public class StopCallRepositoryTest {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());
         assertEquals(12, stopsBetween.size());
 
-        IdSet<Station> unique = new IdSet<>(stopsBetween);
+        ImmutableIdSet<Station> unique = new IdSet<>(stopsBetween);
         assertEquals(unique.size(), stopsBetween.size());
     }
 

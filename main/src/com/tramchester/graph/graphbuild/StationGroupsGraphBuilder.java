@@ -9,11 +9,8 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.MutableGraphNode;
-import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.domain.time.TramDuration;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
@@ -25,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +40,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     private final GraphFilter graphFilter;
     private final StationAndPlatformNodeCache stationAndPlatformNodeCache;
     private final Geography geography;
-    private final Duration maxWalkingDuration;
+    private final TramDuration maxWalkingDuration;
 
     // NOTE: cannot use graphquery here as creates a circular dependency on this class
 
@@ -144,7 +140,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                                                  final MutableGraphNode parentNode, final StationLocalityGroup childGroup) {
         // parent group <-> child group
         final Location<?> parentGroup = stationGroupsRepository.getStationGroup(childGroup.getParentId());
-        final Duration walkingCost = geography.getWalkingDuration(childGroup, parentGroup);
+        final TramDuration walkingCost = geography.getWalkingDuration(childGroup, parentGroup);
 
         if (walkingCost.compareTo(maxWalkingDuration)<=0) {
             // todo seems some group's parents are a long way off
@@ -171,7 +167,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
-                    final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
+                    final TramDuration walkingCost = geography.getWalkingDuration(stationGroup, station);
 
                     final MutableGraphNode stationNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
                     if (stationNode==null) {

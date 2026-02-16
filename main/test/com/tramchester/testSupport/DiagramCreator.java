@@ -1,19 +1,20 @@
 package com.tramchester.testSupport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import jakarta.inject.Inject;
@@ -24,12 +25,11 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static com.tramchester.graph.reference.GraphLabel.*;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
 
@@ -194,7 +194,7 @@ public class DiagramCreator {
             addLine(builder, format("\"%s\"->\"%s\" [color=\"%s\"];\n", startNodeId, endNodeId,
                     getColorFor(relationshipType)));
         } else if (relationshipType== LINKED) {
-            Set<TransportMode> modes = edge.getTransportModes();
+            ImmutableEnumSet<TransportMode> modes = edge.getTransportModes();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes,
                     getColorFor(relationshipType)));
         } else {
@@ -316,12 +316,12 @@ public class DiagramCreator {
     private String createShortForm(TransportRelationshipTypes relationshipType, GraphRelationship edge) {
         String text = "";
         if (hasCost(relationshipType)) {
-            Duration cost = edge.getCost();
+            TramDuration cost = edge.getCost();
             if (!cost.isZero()) {
                 text = "(" + edge.getCost() + ")";
             }
         }
-        IdSet<Trip> tripIds = edge.getTripIds();
+        ImmutableIdSet<Trip> tripIds = edge.getTripIds();
         if (!tripIds.isEmpty()) {
             if (!text.isEmpty()) {
                 text = text + System.lineSeparator();

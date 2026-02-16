@@ -79,7 +79,7 @@ public class StationGroupsRepository {
         }
 
         logger.info("starting");
-        final List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
+        final List<GTFSSourceConfig> dataSources = config.getGtfsSourceConfig();
         dataSources.forEach(dataSource -> {
             final Set<TransportMode> modesToGroupStations = dataSource.groupedStationModes();
             if (!modesToGroupStations.isEmpty()) {

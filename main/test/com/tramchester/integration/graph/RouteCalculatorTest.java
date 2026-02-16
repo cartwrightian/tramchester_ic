@@ -5,9 +5,13 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
@@ -19,16 +23,17 @@ import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.inMemory.SaveGraph;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -37,9 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -47,7 +50,8 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.Durations.greaterOrEquals;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getGreen;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getPurple;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,26 +65,24 @@ public class RouteCalculatorTest {
     public static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static TramchesterConfig config;
 
-    private final int maxChanges = 2;
+    private int maxChanges;
 
-    private static EnumSet<TransportMode> requestedModes;
+    private static ImmutableEnumSet<TransportMode> requestedModes;
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxNumResults;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
         config = tramchesterConfig;
-        requestedModes = TramsOnly;
+        requestedModes = TransportMode.TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -90,10 +92,13 @@ public class RouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-        maxNumResults = config.getMaxNumResults();
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+        maxNumResults = config.getMaxNumberResults();
+        maxChanges = config.getMaxNumberChanges();
     }
 
     @AfterEach
@@ -108,17 +113,21 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() throws IOException {
+    void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() {
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
-        Set<String> expectedChanges = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, Victoria, MarketStreet).
+        journeyRequest.setDiag(true);
+
+        Set<String> expectedChanges = Stream.of(Cornbrook, StPetersSquare, Deansgate,
+                        Piccadilly, PiccadillyGardens, Victoria, MarketStreet).
                 map(TramStations::getName).collect(Collectors.toSet());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
 
         if (journeys.isEmpty() && config.getInMemoryGraph()) {
-            TestEnv.SaveInMemoryGraph(componentContainer, Path.of("RouteCalculatorTest.json"));
+            SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
+            saveGraph.save(Path.of("RouteCalculatorTest.json"));
         }
 
         assertFalse(journeys.isEmpty(), journeyRequest.toString());
@@ -142,7 +151,8 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveExpectedPathsForSimpleJoruney() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 5, 3);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45),
+                maxNumResults, maxChanges);
 
         calculator.calculateRouteAsList(TraffordBar, Deansgate, journeyRequest);
     }
@@ -151,9 +161,6 @@ public class RouteCalculatorTest {
     void shouldHaveSimpleJourneyOnTestDay() {
         final TramTime originalQueryTime = TramTime.of(9, 0);
         JourneyRequest journeyRequest = standardJourneyRequest(when, originalQueryTime, maxNumResults, 1);
-
-        //journeyRequest.setDiag(true);
-        //journeyRequest.setCachingDisabled(true);
 
         List<Journey> journeys = calculator.calculateRouteAsList(TraffordBar, Altrincham, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -218,7 +225,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
-        Duration cutoffInterval = Duration.ofMinutes(16);
+        TramDuration cutoffInterval = TramDuration.ofMinutes(16);
         final TramTime queryTime = TramTime.of(17, 45);
         JourneyRequest journeyRequest = standardJourneyRequest(when, queryTime, maxNumResults, maxChanges);
 
@@ -228,7 +235,7 @@ public class RouteCalculatorTest {
         assertTrue(earliest.isPresent());
 
         final TramTime firstDepartTime = earliest.get().getDepartTime();
-        Duration elapsed = TramTime.difference(queryTime, firstDepartTime);
+        TramDuration elapsed = TramTime.difference(queryTime, firstDepartTime);
         assertFalse(greaterOrEquals(elapsed, cutoffInterval), "first result too far in future " + firstDepartTime
                 + " cuttoff " + cutoffInterval + " earliest journey " + earliest) ;
     }
@@ -270,37 +277,51 @@ public class RouteCalculatorTest {
             journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
-                    forEach(cost -> assertFalse(cost.isZero() || cost.isNegative()));
-            Duration total = journey.getStages().stream().
+                    forEach(cost -> assertFalse(cost.isZero() || cost.invalid()));
+            TramDuration total = journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
-                    reduce(Duration.ZERO, Duration::plus);
-            assertTrue(total.compareTo(Duration.ofMinutes(20))>0);
+                    reduce(TramDuration.ZERO, TramDuration::plus);
+            assertTrue(total.compareTo(TramDuration.ofMinutes(20))>0);
         });
     }
 
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
-        TramStations start = Altrincham;
-
         long maxNumberJourneys = 5;
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21), maxNumberJourneys, maxChanges);
 
-        List<Journey> altyToPiccGardens = calculator.calculateRouteAsList(start, PiccadillyGardens, journeyRequest);
-        List<Journey> altyToMarketStreet = calculator.calculateRouteAsList(start, MarketStreet, journeyRequest);
+        List<Journey> routeAJourneys = calculator.calculateRouteAsList(Altrincham, PiccadillyGardens, journeyRequest);
+        assertFalse(routeAJourneys.isEmpty());
+        IdSet<Route> routesForA = routeAJourneys.stream().
+                flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
+        assertEquals(1, routesForA.size());
+        assertTrue(routesForA.contains(getPurple(when).getId()), "not expecting " + routesForA);
+
+        List<Journey> routeBJourneys = calculator.calculateRouteAsList(Altrincham, MarketStreet, journeyRequest);
+        assertFalse(routeBJourneys.isEmpty());
+        IdSet<Route> routesForB = routeBJourneys.stream().
+                flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
+        assertEquals(1, routesForB.size());
+        assertTrue(routesForB.contains(getGreen(when).getId()), "not expecting " + routesForB);
 
         JourneyRequest journeyRequestBoth = standardJourneyRequest(when, TramTime.of(10, 21),
-                2*maxNumberJourneys, maxChanges);
-        List<Journey> servedByBothRoutes = calculator.calculateRouteAsList(start, Deansgate, journeyRequestBoth);
+                2*maxNumberJourneys, 0);
 
-        assertFalse(altyToPiccGardens.isEmpty());
-        assertFalse(altyToMarketStreet.isEmpty());
+        List<Journey> servedByBothRoutes = calculator.calculateRouteAsList(Altrincham, Deansgate, journeyRequestBoth);
+
         assertFalse(servedByBothRoutes.isEmpty());
 
-        assertEquals(altyToPiccGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size(),
-            "Mismatch Alty to Picc G " + altyToPiccGardens.size() + " Alty to Market St " + altyToMarketStreet.size() + " both " + servedByBothRoutes.size());
+        ImmutableIdSet<Route> routesForBoth = servedByBothRoutes.stream().
+                flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
+        assertEquals(2, routesForBoth.size(), "Did use both available routes " + routesForBoth);
+
+        assertEquals(routeAJourneys.size()+routeBJourneys.size(), servedByBothRoutes.size(),
+            "Mismatch Alty to Picc G " + routeAJourneys.size() +
+                    " Alty to Market St " + routeBJourneys.size() +
+                    " both " + servedByBothRoutes.size());
     }
 
     // over max wait, catch failure to accumulate journey times correctly
@@ -360,6 +381,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    //@DisabledUntilDate(year = 2025, month = 12, day = 15)
     @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -370,7 +392,7 @@ public class RouteCalculatorTest {
         assertFalse(results.isEmpty(), "no results");    // results is iterator
         for (Journey result : results) {
             List<TransportStage<?,?>> stages = result.getStages();
-            assertEquals(2, stages.size());
+            assertEquals(2, stages.size(), "wrong number of stages " + stages);
             VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
             assertEquals(TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
@@ -447,6 +469,12 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldHandlePastMidnightDirectAltrinchamNOffTraffordBackToDepot() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,15), maxNumResults, maxChanges);
+        assertGetAndCheckJourneys(journeyRequest, Altrincham, OldTrafford);
+    }
+
+    @Test
     void shouldHandleAfterMidnightDirectCentral() {
         TramDate testDate = when;
 
@@ -471,6 +499,22 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldAltrinchamToShawAndCrompton() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,45), maxNumResults, 2);
+        assertGetAndCheckJourneys(journeyRequest, Altrincham, ShawAndCrompton);
+    }
+
+    // TODO very WIP
+    @Test
+    void shouldVictoriaToShawAndCrompton() {
+        // slow for in memory for JourneyPlannerResourceTest
+        for (int i = 0; i < 1; i++) {
+            JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,15), maxNumResults, 2);
+            assertGetAndCheckJourneys(journeyRequest, Victoria, ShawAndCrompton);
+        }
+    }
+
+    @Test
     void shouldReproIssueRochTownCentreToBury() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 0), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Bury);
@@ -485,20 +529,35 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, MediaCityUK);
     }
 
-    public static Duration costOfJourney(final Journey journey) {
+    public static TramDuration costOfJourney(final Journey journey) {
         final TramTime departs = journey.getDepartTime();
         final TramTime arrive = journey.getArrivalTime();
         return TramTime.difference(departs, arrive);
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 8)
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(11, 0), maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @Disabled("Not an issue at front end")
+    @Test
+    void shouldProvideASpreadOfDepartureTimes() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 45),
+                3, 1);
+
+        List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);
+
+        assertTrue(journeys.size()>1, "not enough results " +journeys);
+
+        Set<TramTime> uniqueDepartureTimes = journeys.stream().
+                map(Journey::getDepartTime).
+                collect(Collectors.toSet());
+
+        assertFalse(uniqueDepartureTimes.isEmpty());
+        assertNotEquals(1, uniqueDepartureTimes.size(), "Only got one time for " + journeys);
+    }
+
     @Test
     void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
 
@@ -592,9 +651,8 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproIssueWithJourneysToEcclesWithBus() {
-        TramDate testDate = when.plusWeeks(1);
 
-        JourneyRequest journeyRequest = standardJourneyRequest(testDate, TramTime.of(9,0), maxNumResults, 2);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 2);
 
         assertGetAndCheckJourneys(journeyRequest, Bury, Broadway);
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
@@ -644,7 +702,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 8)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 15), maxNumResults, 1);

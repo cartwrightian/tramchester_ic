@@ -47,7 +47,7 @@ public class LoadRailServicesFromText  {
 
         ProvidesRailTimetableRecords loadTimeTableRecords = new LocalRailRecords(config, railDataRecordFactory, ready, text, railDataFilenameRepository);
 
-        RailConfig railConfig = config.getRailConfig();
+        RailConfig railConfig = config.getRail();
 
         RailRouteIds railRouteIdRepository = new RailRouteIds(stationRecordsRepository, loadTimeTableRecords, railRouteIdBuilder, config, cacheMetric);
         railRouteIdRepository.start();

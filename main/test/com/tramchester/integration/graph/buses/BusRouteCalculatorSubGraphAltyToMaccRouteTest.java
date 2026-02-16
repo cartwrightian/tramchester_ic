@@ -2,12 +2,12 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
@@ -15,6 +15,7 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -24,6 +25,7 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.KnownLocations;
@@ -32,8 +34,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -112,7 +112,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
         final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(1000);
         knutfordStations = stationLocations.nearestStationsSorted(KnownLocations.nearKnutsfordBusStation.location(),
-                        10, rangeInMeters, config.getTransportModes()).
+                        10, rangeInMeters, config.getTransportModesImmutable()).
                 stream().
                 filter(station -> station.getName().contains("Bus Station")).
                 collect(Collectors.toList());
@@ -148,17 +148,17 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
     @Test
     void shouldHaveJourneyAltyToKnutsford() {
-        Station end = knutfordStations.get(0);
+        Station end = knutfordStations.getFirst();
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(120), 2, getRequestedModes());
+                TramDuration.ofMinutes(120), 2, getRequestedModes());
         List<Journey> results = calculator.calculateRouteAsList(altrinchamInterchange, end, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
         return BusesOnly;
     }
 
@@ -168,12 +168,12 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         // not on the specified filtered routes, so not present in the DB
 
         //Station start = compositeStationRepository.findByName("Bus Station");
-        Station start = knutfordStations.get(0);
+        Station start = knutfordStations.getFirst();
         assertNotNull(start, stationGroupsRepository.getAllGroups().toString());
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, Duration.ofMinutes(120), 2, getRequestedModes());
+                3, TramDuration.ofMinutes(120), 2, getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(start, altrinchamInterchange, journeyRequest);
 
@@ -187,7 +187,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
         TramTime time = TramTime.of(12, 40);
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, BusesOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(start, dest, request);
         assertFalse(results.isEmpty());
@@ -197,7 +197,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
     void shouldHaveMacclesfieldToKnutsford() {
         TramTime time = TramTime.of(12, 20);
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, BusesOnly);
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, BusesOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Knutsford,
                 request);
@@ -222,7 +222,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
                 TramTime time = TramTime.of(9, 20);
                 JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                        1, Duration.ofMinutes(120), 1, getRequestedModes());
+                        1, TramDuration.ofMinutes(120), 1, getRequestedModes());
 
                 for (int i = 1; i <= knutsfordIndex; i++) {
                     StopCall stopCall = stopCalls.getStopBySequenceNumber(i);

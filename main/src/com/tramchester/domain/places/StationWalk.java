@@ -2,19 +2,18 @@ package com.tramchester.domain.places;
 
 
 import com.tramchester.domain.id.HasId;
-
-import java.time.Duration;
+import com.tramchester.domain.time.TramDuration;
 
 public class StationWalk {
     private final Station station;
-    private final Duration cost;
+    private final TramDuration cost;
 
-    public StationWalk(Station station, Duration cost) {
+    public StationWalk(Station station, TramDuration cost) {
         this.cost = cost;
         this.station = station;
     }
 
-    public Duration getCost() {
+    public TramDuration getCost() {
         return cost;
     }
 

@@ -5,8 +5,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.CentralZoneStation;
@@ -16,7 +18,6 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
@@ -25,12 +26,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.*;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,7 +41,7 @@ public class RoutePairToInterchangeRepositoryTest {
     private static TramchesterConfig config;
 
     private TramRouteHelper routeHelper;
-    private final EnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
     private TramDate date;
     private RoutePairToInterchangeRepository repository;
 
@@ -69,12 +68,11 @@ public class RoutePairToInterchangeRepositoryTest {
     void beforeEachTestRuns() {
         routeHelper = new TramRouteHelper(componentContainer);
 
-        date = TestEnv.testDay().plusWeeks(1);
+        date = TestEnv.testDay();
 
         repository = componentContainer.get(RoutePairToInterchangeRepository.class);
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
         Route toTraffordCentre = routeHelper.getRed(date);
@@ -120,7 +118,7 @@ public class RoutePairToInterchangeRepositoryTest {
                 //Deansgate,
                 Cornbrook,
                 TraffordBar,
-                //Piccadilly,
+                Piccadilly,
                 PiccadillyGardens,
                 Shudehill
                 ).
@@ -133,7 +131,7 @@ public class RoutePairToInterchangeRepositoryTest {
             expected.add(TramStations.Deansgate.getId());
         }
 
-        IdSet<Station> diff = IdSet.disjunction(expected, stationIds);
+        ImmutableIdSet<Station> diff = IdSet.disjunction(expected, stationIds);
 
         assertEquals(IdSet.emptySet(), diff, "mismatch between expected " + expected + " and " + stationIds);
 

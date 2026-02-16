@@ -33,7 +33,7 @@ public class RailDataFilenameRepository {
 
     @Inject
     public RailDataFilenameRepository(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed, FetchDataFromUrl.Ready ready, Unzipper unzipper) {
-        railConfig = config.hasRailConfig() ? config.getRailConfig() : null;
+        railConfig = config.hasRailConfig() ? config.getRail() : null;
         this.remoteDataRefreshed = remoteDataRefreshed;
         this.unzipper = unzipper;
     }

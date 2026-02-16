@@ -1,14 +1,14 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,10 +19,10 @@ public class JourneyRequest {
     private final boolean arriveBy;
     private final MaxNumberOfChanges maxChanges;
     private final UUID uid;
-    private final Duration maxJourneyDuration;
+    private final TramDuration maxJourneyDuration;
     private final long maxNumberOfJourneys;
 
-    private final EnumSet<TransportMode> requestedModes;
+    private final ImmutableEnumSet<TransportMode> requestedModes;
 
     private boolean diagRequested;
     private boolean warnIfNoResults;
@@ -32,12 +32,13 @@ public class JourneyRequest {
     private JourneyDiagnostics journeyDiagnostics;
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
-                          Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
-        this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys, requestedModes);
+                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, ImmutableEnumSet<TransportMode> requestedModes) {
+        this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys,
+                requestedModes);
     }
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,
-                          Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
+                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, ImmutableEnumSet<TransportMode> requestedModes) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
@@ -55,6 +56,10 @@ public class JourneyRequest {
         cachingDisabled = false;
         warnIfNoResults = true;
         diagnosticsReceived = new AtomicBoolean(false);
+
+        if (maxChanges.get()>2) {
+            throw new RuntimeException("Finding out where it's too high, got " + maxChanges);
+        }
     }
 
     public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {
@@ -108,7 +113,7 @@ public class JourneyRequest {
         this.cachingDisabled = flag;
     }
 
-    public Duration getMaxJourneyDuration() {
+    public TramDuration getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
 
@@ -142,7 +147,7 @@ public class JourneyRequest {
                 '}';
     }
 
-    public EnumSet<TransportMode> getRequestedModes() {
+    public ImmutableEnumSet<TransportMode> getRequestedModes() {
         return requestedModes;
     }
 
@@ -168,9 +173,9 @@ public class JourneyRequest {
         return cachingDisabled;
     }
 
-    public TimeRange getJourneyTimeRange(final Duration offset) {
-        final Duration timeout = offset.plus(maxJourneyDuration);
-        return TimeRangePartial.of(originalQueryTime, Duration.ZERO, timeout);
+    public TimeRange getJourneyTimeRange(final TramDuration offset) {
+        final TramDuration timeout = offset.plus(maxJourneyDuration);
+        return TimeRangePartial.of(originalQueryTime, TramDuration.ZERO, timeout);
     }
 
     public static class MaxNumberOfChanges {

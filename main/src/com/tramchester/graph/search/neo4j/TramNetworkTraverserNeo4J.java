@@ -2,12 +2,13 @@ package com.tramchester.graph.search.neo4j;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.neo4j.CreateGraphTraverser;
 import com.tramchester.graph.core.neo4j.GraphPathNeo4j;
@@ -26,8 +27,6 @@ import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
@@ -73,7 +72,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
 
     @Override
     public Stream<GraphPath> findPaths(final PathRequest pathRequest,
-                                       final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
+                                       final PreviousVisits previousVisits, final ServiceReasons reasons, final ArrivalHandler arrivalHandler,
                                        final TowardsDestination towardsDestination,
                                        final Running running) {
 
@@ -88,7 +87,7 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
         final GraphNodeId startNodeId = startNode.getId();
 
         final TramRouteEvaluatorNeo4J tramRouteEvaluator = new TramRouteEvaluatorNeo4J(pathRequest,
-                destinationNodeIds, reasons, previousVisits, lowestCostSeen, config,
+                destinationNodeIds, reasons, previousVisits, arrivalHandler, config,
                 startNodeId, txn, running);
 
         final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);
@@ -153,27 +152,27 @@ public class TramNetworkTraverserNeo4J implements PathExpander<JourneyState>, Tr
 
         final GraphRelationship lastRelationship = path.getLastRelationship(txn); //txn.lastFrom(path);
 
-        final Duration cost;
+        final TramDuration cost;
         if (lastRelationship != null) {
             cost = lastRelationship.getCost();
 
-            if (Durations.greaterThan(cost, Duration.ZERO)) {
-                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
-                final Duration total = totalCost.plus(cost);
+            if (Durations.greaterThan(cost, TramDuration.ZERO)) {
+                final TramDuration totalCost = currentJourneyState.getTotalDurationSoFar();
+                final TramDuration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
             }
 
             if (lastRelationship.isType(DIVERSION)) {
-                final IdFor<Station> stationId = lastRelationship.getStartStationId();
+                final IdFor<Station> stationId = lastRelationship.getStartStationId(txn);
                 journeyStateForChildren.beginDiversion(stationId);
             }
         } else {
-            cost = Duration.ZERO;
+            cost = TramDuration.ZERO;
         }
 
         final GraphNode endPathNode =  path.getEndNode(txn); // txn.fromEnd(path);
 
-        final EnumSet<GraphLabel> labels = endPathNode.getLabels();
+        final ImmutableEnumSet<GraphLabel> labels = endPathNode.getLabels();
 
         final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
                 journeyStateForChildren, cost);

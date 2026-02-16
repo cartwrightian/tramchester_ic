@@ -10,6 +10,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,14 +35,15 @@ public class TransactionManagerTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         ProvidesNow providesNow = new ProvidesLocalNow();
-        Graph graph = new Graph();
+        GraphIdFactory graphIdFactory = new GraphIdFactory();
+        GraphCore graph = new GraphCore(graphIdFactory);
         graph.start();
-        transactionManager = new TransactionManager(providesNow, graph);
+        transactionManager = new TransactionManager(providesNow, graph, graphIdFactory);
     }
 
     @Test
     void shouldCreateTransactionWithExpectedId() {
-        try (GraphTransaction graphTransaction = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (GraphTransaction graphTransaction = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             int id = graphTransaction.getTransactionId();
             assertEquals(1, id);
         }
@@ -49,7 +51,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldCreateNode() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode node = txn.createNode(FERRY);
 
             assertTrue(node.isNode());
@@ -61,14 +63,43 @@ public class TransactionManagerTest {
             assertFalse(node.hasLabel(TRAIN));
 
             GraphNodeId id = node.getId();
-            assertEquals(new NodeIdInMemory(0), id);
+            assertEquals(new NodeIdInMemory(1), id);
 
+            txn.commit();
+        }
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
+            List<GraphNode> found = txn.findNodes(FERRY).toList();
+            assertEquals(1, found.size());
+        }
+    }
+
+    @Test
+    void shouldCreateNodeButNotCommit() {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+            MutableGraphNode node = txn.createNode(FERRY);
+
+            assertTrue(node.isNode());
+            assertFalse(node.isRelationship());
+
+            assertTrue(node.getLabels().contains(FERRY));
+            assertEquals(1, node.getLabels().size());
+            assertTrue(node.hasLabel(FERRY));
+            assertFalse(node.hasLabel(TRAIN));
+
+            GraphNodeId id = node.getId();
+            assertEquals(new NodeIdInMemory(1), id);
+        }
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
+            List<GraphNode> found = txn.findNodes(FERRY).toList();
+            assertTrue(found.isEmpty());
         }
     }
 
     @Test
     void shouldUpdateLabel() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             final MutableGraphNode node = txn.createNode(FERRY);
             final GraphNodeId id = node.getId();
 
@@ -89,7 +120,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldFindNodesByIdAndLabels() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
 
             assertFalse(txn.hasAnyMatching(FERRY));
 
@@ -125,7 +156,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldGetRelationships() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
 
             MutableGraphNode nodeA = txn.createNode(ROUTE_STATION);
             MutableGraphNode nodeB = txn.createNode(STATION);
@@ -140,12 +171,12 @@ public class TransactionManagerTest {
 
             EnumSet<TransportRelationshipTypes> relationshipTypes = EnumSet.copyOf(Arrays.asList(TransportRelationshipTypes.forPlanning()));
 
-            List<GraphRelationship> initialSearch = txn.getRouteStationRelationships(routeStation, Outgoing, relationshipTypes);
+            List<GraphRelationship> initialSearch = GraphHelper.getRelationshipsForRouteStation(txn, routeStation, Outgoing, relationshipTypes);
             assertTrue(initialSearch.isEmpty());
 
             MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.DEPART);
 
-            List<GraphRelationship> result = txn.getRouteStationRelationships(routeStation, Outgoing, relationshipTypes);
+            List<GraphRelationship> result = GraphHelper.getRelationshipsForRouteStation(txn, routeStation, Outgoing, relationshipTypes);
             assertFalse(result.isEmpty());
 
             assertTrue(result.contains(relationship));
@@ -160,7 +191,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldFindNodesByDomainItem() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             Station station = Victoria.fake();
 
             MutableGraphNode nodeA = txn.createNode(station.getNodeLabel());
@@ -190,7 +221,8 @@ public class TransactionManagerTest {
 
     @Test
     void shouldCreateRelationship() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        final GraphRelationshipId id;
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -203,8 +235,8 @@ public class TransactionManagerTest {
             assertTrue(relationship.isType(FERRY_GOES_TO));
             assertFalse(relationship.isType(TRAIN_GOES_TO));
 
-            GraphRelationshipId id = relationship.getId();
-            assertEquals(new RelationshipIdInMemory(0), id);
+            id = relationship.getId();
+            assertEquals(new RelationshipIdInMemory(1), id);
 
             assertEquals(start, relationship.getStartNode(txn));
             assertEquals(end, relationship.getEndNode(txn));
@@ -212,12 +244,55 @@ public class TransactionManagerTest {
             assertEquals(start.getId(), relationship.getStartNodeId(txn));
             assertEquals(end.getId(), relationship.getEndNodeId(txn));
 
+            txn.commit();
+        }
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
+            GraphRelationship found = txn.getRelationshipById(id);
+            assertNotNull(found);
+
+            assertTrue(found.isType(FERRY_GOES_TO));
+
+        }
+    }
+
+    @Test
+    void shouldCreateRelationshipNoCommit() {
+        final GraphRelationshipId id;
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+            MutableGraphNode start = txn.createNode(FERRY);
+            MutableGraphNode end = txn.createNode(TRAIN);
+
+            MutableGraphRelationship relationship = start.createRelationshipTo(txn, end, FERRY_GOES_TO);
+
+            assertTrue(relationship.isRelationship());
+            assertFalse(relationship.isNode());
+
+            assertEquals(FERRY_GOES_TO, relationship.getType());
+            assertTrue(relationship.isType(FERRY_GOES_TO));
+            assertFalse(relationship.isType(TRAIN_GOES_TO));
+
+            id = relationship.getId();
+            assertEquals(new RelationshipIdInMemory(1), id);
+
+            assertEquals(start, relationship.getStartNode(txn));
+            assertEquals(end, relationship.getEndNode(txn));
+
+            assertEquals(start.getId(), relationship.getStartNodeId(txn));
+            assertEquals(end.getId(), relationship.getEndNodeId(txn));
+        }
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
+            assertThrows(RuntimeException.class, () -> txn.getRelationshipById(id));
+//            GraphRelationship found = txn.getRelationshipById(id);
+//            assertNull(found);
+
         }
     }
 
     @Test
     void shouldQueryRelationship() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -238,7 +313,7 @@ public class TransactionManagerTest {
 
     @Test
     void shouldQueryRelationships() {
-            try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+            try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
                 MutableGraphNode start = txn.createNode(FERRY);
                 MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -266,35 +341,35 @@ public class TransactionManagerTest {
             }
         }
 
-        @Test
-        void shouldQueryRelationshipsMutable() {
-            try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
-                MutableGraphNode start = txn.createNode(FERRY);
-                MutableGraphNode end = txn.createNode(TRAIN);
+    @Test
+    void shouldQueryRelationshipsMutable() {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+            MutableGraphNode start = txn.createNode(FERRY);
+            MutableGraphNode end = txn.createNode(TRAIN);
 
-                MutableGraphRelationship relationshipA = start.createRelationshipTo(txn, end, FERRY_GOES_TO);
-                end.createRelationshipTo(txn, start, TRAIN_GOES_TO);
+            MutableGraphRelationship relationshipA = start.createRelationshipTo(txn, end, FERRY_GOES_TO);
+            end.createRelationshipTo(txn, start, TRAIN_GOES_TO);
 
-                assertTrue(start.hasRelationship(txn, Outgoing, FERRY_GOES_TO));
-                assertTrue(end.hasRelationship(txn, Incoming, FERRY_GOES_TO));
+            assertTrue(start.hasRelationship(txn, Outgoing, FERRY_GOES_TO));
+            assertTrue(end.hasRelationship(txn, Incoming, FERRY_GOES_TO));
 
-                MutableGraphRelationship singleOutgoing = start.getSingleRelationshipMutable(txn, FERRY_GOES_TO, Outgoing);
-                assertNotNull(singleOutgoing);
-                assertEquals(relationshipA.getId(), singleOutgoing.getId());
+            MutableGraphRelationship singleOutgoing = start.getSingleRelationshipMutable(txn, FERRY_GOES_TO, Outgoing);
+            assertNotNull(singleOutgoing);
+            assertEquals(relationshipA.getId(), singleOutgoing.getId());
 
-                MutableGraphRelationship singleIncoming = end.getSingleRelationshipMutable(txn, FERRY_GOES_TO, Incoming);
-                assertNotNull(singleIncoming);
-                assertEquals(relationshipA.getId(), singleIncoming.getId());
+            MutableGraphRelationship singleIncoming = end.getSingleRelationshipMutable(txn, FERRY_GOES_TO, Incoming);
+            assertNotNull(singleIncoming);
+            assertEquals(relationshipA.getId(), singleIncoming.getId());
 
-                List<MutableGraphRelationship> atStart = start.getRelationshipsMutable(txn, Outgoing, FERRY_GOES_TO).toList();
-                assertEquals(1, atStart.size());
-                assertTrue(atStart.contains(relationshipA));
-            }
+            List<MutableGraphRelationship> atStart = start.getRelationshipsMutable(txn, Outgoing, FERRY_GOES_TO).toList();
+            assertEquals(1, atStart.size());
+            assertTrue(atStart.contains(relationshipA));
         }
+    }
 
     @Test
     void shouldUpdateQueryStationsForRelationships() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
@@ -310,22 +385,25 @@ public class TransactionManagerTest {
             start.set(stationA);
             end.set(stationB);
 
-            IdFor<Station> beginId = relationship.getStartStationId();
+            IdFor<Station> beginId = relationship.getStartStationId(txn);
             assertEquals(stationA.getId(), beginId);
 
-            IdFor<Station> endId = relationship.getEndStationId();
+            IdFor<Station> endId = relationship.getEndStationId(txn);
             assertEquals(stationB.getId(), endId);
         }
     }
 
     @Test
     void shouldDeleteNodesAndRelationships() {
-        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1))) {
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode start = txn.createNode(FERRY);
             MutableGraphNode end = txn.createNode(TRAIN);
 
             MutableGraphRelationship relationshipA = start.createRelationshipTo(txn, end, FERRY_GOES_TO);
             MutableGraphRelationship relationshipB = end.createRelationshipTo(txn, start, TRAIN_GOES_TO);
+
+            assertEquals(1, txn.findRelationships(FERRY_GOES_TO).count());
+            assertEquals(1, txn.findRelationships(TRAIN_GOES_TO).count());
 
             assertTrue(start.hasRelationship(txn, Outgoing, FERRY_GOES_TO));
             assertTrue(end.hasRelationship(txn, Incoming, FERRY_GOES_TO));
@@ -336,11 +414,15 @@ public class TransactionManagerTest {
 
             assertFalse(start.hasRelationship(txn, Outgoing, FERRY_GOES_TO));
             assertFalse(end.hasRelationship(txn, Incoming, FERRY_GOES_TO));
+
             assertTrue(start.hasRelationship(txn, Incoming, TRAIN_GOES_TO));
             assertTrue(end.hasRelationship(txn, Outgoing, TRAIN_GOES_TO));
 
             List<GraphRelationship> foundOutgoing = start.getRelationships(txn, Outgoing, FERRY_GOES_TO).toList();
             assertTrue(foundOutgoing.isEmpty());
+
+            assertEquals(0, txn.findRelationships(FERRY_GOES_TO).count());
+            assertEquals(1, txn.findRelationships(TRAIN_GOES_TO).count());
 
             relationshipB.delete(txn);
 
@@ -352,11 +434,16 @@ public class TransactionManagerTest {
             List<GraphRelationship> foundBoth = start.getRelationships(txn, Both, FERRY_GOES_TO, TRAIN_GOES_TO).toList();
             assertTrue(foundBoth.isEmpty());
 
+            assertEquals(0, txn.findRelationships(FERRY_GOES_TO).count());
+            assertEquals(0, txn.findRelationships(TRAIN_GOES_TO).count());
+
             end.delete(txn);
 
             assertFalse(txn.hasAnyMatching(TRAIN));
 
-            assertThrows(GraphException.class, () -> txn.getNodeById(end.getId()));
+            GraphNode nodeById = txn.getNodeById(end.getId());
+            assertNull(nodeById);
+            //assertThrows(GraphException.class, () -> nodeById);
 
         }
     }

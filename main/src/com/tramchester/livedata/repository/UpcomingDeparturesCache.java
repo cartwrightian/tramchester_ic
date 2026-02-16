@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ReportsCacheStats;
@@ -11,7 +12,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +22,7 @@ public class UpcomingDeparturesCache  {
     private final DeparturesCache cache;
     private final CacheMetrics cacheMetrics;
 
-    public UpcomingDeparturesCache(long size, Duration duration, CacheMetrics cacheMetrics) {
+    public UpcomingDeparturesCache(long size, TramDuration duration, CacheMetrics cacheMetrics) {
         this.cacheMetrics = cacheMetrics;
         cache = new DeparturesCache(size, duration);
     }
@@ -42,7 +42,7 @@ public class UpcomingDeparturesCache  {
     private static class DeparturesCache implements ReportsCacheStats {
         private final Cache<Station, List<UpcomingDeparture>> cache;
 
-        private DeparturesCache(long size, Duration duration) {
+        private DeparturesCache(long size, TramDuration duration) {
             cache = Caffeine.newBuilder().maximumSize(size).
                     expireAfterWrite(duration.getSeconds(), TimeUnit.SECONDS).
                     initialCapacity((int) size).

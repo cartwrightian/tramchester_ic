@@ -96,7 +96,7 @@ public class StationsWithDiversionsRepositoryTest {
         }
 
         @Override
-        public TfgmTramLiveDataConfig getLiveDataConfig() {
+        public TfgmTramLiveDataConfig getTfgmTramliveData() {
             return null;
         }
 

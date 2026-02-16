@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -33,7 +33,7 @@ public class SharedNodeCache implements ReportsCacheStats {
     private final IdCache<GraphNodeId, RouteStation> routeStationIdCache;
     private final IdCache<GraphNodeId, Station> stationIdCache;
     private final IdCache<GraphNodeId, Service> serviceIdCache;
-    private final SimpleCache<EnumSet<GraphLabel>>  labelsCache;
+    private final SimpleCache<ImmutableEnumSet<GraphLabel>>  labelsCache;
     private final SimpleCache<Integer> hourCache;
     private final SimpleCache<TramTime> tramTimeCache;
 
@@ -89,12 +89,13 @@ public class SharedNodeCache implements ReportsCacheStats {
         return serviceIdCache.get(nodeId, fetcher);
     }
 
-    public boolean hasLabel(final GraphNodeId nodeId, final GraphLabel graphLabel, final Function<GraphNodeId, EnumSet<GraphLabel>> fetcher) {
-        final EnumSet<GraphLabel> labels = labelsCache.get(nodeId, fetcher);
+    public boolean hasLabel(final GraphNodeId nodeId, final GraphLabel graphLabel,
+                            final Function<GraphNodeId, ImmutableEnumSet<GraphLabel>> fetcher) {
+        final ImmutableEnumSet<GraphLabel> labels = labelsCache.get(nodeId, fetcher);
         return labels.contains(graphLabel);
     }
 
-    public EnumSet<GraphLabel> getLabels(final GraphNodeId nodeId, final Function<GraphNodeId, EnumSet<GraphLabel>> fetcher) {
+    public ImmutableEnumSet<GraphLabel> getLabels(final GraphNodeId nodeId, final Function<GraphNodeId, ImmutableEnumSet<GraphLabel>> fetcher) {
         return labelsCache.get(nodeId, fetcher);
     }
 

@@ -10,9 +10,9 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 public interface MutableGraphRelationship extends GraphRelationship {
@@ -25,7 +25,7 @@ public interface MutableGraphRelationship extends GraphRelationship {
 
     void setHour(int hour);
 
-    void setCost(Duration cost);
+    void setCost(TramDuration cost);
 
     <C extends GraphProperty & CoreDomain & HasId<C>> void set(C domainItem);
 

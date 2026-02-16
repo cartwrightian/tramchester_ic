@@ -3,7 +3,9 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
@@ -13,7 +15,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.latestCutoverDate;
 
 /*
  * see also TramRouteHelper
@@ -22,14 +24,10 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses
-    //ReplacementBusOne(BusOne, "Replacement Bus One", "2462", TramDate.of(2025,10,25)),
-    ReplacementBusOneNewA(BusOne, "Replacement Bus One", "3080", TramDate.of(2025,11,1)),
-    ReplacementBusOneNewB(BusOne, "Replacement Bus One", "2949", TramDate.of(2025,11,16)),
 
-    ReplacementBusTwoA(BusTwo, "Replacement Bus Two", "3081", TramDate.of(2025,11,1)),
-    ReplacementBusTwoB(BusTwo, "Replacement Bus Two", "2736", TramDate.of(2025,11,16)),
-
-    ReplacementBusThree(BusThree, "Replacement Bus Three", "3082", TramDate.of(2025,11,1)),
+    ReplacementBusOne(BusOne, "Replacement Bus One", "3080", TramDate.of(2026,2,8)),
+    //ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", EmergencyWorksDeansgateDev2025),
+    //ReplacementBusThree(BusThree, "Replacement Bus Three", "3082", TramDate.of(2025,11,1)),
 
     // Blue
     EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", latestCutoverDate),

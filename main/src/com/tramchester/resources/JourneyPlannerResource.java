@@ -15,9 +15,11 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
@@ -33,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.Set;
@@ -123,6 +124,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             final int diff = journeyDTOS.size()-filtered.size();
             if (diff!=0) {
                 logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
+            } else {
+                logger.info(format("No filtering, returning %s journeys", journeyDTOS.size()));
             }
 
             // TODO likely this will only remain for the diag API, with streamed for the production one
@@ -177,7 +180,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                         @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
                                         @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
                                         @Context UriInfo uriInfo) {
-        logger.info("Got journey query " + query);
+        logger.info("Got streamed journey query " + query);
 
         // diagnostics not supported for streamed response, no way to send them via the stream
 
@@ -212,25 +215,28 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             return buildResponse(Response.ok(jsonStreamingOutput), start, dest, cookie, uriInfo, secure);
 
         } catch(Exception exception) {
-            logger.error("Problem processing response", exception);
+            logger.error("Problem processing streamed response", exception);
             return Response.serverError().build();
         }
     }
 
     private JourneyRequest createJourneyRequest(final JourneyQueryDTO query) {
-        // if no modes provided then default to all modes currently configured
-        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
-        final TramDate date = query.getTramDate();
-        final LocalTime time = query.getTime();
-        final boolean arriveBy = query.isArriveBy();
-        final int maxChanges = query.getMaxChanges();
-        final TramTime queryTime = TramTime.ofHourMins(time);
-        final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
 
-        int maxNumberResults = (query.getMaxNumResults()==null) ? config.getMaxNumResults() : query.getMaxNumResults();
+        return JourneyQueryDTO.toJourneyRequest(config, query);
 
-        return new JourneyRequest(date, queryTime, arriveBy, JourneyRequest.MaxNumberOfChanges.of(maxChanges),
-                maxJourneyDuration,  maxNumberResults, modes);
+//        // if no modes provided then default to all modes currently configured
+//        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
+//        final TramDate date = query.getTramDate();
+//        final LocalTime time = query.getTime();
+//        final boolean arriveBy = query.isArriveBy();
+//        final int maxChanges = query.getMaxChanges();
+//        final TramTime queryTime = TramTime.ofHourMins(time);
+//        final TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+//
+//        int maxNumberResults = (query.getMaxNumResults()==null) ? config.getMaxNumberResults() : query.getMaxNumResults();
+//
+//        return new JourneyRequest(date, queryTime, arriveBy, JourneyRequest.MaxNumberOfChanges.of(maxChanges),
+//                maxJourneyDuration,  maxNumberResults, modes);
     }
 
     private Response buildResponse(Response.ResponseBuilder responseBuilder, Location<?> start, Location<?> dest, Cookie cookie,

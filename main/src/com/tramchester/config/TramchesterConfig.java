@@ -1,10 +1,12 @@
 package com.tramchester.config;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
 import io.dropwizard.core.Configuration;
@@ -16,7 +18,6 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Time;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -77,7 +78,9 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract int getMaxWait();
 
     // max number of results to return via the API
-    public abstract int getMaxNumResults();
+    public abstract int getMaxNumberResults();
+
+    public abstract int getMaxNumberChanges();
 
     // number of queries to do for each given time, spaced by QueryInterval below
     public abstract int getNumberQueries();
@@ -91,10 +94,10 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // maximum length of a journey in minutes
     public abstract int getMaxJourneyDuration();
 
-    public abstract SwaggerBundleConfiguration getSwaggerBundleConfiguration();
+    public abstract SwaggerBundleConfiguration getSwagger();
 
     // number of days before data expiry to start warning
-    public abstract int getDataExpiryThreadhold();
+    public abstract int getDataExpiryThreshold();
 
     // remove the (Purple Line) part of the route name?
     //public abstract boolean getRemoveRouteNameSuffix();
@@ -106,22 +109,22 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract NeighbourConfig getNeighbourConfig();
 
     // config for each of the GTFS data sources
-    public abstract List<GTFSSourceConfig> getGTFSDataSource();
+    public abstract List<GTFSSourceConfig> getGtfsSourceConfig();
 
     // config for each remote data source to be downloaded
-    public abstract List<RemoteDataSourceConfig> getRemoteDataSourceConfig();
+    public abstract List<RemoteDataSourceConfig> getRemoteSources();
 
     // live transport data config
-    public abstract TfgmTramLiveDataConfig getLiveDataConfig();
+    public abstract TfgmTramLiveDataConfig getTfgmTramliveData();
 
     //  Open Live Departure Boards Web Service config
-    public abstract OpenLdbConfig getOpenldbwsConfig();
+    public abstract OpenLdbConfig getOpenLdb();
 
     // config for auth against open rail data download
-    public abstract OpenRailDataConfig getOpenRailDataConfig();
+    public abstract OpenRailDataConfig getOpenRailData();
 
     // rail data
-    public abstract RailConfig getRailConfig();
+    public abstract RailConfig getRail();
 
     // Graph DB Config
     public abstract GraphDBConfig getGraphDBConfig();
@@ -129,12 +132,16 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // bounding box for stations to include
     public abstract BoundingBox getBounds();
 
+    public ImmutableEnumSet<TransportMode> getTransportModesImmutable() {
+        return ImmutableEnumSet.copyOf(getTransportModes());
+    }
+
     public EnumSet<TransportMode> getTransportModes() {
         final EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);
-        getGTFSDataSource().stream().
+        getGtfsSourceConfig().stream().
                 map(GTFSSourceConfig::getTransportModes).forEach(result::addAll);
 
-        final RailConfig railConfig = getRailConfig();
+        final RailConfig railConfig = getRail();
         if (railConfig!=null) {
             result.add(Train);
             result.add(RailReplacementBus);
@@ -144,13 +151,13 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     }
 
     public RemoteDataSourceConfig getDataRemoteSourceConfig(DataSourceID dataSourceID) {
-        return getRemoteDataSourceConfig().stream().
+        return getRemoteSources().stream().
                 filter(config -> config.getDataSourceId()==dataSourceID).
                 findFirst().orElseThrow();
     }
 
     public boolean hasRemoteDataSourceConfig(DataSourceID dataSourceID) {
-        return getRemoteDataSourceConfig().stream().anyMatch(config -> config.getDataSourceId()==dataSourceID);
+        return getRemoteSources().stream().anyMatch(config -> config.getDataSourceId()==dataSourceID);
     }
 
     // number of connections to make by walking
@@ -159,11 +166,11 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract boolean getSendCloudWatchMetrics();
 
     public boolean liveTfgmTramDataEnabled() {
-        return getLiveDataConfig()!=null;
+        return getTfgmTramliveData()!=null;
     }
 
     public boolean liveTrainDataEnabled() {
-        return getOpenldbwsConfig()!=null;
+        return getOpenLdb()!=null;
     }
 
     public abstract boolean getDepthFirst();
@@ -172,7 +179,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public abstract long getCalcTimeoutMillis();
 
-    public abstract long GetCloudWatchMetricsFrequencyMinutes();
+    public abstract long getCloudWatchMetricsFrequencyMinutes();
 
     public abstract boolean getPlanningEnabled();
 
@@ -187,7 +194,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract boolean getInMemoryGraph();
 
     public boolean hasRailConfig() {
-        return getRailConfig()!=null;
+        return getRail()!=null;
     }
 
     public boolean onlyMarkedInterchange(Station station) {
@@ -203,23 +210,23 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     private void populateDataSourceMap() {
         if (dataSources.isEmpty()) {
-            final List<GTFSSourceConfig> gtfsSources = getGTFSDataSource();
+            final List<GTFSSourceConfig> gtfsSources = getGtfsSourceConfig();
             gtfsSources.forEach(gtfsSource -> dataSources.put(gtfsSource.getDataSourceId(), gtfsSource));
-            final RailConfig railConfig = getRailConfig();
+            final RailConfig railConfig = getRail();
             if (railConfig != null) {
                 dataSources.put(railConfig.getDataSourceId(), railConfig);
             }
         }
     }
 
-    public Duration getInitialMaxWaitFor(final DataSourceID sourceId) {
+    public TramDuration getInitialMaxWaitFor(final DataSourceID sourceId) {
         final TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
         return sourceConfig.getMaxInitialWait();
     }
 
     public String getLiveDataSNSPublishTopic() {
         if (liveTfgmTramDataEnabled()) {
-            TfgmTramLiveDataConfig liveDataConfig = getLiveDataConfig();
+            TfgmTramLiveDataConfig liveDataConfig = getTfgmTramliveData();
             String topic = liveDataConfig.getSnsTopicPublishPrefix();
             if (topic==null) {
                 return "";
@@ -240,14 +247,14 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return Quantities.getQuantity(metersPerSecond, METRE_PER_SECOND);
     }
 
-    public Duration getWalkingDuration() {
+    public TramDuration getWalkingDuration() {
         final ComparableQuantity<Speed> speed = getWalkingSpeed();
         final ComparableQuantity<Length> distance = getWalkingDistanceRange().getDistance();
 
         final ComparableQuantity<Time> result = distance.divide(speed, Time.class);
 
         Number seconds = result.to(SECOND).getValue();
-        return Duration.ofSeconds(seconds.longValue());
+        return TramDuration.ofSeconds(seconds.longValue());
     }
 
     public boolean inProdEnv() {
@@ -255,15 +262,15 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return getEnvironmentName().startsWith("Prod");
     }
 
-    public static Duration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
+    public static TramDuration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
         return config.getInitialMaxWaitFor(location.getDataSourceID());
     }
 
-    public static Duration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
-        final Optional<Duration> longestWait = stationWalks.stream().
+    public static TramDuration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
+        final Optional<TramDuration> longestWait = stationWalks.stream().
                 map(StationWalk::getStation).
                 map(station -> getMaxInitialWaitFor(station, config)).
-                max(Duration::compareTo);
+                max(TramDuration::compareTo);
         if (longestWait.isEmpty()) {
             throw new RuntimeException("Could not compute initial max wait for " + stationWalks);
         }

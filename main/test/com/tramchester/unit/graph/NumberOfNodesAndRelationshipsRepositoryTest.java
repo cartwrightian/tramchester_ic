@@ -77,28 +77,28 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
     @Test
     void shouldHaveCorrectNumberOfRelationsBoardDepartAndTravel() {
 
-        assertEquals(8, repository.numberOf(TransportRelationshipTypes.TRAM_GOES_TO));
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.TRAM_GOES_TO), "TRAM_GOES_TO");
 
-        assertEquals(8, repository.numberOf(TransportRelationshipTypes.BOARD));
-        assertEquals(8, repository.numberOf(TransportRelationshipTypes.DEPART));
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.BOARD), "BOARD");
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.DEPART), "DEPART");
 
-        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
-        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
+        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD), "INTERCHANGE_BOARD");
+        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART), "INTERCHANGE_DEPART");
 
     }
 
     @Test
     void shouldHaveCorrectNumberService() {
-        assertEquals(6, repository.numberOf(GraphLabel.SERVICE));
-        assertEquals(6, repository.numberOf(TransportRelationshipTypes.TO_SERVICE));
+        assertEquals(6, repository.numberOf(GraphLabel.SERVICE), "SERVICE");
+        assertEquals(6, repository.numberOf(TransportRelationshipTypes.TO_SERVICE), "TO_SERVICE");
     }
 
     @Test
     void shouldHaveCorrectNumberTime() {
-        assertEquals(7, repository.numberOf(GraphLabel.HOUR));
-        assertEquals(8, repository.numberOf(GraphLabel.MINUTE));
+        assertEquals(7, repository.numberOf(GraphLabel.HOUR) , "HOUR");
+        assertEquals(8, repository.numberOf(GraphLabel.MINUTE), "MINUTE");
 
-        assertEquals(7, repository.numberOf(TransportRelationshipTypes.TO_HOUR));
-        assertEquals(8, repository.numberOf(TransportRelationshipTypes.TO_MINUTE));
+        assertEquals(7, repository.numberOf(TransportRelationshipTypes.TO_HOUR), "TO_HOUR");
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.TO_MINUTE), "TO_MINUTE");
     }
 }

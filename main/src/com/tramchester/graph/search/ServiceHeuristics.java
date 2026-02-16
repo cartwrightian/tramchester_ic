@@ -1,25 +1,19 @@
 package com.tramchester.graph.search;
 
-import com.google.common.collect.Sets;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.Durations;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.*;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.util.EnumSet;
 
 public class ServiceHeuristics {
 
@@ -35,10 +29,11 @@ public class ServiceHeuristics {
     private final int currentChangesLimit;
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
     private final int penultimateChange;
+    private final boolean diagnostics;
 
     public ServiceHeuristics(StationRepository stationRepository,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
-                             int currentChangesLimit) {
+                             int currentChangesLimit, boolean diagnostics) {
         this.stationRepository = stationRepository;
 
         this.journeyConstraints = journeyConstraints;
@@ -46,6 +41,7 @@ public class ServiceHeuristics {
         this.currentChangesLimit = currentChangesLimit;
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
         penultimateChange = currentChangesLimit>1 ? currentChangesLimit-1 : currentChangesLimit;
+        this.diagnostics = diagnostics;
     }
     
     public HeuristicsReason checkServiceDateAndTime(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons,
@@ -97,7 +93,7 @@ public class ServiceHeuristics {
                                       final ServiceReasons reasons, final int maxWait) {
         reasons.incrementTotalChecked();
 
-        final TramTime nodeTime = node.getTime(); //nodeOperations.getTime(node);
+        final TramTime nodeTime = node.getTime();
         if (currentTime.isAfter(nodeTime)) { // already departed
             return reasons.recordReason(HeuristicsReasons.AlreadyDeparted(currentTime, howIGotHere));
         }
@@ -107,17 +103,17 @@ public class ServiceHeuristics {
         }
 
         // Wait to get the service?
-        final TimeRange window = TimeRangePartial.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+        final TimeRange window = TimeRangePartial.of(nodeTime, TramDuration.ofMinutes(maxWait), TramDuration.ZERO);
 
         if (window.contains(currentTime)) {
-            return reasons.recordReason(HeuristicReasonsOK.TimeOK(ReasonCode.TimeOk, howIGotHere, nodeTime));
+            return reasons.recordReason(HeuristicReasonsOK.TimeOK(ReasonCode.TimeOk, howIGotHere, currentTime));
         }
 
         return reasons.recordReason(HeuristicsReasons.DoesNotOperateOnTime(currentTime, howIGotHere));
     }
 
     public HeuristicsReason interestedInHour(final HowIGotHere howIGotHere, final TramTime currentTime,
-                                          final ServiceReasons reasons, final int maxWait, final EnumSet<GraphLabel> hourLabels) {
+                                          final ServiceReasons reasons, final int maxWait, final ImmutableEnumSet<GraphLabel> hourLabels) {
         reasons.incrementTotalChecked();
 
         final int hourAtNode = GraphLabel.getHourFrom(hourLabels);
@@ -160,10 +156,9 @@ public class ServiceHeuristics {
 
     }
 
-    public HeuristicsReason checkModes(final EnumSet<GraphLabel> modelLabels, final EnumSet<GraphLabel> requestedModeLabels,
+    public HeuristicsReason checkModes(final ImmutableEnumSet<GraphLabel> modelLabels, final ImmutableEnumSet<GraphLabel> requestedModeLabels,
                                        final HowIGotHere howIGotHere, final ServiceReasons reasons) {
-        // todo more efficient way for intersection on EnumSets?
-        if (Sets.intersection(modelLabels, requestedModeLabels).isEmpty()) {
+        if (!modelLabels.anyIntersectionWith(requestedModeLabels)) {
             return reasons.recordReason(HeuristicsReasons.TransportModeWrong(howIGotHere));
         }
         return valid(ReasonCode.TransportModeOk, howIGotHere, reasons);
@@ -171,11 +166,11 @@ public class ServiceHeuristics {
 
 
     public HeuristicsReason checkModesMatchForFinalChange(final int currentNumberOfChanges,
-                                                          final EnumSet<GraphLabel> nodeLabels, final EnumSet<GraphLabel> destinationLabels,
+                                                          final ImmutableEnumSet<GraphLabel> nodeLabels, final ImmutableEnumSet<GraphLabel> destinationLabels,
                                                           final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         // TODO potential optimisation where only one mode is configured, in which case this check does nothing
         if (currentNumberOfChanges==penultimateChange) {
-            if (Sets.intersection(nodeLabels, destinationLabels).isEmpty()) {
+            if (!nodeLabels.anyIntersectionWith(destinationLabels)) {
                 return reasons.recordReason(HeuristicsReasons.StationNotReachable(howIGotHere, ReasonCode.TransportModeWrong));
             }
         }
@@ -229,7 +224,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    public HeuristicsReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
+    public HeuristicsReason journeyDurationUnderLimit(final TramDuration totalDuration, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {
@@ -256,6 +251,10 @@ public class ServiceHeuristics {
             return reasons.recordReason(HeuristicsReasons.SameTrip(tripId, howIGotHere));
         }
         return valid(ReasonCode.Continue, howIGotHere, reasons);
+    }
+
+    public boolean isDiagnostics() {
+        return diagnostics;
     }
 
 }

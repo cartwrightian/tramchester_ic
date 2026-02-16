@@ -1,14 +1,14 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public interface LocationCollection {
-    EnumSet<TransportMode> getModes();
+    ImmutableEnumSet<TransportMode> getModes();
 
     Stream<Location<?>> locationStream();
 

@@ -3,14 +3,17 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.core.*;
+import com.tramchester.domain.time.TramDuration;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 public class MinuteState extends TraversalState implements HasTowardsStationId {
@@ -33,7 +36,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
             return TraversalStateType.MinuteState;
         }
 
-        public TraversalState fromHour(final HourState hourState, final GraphNode minuteNode, final Duration cost,
+        public TraversalState fromHour(final HourState hourState, final GraphNode minuteNode, final TramDuration cost,
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
                                        final GraphTransaction txn) {
 
@@ -59,7 +62,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
     private final IdFor<Station> towardsStationId;
 
     private MinuteState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, GraphNode node,
-                        final JourneyStateUpdate journeyState, IdFor<Station> towardsStationId, final Duration cost,
+                        final JourneyStateUpdate journeyState, IdFor<Station> towardsStationId, final TramDuration cost,
                         final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node.getId());
         this.towardsStationId = towardsStationId;
@@ -79,7 +82,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
 
     @Override
     protected RouteStationStateOnTrip toRouteStationOnTrip(final RouteStationStateOnTrip.Builder towardsRouteStation, JourneyStateUpdate journeyState,
-                                                           final GraphNode routeStationNode, final Duration cost, final boolean isInterchange) {
+                                                           final GraphNode routeStationNode, final TramDuration cost, final boolean isInterchange) {
 
         final GetOutgoingServicesMatchingTripId getOutgoingServicesMatchingTripId = new GetOutgoingServicesMatchingTripId(journeyState.getCurrentTrip());
         return towardsRouteStation.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, getOutgoingServicesMatchingTripId, txn);
@@ -88,7 +91,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
     @Override
     protected RouteStationStateEndTrip toRouteStationEndTrip(final RouteStationStateEndTrip.Builder towardsEndTrip,
                                                              final JourneyStateUpdate journeyState, final GraphNode routeStationNode,
-                                                             final Duration cost, final boolean isInterchange) {
+                                                             final TramDuration cost, final boolean isInterchange) {
 
         return towardsEndTrip.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, txn);
     }

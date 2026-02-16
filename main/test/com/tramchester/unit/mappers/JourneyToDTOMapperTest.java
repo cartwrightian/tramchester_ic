@@ -18,6 +18,7 @@ import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
@@ -33,8 +34,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.StopAtAltrinchamInterchange;
@@ -84,7 +87,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         TramTime pm10 = TramTime.of(22,0);
 
         WalkingToStationStage walkingStage = new WalkingToStationStage(nearPiccGardensLocation, MarketStreet.fake(),
-                Duration.ofMinutes(10), pm10);
+                TramDuration.ofMinutes(10), pm10);
         stages.add(walkingStage);
 
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
@@ -107,12 +110,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
         assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
         assertEquals(IdForDTO.createFor(journey.getBeginning()), result.getBegin().getId());
-        assertEquals(stageDTOA, result.getStages().get(0));
+        assertEquals(stageDTOA, result.getStages().getFirst());
         assertEquals(when.toLocalDate(), result.getQueryDate());
         validateStationList(path, result.getPath());
 
         assertEquals(1, result.getChangeStations().size());
-        ChangeStationRefWithPosition changeStation = result.getChangeStations().get(0);
+        ChangeStationRefWithPosition changeStation = result.getChangeStations().getFirst();
         assertEquals(MarketStreet.getIdForDTO(), changeStation.getId());
         assertEquals(TransportMode.Walk, changeStation.getFromMode());
 //        validateStationList(Collections.singletonList(MarketStreet.fake()), result.getChangeStations());
@@ -123,7 +126,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         TramTime pm10 = TramTime.of(22,0);
 
         WalkingFromStationStage walkingStage = new WalkingFromStationStage(Deansgate.fake(), nearPiccGardensLocation,
-                Duration.ofMinutes(10), pm10);
+                TramDuration.ofMinutes(10), pm10);
         stages.add(walkingStage);
 
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
@@ -144,12 +147,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
         assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
         assertEquals(IdForDTO.createFor(journey.getBeginning()), result.getBegin().getId());
-        assertEquals(stageDTOA, result.getStages().get(0));
+        assertEquals(stageDTOA, result.getStages().getFirst());
         assertEquals(when.toLocalDate(), result.getQueryDate());
         validateStationList(Collections.singletonList(Deansgate.fake()), result.getPath());
 
         assertEquals(1, result.getChangeStations().size());
-        ChangeStationRefWithPosition changeStation = result.getChangeStations().get(0);
+        ChangeStationRefWithPosition changeStation = result.getChangeStations().getFirst();
         assertEquals(Deansgate.getIdForDTO(), changeStation.getId());
         //validateStationList(Collections.singletonList(Deansgate.fake()), result.getChangeStations());
     }
@@ -161,7 +164,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station startStation = Altrincham.fakeWithPlatform(1, when);
 
         ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(StopAtAltrinchamInterchange.fake(),
-                startStation, Duration.ofMinutes(1), time);
+                startStation, TramDuration.ofMinutes(1), time);
 
         VehicleStage tramStage = getRawVehicleStage(startStation, TramStations.Shudehill.fake(),
                 createRoute("route"), time.plusMinutes(1), 35, TestEnv.findOnlyPlatform(startStation));
@@ -200,7 +203,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         validateStationList(path, result.getPath());
 
         assertEquals(1, result.getChangeStations().size());
-        ChangeStationRefWithPosition changeStation = result.getChangeStations().get(0);
+        ChangeStationRefWithPosition changeStation = result.getChangeStations().getFirst();
         assertEquals(IdForDTO.createFor(startStation.getId()), changeStation.getId());
         //validateStationList(Collections.singletonList(startStation), result.getChangeStations());
     }
@@ -221,7 +224,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStage rawStageA = getRawVehicleStage(begin, PiccadillyGardens.fake(),
                 createRoute("route text"), am10, 42, platformA);
 
-        Duration walkCost = Duration.ofMinutes(10);
+        TramDuration walkCost = TramDuration.ofMinutes(10);
         WalkingToStationStage walkingStage = new WalkingToStationStage(middleA, middleB, walkCost, am10);
         VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42,
                 platformA);
@@ -321,7 +324,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         assertEquals(1, result.getChangeStations().size());
 
-        ChangeStationRefWithPosition changeStation1 = result.getChangeStations().get(0);
+        ChangeStationRefWithPosition changeStation1 = result.getChangeStations().getFirst();
         assertEquals(IdForDTO.createFor(middle.getId()), changeStation1.getId());
 
     }
@@ -336,7 +339,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,
                 startTime.plusMinutes(1), finish, passedStations);
 
-        vehicleStage.setCost(Duration.ofMinutes(costInMinutes));
+        vehicleStage.setCost(TramDuration.ofMinutes(costInMinutes));
         vehicleStage.setBoardingPlatform(platform);
 
         return vehicleStage;

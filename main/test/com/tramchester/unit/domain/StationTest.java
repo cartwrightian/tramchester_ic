@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 import static com.tramchester.domain.MutableAgency.Walking;
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,14 +65,14 @@ class StationTest {
                 nearPiccGardens.grid(), DataSourceID.tfgm, false);
 
         assertTrue(station.getTransportModes().isEmpty());
-        assertFalse(station.anyOverlapWith(EnumSet.of(Tram)));
+        assertFalse(station.anyOverlapWith(TramsOnly));
 
         final Route route = MutableRoute.getRoute(Route.createBasicRouteId("routeIdA"), "shortName", "name",
                 TestEnv.MetAgency(), Tram);
         station.addRouteDropOff(route);
         assertTrue(station.servesMode(Tram));
-        assertTrue(station.anyOverlapWith(EnumSet.of(Tram)));
-        assertFalse(station.anyOverlapWith(EnumSet.of(Train)));
+        assertTrue(station.anyOverlapWith(TramsOnly));
+        assertFalse(station.anyOverlapWith(RailOnly));
 
 //        assertEquals("stationCode", station.getCode());
 
@@ -80,9 +82,9 @@ class StationTest {
 
         assertEquals(2, station.getTransportModes().size());
 
-        assertTrue(station.anyOverlapWith(EnumSet.of(Train, Tram)));
-        assertTrue(station.anyOverlapWith(EnumSet.of(Train)));
-        assertTrue(station.anyOverlapWith(EnumSet.of(Train)));
+        assertTrue(station.anyOverlapWith(ImmutableEnumSet.of(Train, Tram)));
+        assertTrue(station.anyOverlapWith(RailOnly));
+        assertTrue(station.anyOverlapWith(RailOnly));
 
     }
 

@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph.neo4J;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.core.neo4j.GraphReferenceMapper;
 import com.tramchester.graph.reference.GraphLabel;
@@ -15,8 +16,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.tramchester.graph.reference.GraphLabel.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphLabelTest {
 
@@ -27,7 +28,6 @@ public class GraphLabelTest {
         mapper = new GraphReferenceMapper();
         mapper.start();
     }
-
 
     @Test
     void shouldHaveLabelForEachValidMode() {
@@ -47,36 +47,52 @@ public class GraphLabelTest {
     }
 
     @Test
-    void shouldGetHourFromLabels() {
-        EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.TRAM, GraphLabel.TRAIN, GraphLabel.HOUR, GraphLabel.HOUR_4);
-        int result = GraphLabel.getHourFrom(labels);
-        assertEquals(4, result);
+    void shouldGetHourFromSetOfLabels() {
+        ImmutableEnumSet<GraphLabel> setA = ImmutableEnumSet.of(HOUR, HOUR_9);
+        assertEquals(9, GraphLabel.getHourFrom(setA));
+
+        ImmutableEnumSet<GraphLabel> setB = ImmutableEnumSet.of(HOUR, HOUR_23);
+        assertEquals(23, GraphLabel.getHourFrom(setB));
+    }
+
+    @Test
+    void shouldRoundTripHours() {
+        for (int hour = 0; hour <23; hour++) {
+            GraphLabel label = GraphLabel.getHourLabel(hour);
+            int result = getHourFrom(ImmutableEnumSet.of(HOUR, label));
+            assertEquals(hour, result);
+        }
     }
 
     @Test
     void shouldGetGraphLabelsFromModes() {
-        EnumSet<TransportMode> modes = getTransportModes();
+        ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
-        EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
+        ImmutableEnumSet<GraphLabel> results = GraphLabel.forModes(modes);
         int size = modes.size() - 2; // Ferry&Ship->Ferry, Rail&RailReplacementBus->Train
         assertEquals(size, results.size());
     }
 
     @Test
-    void shouldGetSetOfLabelsForModes() {
-        EnumSet<TransportMode> modes = getTransportModes();
-
-        EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
-        assertEquals(GraphLabel.TransportModes, results);
+    void shouldHaveSameSingleton() {
+        assertSame(TRAM.singleton(), TRAM.singleton());
     }
 
-    private static @NotNull EnumSet<TransportMode> getTransportModes() {
+    @Test
+    void shouldGetSetOfLabelsForModes() {
+        ImmutableEnumSet<TransportMode> modes = getTransportModes();
+
+        ImmutableEnumSet<GraphLabel> results = GraphLabel.forModes(modes);
+        assertEquals(ImmutableEnumSet.copyOf(GraphLabel.TransportModesLabels), results);
+    }
+
+    private static @NotNull ImmutableEnumSet<TransportMode> getTransportModes() {
         EnumSet<TransportMode> modes = EnumSet.allOf(TransportMode.class);
         modes.remove(TransportMode.Connect);
         modes.remove(TransportMode.NotSet);
         modes.remove(TransportMode.Unknown);
         modes.remove(TransportMode.Walk); // TODO inconsistency on use of QUERY_NODE for walks, needs sorting out
-        return modes;
+        return ImmutableEnumSet.copyOf(modes);
     }
 
     @Test
@@ -92,7 +108,7 @@ public class GraphLabelTest {
 
     @Test
     void shouldGetFromIterable() {
-        EnumSet<GraphLabel> graphLabels = EnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23);
+        ImmutableEnumSet<GraphLabel> graphLabels = ImmutableEnumSet.range(GraphLabel.HOUR_0, HOUR_23);
 
         Set<Label> labels = graphLabels.stream().map(mapper::get).collect(Collectors.toSet());
 
@@ -104,14 +120,14 @@ public class GraphLabelTest {
             }
         };
 
-        EnumSet<GraphLabel> result = GraphReferenceMapper.from(iterable);
+        ImmutableEnumSet<GraphLabel> result = GraphReferenceMapper.from(iterable);
         assertEquals(graphLabels, result);
     }
 
     @Disabled("performance testing")
     @Test
     void performanceTestForFromIterable() {
-        final Set<Label> labels = EnumSet.range(GraphLabel.HOUR_0, GraphLabel.HOUR_23).stream().
+        final Set<Label> labels = EnumSet.range(GraphLabel.HOUR_0, HOUR_23).stream().
                 map(graphLabel -> mapper.get(graphLabel)).
                 collect(Collectors.toSet());
 
@@ -128,14 +144,14 @@ public class GraphLabelTest {
         }
     }
 
-    @Disabled("performance testing")
-    @Test
-    void performanceTestForGetHourFrom() {
-        final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.TRAM, GraphLabel.TRAIN, GraphLabel.HOUR, GraphLabel.HOUR_4);
-
-        for (int i = 0; i < 1000000000; i++) {
-            GraphLabel.getHourFrom(labels);
-        }
-    }
+//    @Disabled("performance testing")
+//    @Test
+//    void performanceTestForGetHourFrom() {
+//        final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.TRAM, GraphLabel.TRAIN, GraphLabel.HOUR, GraphLabel.HOUR_4);
+//
+//        for (int i = 0; i < 1000000000; i++) {
+//            GraphLabel.getHourFrom(labels);
+//        }
+//    }
 
 }

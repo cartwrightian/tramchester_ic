@@ -85,4 +85,9 @@ public abstract class IntegrationTestConfig extends TestConfig {
     public boolean getDepthFirst() {
         return true;
     }
+
+    @Override
+    public int getMaxNumberChanges() {
+        return 2;
+    }
 }

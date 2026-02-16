@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationLocalityGroup;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -17,7 +18,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -61,7 +61,7 @@ class FastestRoutesForBoxesBusTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(
                 date, time, false, 2,
-                Duration.ofMinutes(60), 2, BusesOnly);
+                TramDuration.ofMinutes(60), 2, BusesOnly);
 
         RequestStopStream<BoundingBoxWithCost> result = calculator.findForGrid(destination, 1000, journeyRequest);
 
@@ -72,6 +72,6 @@ class FastestRoutesForBoxesBusTest {
                 toList();
 
         assertEquals(1, destinationBox.size());
-        assertTrue(destinationBox.get(0).contained(destination.getGridPosition()));
+        assertTrue(destinationBox.getFirst().contained(destination.getGridPosition()));
     }
 }

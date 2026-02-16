@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
@@ -30,8 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FindStationsByNumberLinksTramTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
+
     private FindLinkedStations finder;
-    private int threshhold;
+    private int threshold;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -48,7 +50,7 @@ class FindStationsByNumberLinksTramTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        threshhold = Interchanges.getLinkThreshhold(TransportMode.Tram);
+        threshold = Interchanges.getLinkThreshhold(TransportMode.Tram);
         finder = componentContainer.get(FindLinkedStations.class);
     }
 
@@ -58,31 +60,36 @@ class FindStationsByNumberLinksTramTest {
     @Test
     void shouldNotDuplicateWithConfig() {
 
-        List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
+        List<GTFSSourceConfig> dataSources = config.getGtfsSourceConfig();
         assertEquals(1, dataSources.size());
 
         GTFSSourceConfig dataSource = dataSources.getFirst();
         assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
-        IdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
+        ImmutableIdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
 
-        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
+        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
-        IdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
+//        ImmutableIdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
+//
+//        assertTrue(inConfigAndStationsWithLinks.isEmpty(), "\nFound also in config " + inConfigAndStationsWithLinks +
+//                " \nstations with links were " + stationWithLinks);
 
-        assertTrue(inConfigAndStationsWithLinks.isEmpty(), "\nFound also in config " + inConfigAndStationsWithLinks +
+        assertTrue(stationWithLinks.containsNoneOf(additionalInterchanges), "\nFound also in config " + additionalInterchanges +
                 " \nstations with links were " + stationWithLinks);
+        assertTrue(additionalInterchanges.containsNoneOf(stationWithLinks), "\nFound also in config " + stationWithLinks +
+                " \nstations with links were " + additionalInterchanges);
     }
 
     @Test
     void shouldIdInterchangePointsLinked() {
 
-        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
+        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
         List<IdFor<Station>> expectedList = Stream.of(
 
                 StPetersSquare,
                 PiccadillyGardens,
-                //Piccadilly,
+                Piccadilly,
                 MarketStreet,
                 TraffordBar,
                 Cornbrook,
@@ -91,13 +98,13 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                Shudehill,
-                // replacement buses
-                OldhamMumps, OldhamKingStreet
+                Shudehill
+                //VeloPark,
+                //HoltTown
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);
-        IdSet<Station> diff = IdSet.disjunction(found, expected);
+        ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);
 
         assertTrue(diff.isEmpty(), diff + " between expected:\n" + expected + " \nfound:" + found);
 

@@ -22,204 +22,187 @@ public class AppConfiguration extends TramchesterConfig {
     ////////
 
     @NotNull
-    @JsonProperty("staticAssetCacheTimeSeconds")
     private Integer staticAssetCacheTimeSeconds;
 
     @NotNull
-    @JsonProperty("instanceDataUrl")
     private String instanceDataUrl;
 
     @NotNull
-    @JsonProperty("nearestStopRangeKM")
     private Double nearestStopRangeKM;
 
     @NotNull
-    @JsonProperty("nearestStopForWalkingRangeKM")
     private Double nearestStopForWalkingRangeKM;
 
     @NotNull
-    @JsonProperty("numOfNearestStopsToOffer")
     private Integer numOfNearestStopsToOffer;
 
     @NotNull
-    @JsonProperty("numOfNearestStopsForWalking")
     private Integer numOfNearestStopsForWalking;
 
     @NotNull
-    @JsonProperty("walkingMPH")
     private Double walkingMPH;
 
     @NotNull
-    @JsonProperty("secureHost")
     private String secureHost;
 
     @NotNull
-    @JsonProperty("redirectToSecure")
     private Boolean redirectToSecure;
 
     @NotNull
-    @JsonProperty("maxWait")
     private Integer maxWait;
 
     @NotNull
-    @JsonProperty("queryInterval")
     private Integer queryInterval;
 
     @NotNull
-    @JsonProperty("recentStopsToShow")
     private Integer recentStopsToShow;
 
     @Valid
-    @JsonProperty("swagger")
-    private SwaggerBundleConfiguration swaggerBundleConfiguration;
+    private SwaggerBundleConfiguration swagger;
 
-    @JsonProperty("dataExpiryThreadhold")
-    private Integer dataExpiryThreadhold;
+    private Integer dataExpiryThreshold;
     
     @NotNull
-    @JsonProperty("maxJourneyDuration")
     private Integer maxJourneyDuration;
 
     @NotNull
-    @JsonProperty("changeAtInterchangeOnly")
+    private Integer maxNumberChanges;
+
+    @NotNull
     private Boolean changeAtInterchangeOnly;
 
     @NotNull
-    @JsonProperty("maxNumberResults")
     private Integer maxNumberResults;
 
     @NotNull
-    @JsonProperty("numberQueries")
     private Integer numberQueries;
 
     @NotNull
-    @JsonProperty("maxWalkingConnections")
     private Integer maxWalkingConnections;
 
     @Valid
-    @JsonProperty("gtfsSourceConfig")
     private List<GTFSSourceConfig> gtfsSourceConfig;
 
     @Valid
-    @JsonProperty("remoteSources")
-    private List<RemoteDataSourceConfig> remoteDataConfig;
+    private List<RemoteDataSourceConfig> remoteSources;
 
-    @NotNull
-    @JsonProperty("graphDBConfig")
+    //@NotNull
     private GraphDBConfig graphDBConfig;
 
-    @JsonProperty("tfgmTramliveData")
-    private TfgmTramLiveDataAppConfig tramLiveDataAppConfig;
+    private TfgmTramLiveDataAppConfig tfgmTramliveData;
 
-    @JsonProperty("openLdb")
-    private OpenLdbAppConfig openLdbConfig;
+    private OpenLdbAppConfig openLdb;
 
-    @JsonProperty("openRailData")
-    private OpenRailDataAppConfig openRailDataConfig;
+    private OpenRailDataAppConfig openRailData;
 
-    @JsonProperty("rail")
-    private RailAppConfig railConfig;
+    private RailAppConfig rail;
 
     @NotNull
-    @JsonProperty("bounds")
     private BoundingBox bounds;
 
     @NotNull
-    @JsonProperty("sendCloudWatchMetrics")
     private Boolean sendCloudWatchMetrics;
 
     @NotNull
-    @JsonProperty("cacheFolder")
     private Path cacheFolder;
 
     @NotNull
-    @JsonProperty("calcTimeoutMillis")
     private Long calcTimeoutMillis;
 
     @NotNull
-    @JsonProperty("planningEnabled")
     private Boolean planningEnabled;
 
     @NotNull
-    @JsonProperty("cloudWatchMetricsFrequencyMinutes")
     private Long cloudWatchMetricsFrequencyMinutes;
 
     @NotNull
-    @JsonProperty("distributionBucket")
     private String distributionBucket;
 
-    @JsonProperty("neighbourConfig")
     private NeighbourAppConfig neighbourConfig;
 
-    @JsonProperty("cachingDisabled")
     private Boolean cachingDisabled;
 
     @NotNull
-    @JsonProperty("environmentName")
     private String environmentName;
 
     @NotNull
-    @JsonProperty("buildNumber")
     private Integer buildNumber;
 
     @NotNull
-    @JsonProperty("depthFirst")
     private Boolean depthFirst;
 
     @NotNull
-    @JsonProperty("inMemoryGraph")
     private Boolean inMemoryGraph;
 
+    ///  GETTERS
+
+    @JsonProperty("instanceDataUrl")
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
 
+    @JsonProperty("maxWait")
     @Override
     public int getMaxWait() {
         return maxWait;
     }
 
+    @JsonProperty("maxNumberResults")
     @Override
-    public int getMaxNumResults() {
+    public int getMaxNumberResults() {
         return maxNumberResults;
     }
 
+    @JsonProperty("maxNumberChanges")
+    @Override
+    public int getMaxNumberChanges() {
+        return maxNumberChanges;
+    }
+
+    @JsonProperty("numberQueries")
     @Override
     public int getNumberQueries() {
         return numberQueries;
     }
 
+    @JsonProperty("queryInterval")
     @Override
     public int getQueryInterval() {
         return queryInterval;
     }
 
+    @JsonProperty("recentStopsToShow")
     @Override
     public int getRecentStopsToShow() {
         return recentStopsToShow;
     }
 
+    @JsonProperty("swagger")
     @Override
-    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
-        return swaggerBundleConfiguration;
+    public SwaggerBundleConfiguration getSwagger() {
+        return swagger;
     }
 
+    @JsonProperty("dataExpiryThreshold")
     @Override
-    public int getDataExpiryThreadhold() {
-        return dataExpiryThreadhold;
+    public int getDataExpiryThreshold() {
+        return dataExpiryThreshold;
     }
 
+    @JsonProperty("secureHost")
     @Override
     public String getSecureHost() {
         return secureHost;
     }
 
+    @JsonProperty("redirectToSecure")
     @Override
     public boolean redirectToSecure() {
         return redirectToSecure;
     }
 
+    @JsonProperty("cachingDisabled")
     @Override
     public boolean getCachingDisabled() {
         if (cachingDisabled==null) {
@@ -228,6 +211,7 @@ public class AppConfiguration extends TramchesterConfig {
         return cachingDisabled;
     }
 
+    @JsonProperty("inMemoryGraph")
     @Override
     public boolean getInMemoryGraph() {
         return inMemoryGraph;
@@ -239,93 +223,111 @@ public class AppConfiguration extends TramchesterConfig {
         return false;
     }
 
+    @JsonProperty("nearestStopRangeKM")
     @Override
     public Double getNearestStopRangeKM() {
         return nearestStopRangeKM;
     }
 
+    @JsonProperty("nearestStopForWalkingRangeKM")
     @Override
     public Double getNearestStopForWalkingRangeKM() {
         return nearestStopForWalkingRangeKM;
     }
 
+    @JsonProperty("numOfNearestStopsToOffer")
     @Override
     public int getNumOfNearestStopsToOffer() {
         return numOfNearestStopsToOffer;
     }
 
+    @JsonProperty("numOfNearestStopsForWalking")
     @Override
     public int getNumOfNearestStopsForWalking() {
         return numOfNearestStopsForWalking;
     }
 
+    @JsonProperty("walkingMPH")
     @Override
     public double getWalkingMPH() {
         return walkingMPH;
     }
 
+    @JsonProperty("environmentName")
     @Override
     public String getEnvironmentName() {
         return environmentName;
     }
 
+    @JsonProperty("buildNumber")
     @Override
     public Integer getBuildNumber() {
         return buildNumber;
     }
 
+    @JsonProperty("staticAssetCacheTimeSeconds")
     @Override
     public Integer getStaticAssetCacheTimeSeconds() {
         return staticAssetCacheTimeSeconds;
     }
 
+    @JsonProperty("changeAtInterchangeOnly")
     @Override
     public boolean getChangeAtInterchangeOnly() {
         return changeAtInterchangeOnly;
     }
 
+    @JsonProperty("neighbourConfig")
     @Override
     public NeighbourConfig getNeighbourConfig() {
         return neighbourConfig;
     }
 
+    @JsonProperty("maxJourneyDuration")
     @Override
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
 
+    @JsonProperty("gtfsSourceConfig")
     @Valid
     @Override
-    public List<GTFSSourceConfig> getGTFSDataSource() {
+    public List<GTFSSourceConfig> getGtfsSourceConfig() {
         return gtfsSourceConfig;
     }
 
+    @JsonProperty("remoteSources")
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return remoteDataConfig;
+    public List<RemoteDataSourceConfig> getRemoteSources() {
+        return remoteSources;
     }
 
     // optional
+    @JsonProperty("tfgmTramliveData")
     @Override
-    public TfgmTramLiveDataConfig getLiveDataConfig() {
-        return tramLiveDataAppConfig;
+    public TfgmTramLiveDataConfig getTfgmTramliveData() {
+        return tfgmTramliveData;
     }
 
+    @JsonProperty("openLdb")
     @Override
-    public OpenLdbConfig getOpenldbwsConfig() {
-        return openLdbConfig;
+    public OpenLdbConfig getOpenLdb() {
+        return openLdb;
     }
 
+    @JsonProperty("openRailData")
     @Override
-    public OpenRailDataConfig getOpenRailDataConfig() {
-        return openRailDataConfig;
+    public OpenRailDataConfig getOpenRailData() {
+        return openRailData;
     }
 
+    @JsonProperty("rail")
     @Override
-    public RailConfig getRailConfig() {
-        return railConfig;
+    public RailConfig getRail() {
+        return rail;
     }
 
+    @JsonProperty("graphDBConfig")
     @Valid
     @Override
     public GraphDBConfig getGraphDBConfig() {
@@ -334,40 +336,48 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Valid
     @Override
+    @JsonProperty("bounds")
     public BoundingBox getBounds() {
         return bounds;
     }
 
+    @JsonProperty("maxWalkingConnections")
     @Override
     public int getMaxWalkingConnections() {
         return maxWalkingConnections;
     }
 
+    @JsonProperty("sendCloudWatchMetrics")
     @Override
     public boolean getSendCloudWatchMetrics() {
         return sendCloudWatchMetrics;
     }
 
+    @JsonProperty("depthFirst")
     @Override
     public boolean getDepthFirst() {
         return depthFirst;
     }
 
+    @JsonProperty("cacheFolder")
     @Override
     public Path getCacheFolder() {
         return cacheFolder;
     }
 
+    @JsonProperty("calcTimeoutMillis")
     @Override
     public long getCalcTimeoutMillis() {
         return calcTimeoutMillis;
     }
 
+    @JsonProperty("cloudWatchMetricsFrequencyMinutes")
     @Override
-    public long GetCloudWatchMetricsFrequencyMinutes() {
+    public long getCloudWatchMetricsFrequencyMinutes() {
         return cloudWatchMetricsFrequencyMinutes;
     }
 
+    @JsonProperty("planningEnabled")
     @Override
     public boolean getPlanningEnabled() {
         return planningEnabled;
@@ -378,6 +388,7 @@ public class AppConfiguration extends TramchesterConfig {
         return neighbourConfig!=null;
     }
 
+    @JsonProperty("distributionBucket")
     @Override
     public String getDistributionBucket() {
         return distributionBucket;

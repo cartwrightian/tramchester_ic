@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,7 +34,7 @@ public class Note {
     }
 
     public List<LocationRefDTO> getDisplayedAt() {
-        return null;
+        return Collections.emptyList();
     }
 
     public enum NoteType {

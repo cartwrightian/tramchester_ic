@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
@@ -86,13 +87,12 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook,
                 MarketStreet,
                 PiccadillyGardens,
-                //Piccadilly,
+                Piccadilly,
                 StPetersSquare,
                 Broadway,
                 Victoria,
-                Shudehill,
-                // replacement buses
-                OldhamMumps, OldhamKingStreet
+                Shudehill
+                //HoltTown, VeloPark
         );
 
         Set<Station> expectedStations = expectedTramStations.
@@ -226,7 +226,7 @@ public class InterchangesTramTest {
                 filter(route -> route.isAvailableOn(date)).
                 collect(Collectors.toSet());
 
-        IdSet<Route> routesWithoutInterchanges = routeRepository.getRoutes().stream().
+        ImmutableIdSet<Route> routesWithoutInterchanges = routeRepository.getRoutes().stream().
                 filter(route -> route.isAvailableOn(date)).
                 filter(route -> !dropOffRoutes.contains(route)).
                 filter(route -> !pickupRoutes.contains(route)).

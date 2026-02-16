@@ -50,9 +50,10 @@ public class UploadSourceDataCLI extends BaseCLI {
 
     @Override
     public boolean run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
+        logger.info("Unzip");
         UnzipFetchedData unzipFetchedData = dependencies.get(UnzipFetchedData.class);
         unzipFetchedData.getReady();
-
+        logger.info("Upload");
         UploadRemoteSourceData uploadRemoteData = dependencies.get(UploadRemoteSourceData.class);
         return uploadRemoteData.upload(s3Preifx);
     }

@@ -9,6 +9,7 @@ import com.tramchester.dataimport.data.RoutePairInterconnectsData;
 import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
@@ -26,7 +27,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,14 +37,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,7 +56,7 @@ public class RouteInterconnectRepositoryTest {
     private TramDate date;
     private RouteCostMatrix routeMatrix;
     private RouteIndex routeIndex;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
     private RouteRepository routeRepository;
     private InterchangeRepository interchangeRepository;
     private RouteInterconnectRepository repository;
@@ -96,7 +93,7 @@ public class RouteInterconnectRepositoryTest {
         repository = componentContainer.get(RouteInterconnectRepository.class);
 
         date = TestEnv.testDay();
-        modes = EnumSet.of(Tram);
+        modes = TransportMode.TramsOnly;
     }
 
     @Test
@@ -114,8 +111,7 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        // +2 bus routes during closures
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+2);
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+1);
 
         assertEquals(expectedChanges, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
@@ -170,7 +166,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -183,8 +178,8 @@ public class RouteInterconnectRepositoryTest {
 
         // ignore data and mode here???
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
-        // 196 -> 49 -> 64
-        assertEquals(64, dateOverlaps.numberOfBitsSet());
+        // 196 -> 49
+        assertEquals(49, dateOverlaps.numberOfBitsSet());
 
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
@@ -207,8 +202,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        // + 2 bus routes during closures
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5 + 2);
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+1);
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 
@@ -239,7 +233,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -282,7 +275,6 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -329,7 +321,7 @@ public class RouteInterconnectRepositoryTest {
 
         short greenIndex = routeIndex.indexFor(greenInbound.getId());
 
-        Set<Route> routes = routeRepository.getRoutes(TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        Set<Route> routes = routeRepository.getRoutes(TransportMode.TramsOnly).stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         int numberOfRoutes = routeRepository.numberOfRoutes();
         IndexedBitSet dateOverlaps = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);

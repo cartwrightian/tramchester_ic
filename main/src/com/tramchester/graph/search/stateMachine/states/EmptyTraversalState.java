@@ -1,9 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.search.JourneyStateUpdate;
-
-import java.time.Duration;
 
 public abstract class EmptyTraversalState {
 
@@ -13,55 +12,55 @@ public abstract class EmptyTraversalState {
         this.stateType = stateType;
     }
 
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, GraphNode node, TramDuration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, GraphNode node, TramDuration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, TramDuration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toService(ServiceState.Builder towardsService, GraphNode serviceNode, Duration cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, GraphNode serviceNode, TramDuration cost) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, GraphNode node, Duration cost,
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, GraphNode node, TramDuration cost,
                                                  JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node, TramDuration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, GraphNode node, TramDuration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, TramDuration cost,
                                                      JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, TramDuration cost, JourneyStateUpdate journeyStateUpdate) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected HourState toHour(HourState.Builder towardsHour, GraphNode node, Duration cost) {
+    protected HourState toHour(HourState.Builder towardsHour, GraphNode node, TramDuration cost) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
-                                                           JourneyStateUpdate journeyState, GraphNode node, Duration cost, boolean isInterchange) {
+                                                           JourneyStateUpdate journeyState, GraphNode node, TramDuration cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
-                                                             JourneyStateUpdate journeyState, GraphNode node, Duration cost, boolean isInterchange) {
+                                                             JourneyStateUpdate journeyState, GraphNode node, TramDuration cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

@@ -7,6 +7,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationBoxFactory;
@@ -17,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,16 +76,16 @@ public class FastestRoutesForBoxes {
     private BoundingBoxWithCost cheapest(JourneysForBox results, GridPosition destination) {
 
         if (results.contains(destination)) {
-            return new BoundingBoxWithCost(results.getBox(), Duration.ZERO, null);
+            return new BoundingBoxWithCost(results.getBox(), TramDuration.ZERO, null);
         }
 
         if (results.isEmpty()) {
-            return new BoundingBoxWithCost(results.getBox(), Duration.ofMinutes(-1), null);
+            return new BoundingBoxWithCost(results.getBox(), TramDuration.Invalid, null);
         }
 
         Journey result = results.getLowestCost();
 
-        Duration cost = TramTime.difference(result.getDepartTime(), result.getArrivalTime());
+        TramDuration cost = TramTime.difference(result.getDepartTime(), result.getArrivalTime());
         return new BoundingBoxWithCost(results.getBox(), cost, result);
     }
 }

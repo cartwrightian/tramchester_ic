@@ -33,7 +33,7 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
                                        ProvidesNow currentTimeProvider, StationRepository stationRepository,
                                        ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
-        this.config = config.getLiveDataConfig();
+        this.config = config.getTfgmTramliveData();
         this.repository = repository;
         this.currentTimeProvider = currentTimeProvider;
         this.stationRepository = stationRepository;

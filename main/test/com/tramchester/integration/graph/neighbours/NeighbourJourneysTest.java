@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -13,23 +14,23 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.TramBusTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,10 +54,10 @@ public class NeighbourJourneysTest {
     private Station shudehillBusStop;
     private LocationJourneyPlanner planner;
     private RouteToRouteCosts routeToRouteCosts;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private TramDate date;
     private TimeRange timeRange;
-    private final EnumSet<TransportMode> modes = EnumSet.of(Bus, Tram);
+    private final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Bus, Tram);
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -86,7 +87,7 @@ public class NeighbourJourneysTest {
 
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
         txn = graphDatabase.beginTxMutable();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer, txn);
@@ -105,9 +106,9 @@ public class NeighbourJourneysTest {
         txn.close();
     }
 
-    private int getPossibleMinChanges(Station being, Station end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Station being, Station end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 

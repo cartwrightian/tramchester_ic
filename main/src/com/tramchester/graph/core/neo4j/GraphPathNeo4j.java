@@ -1,5 +1,6 @@
 package com.tramchester.graph.core.neo4j;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
@@ -9,7 +10,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.time.Duration;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -33,16 +33,16 @@ public class GraphPathNeo4j implements GraphPath {
     }
 
     @Override
-    public Duration getTotalCost() {
+    public TramDuration getTotalCost() {
         final String key = GraphPropertyKey.COST.getText();
 
         Iterator<Relationship> iter = path.relationships().iterator();
-        Duration total = Duration.ZERO;
+        TramDuration total = TramDuration.ZERO;
         while (iter.hasNext()) {
             final Relationship relationship = iter.next();
             if (relationship.hasProperty(key)) {
                 final int costSeconds = (int) relationship.getProperty(key);
-                total = total.plus(Duration.ofSeconds(costSeconds));
+                total = total.plus(TramDuration.ofSeconds(costSeconds));
             }
         }
         return total;
@@ -61,11 +61,11 @@ public class GraphPathNeo4j implements GraphPath {
     }
 
     @Override
-    public Iterable<GraphEntity> getEntities(final GraphTransaction txn) {
+    public Iterable<GraphEntity<? extends GraphId>> getEntities(final GraphTransaction txn) {
         final GraphTransactionNeo4J txnNeo4J = (GraphTransactionNeo4J) txn;
         return new Iterable<>() {
             @Override
-            public @NotNull Iterator<GraphEntity> iterator() {
+            public @NotNull Iterator<GraphEntity<? extends GraphId>> iterator() {
                 return new PathIterator(path.iterator(), txnNeo4J);
             }
         };
@@ -126,7 +126,7 @@ public class GraphPathNeo4j implements GraphPath {
         return path.endNode();
     }
 
-    private static class PathIterator implements Iterator<GraphEntity> {
+    private static class PathIterator implements Iterator<GraphEntity<? extends GraphId>> {
 
         private final Iterator<Entity> iterator;
         private final GraphTransactionNeo4J txn;
@@ -142,8 +142,8 @@ public class GraphPathNeo4j implements GraphPath {
         }
 
         @Override
-        public GraphEntity next() {
-            Entity entity = iterator.next();
+        public GraphEntity<? extends GraphId> next() {
+            final Entity entity = iterator.next();
             if (entity==null) {
                 return null;
             }

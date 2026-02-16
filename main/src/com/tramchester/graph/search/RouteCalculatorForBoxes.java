@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -13,10 +14,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
@@ -30,7 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,13 +74,6 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final LocationSet<Station> destinations = destinationBox.getStations();
 
-//        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
-
-//        final BranchOrderingPolicy selector = branchSelectorFactory.getForGrid(destinationBox, startingBoxes);
-//
-//        final TramNetworkTraverserFactory traverserFactory = new TramNetworkTraverserFactoryNeo4J(config, true,
-//                selector, destinations, destinationNodeIds);
-
         TramNetworkTraverserFactory traverserFactory = getTraverserFactoryForGrids(destinationBox, startingBoxes);
 
         return calculateRoutes(journeyRequest, startingBoxes, traverserFactory, destinations);
@@ -103,7 +100,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
-        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startingBoxes, config);
+        final TramDuration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startingBoxes, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest, timeRange);
@@ -125,7 +122,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 logger.debug(format("Finding shortest path for %s --> %s for %s", startBox, destinations, journeyRequest));
             }
             final LocationSet<Station> startingStations = startBox.getStations();
-            final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
+            final ArrivalHandler lowestCostSeenForBox = ArrivalHandler.get();
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
@@ -213,7 +210,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(date);
 
-        EnumSet<TransportMode> destinationsModes = interchangeRepository.getInterchangeModes(destinations);
+        ImmutableEnumSet<TransportMode> destinationsModes = interchangeRepository.getInterchangeModes(destinations);
 
         return new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinationsModes, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);

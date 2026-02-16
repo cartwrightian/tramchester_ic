@@ -4,11 +4,11 @@ import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -227,7 +227,7 @@ public class StopCalls {
     public static class StopLeg {
         private final StopCall first;
         private final StopCall second;
-        private final Duration duration;
+        private final TramDuration duration;
 
         private StopLeg(final StopCall first, final StopCall second) {
             this.first = first;
@@ -282,7 +282,7 @@ public class StopCalls {
             return first.getDepartureTime();
         }
 
-        public Duration getCost() {
+        public TramDuration getCost() {
             return duration;
         }
 

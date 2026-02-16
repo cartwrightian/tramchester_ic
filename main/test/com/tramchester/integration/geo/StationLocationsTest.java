@@ -8,6 +8,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -66,7 +67,7 @@ public class StationLocationsTest {
 
         TramDate date = TestEnv.testDay();
 
-        IdSet<Station> missing = allStations.stream().
+        ImmutableIdSet<Station> missing = allStations.stream().
                 filter(station -> !closedStationsRepository.isClosed(station, date)).
                 filter(station -> !stationBounds.contained(station.getGridPosition())).
                 collect(IdSet.collector());

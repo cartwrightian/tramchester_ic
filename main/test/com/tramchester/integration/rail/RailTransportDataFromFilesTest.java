@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCall;
@@ -166,7 +167,7 @@ public class RailTransportDataFromFilesTest {
         assertFalse(result);
 
         Set<RouteStation> routeStations = transportData.getRouteStations();
-        IdSet<Station> unwantedRouteStations = routeStations.stream().
+        ImmutableIdSet<Station> unwantedRouteStations = routeStations.stream().
                 map(routeStation -> routeStation.getStation().getId()).
                 filter(unwantedStation::equals).collect(IdSet.idCollector());
         assertTrue(unwantedRouteStations.isEmpty());
@@ -292,7 +293,7 @@ public class RailTransportDataFromFilesTest {
 
         DataSourceInfo info = transportData.getDataSourceInfo(DataSourceID.openRailData); //dataSourceInfos.get(0);
         assertEquals(DataSourceID.openRailData, info.getID());
-        assertEquals(config.getRailConfig().getModes(), info.getModes());
+        assertEquals(config.getRail().getModes(), info.getModes());
 
     }
 
@@ -479,7 +480,7 @@ public class RailTransportDataFromFilesTest {
         // this station is only listed as a request stop in the timetable
         Station station = transportData.getStationById(Station.createId("HOPTONH"));
 
-        Set<TransportMode> modes = station.getTransportModes();
+        ImmutableEnumSet<TransportMode> modes = station.getTransportModes();
         assertFalse(modes.isEmpty(), station.toString());
         assertTrue(modes.contains(Train), station.toString());
 
@@ -491,7 +492,7 @@ public class RailTransportDataFromFilesTest {
     void shouldHaveStationsWithNoStops() {
         Station station = transportData.getStationById(Station.createId("LCHTNJ"));
 
-        Set<TransportMode> modes = station.getTransportModes();
+        ImmutableEnumSet<TransportMode> modes = station.getTransportModes();
         assertTrue(modes.isEmpty(), station.toString());
 
         assertFalse(station.hasDropoff());

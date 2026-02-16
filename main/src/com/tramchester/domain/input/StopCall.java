@@ -8,9 +8,8 @@ import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-
-import java.time.Duration;
 
 public abstract class StopCall {
     protected final Station station;
@@ -20,7 +19,7 @@ public abstract class StopCall {
     private final TramTime arrivalTime;
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;
-    private final Duration dwellTime;
+    private final TramDuration dwellTime;
     private final boolean intoNextDay;
 
     protected StopCall(final Station station, final TramTime arrivalTime, final TramTime departureTime, final int sequenceNumber,
@@ -34,7 +33,7 @@ public abstract class StopCall {
 
         // small optimisations
         if (arrivalTime.equals(departureTime)) {
-            dwellTime = Duration.ZERO;
+            dwellTime = TramDuration.ZERO;
         } else {
             dwellTime = TramTime.difference(arrivalTime, departureTime);
         }

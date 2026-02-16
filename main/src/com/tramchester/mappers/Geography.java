@@ -4,9 +4,11 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.GridPositions;
 import com.tramchester.geo.MarginInMeters;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.stream.Streams;
 import org.geotools.metadata.iso.citation.CitationImpl;
 import org.geotools.referencing.GeodeticCalculator;
@@ -18,17 +20,14 @@ import tech.units.indriya.ComparableQuantity;
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 
-import jakarta.inject.Inject;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Time;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static tech.units.indriya.unit.Units.SECOND;
 
 
@@ -61,14 +60,14 @@ public class Geography {
         return distance.divide(walkingSpeed).asType(Time.class);
     }
 
-    private Duration getWalkingDuration(final Quantity<Length> distance) {
+    private TramDuration getWalkingDuration(final Quantity<Length> distance) {
         final double seconds = getWalkingTime(distance).to(SECOND).getValue().doubleValue();
         //noinspection WrapperTypeMayBePrimitive , should be no warning since longValue() is called.....
         final Double roundUp = Math.ceil(seconds);
-        return Duration.of(roundUp.longValue(), SECONDS);
+        return TramDuration.ofSeconds(roundUp.longValue());
     }
 
-    public Duration getWalkingDuration(final Location<?> locationA, final Location<?> locationB) {
+    public TramDuration getWalkingDuration(final Location<?> locationA, final Location<?> locationB) {
         final Quantity<Length> distance = getDistanceBetweenInMeters(locationA, locationB);
         return getWalkingDuration(distance);
     }

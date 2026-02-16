@@ -2,12 +2,12 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -16,10 +16,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
-import com.tramchester.graph.core.*;
 import com.tramchester.graph.StationsWithDiversion;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -32,19 +33,18 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSION;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,8 +52,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class SubgraphSmallTempWalksDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
-    public static final Duration STPETERS_PICC_WALK = Duration.ofMinutes(10).plusSeconds(36);
-    private static final Duration STPETERS_PICC_GARDENS_WALK = Duration.ofMinutes(6).plusSeconds(1);
+    public static final TramDuration STPETERS_PICC_WALK = TramDuration.ofMinutes(10).plusSeconds(36);
+    private static final TramDuration STPETERS_PICC_GARDENS_WALK = TramDuration.ofMinutes(6).plusSeconds(1);
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
@@ -66,7 +66,7 @@ class SubgraphSmallTempWalksDiversionsTest {
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxChanges;
     private StationsWithDiversionRepository diversionRepository;
     private int maxNumResults;
@@ -81,7 +81,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         IntegrationTramTestConfig configWithwalks = new IntegrationTramTestConfig(Collections.emptyList(), IntegrationTramTestConfig.Caching.Disabled,
                 walks);
 
-        Optional<GTFSSourceConfig> findTFGM = configWithwalks.getGTFSDataSource().stream().
+        Optional<GTFSSourceConfig> findTFGM = configWithwalks.getGtfsSourceConfig().stream().
                 filter(source -> source.getDataSourceId().equals(DataSourceID.tfgm)).findFirst();
 
         GTFSSourceConfig tfgmConfig = findTFGM.orElseThrow();
@@ -113,8 +113,8 @@ class SubgraphSmallTempWalksDiversionsTest {
         diversionRepository = componentContainer.get(StationsWithDiversionRepository.class);
 
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxNumResults = config.getMaxNumResults();
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxNumResults = config.getMaxNumberResults();
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         maxChanges = 2;
     }
 
@@ -171,9 +171,8 @@ class SubgraphSmallTempWalksDiversionsTest {
         Location<?> destination = Piccadilly.from(stationRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
-        EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        int costs = getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
+        int costs = getPossibleMinChanges(start, destination, TransportMode.TramsOnly, when.plusDays(1), timeRange);
 
         assertEquals(0, costs);
     }
@@ -185,25 +184,24 @@ class SubgraphSmallTempWalksDiversionsTest {
         Location<?> destination = PiccadillyGardens.from(stationRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
-        EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        int costs = getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
+        int costs = getPossibleMinChanges(start, destination, TransportMode.TramsOnly, when.plusDays(1), timeRange);
 
         assertEquals(0, costs);
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
     @Test
     void shouldHaveJourneyFromPiccGardensToPiccadilly() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, TramsOnly);
+                maxChanges, maxJourneyDuration, 1, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Piccadilly, journeyRequest);
 
@@ -219,7 +217,7 @@ class SubgraphSmallTempWalksDiversionsTest {
     void shouldFindPiccGardensToPicc() {
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
-                maxJourneyDuration, maxNumResults, TramsOnly);
+                maxJourneyDuration, maxNumResults, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Piccadilly, journeyRequest);
 
@@ -240,7 +238,7 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
-                maxJourneyDuration, maxNumResults, TramsOnly);
+                maxJourneyDuration, maxNumResults, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, Piccadilly, journeyRequest);
 
@@ -269,7 +267,7 @@ class SubgraphSmallTempWalksDiversionsTest {
     @Test
     void shouldFindStPetersToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, TramsOnly);
+                maxChanges, maxJourneyDuration, 1, TransportMode.TramsOnly);
 
         //journeyRequest.setDiag(true);
 
@@ -290,7 +288,7 @@ class SubgraphSmallTempWalksDiversionsTest {
     @Test
     void shouldFindDeansgateToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, TramsOnly);
+                maxChanges, maxJourneyDuration, 1, TransportMode.TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Deansgate, PiccadillyGardens, journeyRequest);
 

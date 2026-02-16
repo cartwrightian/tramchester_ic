@@ -54,7 +54,6 @@ public class RailRouteId extends ContainsId<Route> {
         return new StringIdFor<>(idText, Route.class);
     }
 
-
     @JsonIgnore
     @Override
     public boolean isValid() {
@@ -76,6 +75,8 @@ public class RailRouteId extends ContainsId<Route> {
     public int getIndex() {
         return index;
     }
+
+    // super
 
 //    @Override
 //    public boolean equals(Object o) {

@@ -24,13 +24,12 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     @Inject
-    public GraphDatabaseInMemory(TransactionManager transactionManager) {
+    public GraphDatabaseInMemory(final TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
 
     @PostConstruct
     public void start() {
-        logger.warn("EXPERIMENTAL");
         if (started.get()) {
             throw new RuntimeException("Already started");
         }
@@ -60,18 +59,20 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     }
 
     @Override
+    public boolean isInMemory() {
+        return true;
+    }
+
+    // begin immutable
+
+    @Override
     public GraphTransaction beginTx() {
         return beginTx(DEFAULT_TIMEOUT);
     }
 
     @Override
     public GraphTransaction beginTx(final Duration timeout) {
-        return beginTxInMemory(timeout);
-    }
-
-    private MutableGraphTransaction beginTxInMemory(final Duration timeout) {
-        guardForNotStarted();
-        return transactionManager.createTransaction(timeout);
+        return beginTxInMemory(timeout, true);
     }
 
     @Override
@@ -91,13 +92,18 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @Override
     public MutableGraphTransaction beginTxMutable(Duration timeout) {
-        return beginTxInMemory(timeout);
+        return beginTxInMemory(timeout, false);
     }
 
     @Override
     public MutableGraphTransaction beginTimedTxMutable(Logger logger, String text) {
         guardForNotStarted();
-        return transactionManager.createTimedTransaction(logger, text);
+        return transactionManager.createTimedTransaction(logger, text, false);
+    }
+
+    private MutableGraphTransaction beginTxInMemory(final Duration timeout, boolean immutable) {
+        guardForNotStarted();
+        return transactionManager.createTransaction(timeout, immutable);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.tramchester.unit.deployment;
 
 import com.tramchester.cloud.data.UploadFileToS3;
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -120,7 +121,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         }
 
         @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        public List<RemoteDataSourceConfig> getRemoteSources() {
             return remoteConfigs;
         }
 
@@ -170,6 +171,11 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         @Override
         public boolean checkOnlyIfExpired() {
             return false;
+        }
+
+        @Override
+        public ConfigReference<Boolean> getSkip() {
+            return new ConfigReference<>(false);
         }
 
         @Override

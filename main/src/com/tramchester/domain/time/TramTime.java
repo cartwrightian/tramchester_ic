@@ -1,10 +1,13 @@
 package com.tramchester.domain.time;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,7 +16,11 @@ import java.util.Objects;
 
 import static java.lang.String.format;
 
+// TODO Immutable interface
 
+
+@JsonDeserialize(using = TramTimeJsonDeserializer.class)
+@JsonSerialize(using = TramTimeJsonSerializer.class)
 public class TramTime implements Comparable<TramTime> {
     private static final CharSequence nextDaySuffix = "+24";
     public static final int MINS_IN_HOUR = 60;
@@ -136,9 +143,9 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(other.hour, other.minute, 1);
     }
 
-    public static Duration difference(final TramTime first, final TramTime second) {
+    public static TramDuration difference(final TramTime first, final TramTime second) {
         // todo seconds resolution
-        return Duration.ofMinutes(diffenceAsMinutes(first, second));
+        return TramDuration.ofMinutes(diffenceAsMinutes(first, second));
     }
 
     /***
@@ -331,17 +338,17 @@ public class TramTime implements Comparable<TramTime> {
         return TramTime.of(newHours, newMins, newOffsetDays);
     }
 
-    public TramTime plus(final Duration duration) {
+    public TramTime plus(final TramDuration duration) {
         final int minutes = getMinutesSafe(duration);
         return plusMinutes(minutes);
     }
 
-    public TramTime minus(final Duration duration) {
+    public TramTime minus(final TramDuration duration) {
         final int minutes = getMinutesSafe(duration);
         return minusMinutes(minutes);
     }
 
-    public TramTime minusRounded(final Duration duration) {
+    public TramTime minusRounded(final TramDuration duration) {
         final double minutesExact = duration.toSeconds() / 60D;
         final long minutes = Math.round(minutesExact);
         return minusMinutes(Math.toIntExact(minutes));
@@ -352,20 +359,15 @@ public class TramTime implements Comparable<TramTime> {
      * @param duration duration to add
      * @return the new time
      */
-    public TramTime plusRounded(final Duration duration) {
+    public TramTime plusRounded(final TramDuration duration) {
         final double minutesExact = duration.toSeconds() / 60D;
         final long minutes = Math.round(minutesExact);
         return plusMinutes(minutes);
     }
 
     // TODO Store seconds in tram time
-    private int getMinutesSafe(final Duration duration) {
-        final long seconds = duration.getSeconds();
-        final int mod = Math.floorMod(seconds, 60);
-        if (mod!=0) {
-            throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
-        }
-        return (int) Math.floorDiv(seconds, 60);
+    private int getMinutesSafe(final TramDuration duration) {
+       return duration.getMinutesSafe();
     }
 
     public TramTime plusMinutes(final Long minsToAdd) {

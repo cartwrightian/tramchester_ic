@@ -1,5 +1,6 @@
 package com.tramchester.integration.testSupport.naptan;
 
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 
@@ -19,6 +20,11 @@ public class NaptanRemoteDataSourceTestConfig extends RemoteDataSourceConfig {
     @Override
     public Path getDataPath() {
         return dataPath;
+    }
+
+    @Override
+    public ConfigReference<Boolean> getSkip() {
+        return new ConfigReference<>(false);
     }
 
     @Override

@@ -3,12 +3,15 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.StationLocalityGroup;
-import com.tramchester.graph.core.*;
+import com.tramchester.domain.time.TramDuration;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.GROUPED_TO_CHILD;
@@ -37,20 +40,20 @@ public class GroupedStationState extends TraversalState {
         }
 
         public TraversalState fromChildStation(StationState stationState, JourneyStateUpdate journeyStateUpdate,
-                                               GraphNode node, Duration cost, GraphTransaction txn) {
+                                               GraphNode node, TramDuration cost, GraphTransaction txn) {
             final Stream<GraphRelationship> relationships = filterExcludingNode(txn,
                     node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), stationState);
             return new GroupedStationState(stationState, journeyStateUpdate, relationships, cost, this, node);
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, JourneyStateUpdate journeyStateUpdate,
-                                        Duration cost, GraphTransaction txn) {
+                                        TramDuration cost, GraphTransaction txn) {
             final Stream<GraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_CHILD, GROUPED_TO_GROUPED);
             return new GroupedStationState(notStartedState, journeyStateUpdate, relationships,
                     cost, this, node);
         }
 
-        public TraversalState fromGrouped(GroupedStationState parent, Duration cost, JourneyStateUpdate journeyStateUpdate,
+        public TraversalState fromGrouped(GroupedStationState parent, TramDuration cost, JourneyStateUpdate journeyStateUpdate,
                                           GraphNode node, GraphTransaction txn) {
             final Stream<GraphRelationship> relationships = filterExcludingNode(txn,
                     node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), parent);
@@ -59,7 +62,7 @@ public class GroupedStationState extends TraversalState {
     }
 
     private GroupedStationState(ImmutableTraversalState parent, final JourneyStateUpdate journeyStateUpdate,
-                                Stream<GraphRelationship> relationships, Duration cost,
+                                Stream<GraphRelationship> relationships, TramDuration cost,
                                 Towards<GroupedStationState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
         final IdFor<StationLocalityGroup> stationGroupdId = graphNode.getStationGroupId();
@@ -73,24 +76,24 @@ public class GroupedStationState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, TramDuration cost,
                                                      JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, TramDuration cost,
                                                  JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, TramDuration cost, JourneyStateUpdate journeyStateUpdate) {
         towardsDestination.from(this, cost, node);
     }
 
     @Override
-    protected TraversalState toGrouped(Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node, TramDuration cost, JourneyStateUpdate journeyState) {
         return towardsGroup.fromGrouped(this, cost, journeyStateUpdate, node, txn);
     }
 }

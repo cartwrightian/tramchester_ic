@@ -1,6 +1,5 @@
 package com.tramchester.graph.core;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
@@ -18,13 +17,15 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
 
-public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphProps> extends GraphEntityProperties<T> implements MutableGraphNode {
+public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphProps<T>> extends GraphEntityProperties<T> implements MutableGraphNode {
 
     private final T graphProps;
 
@@ -32,17 +33,29 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         this.graphProps = graphProps;
     }
 
+    protected T copyProperties() {
+        return graphProps.copy();
+    }
+
     @Override
     public void setHourProp(final Integer hour) {
-        graphProps.setProperty(HOUR.getText(), hour);
+        graphProps.setProperty(HOUR, hour);
         invalidateCache();
     }
 
     protected abstract void invalidateCache();
 
     @Override
+    public Map<DataSourceID, String> getStoredVersions() {
+        return DataSourceID.InDatabase().stream().
+                filter(id -> hasProperty(DataSourceID.getGraphKey(id))).
+                collect(Collectors.toMap(id -> id, id -> (String)getProperty(DataSourceID.getGraphKey(id))));
+    }
+
+    @Override
     public void setTime(final TramTime tramTime) {
-        setTime(tramTime, graphProps);
+        //setTime(tramTime, graphProps);
+        graphProps.setTime(tramTime);
         invalidateCache();
     }
 
@@ -83,62 +96,67 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     }
 
     @Override
-    public void setTransportMode(final TransportMode first) {
-        graphProps.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
+    public void setTransportMode(final TransportMode mode) {
+        graphProps.setTransportMode(mode);
         invalidateCache();
     }
 
     @Override
     public void set(final DataSourceInfo nameAndVersion) {
-        final DataSourceID sourceID = nameAndVersion.getID();
-        graphProps.setProperty(sourceID.name(), nameAndVersion.getVersion());
+        final GraphPropertyKey key = DataSourceID.getGraphKey(nameAndVersion.getID());
+        graphProps.setProperty(key, nameAndVersion.getVersion());
         invalidateCache();
     }
 
     @Override
     public void setLatLong(final LatLong latLong) {
-        graphProps.setProperty(LATITUDE.getText(), latLong.getLat());
-        graphProps.setProperty(LONGITUDE.getText(), latLong.getLon());
+        graphProps.setProperty(LATITUDE, latLong.getLat());
+        graphProps.setProperty(LONGITUDE, latLong.getLon());
         invalidateCache();
     }
 
     @Override
     public void setBounds(final BoundingBox bounds) {
-        graphProps.setProperty(MAX_EASTING.getText(), bounds.getMaxEasting());
-        graphProps.setProperty(MAX_NORTHING.getText(), bounds.getMaxNorthings());
-        graphProps.setProperty(MIN_EASTING.getText(), bounds.getMinEastings());
-        graphProps.setProperty(MIN_NORTHING.getText(), bounds.getMinNorthings());
+        graphProps.setProperty(MAX_EASTING, bounds.getMaxEasting());
+        graphProps.setProperty(MAX_NORTHING, bounds.getMaxNorthings());
+        graphProps.setProperty(MIN_EASTING, bounds.getMinEastings());
+        graphProps.setProperty(MIN_NORTHING, bounds.getMinNorthings());
         invalidateCache();
     }
 
     @Override
     public void setWalkId(final LatLong origin, final UUID uid) {
-        graphProps.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
+        graphProps.setProperty(GraphPropertyKey.WALK_ID, origin.toString() + "_" + uid.toString());
         invalidateCache();
     }
 
     @Override
     public void setPlatformNumber(final Platform platform) {
-        graphProps.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
+        graphProps.setProperty(PLATFORM_NUMBER, platform.getPlatformNumber());
         invalidateCache();
     }
 
     @Override
     public void setSourceName(final String sourceName) {
-        graphProps.setProperty(SOURCE_NAME_PROP.getText(), sourceName);
+        graphProps.setProperty(SOURCE_NAME_PROP, sourceName);
         invalidateCache();
     }
 
     @Override
     public void setAreaId(final IdFor<NPTGLocality> localityId) {
-        graphProps.setProperty(AREA_ID.getText(), localityId.getGraphId());
+        graphProps.setProperty(AREA_ID, localityId.getGraphId());
         invalidateCache();
     }
 
     @Override
     public void setTowards(final IdFor<Station> stationId) {
-        graphProps.setProperty(TOWARDS_STATION_ID.getText(), stationId.getGraphId());
+        graphProps.setProperty(TOWARDS_STATION_ID, stationId.getGraphId());
         invalidateCache();
+    }
+
+    @Override
+    public void set(final Trip trip) {
+        set(trip, graphProps);
     }
 
     ///// GET //////////////////////////////////////////////////
@@ -148,8 +166,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     @Override
     public TransportMode getTransportMode() {
-        short number = (short) getProperty(TRANSPORT_MODE, graphProps);
-        return TransportMode.fromNumber(number);
+        return graphProps.getTransportMode();
     }
 
     @JsonIgnore
@@ -161,11 +178,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     public IdFor<Station> getStationId() {
         return getIdFor(Station.class, graphProps);
-    }
-
-    @Override
-    public void set(final Trip trip) {
-        set(trip, graphProps);
     }
 
     @JsonIgnore
@@ -203,14 +215,22 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @JsonIgnore
     public TramTime getTime() {
-        return getTime(graphProps);
+        return graphProps.getTime();
     }
 
     @JsonIgnore
+    @Override
     public LatLong getLatLong() {
         final double lat = (double) getProperty(LATITUDE, graphProps);
         final double lon = (double) getProperty(LONGITUDE, graphProps);
         return new LatLong(lat, lon);
+    }
+
+
+    @JsonIgnore
+    @Override
+    public String getWalkId() {
+        return getProperty(WALK_ID).toString();
     }
 
     public boolean hasTripId() {
@@ -220,7 +240,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     public PlatformId getPlatformId() {
         final IdFor<Station> stationId = getStationId();
-        final String platformNumber =  graphProps.getProperty(PLATFORM_NUMBER.getText()).toString();
+        final String platformNumber =  graphProps.getProperty(PLATFORM_NUMBER).toString();
         return PlatformId.createId(stationId, platformNumber);
     }
 
@@ -229,13 +249,13 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     }
 
     <DT extends CoreDomain> Boolean hasIdFor(Class<DT> theClass) {
-        return graphProps.hasProperty(GraphPropertyKey.getFor(theClass).getText());
+        return graphProps.hasProperty(GraphPropertyKey.getFor(theClass));
     }
 
     @JsonIgnore
     @Override
     public IdFor<Station> getTowardsStationId() {
-        String text = (String) graphProps.getProperty(TOWARDS_STATION_ID.getText());
+        String text = (String) graphProps.getProperty(TOWARDS_STATION_ID);
         if (text==null) {
             return Station.InvalidId();
         }
@@ -245,11 +265,11 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     @Override
     public BoundingBox getBounds() {
-        int minEasting = (int) graphProps.getProperty(MIN_EASTING.getText());
-        int minNorthing = (int) graphProps.getProperty(MIN_NORTHING.getText());
+        int minEasting = (int) graphProps.getProperty(MIN_EASTING);
+        int minNorthing = (int) graphProps.getProperty(MIN_NORTHING);
 
-        int maxEasting = (int) graphProps.getProperty(MAX_EASTING.getText());
-        int maxNorthing = (int) graphProps.getProperty(MAX_NORTHING.getText());
+        int maxEasting = (int) graphProps.getProperty(MAX_EASTING);
+        int maxNorthing = (int) graphProps.getProperty(MAX_NORTHING);
         return new BoundingBox(minEasting, minNorthing, maxEasting, maxNorthing);
     }
 
@@ -265,16 +285,21 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }
 
-    @JsonGetter("properties")
-    public Map<String,Object> getAllProperties() {
+    @JsonIgnore
+    public Map<GraphPropertyKey,Object> getAllProperties() {
         return getAllProperties(graphProps);
     }
 
     public boolean hasProperty(final GraphPropertyKey propertyKey) {
-        return graphProps.hasProperty(propertyKey.getText());
+        return graphProps.hasProperty(propertyKey);
     }
 
     public Object getProperty(final GraphPropertyKey propertyKey) {
-        return graphProps.getProperty(propertyKey.getText());
+        return graphProps.getProperty(propertyKey);
+    }
+
+    @JsonIgnore
+    public Set<GraphPropertyKey> getUnusedProps() {
+        return graphProps.getUnused();
     }
 }

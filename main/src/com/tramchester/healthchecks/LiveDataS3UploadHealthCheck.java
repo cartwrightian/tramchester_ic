@@ -31,7 +31,7 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
         super(serviceTimeLimits);
         this.providesNow = providesNow;
         this.countsUploadedLiveData = countsUploadedLiveData;
-        this.config = config.getLiveDataConfig();
+        this.config = config.getTfgmTramliveData();
     }
 
     @Override

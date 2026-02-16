@@ -2,12 +2,11 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.core.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -35,19 +34,21 @@ public class PlatformState extends TraversalState implements NodeId {
             return TraversalStateType.PlatformState;
         }
 
-        public PlatformState from(final PlatformStationState stationState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
+        public PlatformState from(final PlatformStationState stationState, final GraphNode node, final TramDuration cost, final GraphTransaction txn) {
             final Stream<GraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
 
             return new PlatformState(stationState, boarding, node, cost, this.getDestination());
         }
 
+        @Override
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip routeStationStateOnTrip, final GraphNode node,
-                                                     final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
+                                                     final TramDuration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             return findStateAfterRouteStation.onTripTowardsPlatform(getDestination(), routeStationStateOnTrip, node, cost, txn, this);
         }
 
+        @Override
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
-                                                      final Duration cost,
+                                                      final TramDuration cost,
                                                       JourneyStateUpdate journeyState,
                                                       final GraphTransaction txn) {
             return findStateAfterRouteStation.endTripTowardsPlatform(getDestination(), routeStationState, node, cost, txn, this);
@@ -58,7 +59,7 @@ public class PlatformState extends TraversalState implements NodeId {
     private final GraphNode platformNode;
 
     protected PlatformState(final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships, final GraphNode platformNode,
-                            final Duration cost, final TraversalStateType towards) {
+                            final TramDuration cost, final TraversalStateType towards) {
         super(parent, relationships, cost, towards, platformNode.getId());
         this.platformNode = platformNode;
     }
@@ -72,7 +73,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
     @Override
     protected JustBoardedState toJustBoarded(final JustBoardedState.Builder towardsJustBoarded, final GraphNode boardingNode,
-                                             final Duration cost, final JourneyStateUpdate journeyState) {
+                                             final TramDuration cost, final JourneyStateUpdate journeyState) {
         try {
             final TransportMode actualMode = boardingNode.getTransportMode();
             if (actualMode==null) {
@@ -86,7 +87,7 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
                                                      final JourneyStateUpdate journeyState) {
         return towardsStation.fromPlatform(this, node, cost, journeyState, txn);
     }

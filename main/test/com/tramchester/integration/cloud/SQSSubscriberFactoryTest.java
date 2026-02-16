@@ -15,8 +15,12 @@ import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.*;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RequiresNetwork
 public class SQSSubscriberFactoryTest {
@@ -40,6 +44,9 @@ public class SQSSubscriberFactoryTest {
         queueName = TestEnv.getTestQueueName();
 
         snsAndSqsSupport = new SnsAndSqsSupport(snsClient, sqsClient);
+
+        // rate limit on this call, once every 60 seconds
+        purgeQueue();
     }
 
     @BeforeEach
@@ -52,6 +59,7 @@ public class SQSSubscriberFactoryTest {
     static void OnceAfterAllTestsAreFinished() {
         componentContainer.close();
         snsAndSqsSupport.clearQueueByName(queueName);
+
     }
 
     @Test
@@ -72,6 +80,30 @@ public class SQSSubscriberFactoryTest {
 
         assertEquals(text, result);
 
+        ReceiveMessageRequest checkIfDeleted = ReceiveMessageRequest.builder().
+                queueUrl(queueName).
+                waitTimeSeconds(2).
+                maxNumberOfMessages(10). // 10 is the max
+                        build();
+
+        ReceiveMessageResponse response = sqsClient.receiveMessage(checkIfDeleted);
+
+        List<Message> anyMessages = response.messages();
+
+        assertTrue(anyMessages.isEmpty(), "Unexpected messages " + anyMessages);
+
+    }
+
+    private static void purgeQueue() {
+        PurgeQueueRequest purgeRequest = PurgeQueueRequest.builder().
+                queueUrl(queueName).
+                build();
+
+        try {
+            sqsClient.purgeQueue(purgeRequest);
+        } catch (PurgeQueueInProgressException ignored) {
+            // rate limited, failure will be in logs
+        }
     }
 
     @Test

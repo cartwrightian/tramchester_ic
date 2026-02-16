@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -25,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FindLinkedStationsTest {
 
     private static ComponentContainer componentContainer;
+
     private FindLinkedStations findStationLinks;
     private StationRepository stationRepository;
     private Geography geography;
@@ -80,9 +80,8 @@ class FindLinkedStationsTest {
     }
 
     private StationToStationConnection createLink(TramStations stationA, TramStations stationB) {
-        final EnumSet<TransportMode> tram = EnumSet.of(Tram);
         return StationToStationConnection.createForWalk(stationA.from(stationRepository), stationB.from(stationRepository),
-                tram, StationToStationConnection.LinkType.Linked, geography);
+                TransportMode.TramsOnly, StationToStationConnection.LinkType.Linked, geography);
     }
 
 }

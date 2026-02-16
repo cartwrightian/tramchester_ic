@@ -6,8 +6,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 
-import java.time.Duration;
 import java.util.Set;
 
 public interface Station extends Location<Station> {
@@ -21,7 +21,7 @@ public interface Station extends Location<Station> {
 
     boolean servesMode(TransportMode mode);
 
-    Duration getMinChangeDuration();
+    TramDuration getMinChangeDuration();
 
     static IdFor<Station> createId(String text) {
         return StringIdFor.createId(text, Station.class);

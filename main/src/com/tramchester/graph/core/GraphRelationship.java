@@ -3,11 +3,12 @@ package com.tramchester.graph.core;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
@@ -15,14 +16,12 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.time.Duration;
-import java.util.EnumSet;
-
-public interface GraphRelationship extends GraphEntity {
+public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
 
     GraphRelationshipId getId();
 
@@ -30,7 +29,7 @@ public interface GraphRelationship extends GraphEntity {
 
     int getHour();
 
-    Duration getCost();
+    TramDuration getCost();
 
     GraphNode getEndNode(final GraphTransaction txn);
 
@@ -40,7 +39,7 @@ public interface GraphRelationship extends GraphEntity {
 
     GraphNodeId getEndNodeId(GraphTransaction txn);
 
-    EnumSet<TransportMode> getTransportModes() ;
+    ImmutableEnumSet<TransportMode> getTransportModes() ;
 
     TransportRelationshipTypes getType();
 
@@ -54,8 +53,6 @@ public interface GraphRelationship extends GraphEntity {
 
     IdFor<RouteStation> getRouteStationId();
 
-    boolean isDayOffset();
-
     boolean validOn(TramDate tramDate);
 
     IdFor<Station> getStationId();
@@ -64,13 +61,13 @@ public interface GraphRelationship extends GraphEntity {
 
     int getStopSeqNumber();
 
-    IdFor<Station> getEndStationId();
+    IdFor<Station> getEndStationId(GraphTransaction txn);
 
-    IdFor<Station> getStartStationId();
+    IdFor<Station> getStartStationId(GraphTransaction txn);
 
-    IdFor<StationLocalityGroup> getStationGroupId();
+    IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn);
 
-    IdSet<Trip> getTripIds();
+    ImmutableIdSet<Trip> getTripIds();
 
     DateRange getDateRange();
 
@@ -82,7 +79,7 @@ public interface GraphRelationship extends GraphEntity {
 
     TramTime getEndTime();
 
-    LocationId<?> getLocationId();
+    LocationId<?> getLocationId(GraphTransaction txn);
 
     boolean hasTripIdInList(IdFor<Trip> tripId);
 
@@ -92,7 +89,7 @@ public interface GraphRelationship extends GraphEntity {
     }
 
     default IdFor<? extends CoreDomain> getEndDomainId(final GraphTransaction txn) {
-        final GraphNode node = getEndNode(txn);
+        final GraphNode node = txn.getNodeById(getEndNodeId(txn)); // getEndNode(txn);
         return node.getCoreDomainId();
     }
 }

@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
@@ -22,7 +23,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -38,7 +38,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     private RunningRoutesAndServices.FilterForDate filterForDate;
     private TestConfigWithTramMode config;
     private LowestCostsForDestRoutes lowestCostForDest;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -56,9 +56,9 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
         //LocationSet<Station> endStations = LocationSet.singleton(TramStations.Bury.fake());
 
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         journeyConstraints = new JourneyConstraints(config, filterForDate,
-                closedStations, TestEnv.Modes.TramsOnly, lowestCostForDest, maxJourneyDuration,
+                closedStations, TransportMode.TramsOnly, lowestCostForDest, maxJourneyDuration,
                 TimeRangePartial.of(TramTime.of(8,0), TramTime.of(23,0)));
     }
 
@@ -90,7 +90,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
 
         JourneyConstraints constraints = new JourneyConstraints(config, filterForDate,
-                Collections.emptySet(), TestEnv.Modes.TramsOnly, lowestCostForDest, maxJourneyDuration,
+                Collections.emptySet(), TransportMode.TramsOnly, lowestCostForDest, maxJourneyDuration,
                 timeRange);
 
         assertTrue(constraints.destinationsAvailable(TramTime.of(16,15)));

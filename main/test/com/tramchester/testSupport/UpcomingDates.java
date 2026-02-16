@@ -6,7 +6,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -16,45 +15,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
-
 public class UpcomingDates {
 
     private static final TramDate sunday;
     private static final TramDate saturday;
     private static final TramDate monday;
+    private static final DateRange decemberStrike;
 
     static {
-        TramDate today = TramDate.from(TestEnv.LocalNow());
-        sunday = getNextDate(DayOfWeek.SUNDAY, today);
+        final TramDate today = TramDate.from(TestEnv.LocalNow());
+        decemberStrike = DateRange.of(TramDate.of(2025, 12, 5),3);
+
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
+        sunday = getNextDate(DayOfWeek.SUNDAY, today);
         monday = getNextDate(DayOfWeek.MONDAY, today);
     }
 
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange TraffordBar2025 = DateRange.of(TramDate.of(2025,11,1),
-            TramDate.of(2025, 11, 2));
-    public static TramDate VictoriaAndRochdaleLineWorks = TramDate.of(2025,11,16);
-    public static TramDate VictoriaNov2025 = TramDate.of(2025, 11,23);
-    public static TramDate ExchangeSquareUnpublished = TramDate.of(2025, 11, 9);
+    //public static TramDate EmergencyWorksDeansgateDev2025 = TramDate.of(2025,12,14);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(Station station, TramDate date, TimeRange timeRange) {
-
-        TimeRange exchangeSquareNoTrams = TimeRange.of(TramTime.of(6, 25), TramTime.of(7, 35));
-        if (ExchangeSquare.getId().equals(station.getId())) {
-            if (ExchangeSquareUnpublished.equals(date) && exchangeSquareNoTrams.anyOverlap(timeRange)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
         if (hasClosure(station, date)) {
             return true;
         }
@@ -66,28 +52,20 @@ public class UpcomingDates {
         return hasClosure(station.getId(), date);
     }
 
-    public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (VictoriaAndRochdaleLineWorks.equals(date)) {
-            if (stationId.equals(MarketStreet.getId()) || stationId.equals(OldhamCentral.getId())) {
-                return true;
-            }
-        }
+    public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         return anyClosedOnDate(date);
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-        if (TraffordBar2025.contains(date)) {
-            return true;
-        }
         return false;
     }
 
     public static boolean validTestDate(final TramDate date) {
-        return !(date.isChristmasPeriod());
+        return !(date.isChristmasPeriod() || decemberStrike.contains(date));
     }
 
     public static List<TramDate> daysAhead() {
-        TramDate date = TramDate.of(TestEnv.LocalNow().toLocalDate()).plusDays(1);
+        TramDate date =  TramDate.of(TestEnv.LocalNow().toLocalDate()).plusDays(1);
 
         final List<TramDate> dates = new ArrayList<>();
         while (dates.size() <= DAYS_AHEAD) {
@@ -113,7 +91,11 @@ public class UpcomingDates {
     }
 
     public static TramDate nextSaturday() {
-        return saturday;
+        TramDate result = saturday;
+        while (!validTestDate(result)) {
+            result = result.plusWeeks(1);
+        }
+        return result;
     }
 
     public static TramDate nextMonday() {
@@ -121,19 +103,24 @@ public class UpcomingDates {
     }
 
 
-    static TramDate getNextDate(DayOfWeek dayOfWeek, TramDate date) {
-        while (date.getDayOfWeek() != dayOfWeek) {
-            date = date.plusDays(1);
+    static TramDate getNextDate(final DayOfWeek dayOfWeek, final TramDate date) {
+        TramDate result = date;
+        while (result.getDayOfWeek() != dayOfWeek) {
+            result = result.plusDays(1);
         }
-        return avoidChristmasDate(date);
+        while (!validTestDate(result)) {
+            result = result.plusWeeks(1);
+        }
+        return result;
+        //return avoidChristmasDate(result);
     }
 
     public static TramDate avoidChristmasDate(final TramDate startDate) {
-        TramDate date = startDate;
-        while (date.isChristmasPeriod()) {
-            date = date.plusWeeks(1);
+        TramDate result = startDate;
+        while (result.isChristmasPeriod()) {
+            result = result.plusWeeks(1);
         }
-        return date;
+        return result;
     }
 
     public static boolean isChristmasDay(TramDate date) {
@@ -151,6 +138,11 @@ public class UpcomingDates {
             return true;
         }
         return hasClosure(pair.getEndId(), date);
+    }
+
+    public static TramDate testDay() {
+        final TramDate today = TramDate.from(TestEnv.LocalNow());
+        return UpcomingDates.getNextDate(DayOfWeek.THURSDAY, today);
     }
 }
 

@@ -1,26 +1,26 @@
 package com.tramchester.graph.core;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.LowestCostSeen;
+import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.search.ArrivalHandler;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.diagnostics.*;
-import com.tramchester.graph.search.PreviousVisits;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public abstract class TramRouteEvaluator {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
@@ -29,25 +29,25 @@ public abstract class TramRouteEvaluator {
     protected final Set<GraphNodeId> destinationNodeIds;
     protected final ServiceReasons reasons;
     protected final PreviousVisits previousVisits;
-    protected final LowestCostSeen bestResultSoFar;
+    protected final ArrivalHandler bestResultSoFar;
     protected final boolean diagEnabled;
     protected final int maxWaitMins;
     protected final int maxInitialWaitMins;
     protected final GraphNodeId startNodeId;
-    protected final EnumSet<GraphLabel> requestedLabels;
+    protected final ImmutableEnumSet<GraphLabel> requestedLabels;
     protected final GraphTransaction txn;
     protected final boolean depthFirst;
     protected final Running running;
     protected final Set<GraphNodeId> seenTimeNode;
-    protected final EnumSet<GraphLabel> destinationLabels;
+    protected final ImmutableEnumSet<GraphLabel> destinationLabels;
 
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final TramchesterConfig config,
                               final GraphTransaction txn, final Set<GraphNodeId> destinationNodeIds,
                               final ServiceReasons reasons, final PreviousVisits previousVisits,
-                              final LowestCostSeen bestResultSoFar, final GraphNodeId startNodeId,
-                              final EnumSet<TransportMode> requestedModes, Running running,
-                              final EnumSet<TransportMode> destinationModes,
-                              final Duration maxInitialWait) {
+                              final ArrivalHandler bestResultSoFar, final GraphNodeId startNodeId,
+                              final ImmutableEnumSet<TransportMode> requestedModes, Running running,
+                              final ImmutableEnumSet<TransportMode> destinationModes,
+                              final TramDuration maxInitialWait) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.reasons = reasons;
@@ -70,9 +70,21 @@ public abstract class TramRouteEvaluator {
         final GraphNode nextNode = graphPath.getEndNode(txn);
 
         // reuse these, label operations on nodes are expensive
-        final EnumSet<GraphLabel> labels = nextNode.getLabels();
+        final ImmutableEnumSet<GraphLabel> labels = nextNode.getLabels();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), graphPath.getPreviousNodeId(txn));
+        final List<PropertyDTO> endNodeProps;
+        if (serviceHeuristics.isDiagnostics()) {
+            if (nextNode instanceof GraphNodeInMemory graphNodeInMemory) {
+                endNodeProps = graphNodeInMemory.getProperties();
+            } else {
+                endNodeProps = Collections.emptyList();
+            }
+        } else {
+            endNodeProps= Collections.emptyList();
+        }
+
+        final GraphNodeId previousNodeId = graphPath.getPreviousNodeId(txn);
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), previousNodeId, endNodeProps);
 
         // TODO WIP Spike
 //        if (journeyState.alreadyVisited(nextNode, labels)) {
@@ -106,21 +118,24 @@ public abstract class TramRouteEvaluator {
         return heuristicsReason.getEvaluationAction();
     }
 
-    private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
-                                        final EnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
+    private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState,
+                                        final GraphNode nextNode,
+                                        final ImmutableEnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 
-        final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();
+        final TramDuration totalCostSoFar = journeyState.getTotalDurationSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges, totalCostSoFar);
-        } else if (bestResultSoFar.everArrived()) { // Not arrived for current journey, but we have seen at least one prior success
-            final Duration lowestCostSeen = bestResultSoFar.getLowestDuration();
-            if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
-                // already longer that current shortest, no need to continue
+        } else {
+            if (bestResultSoFar.alreadyLonger(journeyState)) {
                 return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
+            } else if (bestResultSoFar.alreadyMoreChanges(journeyState, numberChanges)) {
+                return reasons.recordReason(HeuristicsReasons.MoreChanges(howIGotHere, numberChanges));
+            } else if (bestResultSoFar.overArrivalsLimit(journeyState)) {
+                return reasons.recordReason(HeuristicsReasons.ArrivalsLimit(howIGotHere, bestResultSoFar.getArrivalsLimit()));
             }
         }
 
@@ -143,7 +158,6 @@ public abstract class TramRouteEvaluator {
         }
 
         // no journey longer than N nodes
-        // TODO check length based on current transport mode??
         if (thePath.length() > serviceHeuristics.getMaxPathLength()) {
             if (depthFirst) {
                 logger.warn("Hit max path length");
@@ -282,27 +296,33 @@ public abstract class TramRouteEvaluator {
 
     @NotNull
     private synchronized HeuristicsReason processArrivalAtDest(final ImmutableJourneyState journeyState, final HowIGotHere howIGotHere,
-                                                               final int numberChanges, Duration totalCostSoFar) {
+                                                               final int numberChanges, final TramDuration totalCostSoFar) {
 
         // todo if was on diversion at any stage then change behaviour here?
 
-        // todo set a thresh-hold on this rather than just having to be lower?
-        if (bestResultSoFar.isLower(journeyState)) {
-            // a better route than seen so far
+        bestResultSoFar.recordArrival(journeyState);
+
+        final ArrivalHandler.Outcome timingOutcome = bestResultSoFar.checkDuration(journeyState);
+        if (timingOutcome == ArrivalHandler.Outcome.Better) {
+            // found a better route than seen so far
             bestResultSoFar.setLowestCost(journeyState);
             return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
         }
 
-        final int lowestNumChanges = bestResultSoFar.getLowestNumChanges();
-        if (numberChanges == lowestNumChanges) {
+        if (timingOutcome == ArrivalHandler.Outcome.Worse) {
             return reasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHere, totalCostSoFar, numberChanges));
-        } else if (numberChanges < lowestNumChanges) {
-            // fewer hops can be a useful option
-            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
-        } else {
-            // found a route, but longer or more hops than current shortest
-            return reasons.recordReason(HeuristicsReasons.ArrivedMoreChanges(howIGotHere, numberChanges, totalCostSoFar));
         }
+
+        // else Same on timings
+
+        final ArrivalHandler.Outcome changesOutcome = bestResultSoFar.checkChanges(journeyState, numberChanges);
+
+        return switch (changesOutcome) {
+            case Better -> reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
+            case Same -> reasons.recordReason(HeuristicsReasons.ArrivedSameChanges(howIGotHere, numberChanges, totalCostSoFar));
+            case Worse -> reasons.recordReason(HeuristicsReasons.ArrivedMoreChanges(howIGotHere, numberChanges, totalCostSoFar));
+        };
+
     }
 
     public boolean matchesDestination(final GraphNodeId graphNodeId) {

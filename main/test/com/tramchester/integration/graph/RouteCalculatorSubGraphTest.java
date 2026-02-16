@@ -2,21 +2,23 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
@@ -26,17 +28,17 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RouteCalculatorSubGraphTest {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade calculator;
@@ -48,10 +50,11 @@ class RouteCalculatorSubGraphTest {
             Pomona);
     private MutableGraphTransaction txn;
     private TramTime tramTime;
-    private Duration maxJourneyDuration;
-    private EnumSet<TransportMode> modes;
+    private TramDuration maxJourneyDuration;
+    private ImmutableEnumSet<TransportMode> modes;
     private LocationJourneyPlannerTestFacade locationJourneyPlannerTestFacade;
     private StationRepository stationRepository;
+    private int maxChanges;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -64,7 +67,6 @@ class RouteCalculatorSubGraphTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
@@ -79,6 +81,8 @@ class RouteCalculatorSubGraphTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTxMutable();
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
@@ -87,9 +91,12 @@ class RouteCalculatorSubGraphTest {
         locationJourneyPlannerTestFacade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         tramTime = TramTime.of(8, 0);
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
 
-        modes = TramsOnly;
+        modes = TransportMode.TramsOnly;
+
+        maxChanges = config.getMaxNumberChanges();
+
     }
 
     @AfterEach
@@ -101,18 +108,18 @@ class RouteCalculatorSubGraphTest {
     void reproduceIssueEdgePerTrip() {
 
         validateAtLeastOneJourney(StPetersSquare, Deansgate,
-                new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration, 1, modes));
+                new JourneyRequest(when, tramTime, false, maxChanges, maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Cornbrook, Pomona,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, 2,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, maxChanges,
                         maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Deansgate, Cornbrook,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, maxChanges,
                         maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Deansgate, Pomona,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, maxChanges,
                         maxJourneyDuration, 1, modes));
 
     }
@@ -146,7 +153,7 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveWalkAtEnd() {
 
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, maxChanges,
                 maxJourneyDuration,1, modes);
         //journeyRequest.setDiag(true);
 
@@ -165,7 +172,7 @@ class RouteCalculatorSubGraphTest {
     void shouldHaveSimpleOneStopJourneyLateNight() {
         // last tram now earlier
         TramTime time = TramTime.of(23,40);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 maxJourneyDuration, 1, modes);
 //        journeyRequest.setDiag(true);
         List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Pomona, journeyRequest);
@@ -217,7 +224,7 @@ class RouteCalculatorSubGraphTest {
 
     @NotNull
     private List<Journey> getJourneys(TramStations start, TramStations destination, TramDate when, long maxNumberJourneys) {
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, maxChanges,
                 maxJourneyDuration, maxNumberJourneys, modes);
         return calculator.calculateRouteAsList(start,destination, journeyRequest);
     }

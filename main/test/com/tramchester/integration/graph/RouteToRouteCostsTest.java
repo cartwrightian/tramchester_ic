@@ -7,12 +7,14 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -21,7 +23,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -31,16 +32,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,7 +57,7 @@ public class RouteToRouteCostsTest {
     private TramRouteHelper routeHelper;
     private RouteRepository routeRepository;
     private StationRepository stationRepository;
-    private final EnumSet<TransportMode> modes = TramsOnly;
+    private final ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
     private TramDate date;
     private TimeRange timeRange;
 
@@ -115,7 +114,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
@@ -161,10 +159,10 @@ public class RouteToRouteCostsTest {
         assertEquals(1, getMinCost(result));
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routesCostRepository.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
@@ -176,7 +174,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        int result = getPossibleMinChanges(start, end, EnumSet.of(Train), date, timeRange);
+        int result = getPossibleMinChanges(start, end, RailOnly, date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, getMinCost(result));
 
@@ -210,7 +208,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldSortAsExpected() {
 
@@ -238,7 +235,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(23,59), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(23,59), TramDuration.ZERO, TramDuration.ofMinutes(maxDuration));
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
@@ -252,7 +249,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = StPetersSquare.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,0), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,0), TramDuration.ZERO, TramDuration.ofMinutes(maxDuration));
 
         Station navigationRoad = Cornbrook.from(stationRepository);
 
@@ -266,7 +263,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,1), TramDuration.ZERO, TramDuration.ofMinutes(maxDuration));
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 

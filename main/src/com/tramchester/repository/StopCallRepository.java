@@ -14,6 +14,7 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
@@ -26,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -123,7 +123,7 @@ public class StopCallRepository  {
     @NotNull
     private Costs calculateCosts(final Route route, final Station first, final Station second) {
         final boolean graphFilterActive = graphFilter.isActive();
-        final List<Duration> allCosts = route.getTrips().stream().
+        final List<TramDuration> allCosts = route.getTrips().stream().
                 flatMap(trip -> trip.getStopCalls().getLegs(graphFilterActive).stream()).
                 filter(leg -> leg.getFirstStation().equals(first) && leg.getSecondStation().equals(second)).
                 map(StopCalls.StopLeg::getCost).
@@ -215,13 +215,9 @@ public class StopCallRepository  {
         int endIndex = stopCalls.getStopFor(end).getGetSequenceNumber();
 
         if (beginIndex>endIndex) {
-            String message = format("% (%s) is after %s (%s)", begin, beginIndex, end, endIndex);
+            String message = format("%s (%s) is after %s (%s)", begin, beginIndex, end, endIndex);
             logger.error(message);
             throw new RuntimeException(message);
-
-//            final int temp = beginIndex;
-//            beginIndex = endIndex;
-//            endIndex = temp;
         }
 
         final List<IdFor<Station>> result = new ArrayList<>();
@@ -235,32 +231,32 @@ public class StopCallRepository  {
 
     public static class Costs {
 
-        private final List<Duration> costs;
+        private final List<TramDuration> costs;
         private final IdFor<Route> route;
         private final IdFor<Station> startId;
         private final IdFor<Station> endId;
 
-        public Costs(List<Duration> costs, IdFor<Route> route, IdFor<Station> startId, IdFor<Station> endId) {
+        public Costs(List<TramDuration> costs, IdFor<Route> route, IdFor<Station> startId, IdFor<Station> endId) {
             this.costs = costs;
             this.route = route;
             this.startId = startId;
             this.endId = endId;
         }
 
-        public Duration min() {
-            return costs.stream().min(Duration::compareTo).orElse(Duration.ZERO);
+        public TramDuration min() {
+            return costs.stream().min(TramDuration::compareTo).orElse(TramDuration.ZERO);
         }
 
-        public Duration max() {
-            return costs.stream().max(Duration::compareTo).orElse(Duration.ZERO);
+        public TramDuration max() {
+            return costs.stream().max(TramDuration::compareTo).orElse(TramDuration.ZERO);
         }
 
-        public Duration average() {
+        public TramDuration average() {
             double avg = costs.stream().
-                    mapToLong(Duration::getSeconds).average().orElse(0D);
+                    mapToLong(TramDuration::getSeconds).average().orElse(0D);
             @SuppressWarnings("WrapperTypeMayBePrimitive")
             final Double ceil = Math.ceil(avg);
-            return Duration.ofSeconds( ceil.intValue() );
+            return TramDuration.ofSeconds( ceil.intValue() );
         }
 
         @Override

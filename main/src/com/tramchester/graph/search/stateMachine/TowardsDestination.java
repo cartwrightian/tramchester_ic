@@ -42,24 +42,24 @@ public class TowardsDestination {
 
     public IterableWithEmptyCheck<GraphRelationship> fromRouteStation(final GraphTransaction txn, final GraphNode node) {
         final Stream<GraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
-        return getTowardsDestination(relationships);
+        return getTowardsDestination(txn, relationships);
     }
 
     public IterableWithEmptyCheck<GraphRelationship> fromPlatform(final GraphTransaction txn, final GraphNode node) {
-        return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM));
+        return getTowardsDestination(txn, node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM));
     }
 
     public IterableWithEmptyCheck<GraphRelationship> fromStation(final GraphTransaction txn, final GraphNode node) {
-        return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT));
+        return getTowardsDestination(txn, node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT));
     }
 
     public IterableWithEmptyCheck<GraphRelationship> fromWalk(final GraphTransaction txn, final GraphNode node) {
-        return getTowardsDestination(node.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION));
+        return getTowardsDestination(txn, node.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION));
     }
 
-    private <R extends GraphRelationship> IterableWithEmptyCheck<R> getTowardsDestination(final Stream<R> outgoing) {
+    private <R extends GraphRelationship> IterableWithEmptyCheck<R> getTowardsDestination(final GraphTransaction txn, final Stream<R> outgoing) {
         final List<R> filtered = outgoing.
-                filter(depart -> expanded.contains(depart.getLocationId())).
+                filter(depart -> expanded.contains(depart.getLocationId(txn))).
                 toList();
         return IterableWithEmptyCheck.from(filtered);
     }

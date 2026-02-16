@@ -1,5 +1,11 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -8,19 +14,62 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+
+import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
 
 public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
-    private final GraphNodeId id;
+    private final NodeIdInMemory id;
+    private final AtomicInteger dirtyCount;
 
     // push labels into graph, so can do the validation check etc
-    private final EnumSet<GraphLabel> labels;
+    private final GraphNodeLabelsContainer labels;
 
-    public GraphNodeInMemory(final GraphNodeId id, final EnumSet<GraphLabel> labels) {
-        super(new PropertyContainer());
+    public GraphNodeInMemory(final NodeIdInMemory id, final ImmutableEnumSet<GraphLabel> labels, final boolean diagnostics) {
+        this(new PropertyContainer(diagnostics), id, labels);
+    }
+
+    @JsonCreator
+    public GraphNodeInMemory(
+            @JsonProperty("nodeId") final NodeIdInMemory id,
+            @JsonProperty("labels") final EnumSet<GraphLabel> labels,
+            @JsonProperty("properties") List<PropertyDTO> properties) {
+        this(new PropertyContainer(properties), id, ImmutableEnumSet.copyOf(labels));
+    }
+
+    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, ImmutableEnumSet<GraphLabel> labels) {
+        super(propertyContainer);
         this.id = id;
-        this.labels = labels;
+        this.labels = new GraphNodeLabelsContainer(this, labels);
+        dirtyCount = new AtomicInteger(0);
+    }
+
+    public GraphNodeInMemory copy() {
+        return new GraphNodeInMemory(super.copyProperties(), id, labels.getLabels());
+    }
+
+    @Override
+    protected void invalidateCache() {
+        dirtyCount.getAndIncrement();
+    }
+
+    @JsonIgnore
+    public boolean isDirty() {
+        return dirtyCount.get()>0;
+    }
+
+
+    public void setClean() {
+        dirtyCount.set(0);
+    }
+
+    @JsonGetter("properties")
+    public List<PropertyDTO> getProperties() {
+        return getAllProperties().entrySet().stream().
+                filter(entry -> entry.getKey()!=DAY_OFFSET).
+                map(PropertyDTO::fromMapEntry).toList();
     }
 
     @Override
@@ -43,13 +92,9 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
                 '}';
     }
 
+    @JsonProperty(value = "nodeId")
     @Override
-    protected void invalidateCache() {
-        // no-op
-    }
-
-    @Override
-    public GraphNodeId getId() {
+    public NodeIdInMemory getId() {
         return id;
     }
 
@@ -58,9 +103,15 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         return labels.contains(graphLabel);
     }
 
+    @JsonIgnore
     @Override
-    public EnumSet<GraphLabel> getLabels() {
-        return labels;
+    public ImmutableEnumSet<GraphLabel> getLabels() {
+        return labels.getLabels();
+    }
+
+    @JsonProperty(value = "labels")
+    EnumSet<GraphLabel> getLabelsForSerialization() {
+        return ImmutableEnumSet.createEnumSet(labels.getLabels());
     }
 
     @Override
@@ -72,72 +123,67 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getSingleRelationship(id, direction, transportRelationshipTypes);
+        return inMemory.getSingleRelationshipImmutable(id, direction, transportRelationshipTypes);
     }
 
     @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes relationshipType) {
-        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationships(id, direction, EnumSet.of(relationshipType)).map(item -> item);
+        return getRelationships(txn, direction, EnumSet.of(relationshipType));
     }
 
     @Override
     public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, EnumSet<TransportRelationshipTypes> types) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationships(id, direction, types).map(item -> item);
+        return inMemory.getRelationshipImmutable(id, direction, types);
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+                                                      final TransportRelationshipTypes... transportRelationshipTypes) {
         final List<TransportRelationshipTypes> list = Arrays.asList(transportRelationshipTypes);
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
 
         if (list.isEmpty()) {
-            return inMemory.getRelationships(id, direction);
+            return inMemory.findRelationships(id, direction);
         } else {
             final EnumSet<TransportRelationshipTypes> types = EnumSet.copyOf(list);
-            return inMemory.getRelationships(id, direction, types).map(item -> item);
+            return inMemory.getRelationshipImmutable(id, direction, types);
         }
     }
-
-//    @Override
-//    public Stream<GraphRelationship> getAllRelationships(final GraphTransaction txn, final GraphDirection direction) {
-//        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-//        return inMemory.getRelationships(id, direction);
-//    }
 
     @Override
     public synchronized void delete(final MutableGraphTransaction txn) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         inMemory.delete(id);
+        invalidateCache();
     }
 
     @Override
-    public MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn,
-                                                         MutableGraphNode end, TransportRelationshipTypes relationshipType) {
+    public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn,
+                                                         final MutableGraphNode end, final TransportRelationshipTypes relationshipType) {
         return txn.createRelationship(this, end, relationshipType);
     }
 
     @Override
     public synchronized void addLabel(final MutableGraphTransaction txn, final GraphLabel label) {
-        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+        final GraphTransactionInMemory inMemoryTxn = (GraphTransactionInMemory) txn;
         labels.add(label);
-        inMemory.addLabel(id, label);
-
+        // update labels to nodes mapping in GraphCore
+        inMemoryTxn.addLabel(id, label);
     }
 
     @Override
-    public Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType) {
+    public Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction,
+                                                                    TransportRelationshipTypes relationshipType) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationships(id, direction, EnumSet.of(relationshipType)).map(item -> item);
+        return inMemory.getRelationshipMutable(id, direction, EnumSet.of(relationshipType)).map(item -> item);
     }
 
     @Override
     public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
         GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getSingleRelationship(id, direction, transportRelationshipTypes);
+        return inMemory.getSingleRelationshipMutable(id, direction, transportRelationshipTypes);
     }
-
 
     @Override
     public boolean isNode() {
@@ -148,6 +194,5 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public boolean isRelationship() {
         return false;
     }
-
 
 }

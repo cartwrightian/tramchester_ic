@@ -4,10 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -17,8 +19,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -67,14 +67,14 @@ class RailRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
-                10, Duration.ofHours(8), 1, getRequestedModes());
+                10, TramDuration.ofHours(8), 1, getRequestedModes());
 
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).interchangeToInterchange(Train);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return EnumSet.noneOf(TransportMode.class);
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return ImmutableEnumSet.noneOf(TransportMode.class);
     }
 
     @Test
@@ -82,7 +82,7 @@ class RailRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
-                10, Duration.ofHours(8), 1, getRequestedModes());
+                10, TramDuration.ofHours(8), 1, getRequestedModes());
 
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Train);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);

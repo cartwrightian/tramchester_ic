@@ -65,7 +65,6 @@ class JourneysForGridResourceTest {
 
         parseStream = new ParseJSONStream<>(BoxWithCostDTO.class);
 
-        maxChanges = 3;
         gridSize = 2000;
 
         App app =  appExtension.getApplication();
@@ -75,6 +74,8 @@ class JourneysForGridResourceTest {
         stationRepository = dependencies.get(StationRepository.class);
 
         maxDuration = appExtension.getConfiguration().getMaxJourneyDuration();
+        maxChanges = appExtension.getConfiguration().getMaxNumberChanges();
+
     }
 
     @Test

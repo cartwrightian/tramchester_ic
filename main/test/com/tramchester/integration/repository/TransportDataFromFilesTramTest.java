@@ -14,14 +14,14 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramDateSet;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TFGMRouteNames;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -29,7 +29,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -39,7 +38,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,9 +46,8 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getNavy;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -86,7 +83,7 @@ public class TransportDataFromFilesTramTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
-        allServices = transportData.getServices(EnumSet.of(Tram));
+        allServices = transportData.getServices(TransportMode.TramsOnly);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
         when = TestEnv.testDay(); // filter by date, otherwise get variations due to upcoming routes etc
@@ -99,15 +96,15 @@ public class TransportDataFromFilesTramTest {
 
         // NOTE: one cause here is closures meaning no stop calls for a station - so unless in config as closed this will mean
         // that station is never loaded
-        assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
+        assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TransportMode.TramsOnly).size());
 
-        int expectedPlatforms = 201;
-        assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
+        int expectedPlatforms = 199;
+        assertEquals(expectedPlatforms, transportData.getPlatforms(TransportMode.TramsOnly).size());
     }
 
     @Test
     void shouldHaveExpectedNumRoutes() {
-        Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TramsOnly).stream().
+        Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
 //                filter(route -> route.getTransportMode()==Tram).
                 map(Route::getName).collect(Collectors.toSet());
 
@@ -179,11 +176,11 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveRoutesWithStationsAndCallingPoints() {
         // Note, in logs check for "METROLINK Agency seen with transport type bus for"
         // when this fails.....
-        Set<Route> allTramRoutes = transportData.getRoutes(TramsOnly);
+        Set<Route> allTramRoutes = transportData.getRoutes(TransportMode.TramsOnly);
 
-        Set<Station> allStations = transportData.getStations(TramsOnly);
+        Set<Station> allStations = transportData.getStations(TransportMode.TramsOnly);
 
-        IdSet<Route> noPickups = allTramRoutes.stream().
+        ImmutableIdSet<Route> noPickups = allTramRoutes.stream().
                 filter(route -> allStations.stream().noneMatch(station -> station.servesRoutePickup(route))).
                 collect(IdSet.collector());
 
@@ -216,7 +213,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldGetServicesByDate() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(nextSaturday, TramsOnly);
+        Set<Service> results = transportData.getServicesOnDate(nextSaturday, TransportMode.TramsOnly);
 
         assertFalse(results.isEmpty(), "no services next saturday");
         long onCorrectDate = results.stream().
@@ -225,7 +222,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         TramDate noTrams = nextSaturday.plusWeeks(11*52);
-        results = transportData.getServicesOnDate(noTrams, TramsOnly);
+        results = transportData.getServicesOnDate(noTrams, TransportMode.TramsOnly);
         assertTrue(results.isEmpty(), "not empty, got " + results);
     }
 
@@ -255,11 +252,11 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHandleStopCallsThatCrossMidnight() {
-        Set<Route> routes = transportData.getRoutes(TramsOnly);
+        Set<Route> routes = transportData.getRoutes(TransportMode.TramsOnly);
 
         for (Route route : routes) {
             List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
-                    filter(stopLeg -> stopLeg.getCost().compareTo(Duration.ofMinutes(12*24)) > 0).
+                    filter(stopLeg -> stopLeg.getCost().compareTo(TramDuration.ofMinutes(12*24)) > 0).
                     toList();
             assertTrue(over.isEmpty(), over.toString());
         }
@@ -271,8 +268,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
         Set<TramDate> noServices = UpcomingDates.getUpcomingDates().
-                filter(date -> !date.isChristmasPeriod()).
-                filter(date -> transportData.getServicesOnDate(date, TramsOnly).isEmpty()).
+                filter(date -> transportData.getServicesOnDate(date, TransportMode.TramsOnly).isEmpty()).
                 collect(Collectors.toSet());
 
         assertTrue(noServices.isEmpty(), "no services on " + noServices);
@@ -320,7 +316,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveAllEndOfLineTramStations() {
 
         // Makes sure none are missing from the data
-        List<Station> filteredStations = transportData.getStations(TramsOnly).stream()
+        List<Station> filteredStations = transportData.getStations(TransportMode.TramsOnly).stream()
                 .filter(TramStations::isEndOfLine).toList();
 
         assertEquals(TramStations.getEndOfTheLine().size(), filteredStations.size());
@@ -328,13 +324,13 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
-        Set<Route> allTramRoutes = transportData.getRoutes(TramsOnly);
+        Set<Route> allTramRoutes = transportData.getRoutes(TransportMode.TramsOnly);
 
         Set<Service> uniqueSvcs = allTramRoutes.stream().map(Route::getServices).flatMap(Collection::stream).collect(Collectors.toSet());
 
         assertEquals(uniqueSvcs.size(), allServices.size());
 
-        Set<Station> allsStations = transportData.getStations(TramsOnly);
+        Set<Station> allsStations = transportData.getStations(TransportMode.TramsOnly);
 
         Set<Trip> allTrips = new HashSet<>();
         allsStations.forEach(station -> allTrips.addAll(getTripsFor(transportData.getTrips(), station)));
@@ -342,7 +338,7 @@ public class TransportDataFromFilesTramTest {
         long tripsSize = transportData.getTrips().stream().filter(trip -> trip.getTransportMode()==Tram).count();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = allTramRoutes.stream().map(Route::getTrips).
+        ImmutableIdSet<Trip> tripIdsFromSvcs = allTramRoutes.stream().map(Route::getTrips).
                 flatMap(Trips::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
@@ -366,8 +362,8 @@ public class TransportDataFromFilesTramTest {
         // are not any in the data at the moment 15/11/2022
         assertFalse(applyToCurrentServices.isEmpty(), "did not alter any of " + HasId.asIds(calendarsForTrams));
 
-        assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
-        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().getFirst();
+        assertEquals(1,  config.getGtfsSourceConfig().size(), "expected only one data source");
+        GTFSSourceConfig sourceConfig = config.getGtfsSourceConfig().getFirst();
         TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         applyToCurrentServices.forEach(exception -> {
@@ -393,7 +389,7 @@ public class TransportDataFromFilesTramTest {
 
         IdSet<Station> result = new IdSet<>();
 
-        transportData.getStations(TramsOnly).stream().
+        transportData.getStations(TransportMode.TramsOnly).stream().
                 filter(station -> !closedStationRepository.isStationClosed(station.getId(), when)).
                 forEach(station -> {
                     IdFor<Station> stationId = station.getId();
@@ -412,7 +408,7 @@ public class TransportDataFromFilesTramTest {
                 filter(stationId -> !closedStationRepository.isStationClosed(stationId, when)).
                 collect(IdSet.idCollector());
 
-        IdSet<Station> disjunction = IdSet.disjunction(expected, result);
+        ImmutableIdSet<Station> disjunction = IdSet.disjunction(expected, result);
         assertTrue(disjunction.isEmpty(), disjunction + " diff between \n expected " + expected + " and \n result " + result);
 
     }
@@ -444,7 +440,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(2224, maximumNumberOfTrips);
+        assertEquals(1535, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

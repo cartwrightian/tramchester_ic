@@ -2,7 +2,9 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class TripEndsRepository {
     private static final Logger logger = LoggerFactory.getLogger(TripEndsRepository.class);
 
     private final TripRepository tripRepository;
-    private final Map<TransportMode, IdSet<Station>> firstAndLastStops;
+    private final Map<TransportMode, ImmutableIdSet<Station>> firstAndLastStops;
     private final Set<TransportMode> enabledModes;
     private final StationRepository stationRepository;
 
@@ -46,7 +47,7 @@ public class TripEndsRepository {
             final IdSet<Station> firstStops = getFirstStopsFor(mode);
             final IdSet<Station> lastStops = getLastStopsFor(mode);
 
-            final IdSet<Station> allStops = firstStops.addAll(lastStops);
+            final ImmutableIdSet<Station> allStops = firstStops.addAll(lastStops);
 
             firstAndLastStops.put(mode, allStops);
 
@@ -95,18 +96,18 @@ public class TripEndsRepository {
     @PreDestroy
     public void stop() {
         logger.info("Stop");
-        firstAndLastStops.values().forEach(IdSet::clear);
+        //firstAndLastStops.values().forEach(IdSet::clear);
         firstAndLastStops.clear();
         logger.info("stopped");
     }
 
-    public IdSet<Station> getStations(final EnumSet<TransportMode> modes) {
+    public IdSet<Station> getStations(final ImmutableEnumSet<TransportMode> modes) {
         return modes.stream().
                 flatMap(mode -> firstAndLastStops.get(mode).stream()).
                 collect(IdSet.idCollector());
     }
 
-    public IdSet<Station> getStations(TransportMode transportMode) {
-        return getStations(EnumSet.of(transportMode));
+    public IdSet<Station> getStations(final TransportMode transportMode) {
+        return getStations(transportMode.singleton());
     }
 }

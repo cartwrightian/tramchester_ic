@@ -22,8 +22,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -77,7 +75,7 @@ public class GTFSStopTimeLoaderTest {
 
         assertTrue(buildable.hasStationId(TramStations.MarketStreet.getId()));
         assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS, buildable.getStations().size());
-        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,buildable.getStations(EnumSet.of(TransportMode.Tram)).size());
+        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,buildable.getStations(TransportMode.TramsOnly).size());
 
     }
 

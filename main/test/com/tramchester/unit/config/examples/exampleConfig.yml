@@ -1,0 +1,4 @@
+calcTimeoutMillis: 3500
+bounds: %[exampleLines.yml]
+distributionBucket: %[exampleText.yml]
+%[exampleSection.yml]

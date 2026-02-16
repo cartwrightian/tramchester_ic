@@ -16,6 +16,7 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +91,7 @@ public class RunningRoutesAndServicesTest {
         TramDate when = getMiddleOfThreeConsec(route);
         assertNotNull(when, "failed to find any route operating on three consecutive dates");
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModesImmutable());
 
         IdFor<Route> routeId = route.getId();
 
@@ -137,11 +138,15 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        TramDate when = TestEnv.testDay().plusDays(1);
-
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
-
+        TramDate when = UpcomingDates.testDay().plusDays(1);
         TramDate previousDay = when.minusDays(1);
+
+        while (!UpcomingDates.validTestDate(when) || !UpcomingDates.validTestDate(previousDay)) {
+            when = when.plusWeeks(1);
+            previousDay = when.minusDays(1);
+        }
+
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModesImmutable());
 
         Route altyToBuryRoute = helper.getGreen(previousDay); // helper.getOneRoute(KnownTramRoute.getGreen(previousDay), previousDay);
 
@@ -153,7 +158,7 @@ public class RunningRoutesAndServicesTest {
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
 
-        TramDate testDay = TestEnv.nextMonday();
+        TramDate testDay = UpcomingDates.nextMonday();
 
         final TramDate tuesdayDate = testDay.plusDays(1);
         final TramDate fridayDate = getFridayAfter(tuesdayDate);
@@ -193,7 +198,7 @@ public class RunningRoutesAndServicesTest {
         assertFalse(tuesdayServices.isEmpty(), "found no weekday services for " + tuesdayDate);
 
         // weekday services on Tuesday also running Friday
-        RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(fridayDate, config.getTransportModes());
+        RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(fridayDate, config.getTransportModesImmutable());
         Set<Service> weekdayFiltered = weekdayServices.stream().
                 filter(svc -> filterForNextFriday.isServiceRunningByDate(svc.getId(), false))
                 .collect(Collectors.toSet());

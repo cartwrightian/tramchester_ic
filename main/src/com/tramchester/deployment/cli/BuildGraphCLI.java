@@ -37,9 +37,14 @@ public class BuildGraphCLI extends BaseCLI {
 
     @Override
     public boolean run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
-        dependencies.get(StagedTransportGraphBuilder.Ready.class);
-        dependencies.close();
-        return true;
+        if (config.getInMemoryGraph()) {
+            logger.warn("InMemory is enabled, skipping build");
+            return false;
+        } else {
+            dependencies.get(StagedTransportGraphBuilder.Ready.class);
+            dependencies.close();
+            return true;
+        }
     }
 
 }

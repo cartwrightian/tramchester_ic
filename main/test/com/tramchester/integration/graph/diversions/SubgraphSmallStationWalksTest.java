@@ -2,14 +2,15 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -18,18 +19,16 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
 import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
+import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Connect;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -46,7 +45,7 @@ class SubgraphSmallStationWalksTest {
 
     private RouteCalculatorTestFacade calculator;
     private GraphTransaction txn;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private int maxChanges;
 
     @BeforeAll
@@ -81,7 +80,7 @@ class SubgraphSmallStationWalksTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
 
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
-        maxJourneyDuration = Duration.ofMinutes(30);
+        maxJourneyDuration = TramDuration.ofMinutes(30);
         maxChanges = 2;
     }
 
@@ -90,13 +89,13 @@ class SubgraphSmallStationWalksTest {
         txn.close();
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return TramsOnly;
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return TransportMode.TramsOnly;
     }
 
     @Test
     void shouldHaveJourneyFromPiccGardensToVictoria() {
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Victoria, journeyRequest);
@@ -133,7 +132,7 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
 
         results.forEach(result -> {
-            assertEquals(Connect, result.getStages().get(0).getMode(), "wrong mode? " + result);
+            assertEquals(Connect, result.getStages().getFirst().getMode(), "wrong mode? " + result);
         });
     }
 
@@ -149,7 +148,7 @@ class SubgraphSmallStationWalksTest {
 
         results.forEach(result -> {
             assertEquals(1, result.getStages().size(), result.toString());
-            assertEquals(Connect, result.getStages().get(0).getMode(), "wrong mode? " + result);
+            assertEquals(Connect, result.getStages().getFirst().getMode(), "wrong mode? " + result);
         });
     }
 

@@ -8,6 +8,8 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -30,8 +32,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -132,7 +132,7 @@ class KnownTramRouteTest {
 
     private String shortNameMatch(Function<TramDate, KnownTramRouteEnum> function, TramDate date) {
         String shortName = function.apply(date).shortName();
-        IdSet<Route> matchedShortNames = getLoadedTramRoutes(date).
+        ImmutableIdSet<Route> matchedShortNames = getLoadedTramRoutes(date).
                 filter(route -> route.getShortName().equals(shortName)).
                 map(Route::getId).
                 collect(IdSet.idCollector());
@@ -148,7 +148,7 @@ class KnownTramRouteTest {
             IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(TestRoute::getId).
                     collect(IdSet.idCollector());
 
-            IdSet<Route> mismatch = IdSet.disjunction(loadedIds, knownTramOnDates);
+            ImmutableIdSet<Route> mismatch = IdSet.disjunction(loadedIds, knownTramOnDates);
 
             assertTrue(mismatch.isEmpty(), "on " + date + " MISMATCH \n" + mismatch + "\n between LOADED \n" + loadedIds + " AND \n" + knownTramOnDates);
         });
@@ -156,7 +156,7 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        final Set<Route> loaded = routeRepository.getRoutesRunningOn(when, TramsOnly);
+        final Set<Route> loaded = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly);
 
         assertEquals(loaded.size(), KnownTramRoute.getFor(when).size());
     }
@@ -177,13 +177,14 @@ class KnownTramRouteTest {
 
     @Test
     void shouldNotHaveUnknownTramRoutes() {
-        TramDate start = TramDate.from(TestEnv.LocalNow());
+        TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(4));
+        Stream<TramDate> dateRange = DateRange.of(start, when.plusWeeks(4)).stream().
+                filter(UpcomingDates::validTestDate);
 
-        SortedMap<TramDate, IdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
+        SortedMap<TramDate, ImmutableIdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
 
-        dateRange.stream().forEach(date -> {
+        dateRange.forEach(date -> {
             final IdSet<Route> known = KnownTramRoute.getFor(date).stream().
                     map(TestRoute::getId).
                     collect(IdSet.idCollector());
@@ -204,13 +205,12 @@ class KnownTramRouteTest {
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
+        Stream<TramDate> dateRange = DateRange.of(start, when.plusWeeks(6)).stream().
+                filter(UpcomingDates::validTestDate);
 
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
-        dateRange.stream().
-                filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
-                forEach(date -> {
+        dateRange.forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
 
                     final Set<TestRoute> knownButUnused = KnownTramRoute.getFor(date).stream().
@@ -278,7 +278,7 @@ class KnownTramRouteTest {
 
     @NotNull
     private Stream<Route> getLoadedTramRoutes(final TramDate date) {
-        return routeRepository.getRoutesRunningOn(date, EnumSet.of(Tram)).stream();
+        return routeRepository.getRoutesRunningOn(date, TransportMode.TramsOnly).stream();
     }
 
 }

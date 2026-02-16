@@ -2,6 +2,7 @@ package com.tramchester.unit.geo;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -31,7 +32,7 @@ class StationLocationsTest extends EasyMockSupport {
     private StationRepository stationRepository;
     private NaptanRepository naptanRespository;
     private Geography geography;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeEach
     void onceBeforeEachTest() {
@@ -42,7 +43,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         stationLocations = new StationLocations(stationRepository, platformRepository, naptanRespository, geography);
 
-        modes = EnumSet.of(TransportMode.Tram);
+        modes = TransportMode.TramsOnly;
     }
 
     @Test

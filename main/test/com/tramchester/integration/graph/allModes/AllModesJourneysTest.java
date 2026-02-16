@@ -5,11 +5,13 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -23,8 +25,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -42,7 +42,7 @@ public class AllModesJourneysTest {
     private static ComponentContainer componentContainer;
     private GraphTransaction txn;
     private StationRepository stationRepository;
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private TramDate when;
     private StationGroupsRepository stationGroupsRepository;
 
@@ -61,7 +61,7 @@ public class AllModesJourneysTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         when = TestEnv.testDay();
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
@@ -91,8 +91,8 @@ public class AllModesJourneysTest {
         assertFalse(journeys.isEmpty());
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return config.getTransportModes();
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return config.getTransportModesImmutable();
     }
 
     @Test
@@ -106,7 +106,7 @@ public class AllModesJourneysTest {
 
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
-            TransportStage<?,?> stage = journey.getStages().get(0);
+            TransportStage<?,?> stage = journey.getStages().getFirst();
             assertEquals(Tram, stage.getMode());
         });
     }
@@ -130,7 +130,7 @@ public class AllModesJourneysTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
-                Duration.ofMinutes(30), 1, getRequestedModes());
+                TramDuration.ofMinutes(30), 1, getRequestedModes());
 
         List<Journey> journeys = routeCalculator.calculateRouteAsList(RailStationIds.Stockport.getId(), ManchesterPiccadilly.getId(), request);
         assertFalse(journeys.isEmpty());

@@ -2,6 +2,7 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.URLStatus;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.core.GraphTransaction;
@@ -18,8 +19,8 @@ import java.util.*;
 
 import static com.tramchester.domain.DataSourceID.naptanxml;
 import static com.tramchester.domain.DataSourceID.tfgm;
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -85,15 +86,15 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     @Test
     public void shouldBeUpToDateIfVersionsFromDBMatch() {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
-        Map<String, String> versionMap = new HashMap<>();
+        Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", URLStatus.invalidTime, EnumSet.of(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, EnumSet.of(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", URLStatus.invalidTime, TramsOnly));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, BusesOnly));
 
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
-        versionMap.put("tfgm", "v1.1");
-        versionMap.put("naptanxml", "v2.3");
+        versionMap.put(tfgm, "v1.1");
+        versionMap.put(naptanxml, "v2.3");
 
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
@@ -111,14 +112,14 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     @Test
     public void shouldOutOfDateIfVersionsNumbersFromDBMisMatch() {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
-        Map<String, String> versionMap = new HashMap<>();
+        Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, EnumSet.of(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, EnumSet.of(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, TramsOnly));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, BusesOnly));
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
-        versionMap.put("tfgm", "v1.1");
-        versionMap.put("naptanxml", "v2.3");
+        versionMap.put(tfgm, "v1.1");
+        versionMap.put(naptanxml, "v2.3");
 
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
@@ -135,13 +136,13 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     @Test
     public void shouldOutOfDateIfVersionsFromDBMisMatch() {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
-        Map<String, String> versionMap = new HashMap<>();
+        Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, EnumSet.of(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, EnumSet.of(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, TramsOnly));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", URLStatus.invalidTime, BusesOnly));
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
-        versionMap.put("tfgm", "v1.1");
+        versionMap.put(tfgm, "v1.1");
 
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
@@ -158,13 +159,13 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     @Test
     public void shouldOutOfDateIfVersionsFromDBMisMatchUnexpected() {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
-        Map<String, String> versionMap = new HashMap<>();
+        Map<DataSourceID, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, EnumSet.of(Tram)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", URLStatus.invalidTime, TramsOnly));
         EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
-        versionMap.put("tfgm", "v1.1");
-        versionMap.put("naptanxml", "v2.3");
+        versionMap.put(tfgm, "v1.1");
+        versionMap.put(naptanxml, "v2.3");
 
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);

@@ -6,16 +6,17 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.core.*;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.RouteStationNodeCache;
@@ -28,12 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
+import static com.tramchester.graph.reference.GraphLabel.ROUTE_STATION;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
@@ -185,9 +186,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final MutableGraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
         final MutableGraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
 
-        final Duration minimumChangeCost = station.getMinChangeDuration();
+        final TramDuration minimumChangeCost = station.getMinChangeDuration();
         stationToRoute.setCost(minimumChangeCost);
-        routeToStation.setCost(Duration.ZERO);
+        routeToStation.setCost(TramDuration.ZERO);
 
         routeToStation.setTransportMode(transportMode);
         stationToRoute.setTransportMode(transportMode);
@@ -203,7 +204,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
-        final Map<StationIdPair, Duration> pairs = new HashMap<>(); // (start, dest) -> cost
+        final Map<StationIdPair, TramDuration> pairs = new HashMap<>(); // (start, dest) -> cost
         route.getTrips().forEach(trip -> {
                 final StopCalls stops = trip.getStopCalls();
                 stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
@@ -212,7 +213,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         final GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
                         final StationIdPair legStations = leg.getStations();
                         if (pickup==Regular && dropOff==Regular && !pairs.containsKey(legStations)) {
-                            final Duration cost = leg.getCost();
+                            final TramDuration cost = leg.getCost();
                             pairs.put(legStations, cost);
                         }
                     }
@@ -245,13 +246,14 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).findFirst();
 
             find.ifPresent(existingRelationship -> {
-                final EnumSet<TransportMode> currentModes = existingRelationship.getTransportModes();
+                final ImmutableEnumSet<TransportMode> currentModes = existingRelationship.getTransportModes();
                 if (!currentModes.contains(mode)) {
                     existingRelationship.addTransportMode(mode);
                 }
             });
 
             if (find.isPresent()) {
+                // no need to create new relationship
                 return;
             }
         }
@@ -269,7 +271,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             platformNode.set(platform);
             platformNode.set(station);
             platformNode.setPlatformNumber(platform);
-            setTransportMode(station, platformNode);
+            // no longer needed?
+            //setTransportMode(station, platformNode);
 
             stationAndPlatformNodeCache.putPlatform(platform.getId(), platformNode);
         }
@@ -277,7 +280,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private MutableGraphNode createRouteStationNode(final MutableGraphTransaction tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
 
-        final boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID, routeStation.getId().getGraphId());
+        final boolean hasAlready = tx.hasAnyMatching(ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID, routeStation.getId().getGraphId());
 
         if (hasAlready) {
             final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();
@@ -291,7 +294,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final TransportMode mode = routeStation.getRoute().getTransportMode();
         final GraphLabel modeLabel = GraphLabel.forMode(mode);
 
-        final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.ROUTE_STATION, modeLabel);
+        final ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSet.of(ROUTE_STATION, modeLabel);
 
         final MutableGraphNode routeStationNode = createGraphNode(tx, labels);
 
@@ -306,21 +309,21 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return routeStationNode;
     }
 
-    private void setTransportMode(final Station station, final MutableGraphNode node) {
-        Set<TransportMode> modes = station.getTransportModes();
-        if (modes.isEmpty()) {
-            logger.error("No transport modes set for " + station.getId());
-            return;
-        }
-        if (modes.size()==1) {
-            TransportMode first = modes.iterator().next();
-            node.setTransportMode(first);
-//            setProperty(node, first);
-        } else {
-            logger.error(format("Unable to set transportmode property, more than one mode (%s) for %s",
-                    modes, station.getId()));
-        }
-    }
+//    private void setTransportMode(final Station station, final MutableGraphNode node) {
+//        Set<TransportMode> modes = station.getTransportModes();
+//        if (modes.isEmpty()) {
+//            logger.error("No transport modes set for " + station.getId());
+//            return;
+//        }
+//        if (modes.size()==1) {
+//            TransportMode first = modes.iterator().next();
+//            node.setTransportMode(first);
+////            setProperty(node, first);
+//        } else {
+//            logger.error(format("Unable to set transportmode property, more than one mode (%s) for %s",
+//                    modes, station.getId()));
+//        }
+//    }
 
     public static class Ready {
         private Ready() {

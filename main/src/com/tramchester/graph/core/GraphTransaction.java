@@ -4,13 +4,10 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.EnumSet;
-import java.util.List;
 import java.util.stream.Stream;
 
 public interface GraphTransaction extends AutoCloseable {
@@ -21,7 +18,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     Stream<GraphNode> findNodes(GraphLabel graphLabel);
 
-    //Stream<GraphRelationship> findRelationships(TransportRelationshipTypes relationshipType);
+    Stream<GraphRelationship> findRelationships(TransportRelationshipTypes type);
 
     GraphNode getNodeById(GraphNodeId nodeId);
 
@@ -30,9 +27,6 @@ public interface GraphTransaction extends AutoCloseable {
     boolean hasAnyMatching(GraphLabel graphLabel);
 
     <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item);
-
-    List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection direction,
-                                                         EnumSet<TransportRelationshipTypes> relationshipTypes);
 
     GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 

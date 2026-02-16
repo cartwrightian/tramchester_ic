@@ -4,10 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -15,12 +17,9 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.List;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,7 +35,7 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
 
     private TramDate when;
     private RouteCalculationCombinations<Station> combinations;
-    private EnumSet<TransportMode> modes;
+    private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -53,7 +52,7 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        modes = EnumSet.of(Tram, Train);
+        modes = TrainAndTram;
         combinations = new RouteCalculationCombinations<>(componentContainer,
                 RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
@@ -68,7 +67,7 @@ public class RouteCalculatorAllRailAndTramJourneysTest {
         JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(2);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
+                TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 

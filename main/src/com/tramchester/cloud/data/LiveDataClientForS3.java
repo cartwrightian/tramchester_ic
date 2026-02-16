@@ -24,7 +24,7 @@ public class LiveDataClientForS3  {
 
     @Inject
     public LiveDataClientForS3(TramchesterConfig config, ClientForS3 clientForS3) {
-        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveDataConfig = config.getTfgmTramliveData();
         if (liveDataConfig!=null) {
             bucket = liveDataConfig.getS3Bucket();
         } else {

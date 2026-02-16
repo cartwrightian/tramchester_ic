@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -8,7 +9,6 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Objects;
 
 public final class StateBuilderParameters {
@@ -21,7 +21,7 @@ public final class StateBuilderParameters {
 
     public StateBuilderParameters(final TramDate queryDate, final TramTime queryTime,
                                   final TowardsDestination towardsDestination,
-                                  final TramchesterConfig config, final EnumSet<TransportMode> requestedModes) {
+                                  final TramchesterConfig config, final ImmutableEnumSet<TransportMode> requestedModes) {
         this.queryDate = queryDate;
         this.queryHour = queryTime.getHourOfDay();
         this.towardsDestination = towardsDestination;

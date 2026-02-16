@@ -1,19 +1,18 @@
 package com.tramchester.unit.domain.time;
 
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.tramchester.domain.time.TramTime.*;
@@ -144,7 +143,7 @@ class TramTimeTest {
     void shouldImplementComparableOnSteams() {
         List<TramTime> list = Arrays.asList(of(10,12), of(8,15), of(9,57));
 
-        List<TramTime> result = list.stream().sorted(TramTime.comparing(tramTime -> tramTime)).collect(Collectors.toList());
+        List<TramTime> result = list.stream().sorted(TramTime.comparing(tramTime -> tramTime)).toList();
         assertEquals(of(8,15), result.get(0));
         assertEquals(of(9,57), result.get(1));
         assertEquals(of(10,12), result.get(2));
@@ -261,47 +260,47 @@ class TramTimeTest {
         TramTime first = of(9,30);
         TramTime second = of(10,45);
 
-        Duration result = TramTime.difference(first, second);
-        assertEquals(Duration.ofMinutes(75), result);
+        TramDuration result = TramTime.difference(first, second);
+        assertEquals(TramDuration.ofMinutes(75), result);
 
         result = TramTime.difference(second, first);
-        assertEquals(Duration.ofMinutes(75), result);
+        assertEquals(TramDuration.ofMinutes(75), result);
 
         ////
         first = nextDay(0,5);
         second = of(23,15);
 
         result = TramTime.difference(first, second);
-        assertEquals(Duration.ofMinutes(50), result);
+        assertEquals(TramDuration.ofMinutes(50), result);
 
         result = TramTime.difference(second, first);
-        assertEquals(Duration.ofMinutes(50), result);
+        assertEquals(TramDuration.ofMinutes(50), result);
 
         ////
         first = nextDay(0,5);
         second = of(22,59);
 
         result = TramTime.difference(first, second);
-        assertEquals(Duration.ofMinutes(66), result);
+        assertEquals(TramDuration.ofMinutes(66), result);
 
         result = TramTime.difference(second, first);
-        assertEquals(Duration.ofMinutes(66), result);
+        assertEquals(TramDuration.ofMinutes(66), result);
 
         ////
         first = of(23,59);
         second = nextDay(1,10);
 
         result = TramTime.difference(first, second);
-        assertEquals(Duration.ofMinutes(71), result);
+        assertEquals(TramDuration.ofMinutes(71), result);
 
         result = TramTime.difference(second, first);
-        assertEquals(Duration.ofMinutes(71), result);
+        assertEquals(TramDuration.ofMinutes(71), result);
 
         ////
         first = of(23,50);
         second = nextDay(4,56);
         result = TramTime.difference(first, second);
-        assertEquals(Duration.ofMinutes(10+(4*60)+56), result);
+        assertEquals(TramDuration.ofMinutes(10+(4*60)+56), result);
 
     }
 
@@ -327,7 +326,7 @@ class TramTimeTest {
     void shouldAddMinsResultingInMidnight() {
         TramTime tramTime = of(23,55);
 
-        TramTime result = tramTime.plus(Duration.ofMinutes(5));
+        TramTime result = tramTime.plus(TramDuration.ofMinutes(5));
 
         assertTrue(result.isNextDay(), result.toString());
         assertEquals(TramTime.nextDay(0,0), result);
@@ -356,13 +355,13 @@ class TramTimeTest {
     @Test
     void shouldAddDuration() {
         TramTime ref = of(0,0);
-        assertEquals(of(0,42), ref.plus(Duration.ofMinutes(42)));
-        assertEquals(of(2,42), ref.plus(Duration.ofMinutes(42+120)));
-        assertEquals(of(0,42), ref.plus(Duration.ofSeconds(42*60)));
+        assertEquals(of(0,42), ref.plus(TramDuration.ofMinutes(42)));
+        assertEquals(of(2,42), ref.plus(TramDuration.ofMinutes(42+120)));
+        assertEquals(of(0,42), ref.plus(TramDuration.ofSeconds(42*60)));
 
         ref = of(23,10);
-        assertEquals(of(23,52), ref.plus(Duration.ofMinutes(42)));
-        assertEquals(nextDay(0,9), ref.plus(Duration.ofMinutes((59))));
+        assertEquals(of(23,52), ref.plus(TramDuration.ofMinutes(42)));
+        assertEquals(nextDay(0,9), ref.plus(TramDuration.ofMinutes((59))));
     }
 
     @Test
@@ -372,7 +371,7 @@ class TramTimeTest {
         TramTime resultA = tramTime.plusMinutes(0);
         assertFalse(resultA.isNextDay());
 
-        TramTime resultB = tramTime.plus(Duration.ZERO);
+        TramTime resultB = tramTime.plus(TramDuration.ZERO);
         assertFalse(resultB.isNextDay());
 
     }
@@ -415,15 +414,15 @@ class TramTimeTest {
     void shouldSubtractDuration() {
         TramTime reference = of(12, 4);
 
-        TramTime result = reference.minus(Duration.ofMinutes(30));
+        TramTime result = reference.minus(TramDuration.ofMinutes(30));
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
 
-        result = reference.minus(Duration.ofSeconds(60));
+        result = reference.minus(TramDuration.ofSeconds(60));
         assertEquals(12, result.getHourOfDay());
         assertEquals(3, result.getMinuteOfHour());
 
-        result = reference.minus(Duration.ofSeconds(60*30));
+        result = reference.minus(TramDuration.ofSeconds(60*30));
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
     }
@@ -432,34 +431,34 @@ class TramTimeTest {
     void shouldThrowIfAccuracyIsLostOnSubtraction() {
         TramTime reference = of(12, 4);
 
-        assertThrows(RuntimeException.class, () -> reference.minus(Duration.ofSeconds(31)));
-        assertThrows(RuntimeException.class, () -> reference.minus(Duration.ofSeconds(29)));
+        assertThrows(RuntimeException.class, () -> reference.minus(TramDuration.ofSeconds(31)));
+        assertThrows(RuntimeException.class, () -> reference.minus(TramDuration.ofSeconds(29)));
     }
 
     @Test
     void shouldThrowIfAccuracyIsLostOnAddition() {
         TramTime reference = of(12, 4);
 
-        assertThrows(RuntimeException.class, () -> reference.plus(Duration.ofSeconds(31)));
-        assertThrows(RuntimeException.class, () -> reference.plus(Duration.ofSeconds(29)));
+        assertThrows(RuntimeException.class, () -> reference.plus(TramDuration.ofSeconds(31)));
+        assertThrows(RuntimeException.class, () -> reference.plus(TramDuration.ofSeconds(29)));
     }
 
     @Test
     void shouldRoundToNearestMinutes() {
         TramTime time = of(1,13);
 
-        assertEquals(time, time.plusRounded(Duration.ofSeconds(0)));
-        assertEquals(time, time.plusRounded(Duration.ofSeconds(1)));
-        assertEquals(time, time.plusRounded(Duration.ofSeconds(29)));
+        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(0)));
+        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(1)));
+        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(29)));
 
         TramTime plusOneMinute = time.plusMinutes(1);
-        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(30)));
-        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(31)));
-        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(59)));
-        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(60)));
-        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(61)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(30)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(31)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(59)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(60)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(61)));
 
-        assertEquals(time.plusMinutes(2), time.plusRounded(Duration.ofSeconds(121)));
+        assertEquals(time.plusMinutes(2), time.plusRounded(TramDuration.ofSeconds(121)));
 
 
     }

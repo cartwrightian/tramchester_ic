@@ -9,6 +9,7 @@ import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -75,7 +76,7 @@ public class MonitorTramLiveData extends BaseCLI {
             return false;
         }
 
-        final TfgmTramLiveDataConfig liveConfig = config.getLiveDataConfig();
+        final TfgmTramLiveDataConfig liveConfig = config.getTfgmTramliveData();
         final Long refreshSeconds = liveConfig.getRefreshPeriodSeconds();
 
         final LiveDataMarshaller marshaller = dependencies.get(LiveDataMarshaller.class);
@@ -135,8 +136,8 @@ public class MonitorTramLiveData extends BaseCLI {
             if (!allAmbiguousRoutings.isEmpty()) {
                 logger.error("Found:" + allAmbiguousRoutings.size() + " Ambiguous between " + allAmbiguousRoutings);
 
-                IdSet<Station> ambiguousStarts = allAmbiguousRoutings.stream().map(StationIdPair::getBeginId).collect(IdSet.idCollector());
-                IdSet<Station> ambiguousEnds = allAmbiguousRoutings.stream().map(StationIdPair::getEndId).collect(IdSet.idCollector());
+                ImmutableIdSet<Station> ambiguousStarts = allAmbiguousRoutings.stream().map(StationIdPair::getBeginId).collect(IdSet.idCollector());
+                ImmutableIdSet<Station> ambiguousEnds = allAmbiguousRoutings.stream().map(StationIdPair::getEndId).collect(IdSet.idCollector());
 
                 logger.info("Starts: " +ambiguousStarts.size() + " " + ambiguousStarts);
                 logger.info("Ends:" + ambiguousEnds.size() + " " + ambiguousEnds);

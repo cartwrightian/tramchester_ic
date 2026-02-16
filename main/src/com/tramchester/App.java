@@ -36,6 +36,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.server.Connector;
@@ -68,8 +69,13 @@ public class App extends Application<AppConfiguration>  {
 
     }
 
-    public static EnvironmentVariableSubstitutor getEnvVarSubstitutor() {
+    public static StringSubstitutor getEnvVarSubstitutor() {
         return new EnvironmentVariableSubstitutor(true, true);
+    }
+
+    public static ConfigurationSourceProvider getConfigSourceProvider(ConfigurationSourceProvider sourceProvider) {
+        final FileVariableSubstitutorProvider substitutingSourceProvider = new FileVariableSubstitutorProvider(sourceProvider);
+        return new SubstitutingSourceProvider(substitutingSourceProvider, App.getEnvVarSubstitutor());
     }
 
     @Override
@@ -138,12 +144,9 @@ public class App extends Application<AppConfiguration>  {
         ConfigurationSourceProvider underlyingProvider = new FallbackConfigurationSourceProvider(bootstrap.getConfigurationSourceProvider(),
             new ResourceConfigurationSourceProvider());
 
-        EnvironmentVariableSubstitutor environmentVariableSubstitutor = getEnvVarSubstitutor();
-        final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(
-                underlyingProvider,
-                environmentVariableSubstitutor);
+        ConfigurationSourceProvider provider = App.getConfigSourceProvider(underlyingProvider);
 
-        bootstrap.setConfigurationSourceProvider(substitutingSourceProvider);
+        bootstrap.setConfigurationSourceProvider(provider);
 
         logger.info("Add asset bundle for static content");
         AssetsBundle appBundle = new AssetsBundle("/app", "/app", "index.html", "app");
@@ -153,7 +156,7 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new SwaggerBundle<>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
-                final SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
+                final SwaggerBundleConfiguration bundleConfiguration = configuration.getSwagger();
                 bundleConfiguration.setVersion(getBuildNumber());
                 return bundleConfiguration;
             }
@@ -164,6 +167,7 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
         logger.info("init bootstrap finished");
     }
+
 
     private String getBuildNumber() {
         // for when config not yet available
@@ -239,7 +243,7 @@ public class App extends Application<AppConfiguration>  {
         // only enable live data present in config
         if (configuration.liveTfgmTramDataEnabled()) {
             logger.info("Start tram live data");
-            initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
+            initLiveDataMetricAndHealthcheck(configuration.getTfgmTramliveData(), environment, executor, metricRegistry);
         } else {
             logger.info("Tram live data disabled");
         }
@@ -249,7 +253,7 @@ public class App extends Application<AppConfiguration>  {
             logger.info("start cloudwatch metrics");
             final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                     container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
-            cloudWatchReporter.start(configuration.GetCloudWatchMetricsFrequencyMinutes(), TimeUnit.MINUTES);
+            cloudWatchReporter.start(configuration.getCloudWatchMetricsFrequencyMinutes(), TimeUnit.MINUTES);
         } else {
             logger.warn("Cloudwatch metrics are disabled in config");
         }

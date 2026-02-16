@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.NPTGLocality;
@@ -12,7 +13,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
@@ -62,11 +62,11 @@ class PlatformTest {
         assertEquals(1, routes.size());
         assertTrue(routes.contains(anotherRoute));
 
-        final Set<TransportMode> transportModes = platform.getTransportModes();
+        final ImmutableEnumSet<TransportMode> transportModes = platform.getTransportModes();
         assertEquals(1, transportModes.size());
         assertTrue(transportModes.contains(tramTestRoute.getTransportMode()));
 
-        assertTrue(platform.anyOverlapWith(EnumSet.of(tramTestRoute.getTransportMode())));
+        assertTrue(platform.anyOverlapWith(tramTestRoute.getTransportMode().singleton()));
 
     }
 

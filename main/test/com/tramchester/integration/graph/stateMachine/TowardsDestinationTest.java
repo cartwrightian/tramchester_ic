@@ -89,7 +89,7 @@ public class TowardsDestinationTest {
         LocationCollection destinations = LocationCollectionSingleton.of(station);
 
         departs.forEach(depart -> {
-            LocationId<?> locationId = depart.getLocationId();
+            LocationId<?> locationId = depart.getLocationId(txn);
             assertTrue(destinations.contains(locationId));
         });
 
@@ -125,7 +125,7 @@ public class TowardsDestinationTest {
         assertFalse(towardsGroup.isEmpty());
 
         towardsGroup.forEach(relationship -> {
-            LocationId<?> locationId = relationship.getLocationId();
+            LocationId<?> locationId = relationship.getLocationId(txn);
             assertTrue(destinations.contains(locationId));
         });
     }

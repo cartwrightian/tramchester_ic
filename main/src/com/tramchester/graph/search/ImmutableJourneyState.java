@@ -4,23 +4,25 @@ import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
-import java.time.Duration;
-
 public interface ImmutableJourneyState extends HasTransportMode {
     ImmutableTraversalState getTraversalState();
 
     TraversalStateType getTraversalStateType();
+    TramTime getQueryTime();
+    TramTime getFirstBoardTime();
+
     TramTime getJourneyClock();
     int getNumberChanges();
     int getNumberWalkingConnections();
     boolean hasBegunJourney();
     int getNumberNeighbourConnections();
-    Duration getTotalDurationSoFar();
+    TramDuration getTotalDurationSoFar();
 
     boolean alreadyDeparted(IdFor<Trip> tripId);
     GraphNodeId getNodeId();
@@ -28,4 +30,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
 
     boolean duplicatedBoardingSeen();
     boolean justBoarded();
+
 }

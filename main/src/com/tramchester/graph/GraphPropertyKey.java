@@ -10,6 +10,9 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
     PLATFORM_ID("platform_id"),
@@ -42,12 +45,26 @@ public enum GraphPropertyKey {
     END_DATE("end_date"),
     START_TIME("start_time"),
     END_TIME("end_time"),
-    ALL_DAY("all_day");
+    ALL_DAY("all_day"),
+
+    NPTG_VERSION("nptg_version"),
+    TFGM_VERSION("tfgm_version"),
+    POSTCODE_VERSION("postcode_version"),
+    NAPTAN_VERSION("naptan_version"),
+    OPENRAILDATA_VERSION("openraildata_version");
+
+    public static final Set<GraphPropertyKey> EmptySet = Collections.unmodifiableSet(EnumSet.noneOf(GraphPropertyKey.class));
 
     private final String text;
 
-    GraphPropertyKey(String text) {
-        this.text = text;
+    static final Map<String, GraphPropertyKey> theMap = createMapping();
+
+    private static Map<String, GraphPropertyKey> createMapping() {
+        return Arrays.stream(values()).collect(Collectors.toMap(value -> value.text, value -> value));
+    }
+
+    GraphPropertyKey(final String text) {
+        this.text = text.intern();
     }
 
     public static <C extends CoreDomain> GraphPropertyKey getFor(Class<C> klass) {
@@ -76,6 +93,10 @@ public enum GraphPropertyKey {
             return STATION_GROUP_ID;
         }
         throw new RuntimeException("Missing key for type" + klass);
+    }
+
+    public static GraphPropertyKey parse(final String text) {
+        return theMap.get(text);
     }
 
     public String getText() {

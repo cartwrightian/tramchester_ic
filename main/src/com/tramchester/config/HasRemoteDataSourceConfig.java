@@ -6,5 +6,5 @@ import java.util.List;
 
 @ImplementedBy(TramchesterConfig.class)
 public interface HasRemoteDataSourceConfig {
-    List<RemoteDataSourceConfig> getRemoteDataSourceConfig();
+    List<RemoteDataSourceConfig> getRemoteSources();
 }

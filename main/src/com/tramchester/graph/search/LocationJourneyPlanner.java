@@ -1,4 +1,4 @@
-package com.tramchester.resources;
+package com.tramchester.graph.search;
 
 import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
@@ -6,38 +6,32 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.core.MutableGraphNode;
-import com.tramchester.graph.core.MutableGraphRelationship;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.graph.reference.GraphLabel;
-import com.tramchester.graph.search.BetweenRoutesCostRepository;
-import com.tramchester.graph.search.TramRouteCalculator;
-import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_FROM_STATION;
-import static com.tramchester.graph.reference.TransportRelationshipTypes.WALKS_TO_STATION;
 import static java.lang.String.format;
 
 @LazySingleton
@@ -75,26 +69,24 @@ public class LocationJourneyPlanner {
         final boolean walkAtStart = start.getLocationType().isWalk();
         final boolean walkAtEnd = destination.getLocationType().isWalk();
 
+        final TramRouteCalculator calculator = journeyRequest.getArriveBy() ? routeCalculatorArriveBy : routeCalculator;
+
         if (walkAtStart && walkAtEnd) {
-            return quickestRouteWalkAtStartAndEnd(txn, start, destination, journeyRequest);
+            return quickestRouteWalkAtStartAndEnd(calculator, txn, start, destination, journeyRequest);
         }
         if (walkAtStart) {
-            return quickRouteWalkAtStart(txn, start, destination, journeyRequest);
+            return quickRouteWalkAtStart(calculator, txn, start, destination, journeyRequest);
         }
         if (walkAtEnd) {
-            return quickestRouteWalkAtEnd(txn, start, destination, journeyRequest);
+            return quickestRouteWalkAtEnd(calculator, txn, start, destination, journeyRequest);
         }
 
         // station => station
         final Running running = () -> true;
-        if (journeyRequest.getArriveBy()) {
-            return routeCalculatorArriveBy.calculateRoute(txn, start, destination, journeyRequest, running);
-        } else {
-            return routeCalculator.calculateRoute(txn, start, destination, journeyRequest, running);
-        }
+        return calculator.calculateRoute(txn, start, destination, journeyRequest, running);
     }
 
-    private Stream<Journey> quickRouteWalkAtStart(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+    private Stream<Journey> quickRouteWalkAtStart(final TramRouteCalculator calculator, final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
                                                   final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
@@ -114,24 +106,25 @@ public class LocationJourneyPlanner {
         final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksToStart, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksToStart, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
         final Stream<Journey> journeys;
         Running running = () -> true;
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
-        } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
-        }
+        journeys = calculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+//        if (journeyRequest.getArriveBy()) {
+//            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+//        } else {
+//            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
+//        }
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+    private Stream<Journey> quickestRouteWalkAtEnd(final TramRouteCalculator calculator, final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
                                                    final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
@@ -154,28 +147,21 @@ public class LocationJourneyPlanner {
         final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn);
 
         final MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
-        //final List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
-
-        //nodesAndRelationships.addAll(addedRelationships);
 
         final LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).
                 collect(LocationSet.stationCollector());
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest, timeRange);
 
         final Stream<Journey> journeys;
         final Running running = () -> true;
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
-        } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
-        }
+        journeys = calculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);
@@ -183,7 +169,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtStartAndEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> dest,
+    private Stream<Journey> quickestRouteWalkAtStartAndEnd(final TramRouteCalculator calculator, final MutableGraphTransaction txn, final Location<?> start, final Location<?> dest,
                                                            final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", start, dest, journeyRequest));
 
@@ -203,7 +189,7 @@ public class LocationJourneyPlanner {
         final LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksAtStart, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(walksAtStart, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest, timeRange);
@@ -211,34 +197,36 @@ public class LocationJourneyPlanner {
         /// CALC
         Stream<Journey> journeys;
         Running running = () -> true;
-//        final GraphTransaction immutable = txn.asImmutable();
-        if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
-                    journeyRequest, numberOfChanges, running);
-        } else {
-            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
-                    journeyRequest, numberOfChanges, running);
-        }
+
+        journeys = calculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
+                journeyRequest, numberOfChanges, running);
+//        if (journeyRequest.getArriveBy()) {
+//            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
+//                    journeyRequest, numberOfChanges, running);
+//        } else {
+//            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
+//                    journeyRequest, numberOfChanges, running);
+//        }
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);
         return journeys;
     }
 
-    public Set<StationWalk> getStationWalks(Location<?> location, EnumSet<TransportMode> modes) {
+    public Set<StationWalk> getStationWalks(final Location<?> location, final ImmutableEnumSet<TransportMode> modes) {
 
         int maxResults = config.getNumOfNearestStopsForWalking();
-        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin, modes);
+        final List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(location, maxResults, margin, modes);
 
         if (nearbyStationsWithComposites.isEmpty()) {
             logger.warn(format("Failed to find stations within %s of %s", margin, location));
             return Collections.emptySet();
         }
 
-        List<Station> filtered = nearbyStationsWithComposites.stream()
+        final List<Station> filtered = nearbyStationsWithComposites.stream()
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
-        Set<StationWalk> stationWalks = createWalks(location, filtered);
+        final Set<StationWalk> stationWalks = createWalks(location, filtered);
         logger.info(format("Stops within %s of %s are [%s]", maxResults, location, stationWalks));
         return stationWalks;
     }
@@ -265,92 +253,8 @@ public class LocationJourneyPlanner {
                 collect(Collectors.toSet());
     }
 
-    private Duration calculateDuration(Location<?> location, Station station) {
+    private TramDuration calculateDuration(Location<?> location, Station station) {
         return geography.getWalkingDuration(location, station);
-    }
-
-    private static class WalkNodesAndRelationships {
-
-        private final MutableGraphTransaction txn;
-        private final List<MutableGraphRelationship> relationships;
-        private final List<MutableGraphNode> nodes;
-
-        private WalkNodesAndRelationships(final MutableGraphTransaction txn) {
-            this.txn = txn;
-            this.relationships = new ArrayList<>();
-            this.nodes = new ArrayList<>();
-        }
-
-        public void delete() {
-            logger.info("Removed added walks and walk node(s)");
-            // cache is updated by the delete methods
-            relationships.forEach(relationship -> relationship.delete(txn));
-            nodes.forEach(node -> node.delete(txn));
-        }
-
-        public void addAll(List<MutableGraphRelationship> relationshipList) {
-            relationships.addAll(relationshipList);
-        }
-
-        public MutableGraphNode createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
-            final MutableGraphNode walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
-            nodes.add(walkingNode);
-            return walkingNode;
-        }
-
-        public void createWalksToStart(final MutableGraphNode node, final Set<StationWalk> walks) {
-            createWalkRelationships(node, walks, WALKS_TO_STATION);
-        }
-
-        public void createWalksToDest(final MutableGraphNode node, final Set<StationWalk> walks) {
-            createWalkRelationships(node, walks, WALKS_FROM_STATION);
-        }
-
-        private void createWalkRelationships(final MutableGraphNode node, final Set<StationWalk> walks, final TransportRelationshipTypes direction) {
-            List<MutableGraphRelationship> addedRelationships = new ArrayList<>();
-            walks.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(node, stationWalk, direction)));
-            relationships.addAll(addedRelationships);
-        }
-
-        private MutableGraphRelationship createWalkRelationship(final MutableGraphNode walkNode, final StationWalk stationWalk,
-                                                                final TransportRelationshipTypes direction) {
-            final Station walkStation = stationWalk.getStation();
-            final Duration cost = stationWalk.getCost();
-
-            final MutableGraphRelationship walkingRelationship;
-            final MutableGraphNode stationNode = txn.findNodeMutable(walkStation);
-            if (stationNode==null) {
-                throw new RuntimeException("Could not find node for " + walkStation);
-            }
-            if (!stationNode.hasLabel(GraphLabel.STATION)) {
-                throw new RuntimeException("Not a STATION node " + stationNode);
-            }
-
-            if (direction == WALKS_FROM_STATION) {
-                walkingRelationship = stationNode.createRelationshipTo(txn, walkNode, direction);
-                logger.info(format("Add %s relationship %s (%s) to node %s cost %s",
-                        direction, walkStation.getId(), walkStation.getName(), walkNode.getId(),  cost));
-            } else if (direction == WALKS_TO_STATION) {
-                walkingRelationship = walkNode.createRelationshipTo(txn, stationNode, direction);
-                logger.info(format("Add %s relationship between node %s to %s (%s) cost %s",
-                        direction, walkNode.getId(), walkStation.getId(), walkStation.getName(), cost));
-            } else {
-                throw new RuntimeException("Unknown direction " + direction);
-            }
-
-            walkingRelationship.setCost(cost);
-            walkingRelationship.set(walkStation);
-            return walkingRelationship;
-        }
-
-        private MutableGraphNode createWalkingNode(final MutableGraphTransaction txn, final LatLong origin, final UUID uniqueId) {
-            final MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
-            startOfWalkNode.setLatLong(origin);
-            startOfWalkNode.setWalkId(origin, uniqueId);
-            logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
-            return startOfWalkNode;
-        }
-
     }
 
 }

@@ -6,23 +6,19 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.CreateQueryTimes;
-import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.*;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-//import com.tramchester.graph.search.neo4j.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
@@ -30,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -81,7 +76,6 @@ public abstract class RouteCalculatorSupport {
         this.config = config;
         this.closedStationsRepository = closedStationsRepository;
         this.cacheMetrics = cacheMetrics;
-//        this.branchSelectorFactory = branchSelectorFactory;
         this.interchangeRepository = interchangeRepository;
         this.createQueryTimes = createQueryTimes;
         this.runningRoutesAndServices = runningRoutesAndServices;
@@ -131,9 +125,9 @@ public abstract class RouteCalculatorSupport {
     }
 
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
-                                              final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
+                                              final PreviousVisits previousSuccessfulVisit, final ArrivalHandler arrivalHandler,
                                               final Running running, final TramNetworkTraverserFactory traverserFactory,
-                                              TowardsDestination towardsDestination) {
+                                              final TowardsDestination towardsDestination) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -144,8 +138,10 @@ public abstract class RouteCalculatorSupport {
 
         final TramNetworkTraverser tramNetworkTraverser = traverserFactory.get(txn);
 
-        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
+        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, arrivalHandler,
                 towardsDestination, running);
+
+        logger.info("Arrivals " + arrivalHandler);
 
         return paths.map(path -> new TimedPath(path, pathRequest));
     }
@@ -193,7 +189,13 @@ public abstract class RouteCalculatorSupport {
     }
 
     protected PreviousVisits createPreviousVisits(final JourneyRequest journeyRequest) {
-        boolean cacheDisabled = config.getDepthFirst() || journeyRequest.getCachingDisabled();
+        boolean cacheDisabled = journeyRequest.getCachingDisabled();
+        if (!config.getInMemoryGraph()) {
+            cacheDisabled = cacheDisabled || config.getDepthFirst();
+        }
+        if (cacheDisabled) {
+            logger.warn("Caching is disabled");
+        }
         return new PreviousVisits(cacheDisabled, countsNodes);
     }
 
@@ -209,49 +211,52 @@ public abstract class RouteCalculatorSupport {
 
     public PathRequest createPathRequest(final JourneyRequest journeyRequest, final NodeAndStation nodeAndStation, final int numChanges,
                                          final JourneyConstraints journeyConstraints) {
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(nodeAndStation.location, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(nodeAndStation.location, config);
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
-                journeyRequest.getOriginalTime(), numChanges);
+                journeyRequest.getOriginalTime(), numChanges, journeyRequest.getDiagnosticsEnabled());
         return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait,
                 journeyConstraints.getDestinationModes());
     }
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
-                                         EnumSet<TransportMode> requestedModes, int numChanges,
-                                         JourneyConstraints journeyConstraints, Duration maxInitialWait) {
+                                         ImmutableEnumSet<TransportMode> requestedModes, int numChanges,
+                                         JourneyConstraints journeyConstraints, TramDuration maxInitialWait,
+                                         boolean diagnosticsRequested, long maxNumberJourneys) {
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
-                actualQueryTime, numChanges);
+                actualQueryTime, numChanges, diagnosticsRequested);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait,
-                journeyConstraints.getDestinationModes());
+                journeyConstraints.getDestinationModes(), maxNumberJourneys);
     }
 
     protected TimeRange getDestinationsAvailable(LocationCollection destinations, TramDate tramDate) {
         return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
     }
 
-    public static Duration getMaxInitialWaitFor(List<? extends BoundingBoxWithStations> startingBoxes, TramchesterConfig config) {
-        Optional<Duration> findMaxInitialWait = startingBoxes.stream().
+    public static TramDuration getMaxInitialWaitFor(final List<? extends BoundingBoxWithStations> startingBoxes, final TramchesterConfig config) {
+        final Optional<TramDuration> findMaxInitialWait = startingBoxes.stream().
                 flatMap(box -> box.getStations().stream()).
                 map(station -> TramchesterConfig.getMaxInitialWaitFor(station, config))
-                .max(Duration::compareTo);
+                .max(TramDuration::compareTo);
         if (findMaxInitialWait.isEmpty()) {
             throw new RuntimeException("Could not find max initial wait from " + startingBoxes);
         }
         return findMaxInitialWait.get();
     }
 
-    protected EnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
+    protected ImmutableEnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
         // need to take into account if a location is an interchange
-        final EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
-        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
-        results.addAll(interchangeModes);
-        return results;
+        return ImmutableEnumSet.join(interchangeRepository.getInterchangeModes(destinations), destinations.getModes());
+
+//        final ImmutableEnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
+//        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
+//        results.addAll(interchangeModes);
+//        return results;
     }
 
     protected Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                                final LocationCollection destinations, final JourneyRequest journeyRequest,
                                                final List<TramTime> queryTimes, final RunningRoutesAndServices.FilterForDate runningRoutesAndServicesFilter,
-                                               final int possibleMinNumChanges, final Duration maxInitialWait, final Running running) {
+                                               final int possibleMinNumChanges, final TramDuration maxInitialWait, final Running running) {
 
         if (possibleMinNumChanges==Integer.MAX_VALUE) {
             logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
@@ -259,7 +264,7 @@ public abstract class RouteCalculatorSupport {
             return Stream.empty();
         }
 
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
         final TramDate tramDate = journeyRequest.getDate();
@@ -269,11 +274,11 @@ public abstract class RouteCalculatorSupport {
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest, timeRange);
 
-        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+        final TramDuration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
-        final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
+        final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
@@ -282,7 +287,8 @@ public abstract class RouteCalculatorSupport {
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
 
-        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
+        // TODO Handling arrive by
+        final ArrivalHandler arrivalHandler = ArrivalHandler.get();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
@@ -293,9 +299,9 @@ public abstract class RouteCalculatorSupport {
         final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
-                                journeyConstraints, maxInitialWait))).
+                                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(), journeyRequest.getMaxNumberOfJourneys()))).
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination)).
+                        createPreviousVisits(journeyRequest), arrivalHandler, running, traverserFactory, towardsDestination)).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
@@ -310,7 +316,7 @@ public abstract class RouteCalculatorSupport {
     protected Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                                      final JourneyRequest journeyRequest, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                                                      final LocationCollection destinations,
-                                                     final Duration maxInitialWait, final Running running) {
+                                                     final TramDuration maxInitialWait, final Running running) {
 
         final TramDate tramDate = journeyRequest.getDate();
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
@@ -319,28 +325,28 @@ public abstract class RouteCalculatorSupport {
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest, timeRange);
 
-        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+        final TramDuration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
 
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
-        final EnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
+        final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routesAndServicesFilter,
                 closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
 
         logger.info("Journey Constraints: " + journeyConstraints);
 
-        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
+        final ArrivalHandler lowestCostSeen = ArrivalHandler.get();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
         final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), requestedModes,
                 journeyRequest.getMaxChanges().get(),
-                journeyConstraints, maxInitialWait);
+                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(), journeyRequest.getMaxNumberOfJourneys());
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 
@@ -369,9 +375,10 @@ public abstract class RouteCalculatorSupport {
         final GraphNode startNode = getLocationNodeSafe(txn, start);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
 
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), start,
+                journeyRequest.getDate(), journeyRequest.getRequestedModes());
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
 
         final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, maxInitialWait);
 
@@ -391,7 +398,7 @@ public abstract class RouteCalculatorSupport {
     }
 
     private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination,
-                                              final JourneyRequest journeyRequest, Duration maxInitialWait) {
+                                              final JourneyRequest journeyRequest, TramDuration maxInitialWait) {
         /*
          * Route change calc issue: for example media city is on the Eccles route but trams terminate at Etihad or
          * don't go on towards Eccles depending on the time of day
@@ -408,11 +415,12 @@ public abstract class RouteCalculatorSupport {
                                                    JourneyRequest journeyRequest, int numberOfChanges, Running running)
     {
         final GraphNode startNode = getLocationNodeSafe(txn, start);
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), start,
+                journeyRequest.getDate(), journeyRequest.getRequestedModes());
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(start, config);
 
         return getJourneyStream(txn, startNode, endOfWalk, destinations, journeyRequest, queryTimes, routesAndServicesFilter, numberOfChanges, maxInitialWait, running).
                 limit(journeyRequest.getMaxNumberOfJourneys());
@@ -424,9 +432,10 @@ public abstract class RouteCalculatorSupport {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks, journeyRequest.getDate(),
+                journeyRequest.getRequestedModes());
 
-        Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
+        TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
@@ -442,11 +451,12 @@ public abstract class RouteCalculatorSupport {
                                                            int numberOfChanges, Running running) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
-        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks,
+                journeyRequest.getDate(), journeyRequest.getRequestedModes());
 
         final RunningRoutesAndServices.FilterForDate routesAndServicesFilter = runningRoutesAndServices.getFor(journeyRequest);
 
-        final Duration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
+        final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(stationWalks, config);
         return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,
                 numberOfChanges, maxInitialWait, running).
                 takeWhile(finished::notDoneYet);
@@ -481,6 +491,11 @@ public abstract class RouteCalculatorSupport {
             TransportStage<?, ?> walkingStage = journey.getStages().getFirst();
 
             final Location<?> lastStation = walkingStage.getLastStation();
+
+            if (!journeysPerStation.containsKey(lastStation)) {
+                throw new RuntimeException("Unexpected " + lastStation.getId() + " as not present in " + journeysPerStation);
+            }
+
             long countForStation = journeysPerStation.get(lastStation).incrementAndGet();
             if (countForStation==maxJourneys) {
                 logger.info("Seen " + maxJourneys + " for " + lastStation.getId());

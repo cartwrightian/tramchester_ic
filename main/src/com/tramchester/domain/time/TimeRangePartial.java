@@ -1,6 +1,5 @@
 package com.tramchester.domain.time;
 
-import java.time.Duration;
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -45,10 +44,10 @@ public class TimeRangePartial implements TimeRange {
         }
     }
 
-    public static TimeRange of(final TramTime time, final Duration before, final Duration after) {
-        Duration calcBefore = before;
+    public static TimeRange of(final TramTime time, final TramDuration before, final TramDuration after) {
+        TramDuration calcBefore = before;
         if (time.getHourOfDay()==0 && !time.isNextDay()) {
-            final Duration currentMinsOfDay = Duration.ofMinutes(time.getMinuteOfHour());
+            final TramDuration currentMinsOfDay = TramDuration.ofMinutes(time.getMinuteOfHour());
             if (Durations.greaterThan(before, currentMinsOfDay)) {
                 calcBefore = currentMinsOfDay;
             }

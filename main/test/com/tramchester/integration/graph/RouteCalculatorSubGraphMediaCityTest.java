@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
@@ -18,6 +19,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -44,12 +46,10 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,7 +57,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledUntilDate(year = 2025, month = 11, day = 2)
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade calculator;
@@ -82,10 +81,11 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private GraphTransaction txn;
 
-    private Duration maxJourneyDuration;
+    private TramDuration maxJourneyDuration;
     private RouteCalculationCombinations<Station> combinations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
+    private int maxChanges;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -99,7 +99,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter toConfigure, RouteRepository routeRepository) {
@@ -114,7 +113,10 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
+        maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+        maxChanges = config.getMaxNumberChanges();
         stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
@@ -141,7 +143,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(13,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2025, month = 11, day = 9)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -156,13 +157,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
-    // repro in memory failure
-    // org.opentest4j.AssertionFailedError: [(TramDate{epochDays=20379, dayOfWeek=SATURDAY, date=2025-10-18},
-    // LocationIdsAndNames{items=[StationIdAndNamePair{Exchange Quay[Id{'Station:9400ZZMAEXC'}],
-    // MediaCityUK[Id{'Station:9400ZZMAMCU'}]}]})]
-    // NOTES
-    // fails immediately or passes for many repeats
-    //@RepeatedTest(value = 500)
     @Test
     void reproduceInMemoryFailureInMem() {
         TramDate date = TestEnv.testDay();
@@ -170,6 +164,8 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
+
+        //journeyRequest.setDiag(true);
 
         TramStations start = ExchangeSquare;
         TramStations end = MediaCityUK;
@@ -210,10 +206,8 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveSalfordQuayToStPeters() {
         final TramTime time = TramTime.of(8, 5);
 
-        // 2 -> 4
-        int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(SalfordQuay.getId(), StPetersSquare.getId(), journeyRequest);
 
@@ -262,11 +256,11 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertEquals(result, 0);
     }
 
-    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
-                Duration.ofMinutes(120), 1, modes);
+                TramDuration.ofMinutes(120), 1, modes);
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
@@ -275,10 +269,8 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         final TramTime time = TramTime.of(8, 5);
 
-        // 2 -> 4
-        int maxChanges = 4;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
+                TramDuration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         // pairs of stations to check
         LocationIdsAndNames<Station> results = getFailedPairedFor(journeyRequest);
@@ -317,8 +309,8 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    private EnumSet<TransportMode> getRequestedModes() {
-        return TramsOnly;
+    private ImmutableEnumSet<TransportMode> getRequestedModes() {
+        return TransportMode.TramsOnly;
     }
 
     @Test
@@ -333,7 +325,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, 3,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, maxChanges,
                 maxJourneyDuration, 1, getRequestedModes());
         List<Journey> results = calculator.calculateRouteAsList(TramStations.Pomona, MediaCityUK, journeyRequest);
         assertFalse(results.isEmpty());
@@ -367,7 +359,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     Tram, additionalInterchanges, groupStationModes, IntegrationTramTestConfig.CurrentClosures,
-                    Duration.ofMinutes(45), Collections.emptyList());
+                    TramDuration.ofMinutes(45), Collections.emptyList());
 
             return Collections.singletonList(gtfsSourceConfig);
         }
@@ -379,7 +371,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date) {
-        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
+        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
                 maxJourneyDuration, 1, getRequestedModes());
         List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
         assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", start, dest, date, time));

@@ -6,10 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -53,15 +50,26 @@ public class ZipperTest {
             next = result.getNextEntry();
         }
 
-        List<ZipEntry> dir = all.stream().filter(ZipEntry::isDirectory).toList();
+        List<String> dir = all.stream().
+                filter(ZipEntry::isDirectory).
+                map(ZipEntry::getName).
+                toList();
 
-        assertEquals(1, dir.size());
-        assertEquals(CONFIG_DIR + File.separator, dir.get(0).getName());
+        assertEquals(2, dir.size());
+        String configDirName = CONFIG_DIR + File.separator;
+        String configDirSharedName = configDirName + "shared" + File.separator;
 
-        File[] onDisk = new File(CONFIG_DIR).listFiles();
+        assertTrue(dir.contains(configDirName));
+        assertTrue(dir.contains(configDirSharedName), "not found in " + dir);
+
+        File[] onDisk = new File(CONFIG_DIR).listFiles(File::isFile);
         assertNotNull(onDisk);
 
-        List<ZipEntry> files = all.stream().filter(zipEntry -> !zipEntry.isDirectory()).toList();
+        List<ZipEntry> files = all.stream().
+                filter(zipEntry -> !zipEntry.isDirectory()).
+                filter(zipEntry -> !zipEntry.getName().startsWith(configDirSharedName)).
+                toList();
+
         assertEquals(onDisk.length, files.size(), files.toString());
 
         all.forEach(fromZip -> {

@@ -1,5 +1,6 @@
 package com.tramchester.integration.testSupport.postcodes;
 
+import com.tramchester.config.ConfigReference;
 import com.tramchester.config.RemoteDataSourceConfig;
 
 import java.nio.file.Path;
@@ -8,6 +9,11 @@ import java.time.Duration;
 public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
 
     public static final String POSTCODE_URL = "https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect";
+
+    @Override
+    public ConfigReference<Boolean> getSkip() {
+        return new ConfigReference<>(false);
+    }
 
     @Override
     public Path getDataPath() {

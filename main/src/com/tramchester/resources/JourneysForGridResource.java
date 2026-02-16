@@ -5,12 +5,14 @@ import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.DTO.query.GridQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.mappers.JourneyToDTOMapper;
@@ -29,8 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -75,10 +75,10 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         // just find the first one -- todo this won't be lowest cost route....
         long maxNumberOfJourneys = 1;
 
-        final Duration maxDuration = Duration.ofMinutes(gridQueryDTO.getMaxDuration());
+        final TramDuration maxDuration = TramDuration.ofMinutes(gridQueryDTO.getMaxDuration());
 
         // todo into parameters
-        final EnumSet<TransportMode> allModes = config.getTransportModes();
+        final ImmutableEnumSet<TransportMode> allModes = ImmutableEnumSet.copyOf(config.getTransportModes());
 
         int maxChanges = gridQueryDTO.getMaxChanges();
         final JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,

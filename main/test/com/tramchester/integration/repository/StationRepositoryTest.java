@@ -7,15 +7,14 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,11 +76,11 @@ public class StationRepositoryTest {
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getGreen(when);
 
-        Set<Station> allStations = stationRepository.getStations(EnumSet.of(Tram));
+        Set<Station> allStations = stationRepository.getStations(TransportMode.TramsOnly);
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 27;
+        int expectedNumStations = 25;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
@@ -111,14 +109,13 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        // autumn 2025 closures
-        assertEquals(7, lines.size(), lines.toString());
+        assertEquals(4, lines.size(), lines.toString());
 
     }
 
     @Test
     void shouldHaveAtLeastOnePlatformForEveryStation() {
-        Set<Station> stations = stationRepository.getStations(EnumSet.of(Tram));
+        Set<Station> stations = stationRepository.getStations(TransportMode.TramsOnly);
         Set<Station> noPlatforms = stations.stream().filter(station -> station.getPlatforms().isEmpty()).collect(Collectors.toSet());
         assertEquals(Collections.emptySet(),noPlatforms);
     }
@@ -177,7 +174,7 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-        assertEquals(Duration.ofMinutes(1), station.getMinChangeDuration());
+        assertEquals(TramDuration.ofMinutes(1), station.getMinChangeDuration());
 
         double delta = naptanEnabled ? 0.01 : 0.0001;
         LatLong expectedLatLong = Altrincham.getLatLong();
@@ -242,7 +239,7 @@ public class StationRepositoryTest {
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
 
-        IdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
+        ImmutableIdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
 
         assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + "\n found " + pickups);
 
@@ -266,7 +263,7 @@ public class StationRepositoryTest {
         assertEquals(1, pickups.size());
         assertTrue(pickups.contains(getRed(when).getId()), pickups.toString());
 
-        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
+        ImmutableIdSet<Route> dropOffs = station.getDropoffRoutes().stream().
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
             

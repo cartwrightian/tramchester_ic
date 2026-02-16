@@ -10,6 +10,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -19,15 +20,13 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static java.lang.String.format;
 
 @LazySingleton
@@ -89,8 +88,8 @@ public class TramPositionInference {
         final int maxWait = tramchesterConfig.getMaxWait();
         final TimeRange range= TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
 
-        final Duration costBetweenPair = adjacenyRepository.getAdjacent(pair.getStationIds(), date, range);
-        if (costBetweenPair.isNegative()) {
+        final TramDuration costBetweenPair = adjacenyRepository.getAdjacent(pair.getStationIds(), date, range);
+        if (costBetweenPair.invalid()) {
             logger.warn(format("Not adjacent %s", pair));
             return new TramPosition(pair, Collections.emptySet(), costBetweenPair);
         }
@@ -110,10 +109,10 @@ public class TramPositionInference {
         return new TramPosition(pair, dueToday, costBetweenPair);
     }
 
-    private TramTime nearestMinuteAdd(final TramTime time, final Duration duration) {
-        Duration truncated = duration.truncatedTo(ChronoUnit.MINUTES);
+    private TramTime nearestMinuteAdd(final TramTime time, final TramDuration duration) {
+        TramDuration truncated = duration.truncateToMinutes(); // duration.truncatedTo(ChronoUnit.MINUTES);
 
-        final Duration delta = duration.minus(truncated);
+        final TramDuration delta = duration.minus(truncated);
 
         if (delta.getSeconds()>=30) {
             truncated = truncated.plusMinutes(1);
@@ -137,7 +136,7 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        final List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, EnumSet.of(TransportMode.Tram));
+        final List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, TramsOnly);
 
         if (routesBetween.isEmpty()) {
             logger.warn("No active routes between " + pair);

@@ -8,98 +8,45 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.DayOfWeek;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2025,10,25);
+    public static final TramDate latestCutoverDate = TramDate.of(2026,2,9);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
 
-    /***
-     * @return Replacement Buses
-     */
-    public static @NotNull KnownTramRouteEnum getBusOne(TramDate date) {
-        return findFor(BusOne, date);
-    }
-
-    public static @NotNull KnownTramRouteEnum getBusTwo(TramDate date) {
-        return findFor(BusTwo, date);
-    }
-
-    public static @NotNull KnownTramRouteEnum getBusThree(TramDate date) {
-        return findFor(BusThree, date);
-    }
-
-
-    /***
-     * @return Yellow route
-     */
     public static @NotNull KnownTramRouteEnum getYellow(TramDate date) {
-        return findFor(Yellow, date);
+        return getFinder(date).apply(Yellow);
     }
 
-    /***
-     * @return Red route
-     */
     public static @NotNull KnownTramRouteEnum getRed(TramDate date) {
-        return findFor(Red, date);
+        return getFinder(date).apply(Red);
     }
 
-    /***
-     * @return Purple route
-     */
     public static @NotNull KnownTramRouteEnum getPurple(TramDate date) {
-        return findFor(Purple, date);
+        return getFinder(date).apply(Purple);
     }
 
-    /***
-     * @return Pink route
-     */
     public static @NotNull KnownTramRouteEnum getPink(TramDate date) {
-        return findFor(Pink, date);
+        return getFinder(date).apply(Pink);
     }
 
-    /***
-     * @return Navy route
-     */
     public static @NotNull KnownTramRouteEnum getNavy(TramDate date) {
-        return findFor(Navy, date);
+        return getFinder(date).apply(Navy);
     }
 
-    /***
-     * @return Green route
-     */
     public static @NotNull KnownTramRouteEnum getGreen(TramDate date) {
-        return findFor(Green, date);
+        return getFinder(date).apply(Green);
     }
 
-    /***
-     * @return Blue route
-     */
     public static @NotNull KnownTramRouteEnum getBlue(TramDate date) {
-        return findFor(Blue, date);
+        return getFinder(date).apply(Blue);
     }
-
-    public static KnownTramRouteEnum findFor(final TFGMRouteNames line, final TramDate date) {
-        final List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
-                filter(knownTramRoute -> knownTramRoute.line().equals(line)).
-                filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
-                sorted(Comparator.comparing(KnownTramRouteEnum::getValidFrom)).
-                toList();
-        if (find.isEmpty()) {
-            throw new RuntimeException("No match for " + line.getShortName() + " on " + date);
-        }
-        final KnownTramRouteEnum matched = find.getLast(); // time ordered
-        if (!matched.getId().isValid()) {
-            throw new RuntimeException(matched + " has invalid id for date " + date);
-        }
-        return matched;
-     }
 
     public static Set<TestRoute> find(final Set<Route> routes) {
         return routes.stream().
@@ -126,54 +73,46 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
+        Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
+
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (VictoriaAndRochdaleLineWorks.equals(date) || VictoriaNov2025.equals(date)) {
-                routes.add(getYellow(date));
+            if (date.isBefore(TramDate.of(2026, 2, 8))) {
+                routes.add(find.apply(Green));
+            } else if (date.equals(TramDate.of(2026, 2, 8))){
+                routes.add(find.apply(BusOne));
             }
-
-            if (TraffordBar2025.contains(date)) {
-                routes.add(getYellow(date));
-                routes.add(getBusOne(date));
-            }
-
-            // not in timetable?
-            if (date.equals(TramDate.of(2025, 11, 9))) {
-                routes.add(getYellow(date));
-            }
-
-            // not in timetable?
-            if (date.equals(TramDate.of(2025, 11, 30))) {
-                routes.add(getYellow(date));
-                routes.add(getBusOne(date));
-                routes.add(getBusTwo(date));
-            }
-
-
-        } else {
-            if (!TraffordBar2025.contains(date)) {
-                routes.add(getGreen(date));
-            }
-            routes.add(getYellow(date));
+        } else { // Not Sunday
+            routes.add(find.apply(Green));
         }
 
-        if (TraffordBar2025.contains(date)) {
-            routes.add(getBusOne(date));
-            routes.add(getBusTwo(date));
-            routes.add(getBusThree(date));
-        }
-
-        if (VictoriaAndRochdaleLineWorks.equals(date) || VictoriaNov2025.equals(date)) {
-            routes.add(getBusOne(date));
-            routes.add(getBusTwo(date));
-        }
-
-        routes.add(getBlue(date));
-        routes.add(getRed(date));
-        routes.add(getNavy(date));
-        routes.add(getPink(date));
-        routes.add(getPurple(date));
+        routes.add(find.apply(Yellow));
+        routes.add(find.apply(Blue));
+        routes.add(find.apply(Red));
+        routes.add(find.apply(Navy));
+        routes.add(find.apply(Pink));
+        routes.add(find.apply(Purple));
 
         return routes;
+    }
+
+    public static KnownTramRouteEnum findFor(final TFGMRouteNames line, final TramDate date) {
+        final List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
+                filter(knownTramRoute -> knownTramRoute.line().equals(line)).
+                filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
+                sorted(Comparator.comparing(KnownTramRouteEnum::getValidFrom)).
+                toList();
+        if (find.isEmpty()) {
+            throw new RuntimeException("No match for " + line.getShortName() + " on " + date);
+        }
+        final KnownTramRouteEnum matched = find.getLast(); // time ordered
+        if (!matched.getId().isValid()) {
+            throw new RuntimeException(matched + " has invalid id for date " + date);
+        }
+        return matched;
+    }
+
+    private static Function<TFGMRouteNames, KnownTramRouteEnum> getFinder(final TramDate date) {
+        return tfgmRouteNames -> findFor(tfgmRouteNames, date);
     }
 
     public static TestRoute[] values() {

@@ -1,29 +1,29 @@
 package com.tramchester.livedata.repository;
 
+import com.google.common.collect.Sets;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.openLdb.TrainDeparturesRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
-import org.apache.commons.collections4.SetUtils;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,10 +33,10 @@ import static java.lang.String.format;
 @LazySingleton
 public class DeparturesRepository {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesRepository.class);
-    public static final Duration TRAM_WINDOW = Duration.ofMinutes(20);
-    public static final Duration TRAIN_WINDOW = Duration.ofMinutes(60);
-    public static final Duration BUS_WINDOW = Duration.ofMinutes(30);
-    public static final Duration DEFAULT_WINDOW = Duration.ofMinutes(45);
+    public static final TramDuration TRAM_WINDOW = TramDuration.ofMinutes(20);
+    public static final TramDuration TRAIN_WINDOW = TramDuration.ofMinutes(60);
+    public static final TramDuration BUS_WINDOW = TramDuration.ofMinutes(30);
+    public static final TramDuration DEFAULT_WINDOW = TramDuration.ofMinutes(45);
 
     private final StationLocationsRepository stationLocationsRepository;
     private final TramDepartureRepository tramDepartureRepository;
@@ -53,7 +53,7 @@ public class DeparturesRepository {
     }
 
     public List<UpcomingDeparture> getDueForLocation(final Location<?> location, final LocalDate date, final TramTime time,
-                                                     final EnumSet<TransportMode> modes) {
+                                                     final ImmutableEnumSet<TransportMode> modes) {
         logger.info(format("Get due %s services at %s for %s %s", modes, location.getId(), date, time));
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes);
@@ -69,12 +69,12 @@ public class DeparturesRepository {
     }
 
     private boolean isTimely(final TramTime time, final UpcomingDeparture departure) {
-        final Duration windowSize = getLiveDeparturesWindowFor(departure.getMode());
+        final TramDuration windowSize = getLiveDeparturesWindowFor(departure.getMode());
         final TimeRange timeRange = TimeRangePartial.of(time, windowSize, windowSize);
         return timeRange.contains(departure.getWhen());
     }
 
-    private Duration getLiveDeparturesWindowFor(TransportMode mode) {
+    private TramDuration getLiveDeparturesWindowFor(TransportMode mode) {
         return switch (mode) {
             case Tram -> TRAM_WINDOW;
             case Train -> TRAIN_WINDOW;
@@ -83,7 +83,7 @@ public class DeparturesRepository {
         };
     }
 
-    private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final ImmutableEnumSet<TransportMode> modes) {
         if (!platform.anyOverlapWith(modes)) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
             return Collections.emptyList();
@@ -95,7 +95,7 @@ public class DeparturesRepository {
                 toList();
     }
 
-    private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final ImmutableEnumSet<TransportMode> modes) {
         final MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
@@ -108,7 +108,7 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final ImmutableEnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 filter(station -> station.anyOverlapWith(modes)).
                 flatMap(station -> getStationDepartures(station, modes).stream()).
@@ -116,8 +116,8 @@ public class DeparturesRepository {
 
     }
 
-    private List<UpcomingDeparture> getStationDepartures(final Station station, final EnumSet<TransportMode> modes) {
-        final SetUtils.SetView<TransportMode> toFetch = SetUtils.intersection(station.getTransportModes(), modes);
+    private List<UpcomingDeparture> getStationDepartures(final Station station, final ImmutableEnumSet<TransportMode> modes) {
+        Sets.SetView<TransportMode> toFetch = station.getTransportModes().intersectionWith(modes);
 
         if (toFetch.isEmpty()) {
             logger.error(format("Station modes %s and filter modes %s do not overlap", station.getId(), modes));

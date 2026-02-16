@@ -44,7 +44,7 @@ public class FindLinkedStationsInMemory extends FindLinkedStations {
                     filter(node -> node.hasRelationship(txn, Outgoing, LINKED));
 
             return nodes.flatMap(node -> node.getRelationships(txn, Outgoing, LINKED)).
-                    map(this::createConnection).collect(Collectors.toSet());
+                    map(relationship -> createConnection(relationship, txn)).collect(Collectors.toSet());
         }
     }
 

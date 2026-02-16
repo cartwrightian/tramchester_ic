@@ -3,6 +3,7 @@ package com.tramchester.domain.reference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +24,9 @@ public enum TransportMode implements HasTransportMode {
 
     Unknown((short)999);
 
+    public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
+    public static final ImmutableEnumSet<TransportMode> TramsOnly = Tram.singleton();
+
     private static final Map<Short, TransportMode> index;
 
     static {
@@ -35,8 +39,12 @@ public enum TransportMode implements HasTransportMode {
     @JsonIgnore
     private final short graphId;
 
+    @JsonIgnore
+    private final ImmutableEnumSet<TransportMode> singleton;
+
     TransportMode(final short graphId) {
         this.graphId = graphId;
+        singleton = ImmutableEnumSet.of(this);
     }
 
     public static boolean isTram(final HasTransportMode item) {
@@ -51,28 +59,17 @@ public enum TransportMode implements HasTransportMode {
         return index.get(number);
     }
 
-    public static EnumSet<TransportMode> fromNumbers(final short[] numbers) {
+    public static ImmutableEnumSet<TransportMode> fromNumbers(final short[] numbers) {
         final Set<TransportMode> result = new HashSet<>();
         for (final short value : numbers) {
             result.add(index.get(value));
         }
-        return EnumSet.copyOf(result);
+        return ImmutableEnumSet.copyOf(result);
     }
 
-    public static boolean anyIntersection(final EnumSet<TransportMode> modesA, final EnumSet<TransportMode> modesB) {
-        for (final TransportMode mode:modesA) {
-            if (modesB.contains(mode)) {
-                return true;
-            }
-        }
-        return false;
-        // slow
-        //return !SetUtils.intersection(modesA, modesB).isEmpty();
-    }
-
-    public static EnumSet<TransportMode> parseCSV(final String csv) {
+    public static ImmutableEnumSet<TransportMode> parseCSV(final String csv) {
         final String[] divided = csv.split(",");
-        return EnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
+        return ImmutableEnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
     }
 
     @JsonIgnore
@@ -83,5 +80,9 @@ public enum TransportMode implements HasTransportMode {
 
     public short getNumber() {
         return graphId;
+    }
+
+    public ImmutableEnumSet<TransportMode> singleton() {
+        return singleton;
     }
 }

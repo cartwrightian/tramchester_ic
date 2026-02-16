@@ -9,6 +9,8 @@ import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationBoxFactory;
@@ -24,7 +26,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +41,6 @@ class RouteCalculatorForBoundingBoxTest {
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static TramchesterConfig testConfig;
 
     private RouteCalculatorForBoxes calculator;
@@ -58,7 +57,6 @@ class RouteCalculatorForBoundingBoxTest {
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -68,6 +66,8 @@ class RouteCalculatorForBoundingBoxTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = componentContainer.get(RouteCalculatorForBoxes.class);
         stationLocations = componentContainer.get(StationLocations.class);
@@ -109,9 +109,10 @@ class RouteCalculatorForBoundingBoxTest {
 
         long maxNumberOfJourneys = 3;
 
+        int maxChanges = testConfig.getMaxNumberChanges();
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
-                false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
-                TramsOnly);
+                false, maxChanges, TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
+                TransportMode.TramsOnly);
 
         Station destination = StPetersSquare.from(stationRepository);
 

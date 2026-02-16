@@ -3,14 +3,14 @@ package com.tramchester.integration.testSupport.config;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.NeighbourConfig;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.testSupport.AdditionalTramInterchanges;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
+import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class IntegrationTramBusTestConfig extends IntegrationBusTestConfig {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
         TFGMGTFSSourceTestConfig sourceTestConfig = new TFGMGTFSSourceTestConfig(TestEnv.tramAndBus,
-                modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), Duration.ofMinutes(13),
+                modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), TramDuration.ofMinutes(13),
                 Collections.emptyList());
 
         return Collections.singletonList(sourceTestConfig);

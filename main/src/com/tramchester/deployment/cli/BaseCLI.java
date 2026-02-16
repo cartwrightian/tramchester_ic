@@ -40,7 +40,8 @@ public abstract class BaseCLI {
         }
 
         final TramchesterConfig config = container.get(TramchesterConfig.class);
-        boolean success = run(logger, container, config);
+
+        final boolean success = run(logger, container, config);
         container.close();
         return success;
     }

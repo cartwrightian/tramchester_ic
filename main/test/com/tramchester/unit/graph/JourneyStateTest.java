@@ -10,6 +10,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
@@ -26,9 +27,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyStateTest extends EasyMockSupport {
@@ -57,7 +55,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(station);
         StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
-                towardsDestination, config, TramsOnly);
+                towardsDestination, config, TransportMode.TramsOnly);
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
@@ -73,12 +71,12 @@ class JourneyStateTest extends EasyMockSupport {
         JourneyState state = new JourneyState(queryTime, traversalState);
         assertFalse(TransportMode.isTram(state));
 
-        Duration currentCost = Duration.ZERO;
+        TramDuration currentCost = TramDuration.ZERO;
         state.updateTotalCost(currentCost);
         assertEquals(queryTime, state.getJourneyClock());
         assertFalse(TransportMode.isTram(state));
 
-        currentCost = Duration.ofMinutes(14);
+        currentCost = TramDuration.ofMinutes(14);
         state.updateTotalCost(currentCost);
         assertEquals(TramTime.of(9,29), state.getJourneyClock());
         assertFalse(TransportMode.isTram(state));
@@ -91,7 +89,7 @@ class JourneyStateTest extends EasyMockSupport {
         assertFalse(TransportMode.isTram(state));
         assertFalse(state.hasBegunJourney());
 
-        Duration currentCost = Duration.ofMinutes(10);
+        TramDuration currentCost = TramDuration.ofMinutes(10);
         TramTime boardingTime = TramTime.of(9, 30);
         state.board(TransportMode.Tram, node, true);
         assertTrue(state.hasBegunJourney());
@@ -99,6 +97,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         assertTrue(TransportMode.isTram(state));
         assertEquals(boardingTime, state.getJourneyClock());
+        assertEquals(boardingTime, state.getFirstBoardTime());
     }
 
     @Test
@@ -106,10 +105,10 @@ class JourneyStateTest extends EasyMockSupport {
         JourneyState state = new JourneyState(queryTime, traversalState);
         assertFalse(TransportMode.isTram(state));
 
-        state.beginWalk(node, true, Duration.ofMinutes(42));
+        state.beginWalk(node, true, TramDuration.ofMinutes(42));
         assertEquals(1, state.getNumberWalkingConnections());
 
-        state.beginWalk(node, true, Duration.ofMinutes(42));
+        state.beginWalk(node, true, TramDuration.ofMinutes(42));
         assertEquals(2, state.getNumberWalkingConnections());
 
         state.endWalk(node);
@@ -130,16 +129,16 @@ class JourneyStateTest extends EasyMockSupport {
         TramTime boardingTime = TramTime.of(9, 30);
         IdFor<Trip> tripId = MutableTrip.createId("trip1");
 
-        Duration currentCost = Duration.ofMinutes(14);
+        TramDuration currentCost = TramDuration.ofMinutes(14);
         state.board(TransportMode.Tram, node, true);
         assertTrue(state.hasBegunJourney());
 
         state.recordTime(boardingTime,currentCost);
         state.beginTrip(tripId);
-        state.leave(TransportMode.Tram, Duration.ofMinutes(20), node);
+        state.leave(TransportMode.Tram, TramDuration.ofMinutes(20), node);
         assertTrue(state.hasBegunJourney());
 
-        assertThrows(TramchesterException.class, () -> state.leave(TransportMode.Tram, Duration.ofMinutes(25), node));
+        assertThrows(TramchesterException.class, () -> state.leave(TransportMode.Tram, TramDuration.ofMinutes(25), node));
     }
 
     @Test
@@ -148,14 +147,21 @@ class JourneyStateTest extends EasyMockSupport {
 
         TramTime boardingTime = TramTime.of(9, 30);
         state.board(TransportMode.Tram, node, true);
-        state.recordTime(boardingTime,Duration.ofMinutes(10));
+        state.recordTime(boardingTime, TramDuration.ofMinutes(10));
         assertEquals(boardingTime, state.getJourneyClock());
 
-        state.updateTotalCost(Duration.ofMinutes(15)); // 15 - 10
+        assertEquals(boardingTime, state.getFirstBoardTime());
+
+        state.updateTotalCost(TramDuration.ofMinutes(15)); // 15 - 10
         assertEquals(boardingTime.plusMinutes(5), state.getJourneyClock());
 
-        state.updateTotalCost(Duration.ofMinutes(20));  // 20 - 10
+        assertEquals(boardingTime, state.getFirstBoardTime());
+
+        state.updateTotalCost(TramDuration.ofMinutes(20));  // 20 - 10
         assertEquals(boardingTime.plusMinutes(10), state.getJourneyClock());
+
+        assertEquals(boardingTime, state.getFirstBoardTime());
+
     }
 
     @Test
@@ -165,17 +171,17 @@ class JourneyStateTest extends EasyMockSupport {
         IdFor<Trip> tripId = MutableTrip.createId("trip1");
 
         state.board(TransportMode.Tram, node, true);
-        state.recordTime(TramTime.of(9,30),Duration.ofMinutes(10));         // 10 mins cost
+        state.recordTime(TramTime.of(9,30),TramDuration.ofMinutes(10));         // 10 mins cost
         state.beginTrip(tripId);
         assertTrue(TransportMode.isTram(state));
         assertFalse(state.alreadyDeparted(tripId));
 
-        state.leave(TransportMode.Tram, Duration.ofMinutes(25), node);                            // 25 mins cost, offset is 15 mins
+        state.leave(TransportMode.Tram, TramDuration.ofMinutes(25), node);                            // 25 mins cost, offset is 15 mins
         assertEquals(TramTime.of(9,45), state.getJourneyClock()); // should be depart tram time
         assertFalse(TransportMode.isTram(state));
         assertTrue(state.alreadyDeparted(tripId));
 
-        state.updateTotalCost(Duration.ofMinutes(35));
+        state.updateTotalCost(TramDuration.ofMinutes(35));
         assertEquals(TramTime.of(9,55), state.getJourneyClock()); // i.e not just queryTime + 35 minutes
     }
 
@@ -186,21 +192,24 @@ class JourneyStateTest extends EasyMockSupport {
         IdFor<Trip> tripId2 = MutableTrip.createId("trip2");
 
         state.board(TransportMode.Tram, node, true);
-        state.recordTime(TramTime.of(9,30),Duration.ofMinutes(10));         // 10 mins cost
+        state.recordTime(TramTime.of(9,30),TramDuration.ofMinutes(10));         // 10 mins cost
         state.beginTrip(tripId1);
         assertFalse(state.alreadyDeparted(tripId1));
 
-        state.leave(TransportMode.Tram, Duration.ofMinutes(25), node);                            // 25 mins cost, offset is 15 mins
+        assertEquals(TramTime.of(9,30), state.getFirstBoardTime());
+
+        state.leave(TransportMode.Tram, TramDuration.ofMinutes(25), node);                            // 25 mins cost, offset is 15 mins
         assertEquals(TramTime.of(9,45), state.getJourneyClock()); // should be depart tram time
         assertTrue(state.alreadyDeparted(tripId1));
         assertFalse(state.alreadyDeparted(tripId2));
 
         state.board(TransportMode.Tram, node, true);
-        state.recordTime(TramTime.of(9,50),Duration.ofMinutes(25));
+        state.recordTime(TramTime.of(9,50),TramDuration.ofMinutes(25));
         state.beginTrip(tripId2);
         assertEquals(TramTime.of(9,50), state.getJourneyClock()); // should be depart tram time
+        assertEquals(TramTime.of(9,30), state.getFirstBoardTime());
 
-        state.leave(TransportMode.Tram, Duration.ofMinutes(35), node);                            // 35-25 = 10 mins
+        state.leave(TransportMode.Tram, TramDuration.ofMinutes(35), node);                            // 35-25 = 10 mins
         assertEquals(TramTime.of(10,0), state.getJourneyClock());
 
         assertTrue(state.alreadyDeparted(tripId1));
@@ -210,7 +219,7 @@ class JourneyStateTest extends EasyMockSupport {
     @Test
     void shouldCreateNewState() throws TramchesterException {
         JourneyState journeyState = new JourneyState(TramTime.of(7,55), traversalState);
-        journeyState.beginWalk(node, true, Duration.ofMinutes(42));
+        journeyState.beginWalk(node, true, TramDuration.ofMinutes(42));
         IdFor<Trip> tripId = MutableTrip.createId("trip1");
 
         JourneyState newStateA = JourneyState.fromPrevious(journeyState);
@@ -221,10 +230,10 @@ class JourneyStateTest extends EasyMockSupport {
         assertEquals(1, newStateA.getNumberWalkingConnections());
 
         newStateA.board(TransportMode.Tram, node, true);
-        newStateA.recordTime(TramTime.of(8,15), Duration.ofMinutes(15));
+        newStateA.recordTime(TramTime.of(8,15), TramDuration.ofMinutes(15));
         newStateA.beginTrip(tripId);
         assertEquals(TramTime.of(8,15), newStateA.getJourneyClock());
-        newStateA.beginWalk(node, true, Duration.ofMinutes(42));
+        newStateA.beginWalk(node, true, TramDuration.ofMinutes(42));
 
         JourneyState newStateB = JourneyState.fromPrevious(newStateA);
         assertTrue(newStateB.hasBegunJourney());
@@ -232,7 +241,7 @@ class JourneyStateTest extends EasyMockSupport {
         assertEquals(TramTime.of(8,15), newStateB.getJourneyClock());
         assertTrue(TransportMode.isTram(newStateB));
         assertEquals(tripId, newStateB.getCurrentTrip());
-        newStateB.leave(TransportMode.Tram, Duration.ofMinutes(20), node);
+        newStateB.leave(TransportMode.Tram, TramDuration.ofMinutes(20), node);
         newStateB.board(TransportMode.Tram, node, true);
         assertEquals(2, newStateB.getNumberWalkingConnections());
         assertEquals(1, newStateB.getNumberChanges());

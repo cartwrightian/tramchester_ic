@@ -6,6 +6,10 @@ import java.nio.file.Path;
 import java.time.Duration;
 
 public interface DownloadedConfig {
+
+    // skip based on another boolean config setting
+    ConfigReference<Boolean> getSkip();
+
     DataSourceID getDataSourceId();
 
     // default expiry when cannot check mod time via http(s)

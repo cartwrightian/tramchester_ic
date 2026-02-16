@@ -26,7 +26,7 @@ public class S3Keys {
     }
 
     public String create(final LocalDateTime timeStamp) {
-        String environment = config.getLiveDataConfig().getS3Prefix();
+        String environment = config.getTfgmTramliveData().getS3Prefix();
 
         // TODO this ought to be UTC, not local
         String date = timeStamp.toLocalDate().format(dateFormatter);
@@ -36,7 +36,7 @@ public class S3Keys {
     }
 
     public String createPrefix(final LocalDate timeStamp) {
-        String environment = config.getLiveDataConfig().getS3Prefix();
+        String environment = config.getTfgmTramliveData().getS3Prefix();
 
         // TODO this ought to be UTC, not local
         return format("%s/%s", environment, timeStamp.format(dateFormatter));

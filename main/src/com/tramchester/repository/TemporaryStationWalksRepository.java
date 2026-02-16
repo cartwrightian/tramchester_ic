@@ -34,7 +34,7 @@ public class TemporaryStationWalksRepository {
     @PostConstruct
     public void start() {
         logger.info("starting");
-        config.getGTFSDataSource().forEach(source -> {
+        config.getGtfsSourceConfig().forEach(source -> {
             final List<TemporaryStationsWalkIds> walksFromConfig = source.getTemporaryStationWalks();
 
             Set<TemporaryStationWalk> walksFromSource = walksFromConfig.stream().

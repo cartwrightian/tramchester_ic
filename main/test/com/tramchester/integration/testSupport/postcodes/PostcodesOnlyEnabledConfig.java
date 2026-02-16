@@ -15,12 +15,12 @@ public class PostcodesOnlyEnabledConfig extends IntegrationTramTestConfig {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         return List.of(postCodeDatasourceConfig);
     }
 
     @Override
-    public List<GTFSSourceConfig> getGTFSDataSource() {
+    public List<GTFSSourceConfig> getGtfsSourceConfig() {
         return Collections.emptyList();
     }
 

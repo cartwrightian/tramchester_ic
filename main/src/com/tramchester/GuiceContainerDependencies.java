@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GuiceContainerDependencies implements ComponentContainer {
     private static final Logger logger = LoggerFactory.getLogger(GuiceContainerDependencies.class);
 
-    private Set<ClosesResource> closeCallbacks;
+    private final Set<ClosesResource> closeCallbacks;
     private final Reflections reflections;
 
     private Injector injector;

@@ -4,12 +4,22 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.core.inMemory.Graph;
+import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.GraphDirection;
+import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.inMemory.GraphCore;
+import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
+
+import java.util.EnumSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 // SEE ALSO TramGraphBulderTest with TestEnv graph DB set to in memory......
 // Not duplicating those tests here
 
-@Disabled("To check for inconsistency in in mem graph rebuild, but seems ok")
 class TramInMemoryGraphBuilderTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
@@ -44,17 +53,43 @@ class TramInMemoryGraphBuilderTest {
         componentContainer.close();
     }
 
+    @Test
+    void shouldHaveConsistentRelationshipResults() {
+
+        GraphCore graph = componentContainer.get(GraphCore.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        GraphTransaction txn = graphDatabase.beginTx();
+
+        for(GraphDirection direction : GraphDirection.values()) {
+            for (GraphLabel label : GraphLabel.values()) {
+                final List<GraphNode> nodes = graph.findNodesImmutable(label).toList();
+
+                for (GraphNode node : nodes) {
+
+                    // TODO
+                    final NodeIdInMemory nodeId = (NodeIdInMemory) node.getId();
+
+                    long numFromNode = node.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
+                    long numViaGraph = graph.findRelationshipsImmutableFor(nodeId, direction).count();
+
+                    assertEquals(numFromNode, numViaGraph);
+                }
+            }
+        }
+    }
+
+    @Disabled("performance")
     @RepeatedTest(value = 3)
     void shouldHaveConsistentBuildsOfTheDB() {
 
-        Graph fromFirst = componentContainer.get(Graph.class);
+        GraphCore fromFirst = componentContainer.get(GraphCore.class);
 
         GuiceContainerDependencies secondContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         secondContainer.initialise();
         StagedTransportGraphBuilder builder = secondContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
 
-        Graph graphB =  secondContainer.get(Graph.class);
+        GraphCore graphB =  secondContainer.get(GraphCore.class);
 
         assertEquals(fromFirst, graphB);
 

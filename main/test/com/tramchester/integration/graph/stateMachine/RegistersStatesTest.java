@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
@@ -20,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Set;
-
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 
 class RegistersStatesTest {
     private static ComponentContainer componentContainer;
@@ -46,7 +45,7 @@ class RegistersStatesTest {
         TowardsDestination towardsDestination = new TowardsDestination(destinationIds);
 
         StateBuilderParameters parameters = new StateBuilderParameters(TestEnv.testDay(), TramTime.of(8, 0),
-                towardsDestination, config, TramsOnly);
+                towardsDestination, config, TransportMode.TramsOnly);
         factory = new TraversalStateFactory(parameters);
     }
 

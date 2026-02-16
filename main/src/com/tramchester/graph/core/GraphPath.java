@@ -1,16 +1,15 @@
 package com.tramchester.graph.core;
 
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
-
-import java.time.Duration;
 
 public interface GraphPath {
 
     int length();
 
-    Duration getTotalCost();
+    TramDuration getTotalCost();
 
-    Iterable<GraphEntity> getEntities(GraphTransaction txn);
+    Iterable<GraphEntity<? extends GraphId>> getEntities(GraphTransaction txn);
 
     GraphNode getStartNode(GraphTransaction txn);
 

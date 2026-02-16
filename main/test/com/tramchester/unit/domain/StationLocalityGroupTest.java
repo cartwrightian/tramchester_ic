@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -14,6 +15,7 @@ import java.util.*;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
+import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StationLocalityGroupTest {
@@ -52,11 +54,11 @@ class StationLocalityGroupTest {
         assertEquals(Collections.singleton(platform), groupedStations.getPlatforms());
         assertEquals(Collections.singleton(route), groupedStations.getPickupRoutes());
 
-        final Set<TransportMode> transportModes = groupedStations.getTransportModes();
+        final ImmutableEnumSet<TransportMode> transportModes = groupedStations.getTransportModes();
         assertEquals(1, transportModes.size());
         assertTrue(transportModes.contains(Tram));
 
-        assertTrue(groupedStations.anyOverlapWith(EnumSet.of(Tram)));
+        assertTrue(groupedStations.anyOverlapWith(TransportMode.TramsOnly));
 
         LocationSet<Station> contained = groupedStations.getAllContained();
         assertEquals(1, contained.size());
@@ -102,14 +104,14 @@ class StationLocalityGroupTest {
         assertEquals(-2, stationGroup.getLatLong().getLon(),0);
         assertEquals(areaId, stationGroup.getLocalityId());
 
-        final Set<TransportMode> transportModes = stationGroup.getTransportModes();
+        final ImmutableEnumSet<TransportMode> transportModes = stationGroup.getTransportModes();
         assertEquals(2, transportModes.size());
         assertTrue(transportModes.contains(Tram));
         assertTrue(transportModes.contains(Bus));
 
-        assertTrue(stationGroup.anyOverlapWith(EnumSet.of(Tram,Bus)));
-        assertTrue(stationGroup.anyOverlapWith(EnumSet.of(Bus)));
-        assertTrue(stationGroup.anyOverlapWith(EnumSet.of(Tram)));
+        assertTrue(stationGroup.anyOverlapWith(ImmutableEnumSet.of(Tram,Bus)));
+        assertTrue(stationGroup.anyOverlapWith(BusesOnly));
+        assertTrue(stationGroup.anyOverlapWith(TransportMode.TramsOnly));
 
         assertEquals(2, stationGroup.getDropoffRoutes().size());
         assertEquals(1, stationGroup.getPickupRoutes().size());

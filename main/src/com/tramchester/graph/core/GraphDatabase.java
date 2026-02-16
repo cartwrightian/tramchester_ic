@@ -10,6 +10,8 @@ public interface GraphDatabase {
 
     boolean isCleanDB();
 
+    boolean isInMemory();
+
     GraphTransaction beginTx();
 
     GraphTransaction beginTx(Duration timeout);

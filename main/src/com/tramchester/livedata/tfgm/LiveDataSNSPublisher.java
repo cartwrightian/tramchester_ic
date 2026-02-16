@@ -44,7 +44,7 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
         if (!config.liveTfgmTramDataEnabled()) {
             return false;
         }
-        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveDataConfig = config.getTfgmTramliveData();
         String topic = config.getLiveDataSNSPublishTopic();
         if (topic.isEmpty()) {
             return false;

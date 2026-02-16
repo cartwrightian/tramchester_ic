@@ -6,6 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -82,7 +83,7 @@ public class StopCallRepositoryRailTest {
         StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(trip.getRoute(), firstStation, secondStation);
 
         // crossing midnight costs where incorrectly >22 hours previously
-        assertTrue(costs.max().compareTo(Duration.ofHours(22))<0);
+        assertTrue(costs.max().compareTo(TramDuration.ofHours(22))<0);
 
     }
 

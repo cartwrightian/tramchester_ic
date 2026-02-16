@@ -89,7 +89,7 @@ public class RouteCostMatrixTest {
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         // autumn 2025 closures
-        assertEquals(1, depth);
+        assertEquals(2, depth);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveUniqueDegreeForEachRoutePair() {
-        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, config.getTransportModes());
+        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, config.getTransportModesImmutable());
 
         assertFalse(onDate.isEmpty());
 

@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
@@ -70,7 +71,7 @@ class InterchangesRailAndTramTest {
 
     @Test
     void shouldHaveExpectedConfig() {
-        assertTrue(config.getRailConfig().getOnlyMarkedInterchanges());
+        assertTrue(config.getRail().getOnlyMarkedInterchanges());
         Station station = getStation(RailStationIds.ManchesterPiccadilly);
         assertTrue(config.onlyMarkedInterchange(station));
     }
@@ -119,7 +120,7 @@ class InterchangesRailAndTramTest {
 
         assertTrue(trainInterchange.isMultiMode());
 
-        IdSet<Route> expectedPickups = IdSet.union(getIds(train.getPickupRoutes()), getIds(tram.getPickupRoutes()));
+        ImmutableIdSet<Route> expectedPickups = IdSet.union(getIds(train.getPickupRoutes()), getIds(tram.getPickupRoutes()));
 
         assertEquals(expectedPickups, getIds(trainInterchange.getPickupRoutes()));
 
@@ -131,7 +132,7 @@ class InterchangesRailAndTramTest {
     @Disabled("todo for mixed transport modes")
     @Test
     void shouldNotAddAnyInterchangeNotAlreadyMarked() {
-        IdSet<Station> interchangeButNotMarked = stationRepository.getStations().stream().
+        ImmutableIdSet<Station> interchangeButNotMarked = stationRepository.getStations().stream().
                 filter(station -> interchangeRepository.isInterchange(station)).
                 filter(station -> station.getTransportModes().size()==1).
                 filter(found -> !found.isMarkedInterchange()).

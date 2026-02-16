@@ -3,6 +3,7 @@ package com.tramchester.livedata.mappers;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -17,7 +18,7 @@ import java.util.List;
 public class MapJourneyDTOToStations {
     private static final Logger logger = LoggerFactory.getLogger(MapJourneyDTOToStations.class);
 
-    public IdSet<Station> getAllChangeStations(final List<JourneyDTO> journeys) {
+    public ImmutableIdSet<Station> getAllChangeStations(final List<JourneyDTO> journeys) {
         // filter out walks here as causes issues with Nearest Station
         return journeys.stream().
                 flatMap(journeyDTO -> journeyDTO.getChangeStations().stream()).

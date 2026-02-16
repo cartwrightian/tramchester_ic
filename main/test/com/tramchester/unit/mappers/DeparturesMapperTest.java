@@ -3,6 +3,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.reference.TransportMode;
@@ -109,7 +110,7 @@ class DeparturesMapperTest extends EasyMockSupport {
                 "DUE", when, "single", agency, mode);
         Collection<UpcomingDeparture> dueTrams = Collections.singletonList(dueTram);
 
-        IdSet<Station> changeStations = IdSet.singleton(Victoria.getId());
+        ImmutableIdSet<Station> changeStations = IdSet.singleton(Victoria.getId());
         IdFor<Station> finalStation = Bury.getId();
 
         EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, changeStations, finalStation)).andReturn(false);

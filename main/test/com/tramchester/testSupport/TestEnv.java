@@ -1,8 +1,6 @@
 package com.tramchester.testSupport;
 
 import com.codahale.metrics.Gauge;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.ComponentContainer;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.AppConfiguration;
@@ -11,6 +9,7 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
@@ -24,9 +23,9 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.core.inMemory.Graph;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
@@ -34,7 +33,6 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,10 +57,7 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    // summery 2025 replacement buses +2
-    public static final int NumberOfStationLinks = 206;
-
-    private static final TramDate testDay;
+    public static final int NumberOfStationLinks = 202 + 4;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -82,8 +77,11 @@ public class TestEnv {
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
+    // validated via TripRepositoryTest
+    public static TramTime EarliestTramTime = TramTime.of(4,58);
+
     public static GraphDBType getDefaultDBTYpe() {
-        return GraphDBType.Neo4J;
+        return GraphDBType.InMemory;
     }
 
     public static AppConfiguration GET() {
@@ -95,7 +93,6 @@ public class TestEnv {
         };
     }
 
-
     public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
         return new TestConfig(getDefaultDBTYpe()) {
             @Override
@@ -104,7 +101,7 @@ public class TestEnv {
             }
 
             @Override
-            public TfgmTramLiveDataConfig getLiveDataConfig() {
+            public TfgmTramLiveDataConfig getTfgmTramliveData() {
                 return testLiveDataConfig;
             }
         };
@@ -119,13 +116,8 @@ public class TestEnv {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
-    static {
-        TramDate today = TramDate.from(LocalNow());
-        testDay = UpcomingDates.getNextDate(DayOfWeek.THURSDAY, today);
-    }
-
     public static TramDate testDay() {
-        return testDay;
+        return UpcomingDates.testDay();
     }
 
     public static Route getTramTestRoute() {
@@ -231,15 +223,15 @@ public class TestEnv {
         assertEquals(expected.getLon(), actual.getLon(), delta, "lon: " +message);
     }
 
-    public static void assertMinutesEquals(int minutes, Duration duration) {
-        assertEquals(Duration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
+    public static void assertMinutesEquals(int minutes, TramDuration duration) {
+        assertEquals(TramDuration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
     }
 
-    public static void assertMinutesRoundedEquals(Duration durationA, Duration durationB) {
+    public static void assertMinutesRoundedEquals(TramDuration durationA, TramDuration durationB) {
         assertEquals(roundToMinutes(durationA), roundToMinutes(durationB), "Duration %s did match %s round to mins".formatted(durationA, durationB));
     }
 
-    private static long roundToMinutes(Duration duration) {
+    private static long roundToMinutes(TramDuration duration) {
         final double minutesExact = duration.toSeconds() / 60D;
         return Math.round(minutesExact);
     }
@@ -338,6 +330,7 @@ public class TestEnv {
         return TEST_SQS_QUEUE+ getEnv();
     }
 
+
     private static String getEnv() {
         String text = System.getenv("PLACE");
         if (text==null) {
@@ -350,23 +343,9 @@ public class TestEnv {
         return UpcomingDates.nextMonday();
     }
 
-    public static void SaveInMemoryGraph(final ComponentContainer componentContainer, final Path graphFilename) throws IOException {
-        final JsonMapper mapper = JsonMapper.builder().
-                addModule(new JavaTimeModule()).
-                build();
-
-        final Graph graph = componentContainer.get(Graph.class);
-
-        try (FileWriter output = new FileWriter(graphFilename.toFile())) {
-            mapper.writeValue(output, graph);
-        }
-    }
-
     public static class Modes {
-
-        public static final EnumSet<TransportMode> TramsOnly = EnumSet.of(Tram);
-        public static final EnumSet<TransportMode> BusesOnly = EnumSet.of(Bus);
-        public static final EnumSet<TransportMode> RailOnly = EnumSet.of(Train);
-        public static final EnumSet<TransportMode> TrainAndTram = EnumSet.of(Train, Tram, RailReplacementBus);
+        public static final ImmutableEnumSet<TransportMode> BusesOnly = Bus.singleton();
+        public static final ImmutableEnumSet<TransportMode> RailOnly = Train.singleton();
+        public static final ImmutableEnumSet<TransportMode> TrainAndTram = ImmutableEnumSet.of(Train, Tram, RailReplacementBus);
     }
 }

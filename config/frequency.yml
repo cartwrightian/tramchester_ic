@@ -1,28 +1,14 @@
-server:
-  applicationContextPath: /
-  rootPath: /api/*
-  applicationConnectors:
-    - type: http
-      port: 8080
-  adminContextPath: /admin
-  adminConnectors:
-    - type: http
-      port: 8081
-  gzip:
-    enabled: true
-    bufferSize: 8KiB
-    minimumEntitySize: 160B
-redirectToSecure: true
-secureHost: tramchester.com
-staticAssetCacheTimeSeconds: 300
-environmentName: ${PLACE}
-buildNumber: ${BUILD:- 0}
+%[shared/server.yml]
+
 inMemoryGraph: false
 graphDBConfig:
   graphName: ''
   neo4jPagecacheMemory: 0m
   memoryTransactionGlobalMaxSize: 0m
-distributionBucket: tramchesternewdist
+
+cacheFolder: data/cacheFrequency
+dataExpiryThreshold: 3
+
 gtfsSourceConfig:
   -
     name: tfgm
@@ -71,20 +57,22 @@ remoteSources:
     downloadPath: data/nptg
     filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
-cacheFolder: data/cacheFrequency
+
 calcTimeoutMillis: 3500
+
 bounds:
   minEastings: 333200
   minNorthings: 373250
   maxEasting: 414500
   maxNorthings: 437850
-instanceDataUrl: http://169.254.169.254
 planningEnabled: false
+
 maxWait: 35
 depthFirst: true
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5
+maxNumberChanges: 2
 maxWalkingConnections: 3
 maxJourneyDuration: 180
 nearestStopRangeKM: 1.0
@@ -93,14 +81,9 @@ numOfNearestStopsToOffer: 5
 numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
-dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: false
-cloudWatchMetricsFrequencyMinutes: 5
 
-swagger:
-  resourcePackage: com.tramchester.resources
-  title: tramchester
+%[shared/infra.yml]
 
 logging:
   level: INFO

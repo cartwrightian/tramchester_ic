@@ -5,22 +5,18 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.CrossesDay;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.*;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.EnumSet;
 import java.util.Set;
 
 @LazySingleton
@@ -40,7 +36,7 @@ public class RunningRoutesAndServices {
         return getFor(journeyRequest.getDate(), journeyRequest.getRequestedModes());
     }
 
-    public FilterForDate getFor(final TramDate date, final EnumSet<TransportMode> modes) {
+    public FilterForDate getFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
         final IdMap<Service> serviceIds = getServicesFor(date, modes);
         final IdMap<Route> routeIds = getRoutesFor(date, modes);
 
@@ -56,11 +52,11 @@ public class RunningRoutesAndServices {
                 previousDaySvcs, previousDayRoutes);
     }
 
-    private IdMap<Route> routesIntoNextDayFor(final TramDate date, final EnumSet<TransportMode> modes) {
+    private IdMap<Route> routesIntoNextDayFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
         return intoNextDay(routeRepository.getRoutesRunningOn(date, modes));
     }
 
-    private IdMap<Service> servicesIntoNextDay(final TramDate date, final  EnumSet<TransportMode> modes) {
+    private IdMap<Service> servicesIntoNextDay(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
         return intoNextDay(serviceRepository.getServicesOnDate(date, modes));
     }
 
@@ -71,7 +67,7 @@ public class RunningRoutesAndServices {
     }
 
     @NotNull
-    private IdMap<Route> getRoutesFor(final TramDate date, final EnumSet<TransportMode> modes) {
+    private IdMap<Route> getRoutesFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
         Set<Route> routes = routeRepository.getRoutesRunningOn(date, modes);
         if (routes.isEmpty()) {
             logger.warn("No running routes found on " + date);
@@ -82,7 +78,7 @@ public class RunningRoutesAndServices {
     }
 
     @NotNull
-    private IdMap<Service> getServicesFor(final TramDate date, final EnumSet<TransportMode> modes) {
+    private IdMap<Service> getServicesFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
         final Set<Service> services = serviceRepository.getServicesOnDate(date, modes);
         if (services.isEmpty()) {
             logger.warn("No running services found on " + date);
@@ -192,7 +188,7 @@ public class RunningRoutesAndServices {
             }
 
             // check if within wait time
-            final TimeRange range = TimeRangePartial.of(startTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+            final TimeRange range = TimeRangePartial.of(startTime, TramDuration.ofMinutes(maxWait), TramDuration.ZERO);
             return range.contains(time);
         }
     }

@@ -58,7 +58,7 @@ public class FindLinkedStationsNeo4J extends FindLinkedStations {
             public StationToStationConnection map(MutableGraphTransactionNeo4J txn, Map<String, Object> row) {
                 final Relationship relationship = (Relationship) row.get("r");
                 final GraphRelationship graphRelationship = txn.wrapRelationship(relationship);
-                return createConnection(graphRelationship);
+                return createConnection(graphRelationship, txn);
             }
         });
 

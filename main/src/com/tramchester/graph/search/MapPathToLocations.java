@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -13,7 +14,6 @@ import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,9 +35,8 @@ public class MapPathToLocations {
     public List<Location<?>> mapToLocations(final GraphPath path, final GraphTransaction txn) {
         Location<?> previous = null;
         final List<Location<?>> results = new ArrayList<>();
-        //for(GraphNode node : txn.iter(path.nodes())) {
         for(GraphNode node : path.getNodes(txn)) {
-            Optional<Location<?>> maybeLocation = mapNode(node);
+            final Optional<Location<?>> maybeLocation = mapNode(node);
             maybeLocation.ifPresent(location -> {});
             if (maybeLocation.isPresent()) {
                 final Location<?> location = maybeLocation.get();
@@ -55,7 +54,7 @@ public class MapPathToLocations {
     }
 
     private Optional<Location<?>> mapNode(final GraphNode node) {
-        final EnumSet<GraphLabel> labels = node.getLabels();
+        final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
         if (labels.contains(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
             final IdFor<NPTGLocality> areaId = node.getAreaId();

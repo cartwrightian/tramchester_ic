@@ -7,6 +7,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
@@ -66,8 +67,8 @@ public class RailAndTramStationAvailabilityRepositoryTest {
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamTrain, when, timeRange, TrainAndTram);
 
         long tramRoutes = results.stream().filter(route -> route.getTransportMode()==Tram).count();
-        // 2->1 summery 2025 closures
-        assertEquals(1, tramRoutes, HasId.asIds(results));
+
+        assertEquals(2, tramRoutes, HasId.asIds(results));
 
         IdSet<Route> trainRouteIds = results.stream().filter(route -> route.getTransportMode() == Train).collect(IdSet.collector());
         assertFalse(trainRouteIds.isEmpty());
@@ -87,7 +88,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamTram, when, timeRange, TrainAndTram);
 
         long trainRoutes = results.stream().filter(route -> route.getTransportMode()==Train).count();
-        assertEquals(4, trainRoutes, HasId.asIds(results));
+        assertEquals(5, trainRoutes, HasId.asIds(results));
 
         IdSet<Route> tramRouteIds = results.stream().filter(route -> route.getTransportMode()==Tram).collect(IdSet.collector());
         assertFalse(tramRouteIds.isEmpty());
@@ -103,7 +104,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
     void shouldHaveExpectedPickupsForTheLinkedTramStationWhenOnlyTrain() {
         Station manPicc = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(manPicc, when, timeRange, TramsOnly);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(manPicc, when, timeRange, TransportMode.TramsOnly);
 
         long tramRoutes = results.stream().filter(route -> route.getTransportMode()==Tram).count();
         assertNotEquals(0, tramRoutes);
@@ -127,10 +128,9 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         // should get the linked Tram routes from the Train Station since Alty Tram station is linked
 
-        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamRail, when, timeRange, TramsOnly);
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamRail, when, timeRange, TransportMode.TramsOnly);
 
-        // 2->1 summery 2025 closure
-        assertEquals(1, results.size(),
+        assertEquals(2, results.size(),
                 timeRange + " missing routes from " + altrinchamRail.getId() + " got " + HasId.asIds(results));
     }
 
@@ -160,8 +160,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         long tramDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Tram)).count();
 
-        // 3->1 summer 2025 closures
-        assertEquals(1, tramDropoffs, "wrong number tram in " + HasId.asIds(dropOffs));
+        assertEquals(3, tramDropoffs, "wrong number tram in " + HasId.asIds(dropOffs));
 
         long trainDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Train)).count();
         assertNotEquals(0, trainDropoffs, "no train in " + HasId.asIds(dropOffs));

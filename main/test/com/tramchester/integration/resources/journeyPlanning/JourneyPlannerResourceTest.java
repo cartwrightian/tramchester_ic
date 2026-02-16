@@ -2,6 +2,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
@@ -10,6 +11,7 @@ import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
@@ -47,6 +49,8 @@ public class JourneyPlannerResourceTest {
     private Platform firstPlatformAtAlty;
     private StationRepository stationRepository;
 
+    private int maxChanges;
+
     @BeforeAll
     static void onceBeforeAnyTest() {
         App app = appExtension.getTestSupport().getApplication();
@@ -57,6 +61,9 @@ public class JourneyPlannerResourceTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
+
+        TramchesterConfig config = dependencies.get(TramchesterConfig.class);
+        maxChanges = config.getMaxNumberChanges();
 
         stationRepository = dependencies.get(StationRepository.class);
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
@@ -88,17 +95,31 @@ public class JourneyPlannerResourceTest {
         Set<JourneyDTO> journeys = plan.getJourneys();
         assertFalse(journeys.isEmpty());
 
-        journeys.forEach(journey -> {
+        LocalDateTime queryLocalDateTime = queryTime.toDate(when);
+
+        final Set<JourneyDTO> toCheck;
+        if (arriveBy) {
+            toCheck = journeys.stream().
+                    filter(journeyDTO -> journeyDTO.getExpectedArrivalTime().isBefore(queryLocalDateTime)).
+                    collect(Collectors.toSet());
+
+            assertFalse(toCheck.isEmpty(), "none arrive in time " + journeys);
+        } else {
+            toCheck = journeys;
+        }
+
+        toCheck.forEach(journey -> {
             VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().getFirst();
 
             String headSign = firstStage.getHeadSign();
             assertTrue(possibleHeadsigns.contains(headSign), "unexpected headsign " + headSign);
 
             PlatformDTO platform = firstStage.getPlatform();
+            LocalDateTime firstDepartureTime = journey.getFirstDepartureTime();
             if (arriveBy) {
-                assertTrue(journey.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
+                assertTrue(firstDepartureTime.isBefore(queryLocalDateTime), firstDepartureTime + " not before " + queryLocalDateTime);
             } else {
-                assertTrue(journey.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
+                assertTrue(firstDepartureTime.isAfter(queryLocalDateTime), firstDepartureTime + " not after " + queryLocalDateTime);
             }
             assertEquals(when.toLocalDate(), journey.getQueryDate());
 
@@ -148,15 +169,24 @@ public class JourneyPlannerResourceTest {
     void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, TramStations.Altrincham, TramStations.Cornbrook, true, 0);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, TramStations.Altrincham,
+                TramStations.Cornbrook, true, 0);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 
+        Set<JourneyDTO> arriveBefore = plan.getJourneys().stream().
+                filter(journeyDTO -> journeyDTO.getExpectedArrivalTime().isBefore(queryTime.toDate(when))).
+                collect(Collectors.toSet());
+
+        assertFalse(arriveBefore.isEmpty(), "no joruneys arrives in time " + plan.getJourneys());
+
         List<JourneyDTO> found = new ArrayList<>();
-        plan.getJourneys().forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
+        arriveBefore.forEach(journeyDTO -> {
+            LocalDateTime firstDepartureTime = journeyDTO.getFirstDepartureTime();
+            LocalDateTime queryLocalDateTime = queryTime.toDate(when);
+            assertTrue(firstDepartureTime.isBefore(queryLocalDateTime), firstDepartureTime + " not before " + queryLocalDateTime);
             // TODO lockdown less frequent services during lockdown mean threshhold here increased to 12
-            Duration duration = Duration.between(journeyDTO.getExpectedArrivalTime(), queryTime.toDate(when));
+            Duration duration = Duration.between(journeyDTO.getExpectedArrivalTime(), queryLocalDateTime);
             if (duration.getSeconds()<=(12*60)) {
                 found.add(journeyDTO);
             }
@@ -236,6 +266,7 @@ public class JourneyPlannerResourceTest {
                     Cornbrook.getName(),
                     Deansgate.getName(),
                     Piccadilly.getName(),
+                    PiccadillyGardens.getName(),
                     StPetersSquare.getName());
 
             // multiple possible places to change depending on timetable etc
@@ -262,7 +293,7 @@ public class JourneyPlannerResourceTest {
         TramDate date = TestEnv.testDay(); // TestEnv.nextSunday();
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(date, TramTime.of(11, 0),
-                Altrincham, ManAirport, false, 3);
+                Altrincham, ManAirport, false, maxChanges);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
@@ -297,7 +328,15 @@ public class JourneyPlannerResourceTest {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Deansgate,
                 ManAirport, when, TramTime.of(23,5));
 
-        assertFalse(results.getJourneys().isEmpty());
+        assertFalse(results.getJourneys().isEmpty() );
+    }
+
+    @Test
+    void shouldCorrectlyQueryAfterMidnight() {
+        JourneyPlanRepresentation results = validateAtLeastOneJourney(Altrincham,
+                OldTrafford, when, TramTime.of(0,15));
+
+        assertFalse(results.getJourneys().isEmpty() );
     }
 
     @Test
@@ -320,7 +359,8 @@ public class JourneyPlannerResourceTest {
 
         TramTime queryTime = TramTime.of(17,45);
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(TestEnv.testDay(), TramTime.ofHourMins(queryTime.asLocalTime()), Altrincham, Ashton, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(TestEnv.testDay(), TramTime.ofHourMins(queryTime.asLocalTime()),
+                Altrincham, Ashton, false, maxChanges);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
@@ -331,8 +371,8 @@ public class JourneyPlannerResourceTest {
 
         TramTime firstDepart = TramTime.ofHourMins(earliestJourney.getFirstDepartureTime().toLocalTime());
 
-        Duration elapsed = TramTime.difference(queryTime, firstDepart);
-        assertTrue(Durations.lessThan(elapsed,Duration.ofMinutes(15)), "first result too far in future " + firstDepart + " for " + results.getJourneys());
+        TramDuration elapsed = TramTime.difference(queryTime, firstDepart);
+        assertTrue(Durations.lessThan(elapsed,TramDuration.ofMinutes(15)), "first result too far in future " + firstDepart + " for " + results.getJourneys());
     }
 
     private void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
@@ -355,7 +395,7 @@ public class JourneyPlannerResourceTest {
     private JourneyPlanRepresentation validateAtLeastOneJourney(TramStations start, TramStations end,
                                                                 TramDate date, TramTime queryTime)  {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(date, queryTime, start, end, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(date, queryTime, start, end, false, maxChanges);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 

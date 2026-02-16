@@ -1,16 +1,16 @@
 package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.LocationRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
-import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class RecentJourneysToLocations {
         this.locationRepository = stationRepository;
     }
 
-    public Set<Location<?>> from(RecentJourneys recentJourneys, EnumSet<TransportMode> modes) {
+    public Set<Location<?>> from(RecentJourneys recentJourneys, ImmutableEnumSet<TransportMode> modes) {
 
         return recentJourneys.stream().
                 map(this::getLocationFor).

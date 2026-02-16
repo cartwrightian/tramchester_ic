@@ -32,7 +32,7 @@ public class AuthenticateOpenRailData {
         this.doesPostRequest = doesPostRequest;
         this.mapper = new ObjectMapper();
 
-        openRailDataConfig = config.getOpenRailDataConfig();
+        openRailDataConfig = config.getOpenRailData();
         enabled = (openRailDataConfig!=null);
 
     }

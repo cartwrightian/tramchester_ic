@@ -50,12 +50,13 @@ s3 {
 version = buildNumber
 
 ext {
-    dropwizardVersion = '5.0.0'
-    jacksonVersion = '2.20.0'
+    dropwizardVersion = '5.0.1'
+    jacksonVersion = '2.21.0'
     awsSdkVersion = '2.34.6'
-    allureVersion = '2.29.1'
-    //allure.results.directory=build/reports/allure
 }
+
+// see also allure.properties file
+def allureVersion = "2.29.1"
 
 repositories {
     maven {
@@ -86,8 +87,8 @@ dependencies {
         exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet'
         exclude group: 'org.eclipse.jetty' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
-            'commons-io:commons-io:2.21.0',
-            'commons-codec:commons-codec:1.19.0',
+            'commons-io:commons-io:2.20.0',
+            'commons-codec:commons-codec:1.21.0',
             'org.apache.commons:commons-collections4:4.5.0',
             'org.apache.commons:commons-compress:1.28.0',
             'com.github.ben-manes.caffeine:caffeine:3.2.2'
@@ -129,14 +130,14 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4',
             'org.junit.platform:junit-platform-launcher:1.13.4',
             'org.easymock:easymock:5.6.0',
-            'org.seleniumhq.selenium:selenium-java:4.35.0',
+            'org.seleniumhq.selenium:selenium-java:4.39.0',
             'org.hamcrest:hamcrest:3.0'
 
     testImplementation("org.javassist:javassist:3.30.2-GA")
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
 
     // cxf complains about missing conduit without this
-    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.2'
+    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.4'
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
@@ -357,7 +358,7 @@ tasks.register('all', JavaExec) {
 }
 
 tasks.register('unit', Test) {
-    dependsOn 'compileJava'
+    dependsOn 'compileJava','unitInMem'
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
@@ -617,7 +618,7 @@ tasks.register('pullData', JavaExec) {
     dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args prodConfig
+    args 'config/fetchData.yml'
 }
 
 tasks.register('pullOpenRailData', JavaExec) {

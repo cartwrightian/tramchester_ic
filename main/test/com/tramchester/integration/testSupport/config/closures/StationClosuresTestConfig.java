@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport.config.closures;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.testSupport.reference.FakeStation;
@@ -56,7 +57,7 @@ public abstract class StationClosuresTestConfig implements StationClosures  {
     }
 
     @Override
-    public IdSet<Station> getDiversionsAroundClosure() {
+    public ImmutableIdSet<Station> getDiversionsAroundClosure() {
         return diversionsAround.stream().map(FakeStation::getId).collect(IdSet.idCollector());
     }
 
@@ -66,7 +67,7 @@ public abstract class StationClosuresTestConfig implements StationClosures  {
     }
 
     @Override
-    public IdSet<Station> getDiversionsToFromClosure() {
+    public ImmutableIdSet<Station> getDiversionsToFromClosure() {
         return diversionsToFrom.stream().map(FakeStation::getId).collect(IdSet.idCollector());
     }
 

@@ -33,9 +33,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.ManAirport;
+import static com.tramchester.testSupport.reference.TramStations.Victoria;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -61,15 +61,18 @@ class RouteResourceTest {
     @Test
     void shouldGetAllRoutes() {
 
+        // today since API always returns routes for today
         TramDate today = TramDate.from(TestEnv.LocalNow());
+
+        Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
+                map(TestRoute::dtoId).
+                collect(Collectors.toSet());
 
         List<RouteDTO> routeDTOS = getRouteResponse(); // uses current date server side
         routeDTOS.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
         Set<IdForDTO> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
-        Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
-                map(TestRoute::dtoId).
-                collect(Collectors.toSet());
+
 
         Set<IdForDTO> mismatch = SetUtils.disjunction(namesFromDTO, expectedNames);
         assertTrue(mismatch.isEmpty(), mismatch.toString());
@@ -119,7 +122,7 @@ class RouteResourceTest {
     void shouldGetRoutesFilteredByDate() {
         TramDate date = TestEnv.testDay();
 
-        Set<Route> expected = routeRepository.getRoutesRunningOn(date, TramsOnly); // see also known tram route test that checks this number makes known number of routes
+        Set<Route> expected = routeRepository.getRoutesRunningOn(date, TransportMode.TramsOnly); // see also known tram route test that checks this number makes known number of routes
 
         String queryString = String.format("routes/filtered?date=%s", date.format(dateFormatDashes));
 

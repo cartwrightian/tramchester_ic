@@ -55,7 +55,7 @@ public class LiveDataParser {
     public enum LiveDataNamesMapping {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
         //Firswood("Firswood", "Firswood Station"), // now Firswood in tram data
-        AshtonViaMediaCity("Ashton via MCUK", "Ashton-Under-Lyne"),
+        AshtonViaMediaCity("Ashton via MCUK", "Ashton-under-Lyne"),
         RochdaleStn("Rochdale Stn", "Rochdale Railway Station");
 
 // No longer in use?

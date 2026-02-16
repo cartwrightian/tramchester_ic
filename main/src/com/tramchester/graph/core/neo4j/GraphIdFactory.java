@@ -3,6 +3,7 @@ package com.tramchester.graph.core.neo4j;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphRelationshipId;
 import com.tramchester.graph.reference.GraphLabel;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 public class GraphIdFactory implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(GraphIdFactory.class);
 
-    private static final EnumSet<GraphLabel> NO_LABELS = EnumSet.noneOf(GraphLabel.class);
+    private static final ImmutableEnumSet<GraphLabel> NO_LABELS = ImmutableEnumSet.noneOf(GraphLabel.class);
 
     private final Cache<String, GraphNodeId> nodeIds;
     private final Cache<String, GraphRelationshipId> relationshipIds;
@@ -51,7 +51,7 @@ public class GraphIdFactory implements ReportsCacheStats {
 
         if (diagnostics) {
             // add labels to id to aid in diagnostics
-            final EnumSet<GraphLabel> labels = GraphReferenceMapper.from(node.getLabels());
+            final ImmutableEnumSet<GraphLabel> labels = GraphReferenceMapper.from(node.getLabels());
             return nodeIds.get(internalId, unused -> new GraphNodeIdNeo4J(internalId, labels));
         } else {
             return nodeIds.get(internalId, unused -> new GraphNodeIdNeo4J(internalId, NO_LABELS));

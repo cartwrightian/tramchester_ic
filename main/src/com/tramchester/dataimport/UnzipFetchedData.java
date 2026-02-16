@@ -25,7 +25,7 @@ public class UnzipFetchedData  {
     @Inject
     public UnzipFetchedData(Unzipper unzipper, TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed,
                             FetchDataFromUrl.Ready ready) {
-        this(unzipper, config.getRemoteDataSourceConfig(), remoteDataRefreshed, ready);
+        this(unzipper, config.getRemoteSources(), remoteDataRefreshed, ready);
     }
 
     private UnzipFetchedData(Unzipper unzipper, List<RemoteDataSourceConfig> configs,

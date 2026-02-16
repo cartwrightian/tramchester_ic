@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import io.dropwizard.core.Configuration;
@@ -92,7 +93,7 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     }
 
     @Override
-    public IdSet<Station> getDiversionsAroundClosure() {
+    public ImmutableIdSet<Station> getDiversionsAroundClosure() {
         if (diversionsAroundClosure==null) {
             throw new RuntimeException("Not set for diversionsAroundClosure");
         }
@@ -117,7 +118,7 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     }
 
     @Override
-    public IdSet<Station> getDiversionsToFromClosure() {
+    public ImmutableIdSet<Station> getDiversionsToFromClosure() {
         if (diversionsToFromClosure==null) {
             throw new RuntimeException("Not set for diversionsToFromClosure");
         }

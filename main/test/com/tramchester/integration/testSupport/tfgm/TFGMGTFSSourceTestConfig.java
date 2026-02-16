@@ -1,14 +1,14 @@
 package com.tramchester.integration.testSupport.tfgm;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.domain.StationClosures;
 import com.tramchester.config.TemporaryStationsWalkIds;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -22,16 +22,16 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
 
     private final Set<GTFSTransportationType> sourceModes;
     private final Set<TransportMode> modesWithPlatforms;
-    private final IdSet<Station> additionalInterchanges;
+    private final ImmutableIdSet<Station> additionalInterchanges;
     private final Set<TransportMode> compositeStationModes;
     private final List<StationClosures> closedStations;
-    private final Duration maxInitialWait;
+    private final TramDuration maxInitialWait;
     private final List<TemporaryStationsWalkIds> temporaryStationWalks;
 
     public TFGMGTFSSourceTestConfig(Set<GTFSTransportationType> sourceModes,
-                                    Set<TransportMode> modesWithPlatforms, IdSet<Station> additionalInterchanges,
+                                    Set<TransportMode> modesWithPlatforms, ImmutableIdSet<Station> additionalInterchanges,
                                     Set<TransportMode> compositeStationModes, List<StationClosures> closedStations,
-                                    Duration maxInitialWait, List<TemporaryStationsWalkIds> temporaryStationWalks) {
+                                    TramDuration maxInitialWait, List<TemporaryStationsWalkIds> temporaryStationWalks) {
         this.sourceModes = sourceModes;
         this.modesWithPlatforms = modesWithPlatforms;
         this.additionalInterchanges = additionalInterchanges;
@@ -42,8 +42,8 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     public TFGMGTFSSourceTestConfig(GTFSTransportationType mode, TransportMode modeWithPlatform,
-                                    IdSet<Station> additionalInterchanges, Set<TransportMode> groupStationModes,
-                                    List<StationClosures> closedStations, Duration maxInitialWait,
+                                    ImmutableIdSet<Station> additionalInterchanges, Set<TransportMode> groupStationModes,
+                                    List<StationClosures> closedStations, TramDuration maxInitialWait,
                                     List<TemporaryStationsWalkIds> temporaryStationWalks) {
         this(Collections.singleton(mode), Collections.singleton(modeWithPlatform),
                 additionalInterchanges, groupStationModes, closedStations, maxInitialWait, temporaryStationWalks);
@@ -75,7 +75,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     @Override
-    public IdSet<Station> getAdditionalInterchanges() {
+    public ImmutableIdSet<Station> getAdditionalInterchanges() {
         return additionalInterchanges;
     }
 
@@ -105,7 +105,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     @Override
-    public Duration getMaxInitialWait() {
+    public TramDuration getMaxInitialWait() {
         return maxInitialWait;
     }
 }

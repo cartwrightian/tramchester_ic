@@ -1,18 +1,30 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumSet;
 import java.util.Objects;
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
+    @JsonIgnore
+    private final ImmutableEnumSet<GraphLabel> labels; // diagnostics only
 
-    public NodeIdInMemory(final int id) {
+    @JsonCreator
+    public NodeIdInMemory(@JsonProperty("id") final int id) {
+        this(id, ImmutableEnumSet.noneOf(GraphLabel.class));
+    }
+
+    public NodeIdInMemory(final int id, final ImmutableEnumSet<GraphLabel> labels) {
         this.id = id;
+        this.labels = labels;
     }
 
     @JsonGetter("id")
@@ -29,9 +41,17 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
 
     @Override
     public String toString() {
-        return "NodeIdInMemory{" +
-                "id=" + id +
-                '}';
+        if (labels.isEmpty()) {
+            return "NodeId{" +
+                    "id=" + id +
+                    '}';
+        } else {
+            return "NodeId{" +
+                    "id=" + id +
+                    " " +labels +
+                    '}';
+        }
+
     }
 
     @Override
@@ -42,5 +62,9 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     @Override
     public int compareTo(@NotNull NodeIdInMemory other) {
         return Integer.compare(this.id, other.id);
+    }
+
+    void recordIdTo(final GraphIdFactory toUpdate) {
+        toUpdate.captureNodeId(id);
     }
 }

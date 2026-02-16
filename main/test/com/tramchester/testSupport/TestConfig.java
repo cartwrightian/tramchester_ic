@@ -64,7 +64,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public List<GTFSSourceConfig> getGTFSDataSource() {
+    public List<GTFSSourceConfig> getGtfsSourceConfig() {
         return getDataSourceFORTESTING();
     }
 
@@ -79,7 +79,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public long GetCloudWatchMetricsFrequencyMinutes() {
+    public long getCloudWatchMetricsFrequencyMinutes() {
         return 10;
     }
 
@@ -149,8 +149,13 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public int getMaxNumResults() {
+    public int getMaxNumberResults() {
         return 5;
+    }
+
+    @Override
+    public int getMaxNumberChanges() {
+        return 2;
     }
 
     @Override
@@ -164,14 +169,14 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+    public SwaggerBundleConfiguration getSwagger() {
         SwaggerBundleConfiguration bundleConfiguration = new SwaggerBundleConfiguration();
         bundleConfiguration.setResourcePackage("com.tramchester.resources");
         return bundleConfiguration;
     }
 
     @Override
-    public int getDataExpiryThreadhold() { return 3; }
+    public int getDataExpiryThreshold() { return 3; }
 
 
     @Override
@@ -180,7 +185,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public TfgmTramLiveDataConfig getLiveDataConfig() {
+    public TfgmTramLiveDataConfig getTfgmTramliveData() {
         return null;
     }
 
@@ -190,7 +195,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+    public List<RemoteDataSourceConfig> getRemoteSources() {
         return Collections.emptyList();
     }
 

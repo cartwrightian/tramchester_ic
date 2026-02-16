@@ -3,6 +3,7 @@ package com.tramchester.domain;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,7 @@ public class Trips implements Iterable<Trip> {
         return trips.size();
     }
 
-    public IdSet<Station> getStartStations() {
+    public ImmutableIdSet<Station> getStartStations() {
         return trips.stream().map(Trip::firstStation).collect(IdSet.idCollector());
     }
 

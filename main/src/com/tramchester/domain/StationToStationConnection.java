@@ -1,16 +1,14 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.mappers.Geography;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import java.time.Duration;
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 public class StationToStationConnection {
 
@@ -23,14 +21,14 @@ public class StationToStationConnection {
     }
 
     private final StationPair pair;
-    private final EnumSet<TransportMode> linkingModes;
+    private final ImmutableEnumSet<TransportMode> linkingModes;
     private final LinkType linkType;
 
     private final Quantity<Length> distanceBetweenInMeters;
-    private final Duration connectionTime;
+    private final TramDuration connectionTime;
 
-    public StationToStationConnection(Station begin, Station end, EnumSet<TransportMode> linkingModes, LinkType linkType,
-                                      Quantity<Length> distanceBetweenInMeters, Duration connectionTime) {
+    public StationToStationConnection(Station begin, Station end, ImmutableEnumSet<TransportMode> linkingModes, LinkType linkType,
+                                      Quantity<Length> distanceBetweenInMeters, TramDuration connectionTime) {
         this.linkType = linkType;
         this.distanceBetweenInMeters = distanceBetweenInMeters;
         this.connectionTime = connectionTime;
@@ -40,10 +38,10 @@ public class StationToStationConnection {
         this.hashCode = Objects.hash(pair, linkingModes, linkType, distanceBetweenInMeters);
     }
 
-    public static StationToStationConnection createForWalk(Station begin, Station end, EnumSet<TransportMode> linkingModes,
+    public static StationToStationConnection createForWalk(Station begin, Station end, ImmutableEnumSet<TransportMode> linkingModes,
                                                            LinkType linkType, Geography geography) {
         final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
-        final Duration walkingDuration = geography.getWalkingDuration(begin, end);
+        final TramDuration walkingDuration = geography.getWalkingDuration(begin, end);
         return new StationToStationConnection(begin, end, linkingModes, linkType, distance, walkingDuration);
     }
 
@@ -86,7 +84,7 @@ public class StationToStationConnection {
      * NOT the modes of the stations themselves which might be subset of linking modes
      * @return The transport modes that link these two stations i.e. Walk
      */
-    public Set<TransportMode> getLinkingModes() {
+    public ImmutableEnumSet<TransportMode> getLinkingModes() {
         return linkingModes;
     }
 
@@ -98,7 +96,7 @@ public class StationToStationConnection {
         return distanceBetweenInMeters;
     }
 
-    public Duration getConnectionTime() {
+    public TramDuration getConnectionTime() {
         return connectionTime;
     }
 
@@ -106,10 +104,11 @@ public class StationToStationConnection {
      * The transport modes of the contained stations, not the modes linking the stations
      * @return set of modes
      */
-    public EnumSet<TransportMode> getContainedModes() {
-        final Set<TransportMode> modes = new HashSet<>(pair.getBegin().getTransportModes());
-        modes.addAll(pair.getEnd().getTransportModes());
-        return EnumSet.copyOf(modes);
+    public ImmutableEnumSet<TransportMode> getContainedModes() {
+//        final Set<TransportMode> modes = ImmutableEnumSet.createEnumSet(pair.getBegin().getTransportModes());
+//        modes.addAll(pair.getEnd().getTransportModes());
+//        return ImmutableEnumSet.copyOf(modes);
+        return ImmutableEnumSet.join(pair.getBegin().getTransportModes(), pair.getEnd().getTransportModes());
     }
 
     public LinkType getLinkType() {

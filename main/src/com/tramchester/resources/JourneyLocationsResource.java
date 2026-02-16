@@ -3,8 +3,10 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -153,14 +155,14 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
         return Response.ok(results).build();
     }
 
-    private List<? extends Location<?>> getNearestLocations(MyLocation origin, MarginInMeters margin, TransportMode mode) {
-        EnumSet<TransportMode> modes = EnumSet.of(mode);
+    private List<? extends Location<?>> getNearestLocations(final MyLocation origin, final MarginInMeters margin, final TransportMode mode) {
+        final ImmutableEnumSet<TransportMode> modes = mode.singleton();
 
         final List<Station> stations = stationLocations.nearestStationsSorted(origin, config.getNumOfNearestStopsToOffer(), margin, modes);
 
         if (mode==TransportMode.Bus) {
             // convert to localities
-            final IdSet<StationLocalityGroup> localityIds = stations.stream().
+            final ImmutableIdSet<StationLocalityGroup> localityIds = stations.stream().
                     map(Location::getLocalityId).
                     map(StationLocalityGroup::createId).
                     filter(IdFor::isValid).
@@ -181,7 +183,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie, @QueryParam("modes") String rawModes) {
         logger.info(format("Get recent locations for cookie %s and modes %s", cookie, rawModes));
 
-        final EnumSet<TransportMode> modes;
+        final ImmutableEnumSet<TransportMode> modes;
         if (rawModes!=null) {
             modes = TransportMode.parseCSV(rawModes);
         } else {

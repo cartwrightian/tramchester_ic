@@ -40,7 +40,7 @@ public class LiveDataSQSFetcher extends LiveDataFetcher {
         logger.info("starting");
         // queue per env, the queue is subscribed to the sns topic
         String queueName = LIVEDATA_QUEUE_PREFIX + config.getEnvironmentName();
-        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        TfgmTramLiveDataConfig liveDataConfig = config.getTfgmTramliveData();
         URI snsURI = liveDataConfig.getDataURI();
 
         if (liveDataConfig.snsSource()) {
