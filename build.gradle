@@ -319,7 +319,7 @@ test {
 
 tasks.register('buses', JavaExec) {
     dependsOn 'webpack'
-    mainClass = mainClassName
+    mainClass = application.mainClass
     classpath = sourceSets.main.runtimeClasspath
 //    maxHeapSize = "3g"
     args 'server', 'config/buses.yml'
@@ -327,7 +327,7 @@ tasks.register('buses', JavaExec) {
 
 tasks.register('frequency', JavaExec) {
     dependsOn 'webpack'
-    mainClass = mainClassName
+    mainClass = application.mainClass
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/frequency.yml'
@@ -335,7 +335,7 @@ tasks.register('frequency', JavaExec) {
 
 tasks.register('rail', JavaExec) {
     dependsOn 'webpack'
-    mainClass = mainClassName
+    mainClass = application.mainClass
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "4g"
     args 'server', 'config/rail.yml'
@@ -343,7 +343,7 @@ tasks.register('rail', JavaExec) {
 
 tasks.register('gm', JavaExec) {
     dependsOn 'webpack'
-    mainClass = mainClassName
+    mainClass = application.mainClass
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "2g"
     args 'server', 'config/gm.yml'
@@ -351,7 +351,7 @@ tasks.register('gm', JavaExec) {
 
 tasks.register('all', JavaExec) {
     dependsOn 'webpack'
-    mainClass = mainClassName
+    mainClass = application.mainClass
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/all.yml'
