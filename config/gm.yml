@@ -5,10 +5,10 @@ inMemoryGraph: true
 cacheFolder: data/cache/gm
 dataExpiryThreshold: 3
 
-graphDBConfig:
-  graphName: databases/gm_rail.db
-  neo4jPagecacheMemory: 1000m
-  memoryTransactionGlobalMaxSize: 650m
+#graphDBConfig:
+#  graphName: databases/gm_rail.db
+#  neo4jPagecacheMemory: 1000m
+#  memoryTransactionGlobalMaxSize: 650m
 
 gtfsSourceConfig:
   - name: tfgm

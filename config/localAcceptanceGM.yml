@@ -1,7 +1,7 @@
 %[shared/server.yml]
 
 inMemoryGraph: true
-graphDBConfig:
+#graphDBConfig:
 #  graphName: databases/tramchesterGMAcceptance.db
 #  neo4jPagecacheMemory: 1000m
 #  memoryTransactionGlobalMaxSize: 650m
