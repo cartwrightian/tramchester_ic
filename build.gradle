@@ -466,6 +466,8 @@ tasks.register('busTest', Test) {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    classpath = sourceSets.test.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
 }
 
 tasks.register('unitNeo4J', Test) {
