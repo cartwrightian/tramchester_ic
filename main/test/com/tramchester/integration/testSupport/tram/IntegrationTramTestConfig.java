@@ -50,7 +50,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     public IntegrationTramTestConfig(GraphDBType graphDBType) {
-        this(graphDBType,Caching.Enabled);
+        this(graphDBType, Caching.Enabled);
     }
 
     public IntegrationTramTestConfig(GraphDBType graphDBType, Caching caching) {

@@ -115,6 +115,18 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
+    public boolean hasRelationship(MutableGraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType, MutableGraphNode end) {
+        final RelationshipType neo4JRelationshipType = relationshipTypeFactory.get(relationshipType);
+        final ResourceIterable<Relationship> outgoing = node.getRelationships(Direction.OUTGOING, neo4JRelationshipType);
+        for (Relationship relationship : outgoing) {
+            if (relationship.getEndNode().equals(end)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction,
                                                       EnumSet<TransportRelationshipTypes> types) {
         if (types.isEmpty()) {
@@ -126,7 +138,8 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public boolean hasRelationship(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipTypes) {
+    public boolean hasRelationship(final GraphTransaction txn, final GraphDirection direction,
+                                   final TransportRelationshipTypes transportRelationshipTypes) {
         return node.hasRelationship(map(direction), relationshipTypeFactory.get(transportRelationshipTypes));
     }
 

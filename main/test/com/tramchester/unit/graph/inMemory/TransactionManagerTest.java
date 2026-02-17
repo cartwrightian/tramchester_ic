@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph.inMemory;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TransactionManagerTest {
     private TransactionManager transactionManager;
+    private GraphCore graph;
 
     // TODO Check throws after delete including labels
 
@@ -36,8 +38,8 @@ public class TransactionManagerTest {
     void onceBeforeEachTestRuns() {
         ProvidesNow providesNow = new ProvidesLocalNow();
         GraphIdFactory graphIdFactory = new GraphIdFactory();
-        GraphCore graph = new GraphCore(graphIdFactory);
-        graph.start();
+        graph = new GraphCore(graphIdFactory, false);
+        graph.doStart(false);
         transactionManager = new TransactionManager(providesNow, graph, graphIdFactory);
     }
 
@@ -186,7 +188,6 @@ public class TransactionManagerTest {
             assertNotNull(viaTransaction);
             assertEquals(id, viaTransaction.getId());
         }
-
     }
 
     @Test
@@ -252,8 +253,21 @@ public class TransactionManagerTest {
             assertNotNull(found);
 
             assertTrue(found.isType(FERRY_GOES_TO));
-
         }
+
+        assertEquals(1 ,graph.getNumberOf(FERRY_GOES_TO));
+        List<GraphNode> findFerry = graph.findNodesImmutable(FERRY).toList();
+        assertEquals(1, findFerry.size());
+
+        List<GraphNode> findTrain = graph.findNodesImmutable(TRAIN).toList();
+        assertEquals(1, findTrain.size());
+
+        GraphNode ferryNode = findFerry.getFirst();
+        GraphNode trainNode = findTrain.getFirst();
+
+        ImmutableEnumSet<TransportRelationshipTypes> typesBetween = graph.getTypesBetween(ferryNode.getId(), trainNode.getId());
+        assertFalse(typesBetween.isEmpty());
+        assertTrue(typesBetween.contains(FERRY_GOES_TO));
     }
 
     @Test
@@ -284,8 +298,6 @@ public class TransactionManagerTest {
 
         try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             assertThrows(RuntimeException.class, () -> txn.getRelationshipById(id));
-//            GraphRelationship found = txn.getRelationshipById(id);
-//            assertNull(found);
 
         }
     }
@@ -443,7 +455,6 @@ public class TransactionManagerTest {
 
             GraphNode nodeById = txn.getNodeById(end.getId());
             assertNull(nodeById);
-            //assertThrows(GraphException.class, () -> nodeById);
 
         }
     }

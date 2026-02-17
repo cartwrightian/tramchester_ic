@@ -9,11 +9,11 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumSet;
 import java.util.Objects;
 
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
+
     @JsonIgnore
     private final ImmutableEnumSet<GraphLabel> labels; // diagnostics only
 

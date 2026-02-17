@@ -275,9 +275,13 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             firstNode.addLabel(txn, GraphLabel.HAS_DIVERSION);
 
-            final MutableGraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
-            setCommonProperties(relationship, cost, closedStation);
-            relationship.set(second);
+            if (firstNode.hasRelationship(txn, GraphDirection.Outgoing, DIVERSION, secondNode)) {
+                logger.warn("Already have DIVERSION from " + first.getId() + " and " + second.getId());
+            } else {
+                final MutableGraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
+                setCommonProperties(relationship, cost, closedStation);
+                relationship.set(second);
+            }
         });
 
         uniqueStations.forEach(station -> stationsWithDiversions.add(station, closedStation.getDateTimeRange()));

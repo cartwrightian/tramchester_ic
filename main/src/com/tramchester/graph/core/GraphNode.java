@@ -103,4 +103,6 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     }
 
     Map<DataSourceID, String> getStoredVersions();
+
+    boolean hasRelationship(MutableGraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType, MutableGraphNode end);
 }

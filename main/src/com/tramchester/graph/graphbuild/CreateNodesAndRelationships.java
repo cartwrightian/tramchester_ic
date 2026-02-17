@@ -57,6 +57,11 @@ public class CreateNodesAndRelationships {
     protected MutableGraphRelationship createRelationship(final MutableGraphTransaction txn, final MutableGraphNode start,
                                                           final MutableGraphNode end, final TransportRelationshipTypes relationshipType) {
         numberRelationships++;
+        if (start.hasRelationship(txn, GraphDirection.Outgoing, relationshipType, end)) {
+            String message = "Already have relationship from " + start.getId() + " to " + end.getId() + " for " + relationshipType;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
         return start.createRelationshipTo(txn, end, relationshipType);
     }
 

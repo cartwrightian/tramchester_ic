@@ -12,19 +12,14 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.persist.SaveGraph;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,14 +29,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class RouteCalculatorInMemoryTest {
-    public static final Path GRAPH_FILENAME_OK = Path.of("RouteCalcInMemoryTest.json");
-    public static final Path GRAPH_FILENAME_FAIL = Path.of("RouteCalcInMemoryTest_failed.json");
+//    public static final Path GRAPH_FILENAME_OK = Path.of("RouteCalcInMemoryTest.json");
+//    public static final Path GRAPH_FILENAME_FAIL = Path.of("RouteCalcInMemoryTest_failed.json");
 
     private static ImmutableEnumSet<TransportMode> requestedModes;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private static GraphDatabase database;
-    private static SaveGraph saveGraph;
 
     private final TramDate when = TestEnv.testDay();
     private GraphTransaction txn;
@@ -50,18 +44,13 @@ public class RouteCalculatorInMemoryTest {
     private int maxNumResults;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         config = new IntegrationTramTestConfig(GraphDBType.InMemory, IntegrationTramTestConfig.Caching.Enabled);
         requestedModes = TransportMode.TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
 
-        if (Files.exists(GRAPH_FILENAME_OK)) {
-            FileUtils.delete(GRAPH_FILENAME_OK.toFile());
-        }
-
-        saveGraph = componentContainer.get(SaveGraph.class);
     }
 
     @AfterAll
@@ -128,10 +117,7 @@ public class RouteCalculatorInMemoryTest {
             journeyRequest.setDiag(true);
             journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
             assertTrue(journeys.isEmpty());
-            saveGraph.save(GRAPH_FILENAME_FAIL);
             fail("failed, diag was on");
-        } else {
-           saveGraph.save(GRAPH_FILENAME_OK);
         }
     }
 

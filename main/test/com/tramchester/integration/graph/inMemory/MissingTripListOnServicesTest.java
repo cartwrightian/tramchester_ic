@@ -10,10 +10,6 @@ import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.GraphCore;
-import com.tramchester.graph.core.inMemory.GraphDatabaseInMemory;
-import com.tramchester.graph.core.inMemory.NodeIdInMemory;
-import com.tramchester.graph.core.inMemory.persist.SaveGraph;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -29,7 +25,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
-import static com.tramchester.integration.graph.inMemory.GraphSaveAndLoadTest.CreateGraphDatabaseInMemory;
 import static com.tramchester.testSupport.reference.TramStations.VeloPark;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,54 +95,6 @@ public class MissingTripListOnServicesTest {
     }
 
     @Test
-    void shouldNotHaveMissingTripsOnAnyServiceRelationsProblemGraph() {
-
-        GraphCore problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
-
-        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(problemGraph, componentContainer);
-        graphDatabase.start();
-
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
-
-            List<GraphNode> haveMissingTrips = txn.findNodes(GraphLabel.ROUTE_STATION).
-                    filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
-                            anyMatch(rel -> rel.getTripIds().isEmpty())).toList();
-            assertEquals(0,haveMissingTrips.size());
-
-
-            List<GraphNode> haveMissingServiceId = txn.findNodes(GraphLabel.ROUTE_STATION).
-                    filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
-                            anyMatch(rel -> !rel.hasProperty(GraphPropertyKey.SERVICE_ID))).
-                    toList();
-            assertTrue(haveMissingServiceId.isEmpty());
-
-        }
-    }
-
-    @Test
-    void shouldNotHaveMissingTripsOnAnyServiceRelationsProblemGraphAnyWithAllMissing() {
-
-        GraphCore problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
-
-        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(problemGraph, componentContainer);
-        graphDatabase.start();
-
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
-            Stream<GraphNode> nodes = txn.findNodes(GraphLabel.ROUTE_STATION);
-
-            List<GraphNode> anyMissingTrips = nodes.
-                    filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
-                            anyMatch(rel -> rel.getTripIds().isEmpty())).toList();
-
-            List<GraphNode> allMissingTrips = anyMissingTrips.
-                    stream().filter(node -> node.getRelationships(txn, Outgoing, TO_SERVICE).
-                            allMatch(rel -> rel.getTripIds().isEmpty())).toList();
-
-            assertEquals(0,allMissingTrips.size());
-        }
-    }
-
-    @Test
     void shouldNotReproIssueWithMissingTripsOnToServiceRelationships() {
 
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
@@ -163,33 +110,6 @@ public class MissingTripListOnServicesTest {
                     filter(relationship -> relationship.getTripIds().isEmpty()).toList();
 
             assertEquals(0, noTrips.size());
-        }
-    }
-
-    @Test
-    void shouldReproIssueWithMissingTripsOnToServiceRelationships() {
-
-        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
-
-        GraphCore problemGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
-
-        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(problemGraph, componentContainer);
-        graphDatabase.start();
-
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
-            GraphNode problemNode = txn.findNode(routeStation);
-
-            // todo this will break but that's ok, just here to double check have reproduced the exact issue
-            NodeIdInMemory nodeId = new NodeIdInMemory(434);
-            assertEquals(nodeId, problemNode.getId());
-
-            List<GraphRelationship> toService = problemNode.getRelationships(txn, Outgoing, TO_SERVICE).toList();
-            assertFalse(toService.isEmpty());
-
-            List<GraphRelationship> noTrips = toService.stream().
-                    filter(relationship -> relationship.getTripIds().isEmpty()).toList();
-
-            assertNotEquals(toService.size(), noTrips.size());
         }
     }
 }

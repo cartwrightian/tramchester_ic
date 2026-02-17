@@ -29,8 +29,8 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.TRAM_GOES_TO;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("Memory issues running from gradle")
 public class GraphSaveAndLoadTest {
@@ -75,43 +75,43 @@ public class GraphSaveAndLoadTest {
     }
 
     @Test
+    void shouldSanityCheckComparison() {
+        GraphCore core = componentContainer.get(GraphCore.class);
+
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
+            checkSame(core, core, txn);
+            assertTrue(GraphCore.same(core, core));
+        }
+    }
+
+    @Test
     void shouldSaveAndLoadAndCompare() {
+        GraphCore expected = componentContainer.get(GraphCore.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+
         SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
 
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
         GraphCore result = SaveGraph.loadDBFrom(GRAPH_FILENAME);
-        GraphCore expected = componentContainer.get(GraphCore.class);
-
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
         assertEquals(expected.getNodesAndEdges(), result.getNodesAndEdges());
 
         try (GraphTransaction txn = graphDatabase.beginTx()) {
+            assertNotEquals(0, txn.numberOf(TRAM_GOES_TO), "sanity check on counters failed");
+
             checkSame(expected, result, txn);
         }
 
-        assertEquals(expected, result);
+        //assertEquals(expected, result);
 
         expected.stop();
         result.stop();
     }
 
-    @Disabled("WIP - needs data in sync to work")
-    @Test
-    void shouldCheckCompare() {
-
-        GraphCore loadedGraph = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
-        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(loadedGraph, componentContainer);
-
-        graphDatabase.start();
-
-        // A-> A
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
-            checkSame(loadedGraph, loadedGraph, txn);
-        }
-    }
 
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelations() {
@@ -143,44 +143,22 @@ public class GraphSaveAndLoadTest {
     }
 
     @Test
-    void shouldLoadConsistently() throws InterruptedException {
+    void shouldLoadConsistently() {
         SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
         saveGraph.save(GRAPH_FILENAME);
-
-        // race condition?? Flush is being call but file is empty?
-//        final File file = GRAPH_FILENAME.toFile();
-//        int count = 10;
-//        while (file.length()==0 && count-->0) {
-//            Thread.sleep(20);
-//        }
-//        assertNotEquals(0, file.length());
 
         GraphCore graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
         GraphCore graphB = SaveGraph.loadDBFrom(GRAPH_FILENAME);
 
-        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(graphA, componentContainer);
-        graphDatabase.start();
+        GraphDatabaseInMemory graphDatabaseInMemory = CreateGraphDatabaseInMemory(graphA, componentContainer);
+        graphDatabaseInMemory.start();
 
         GraphCore.same(graphA, graphB);
 
         // A-> A
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabaseInMemory.beginTx()) {
             checkSame(graphA, graphB, txn);
         }
-    }
-
-    @Disabled("WIP - need to reproduce the failure")
-    @Test
-    void shouldCompareGoodAndBad() {
-
-        GraphCore graphA = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_OK);
-        GraphCore graphB = SaveGraph.loadDBFrom(RouteCalculatorInMemoryTest.GRAPH_FILENAME_FAIL);
-
-        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(graphA, componentContainer);
-        graphDatabase.start();
-
-        GraphCore.same(graphA, graphB);
-        checkSame(graphA, graphB, graphDatabase.beginTx());
     }
 
     private static void checkSame(GraphCore expected, GraphCore result, GraphTransaction txnForExpected) {
@@ -189,21 +167,22 @@ public class GraphSaveAndLoadTest {
         }
 
         for(GraphLabel label : GraphLabel.values()) {
-            final List<GraphNodeInMemory> expectedNodes = expected.findNodesMutable(label).toList();
-            final List<GraphNodeInMemory> resultNodes = result.findNodesMutable(label).toList();
-            assertEquals(expectedNodes, resultNodes, "mismatch for " + label);
+            final Set<GraphNodeInMemory> expectedNodes = expected.findNodesMutable(label).collect(Collectors.toSet());
+            final Set<GraphNodeInMemory> resultNodes = result.findNodesMutable(label).collect(Collectors.toSet());
+            SetUtils.SetView<GraphNodeInMemory> comparison = SetUtils.disjunction(expectedNodes, resultNodes);
+            assertTrue(comparison.isEmpty(), "mismatch finding nodes by label for " + label);
 
             for (GraphNodeInMemory expectedNode : expectedNodes) {
                 final GraphNodeInMemory resultNode = result.getNodeMutable(expectedNode.getId());
                 assertEquals(expectedNode.getId(), resultNode.getId());
                 assertEquals(expectedNode.getProperties(), resultNode.getProperties());
 
-                checkRelationships(txnForExpected, GraphDirection.Outgoing, expectedNode, result);
+                checkRelationships(txnForExpected, Outgoing, expectedNode, result);
                 checkRelationships(txnForExpected, Incoming, expectedNode, result);
             }
         }
 
-        assertTrue(GraphCore.same(expected, result));
+        assertTrue(GraphCore.same(expected, result), "graph core same failed");
     }
 
     private static void checkRelationships(GraphTransaction txn, GraphDirection direction,

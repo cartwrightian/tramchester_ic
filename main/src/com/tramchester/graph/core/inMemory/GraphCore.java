@@ -37,6 +37,7 @@ public class GraphCore implements Graph {
     private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> relationshipTypesBetweenNodes;
     private final RelationshipTypeCounts relationshipTypeCounts;
     private final boolean diagnostics;
+    private final boolean local; // aka scoped to one transaction
 
     // todo proper transaction handling, rollbacks etc
     // TODO need way to know this is the 'core' graph, not a local copy??
@@ -46,7 +47,11 @@ public class GraphCore implements Graph {
      * @param idFactory global id factory
      */
     @Inject
-    public GraphCore(final GraphIdFactory idFactory) {
+    private GraphCore(final GraphIdFactory idFactory) {
+        this(idFactory, false);
+    }
+
+    public GraphCore(final GraphIdFactory idFactory, final boolean local) {
         this.idFactory = idFactory;
 
         nodesAndEdges = new NodesAndEdges();
@@ -57,16 +62,21 @@ public class GraphCore implements Graph {
         relationshipTypesBetweenNodes = new ConcurrentHashMap<>();
 
         // TODO into config and consolidate with neo4j diag option?
-        diagnostics = true;
+        diagnostics = false;
+
+        this.local = local;
     }
 
 
     @PostConstruct
-    public void start() {
-        doStart(false);
+    private void start() {
+        doStart(false); // the global scope
     }
 
-    protected void doStart(final boolean local) {
+    public void doStart(final boolean local) {
+        if (this.local!=local) {
+            throw new RuntimeException("Scoping issue, called with local=" + local + " but created as " + this.local);
+        }
         final String postfix = local ? "local" : "global";
         final LoggingEventBuilder level = local ? logger.atDebug() : logger.atInfo();
 
@@ -84,6 +94,10 @@ public class GraphCore implements Graph {
     }
 
     protected void doStop(final boolean local) {
+        if (this.local!=local) {
+            throw new RuntimeException("Scoping issue, called with local=" + local + " but created as " + this.local);
+        }
+
         final String postfix = local ? "local" : "global";
         final LoggingEventBuilder level = local ? logger.atDebug() : logger.atInfo();
 
@@ -208,6 +222,11 @@ public class GraphCore implements Graph {
         if (addInbound||addOutbound) {
             relationshipTypeCounts.increment(relationshipType);
         }
+        final NodeIdPair key = NodeIdPair.of(beginId, endId);
+        if (!relationshipTypesBetweenNodes.containsKey(key)) {
+            relationshipTypesBetweenNodes.put(key, EnumSet.noneOf(TransportRelationshipTypes.class));
+        }
+        relationshipTypesBetweenNodes.get(key).add(relationshipType);
         return relationship;
     }
 
@@ -456,7 +475,7 @@ public class GraphCore implements Graph {
                 ", nodesAndEdges=" + nodesAndEdges +
                 ", labelsToNodes=" + labelsToNodes.size() +
                 ", relationshipsForNodes=" + relationshipsForNodes.size() +
-                ", existingRelationships=" + relationshipTypesBetweenNodes.size() +
+                ", relationshipTypesBetweenNodes=" + relationshipTypesBetweenNodes.size() +
                 ", relationshipTypeCounts=" + relationshipTypeCounts +
                 '}';
     }
@@ -468,23 +487,30 @@ public class GraphCore implements Graph {
      * @return true if same
      */
     public static boolean same(final GraphCore a, final GraphCore b) {
+        if (a.local != b.local) {
+            throw new RuntimeException("Mismatch on scoping a.local = " + a.local + " and b.local=" + b.local);
+        }
+
         if (!GraphIdFactory.same(a.idFactory, b.idFactory)) {
             logger.error("check same idFactory" + a.idFactory + "!=" + b.idFactory);
             return false;
         }
+        if (!(a.relationshipTypeCounts.equals(b.relationshipTypeCounts))) {
+            logger.error("check same relationship type counts " + a.relationshipTypeCounts + "!=" + b.relationshipTypeCounts);
+            return false;
+        }
         if (!a.nodesAndEdges.equals(b.nodesAndEdges)) {
             logger.error("check same nodesAndEdges" + a.nodesAndEdges + "!=" + b.nodesAndEdges);
+            return false;
         }
         if (!same(a.relationshipsForNodes.theMap, b.relationshipsForNodes.theMap)) {
+            logger.error("check same relationships for nodes " + a.relationshipsForNodes + "!=" + b.relationshipsForNodes);
             return false;
         }
         if (!same(a.relationshipTypesBetweenNodes, b.relationshipTypesBetweenNodes)) {
+            logger.error("check same relationship types " + a.relationshipTypesBetweenNodes + "!=" + b.relationshipTypesBetweenNodes);
             return false;
         }
-        if (!(a.relationshipTypeCounts.equals(b.relationshipTypeCounts))) {
-            return false;
-        }
-
         return true;
     }
 
@@ -507,6 +533,12 @@ public class GraphCore implements Graph {
 
     public void commitChanges(final Graph mutatedGraph, final Set<RelationshipIdInMemory> relationshipsToDelete,
                               final Set<NodeIdInMemory> nodesToDelete) {
+        if (this.local) {
+            String message = "Commit against a local copy!";
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+
         synchronized (nodesAndEdges) {
             for (RelationshipIdInMemory relationshipIdInMemory : relationshipsToDelete) {
                 delete(relationshipIdInMemory);
@@ -532,6 +564,15 @@ public class GraphCore implements Graph {
 
     Stream<RelationshipIdInMemory> getRelationshipsIdsFor(final NodeIdInMemory nodeId) {
         return relationshipsForNodes.getRelationshipIdsFor(nodeId);
+    }
+
+    public ImmutableEnumSet<TransportRelationshipTypes> getTypesBetween(final GraphNodeId idA, final GraphNodeId idB) {
+        final NodeIdPair key = NodeIdPair.of((NodeIdInMemory) idA, (NodeIdInMemory) idB);
+        if (relationshipTypesBetweenNodes.containsKey(key)) {
+            return ImmutableEnumSet.copyOf(relationshipTypesBetweenNodes.get(key));
+        } else {
+            return ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);
+        }
     }
 
     private record NodeIdPair(GraphNodeId first, GraphNodeId second) {
@@ -573,12 +614,29 @@ public class GraphCore implements Graph {
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
             RelationshipTypeCounts that = (RelationshipTypeCounts) o;
-            return Objects.equals(theMap, that.theMap);
+            // can't compare directly when using Atomic Ints
+            boolean keysSame = theMap.keySet().equals(that.theMap.keySet());
+            if (keysSame) {
+                for (TransportRelationshipTypes relationshipType : theMap.keySet()) {
+                    if (theMap.get(relationshipType).get()!=that.theMap.get(relationshipType).get()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
         public int hashCode() {
             return Objects.hashCode(theMap);
+        }
+
+        @Override
+        public String toString() {
+            return "RelationshipTypeCounts{" +
+                    "theMap=" + theMap +
+                    '}';
         }
     }
 

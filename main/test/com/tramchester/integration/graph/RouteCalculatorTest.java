@@ -28,7 +28,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.persist.SaveGraph;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
@@ -42,7 +41,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -122,11 +120,6 @@ public class RouteCalculatorTest {
                 map(TramStations::getName).collect(Collectors.toSet());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
-
-        if (journeys.isEmpty() && config.getInMemoryGraph()) {
-            SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
-            saveGraph.save(Path.of("RouteCalculatorTest.json"));
-        }
 
         assertFalse(journeys.isEmpty(), journeyRequest.toString());
 

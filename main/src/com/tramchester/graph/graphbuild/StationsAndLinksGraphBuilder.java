@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
+import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.GraphLabel.ROUTE_STATION;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -234,32 +235,28 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode to, final TransportMode mode,
                                         final MutableGraphTransaction txn) {
-        if (from.hasRelationship(txn, GraphDirection.Outgoing, LINKED)) {
+        if (from.hasRelationship(txn, Outgoing, LINKED)) {
 
             // update existing relationships if not already present
+            final Stream<MutableGraphRelationship> allLinked = from.getRelationshipsMutable(txn, Outgoing, LINKED);
 
             final GraphNodeId toNodeId = to.getId();
-            final Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, GraphDirection.Outgoing, LINKED);
+            final Optional<MutableGraphRelationship> findToNode = allLinked.
+                    filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).
+                    findFirst();
 
             // if there is an existing link between stations then update iff the transport mode not already present
-            final Optional<MutableGraphRelationship> find = alreadyPresent.
-                    filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).findFirst();
-
-            find.ifPresent(existingRelationship -> {
-                final ImmutableEnumSet<TransportMode> currentModes = existingRelationship.getTransportModes();
-                if (!currentModes.contains(mode)) {
-                    existingRelationship.addTransportMode(mode);
-                }
+            findToNode.ifPresent(existingLinked -> {
+                existingLinked.addTransportMode(mode);
             });
 
-            if (find.isPresent()) {
+            if (findToNode.isPresent()) {
                 // no need to create new relationship
                 return;
             }
         }
 
         // else create new
-
         final MutableGraphRelationship stationsLinked = createRelationship(txn, from, to, LINKED);
         stationsLinked.addTransportMode(mode);
     }

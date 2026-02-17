@@ -887,6 +887,18 @@ class TramGraphBuilderTest {
         assertEquals(18D, Math.ceil(percentage));
     }
 
+    @Test
+    void shouldCountNumberOfRelationshipTypes() {
+        // sanity check on counters which are only used for diagnostic output
+        assertNotEquals(0, txn.numberOf(TRAM_GOES_TO));
+        assertNotEquals(0, txn.numberOf(TO_SERVICE));
+        assertNotEquals(0, txn.numberOf(TO_MINUTE));
+        assertNotEquals(0, txn.numberOf(TO_HOUR));
+
+
+
+    }
+
     private void checkOutboundConsistency(TramStations tramStation, TFGMRouteNames knownRoute) {
         Station station = tramStation.from(stationRepository);
         Route route = tramRouteHelper.getOneRoute(knownRoute, when);

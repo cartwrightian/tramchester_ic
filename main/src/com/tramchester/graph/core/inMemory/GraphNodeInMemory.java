@@ -152,6 +152,11 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
+    public boolean hasRelationship(MutableGraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType, MutableGraphNode end) {
+        return getRelationships(txn, graphDirection, relationshipType).anyMatch(rel -> rel.getEndNode(txn).equals(end));
+    }
+
+    @Override
     public synchronized void delete(final MutableGraphTransaction txn) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         inMemory.delete(id);

@@ -29,7 +29,7 @@ public class MutableTransactionGraph implements Graph {
 
     MutableTransactionGraph(final GraphCore parent, final GraphIdFactory graphIdFactory) {
         this.parent = parent;
-        this.localGraph = new GraphCore(graphIdFactory);
+        this.localGraph = new GraphCore(graphIdFactory, true);
 
         localGraph.doStart(true);
 
