@@ -122,7 +122,7 @@ public class GraphCore implements Graph {
     }
 
     // supports load from file
-    public static GraphCore createFrom(final NodesAndEdges incoming, GraphIdFactory graphIdFactory) {
+    public static GraphCore createFrom(final NodesAndEdges incoming, final GraphIdFactory graphIdFactory) {
         final GraphCore result = new GraphCore(graphIdFactory);
         result.start();
 

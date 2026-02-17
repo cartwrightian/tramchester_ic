@@ -13,7 +13,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -36,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GraphSaveAndLoadTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
+    private SaveGraph saveGraph;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -45,7 +45,6 @@ public class GraphSaveAndLoadTest {
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
-
     }
 
     @AfterAll
@@ -55,15 +54,18 @@ public class GraphSaveAndLoadTest {
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
-        if (Files.exists(GRAPH_FILENAME)) {
-            FileUtils.delete(GRAPH_FILENAME.toFile());
-        }
+        saveGraph = componentContainer.get(SaveGraph.class);
+
+        Files.deleteIfExists(GRAPH_FILENAME);
+    }
+
+    @AfterEach
+    void onceAfterEachTestRuns() throws IOException {
+        Files.deleteIfExists(GRAPH_FILENAME);
     }
 
     @Test
     void shouldSerialiseToFileWithoutError() {
-        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
-
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
@@ -91,8 +93,6 @@ public class GraphSaveAndLoadTest {
         GraphCore expected = componentContainer.get(GraphCore.class);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
-        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
-
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
@@ -106,9 +106,7 @@ public class GraphSaveAndLoadTest {
             checkSame(expected, result, txn);
         }
 
-        //assertEquals(expected, result);
-
-        expected.stop();
+        //expected.stop();
         result.stop();
     }
 
@@ -116,7 +114,6 @@ public class GraphSaveAndLoadTest {
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelations() {
 
-        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
         saveGraph.save(GRAPH_FILENAME);
 
         GraphCore loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
@@ -136,15 +133,12 @@ public class GraphSaveAndLoadTest {
                             allMatch(rel -> rel.getTripIds().isEmpty())).toList();
 
             assertEquals(0, allMissingTripIds.size());
-
             assertEquals(0, haveMissingTrips.size());
-
         }
     }
 
     @Test
     void shouldLoadConsistently() {
-        SaveGraph saveGraph = componentContainer.get(SaveGraph.class);
         saveGraph.save(GRAPH_FILENAME);
 
         GraphCore graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
@@ -155,7 +149,6 @@ public class GraphSaveAndLoadTest {
 
         GraphCore.same(graphA, graphB);
 
-        // A-> A
         try (GraphTransaction txn = graphDatabaseInMemory.beginTx()) {
             checkSame(graphA, graphB, txn);
         }

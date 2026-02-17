@@ -43,9 +43,9 @@ public class SaveGraph {
     }
 
     /***
-     * Experimental - creates own GraphIdFactory
-     * @param graphFilename
-     * @return
+     * Creates own GraphIdFactory
+     * @param graphFilename where to load from
+     * @return a new instance of GraphCore
      */
     public static GraphCore loadDBFrom(final Path graphFilename) {
         logger.info("Load DB from " + graphFilename.toAbsolutePath() + " with file of size " + graphFilename.toFile().length());
@@ -58,8 +58,13 @@ public class SaveGraph {
     }
 
     public void save(final Path graphFilename) {
-
         final NodesAndEdges nodesAndEdges = graph.getNodesAndEdges();
+
+        if (nodesAndEdges.getNodes().isEmpty() || nodesAndEdges.getRelationships().isEmpty()) {
+            String message = "Empty graph?? " + nodesAndEdges;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
 
         logger.info("Save graph to " + graphFilename.toAbsolutePath());
 
@@ -72,6 +77,7 @@ public class SaveGraph {
             logger.error(msg, e);
             throw new RuntimeException(msg,e);
         }
+
         logger.info("Saved");
     }
 

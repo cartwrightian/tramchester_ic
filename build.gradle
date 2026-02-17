@@ -3,6 +3,7 @@ plugins {
     id 'com.mgd.core.gradle.s3' version '3.0.2'
     id 'io.mateo.cxf-codegen' version '2.4.1'
     id 'java'
+    id 'java-library'
     id 'application'
     id 'idea'
     id 'com.gradleup.shadow' version '9.3.1'
@@ -243,7 +244,12 @@ distributions {
 }
 
 // WIP removed, problem with runtime classpath for the apache tool that only happened with circleci build env
-compileJava.dependsOn 'railLiveDataCodeGen'
+//compileJava.dependsOn 'railLiveDataCodeGen'
+
+//tasks.withType(JavaCompile).configureEach {
+//    options.deprecation = true
+//    options.compilerArgs.addAll(['-Xlint'])
+//}
 
 tasks.register('cfnassist') {
     doLast {
@@ -256,10 +262,6 @@ tasks.register('cfnassist') {
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.deprecation = true
-    options.compilerArgs.addAll(['-Xlint'])
-}
 
 tasks.register('cleanGraph') {
     fileTree('databases').
@@ -357,8 +359,14 @@ tasks.register('all', JavaExec) {
     args 'server', 'config/all.yml'
 }
 
+def unitTestConfiguration = {
+    classpath = sourceSets.test.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
+}
+
 tasks.register('unit', Test) {
-    dependsOn 'compileJava', 'archUnit'
+    //dependsOn "compileJava", "archUnit"
+    dependsOn tasks.compileJava, "archUnit"
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
@@ -367,10 +375,11 @@ tasks.register('unit', Test) {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    configure unitTestConfiguration
 }
 
 tasks.register('archUnit', Test) {
-    dependsOn 'compileJava'
+    dependsOn tasks.compileJava
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.architecture.*"
@@ -379,22 +388,7 @@ tasks.register('archUnit', Test) {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
-}
-
-tasks.register('liveMessages', Test) {
-    dependsOn 'compileJava'
-    useJUnitPlatform {
-        includeTags "liveDataMessages"
-        includeTags "liveData"
-        excludeTags "LiveDataS3UploadTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
-    }
-    testLogging {
-        events = logEvents
-        exceptionFormat = "full" // default is "short"
-    }
+    configure unitTestConfiguration
 }
 
 def integrationTestConfiguration = {
@@ -422,14 +416,13 @@ def integrationTestConfiguration = {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    classpath = sourceSets.test.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
 }
 
 def integrationRailConfig = {
     minHeapSize = "1000m"
     maxHeapSize = "8000m"
-//    useJUnitPlatform {
-//        includeTags "TrainTest"
-//    }
     systemProperty("com.tramchester.config", "IntegrationRailTestConfig")
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -438,6 +431,23 @@ def integrationRailConfig = {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+}
+
+tasks.register('liveMessages', Test) {
+    dependsOn 'compileJava'
+    useJUnitPlatform {
+        includeTags "liveDataMessages"
+        includeTags "liveData"
+        excludeTags "LiveDataS3UploadTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        events = logEvents
+        exceptionFormat = "full" // default is "short"
+    }
+    configure integrationTestConfiguration
 }
 
 tasks.register('integration', Test) {
@@ -471,6 +481,7 @@ tasks.register('unitNeo4J', Test) {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    configure unitTestConfiguration
 }
 
 tasks.register('integrationGM', Test) {
@@ -508,18 +519,6 @@ tasks.register('liveRailSmoke', Test) {
     }
 }
 
-tasks.register('s3Test', Test) {
-    dependsOn 'compileJava'
-    useJUnitPlatform {
-        includeTags "S3Test"
-        excludeTags "LiveDataS3UploadTest"
-    }
-    testLogging {
-        exceptionFormat "full" // default is "short"
-        events logEvents
-    }
-}
-
 tasks.register('integrationBus', Test) {
     dependsOn 'compileJava'
     minHeapSize = "1000m"
@@ -545,6 +544,7 @@ tasks.register('integrationRail', Test) {
 }
 
 tasks.register('graphTests', Test) {
+    configure integrationTestConfiguration
     dependsOn 'compileJava'
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
@@ -570,6 +570,7 @@ tasks.register('buildGraphTest', Test) {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    configure integrationTestConfiguration
 }
 
 def acceptanceTestConfiguration = {
@@ -585,14 +586,12 @@ def acceptanceTestConfiguration = {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    classpath = sourceSets.test.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
 }
 
 tasks.register('acceptance', Test) {
-//    dependsOn 'allowhost'
     configure acceptanceTestConfiguration
-//    finalizedBy {
-//        blockhost
-//    }
 }
 
 tasks.register('localAcceptance', Test) {
