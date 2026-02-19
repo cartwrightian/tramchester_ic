@@ -63,6 +63,8 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
+    boolean hasRelationship(GraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType, GraphNode end);
+
     GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction);
 
     Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
@@ -104,5 +106,4 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     Map<DataSourceID, String> getStoredVersions();
 
-    boolean hasRelationship(MutableGraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType, MutableGraphNode end);
 }

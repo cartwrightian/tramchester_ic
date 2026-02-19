@@ -115,7 +115,8 @@ public class MutableGraphNodeNeo4J extends GraphNodeProperties<GraphPropsNeo4J> 
     }
 
     @Override
-    public boolean hasRelationship(MutableGraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType, MutableGraphNode end) {
+    public boolean hasRelationship(GraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType,
+                                   GraphNode end) {
         final RelationshipType neo4JRelationshipType = relationshipTypeFactory.get(relationshipType);
         final ResourceIterable<Relationship> outgoing = node.getRelationships(Direction.OUTGOING, neo4JRelationshipType);
         for (Relationship relationship : outgoing) {

@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
@@ -233,32 +232,33 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode to, final TransportMode mode,
+    private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode end, final TransportMode mode,
                                         final MutableGraphTransaction txn) {
-        if (from.hasRelationship(txn, Outgoing, LINKED)) {
 
-            // update existing relationships if not already present
-            final Stream<MutableGraphRelationship> allLinked = from.getRelationshipsMutable(txn, Outgoing, LINKED);
+        if (from.hasRelationship(txn, Outgoing, LINKED, end)) {
 
-            final GraphNodeId toNodeId = to.getId();
-            final Optional<MutableGraphRelationship> findToNode = allLinked.
-                    filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).
+            final List<MutableGraphRelationship> allLinked = from.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
+
+            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
+                    filter(relation -> relation.getEndNode(txn).equals(end)).
                     findFirst();
 
-            // if there is an existing link between stations then update iff the transport mode not already present
-            findToNode.ifPresent(existingLinked -> {
-                existingLinked.addTransportMode(mode);
-            });
-
             if (findToNode.isPresent()) {
-                // no need to create new relationship
-                return;
+                final MutableGraphRelationship existingLinked = findToNode.get();
+                existingLinked.addTransportMode(mode);
+            } else {
+                // for debug
+                from.hasRelationship(txn, Outgoing, LINKED, end);
+                String msg = "Failed to fetch existing LINKED from " + from + " to "
+                        + end + " within " + allLinked;
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
+        } else {
+            // else create new
+            final MutableGraphRelationship stationsLinked = createRelationship(txn, from, end, LINKED);
+            stationsLinked.addTransportMode(mode);
         }
-
-        // else create new
-        final MutableGraphRelationship stationsLinked = createRelationship(txn, from, to, LINKED);
-        stationsLinked.addTransportMode(mode);
     }
 
     private void createPlatformsForStation(final MutableGraphTransaction txn, final Station station, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {

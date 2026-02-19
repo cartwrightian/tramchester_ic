@@ -132,7 +132,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, EnumSet<TransportRelationshipTypes> types) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final EnumSet<TransportRelationshipTypes> types) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getRelationshipImmutable(id, direction, types);
     }
@@ -152,7 +152,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public boolean hasRelationship(MutableGraphTransaction txn, GraphDirection graphDirection, TransportRelationshipTypes relationshipType, MutableGraphNode end) {
+    public boolean hasRelationship(GraphTransaction txn, GraphDirection graphDirection,
+                                   TransportRelationshipTypes relationshipType, GraphNode end) {
         return getRelationships(txn, graphDirection, relationshipType).anyMatch(rel -> rel.getEndNode(txn).equals(end));
     }
 

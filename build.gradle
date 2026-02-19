@@ -431,6 +431,8 @@ def integrationRailConfig = {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    classpath = sourceSets.test.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
 }
 
 tasks.register('liveMessages', Test) {

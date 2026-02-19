@@ -82,7 +82,7 @@ public class GraphBuilderCache implements RouteStationNodeCache, StationAndPlatf
     }
 
     @Override
-    public MutableGraphNode getStation(MutableGraphTransaction txn, IdFor<Station> stationId) {
+    public MutableGraphNode getStation(final MutableGraphTransaction txn, final IdFor<Station> stationId) {
         if (!stationsToNodeId.containsKey(stationId)) {
             String message = "Missing station in cache, station: " + stationId + " Cache: " + stationsToNodeId;
             logger.error(message);

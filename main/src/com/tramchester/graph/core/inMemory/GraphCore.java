@@ -278,13 +278,15 @@ public class GraphCore implements Graph {
 
     @Override
     public Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(final NodeIdInMemory id, final GraphDirection direction) {
-        final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
-        return switch (direction) {
-                    case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
-                    case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode);
-                    case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode),
-                            nodesAndEdges.getInbounds(relationshipsForNode));
-                };
+        synchronized (nodesAndEdges) {
+            final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
+            return switch (direction) {
+                case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode);
+                case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode);
+                case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode),
+                        nodesAndEdges.getInbounds(relationshipsForNode));
+            };
+        }
     }
 
     /***

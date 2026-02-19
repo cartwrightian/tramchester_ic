@@ -20,11 +20,11 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 import static com.tramchester.graph.core.GraphDirection.*;
 import static com.tramchester.graph.reference.GraphLabel.*;
-import static com.tramchester.graph.reference.TransportRelationshipTypes.FERRY_GOES_TO;
-import static com.tramchester.graph.reference.TransportRelationshipTypes.TRAIN_GOES_TO;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -299,6 +299,117 @@ public class TransactionManagerTest {
         try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), true)) {
             assertThrows(RuntimeException.class, () -> txn.getRelationshipById(id));
 
+        }
+    }
+
+    @Test
+    void shouldCreateCopyInAsNeededForChainOfRels() {
+        final GraphNodeId node1Id;
+        final GraphNodeId node2Id;
+        final GraphNodeId node3Id;
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+            MutableGraphNode node1 = txn.createNode(STATION);
+            MutableGraphNode node2 = txn.createNode(STATION);
+            MutableGraphNode node3 = txn.createNode(STATION);
+
+            node1Id = node1.getId();
+            node2Id = node2.getId();
+            node3Id = node3.getId();
+
+            node1.createRelationshipTo(txn, node2, LINKED);
+            node2.createRelationshipTo(txn, node3, LINKED);
+
+            txn.commit();
+        }
+
+        try(MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+            MutableGraphNode nodeA = txn.getNodeByIdMutable(node1Id); // copies in A, B and A->B : But NOT B->C
+
+            MutableGraphNode nodeB = txn.getNodeByIdMutable(node2Id); // As B was already copied in to txn BUG was B-C not copied in
+            assertTrue(nodeA.hasRelationship(txn, Outgoing, LINKED, nodeB)); // immutable so uses union with Parent txn
+
+            // bug would show here
+            List<MutableGraphRelationship> relsFromBtoC = nodeB.getRelationshipsMutable(txn, Outgoing, LINKED).
+                    filter(rel -> rel.getEndNodeId(txn).equals(node3Id)).toList();
+            assertEquals(1, relsFromBtoC.size());
+        }
+    }
+
+    @Test
+    void shouldCreateRelaitonshipAndHaveConsistencyOnQueries() {
+        final GraphRelationshipId relationshipId;
+        final GraphNodeId startNodeId;
+        final GraphNodeId endNodeId;
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+            MutableGraphNode start = txn.createNode(STATION);
+            start.set(Altrincham.fake());
+            MutableGraphNode end = txn.createNode(STATION);
+            end.set(NavigationRoad.fake());
+            MutableGraphNode other = txn.createNode(STATION);
+            other.set(Bury.fake());
+
+            MutableGraphRelationship relationshipA = start.createRelationshipTo(txn, end, LINKED);
+            start.createRelationshipTo(txn, other, LINKED);
+
+            startNodeId = start.getId();
+            endNodeId = end.getId();
+
+            relationshipId = relationshipA.getId();
+
+            assertTrue(start.hasRelationship(txn, Outgoing, LINKED, end));
+            assertTrue(start.hasRelationship(txn, Outgoing, LINKED, other));
+
+            final List<MutableGraphRelationship> allLinked = start.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
+
+            assertEquals(2, allLinked.size());
+
+            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
+                    filter(relation -> relation.getEndNode(txn).equals(end)).
+                    findFirst();
+
+            assertTrue(findToNode.isPresent());
+
+            MutableGraphRelationship found = findToNode.get();
+            assertEquals(relationshipId, found.getId());
+
+            txn.commit();
+
+        }
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+
+            MutableGraphNode start = txn.getNodeByIdMutable(startNodeId);
+            MutableGraphNode end = txn.getNodeByIdMutable(endNodeId);
+
+            MutableGraphNode other = txn.createNode(STATION);
+            other.set(StPetersSquare.fake());
+
+            start.createRelationshipTo(txn, other, LINKED);
+
+            assertTrue(start.hasRelationship(txn, Outgoing, LINKED, end));
+            assertTrue(start.hasRelationship(txn, Outgoing, LINKED, other));
+
+            final List<MutableGraphRelationship> allLinked = start.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
+
+            assertEquals(3, allLinked.size());
+
+            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
+                    filter(relation -> relation.getEndNode(txn).equals(end)).
+                    findFirst();
+
+            assertTrue(findToNode.isPresent());
+
+            MutableGraphRelationship found = findToNode.get();
+
+            assertEquals(relationshipId, found.getId());
+
+            long matchedOther = allLinked.stream().
+                    filter(relation -> relation.getEndNode(txn).equals(other)).
+                    count();
+
+            assertEquals(1L, matchedOther);
         }
     }
 
