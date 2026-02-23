@@ -27,8 +27,4 @@ public class PlatformStopCall extends StopCall {
                 "} " + super.toString();
     }
 
-    @Override
-    public boolean hasPlatfrom() {
-        return true;
-    }
 }

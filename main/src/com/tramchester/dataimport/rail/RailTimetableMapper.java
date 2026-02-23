@@ -98,7 +98,6 @@ public class RailTimetableMapper {
 
     private void tipLocInsert(final RailTimetableRecord record) {
         // these are handled via ExtractAgencyCallingPointsFromLocationRecords
-
     }
 
     private void seenExtraInfo(final RailTimetableRecord record) {
@@ -315,9 +314,8 @@ public class RailTimetableMapper {
 
             // Trip
             final MutableTrip trip = getOrCreateTrip(basicSchedule, service, route, mode);
-            route.addTrip(trip);
-
             addStationsPlatformsAndStopcalls(rawService, route, trip);
+            route.addTrip(trip);
 
             return true;
         }
@@ -419,11 +417,11 @@ public class RailTimetableMapper {
         }
 
         private TramTime getDayAdjusted(final TramTime arrivalTime, final TramTime originTime) {
-            TramTime result = arrivalTime;
             if (arrivalTime.isBefore(originTime)) {
-                result = TramTime.nextDay(arrivalTime);
+                return TramTime.nextDay(arrivalTime);
+            } else {
+                return arrivalTime;
             }
-            return result;
         }
 
         @NotNull

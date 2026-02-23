@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.*;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TrainTest
 public class RailRouteCostsTest {
@@ -76,7 +78,7 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenManPiccadillyAndStockport() throws InvalidDurationException {
-        assertMinutesEquals(17, routeCostCalculator.getAverageCostBetween(txn, manPicc, stockport, date, modes));
+        assertEquals(TramDuration.ofMinutes(17).plusSeconds(19), routeCostCalculator.getAverageCostBetween(txn, manPicc, stockport, date, modes));
     }
 
     @Test

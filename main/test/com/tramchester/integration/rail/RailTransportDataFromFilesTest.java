@@ -15,6 +15,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.CrossesDay;
+import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
@@ -27,7 +29,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -177,7 +178,7 @@ public class RailTransportDataFromFilesTest {
     void shouldHaveExpectedAgencies() {
         Set<Agency> results = transportData.getAgencies();
 
-        assertEquals(30, results.size());
+        assertEquals(31, results.size());
 
         List<IdFor<Agency>> missingTrainOperatingCompanyName = results.stream().
                 map(Agency::getId).
@@ -322,6 +323,7 @@ public class RailTransportDataFromFilesTest {
         assertNotEquals(1, matchingRoutes.size(), matchingRoutes.toString());
     }
 
+    //@DisabledUntilDate(year = 2026, month = 2, day = 22)
     @Test
     void shouldHaveRouteFromManchesterToLondon() {
         IdFor<Station> manchesterPicc = ManchesterPiccadilly.getId();
@@ -389,7 +391,8 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        assertEquals(14, routes.size(), routes.toString());
+        // 9 during man picc closure?
+        assertEquals(9, routes.size(), routes.toString());
     }
 
     // Likely this will break with new data
@@ -406,6 +409,60 @@ public class RailTransportDataFromFilesTest {
 
         assertTrue(finishTime.isAfter(startTime));
         assertFalse(finishTime.isBefore(startTime));
+    }
+
+    @Test
+    void shouldTripsAndRoutesThatCrossIntoNextDay() {
+        Set<Trip> crossing = transportData.getTrips().stream().
+                filter(Trip::intoNextDay).collect(Collectors.toSet());
+
+        assertEquals(18111, crossing.size());
+
+        // reproducing a bug here
+        List<Route> expectedRoutesList = crossing.stream().map(Trip::getRoute).toList();
+        assertFalse(expectedRoutesList.isEmpty());
+
+        Route shouldHaveIntoNextDay = expectedRoutesList.getFirst();
+        assertTrue(shouldHaveIntoNextDay.intoNextDay(), "not into next day for " + shouldHaveIntoNextDay);
+
+        Set<Route> routeCrossesMidnight = transportData.getRoutes().stream().
+                filter(CrossesDay::intoNextDay).
+                collect(Collectors.toSet());
+
+        HashSet<Route> expectedRoutes = new HashSet<>(expectedRoutesList);
+        assertEquals(expectedRoutes.size(), routeCrossesMidnight.size());
+
+        assertEquals(2483,  routeCrossesMidnight.size());
+
+    }
+
+    @Test
+    void shouldHaveExpectedForGreaterManchester() {
+        Set<Station> gmStations = transportData.getStations().stream().
+                filter(station -> TestEnv.getGreaterManchesterBounds().contained(station)).
+                collect(Collectors.toSet());
+
+        assertEquals(257, gmStations.size());
+
+        Set<Trip> tripCrossesMidnight = transportData.getTrips().stream().
+                filter(Trip::intoNextDay).
+                filter(trip -> gmStations.stream().anyMatch(aStation -> trip.callsAt(aStation.getId()))).
+                collect(Collectors.toSet());
+
+        assertEquals(2109, tripCrossesMidnight.size());
+
+        Set<Route> gmRoutes = transportData.getRoutes().stream().
+                filter(route -> gmStations.stream().anyMatch(station -> station.servesRoutePickup(route) || station.servesRouteDropOff(route))).
+                collect(Collectors.toSet());
+
+        assertEquals(1202, gmRoutes.size());
+
+        Set<Route> routeCrossesMidnight = gmRoutes.stream().
+                filter(Route::intoNextDay).
+                collect(Collectors.toSet());
+
+        assertEquals(319, routeCrossesMidnight.size());
+
     }
 
     @Test
@@ -451,7 +508,7 @@ public class RailTransportDataFromFilesTest {
 
         StopCalls.StopLeg longest = findLongest.getLast();
 
-        assertEquals(Duration.ofHours(8).plusMinutes(39), longest.getCost());
+        assertEquals(TramDuration.ofHours(8).plusMinutes(45), longest.getCost());
     }
 
     private Set<StopCalls.StopLeg> getLongDurationStopLeg(Trip trip) {

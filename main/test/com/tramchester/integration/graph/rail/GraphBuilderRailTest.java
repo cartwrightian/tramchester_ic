@@ -85,7 +85,7 @@ class GraphBuilderRailTest {
         GraphNode startNode = txn.findNode(piccadilly);
         List<GraphRelationship> outboundLinks = startNode.getRelationships(txn, GraphDirection.Outgoing, LINKED).toList();
 
-        assertEquals(25, outboundLinks.size(), outboundLinks.toString());
+        assertEquals(22, outboundLinks.size(), outboundLinks.toString());
 
         //return getStationIdFrom(node.getNode());
         Set<IdFor<Station>> destinations = outboundLinks.stream().

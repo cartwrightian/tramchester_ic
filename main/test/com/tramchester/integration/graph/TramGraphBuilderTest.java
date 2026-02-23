@@ -884,7 +884,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(18D, Math.ceil(percentage));
+        assertEquals(19D, Math.ceil(percentage));
     }
 
     @Test

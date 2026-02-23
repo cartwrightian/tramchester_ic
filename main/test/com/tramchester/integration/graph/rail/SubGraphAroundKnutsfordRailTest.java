@@ -103,6 +103,7 @@ class SubGraphAroundKnutsfordRailTest {
         stations.forEach(station -> assertNotNull(stationRepository.getStationById(station.getId())));
     }
 
+    //@DisabledUntilDate(year = 2026, month = 2, day = 22)
     @Test
     void shouldHaveKnutsfordToAndFromHale() {
         Station hale = Hale.from(stationRepository);
@@ -130,6 +131,7 @@ class SubGraphAroundKnutsfordRailTest {
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
+    //@DisabledUntilDate(year = 2026, month = 2, day = 22)
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveJourneysBetweenAllStations() {

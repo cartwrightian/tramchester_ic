@@ -524,9 +524,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // station -> platform
         final TramDuration enterPlatformCost = station.getMinChangeDuration();
 
-        final MutableGraphRelationship crossToPlatform = createRelationship(txn, stationNode, platformNode, ENTER_PLATFORM);
-        crossToPlatform.setCost(enterPlatformCost);
-        crossToPlatform.set(platform);
+        if (stationNode.hasRelationship(txn, GraphDirection.Outgoing, ENTER_PLATFORM, platformNode)) {
+            logger.warn("Already had ENTER_PLATFORM from " + station.getId() + " to " + platform.getId());
+        } else {
+            final MutableGraphRelationship crossToPlatform = createRelationship(txn, stationNode, platformNode, ENTER_PLATFORM);
+            crossToPlatform.setCost(enterPlatformCost);
+            crossToPlatform.set(platform);
+        }
 
         // platform -> station
         final MutableGraphRelationship crossFromPlatform = createRelationship(txn, platformNode, stationNode, LEAVE_PLATFORM);

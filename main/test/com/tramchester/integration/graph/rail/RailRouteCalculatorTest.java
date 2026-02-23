@@ -113,6 +113,7 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, manchesterPiccadilly, stockport);
     }
 
+    //@DisabledUntilDate(year = 2026, month = 2, day = 22)
     @Test
     void shouldHaveManPiccToMacclesfield() {
 
@@ -146,6 +147,7 @@ public class RailRouteCalculatorTest {
 //        atLeastOneDirect(request, manchesterPiccadilly, stokeOnTrent);
 //    }
 
+    //@DisabledUntilDate(year = 2026, month = 2, day = 22)
     @Test
     void shouldHaveAltrinchamToStockport() {
 
@@ -187,6 +189,7 @@ public class RailRouteCalculatorTest {
         assertEquals(2, stage.getPassedStopsCount());
     }
 
+    //@DisabledUntilDate(year = 2026, month = 2, day = 22)
     @Test
     void shouldHaveKnutsfordToHale9am() {
         TramTime travelTime = TramTime.of(9, 0);

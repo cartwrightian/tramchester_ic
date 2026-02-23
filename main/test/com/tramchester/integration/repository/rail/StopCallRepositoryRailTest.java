@@ -3,6 +3,7 @@ package com.tramchester.integration.repository.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -52,13 +53,20 @@ public class StopCallRepositoryRailTest {
     @Test
     void shouldReproIssueWithCrossingMidnight() {
 
-        List<Trip> crossMidnightTrips = routeRepository.getRoutes().stream().
-                filter(Route::intoNextDay).
+        Set<Route> allRoutes = routeRepository.getRoutes();
+
+        List<Route> routesIntoFollowingDay = allRoutes.stream().
+                filter(Route::intoNextDay).toList();
+
+        assertFalse(routesIntoFollowingDay.isEmpty(), "found no routes crossing into next day, this is unlikely! " +
+                HasId.asIds(allRoutes));
+
+        List<Trip> crossMidnightTrips = routesIntoFollowingDay.stream().
                 flatMap(route -> route.getTrips().stream()).
                 filter(Trip::intoNextDay).
                 toList();
 
-        assertFalse(crossMidnightTrips.isEmpty());
+        assertFalse(crossMidnightTrips.isEmpty(), "found no trips crossing into next day, this is unlikely!");
 
         List<Trip> trips = crossMidnightTrips.stream().
                 filter(trip -> trip.getStopCalls().getLegs(false).stream().
@@ -66,7 +74,7 @@ public class StopCallRepositoryRailTest {
                 toList();
 
         assertFalse(trips.isEmpty());
-        Trip trip = trips.get(0);
+        Trip trip = trips.getFirst();
 
         List<StopCalls.StopLeg> legsIntoNextDay = trip.getStopCalls().getLegs(false).stream().
                 filter(stopLeg -> !stopLeg.getFirst().intoNextDay()).
@@ -75,7 +83,7 @@ public class StopCallRepositoryRailTest {
 
         assertFalse(legsIntoNextDay.isEmpty());
 
-        StopCalls.StopLeg leg = legsIntoNextDay.get(0);
+        StopCalls.StopLeg leg = legsIntoNextDay.getFirst();
 
         Station firstStation = leg.getFirstStation();
         Station secondStation = leg.getSecondStation();

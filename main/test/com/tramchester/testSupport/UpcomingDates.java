@@ -11,8 +11,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class UpcomingDates {
@@ -20,11 +19,9 @@ public class UpcomingDates {
     private static final TramDate sunday;
     private static final TramDate saturday;
     private static final TramDate monday;
-    private static final DateRange decemberStrike;
 
     static {
         final TramDate today = TramDate.from(TestEnv.LocalNow());
-        decemberStrike = DateRange.of(TramDate.of(2025, 12, 5),3);
 
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
         sunday = getNextDate(DayOfWeek.SUNDAY, today);
@@ -34,7 +31,9 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    //public static TramDate EmergencyWorksDeansgateDev2025 = TramDate.of(2025,12,14);
+
+    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,8), TramDate.of(2026,3,22));
+    public static List<TramDate> MissingGreenDates = Arrays.asList(TramDate.of(2026,4,3), TramDate.of(2026,4,6));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -61,7 +60,7 @@ public class UpcomingDates {
     }
 
     public static boolean validTestDate(final TramDate date) {
-        return !(date.isChristmasPeriod() || decemberStrike.contains(date));
+        return !(date.isChristmasPeriod());
     }
 
     public static List<TramDate> daysAhead() {

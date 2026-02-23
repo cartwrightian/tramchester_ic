@@ -392,8 +392,8 @@ tasks.register('archUnit', Test) {
 }
 
 def integrationTestConfiguration = {
-    minHeapSize = "1000m"
-    maxHeapSize = "1850m"
+    minHeapSize = "1g"
+    maxHeapSize = "2g"
     useJUnitPlatform {
         //         excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
 //        excludeTags "liveDataMessages" // exclude these when tfgm api is missing messages
@@ -521,6 +521,7 @@ tasks.register('liveRailSmoke', Test) {
     useJUnitPlatform {
         includeTags 'TrainTest & TrainLiveData'
     }
+    systemProperty("com.tramchester.config", "IntegrationRailTestConfig")
 }
 
 tasks.register('integrationBus', Test) {

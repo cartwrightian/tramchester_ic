@@ -28,7 +28,10 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
@@ -45,7 +48,6 @@ public class RouteToRouteCostsRailTest {
     private GraphTransaction txn;
     private Station manPicc;
     private Station stockport;
-//    private Station londonEuston;
     private TimeRange timeRange;
 
     @BeforeAll
@@ -54,15 +56,11 @@ public class RouteToRouteCostsRailTest {
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        // clear cache
-        //TestEnv.clearDataCache(componentContainer);
-
         date = TestEnv.testDay();
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        //TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
     }
 
@@ -79,7 +77,6 @@ public class RouteToRouteCostsRailTest {
 
         manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
         stockport = stationRepository.getStationById(Stockport.getId());
-//        londonEuston = stationRepository.getStationById(LondonEuston.getId());
 
         timeRange = TimeRangePartial.of(TramTime.of(8,15), TramTime.of(22,35));
 
@@ -107,6 +104,7 @@ public class RouteToRouteCostsRailTest {
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
+    //@DisabledUntilDate(year = 2026, month = 2, day = 22)
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamNavigationRoadAndStockport() {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());

@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.testSupport.UpcomingDates.MissingGreenDates;
+import static com.tramchester.testSupport.UpcomingDates.ReplacementBus1Running;
 
 public class KnownTramRoute {
 
@@ -76,13 +78,16 @@ public class KnownTramRoute {
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.isBefore(TramDate.of(2026, 2, 8))) {
+            if (date.equals(TramDate.of(2026,3,1))) {
                 routes.add(find.apply(Green));
-            } else if (date.equals(TramDate.of(2026, 2, 8))){
+            }
+            if (ReplacementBus1Running.contains(date)) {
                 routes.add(find.apply(BusOne));
             }
         } else { // Not Sunday
-            routes.add(find.apply(Green));
+            if (!MissingGreenDates.contains(date)) {
+                routes.add(find.apply(Green));
+            }
         }
 
         routes.add(find.apply(Yellow));

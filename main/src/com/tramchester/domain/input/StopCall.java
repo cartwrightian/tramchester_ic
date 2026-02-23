@@ -90,8 +90,6 @@ public abstract class StopCall {
                 '}';
     }
 
-    public abstract boolean hasPlatfrom();
-
     public boolean callsAtStation() {
         return dropoffType.isDropOff() || pickupType.isPickup();
     }

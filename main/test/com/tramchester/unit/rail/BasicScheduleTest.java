@@ -21,7 +21,6 @@ public class BasicScheduleTest {
 
     /// see https://wiki.openraildata.com/index.php/CIF_Codes
 
-
     @BeforeEach
     void beforeEachTestRuns() {
 

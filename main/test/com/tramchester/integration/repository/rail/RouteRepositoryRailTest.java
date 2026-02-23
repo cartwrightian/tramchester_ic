@@ -52,7 +52,7 @@ public class RouteRepositoryRailTest {
     void shouldHaveExpectedNumberOfRailRoutes() {
         Set<Route> allRoutes = routeRepository.getRoutes();
 
-        assertEquals(7725, allRoutes.size());
+        assertEquals(7871, allRoutes.size());
     }
 
     @Test

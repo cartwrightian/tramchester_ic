@@ -6,9 +6,12 @@ import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
+import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +24,10 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.time.TramTime.nextDay;
+import static com.tramchester.domain.time.TramTime.of;
+import static com.tramchester.testSupport.reference.TramStations.Deansgate;
+import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static java.time.DayOfWeek.MONDAY;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -88,6 +95,40 @@ class RouteTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldDeriveCrossingIntoNextDayCorrectly() {
+        TramDate startDate = TramDate.of(2020, 11, 5);
+        TramDate endDate = TramDate.of(2020, 11, 25);
+
+        TestRoute testRoute = KnownTramRoute.getGreen(TestEnv.testDay());
+
+        MutableRoute route = createRoute(testRoute.getId(), testRoute.shortName(), testRoute.shortName());
+
+        final Service serviceA = createService(startDate, endDate, "serviceId", EnumSet.of(MONDAY));
+
+        MutableTrip tripA = new MutableTrip(Trip.createId("tripA"), "headSignA", serviceA, route, Tram);
+        assertFalse(tripA.intoNextDay());
+
+        route.addTrip(tripA);
+        assertFalse(route.intoNextDay());
+
+        MutableTrip tripB = new MutableTrip(Trip.createId("tripB"), "headSignB", serviceA, route, Tram);
+
+        PlatformStopCall firstStop = TestEnv.createTramStopCall(tripB, "stop1", StPetersSquare, (byte) 1,
+                of(23, 45), of(23, 46), testRoute);
+        PlatformStopCall secondStop = TestEnv.createTramStopCall(tripB, "stop2", Deansgate, (byte) 2,
+                of(23, 50), nextDay(1, 5), testRoute);
+
+        tripB.addStop(firstStop);
+        tripB.addStop(secondStop);
+
+        assertTrue(tripB.intoNextDay());
+
+        route.addTrip(tripB);
+        assertTrue(route.intoNextDay());
+
+    }
+
+    @Test
     void shouldRespectDateRangesOnService() {
         final TramDate startDate = TramDate.of(2020, 11, 5);
         final TramDate endDate = TramDate.of(2020, 11, 25);
@@ -99,7 +140,6 @@ class RouteTest extends EasyMockSupport {
         service.setCalendar(calendar);
 
         route.addService(service);
-
 
         Trip trip = createMock(Trip.class);
         DateRange range = DateRange.of(startDate,endDate);

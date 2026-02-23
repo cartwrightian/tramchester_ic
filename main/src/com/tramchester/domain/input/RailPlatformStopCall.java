@@ -19,8 +19,4 @@ public class RailPlatformStopCall extends StopCall {
         return callingPlatform;
     }
 
-    @Override
-    public boolean hasPlatfrom() {
-        return true;
-    }
 }
