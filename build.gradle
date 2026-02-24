@@ -55,7 +55,7 @@ version = buildNumber
 
 ext {
     dropwizardVersion = '5.0.1'
-    jacksonVersion = '2.21.0'
+    jacksonVersion = '2.21.1'
     awsSdkVersion = '2.41.20'
 }
 
