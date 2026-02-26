@@ -10,11 +10,12 @@ public interface GraphDBConfig {
 
     Path getDbPath();
 
+    Boolean enableDiagnostics();
+
     // page cache memory for neo4j
     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
     String getNeo4jPagecacheMemory();
 
     String getMemoryTransactionGlobalMaxSize();
 
-    Boolean enableDiagnostics();
 }

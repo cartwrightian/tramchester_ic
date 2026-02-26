@@ -2,19 +2,16 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import jakarta.inject.Inject;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LoggingEventBuilder;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 @JsonPropertyOrder({"nodes", "relationships"})
-@LazySingleton
 public class GraphCore implements Graph {
     private static final Logger logger = LoggerFactory.getLogger(GraphCore.class);
 
@@ -37,17 +33,13 @@ public class GraphCore implements Graph {
     private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> relationshipTypesBetweenNodes;
     private final RelationshipTypeCounts relationshipTypeCounts;
     private final boolean diagnostics;
-    private final boolean local; // aka scoped to one transaction
-
-    // todo proper transaction handling, rollbacks etc
-    // TODO need way to know this is the 'core' graph, not a local copy??
+    private final boolean local; // => scoped to one single transaction
 
     /***
      * Use with care, normally want the local copy version of this cons
      * @param idFactory global id factory
      */
-    @Inject
-    private GraphCore(final GraphIdFactory idFactory) {
+    GraphCore(final GraphIdFactory idFactory) {
         this(idFactory, false);
     }
 
@@ -67,9 +59,7 @@ public class GraphCore implements Graph {
         this.local = local;
     }
 
-
-    @PostConstruct
-    private void start() {
+    void start() {
         doStart(false); // the global scope
     }
 

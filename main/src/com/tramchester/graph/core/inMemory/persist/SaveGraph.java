@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.core.inMemory.GraphCore;
 import com.tramchester.graph.core.inMemory.GraphIdFactory;
+import com.tramchester.graph.core.inMemory.GraphInMemoryServiceManager;
 import com.tramchester.graph.core.inMemory.NodesAndEdges;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -23,12 +24,12 @@ import java.nio.file.Path;
 public class SaveGraph {
     private static final Logger logger = LoggerFactory.getLogger(SaveGraph.class);
 
-    private final GraphCore graph;
     private final JsonMapper mapper;
+    private final GraphInMemoryServiceManager serviceManager;
 
     @Inject
-    public SaveGraph(GraphCore graph) {
-        this.graph = graph;
+    public SaveGraph(GraphInMemoryServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
         this.mapper = createMapper();
     }
 
@@ -58,7 +59,8 @@ public class SaveGraph {
     }
 
     public void save(final Path graphFilename) {
-        final NodesAndEdges nodesAndEdges = graph.getNodesAndEdges();
+        GraphCore core = serviceManager.getGraphCore();
+        final NodesAndEdges nodesAndEdges = core.getNodesAndEdges();
 
         if (nodesAndEdges.getNodes().isEmpty() || nodesAndEdges.getRelationships().isEmpty()) {
             String message = "Empty graph?? " + nodesAndEdges;

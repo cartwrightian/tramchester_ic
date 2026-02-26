@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 public interface GraphDatabase {
     Duration DEFAULT_TXN_TIMEOUT = Duration.ofMinutes(5);
 
+    // aka is empty
     boolean isCleanDB();
 
     boolean isInMemory();

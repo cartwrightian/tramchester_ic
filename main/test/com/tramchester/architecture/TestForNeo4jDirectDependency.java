@@ -53,7 +53,7 @@ public class TestForNeo4jDirectDependency {
                         "UnitTestNeo4J", "IntegrationTestNeo4J", "Comparison")
                 .whereLayer("Neo4JSearch").mayOnlyBeAccessedByLayers("Caches", "Modules", "IntegrationTestNeo4J",
                         "UnitTestNeo4J", "Comparison")
-                .whereLayer("InMemoryPersist").mayOnlyBeAccessedByLayers("Core", "IntegrationTest", "UnitTestInMemory")
+                .whereLayer("InMemoryPersist").mayOnlyBeAccessedByLayers("InMemory", "Core", "IntegrationTest", "UnitTestInMemory")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Neo4JCore", "Search",
                         "Build", "Neo4JSearch", "StateMachine", "Diag", "DBMgmt", "Resources", "DTODiag", "Healthchecks",
                         "Modules", "InMemory", "InMemorySearch", "UnitTest", "IntegrationTest", "TestSupport");

@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph.inMemory;
 
+import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
@@ -30,7 +31,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TransactionManagerTest {
     private TransactionManager transactionManager;
-    private GraphCore graph;
+    private GraphInMemoryServiceManager serviceManager;
+    //private GraphCore graph;
 
     // TODO Check throws after delete including labels
 
@@ -38,9 +40,11 @@ public class TransactionManagerTest {
     void onceBeforeEachTestRuns() {
         ProvidesNow providesNow = new ProvidesLocalNow();
         GraphIdFactory graphIdFactory = new GraphIdFactory();
-        graph = new GraphCore(graphIdFactory, false);
-        graph.doStart(false);
-        transactionManager = new TransactionManager(providesNow, graph, graphIdFactory);
+        AppConfiguration config = TestEnv.GET();
+        //graph.doStart(false);
+        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, providesNow, config);
+        serviceManager.start();
+        transactionManager = serviceManager.getTransactionManager();
     }
 
     @Test
@@ -254,6 +258,8 @@ public class TransactionManagerTest {
 
             assertTrue(found.isType(FERRY_GOES_TO));
         }
+
+        GraphCore graph = serviceManager.getGraphCore();
 
         assertEquals(1 ,graph.getNumberOf(FERRY_GOES_TO));
         List<GraphNode> findFerry = graph.findNodesImmutable(FERRY).toList();

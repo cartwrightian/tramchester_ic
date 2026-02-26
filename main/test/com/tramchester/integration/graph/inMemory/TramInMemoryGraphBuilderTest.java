@@ -9,6 +9,7 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.GraphCore;
+import com.tramchester.graph.core.inMemory.GraphInMemoryServiceManager;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
@@ -56,7 +57,9 @@ class TramInMemoryGraphBuilderTest {
     @Test
     void shouldHaveConsistentRelationshipResults() {
 
-        GraphCore graph = componentContainer.get(GraphCore.class);
+        GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
+        GraphCore graph = serviceManager.getGraphCore();
+
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         GraphTransaction txn = graphDatabase.beginTx();
 

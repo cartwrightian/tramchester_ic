@@ -1,11 +1,9 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.TransactionObserver;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@LazySingleton
 public class TransactionManager implements TransactionObserver {
     private static final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
@@ -26,8 +23,7 @@ public class TransactionManager implements TransactionObserver {
     private final Set<Integer> openTransactions;
     private final Set<Integer> committedTransactions;
 
-    @Inject
-    public TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore, final GraphIdFactory idFactory) {
+    TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore, final GraphIdFactory idFactory) {
         this.providesNow = providesNow;
         this.graphCore = graphCore;
         this.idFactory = idFactory;
@@ -67,7 +63,6 @@ public class TransactionManager implements TransactionObserver {
         if (immutable) {
             return new ImmutableGraph(graphCore);
         } else {
-            //return graphCore;
             return new MutableTransactionGraph(graphCore, idFactory);
         }
     }
@@ -84,8 +79,6 @@ public class TransactionManager implements TransactionObserver {
             throw new RuntimeException("Not open " + graphTransaction);
         }
         committedTransactions.add(graphTransaction.getTransactionId());
-
     }
-
 
 }

@@ -1,6 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
@@ -18,32 +19,46 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GraphDatabaseInMemory implements GraphDatabase {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseInMemory.class);
 
-    private final TransactionManager transactionManager;
     static Duration DEFAULT_TIMEOUT = Duration.ofMinutes(1);
 
     private final AtomicBoolean started = new AtomicBoolean(false);
+    private final GraphInMemoryServiceManager serviceManager;
+    private final TramchesterConfig config;
+    private boolean clean;
 
     @Inject
-    public GraphDatabaseInMemory(final TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
+    public GraphDatabaseInMemory(final GraphInMemoryServiceManager serviceManager, TramchesterConfig config) {
+        this.serviceManager = serviceManager;
+        this.config = config;
     }
 
     @PostConstruct
     public void start() {
-        if (started.get()) {
-            throw new RuntimeException("Already started");
+        if (config.getPlanningEnabled()) {
+            if (started.get()) {
+                throw new RuntimeException("Already started");
+            }
+            logger.info("starting");
+            started.set(true);
+            clean = true;
+            logger.info("started");
+        } else {
+            logger.warn("Planning not enabled");
         }
-        logger.info("starting");
-        started.set(true);
-        logger.info("started");
     }
 
     @PreDestroy
     public void stop() {
-        if (started.get()) {
-            logger.info("stopped");
+        logger.info("Stopping");
+        if (config.getPlanningEnabled()) {
+            guardForNotStarted();
+            if (started.get()) {
+                logger.info("stopped");
+            } else {
+                logger.warn("Not running");
+            }
         } else {
-            logger.warn("Not running");
+            logger.info("Planning not enabled");
         }
     }
 
@@ -55,7 +70,7 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @Override
     public boolean isCleanDB() {
-        return true;
+        return clean;
     }
 
     @Override
@@ -98,11 +113,13 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     @Override
     public MutableGraphTransaction beginTimedTxMutable(Logger logger, String text) {
         guardForNotStarted();
+        final TransactionManager transactionManager = serviceManager.getTransactionManager();
         return transactionManager.createTimedTransaction(logger, text, false);
     }
 
     private MutableGraphTransaction beginTxInMemory(final Duration timeout, boolean immutable) {
         guardForNotStarted();
+        final TransactionManager transactionManager = serviceManager.getTransactionManager();
         return transactionManager.createTransaction(timeout, immutable);
     }
 

@@ -31,15 +31,16 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERV
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TRAM_GOES_TO;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("Memory issues running from gradle")
+@Disabled("OOM issues with gradle")
 public class GraphSaveAndLoadTest {
     private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
     private static GuiceContainerDependencies componentContainer;
+    private static IntegrationTramTestConfig config;
     private SaveGraph saveGraph;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig config = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        config = new IntegrationTramTestConfig(GraphDBType.InMemory);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -69,7 +70,9 @@ public class GraphSaveAndLoadTest {
         saveGraph.save(GRAPH_FILENAME);
         assertTrue(Files.exists(GRAPH_FILENAME));
 
-        GraphCore graph = componentContainer.get(GraphCore.class);
+        GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
+        GraphCore graph = serviceManager.getGraphCore();
+        //GraphCore graph = componentContainer.get(GraphCore.class);
         NodesAndEdges expected = graph.getNodesAndEdges();
 
         NodesAndEdges result = SaveGraph.load(GRAPH_FILENAME);
@@ -78,7 +81,8 @@ public class GraphSaveAndLoadTest {
 
     @Test
     void shouldSanityCheckComparison() {
-        GraphCore core = componentContainer.get(GraphCore.class);
+        GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
+        GraphCore core = serviceManager.getGraphCore();
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
@@ -90,7 +94,9 @@ public class GraphSaveAndLoadTest {
 
     @Test
     void shouldSaveAndLoadAndCompare() {
-        GraphCore expected = componentContainer.get(GraphCore.class);
+        GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
+        GraphCore expected = serviceManager.getGraphCore();
+
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
         saveGraph.save(GRAPH_FILENAME);
@@ -116,8 +122,9 @@ public class GraphSaveAndLoadTest {
 
         saveGraph.save(GRAPH_FILENAME);
 
-        GraphCore loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
-        GraphDatabaseInMemory graphDatabase = CreateGraphDatabaseInMemory(loadedGraph, componentContainer);
+        //GraphCore loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_FILENAME, componentContainer);
+        GraphDatabaseInMemory graphDatabase = new GraphDatabaseInMemory(serviceManager, config);
 
         graphDatabase.start();
 
@@ -141,11 +148,13 @@ public class GraphSaveAndLoadTest {
     void shouldLoadConsistently() {
         saveGraph.save(GRAPH_FILENAME);
 
-        GraphCore graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        //GraphCore graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
         GraphCore graphB = SaveGraph.loadDBFrom(GRAPH_FILENAME);
 
-        GraphDatabaseInMemory graphDatabaseInMemory = CreateGraphDatabaseInMemory(graphA, componentContainer);
+        @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_FILENAME, componentContainer);
+        GraphDatabaseInMemory graphDatabaseInMemory = new GraphDatabaseInMemory(serviceManager, config);
         graphDatabaseInMemory.start();
+        GraphCore graphA = serviceManager.getGraphCore();
 
         GraphCore.same(graphA, graphB);
 
@@ -205,12 +214,12 @@ public class GraphSaveAndLoadTest {
         }
     }
 
-
-    public static @NotNull GraphDatabaseInMemory CreateGraphDatabaseInMemory(GraphCore graphCore, GuiceContainerDependencies container) {
+    public static @NotNull GraphInMemoryServiceManager CreateGraphDatabaseInMemory(Path path, GuiceContainerDependencies container) {
         ProvidesNow providesNow = container.get(ProvidesNow.class);
         GraphIdFactory idFactory = container.get(GraphIdFactory.class);
-        TransactionManager transactionManager = new TransactionManager(providesNow, graphCore, idFactory);
-        return new GraphDatabaseInMemory(transactionManager);
+        GraphInMemoryServiceManager serviceManager = new GraphInMemoryServiceManager(idFactory, providesNow, config);
+        serviceManager.loadFrom(path);
+        return serviceManager;
     }
 
 }

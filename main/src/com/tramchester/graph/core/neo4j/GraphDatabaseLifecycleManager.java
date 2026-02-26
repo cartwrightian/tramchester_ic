@@ -44,7 +44,6 @@ public class GraphDatabaseLifecycleManager {
         logger.info("Create or load graph " + graphFile);
         this.graphDBConfig = configuration.getGraphDBConfig();
 
-
         // outside of normal dependency injection due to start up requirements
         GraphDatabaseService databaseService = serviceFactory.create();
 

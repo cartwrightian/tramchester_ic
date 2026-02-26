@@ -43,9 +43,9 @@ public interface Graph {
 
     long getNumberOf(TransportRelationshipTypes relationshipType);
 
+    // transaction handling
     void commit(GraphTransaction owningTransaction);
     void close(GraphTransaction owningTransaction);
-
     Stream<GraphNodeInMemory> getUpdatedNodes();
     Stream<GraphRelationshipInMemory> getUpdatedRelationships();
 

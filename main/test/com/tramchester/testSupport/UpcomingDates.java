@@ -32,7 +32,7 @@ public class UpcomingDates {
     static final int DAYS_AHEAD = 14;
 
 
-    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,8), TramDate.of(2026,3,22));
+    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,8), TramDate.of(2026,3,14));
     public static List<TramDate> MissingGreenDates = Arrays.asList(TramDate.of(2026,4,3), TramDate.of(2026,4,6));
 
     public static boolean hasClosure(final Station station, final TramDate date) {

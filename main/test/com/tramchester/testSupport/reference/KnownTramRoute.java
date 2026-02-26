@@ -78,7 +78,7 @@ public class KnownTramRoute {
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.equals(TramDate.of(2026,3,1))) {
+            if (date.equals(TramDate.of(2026,3,1)) || date.isAfter(TramDate.of(2026,3,14))) {
                 routes.add(find.apply(Green));
             }
             if (ReplacementBus1Running.contains(date)) {
