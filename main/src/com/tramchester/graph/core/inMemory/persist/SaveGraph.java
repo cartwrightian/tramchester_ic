@@ -6,22 +6,22 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.core.inMemory.GraphCore;
-import com.tramchester.graph.core.inMemory.GraphIdFactory;
-import com.tramchester.graph.core.inMemory.GraphInMemoryServiceManager;
-import com.tramchester.graph.core.inMemory.NodesAndEdges;
+import com.tramchester.dataimport.loader.files.TransportDataFromJSONFile;
+import com.tramchester.graph.core.inMemory.*;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 @LazySingleton
 public class SaveGraph {
+    public static final Path RELATIONSHIPS_FILENAME = Path.of("graph_relationships.json");
+    public static final Path NODES_FILENAME = Path.of("graph_nodes.json");
     private static final Logger logger = LoggerFactory.getLogger(SaveGraph.class);
 
     private final JsonMapper mapper;
@@ -45,21 +45,37 @@ public class SaveGraph {
 
     /***
      * Creates own GraphIdFactory
-     * @param graphFilename where to load from
+     * @param path folder to load from
      * @return a new instance of GraphCore
      */
-    public static GraphCore loadDBFrom(final Path graphFilename) {
-        logger.info("Load DB from " + graphFilename.toAbsolutePath() + " with file of size " + graphFilename.toFile().length());
-        final NodesAndEdges nodesAndEdges = load(graphFilename);
+    public static GraphCore loadDBFrom(final Path path) {
+        logger.info("Load DB from folder " + path.toAbsolutePath());
+        final NodesAndEdges nodesAndEdges = load(path);
         if (nodesAndEdges.isEmpty()) {
-            throw new RuntimeException("Empty graph loaded from " + graphFilename.toAbsolutePath());
+            throw new RuntimeException("Empty graph loaded from " + path.toAbsolutePath());
         }
         final GraphIdFactory graphIdFactory = new GraphIdFactory();
         return GraphCore.createFrom(nodesAndEdges, graphIdFactory);
     }
 
-    public void save(final Path graphFilename) {
-        GraphCore core = serviceManager.getGraphCore();
+    public void save(final Path graphPath) {
+        if (!Files.exists(graphPath)) {
+            try {
+                Files.createDirectory(graphPath);
+            } catch (IOException e) {
+                String msg = "Could not create dir " + graphPath.toAbsolutePath();
+                logger.error(msg);
+                throw new RuntimeException(msg, e);
+            }
+        } else {
+            if (!Files.isDirectory(graphPath)) {
+                String msg = "Is not a dir: " + graphPath.toAbsolutePath();
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            }
+        }
+
+        final GraphCore core = serviceManager.getGraphCore();
         final NodesAndEdges nodesAndEdges = core.getNodesAndEdges();
 
         if (nodesAndEdges.getNodes().isEmpty() || nodesAndEdges.getRelationships().isEmpty()) {
@@ -68,33 +84,48 @@ public class SaveGraph {
             throw new RuntimeException(message);
         }
 
-        logger.info("Save graph to " + graphFilename.toAbsolutePath());
+        logger.info("Save graph to dir " + graphPath.toAbsolutePath());
 
-        final File file = graphFilename.toFile();
-        try (final FileWriter output = new FileWriter(file)) {
-            mapper.writeValue(output, nodesAndEdges);
+        final Path relationshipsFile = graphPath.resolve(RELATIONSHIPS_FILENAME);
+        try (final FileWriter output = new FileWriter(relationshipsFile.toFile())) {
+            mapper.writeValue(output, nodesAndEdges.getRelationships());
             output.flush();
         } catch (IOException e) {
-            String msg = "Unable to save graph to " + graphFilename.toAbsolutePath();
+            String msg = "Unable to save relationships to " + relationshipsFile.toAbsolutePath();
             logger.error(msg, e);
             throw new RuntimeException(msg,e);
         }
+        logger.info("Saved relationships to " + relationshipsFile.toAbsolutePath());
 
-        logger.info("Saved");
+        final Path nodesFile = graphPath.resolve(NODES_FILENAME);
+        try (final FileWriter output = new FileWriter(nodesFile.toFile())) {
+            mapper.writeValue(output, nodesAndEdges.getNodes());
+            output.flush();
+        } catch (IOException e) {
+            String msg = "Unable to save nodes to " + nodesFile.toAbsolutePath();
+            logger.error(msg, e);
+            throw new RuntimeException(msg,e);
+        }
+        logger.info("Saved nodes to " + relationshipsFile.toAbsolutePath());
+
+        logger.info("Saved Graph");
     }
 
-
-    // TODO ideally want a stream version of this to avoid large memory consumption
     public static NodesAndEdges load(final Path graphFilename) {
         logger.info("Load from " + graphFilename.toAbsolutePath());
         final JsonMapper jsonMapper = createMapper();
 
-        try(final FileReader reader = new FileReader(graphFilename.toFile())) {
-             return jsonMapper.readValue(reader, NodesAndEdges.class);
-        } catch (IOException e) {
-            String msg = "Unable to load graph from " + graphFilename.toAbsolutePath();
-            logger.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
+        final Path relationshipsFile = graphFilename.resolve(RELATIONSHIPS_FILENAME);
+        final TransportDataFromJSONFile<GraphRelationshipInMemory> relationshipsLoader = new TransportDataFromJSONFile<>(relationshipsFile, GraphRelationshipInMemory.class, jsonMapper);
+
+        final Path nodesFile = graphFilename.resolve(NODES_FILENAME);
+        final TransportDataFromJSONFile<GraphNodeInMemory> nodesLoader = new TransportDataFromJSONFile<>(nodesFile, GraphNodeInMemory.class, jsonMapper);
+
+        Stream<GraphRelationshipInMemory> relationships = relationshipsLoader.load();
+        Stream<GraphNodeInMemory> nodes = nodesLoader.load();
+
+        return new NodesAndEdges(relationships, nodes);
+
     }
+
 }

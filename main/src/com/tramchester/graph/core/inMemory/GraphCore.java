@@ -112,6 +112,8 @@ public class GraphCore implements Graph {
     }
 
     // supports load from file
+    // TODO need less memory intensive approach
+    @Deprecated
     public static GraphCore createFrom(final NodesAndEdges incoming, final GraphIdFactory graphIdFactory) {
         final GraphCore result = new GraphCore(graphIdFactory);
         result.start();
@@ -122,6 +124,7 @@ public class GraphCore implements Graph {
         return result;
     }
 
+    @Deprecated
     private static void loadRelationships(final NodesAndEdges incoming, final GraphCore target) {
         logger.info("Loading relationships");
 
@@ -132,6 +135,7 @@ public class GraphCore implements Graph {
         target.updateNextRelationshipId();
     }
 
+    @Deprecated
     private static void loadNodes(final NodesAndEdges incoming, final GraphCore target) {
         logger.info("Loading nodes");
         incoming.getNodes().forEach(node -> {

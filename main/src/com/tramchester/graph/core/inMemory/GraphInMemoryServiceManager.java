@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 @LazySingleton
@@ -89,6 +90,11 @@ public class GraphInMemoryServiceManager {
 
     public void loadFrom(final Path path) {
         // TODO Rework once path into config
+        if (!Files.exists(path)) {
+            String message = "Could not find " + path.toAbsolutePath();
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
         GraphCore core = SaveGraph.loadDBFrom(path);
         this.graphCore = core;
         this.transactionManager = new TransactionManager(providesNow, core, idFactory);

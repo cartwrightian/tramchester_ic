@@ -33,10 +33,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("OOM issues with gradle")
 public class GraphSaveAndLoadTest {
-    private static final Path GRAPH_FILENAME = Path.of("graph_test.json");
+    private static final Path GRAPH_PATH = Path.of("testData/graph");
     private static GuiceContainerDependencies componentContainer;
     private static IntegrationTramTestConfig config;
     private SaveGraph saveGraph;
+    private Path reltationshipsFilename;
+    private Path nodesFilename;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -57,25 +59,33 @@ public class GraphSaveAndLoadTest {
     void beforeEachTestRuns() throws IOException {
         saveGraph = componentContainer.get(SaveGraph.class);
 
-        Files.deleteIfExists(GRAPH_FILENAME);
+        // GRAPH_PATH from config??
+        reltationshipsFilename = GRAPH_PATH.resolve(SaveGraph.RELATIONSHIPS_FILENAME);
+        nodesFilename = GRAPH_PATH.resolve(SaveGraph.NODES_FILENAME);
+
+        Files.deleteIfExists(reltationshipsFilename);
+        Files.deleteIfExists(nodesFilename);
+
     }
 
     @AfterEach
     void onceAfterEachTestRuns() throws IOException {
-        Files.deleteIfExists(GRAPH_FILENAME);
+        Files.deleteIfExists(reltationshipsFilename);
+        Files.deleteIfExists(nodesFilename);
     }
 
     @Test
     void shouldSerialiseToFileWithoutError() {
-        saveGraph.save(GRAPH_FILENAME);
-        assertTrue(Files.exists(GRAPH_FILENAME));
+        saveGraph.save(GRAPH_PATH);
+        assertTrue(Files.exists(reltationshipsFilename));
+        assertTrue(Files.exists(nodesFilename));
 
         GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
         GraphCore graph = serviceManager.getGraphCore();
         //GraphCore graph = componentContainer.get(GraphCore.class);
         NodesAndEdges expected = graph.getNodesAndEdges();
 
-        NodesAndEdges result = SaveGraph.load(GRAPH_FILENAME);
+        NodesAndEdges result = SaveGraph.load(GRAPH_PATH);
         assertEquals(expected, result);
     }
 
@@ -99,10 +109,11 @@ public class GraphSaveAndLoadTest {
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
-        saveGraph.save(GRAPH_FILENAME);
-        assertTrue(Files.exists(GRAPH_FILENAME));
+        saveGraph.save(GRAPH_PATH);
+        assertTrue(Files.exists(reltationshipsFilename));
+        assertTrue(Files.exists(nodesFilename));
 
-        GraphCore result = SaveGraph.loadDBFrom(GRAPH_FILENAME);
+        GraphCore result = SaveGraph.loadDBFrom(GRAPH_PATH);
 
         assertEquals(expected.getNodesAndEdges(), result.getNodesAndEdges());
 
@@ -120,10 +131,10 @@ public class GraphSaveAndLoadTest {
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelations() {
 
-        saveGraph.save(GRAPH_FILENAME);
+        saveGraph.save(GRAPH_PATH);
 
         //GraphCore loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
-        @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_FILENAME, componentContainer);
+        @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_PATH, componentContainer);
         GraphDatabaseInMemory graphDatabase = new GraphDatabaseInMemory(serviceManager, config);
 
         graphDatabase.start();
@@ -146,19 +157,20 @@ public class GraphSaveAndLoadTest {
 
     @Test
     void shouldLoadConsistently() {
-        saveGraph.save(GRAPH_FILENAME);
+        saveGraph.save(GRAPH_PATH);
 
-        //GraphCore graphA = SaveGraph.loadDBFrom(GRAPH_FILENAME);
-        GraphCore graphB = SaveGraph.loadDBFrom(GRAPH_FILENAME);
-
-        @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_FILENAME, componentContainer);
-        GraphDatabaseInMemory graphDatabaseInMemory = new GraphDatabaseInMemory(serviceManager, config);
-        graphDatabaseInMemory.start();
+        GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
         GraphCore graphA = serviceManager.getGraphCore();
 
+        GraphCore graphB = SaveGraph.loadDBFrom(GRAPH_PATH);
+
+//        @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_PATH, componentContainer);
+//        GraphDatabaseInMemory graphDatabaseInMemory = new GraphDatabaseInMemory(serviceManager, config);
+//        graphDatabaseInMemory.start();
         GraphCore.same(graphA, graphB);
 
-        try (GraphTransaction txn = graphDatabaseInMemory.beginTx()) {
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             checkSame(graphA, graphB, txn);
         }
     }

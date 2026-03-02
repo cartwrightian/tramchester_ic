@@ -26,18 +26,33 @@ public class NodesAndEdges {
         nodes = new ConcurrentHashMap<>();
     }
 
+    @Deprecated
     @JsonCreator
     public NodesAndEdges(
             @JsonProperty(value = "relationships", required = true) Set<GraphRelationshipInMemory> relationshipSet,
             @JsonProperty(value = "nodes", required = true) Set<GraphNodeInMemory> nodeSet) {
+        this(relationshipSet.stream(), nodeSet.stream());
+//        relationships = new ConcurrentHashMap<>();
+//        nodes = new ConcurrentHashMap<>();
+//
+//        final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationshipMap = relationshipSet.stream().
+//                collect(Collectors.toMap(GraphRelationshipInMemory::getId, rel -> rel));
+//        relationships.putAll(relationshipMap);
+//
+//        final Map<NodeIdInMemory, GraphNodeInMemory> nodeMap = nodeSet.stream().
+//                collect(Collectors.toMap(GraphNodeInMemory::getId, node -> node));
+//        nodes.putAll(nodeMap);
+    }
+
+    public NodesAndEdges(final Stream<GraphRelationshipInMemory> relationshipStream, final Stream<GraphNodeInMemory> nodeStream) {
         relationships = new ConcurrentHashMap<>();
         nodes = new ConcurrentHashMap<>();
 
-        final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationshipMap = relationshipSet.stream().
+        final Map<RelationshipIdInMemory, GraphRelationshipInMemory> relationshipMap = relationshipStream.
                 collect(Collectors.toMap(GraphRelationshipInMemory::getId, rel -> rel));
         relationships.putAll(relationshipMap);
 
-        final Map<NodeIdInMemory, GraphNodeInMemory> nodeMap = nodeSet.stream().
+        final Map<NodeIdInMemory, GraphNodeInMemory> nodeMap = nodeStream.
                 collect(Collectors.toMap(GraphNodeInMemory::getId, node -> node));
         nodes.putAll(nodeMap);
     }
