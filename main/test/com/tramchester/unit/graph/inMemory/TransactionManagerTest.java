@@ -11,7 +11,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
-import com.tramchester.graph.core.inMemory.persist.SaveGraph;
+import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.repository.DataSourceRepository;
@@ -49,9 +49,9 @@ public class TransactionManagerTest extends EasyMockSupport {
 
         AppConfiguration config = TestEnv.GET();
         GraphDatabaseStoredVersions storedVersions = createMock(GraphDatabaseStoredVersions.class);
-        SaveGraph saveGraph = createMock(SaveGraph.class);
+        GraphPersistence graphPersistence = createMock(GraphPersistence.class);
 
-        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, saveGraph);
+        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, graphPersistence);
 
         TramTransportDataForTestFactory factory = new TramTransportDataForTestFactory(new ProvidesLocalNow());
         DataSourceRepository dataSourceRepository = factory.getTestData();

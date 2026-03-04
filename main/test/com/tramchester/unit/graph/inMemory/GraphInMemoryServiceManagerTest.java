@@ -7,7 +7,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.GraphCore;
 import com.tramchester.graph.core.inMemory.GraphIdFactory;
 import com.tramchester.graph.core.inMemory.GraphInMemoryServiceManager;
-import com.tramchester.graph.core.inMemory.persist.SaveGraph;
+import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -26,7 +26,7 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
 
 
     private GraphInMemoryServiceManager serviceManager;
-    private SaveGraph saveGraph;
+    private GraphPersistence graphPersistence;
     private GraphIdFactory graphIdFactory;
     private GraphDatabaseStoredVersions storedVersions;
 
@@ -37,9 +37,9 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
 
         AppConfiguration config = TestEnv.GET();
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
-        saveGraph = createMock(SaveGraph.class);
+        graphPersistence = createMock(GraphPersistence.class);
 
-        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, saveGraph);
+        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, graphPersistence);
 
     }
 
@@ -63,9 +63,9 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
 
         Path path = Path.of("testData/graph/");
 
-        EasyMock.expect(saveGraph.filesExistIn(path)).andReturn(true);
+        EasyMock.expect(graphPersistence.filesExistIn(path)).andReturn(true);
         GraphCore graphCore = new GraphCore(graphIdFactory, false);
-        EasyMock.expect(saveGraph.loadDBFrom(path, graphIdFactory)).andReturn(graphCore);
+        EasyMock.expect(graphPersistence.loadDBFrom(path, graphIdFactory)).andReturn(graphCore);
 
         EasyMock.expect(storedVersions.upToDate(EasyMock.eq(dataSourceRepository), EasyMock.anyObject(GraphTransaction.class))).andReturn(true);
 
@@ -82,9 +82,9 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
 
         Path path = Path.of("testData/graph/");
 
-        EasyMock.expect(saveGraph.filesExistIn(path)).andReturn(true);
+        EasyMock.expect(graphPersistence.filesExistIn(path)).andReturn(true);
         GraphCore graphCore = new GraphCore(graphIdFactory, false);
-        EasyMock.expect(saveGraph.loadDBFrom(path, graphIdFactory)).andReturn(graphCore);
+        EasyMock.expect(graphPersistence.loadDBFrom(path, graphIdFactory)).andReturn(graphCore);
 
         EasyMock.expect(storedVersions.upToDate(EasyMock.eq(dataSourceRepository), EasyMock.anyObject(GraphTransaction.class))).andReturn(false);
 

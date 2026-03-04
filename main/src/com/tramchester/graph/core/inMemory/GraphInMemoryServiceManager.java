@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.core.inMemory.persist.SaveGraph;
+import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
@@ -24,7 +24,7 @@ public class GraphInMemoryServiceManager {
     private final GraphDatabaseStoredVersions storedVersions;
     private final ProvidesNow providesNow;
     private final TramchesterConfig config;
-    private final SaveGraph saveGraph;
+    private final GraphPersistence graphPersistence;
 
     private GraphCore graphCore;
     private TransactionManager transactionManager;
@@ -32,12 +32,12 @@ public class GraphInMemoryServiceManager {
 
     @Inject
     public GraphInMemoryServiceManager(GraphIdFactory idFactory, GraphDatabaseStoredVersions storedVersions,
-                                       ProvidesNow providesNow, TramchesterConfig config, SaveGraph saveGraph) {
+                                       ProvidesNow providesNow, TramchesterConfig config, GraphPersistence graphPersistence) {
         this.idFactory = idFactory;
         this.storedVersions = storedVersions;
         this.providesNow = providesNow;
         this.config = config;
-        this.saveGraph = saveGraph;
+        this.graphPersistence = graphPersistence;
         graphCore = null;
     }
 
@@ -71,7 +71,7 @@ public class GraphInMemoryServiceManager {
 
         logger.info("Starting DB");
 
-        final boolean filesExist = folderExists && saveGraph.filesExistIn(dbFolderPath);
+        final boolean filesExist = folderExists && graphPersistence.filesExistIn(dbFolderPath);
 
         final boolean createEmptyDB;
         if (filesExist) {
@@ -146,7 +146,7 @@ public class GraphInMemoryServiceManager {
             logger.error(message);
             throw new RuntimeException(message);
         }
-        final GraphCore core = saveGraph.loadDBFrom(path, idFactory);
+        final GraphCore core = graphPersistence.loadDBFrom(path, idFactory);
         this.graphCore = core;
         this.transactionManager = new TransactionManager(providesNow, core, idFactory);
     }

@@ -19,15 +19,15 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class SaveGraph {
+public class GraphPersistence {
     public static final Path RELATIONSHIPS_FILENAME = Path.of("graph_relationships.json");
     public static final Path NODES_FILENAME = Path.of("graph_nodes.json");
-    private static final Logger logger = LoggerFactory.getLogger(SaveGraph.class);
+    private static final Logger logger = LoggerFactory.getLogger(GraphPersistence.class);
 
     private final JsonMapper mapper;
 
     @Inject
-    public SaveGraph() {
+    public GraphPersistence() {
         this.mapper = createMapper();
     }
 
