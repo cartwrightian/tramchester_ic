@@ -118,40 +118,71 @@ public class GraphCore implements Graph {
         final GraphCore result = new GraphCore(graphIdFactory);
         result.start();
 
-        loadNodes(incoming, result);
-        loadRelationships(incoming, result);
+        result.addNodes(incoming.getNodes().stream());
+        result.addRelationships(incoming.getRelationships().stream());
+        //loadNodes(incoming, result);
+        //loadRelationships(incoming, result);
 
         return result;
     }
 
-    @Deprecated
-    private static void loadRelationships(final NodesAndEdges incoming, final GraphCore target) {
+    private void addRelationships(final Stream<GraphRelationshipInMemory> relationships) {
         logger.info("Loading relationships");
 
-        incoming.getRelationships().forEach(relationship -> {
-            target.checkAndUpdateExistingRelationships(relationship.getType(), relationship.getStartId(), relationship.getEndId());
-            target.insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
+        relationships.forEach(relationship -> {
+            checkAndUpdateExistingRelationships(relationship.getType(), relationship.getStartId(), relationship.getEndId());
+            insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
         });
-        target.updateNextRelationshipId();
+        updateNextRelationshipId();
+
+        logger.info("Loaded relationships");
     }
 
-    @Deprecated
-    private static void loadNodes(final NodesAndEdges incoming, final GraphCore target) {
+    private void addNodes(final Stream<GraphNodeInMemory> nodes) {
         logger.info("Loading nodes");
-        incoming.getNodes().forEach(node -> {
+        nodes.forEach(node -> {
 
             // add the node using id from the saved version
             final NodeIdInMemory id = node.getId();
-            target.nodesAndEdges.addNode(id, node);
+            nodesAndEdges.addNode(id, node);
 
             // update labels for the node
             final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
-            labels.forEach(label -> target.labelsToNodes.get(label).add(id));
+            labels.forEach(label -> labelsToNodes.get(label).add(id));
         });
         // using loaded id's work out new next node id
-        target.updateNextNodeId();
+        updateNextNodeId();
         logger.info("Loaded nodes");
     }
+
+//    @Deprecated
+//    private static void loadRelationships(final NodesAndEdges incoming, final GraphCore target) {
+//        logger.info("Loading relationships");
+//
+//        incoming.getRelationships().forEach(relationship -> {
+//            target.checkAndUpdateExistingRelationships(relationship.getType(), relationship.getStartId(), relationship.getEndId());
+//            target.insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
+//        });
+//        target.updateNextRelationshipId();
+//    }
+//
+//    @Deprecated
+//    private static void loadNodes(final NodesAndEdges incoming, final GraphCore target) {
+//        logger.info("Loading nodes");
+//        incoming.getNodes().forEach(node -> {
+//
+//            // add the node using id from the saved version
+//            final NodeIdInMemory id = node.getId();
+//            target.nodesAndEdges.addNode(id, node);
+//
+//            // update labels for the node
+//            final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
+//            labels.forEach(label -> target.labelsToNodes.get(label).add(id));
+//        });
+//        // using loaded id's work out new next node id
+//        target.updateNextNodeId();
+//        logger.info("Loaded nodes");
+//    }
 
     private synchronized void updateNextNodeId() {
         nodesAndEdges.refreshNextNodeIdInto(idFactory);

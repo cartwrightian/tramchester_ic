@@ -106,6 +106,7 @@ class ConfigMismatchTest {
 
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.tfgm);
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.database);
+
     }
 
     @Test
@@ -408,11 +409,13 @@ class ConfigMismatchTest {
     }
 
     private void checkDBAndLiveDataConfig(AppConfiguration expected, AppConfiguration testConfig) {
-        if (expected.getInMemoryGraph()) {
-            assertEquals(expected.getInMemoryGraph(), testConfig.getInMemoryGraph());
-        } else {
-            GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
-            GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
+        GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
+        GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
+
+        assertNotNull(expectedGraphDBConfig, "missing DB config for expected");
+        assertNotNull(testGraphDBConfig.getDbPath(), "missing DB test for expected");
+
+        if (!expected.getInMemoryGraph()) {
             assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(),
                     "neo4jPagecacheMemory");
         }

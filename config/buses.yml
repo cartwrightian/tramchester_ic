@@ -1,11 +1,9 @@
 %[shared/server.yml]
 
 inMemoryGraph: true
-#graphDBConfig:
-#  graphName: databases/buses.db
-#  neo4jPagecacheMemory: 300m
-#  memoryTransactionGlobalMaxSize: 650m
-#  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
+graphDBConfig:
+  graphName: databases/buses
+  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
 
 cacheFolder: data/cacheBuses
 dataExpiryThreshold: 3
