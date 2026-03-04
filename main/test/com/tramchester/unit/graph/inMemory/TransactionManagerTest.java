@@ -11,12 +11,19 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
+import com.tramchester.graph.core.inMemory.persist.SaveGraph;
+import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import org.easymock.EasyMockSupport;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -29,10 +36,9 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TransactionManagerTest {
+public class TransactionManagerTest extends EasyMockSupport {
     private TransactionManager transactionManager;
     private GraphInMemoryServiceManager serviceManager;
-    //private GraphCore graph;
 
     // TODO Check throws after delete including labels
 
@@ -40,11 +46,27 @@ public class TransactionManagerTest {
     void onceBeforeEachTestRuns() {
         ProvidesNow providesNow = new ProvidesLocalNow();
         GraphIdFactory graphIdFactory = new GraphIdFactory();
+
         AppConfiguration config = TestEnv.GET();
-        //graph.doStart(false);
-        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, providesNow, config);
-        serviceManager.start();
+        GraphDatabaseStoredVersions storedVersions = createMock(GraphDatabaseStoredVersions.class);
+        SaveGraph saveGraph = createMock(SaveGraph.class);
+
+        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, saveGraph);
+
+        TramTransportDataForTestFactory factory = new TramTransportDataForTestFactory(new ProvidesLocalNow());
+        DataSourceRepository dataSourceRepository = factory.getTestData();
+
+        Path path = Path.of("noSuchPath");
+
+        serviceManager.startDatabase(dataSourceRepository, path, false);
+
         transactionManager = serviceManager.getTransactionManager();
+
+    }
+
+    @AfterEach
+    void onceAfterEachTestRuns() {
+        serviceManager.stopDatabase();
     }
 
     @Test

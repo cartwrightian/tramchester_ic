@@ -1,19 +1,22 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @LazySingleton
 public class GraphDatabaseInMemory implements GraphDatabase {
@@ -21,26 +24,33 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     static Duration DEFAULT_TIMEOUT = Duration.ofMinutes(1);
 
-    private final AtomicBoolean started = new AtomicBoolean(false);
     private final GraphInMemoryServiceManager serviceManager;
     private final TramchesterConfig config;
-    private boolean clean;
+    private final DataSourceRepository dataSourceRepository;
+
+    private TransactionManager transactionManager;
 
     @Inject
-    public GraphDatabaseInMemory(final GraphInMemoryServiceManager serviceManager, TramchesterConfig config) {
+    public GraphDatabaseInMemory(final GraphInMemoryServiceManager serviceManager, final TramchesterConfig config, DataSourceRepository dataSourceRepository) {
         this.serviceManager = serviceManager;
         this.config = config;
+        this.dataSourceRepository = dataSourceRepository;
+        transactionManager = null;
     }
 
     @PostConstruct
     public void start() {
         if (config.getPlanningEnabled()) {
-            if (started.get()) {
+            if (transactionManager!=null) {
                 throw new RuntimeException("Already started");
             }
+
             logger.info("starting");
-            started.set(true);
-            clean = true;
+            final GraphDBConfig graphDBConfig = config.getGraphDBConfig();
+            final Path dbPath = graphDBConfig.getDbPath();
+            boolean fileExists = Files.exists(dbPath);
+            serviceManager.startDatabase(dataSourceRepository, dbPath, fileExists);
+            transactionManager = serviceManager.getTransactionManager();
             logger.info("started");
         } else {
             logger.warn("Planning not enabled");
@@ -52,10 +62,13 @@ public class GraphDatabaseInMemory implements GraphDatabase {
         logger.info("Stopping");
         if (config.getPlanningEnabled()) {
             guardForNotStarted();
-            if (started.get()) {
-                logger.info("stopped");
-            } else {
+            if (transactionManager == null) {
                 logger.warn("Not running");
+            } else {
+                transactionManager.stop();
+                serviceManager.stopDatabase();
+                transactionManager = null;
+                logger.info("stopping");
             }
         } else {
             logger.info("Planning not enabled");
@@ -63,14 +76,14 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     }
 
     void guardForNotStarted() {
-        if (!started.get()) {
+        if (transactionManager==null) {
             throw new RuntimeException("Not started");
         }
     }
 
     @Override
     public boolean isCleanDB() {
-        return clean;
+        return serviceManager.isCleanDB();
     }
 
     @Override
@@ -113,19 +126,19 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     @Override
     public MutableGraphTransaction beginTimedTxMutable(Logger logger, String text) {
         guardForNotStarted();
-        final TransactionManager transactionManager = serviceManager.getTransactionManager();
+        //final TransactionManager transactionManager = serviceManager.getTransactionManager();
         return transactionManager.createTimedTransaction(logger, text, false);
     }
 
     private MutableGraphTransaction beginTxInMemory(final Duration timeout, boolean immutable) {
         guardForNotStarted();
-        final TransactionManager transactionManager = serviceManager.getTransactionManager();
+        //final TransactionManager transactionManager = serviceManager.getTransactionManager();
         return transactionManager.createTransaction(timeout, immutable);
     }
 
     @Override
     public boolean isAvailable(long timeoutMillis) {
-        return started.get();
+        return transactionManager!=null;
     }
 
     @Override

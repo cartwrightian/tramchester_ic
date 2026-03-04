@@ -17,14 +17,12 @@ public class TransactionManager implements TransactionObserver {
     private static final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
     private final AtomicInteger transactionSequenceNumber;
-    private final ProvidesNow providesNow;
     private final GraphCore graphCore;
     private final GraphIdFactory idFactory;
     private final Set<Integer> openTransactions;
     private final Set<Integer> committedTransactions;
 
     TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore, final GraphIdFactory idFactory) {
-        this.providesNow = providesNow;
         this.graphCore = graphCore;
         this.idFactory = idFactory;
         openTransactions = new HashSet<>();

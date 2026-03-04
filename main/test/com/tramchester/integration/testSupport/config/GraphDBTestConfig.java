@@ -43,6 +43,10 @@ public class GraphDBTestConfig implements GraphDBConfig {
 
     @Override
     public String getNeo4jPagecacheMemory() {
+        if (config.getInMemoryGraph()) {
+            throw new RuntimeException("Should not be called for InMemory");
+        }
+
         final EnumSet<TransportMode> transportModes = config.getTransportModes();
         if (transportModes.contains(Bus)) {
             return "300m";
@@ -55,6 +59,9 @@ public class GraphDBTestConfig implements GraphDBConfig {
 
     @Override
     public String getMemoryTransactionGlobalMaxSize() {
+        if (config.getInMemoryGraph()) {
+            throw new RuntimeException("Should not be called for InMemory");
+        }
         return "650m";
     }
 
@@ -101,7 +108,11 @@ public class GraphDBTestConfig implements GraphDBConfig {
         }
 
         Path containingFolder = Path.of("databases", subFolderName);
-        return containingFolder.resolve(dbName + ".db");
+        if (config.getInMemoryGraph()) {
+            return containingFolder.resolve(dbName);
+        } else {
+            return containingFolder.resolve(dbName + ".db");
+        }
     }
 
     private static @NotNull String closuresText(final List<GTFSSourceConfig> gtfsDataSource) {

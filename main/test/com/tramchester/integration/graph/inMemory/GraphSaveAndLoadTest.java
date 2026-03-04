@@ -2,14 +2,17 @@ package com.tramchester.integration.graph.inMemory;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.core.inMemory.persist.SaveGraph;
+import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.collections4.SetUtils;
@@ -42,7 +45,7 @@ public class GraphSaveAndLoadTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        config = new LocalConfig(GraphDBType.InMemory);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -75,12 +78,19 @@ public class GraphSaveAndLoadTest {
     }
 
     @Test
+    void shouldSanityCheckConfig() {
+        Path testPath = config.getGraphDBConfig().getDbPath();
+        assertEquals(GRAPH_PATH, testPath);
+    }
+
+    @Test
     void shouldSerialiseToFileWithoutError() {
-        saveGraph.save(GRAPH_PATH);
+        GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
+
+        saveGraph.save(GRAPH_PATH, serviceManager);
         assertTrue(Files.exists(reltationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
-        GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
         GraphCore graph = serviceManager.getGraphCore();
         //GraphCore graph = componentContainer.get(GraphCore.class);
         NodesAndEdges expected = graph.getNodesAndEdges();
@@ -108,12 +118,13 @@ public class GraphSaveAndLoadTest {
         GraphCore expected = serviceManager.getGraphCore();
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        GraphIdFactory idFactory = componentContainer.get(GraphIdFactory.class);
 
-        saveGraph.save(GRAPH_PATH);
+        saveGraph.save(GRAPH_PATH, serviceManager);
         assertTrue(Files.exists(reltationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
-        GraphCore result = SaveGraph.loadDBFrom(GRAPH_PATH);
+        GraphCore result = saveGraph.loadDBFrom(GRAPH_PATH, idFactory);
 
         assertEquals(expected.getNodesAndEdges(), result.getNodesAndEdges());
 
@@ -131,11 +142,12 @@ public class GraphSaveAndLoadTest {
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelations() {
 
-        saveGraph.save(GRAPH_PATH);
+        saveGraph.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
 
         //GraphCore loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
         @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_PATH, componentContainer);
-        GraphDatabaseInMemory graphDatabase = new GraphDatabaseInMemory(serviceManager, config);
+        DataSourceRepository dataSourceRepository = componentContainer.get(DataSourceRepository.class);
+        GraphDatabaseInMemory graphDatabase = new GraphDatabaseInMemory(serviceManager, config, dataSourceRepository);
 
         graphDatabase.start();
 
@@ -157,16 +169,14 @@ public class GraphSaveAndLoadTest {
 
     @Test
     void shouldLoadConsistently() {
-        saveGraph.save(GRAPH_PATH);
+        saveGraph.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
 
         GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
         GraphCore graphA = serviceManager.getGraphCore();
 
-        GraphCore graphB = SaveGraph.loadDBFrom(GRAPH_PATH);
+        GraphIdFactory idFactory = componentContainer.get(GraphIdFactory.class);
+        GraphCore graphB = saveGraph.loadDBFrom(GRAPH_PATH, idFactory);
 
-//        @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_PATH, componentContainer);
-//        GraphDatabaseInMemory graphDatabaseInMemory = new GraphDatabaseInMemory(serviceManager, config);
-//        graphDatabaseInMemory.start();
         GraphCore.same(graphA, graphB);
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
@@ -226,12 +236,47 @@ public class GraphSaveAndLoadTest {
         }
     }
 
-    public static @NotNull GraphInMemoryServiceManager CreateGraphDatabaseInMemory(Path path, GuiceContainerDependencies container) {
+    public @NotNull GraphInMemoryServiceManager CreateGraphDatabaseInMemory(Path path, GuiceContainerDependencies container) {
         ProvidesNow providesNow = container.get(ProvidesNow.class);
         GraphIdFactory idFactory = container.get(GraphIdFactory.class);
-        GraphInMemoryServiceManager serviceManager = new GraphInMemoryServiceManager(idFactory, providesNow, config);
-        serviceManager.loadFrom(path);
-        return serviceManager;
+        GraphDatabaseStoredVersions storedVersion = container.get(GraphDatabaseStoredVersions.class);
+        //serviceManager.loadFrom(path);
+        return new GraphInMemoryServiceManager(idFactory, storedVersion, providesNow, config, saveGraph);
     }
 
+    private static class LocalConfig extends IntegrationTramTestConfig {
+        public LocalConfig(GraphDBType graphDBType) {
+            super(graphDBType);
+        }
+
+        @Override
+        public Path getCacheFolder() {
+            return Path.of("testData/cache");
+        }
+
+        @Override
+        public GraphDBConfig getGraphDBConfig() {
+            return new GraphDBConfig() {
+                @Override
+                public Path getDbPath() {
+                    return GRAPH_PATH;
+                }
+
+                @Override
+                public Boolean enableDiagnostics() {
+                    return false;
+                }
+
+                @Override
+                public String getNeo4jPagecacheMemory() {
+                    throw new RuntimeException("Not Implemented");
+                }
+
+                @Override
+                public String getMemoryTransactionGlobalMaxSize() {
+                    throw new RuntimeException("Not Implemented");
+                }
+            };
+        }
+    }
 }

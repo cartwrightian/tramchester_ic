@@ -25,11 +25,9 @@ public class SaveGraph {
     private static final Logger logger = LoggerFactory.getLogger(SaveGraph.class);
 
     private final JsonMapper mapper;
-    private final GraphInMemoryServiceManager serviceManager;
 
     @Inject
-    public SaveGraph(GraphInMemoryServiceManager serviceManager) {
-        this.serviceManager = serviceManager;
+    public SaveGraph() {
         this.mapper = createMapper();
     }
 
@@ -44,21 +42,25 @@ public class SaveGraph {
     }
 
     /***
-     * Creates own GraphIdFactory
      * @param path folder to load from
      * @return a new instance of GraphCore
      */
-    public static GraphCore loadDBFrom(final Path path) {
+    public GraphCore loadDBFrom(final Path path, final GraphIdFactory graphIdFactory) {
         logger.info("Load DB from folder " + path.toAbsolutePath());
         final NodesAndEdges nodesAndEdges = load(path);
         if (nodesAndEdges.isEmpty()) {
             throw new RuntimeException("Empty graph loaded from " + path.toAbsolutePath());
         }
-        final GraphIdFactory graphIdFactory = new GraphIdFactory();
+        //final GraphIdFactory graphIdFactory = new GraphIdFactory();
         return GraphCore.createFrom(nodesAndEdges, graphIdFactory);
     }
 
-    public void save(final Path graphPath) {
+    public boolean filesExistIn(final Path dbPath) {
+        return Files.exists(dbPath.resolve(RELATIONSHIPS_FILENAME)) && Files.exists(dbPath.resolve(NODES_FILENAME));
+    }
+
+    // pass in GraphInMemoryServiceManager to avoid circular dependencies at create time
+    public void save(final Path graphPath, GraphInMemoryServiceManager serviceManager) {
         if (!Files.exists(graphPath)) {
             try {
                 Files.createDirectory(graphPath);

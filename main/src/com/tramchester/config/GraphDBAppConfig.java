@@ -18,8 +18,8 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
     private final Boolean enableDiagnostics;
 
     public GraphDBAppConfig(@JsonProperty(value = "graphName", required = true) String graphName,
-                            @JsonProperty(value = "neo4jPagecacheMemory", required = true) String neo4jPagecacheMemory,
-                            @JsonProperty(value = "memoryTransactionGlobalMaxSize", required = true) String memoryTransactionGlobalMaxSize,
+                            @JsonProperty(value = "neo4jPagecacheMemory", required = false) String neo4jPagecacheMemory,
+                            @JsonProperty(value = "memoryTransactionGlobalMaxSize", required = false) String memoryTransactionGlobalMaxSize,
                             @JsonProperty(value = "enableDiagnostics", required = false, defaultValue = "false") Boolean enableDiagnostics) {
         this.graphName = graphName;
         this.neo4jPagecacheMemory = neo4jPagecacheMemory;
