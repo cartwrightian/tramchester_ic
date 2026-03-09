@@ -208,7 +208,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
 
     }
 
-    public class FakeTramStaton extends MutableStation {
+    public static class FakeTramStaton extends MutableStation {
 
         public FakeTramStaton(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong,
                               GridPosition gridPosition, DataSourceID dataSourceID, boolean isCentral) {

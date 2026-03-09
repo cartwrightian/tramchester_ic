@@ -3,7 +3,6 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;

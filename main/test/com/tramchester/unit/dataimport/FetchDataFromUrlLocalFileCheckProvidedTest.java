@@ -297,7 +297,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         }
     }
 
-    private class TestRemoteConfig extends DatabaseRemoteDataSourceConfig {
+    private static class TestRemoteConfig extends DatabaseRemoteDataSourceConfig {
 
         public TestRemoteConfig(Path datapath) {
             super(datapath);

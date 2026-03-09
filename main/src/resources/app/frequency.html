@@ -15,14 +15,13 @@
                         <v-row>
                             <v-col>
                                 <div id="leafletMap"></div>  
-                            </v-col>          
+                            </v-col>
                             <v-col>
                                 <div class="mb-2"><div>Hours: {{ hours[0] }} to {{ hours[1] }}</div>
                                 <v-range-slider v-model="hours" :min="0" :max="24" strict step="1"></v-range-slider>
-                                <input type="date" id="date" v-model="date" 
-                                        label-calendar="TravelDateCalendar" required></input>
+                                <input type="date" id="date" v-model="date" label-calendar="TravelDateCalendar" required>
                                 <v-btn color="secondary" small id="todayButton" @click="dateToNow()">Today</v-btn>
-                                <v-btn color="primary" small id="drawMap" @click="draw()">Draw</v-btn>  
+                                <v-btn color="primary" small id="drawMap" @click="draw()">Draw</v-btn>
                             </v-col>
                         </v-row>
                     </v-container>

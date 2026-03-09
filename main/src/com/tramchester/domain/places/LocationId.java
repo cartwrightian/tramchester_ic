@@ -1,6 +1,5 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 

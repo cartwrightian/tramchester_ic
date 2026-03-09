@@ -130,7 +130,7 @@ public class BitmapAsRoaringBitmapTest {
     void shouldStream() {
         simpleBitmap.set(1);
         simpleBitmap.set(4);
-        List<Integer> results = simpleBitmap.getBitIndexes().map(Short::intValue).collect(Collectors.toList());
+        List<Integer> results = simpleBitmap.getBitIndexes().map(Short::intValue).toList();
 
         assertEquals(2, results.size());
         assertTrue(results.contains(1));

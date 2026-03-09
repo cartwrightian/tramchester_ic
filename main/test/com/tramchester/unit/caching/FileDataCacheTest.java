@@ -67,7 +67,7 @@ public class FileDataCacheTest extends EasyMockSupport  {
                 limit(NUM_ROUTE_INDEX_DATA).
                 mapToObj(i -> (short)i).
                 map(number -> new RouteIndexData(number, Route.createBasicRouteId("route"+number))).
-                collect(Collectors.toUnmodifiableList());
+                toList();
 
         postcodeHintItems = new ArrayList<>();
         postcodeHintItems.add(new PostcodeHintData("boxA", new BoundingBox(3,4,5,6)));

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,7 +37,7 @@ class CentralZoneStationTest {
 
         List<CentralZoneStation> presentInLoaded = centralZoneStations.stream().
                 filter(centralStation -> stationRepository.hasStationId(centralStation.getId())).
-                collect(Collectors.toList());
+                toList();
 
         assertEquals(centralZoneStations.size(), presentInLoaded.size());
     }

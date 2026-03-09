@@ -79,7 +79,7 @@ public class RailRouteCallingPointsTest {
 
         List<RailRouteCallingPoints> list = Arrays.asList(routeA, routeB, routeC);
 
-        List<RailRouteCallingPoints> result = list.stream().sorted(RailRouteCallingPoints::compareTo).collect(Collectors.toList());
+        List<RailRouteCallingPoints> result = list.stream().sorted(RailRouteCallingPoints::compareTo).toList();
 
         assertEquals(routeB, result.get(0));
         assertEquals(routeA, result.get(1));
@@ -95,7 +95,7 @@ public class RailRouteCallingPointsTest {
 
         List<RailRouteCallingPoints> list = Arrays.asList(routeA, routeB, routeC);
 
-        List<RailRouteCallingPoints> result = list.stream().sorted(RailRouteCallingPoints::compareTo).collect(Collectors.toList());
+        List<RailRouteCallingPoints> result = list.stream().sorted(RailRouteCallingPoints::compareTo).toList();
 
         assertEquals(routeC, result.get(0));
         assertEquals(routeB, result.get(1));

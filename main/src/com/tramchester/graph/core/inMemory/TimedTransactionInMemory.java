@@ -34,15 +34,9 @@ public class TimedTransactionInMemory extends GraphTransactionInMemory {
     public void commit() {
         committed = true;
         final Instant start = Instant.now();
-        //try {
-            super.commit();
-            final Instant finish = Instant.now();
-            logger.info("TIMING: " + name + " COMMIT TOOK: " + Duration.between(start, finish).toMillis() + " ms");
-//        }
-//        catch (TransientTransactionFailureException exception) {
-//            final Instant finish = Instant.now();
-//            logger.error("TXN FAILED: " + name + " AFTER: " + Duration.between(start, finish).toMillis() + " ms", exception);
-//            throw new RuntimeException("Transaction " + name + " failed", exception);
-//        }
+        super.commit();
+        final Instant finish = Instant.now();
+        logger.info("TIMING: " + name + " COMMIT TOOK: " + Duration.between(start, finish).toMillis() + " ms");
+
     }
 }

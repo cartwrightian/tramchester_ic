@@ -115,10 +115,10 @@ public class NeighboursRepositoryTrainTramTest {
 
         List<StationToStationConnection> fromTram = allLinks.stream().filter(link -> link.getBegin().equals(altrinchamTram)).collect(Collectors.toList());
         assertEquals(1, fromTram.size());
-        assertEquals(altrinchamTrain, fromTram.get(0).getEnd());
+        assertEquals(altrinchamTrain, fromTram.getFirst().getEnd());
 
         List<StationToStationConnection> fromTrain = allLinks.stream().filter(link -> link.getBegin().equals(altrinchamTrain)).collect(Collectors.toList());
         assertEquals(1, fromTrain.size());
-        assertEquals(altrinchamTram, fromTrain.get(0).getEnd());
+        assertEquals(altrinchamTram, fromTrain.getFirst().getEnd());
     }
 }

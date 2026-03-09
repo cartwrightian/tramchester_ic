@@ -175,7 +175,7 @@ public class GraphPropsInMemoryTest {
 
         node.set(route);
 
-        IdFor<Route> result = ((GraphNode) node).getRouteId();
+        IdFor<Route> result = node.getRouteId();
 
         assertEquals(route.getId(), result);
     }
@@ -480,7 +480,7 @@ public class GraphPropsInMemoryTest {
         node.set(platform);
         node.setPlatformNumber(platform);
 
-        IdFor<Platform> platformId = ((GraphNode) node).getPlatformId();
+        IdFor<Platform> platformId = node.getPlatformId();
 
         assertEquals(platform.getId(), platformId);
     }

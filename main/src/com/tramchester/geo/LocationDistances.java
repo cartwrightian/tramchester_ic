@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.repository.LocationRepository;

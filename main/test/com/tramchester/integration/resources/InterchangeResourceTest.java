@@ -9,15 +9,14 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.resources.InterchangeResource;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,7 +49,7 @@ public class InterchangeResourceTest  {
         List<IdForDTO> results = result.readEntity(new GenericType<>() {});
 
         List<IdForDTO> expected = interchangeRepository.getAllInterchanges().stream().
-                map(interchangeStation -> IdForDTO.createFor(interchangeStation.getStation())).collect(Collectors.toList());
+                map(interchangeStation -> IdForDTO.createFor(interchangeStation.getStation())).toList();
 
         assertEquals(expected.size(), results.size());
 

@@ -31,7 +31,6 @@ public class CloudWatchReporter extends ScheduledReporter {
         this.client = client;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void report(SortedMap<String, Gauge> unTypedGauges, SortedMap<String, Counter> unused_counters,
                        SortedMap<String, Histogram> unused_histograms, SortedMap<String, Meter> meters,
