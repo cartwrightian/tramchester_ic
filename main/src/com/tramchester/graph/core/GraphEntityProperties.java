@@ -27,19 +27,19 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
     protected <C extends CoreDomain> IdFor<C> getIdFor(final Class<C> klass, final E entity) {
         final GraphPropertyKey key = GraphPropertyKey.getFor(klass);
 
-        try {
+//        try {
             final String value = entity.getProperty(key).toString();
             if (RouteStation.class.equals(klass)) {
                 return getIdForRouteStation(value);
             } else {
                 return StringIdFor.createId(value, klass);
             }
-        }
-        catch (org.neo4j.graphdb.NotFoundException notFound) {
-            String msg = String.format("Failed to get property %s from %s", key, entity);
-            logger.error(msg);
-            throw new RuntimeException(msg, notFound);
-        }
+//        }
+//        catch (org.neo4j.graphdb.NotFoundException notFound) {
+//            String msg = String.format("Failed to get property %s from %s", key, entity);
+//            logger.error(msg);
+//            throw new RuntimeException(msg, notFound);
+//        }
     }
 
     @SuppressWarnings("unchecked")

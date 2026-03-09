@@ -2,7 +2,6 @@ package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.graph.core.TransactionObserver;
 import com.tramchester.metrics.Timing;
-import org.neo4j.graphdb.TransientTransactionFailureException;
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -35,15 +34,15 @@ public class TimedTransactionInMemory extends GraphTransactionInMemory {
     public void commit() {
         committed = true;
         final Instant start = Instant.now();
-        try {
+        //try {
             super.commit();
             final Instant finish = Instant.now();
             logger.info("TIMING: " + name + " COMMIT TOOK: " + Duration.between(start, finish).toMillis() + " ms");
-        }
-        catch (TransientTransactionFailureException exception) {
-            final Instant finish = Instant.now();
-            logger.error("TXN FAILED: " + name + " AFTER: " + Duration.between(start, finish).toMillis() + " ms", exception);
-            throw new RuntimeException("Transaction " + name + " failed", exception);
-        }
+//        }
+//        catch (TransientTransactionFailureException exception) {
+//            final Instant finish = Instant.now();
+//            logger.error("TXN FAILED: " + name + " AFTER: " + Duration.between(start, finish).toMillis() + " ms", exception);
+//            throw new RuntimeException("Transaction " + name + " failed", exception);
+//        }
     }
 }

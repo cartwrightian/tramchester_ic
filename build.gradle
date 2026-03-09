@@ -67,9 +67,6 @@ repositories {
         url "https://repo.osgeo.org/repository/release/"
     }
     mavenCentral()
-    maven {
-        url "https://raw.github.com/neo4j-contrib/m2/master/releases"
-    }
 }
 
 
@@ -84,12 +81,7 @@ dependencies {
     implementation 'com.google.inject:guice:7.0.0'
     // note: exclude of org.glassfish.jersey.inject needed as it clashed with version in DropWizard causing a
     // failure to load the DynamicServiceLocator in glassfish
-    implementation('org.neo4j:neo4j:5.26.20') {
-        // seem to cause issue with logging on every release, sigh
-        exclude group: 'org.neo4j', module:'neo4j-slf4j-provider'
-        exclude group: 'org.glassfish.jersey.inject'
-        exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet'
-        exclude group: 'org.eclipse.jetty' }
+
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
             'commons-io:commons-io:2.20.0',
             'commons-codec:commons-codec:1.21.0',
@@ -405,7 +397,6 @@ def integrationTestConfiguration = {
         excludeTags "TramBusTest"
         excludeTags "TrainTest"
         excludeTags "GMTest"
-        excludeTags "Neo4JTest"
         excludeTags "LiveDataS3UploadTest" // currently disabled
         excludeTags "AWSMetricsTest" // currently disabled
     }
@@ -470,22 +461,6 @@ tasks.register('busTest', Test) {
     }
     classpath = sourceSets.test.runtimeClasspath
     testClassesDirs = sourceSets.test.output.classesDirs
-}
-
-tasks.register('unitNeo4J', Test) {
-    dependsOn 'compileJava'
-    useJUnitPlatform {
-        includeTags "MultiDB"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.unit.*"
-    }
-    systemProperty("com.tramchester.dbType", "Neo4J")
-    testLogging {
-        events = logEvents
-        exceptionFormat = "full" // default is "short"
-    }
-    configure unitTestConfiguration
 }
 
 tasks.register('integrationGM', Test) {
