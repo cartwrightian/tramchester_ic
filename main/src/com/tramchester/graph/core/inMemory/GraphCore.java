@@ -111,17 +111,13 @@ public class GraphCore implements Graph {
         level.log("stopped " + postfix);
     }
 
-    // supports load from file
-    // TODO need less memory intensive approach
-    @Deprecated
-    public static GraphCore createFrom(final NodesAndEdges incoming, final GraphIdFactory graphIdFactory) {
+    public static GraphCore createFrom(final GraphIdFactory graphIdFactory,
+                                       final Stream<GraphNodeInMemory> nodes, final Stream<GraphRelationshipInMemory> relationships) {
         final GraphCore result = new GraphCore(graphIdFactory);
         result.start();
 
-        result.addNodes(incoming.getNodes().stream());
-        result.addRelationships(incoming.getRelationships().stream());
-        //loadNodes(incoming, result);
-        //loadRelationships(incoming, result);
+        result.addNodes(nodes);
+        result.addRelationships(relationships);
 
         return result;
     }
@@ -150,39 +146,10 @@ public class GraphCore implements Graph {
             final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
             labels.forEach(label -> labelsToNodes.get(label).add(id));
         });
-        // using loaded id's work out new next node id
+        // using loaded id's so work out new next node id
         updateNextNodeId();
         logger.info("Loaded nodes");
     }
-
-//    @Deprecated
-//    private static void loadRelationships(final NodesAndEdges incoming, final GraphCore target) {
-//        logger.info("Loading relationships");
-//
-//        incoming.getRelationships().forEach(relationship -> {
-//            target.checkAndUpdateExistingRelationships(relationship.getType(), relationship.getStartId(), relationship.getEndId());
-//            target.insertRelationship(relationship.getType(), relationship, relationship.getStartId(), relationship.getEndId());
-//        });
-//        target.updateNextRelationshipId();
-//    }
-//
-//    @Deprecated
-//    private static void loadNodes(final NodesAndEdges incoming, final GraphCore target) {
-//        logger.info("Loading nodes");
-//        incoming.getNodes().forEach(node -> {
-//
-//            // add the node using id from the saved version
-//            final NodeIdInMemory id = node.getId();
-//            target.nodesAndEdges.addNode(id, node);
-//
-//            // update labels for the node
-//            final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
-//            labels.forEach(label -> target.labelsToNodes.get(label).add(id));
-//        });
-//        // using loaded id's work out new next node id
-//        target.updateNextNodeId();
-//        logger.info("Loaded nodes");
-//    }
 
     private synchronized void updateNextNodeId() {
         nodesAndEdges.refreshNextNodeIdInto(idFactory);

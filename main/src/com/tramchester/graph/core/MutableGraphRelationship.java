@@ -4,6 +4,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
@@ -12,8 +13,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-
-import java.time.LocalDate;
 
 public interface MutableGraphRelationship extends GraphRelationship {
 
@@ -43,9 +42,9 @@ public interface MutableGraphRelationship extends GraphRelationship {
 
     void setEndTime(TramTime tramTime);
 
-    void setEndDate(LocalDate localDate);
+    void setEndDate(TramDate localDate);
 
-    void setStartDate(LocalDate localDate);
+    void setStartDate(TramDate localDate);
 
     void addTransportMode(TransportMode mode);
 

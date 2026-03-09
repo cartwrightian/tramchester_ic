@@ -1,5 +1,13 @@
 package com.tramchester.domain.dates;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.mappers.serialisation.TramDateJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramDateJsonSerializer;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +25,9 @@ public class DateRange {
         this.endDate = endDate;
     }
 
-    public static DateRange of(TramDate startDate, TramDate endDate) {
+    @JsonCreator
+    public static DateRange of(@JsonProperty("start") @JsonDeserialize(using = TramDateJsonDeserializer.class) TramDate startDate,
+                               @JsonProperty("end") @JsonDeserialize(using = TramDateJsonDeserializer.class)  TramDate endDate) {
         return new DateRange(startDate, endDate);
     }
 
@@ -86,6 +96,7 @@ public class DateRange {
                 between(this, other.endDate);
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return this==Empty;
     }
@@ -97,6 +108,8 @@ public class DateRange {
         return (date.isAfter(dateRange.startDate)  && date.isBefore(dateRange.endDate));
     }
 
+    @JsonProperty("end")
+    @JsonSerialize(using = TramDateJsonSerializer.class)
     public TramDate getEndDate() {
         guardForEmpty();
         return endDate;
@@ -108,6 +121,8 @@ public class DateRange {
         }
     }
 
+    @JsonProperty("start")
+    @JsonSerialize(using = TramDateJsonSerializer.class)
     public TramDate getStartDate() {
         guardForEmpty();
         return startDate;

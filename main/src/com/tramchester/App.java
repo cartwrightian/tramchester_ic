@@ -89,17 +89,20 @@ public class App extends Application<AppConfiguration>  {
         final App app = new App();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.warn("Shutting down");
+            logger.warn("=====> Shutting down, shutdown hook called");
 
             final GuiceContainerDependencies dependencies = app.getDependencies();
             if (dependencies!=null) {
+                logger.info("Closing dependencies");
                 dependencies.close();
+                logger.info("Closed dependencies");
             } else {
-                logger.error("Dependencies were null, startup failed?");
+                logger.error("Dependencies were null, did startup failed?");
             }
 
+            logger.info("Attempt flush of logs. Bye.");
             // attempt to flush logs, messages are being lost when exception is uncaught
-            ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+            final ILoggerFactory factory = LoggerFactory.getILoggerFactory();
             if(factory instanceof LoggerContext ctx) {
                 ctx.stop();
             }
@@ -109,9 +112,7 @@ public class App extends Application<AppConfiguration>  {
             logArgs(args);
             app.run(args);
         } catch (Exception e) {
-            logger.error("Exception, will shutdown ", e);
-
-            //LogManager.shutdown();
+            logger.error("App caught an exception, will exist now ", e);
             System.exit(-1);
         }
     }

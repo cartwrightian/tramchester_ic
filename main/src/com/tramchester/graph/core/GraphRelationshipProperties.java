@@ -23,8 +23,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -118,12 +116,13 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @Override
     public void setDateRange(final DateRange range) {
-        setStartDate(range.getStartDate().toLocalDate());
-        setEndDate(range.getEndDate().toLocalDate());
+        setStartDate(range.getStartDate());
+        setEndDate(range.getEndDate());
     }
 
     @Override
     public void setTimeRange(final TimeRange timeRange) {
+        // TODO Into time range object
         if (timeRange.allDay()) {
             relationshipProperties.setProperty(ALL_DAY, "");
             relationshipProperties.removeProperty(START_TIME);
@@ -141,7 +140,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for start time next");
         }
-        relationshipProperties.setProperty(START_TIME, tramTime.asLocalTime());
+        relationshipProperties.setProperty(START_TIME, tramTime);
         invalidateCache();
     }
 
@@ -150,18 +149,18 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         if (tramTime.isNextDay()) {
             throw new RuntimeException("Not supported for end time next");
         }
-        relationshipProperties.setProperty(END_TIME, tramTime.asLocalTime());
+        relationshipProperties.setProperty(END_TIME, tramTime);
         invalidateCache();
     }
 
     @Override
-    public void setEndDate(final LocalDate localDate) {
-        relationshipProperties.setProperty(END_DATE, localDate);
+    public void setEndDate(final TramDate tramDate) {
+        relationshipProperties.setProperty(END_DATE, tramDate);
         invalidateCache();
     }
 
     @Override
-    public void setStartDate(final LocalDate localDate) {
+    public void setStartDate(final TramDate localDate) {
         relationshipProperties.setProperty(START_DATE, localDate);
         invalidateCache();
     }
@@ -193,9 +192,9 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public DateRange getDateRange() {
-        final LocalDate start = getStartDate();
-        final LocalDate end = getEndDate();
-        return new DateRange(TramDate.of(start), TramDate.of(end));
+        final TramDate start = getStartDate();
+        final TramDate end = getEndDate();
+        return new DateRange(start, end);
     }
 
     @JsonIgnore
@@ -213,6 +212,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     @Override
     public TimeRange getTimeRange() {
+        // TODO Into time range object
         if (relationshipProperties.hasProperty(ALL_DAY)) {
             return TimeRange.AllDay();
         } else {
@@ -293,37 +293,34 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 //    }
 
     public boolean validOn(final TramDate tramDate) {
-        final LocalDate localDate = tramDate.toLocalDate();
-        final LocalDate startDate = getStartDate();
-        if (localDate.isBefore(startDate)) {
+        final TramDate startDate = getStartDate();
+        if (tramDate.isBefore(startDate)) {
             return false;
         }
-        final LocalDate endDate = getEndDate();
-        return !localDate.isAfter(endDate);
+        final TramDate endDate = getEndDate();
+        return !tramDate.isAfter(endDate);
     }
 
     @JsonIgnore
-    private LocalDate getEndDate() {
-        return (LocalDate) relationshipProperties.getProperty(END_DATE);
+    private TramDate getEndDate() {
+        return (TramDate) relationshipProperties.getProperty(END_DATE);
     }
 
     @JsonIgnore
-    private LocalDate getStartDate() {
-        return (LocalDate) relationshipProperties.getProperty(START_DATE);
+    private TramDate getStartDate() {
+        return (TramDate) relationshipProperties.getProperty(START_DATE);
     }
 
     @JsonIgnore
     @Override
     public TramTime getStartTime() {
-        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(START_TIME);
-        return TramTime.ofHourMins(localTime);
+        return (TramTime) relationshipProperties.getProperty(START_TIME);
     }
 
     @JsonIgnore
     @Override
     public TramTime getEndTime() {
-        final LocalTime localTime = (LocalTime) relationshipProperties.getProperty(END_TIME);
-        return TramTime.ofHourMins(localTime);
+        return (TramTime) relationshipProperties.getProperty(END_TIME);
     }
 
     @JsonIgnore

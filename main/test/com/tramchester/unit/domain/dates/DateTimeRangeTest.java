@@ -1,5 +1,8 @@
 package com.tramchester.unit.domain.dates;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -93,6 +96,31 @@ public class DateTimeRangeTest {
 
         assertTrue(rangeA.overlaps(rangeB));
         assertTrue(rangeB.overlaps(rangeA));
+    }
+
+    @Test
+    void shouldRoundTripSerialisation() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(1,30), TramTime.of(2,30));
+
+        DateTimeRange range = DateTimeRange.of(dateRange, timeRange);
+
+        String text = mapper.writeValueAsString(range);
+
+        try {
+            DateTimeRange result = mapper.readValue(text, DateTimeRange.class);
+
+            assertEquals(dateRange, result.getDateRange());
+            assertEquals(timeRange, result.getTimeRange());
+            assertEquals(range, result);
+        }
+        catch (InvalidDefinitionException exception) {
+            fail("Unable to deserialize " + text, exception);
+        }
+
+
     }
 
 }

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
@@ -35,15 +34,15 @@ public class JourneyDTO {
         // Deserialization
     }
 
-    @Deprecated
-    public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination,
-                      List<SimpleStageDTO> stages,
-                      LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
-                      List<ChangeStationRefWithPosition> changeStations, TramTime queryTime,
-                      List<LocationRefWithPosition> path, TramDate queryDate, int index) {
-        this(begin, destination, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime,
-                path, queryDate.toLocalDate(), index);
-    }
+//    @Deprecated
+//    public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination,
+//                      List<SimpleStageDTO> stages,
+//                      LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
+//                      List<ChangeStationRefWithPosition> changeStations, TramTime queryTime,
+//                      List<LocationRefWithPosition> path, TramDate queryDate, int index) {
+//        this(begin, destination, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime,
+//                path, queryDate.toLocalDate(), index);
+//    }
 
     public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,

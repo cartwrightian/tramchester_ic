@@ -1,5 +1,7 @@
 package com.tramchester.unit.domain.dates;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.testSupport.TestEnv;
@@ -167,6 +169,30 @@ public class DateRangeTest {
             int day = ThreadLocalRandom.current().nextInt(0, days);
             assertTrue(range.contains(startDate.plusDays(day)));
         }
+    }
+
+    @Test
+    void shouldRoundTripSerialisation() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        DateRange range = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
+
+        String text = null;
+        try {
+            text = mapper.writeValueAsString(range);
+        } catch (JsonProcessingException e) {
+            fail("creating text from " + range, e);
+        }
+
+        DateRange result = null;
+        try {
+            result = mapper.readValue(text, DateRange.class);
+        } catch (JsonProcessingException e) {
+            fail("Reading from " + text, e);
+        }
+
+        assertEquals(range, result);
+
     }
 
 

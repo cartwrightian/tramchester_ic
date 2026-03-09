@@ -10,18 +10,23 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.mappers.serialisation.TramDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramDurationDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import org.reflections.Reflections;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,6 +60,8 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
             }
             else if (valueNode.has(TramTime.class.getSimpleName())) {
                 value = deserializeTramTime(context, typeDeserializer, valueNode, objectCodec);
+            } else if (valueNode.has(TramDate.class.getSimpleName())) {
+                value = deserializeTramDate(context, typeDeserializer, valueNode, objectCodec);
             } else if (valueNode.has(ID_SET)) {
                 value = deserializeIdSet(context, typeDeserializer, valueNode.get(ID_SET), objectCodec);
             }
@@ -98,6 +105,13 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
 
     private static TramTime deserializeTramTime(DeserializationContext context, TypeDeserializer typeDeserializer, JsonNode valueNode, ObjectCodec objectCodec) throws IOException {
         final TramTimeJsonDeserializer deserializer = new TramTimeJsonDeserializer();
+        JsonParser parser = valueNode.traverse(objectCodec);
+        parser.nextToken();
+        return deserializer.deserializeWithType(parser, context, typeDeserializer);
+    }
+
+    private TramDate deserializeTramDate(DeserializationContext context, TypeDeserializer typeDeserializer, JsonNode valueNode, ObjectCodec objectCodec) throws IOException {
+        final TramDateJsonDeserializer deserializer = new TramDateJsonDeserializer();
         JsonParser parser = valueNode.traverse(objectCodec);
         parser.nextToken();
         return deserializer.deserializeWithType(parser, context, typeDeserializer);
@@ -157,7 +171,7 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
         return EnumSet.copyOf(theSet);
     }
 
-    private Class<? extends Enum> getContentsTypeFor(String name, JsonParser forDiag) throws JsonParseException {
+    private Class<? extends Enum> getContentsTypeFor(final String name, final JsonParser forDiag) throws JsonParseException {
         Set<Class<? extends Enum>> candidates = reflections.getSubTypesOf(Enum.class);
 
         Optional<Class<? extends Enum>> matched = candidates.stream().
@@ -174,24 +188,24 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
     }
 
 
-    private static Object getTransportModes(JsonParser jsonParser, String key, JsonNode valueNode) throws JsonParseException {
-        final Object value;
-        if (!"transport_modes".equals(key)) {
-            throw new JsonParseException(jsonParser, "not expecting enumset for " + key);
-        }
-        // array means enumset
-        final List<String> textItems = new ArrayList<>();
-        for (Iterator<JsonNode> it = valueNode.elements(); it.hasNext(); ) {
-            final JsonNode item = it.next();
-            if (item.isTextual()) {
-                textItems.add(item.textValue());
-            } else {
-                throw new JsonParseException(jsonParser, "PropertyDTODeserializer could not handle enum node " + item);
-            }
-        }
-        Set<TransportMode> modes = textItems.stream().map(TransportMode::valueOf).collect(Collectors.toSet());
-        value = EnumSet.copyOf(modes);
-        return value;
-    }
+//    private static Object getTransportModes(JsonParser jsonParser, String key, JsonNode valueNode) throws JsonParseException {
+//        final Object value;
+//        if (!"transport_modes".equals(key)) {
+//            throw new JsonParseException(jsonParser, "not expecting enumset for " + key);
+//        }
+//        // array means enumset
+//        final List<String> textItems = new ArrayList<>();
+//        for (Iterator<JsonNode> it = valueNode.elements(); it.hasNext(); ) {
+//            final JsonNode item = it.next();
+//            if (item.isTextual()) {
+//                textItems.add(item.textValue());
+//            } else {
+//                throw new JsonParseException(jsonParser, "PropertyDTODeserializer could not handle enum node " + item);
+//            }
+//        }
+//        Set<TransportMode> modes = textItems.stream().map(TransportMode::valueOf).collect(Collectors.toSet());
+//        value = EnumSet.copyOf(modes);
+//        return value;
+//    }
 
 }

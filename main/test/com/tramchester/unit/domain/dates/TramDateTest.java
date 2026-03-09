@@ -1,5 +1,7 @@
 package com.tramchester.unit.domain.dates;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.dates.TramDate;
 import org.junit.jupiter.api.Test;
 
@@ -100,5 +102,18 @@ public class TramDateTest {
         TramDate tramDate = TramDate.parseSimple(txt, 20, 4);
 
         assertEquals(TramDate.of(2022, 5, 30), tramDate);
+    }
+
+    @Test
+    void shouldRoundTripSerialisation() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        TramDate date = TramDate.of(2022, 11, 27);
+
+        String text = objectMapper.writeValueAsString(date);
+
+        TramDate result = objectMapper.readValue(text, TramDate.class);
+
+        assertEquals(date, result);
     }
 }

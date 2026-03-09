@@ -41,80 +41,9 @@ public class GraphPersistence {
                 build();
     }
 
-    /***
-     * @param path folder to load from
-     * @return a new instance of GraphCore
-     */
-    public GraphCore loadDBFrom(final Path path, final GraphIdFactory graphIdFactory) {
-        logger.info("Load DB from folder " + path.toAbsolutePath());
-        final NodesAndEdges nodesAndEdges = load(path);
-        if (nodesAndEdges.isEmpty()) {
-            throw new RuntimeException("Empty graph loaded from " + path.toAbsolutePath());
-        }
-        //final GraphIdFactory graphIdFactory = new GraphIdFactory();
-        return GraphCore.createFrom(nodesAndEdges, graphIdFactory);
-    }
+    public GraphCore loadDBFrom(final Path graphFilename, final GraphIdFactory graphIdFactory) {
+        logger.info("Load DB from folder " + graphFilename.toAbsolutePath());
 
-    public boolean filesExistIn(final Path dbPath) {
-        return Files.exists(dbPath.resolve(RELATIONSHIPS_FILENAME)) && Files.exists(dbPath.resolve(NODES_FILENAME));
-    }
-
-    // pass in GraphInMemoryServiceManager to avoid circular dependencies at create time
-    public void save(final Path graphPath, GraphInMemoryServiceManager serviceManager) {
-        if (!Files.exists(graphPath)) {
-            try {
-                Files.createDirectory(graphPath);
-            } catch (IOException e) {
-                String msg = "Could not create dir " + graphPath.toAbsolutePath();
-                logger.error(msg);
-                throw new RuntimeException(msg, e);
-            }
-        } else {
-            if (!Files.isDirectory(graphPath)) {
-                String msg = "Is not a dir: " + graphPath.toAbsolutePath();
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
-        }
-
-        final GraphCore core = serviceManager.getGraphCore();
-        final NodesAndEdges nodesAndEdges = core.getNodesAndEdges();
-
-        if (nodesAndEdges.getNodes().isEmpty() || nodesAndEdges.getRelationships().isEmpty()) {
-            String message = "Empty graph?? " + nodesAndEdges;
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
-
-        logger.info("Save graph to dir " + graphPath.toAbsolutePath());
-
-        final Path relationshipsFile = graphPath.resolve(RELATIONSHIPS_FILENAME);
-        try (final FileWriter output = new FileWriter(relationshipsFile.toFile())) {
-            mapper.writeValue(output, nodesAndEdges.getRelationships());
-            output.flush();
-        } catch (IOException e) {
-            String msg = "Unable to save relationships to " + relationshipsFile.toAbsolutePath();
-            logger.error(msg, e);
-            throw new RuntimeException(msg,e);
-        }
-        logger.info("Saved relationships to " + relationshipsFile.toAbsolutePath());
-
-        final Path nodesFile = graphPath.resolve(NODES_FILENAME);
-        try (final FileWriter output = new FileWriter(nodesFile.toFile())) {
-            mapper.writeValue(output, nodesAndEdges.getNodes());
-            output.flush();
-        } catch (IOException e) {
-            String msg = "Unable to save nodes to " + nodesFile.toAbsolutePath();
-            logger.error(msg, e);
-            throw new RuntimeException(msg,e);
-        }
-        logger.info("Saved nodes to " + relationshipsFile.toAbsolutePath());
-
-        logger.info("Saved Graph");
-    }
-
-    public static NodesAndEdges load(final Path graphFilename) {
-        logger.info("Load from " + graphFilename.toAbsolutePath());
         final JsonMapper jsonMapper = createMapper();
 
         final Path relationshipsFile = graphFilename.resolve(RELATIONSHIPS_FILENAME);
@@ -126,8 +55,68 @@ public class GraphPersistence {
         Stream<GraphRelationshipInMemory> relationships = relationshipsLoader.load();
         Stream<GraphNodeInMemory> nodes = nodesLoader.load();
 
-        return new NodesAndEdges(relationships, nodes);
+        return GraphCore.createFrom(graphIdFactory, nodes, relationships);
+    }
 
+    public boolean filesExistIn(final Path dbPath) {
+        return Files.exists(dbPath.resolve(RELATIONSHIPS_FILENAME)) && Files.exists(dbPath.resolve(NODES_FILENAME));
+    }
+
+    // pass in GraphInMemoryServiceManager to avoid circular dependencies at create time
+    public boolean save(final Path graphPath, GraphInMemoryServiceManager serviceManager) {
+        if (!Files.exists(graphPath)) {
+            try {
+                logger.info("Create folder " + graphPath);
+                Files.createDirectories(graphPath);
+            } catch (IOException e) {
+                logger.error("Could not create dir " + graphPath.toAbsolutePath(), e);
+                return false;
+            }
+        }
+
+        if (!Files.isDirectory(graphPath)) {
+            logger.error("Is not a dir: " + graphPath.toAbsolutePath());
+            return false;
+        } else {
+            logger.info("Found folder " + graphPath.toAbsolutePath());
+        }
+
+        final GraphCore core = serviceManager.getGraphCore();
+        final NodesAndEdges nodesAndEdges = core.getNodesAndEdges();
+
+        if (nodesAndEdges.getNodes().isEmpty() || nodesAndEdges.getRelationships().isEmpty()) {
+            logger.error("Empty graph?? " + nodesAndEdges);
+            return false;
+        }
+
+        logger.info("Save graph to dir " + graphPath.toAbsolutePath());
+
+        final Path relationshipsFile = graphPath.resolve(RELATIONSHIPS_FILENAME);
+        logger.info("Saving relationships to " + relationshipsFile.toAbsolutePath());
+        try (final FileWriter output = new FileWriter(relationshipsFile.toFile())) {
+            nodesAndEdges.saveRelationships(mapper, output);
+            //mapper.writeValue(output, nodesAndEdges.getRelationships());
+            output.flush();
+        } catch (IOException e) {
+            logger.error("Unable to save relationships to " + relationshipsFile.toAbsolutePath(), e);
+            // assume caller tidies up?
+            return false;
+        }
+
+        final Path nodesFile = graphPath.resolve(NODES_FILENAME);
+        logger.info("Saving nodes to " + nodesFile.toAbsolutePath());
+        try (final FileWriter output = new FileWriter(nodesFile.toFile())) {
+            nodesAndEdges.saveNodes(mapper, output);
+            //mapper.writeValue(output, nodesAndEdges.getNodes());
+            output.flush();
+        } catch (IOException e) {
+            logger.error("Unable to save nodes to " + nodesFile.toAbsolutePath(), e);
+            return false;
+        }
+
+        logger.info("Saved Graph at " + graphPath.toAbsolutePath());
+
+        return true;
     }
 
 }

@@ -1,7 +1,14 @@
 package com.tramchester.domain.time;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.util.Set;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = TimeRangePartial.class, name = "parital"),
+        @JsonSubTypes.Type(value = TimeRangeAllDay.class, name = "allDay")})
 public interface TimeRange {
     boolean anyOverlap(TimeRange other);
 

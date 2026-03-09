@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import static com.tramchester.graph.GraphPropertyKey.ALL_DAY;
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -219,42 +220,7 @@ public class GraphPropsInMemoryTest {
         DateTimeRange range = DateTimeRange.of(dateRange, timeRange);
         relationship.setDateTimeRange(range);
 
-        assertEquals(dateRange, relationship.getDateRange());
-        assertEquals(timeRange, relationship.getTimeRange());
-    }
-
-
-    @Test
-    void shouldGetDateTimeRangeCorrectly() {
-        MutableGraphRelationship relationship = createRelationship();
-
-        TramDate when = TestEnv.testDay();
-
-        DateRange dateRange = DateRange.of(when, when.plusWeeks(1));
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,16), TramTime.of(17,24));
-        relationship.setDateRange(dateRange);
-        relationship.setTimeRange(timeRange);
-
-        DateTimeRange expected = DateTimeRange.of(dateRange, timeRange);
-
-        assertEquals(expected, relationship.getDateTimeRange());
-    }
-
-    @Test
-    void shouldGetDateTimeRangeCorrectlyAllDay() {
-        MutableGraphRelationship relationship = createRelationship();
-
-        TramDate when = TestEnv.testDay();
-
-        DateRange dateRange = DateRange.of(when, when.plusWeeks(1));
-        TimeRange timeRange = TimeRange.AllDay();
-        relationship.setDateRange(dateRange);
-        relationship.setTimeRange(timeRange);
-
-        DateTimeRange result = relationship.getDateTimeRange();
-
-        assertEquals(dateRange, result.getDateRange());
-        assertTrue(result.allDay());
+        assertEquals(range, relationship.getDateTimeRange());
     }
 
     @Test
@@ -296,7 +262,7 @@ public class GraphPropsInMemoryTest {
         TimeRange resultA = relationship.getTimeRange();
 
         assertTrue(resultA.allDay());
-        assertTrue(relationship.hasProperty(GraphPropertyKey.ALL_DAY));
+        assertTrue(relationship.hasProperty(ALL_DAY));
 
         TramTime start = TramTime.of(9, 45);
         TramTime end = TramTime.of(13, 45);
@@ -307,7 +273,7 @@ public class GraphPropsInMemoryTest {
         TimeRange resultB = relationship.getTimeRange();
 
         assertFalse(resultB.allDay());
-        assertFalse(relationship.hasProperty(GraphPropertyKey.ALL_DAY));
+        assertFalse(relationship.hasProperty(ALL_DAY));
         assertEquals(resultB, timeRange);
     }
 
@@ -496,7 +462,7 @@ public class GraphPropsInMemoryTest {
     void shouldAddSingleTransportMode() {
         node.setTransportMode(TransportMode.Train);
 
-        TransportMode result = ((GraphNode) node).getTransportMode();
+        TransportMode result = node.getTransportMode();
 
         assertEquals(result, TransportMode.Train);
     }
@@ -508,7 +474,7 @@ public class GraphPropsInMemoryTest {
         Station station = TramStations.PiccadillyGardens.fakeWithPlatform(2, TestEnv.testDay());
 
         List<Platform> platforms = new ArrayList<>(station.getPlatforms());
-        Platform platform = platforms.get(0);
+        Platform platform = platforms.getFirst();
 
         node.set(station);
         node.set(platform);

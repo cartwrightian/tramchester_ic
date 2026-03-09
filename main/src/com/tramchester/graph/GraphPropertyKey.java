@@ -41,6 +41,7 @@ public enum GraphPropertyKey {
     WALK_ID("walk_id"),
     STOP_SEQ_NUM("stop_seq_number"),
     SOURCE_NAME_PROP("source_name"),
+
     START_DATE("start_date"),
     END_DATE("end_date"),
     START_TIME("start_time"),

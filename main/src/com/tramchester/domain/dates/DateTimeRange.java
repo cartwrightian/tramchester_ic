@@ -1,5 +1,8 @@
 package com.tramchester.domain.dates;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 
@@ -13,7 +16,9 @@ public class DateTimeRange {
         this(new DateRange(begin,end), TimeRange.AllDay());
     }
 
-    public DateTimeRange(DateRange dateRange, TimeRange timeRange) {
+    @JsonCreator
+    public DateTimeRange(@JsonProperty("dateRange") DateRange dateRange,
+                         @JsonProperty("timeRange") TimeRange timeRange) {
         this.dateRange = dateRange;
         this.timeRange = timeRange;
     }
@@ -73,14 +78,17 @@ public class DateTimeRange {
         return this.timeRange.fullyContains(timeRange);
     }
 
+    @JsonIgnore
     public boolean allDay() {
         return timeRange.allDay();
     }
 
+    @JsonProperty("dateRange")
     public DateRange getDateRange() {
         return dateRange;
     }
 
+    @JsonProperty("timeRange")
     public TimeRange getTimeRange() {
         return timeRange;
     }

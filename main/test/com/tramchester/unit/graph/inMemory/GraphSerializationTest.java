@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -11,6 +13,7 @@ import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.inMemory.*;
@@ -107,7 +110,7 @@ public class GraphSerializationTest {
 
     @Test
     void shouldRoundTripGraphRelationship()  {
-        GraphRelationshipInMemory relationship = createRelationship();
+        GraphRelationshipInMemory relationship = createRelationship(TransportRelationshipTypes.BOARD);
 
         IdFor<Trip> tripA = Trip.createId("tripA");
         IdFor<Trip> tripB = Trip.createId("tripB");
@@ -154,6 +157,36 @@ public class GraphSerializationTest {
     }
 
     @Test
+    void shouldRoundTripDiversionRelationship() {
+        GraphRelationshipInMemory relationship = createRelationship(TransportRelationshipTypes.DIVERSION);
+
+        TramDuration cost = TramDuration.ofMinutes(15);
+        relationship.setCost(cost);
+
+        DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
+        TimeRange timeRange = TimeRange.of(TramTime.of(7,55), TramTime.of(22,45));
+
+        DateTimeRange dateTimeRange = DateTimeRange.of(dateRange, timeRange);
+
+        relationship.setDateTimeRange(dateTimeRange);
+
+        String text = serializeToString(relationship);
+
+        GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
+
+        assertEquals(relationship, result);
+
+        try {
+            assertEquals(cost, result.getCost());
+            assertEquals(dateTimeRange, relationship.getDateTimeRange());
+        }
+        catch(ClassCastException e) {
+            fail("Unable to fetch property from " + text, e);
+        }
+
+    }
+
+    @Test
     void shouldRoundTripTripIdSet() {
 
         TripIdSet idSet = TripIdSet.deserialize(Arrays.asList("tripA","tripB"));
@@ -170,7 +203,7 @@ public class GraphSerializationTest {
 
     @Test
     void shouldRoundTripGraphRelationshipIdSet()  {
-        GraphRelationshipInMemory relationship = createRelationship();
+        GraphRelationshipInMemory relationship = createRelationship(TransportRelationshipTypes.BOARD);
 
         IdFor<Trip> tripA = Trip.createId("tripA");
         IdFor<Trip> tripB = Trip.createId("tripB");
@@ -197,7 +230,7 @@ public class GraphSerializationTest {
 
     @Test
     void shouldRoundTripGraphRelationshipEnumSet()  {
-        GraphRelationshipInMemory relationship = createRelationship();
+        GraphRelationshipInMemory relationship = createRelationship(TransportRelationshipTypes.BOARD);
 
         relationship.addTransportMode(Bus);
         relationship.addTransportMode(Tram);
@@ -219,7 +252,7 @@ public class GraphSerializationTest {
 
     @Test
     void shouldRoundTripGraphRelationshipTime() {
-        GraphRelationshipInMemory relationship = createRelationship();
+        GraphRelationshipInMemory relationship = createRelationship(TransportRelationshipTypes.BOARD);
 
         TramTime tramTime = TramTime.of(11, 42);
         relationship.setTime(tramTime);
@@ -239,7 +272,7 @@ public class GraphSerializationTest {
 
     @Test
     void shouldRoundTripGraphRelationshipTimeNextDay() {
-        GraphRelationshipInMemory relationship = createRelationship();
+        GraphRelationshipInMemory relationship = createRelationship(TransportRelationshipTypes.BOARD);
 
         TramTime tramTime = TramTime.nextDay(11, 42);
         relationship.setTime(tramTime);
@@ -275,12 +308,12 @@ public class GraphSerializationTest {
         }
     }
 
-    private static @NotNull GraphRelationshipInMemory createRelationship() {
+    private static @NotNull GraphRelationshipInMemory createRelationship(TransportRelationshipTypes relationshipType) {
         NodeIdInMemory idA = new NodeIdInMemory(678);
         NodeIdInMemory idB = new NodeIdInMemory(679);
         RelationshipIdInMemory id = new RelationshipIdInMemory(42);
-        return new GraphRelationshipInMemory(TransportRelationshipTypes.BOARD, id,
-                idA, idB, false);
+        return new GraphRelationshipInMemory(relationshipType, id,
+               idA, idB, false);
     }
 
 }

@@ -1,7 +1,11 @@
 package com.tramchester.domain.time;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class TimeRangeAllDay implements TimeRange {
 
+    @JsonCreator
     public TimeRangeAllDay() {
     }
 
@@ -25,16 +29,19 @@ public class TimeRangeAllDay implements TimeRange {
         throw new RuntimeException("not implemented");
     }
 
+    @JsonIgnore
     @Override
     public TramTime getStart() {
         return TramTime.of(0,1);
     }
 
+    @JsonIgnore
     @Override
     public boolean allDay() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public TramTime getEnd() {
         return TramTime.of(0,0);

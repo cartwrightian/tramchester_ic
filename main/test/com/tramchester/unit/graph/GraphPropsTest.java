@@ -34,11 +34,16 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @MultiDB
 @ExtendWith(GraphTypeConfigResolver.class)
@@ -53,6 +58,7 @@ public class GraphPropsTest {
 
     // See TransportDataFromFilesTramTest for test that gets this number
     private static final int maxTripsForService = 1535;
+    private boolean inMemory;
 
     @BeforeAll
     static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
@@ -77,6 +83,7 @@ public class GraphPropsTest {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         txn = graphDatabase.beginTxMutable();
         node = txn.createNode(GraphLabel.QUERY_NODE);
+        inMemory = graphDatabase.isInMemory();
     }
 
     @AfterEach
@@ -226,9 +233,10 @@ public class GraphPropsTest {
         assertEquals(end, relationship.getEndTime());
     }
 
-
     @Test
     void shouldSetDateTimeRangeCorrectly() {
+        assumeFalse(inMemory);
+
         MutableGraphRelationship relationship = createRelationship();
 
         TramDate when = TestEnv.testDay();
@@ -242,9 +250,9 @@ public class GraphPropsTest {
         assertEquals(timeRange, relationship.getTimeRange());
     }
 
-
     @Test
-    void shouldGetDateTimeRangeCorrectly() {
+    void shouldGetDateTimeRangeCorrectlyViaSubProps() {
+        assumeFalse(inMemory);
         MutableGraphRelationship relationship = createRelationship();
 
         TramDate when = TestEnv.testDay();
@@ -260,7 +268,25 @@ public class GraphPropsTest {
     }
 
     @Test
+    void shouldGetDateTimeRangeCorrectly() {
+        assumeTrue(inMemory);
+        MutableGraphRelationship relationship = createRelationship();
+
+        TramDate when = TestEnv.testDay();
+
+        DateRange dateRange = DateRange.of(when, when.plusWeeks(1));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,16), TramTime.of(17,24));
+
+        DateTimeRange expected = DateTimeRange.of(dateRange, timeRange);
+
+        relationship.setDateTimeRange(expected);
+
+        assertEquals(expected, relationship.getDateTimeRange());
+    }
+
+    @Test
     void shouldGetDateTimeRangeCorrectlyAllDay() {
+        assumeFalse(inMemory);
         MutableGraphRelationship relationship = createRelationship();
 
         TramDate when = TestEnv.testDay();
@@ -359,6 +385,7 @@ public class GraphPropsTest {
 
     @Test
     void shouldGetTimeRangeCorrectly() {
+
         MutableGraphRelationship relationship = createRelationship();
 
         TramTime start = TramTime.of(9, 45);

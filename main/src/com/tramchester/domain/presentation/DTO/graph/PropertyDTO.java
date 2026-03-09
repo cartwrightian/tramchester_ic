@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation.DTO.graph;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.id.serialization.PropertyDTODeserializer;
 import com.tramchester.domain.id.serialization.PropertyDTOSerializer;
@@ -86,6 +87,7 @@ public class PropertyDTO {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({
             @JsonSubTypes.Type(value = TramTime.class, name = "TramTime"),
+            @JsonSubTypes.Type(value = TramDate.class, name = "TramDate"),
             @JsonSubTypes.Type(value = TramDuration.class, name = DURATION_FIELD_NAME),
             @JsonSubTypes.Type(value = TransportMode.class, name = TRANSPORT_MODE_FIELD_NAME),
             @JsonSubTypes.Type(value = TripIdSet.class, name = "TripIdSet")

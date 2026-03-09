@@ -66,7 +66,7 @@ public class TransactionManagerTest extends EasyMockSupport {
 
     @AfterEach
     void onceAfterEachTestRuns() {
-        serviceManager.stopDatabase();
+        serviceManager.stopDatabase(false, Path.of("noSuchPath"));
     }
 
     @Test

@@ -43,23 +43,17 @@ public class GraphInMemoryServiceManager {
 
     @PostConstruct
     private void start() {
-//        if (config.getPlanningEnabled()) {
-//
-//        } else {
-//            logger.warn("Planning not enabled");
-//        }
+
     }
 
     @PreDestroy
     private void stop() {
-        logger.info("Stoping DB");
         if (config.getPlanningEnabled()) {
-            guardNotStarted();
-            stopDatabase();
+            // likely already stopped via GraphDatabaseInMemory
+            stopDatabase(false, Path.of(""));
         } else {
             logger.info("Planning was not enabled");
         }
-        logger.info("Stopped");
     }
 
     public void startDatabase(DataSourceRepository dataSourceRepository, Path dbFolderPath, boolean folderExists) {
@@ -106,15 +100,27 @@ public class GraphInMemoryServiceManager {
         logger.info("started");
     }
 
-    public void stopDatabase() {
+    public void stopDatabase(final boolean saveGraph, final Path dbFolderPath) {
+        logger.info("Stopping DB");
         if (graphCore==null) {
-            String message = "Already stopped";
-            logger.error(message);
-            throw new RuntimeException(message);
+            logger.error("Already stopped");
+        } else {
+            if (saveGraph) {
+                logger.info("Saved DB to " + dbFolderPath.toAbsolutePath());
+                boolean result = graphPersistence.save(dbFolderPath, this);
+                if (result) {
+                    logger.info("Saved DB at " + dbFolderPath.toAbsolutePath());
+                } else {
+                    logger.error("Failed to save DB, check logs");
+                }
+            } else {
+                logger.info("Save not requested");
+            }
+            transactionManager.stop();
+            graphCore.stop();
+            graphCore = null;
         }
-        transactionManager.stop();
-        graphCore.stop();
-        graphCore = null;
+        logger.info("Stopped DB");
     }
 
     private void guardNotStarted() {

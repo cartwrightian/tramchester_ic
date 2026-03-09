@@ -3,11 +3,13 @@ package com.tramchester.integration.graph.inMemory;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.GraphDBConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -36,12 +38,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("OOM issues with gradle")
 public class GraphSaveAndLoadTest {
-    private static final Path GRAPH_PATH = Path.of("testData/graph");
+    private static final Path GRAPH_PATH = Path.of("testData/GraphSaveAndLoadTest/graph");
     private static GuiceContainerDependencies componentContainer;
-    private static IntegrationTramTestConfig config;
+    private static TramchesterConfig config;
     private GraphPersistence graphPersistence;
-    private Path reltationshipsFilename;
-    private Path nodesFilename;
+    private static Path reltationshipsFilename;
+    private static Path nodesFilename;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -51,30 +53,33 @@ public class GraphSaveAndLoadTest {
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
+
+        reltationshipsFilename = GRAPH_PATH.resolve(GraphPersistence.RELATIONSHIPS_FILENAME);
+        nodesFilename = GRAPH_PATH.resolve(GraphPersistence.NODES_FILENAME);
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
+    static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
+        Files.deleteIfExists(reltationshipsFilename);
+        Files.deleteIfExists(nodesFilename);
+        Files.deleteIfExists(GRAPH_PATH);
     }
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
         graphPersistence = componentContainer.get(GraphPersistence.class);
 
-        // GRAPH_PATH from config??
-        reltationshipsFilename = GRAPH_PATH.resolve(GraphPersistence.RELATIONSHIPS_FILENAME);
-        nodesFilename = GRAPH_PATH.resolve(GraphPersistence.NODES_FILENAME);
 
         Files.deleteIfExists(reltationshipsFilename);
         Files.deleteIfExists(nodesFilename);
-
     }
 
     @AfterEach
     void onceAfterEachTestRuns() throws IOException {
         Files.deleteIfExists(reltationshipsFilename);
         Files.deleteIfExists(nodesFilename);
+        Files.deleteIfExists(GRAPH_PATH);
     }
 
     @Test
@@ -87,16 +92,20 @@ public class GraphSaveAndLoadTest {
     void shouldSerialiseToFileWithoutError() {
         GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
 
-        graphPersistence.save(GRAPH_PATH, serviceManager);
+        boolean result = graphPersistence.save(GRAPH_PATH, serviceManager);
+        assertTrue(result);
         assertTrue(Files.exists(reltationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
         GraphCore graph = serviceManager.getGraphCore();
-        //GraphCore graph = componentContainer.get(GraphCore.class);
         NodesAndEdges expected = graph.getNodesAndEdges();
 
-        NodesAndEdges result = GraphPersistence.load(GRAPH_PATH);
-        assertEquals(expected, result);
+//        NodesAndEdges result = GraphPersistence.load(GRAPH_PATH);
+
+        GraphIdFactory idFactory = new GraphIdFactory();
+        GraphCore loaded = graphPersistence.loadDBFrom(GRAPH_PATH, idFactory);
+
+        assertEquals(expected, loaded.getNodesAndEdges());
     }
 
     @Test
@@ -120,7 +129,8 @@ public class GraphSaveAndLoadTest {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         GraphIdFactory idFactory = componentContainer.get(GraphIdFactory.class);
 
-        graphPersistence.save(GRAPH_PATH, serviceManager);
+        boolean savedOk = graphPersistence.save(GRAPH_PATH, serviceManager);
+        assertTrue(savedOk);
         assertTrue(Files.exists(reltationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
@@ -138,16 +148,21 @@ public class GraphSaveAndLoadTest {
         result.stop();
     }
 
+    @Test
+    void shouldHaveTestForActiveFiltering() {
+        fail("TODO add test");
+    }
 
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelations() {
 
-        graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
+        boolean savedOk = graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
+        assertTrue(savedOk);
 
-        //GraphCore loadedGraph = SaveGraph.loadDBFrom(GRAPH_FILENAME);
         @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(GRAPH_PATH, componentContainer);
         DataSourceRepository dataSourceRepository = componentContainer.get(DataSourceRepository.class);
-        GraphDatabaseInMemory graphDatabase = new GraphDatabaseInMemory(serviceManager, config, dataSourceRepository);
+        GraphDatabaseInMemory graphDatabase = new GraphDatabaseInMemory(serviceManager, config, dataSourceRepository,
+                new GraphFilterActive(false));
 
         graphDatabase.start();
 
@@ -169,7 +184,8 @@ public class GraphSaveAndLoadTest {
 
     @Test
     void shouldLoadConsistently() {
-        graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
+        boolean savedOk = graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
+        assertTrue(savedOk);
 
         GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
         GraphCore graphA = serviceManager.getGraphCore();

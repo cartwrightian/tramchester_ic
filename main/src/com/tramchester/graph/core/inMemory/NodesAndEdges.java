@@ -3,6 +3,7 @@ package com.tramchester.graph.core.inMemory;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.reference.GraphLabel;
@@ -11,6 +12,8 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -187,5 +190,13 @@ public class NodesAndEdges {
     private static Set<GraphPropertyKey> getIntersectionSafe(final Set<GraphPropertyKey> setA, final Set<GraphPropertyKey> setB) {
         final SetUtils.SetView<GraphPropertyKey> intersection = SetUtils.intersection(setA, setB);
         return intersection.isEmpty() ? GraphPropertyKey.EmptySet : EnumSet.copyOf(intersection);
+    }
+
+    public void saveRelationships(final JsonMapper mapper, final FileWriter output) throws IOException {
+        mapper.writeValue(output, relationships.values());
+    }
+
+    public void saveNodes(final JsonMapper mapper, final FileWriter output) throws IOException {
+        mapper.writeValue(output, nodes.values());
     }
 }

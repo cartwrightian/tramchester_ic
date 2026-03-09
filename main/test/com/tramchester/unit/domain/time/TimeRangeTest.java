@@ -1,5 +1,9 @@
 package com.tramchester.unit.domain.time;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramDuration;
@@ -217,5 +221,41 @@ public class TimeRangeTest {
 
         assertTrue(allDay.fullyContains(timeRangeA));
         assertFalse(timeRangeA.fullyContains(allDay));
+    }
+
+    @Test
+    void shouldRoundTripSerialisationPartial() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        TimeRange range = TimeRangePartial.of(TramTime.of(1,30), TramTime.of(2,30));
+
+        String text = mapper.writeValueAsString(range);
+
+        try {
+            TimeRange result = mapper.readValue(text, TimeRange.class);
+            assertEquals(range, result);
+            assertFalse(result.allDay());
+        }
+        catch (InvalidDefinitionException | UnrecognizedPropertyException exception) {
+            fail("Unable to deserialize " + text, exception);
+        }
+    }
+
+    @Test
+    void shouldRoundTripSerialisationAllDay() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        TimeRange range = TimeRange.AllDay();
+
+        String text = mapper.writeValueAsString(range);
+
+        try {
+            TimeRange result = mapper.readValue(text, TimeRange.class);
+            assertEquals(range, result);
+            assertTrue(result.allDay());
+        }
+        catch (InvalidDefinitionException | UnrecognizedPropertyException exception) {
+            fail("Unable to deserialize " + text, exception);
+        }
     }
 }

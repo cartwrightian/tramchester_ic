@@ -1,5 +1,9 @@
 package com.tramchester.domain.time;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -8,7 +12,9 @@ public class TimeRangePartial implements TimeRange {
     private TramTime begin;
     private TramTime end;
 
-    private TimeRangePartial(final TramTime begin, final TramTime end) {
+    @JsonCreator
+    private TimeRangePartial(@JsonProperty(value = "begin", required = true) final TramTime begin,
+                             @JsonProperty(value = "end", required = true) final TramTime end) {
         this.begin = begin;
         this.end = end;
         if (end.isBefore(begin)) {
@@ -127,16 +133,19 @@ public class TimeRangePartial implements TimeRange {
         return TimeRangePartial.of(TramTime.nextDay(begin), TramTime.nextDay(end));
     }
 
+    @JsonProperty("end")
     @Override
     public TramTime getEnd() {
         return end;
     }
 
+    @JsonProperty("begin")
     @Override
     public TramTime getStart() {
         return begin;
     }
 
+    @JsonIgnore
     @Override
     public boolean allDay() {
         return false;

@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -27,14 +28,16 @@ public class GraphDatabaseInMemory implements GraphDatabase {
     private final GraphInMemoryServiceManager serviceManager;
     private final TramchesterConfig config;
     private final DataSourceRepository dataSourceRepository;
+    private final GraphFilterActive graphFilterActive;
 
     private TransactionManager transactionManager;
 
     @Inject
-    public GraphDatabaseInMemory(final GraphInMemoryServiceManager serviceManager, final TramchesterConfig config, DataSourceRepository dataSourceRepository) {
+    public GraphDatabaseInMemory(final GraphInMemoryServiceManager serviceManager, final TramchesterConfig config, DataSourceRepository dataSourceRepository, GraphFilterActive graphFilterActive) {
         this.serviceManager = serviceManager;
         this.config = config;
         this.dataSourceRepository = dataSourceRepository;
+        this.graphFilterActive = graphFilterActive;
         transactionManager = null;
     }
 
@@ -49,6 +52,11 @@ public class GraphDatabaseInMemory implements GraphDatabase {
             final GraphDBConfig graphDBConfig = config.getGraphDBConfig();
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
+            if (graphFilterActive.isActive() && fileExists) {
+                String msg = "Graph filter is active, but file exists " + dbPath;
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            }
             serviceManager.startDatabase(dataSourceRepository, dbPath, fileExists);
             transactionManager = serviceManager.getTransactionManager();
             logger.info("started");
@@ -59,6 +67,9 @@ public class GraphDatabaseInMemory implements GraphDatabase {
 
     @PreDestroy
     public void stop() {
+        final GraphDBConfig graphDBConfig = config.getGraphDBConfig();
+        final Path dbPath = graphDBConfig.getDbPath();
+
         logger.info("Stopping");
         if (config.getPlanningEnabled()) {
             guardForNotStarted();
@@ -66,7 +77,10 @@ public class GraphDatabaseInMemory implements GraphDatabase {
                 logger.warn("Not running");
             } else {
                 transactionManager.stop();
-                serviceManager.stopDatabase();
+
+                // TODO Persist boolean into GraphDBConfig
+                boolean savedDB = !graphFilterActive.isActive();
+                serviceManager.stopDatabase(savedDB, dbPath);
                 transactionManager = null;
                 logger.info("stopping");
             }

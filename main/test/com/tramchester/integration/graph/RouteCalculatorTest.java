@@ -101,7 +101,9 @@ public class RouteCalculatorTest {
 
     @AfterEach
     void afterEachTestRuns() {
-        txn.close();
+        if (txn!=null) {
+            txn.close();
+        }
     }
 
     @Test

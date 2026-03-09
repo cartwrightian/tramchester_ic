@@ -1,5 +1,11 @@
 package com.tramchester.domain.dates;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.mappers.serialisation.TramDateJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramDateJsonSerializer;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +14,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+
+@JsonSerialize(using = TramDateJsonSerializer.class)
+@JsonDeserialize(using = TramDateJsonDeserializer.class)
 public class TramDate implements Comparable<TramDate> {
     private final long epochDays;
     private final DayOfWeek dayOfWeek;
@@ -164,6 +173,11 @@ public class TramDate implements Comparable<TramDate> {
         return new TramDate(date.toEpochDay());
     }
 
+    public String serialize() {
+        final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(TramchesterConfig.DateFormatForJson);
+        return format(dateFormatter);
+    }
+
     @Override
     public String toString() {
         LocalDate date = LocalDate.ofEpochDay(epochDays);
@@ -215,5 +229,6 @@ public class TramDate implements Comparable<TramDate> {
     public boolean isWeekend() {
         return (dayOfWeek==DayOfWeek.SATURDAY) || (dayOfWeek==DayOfWeek.SUNDAY);
     }
+
 
 }
