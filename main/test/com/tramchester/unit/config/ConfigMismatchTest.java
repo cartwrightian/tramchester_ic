@@ -169,16 +169,8 @@ class ConfigMismatchTest {
     void shouldHaveCheckFilenameForDBSourceMatchDBNameForLocal() throws ConfigurationException, IOException {
         AppConfiguration normalConfig = loadConfigFromFile("local.yml");
 
-        if (normalConfig.getInMemoryGraph()) {
-            RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteSources(), DataSourceID.database);
-            assertTrue(remoteConfig.getSkip().resolve(normalConfig));
-        }
-        else {
-            RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteSources(), DataSourceID.database);
-            assertFalse(remoteConfig.getSkip().resolve(normalConfig));
-
-            assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
-        }
+        RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteSources(), DataSourceID.database);
+        assertFalse(remoteConfig.getSkip().resolve(normalConfig));
     }
 
     @Disabled("remote DM disabled for now on GM config setting")
@@ -414,11 +406,6 @@ class ConfigMismatchTest {
 
         assertNotNull(expectedGraphDBConfig, "missing DB config for expected");
         assertNotNull(testGraphDBConfig.getDbPath(), "missing DB test for expected");
-
-        if (!expected.getInMemoryGraph()) {
-            assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory(),
-                    "neo4jPagecacheMemory");
-        }
 
         TfgmTramLiveDataConfig expectedLiveDataConfig = expected.getTfgmTramliveData();
 

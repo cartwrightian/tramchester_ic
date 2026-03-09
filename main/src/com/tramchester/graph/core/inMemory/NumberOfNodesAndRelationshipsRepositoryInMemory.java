@@ -34,14 +34,10 @@ public class NumberOfNodesAndRelationshipsRepositoryInMemory implements NumberOf
     void start() {
         logger.info("start");
 
-        if (!graphDatabase.isInMemory()) {
-            throw new RuntimeException("Wrong database type " + graphDatabase);
-        }
-
         countNodeNumbers();
         countRelationships();
 
-        logger.info("statrted");
+        logger.info("started");
     }
 
     private void countRelationships() {

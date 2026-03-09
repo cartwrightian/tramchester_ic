@@ -69,7 +69,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final StopCallRepository stopCallRepository;
     private final StationsWithDiversionRepository stationsWithDiversionRepository;
     private final int commitBatchSize;
-    private final boolean inMemory;
 
     // force construction via guice to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -93,9 +92,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         this.databaseMetaInfo = databaseMetaInfo;
         this.stopCallRepository = stopCallRepository;
         this.stationsWithDiversionRepository = stationsWithDiversionRepository;
-        this.inMemory = graphDatabase.isInMemory();
 
-        this.commitBatchSize = inMemory ? 1000 : 100;
+        this.commitBatchSize = 1000;
     }
 
     @PostConstruct
@@ -615,10 +613,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (!hourNodeCache.hasHourNode(serviceNode.getId(), hour)) {
             final MutableGraphNode hourNode = createGraphNode(tx, GraphLabel.HOUR);
             hourNode.setHourProp(hour);
-            if (!inMemory) {
-                // neo4J impl uses Labels as a performance workaround
-                hourNode.addLabel(tx, GraphLabel.getHourLabel(hour));
-            }
+//            if (!inMemory) {
+//                // neo4J impl uses Labels as a performance workaround
+//                hourNode.addLabel(tx, GraphLabel.getHourLabel(hour));
+//            }
             hourNodeCache.putHour(serviceNode.getId(), hour, hourNode);
 
             // service node -> time node

@@ -54,7 +54,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private LowestCostsForDestRoutes fewestHopsForRoutes;
     private CreateJourneyDiagnostics failedJourneyDiagnostics;
     private int maxChanges;
-    private boolean inMemoryGraph;
+    //private boolean inMemoryGraph;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -70,7 +70,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         fewestHopsForRoutes = createMock(LowestCostsForDestRoutes.class);
         failedJourneyDiagnostics = createMock(CreateJourneyDiagnostics.class);
 
-        inMemoryGraph = config30MinsWait.getInMemoryGraph();
+        //inMemoryGraph = config30MinsWait.getInMemoryGraph();
 
         int maxPathLength = 400;
         journeyConstraints = createMock(JourneyConstraints.class);
@@ -196,14 +196,13 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode nextNode = createMock(GraphNode.class);
 
-        if (inMemoryGraph) {
-            EasyMock.expect(nextNode.getHour()).andReturn(8);
-            EasyMock.expect(nextNode.getHour()).andReturn(9);
-            EasyMock.expect(nextNode.getHour()).andReturn(10);
-            EasyMock.expect(nextNode.getHour()).andReturn(11);
-            EasyMock.expect(nextNode.getHour()).andReturn(18);
-            EasyMock.expect(nextNode.getHour()).andReturn(23);
-        }
+        EasyMock.expect(nextNode.getHour()).andReturn(8);
+        EasyMock.expect(nextNode.getHour()).andReturn(9);
+        EasyMock.expect(nextNode.getHour()).andReturn(10);
+        EasyMock.expect(nextNode.getHour()).andReturn(11);
+        EasyMock.expect(nextNode.getHour()).andReturn(18);
+        EasyMock.expect(nextNode.getHour()).andReturn(23);
+
 
         replayAll();
         ServiceHeuristics serviceHeuristics = createServiceHeuristics(queryTime, maxChanges);
@@ -230,12 +229,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode nextNode = createMock(GraphNode.class);
 
-        if (inMemoryGraph) {
-            EasyMock.expect(nextNode.getHour()).andReturn(8);
-            EasyMock.expect(nextNode.getHour()).andReturn(9);
-            EasyMock.expect(nextNode.getHour()).andReturn(10);
-            EasyMock.expect(nextNode.getHour()).andReturn(11);
-        }
+        EasyMock.expect(nextNode.getHour()).andReturn(8);
+        EasyMock.expect(nextNode.getHour()).andReturn(9);
+        EasyMock.expect(nextNode.getHour()).andReturn(10);
+        EasyMock.expect(nextNode.getHour()).andReturn(11);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -259,12 +256,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode nextNode = createMock(GraphNode.class);
 
-        if (inMemoryGraph) {
-            EasyMock.expect(nextNode.getHour()).andReturn(22);
-            EasyMock.expect(nextNode.getHour()).andReturn(23);
-            EasyMock.expect(nextNode.getHour()).andReturn(0);
-            EasyMock.expect(nextNode.getHour()).andReturn(1);
-        }
+        EasyMock.expect(nextNode.getHour()).andReturn(22);
+        EasyMock.expect(nextNode.getHour()).andReturn(23);
+        EasyMock.expect(nextNode.getHour()).andReturn(0);
+        EasyMock.expect(nextNode.getHour()).andReturn(1);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -292,12 +287,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode nextNode = createMock(GraphNode.class);
 
-        if (inMemoryGraph) {
-            EasyMock.expect(nextNode.getHour()).andReturn(22);
-            EasyMock.expect(nextNode.getHour()).andReturn(23);
-            EasyMock.expect(nextNode.getHour()).andReturn(0);
-            EasyMock.expect(nextNode.getHour()).andReturn(1);
-        }
+        EasyMock.expect(nextNode.getHour()).andReturn(22);
+        EasyMock.expect(nextNode.getHour()).andReturn(23);
+        EasyMock.expect(nextNode.getHour()).andReturn(0);
+        EasyMock.expect(nextNode.getHour()).andReturn(1);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -322,11 +315,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode nextNode = createMock(GraphNode.class);
 
-        if (inMemoryGraph) {
-            EasyMock.expect(nextNode.getHour()).andReturn(23);
-            EasyMock.expect(nextNode.getHour()).andReturn(0);
-            EasyMock.expect(nextNode.getHour()).andReturn(1);
-        }
+        EasyMock.expect(nextNode.getHour()).andReturn(23);
+        EasyMock.expect(nextNode.getHour()).andReturn(0);
+        EasyMock.expect(nextNode.getHour()).andReturn(1);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -350,11 +341,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode nextNode = createMock(GraphNode.class);
 
-        if (inMemoryGraph) {
-            EasyMock.expect(nextNode.getHour()).andReturn(23);
-            EasyMock.expect(nextNode.getHour()).andReturn(0);
-            EasyMock.expect(nextNode.getHour()).andReturn(1);
-        }
+        EasyMock.expect(nextNode.getHour()).andReturn(23);
+        EasyMock.expect(nextNode.getHour()).andReturn(0);
+        EasyMock.expect(nextNode.getHour()).andReturn(1);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -519,12 +508,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode nextNode = createMock(GraphNode.class);
 
-        if (inMemoryGraph) {
-            EasyMock.expect(nextNode.getHour()).andReturn(22);
-            EasyMock.expect(nextNode.getHour()).andReturn(23);
-            EasyMock.expect(nextNode.getHour()).andReturn(0);
-            EasyMock.expect(nextNode.getHour()).andReturn(1);
-        }
+        EasyMock.expect(nextNode.getHour()).andReturn(22);
+        EasyMock.expect(nextNode.getHour()).andReturn(23);
+        EasyMock.expect(nextNode.getHour()).andReturn(0);
+        EasyMock.expect(nextNode.getHour()).andReturn(1);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -676,8 +663,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     private @NotNull ServiceHeuristics createServiceHeuristics(TramTime queryTime, int maxNumChanges) {
         return new ServiceHeuristics(stationRepository,
-                journeyConstraints, queryTime, maxNumChanges, false,
-                inMemoryGraph);
+                journeyConstraints, queryTime, maxNumChanges, false);
     }
 
     private static class NeedMaxWaitConfig extends IntegrationTramTestConfig {

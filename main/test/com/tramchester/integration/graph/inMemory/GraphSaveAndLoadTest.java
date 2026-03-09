@@ -282,16 +282,6 @@ public class GraphSaveAndLoadTest {
                 public Boolean enableDiagnostics() {
                     return false;
                 }
-
-                @Override
-                public String getNeo4jPagecacheMemory() {
-                    throw new RuntimeException("Not Implemented");
-                }
-
-                @Override
-                public String getMemoryTransactionGlobalMaxSize() {
-                    throw new RuntimeException("Not Implemented");
-                }
             };
         }
     }

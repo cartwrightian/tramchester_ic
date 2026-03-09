@@ -11,8 +11,6 @@ public interface GraphDatabase {
     // aka is empty
     boolean isCleanDB();
 
-    boolean isInMemory();
-
     GraphTransaction beginTx();
 
     GraphTransaction beginTx(Duration timeout);

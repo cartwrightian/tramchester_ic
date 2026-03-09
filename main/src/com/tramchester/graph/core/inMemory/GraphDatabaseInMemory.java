@@ -100,11 +100,6 @@ public class GraphDatabaseInMemory implements GraphDatabase {
         return serviceManager.isCleanDB();
     }
 
-    @Override
-    public boolean isInMemory() {
-        return true;
-    }
-
     // begin immutable
 
     @Override

@@ -213,8 +213,7 @@ public abstract class RouteCalculatorSupport {
                                          final JourneyConstraints journeyConstraints) {
         final TramDuration maxInitialWait = TramchesterConfig.getMaxInitialWaitFor(nodeAndStation.location, config);
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
-                journeyRequest.getOriginalTime(), numChanges, journeyRequest.getDiagnosticsEnabled(),
-                graphDatabaseService.isInMemory());
+                journeyRequest.getOriginalTime(), numChanges, journeyRequest.getDiagnosticsEnabled());
         return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait,
                 journeyConstraints.getDestinationModes());
     }
@@ -224,7 +223,7 @@ public abstract class RouteCalculatorSupport {
                                          JourneyConstraints journeyConstraints, TramDuration maxInitialWait,
                                          boolean diagnosticsRequested, long maxNumberJourneys) {
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
-                actualQueryTime, numChanges, diagnosticsRequested, graphDatabaseService.isInMemory());
+                actualQueryTime, numChanges, diagnosticsRequested);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait,
                 journeyConstraints.getDestinationModes(), maxNumberJourneys);
     }

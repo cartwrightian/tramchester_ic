@@ -37,7 +37,7 @@ public class UploadRemoteSourceData {
         logger.info("Upload data sources to " + prefixForS3Key);
         final List<RemoteDataSourceConfig> remoteSources = config.getRemoteSources();
 
-        Set<DataSourceID> toSkip = remoteSources.stream().
+        final Set<DataSourceID> toSkip = remoteSources.stream().
                 filter(source -> source.getSkip().resolve(config)).
                 filter(RemoteDataSourceConfig::getSkipUpload).
                 map(RemoteDataSourceConfig::getDataSourceId).
@@ -68,7 +68,7 @@ public class UploadRemoteSourceData {
 
         //logger.info(format("Upload data for %s to S3 prefix %s", dataSourceId, prefixForS3Key));
 
-        Path localPath;
+        final Path localPath;
         if (dataSourceConfig.hasModCheckFilename()) {
             localPath = dataSourceConfig.getDataPath().resolve(dataSourceConfig.getModTimeCheckFilename());
             logger.info(format("Data source %s Mod check file name is present, will use %s as source, prefix S3 %s",
@@ -79,11 +79,9 @@ public class UploadRemoteSourceData {
                     dataSourceId, localPath, prefixForS3Key));
         }
 
-        //String localPath = dataSourceConfig.hasModCheckFilename() ? dataSourceConfig.getModTimeCheckFilename() : dataSourceConfig.getDownloadFilename();
-
         logger.info(format("Upload data source: '%s' path: '%s' prefix: '%s'", dataSourceId, localPath, prefixForS3Key));
 
-        boolean result;
+        final boolean result;
         if (noCompressionNeeded(localPath.toString())) {
             result = uploadFileToS3.uploadFile(prefixForS3Key, localPath, true);
         } else {

@@ -103,7 +103,7 @@ public class GraphInMemoryServiceManager {
     public void stopDatabase(final boolean saveGraph, final Path dbFolderPath) {
         logger.info("Stopping DB");
         if (graphCore==null) {
-            logger.error("Already stopped");
+            logger.warn("Already stopped");
         } else {
             if (saveGraph) {
                 logger.info("Saved DB to " + dbFolderPath.toAbsolutePath());

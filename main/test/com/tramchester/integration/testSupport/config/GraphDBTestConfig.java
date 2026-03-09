@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Train;
 import static java.lang.String.format;
 
 public class GraphDBTestConfig implements GraphDBConfig {
@@ -39,30 +37,6 @@ public class GraphDBTestConfig implements GraphDBConfig {
 
     public Path getDbPath() {
         return createGraphDatabasePath(group);
-    }
-
-    @Override
-    public String getNeo4jPagecacheMemory() {
-        if (config.getInMemoryGraph()) {
-            throw new RuntimeException("Should not be called for InMemory");
-        }
-
-        final EnumSet<TransportMode> transportModes = config.getTransportModes();
-        if (transportModes.contains(Bus)) {
-            return "300m";
-        }
-        if (transportModes.contains(Train)) {
-            return "1000m";
-        }
-        return "100m";
-    }
-
-    @Override
-    public String getMemoryTransactionGlobalMaxSize() {
-        if (config.getInMemoryGraph()) {
-            throw new RuntimeException("Should not be called for InMemory");
-        }
-        return "650m";
     }
 
     @Override

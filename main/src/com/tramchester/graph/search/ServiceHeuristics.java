@@ -30,11 +30,10 @@ public class ServiceHeuristics {
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
     private final int penultimateChange;
     private final boolean diagnostics;
-    private final boolean inMemory;
 
     public ServiceHeuristics(StationRepository stationRepository,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
-                             int currentChangesLimit, boolean diagnostics, boolean inMemory) {
+                             int currentChangesLimit, boolean diagnostics) {
         this.stationRepository = stationRepository;
 
         this.journeyConstraints = journeyConstraints;
@@ -43,7 +42,6 @@ public class ServiceHeuristics {
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
         penultimateChange = currentChangesLimit>1 ? currentChangesLimit-1 : currentChangesLimit;
         this.diagnostics = diagnostics;
-        this.inMemory = inMemory;
     }
     
     public HeuristicsReason checkServiceDateAndTime(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons,
@@ -120,11 +118,7 @@ public class ServiceHeuristics {
         reasons.incrementTotalChecked();
 
         final int hourAtNode;
-        if (inMemory) {
-            hourAtNode = nextNode.getHour();
-        } else {
-            hourAtNode = GraphLabel.getHourFrom(hourLabels);
-        }
+        hourAtNode = nextNode.getHour();
 
         // todo check if valid, maybe the destination is open in the following hour for example
 //        if (!journeyConstraints.destinationsAvailable(hourRange)) {

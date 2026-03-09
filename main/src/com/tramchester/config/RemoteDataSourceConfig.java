@@ -64,9 +64,6 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
 
     @Override
     public abstract ConfigReference<Boolean> getSkip();
-//    {
-//        return new ConfigReference<>(false);
-//    }
 
     @Override
     public String toString() {

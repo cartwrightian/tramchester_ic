@@ -29,22 +29,20 @@ public class BuildGraphCLI extends BaseCLI {
         try {
             BuildGraphCLI buildGraphCLI = new BuildGraphCLI();
             buildGraphCLI.run(configFile, logger, "BuildGraphCLI");
-        } catch (ConfigurationException | IOException e) {
-            logger.error("Failed",e);
+        } catch (ConfigurationException | RuntimeException |IOException e) {
+            logger.error("Failed to build graph",e);
             System.exit(-1);
         }
     }
 
     @Override
     public boolean run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
-        if (config.getInMemoryGraph()) {
-            logger.warn("InMemory is enabled, skipping build");
-            return false;
-        } else {
-            dependencies.get(StagedTransportGraphBuilder.Ready.class);
-            dependencies.close();
-            return true;
-        }
+        logger.info("Begin Graph Build");
+        dependencies.get(StagedTransportGraphBuilder.Ready.class);
+        logger.info("Graph Built, close dependencies");
+        dependencies.close();
+        logger.info("Done");
+        return true;
     }
 
 }
