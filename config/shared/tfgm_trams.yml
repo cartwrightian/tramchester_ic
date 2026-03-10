@@ -20,15 +20,15 @@ remoteSources:
     filename: tfgm_data.zip
     defaultExpiryDays: 1
   - name: database
-    skip:
-      config: inMemoryGraph
+#    skip:
+#      config: inMemoryGraph
     dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
     dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
     dataPath: databases
     downloadPath: databases
     filename: database.zip
     defaultExpiryDays: 0
-    modTimeCheckFilename: tramchester.db
+    modTimeCheckFilename: tramchester
     mandatory: false
     skipUpload: false
 bounds:

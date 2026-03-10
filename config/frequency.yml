@@ -3,8 +3,6 @@
 inMemoryGraph: true
 graphDBConfig:
   graphName: ''
-  neo4jPagecacheMemory: 0m
-  memoryTransactionGlobalMaxSize: 0m
 
 cacheFolder: data/cacheFrequency
 dataExpiryThreshold: 3
