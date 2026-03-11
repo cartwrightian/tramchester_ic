@@ -40,7 +40,7 @@ jobs:
     resource_class: medium
     working_directory: ~/repo
     environment:
-      #JAVA_TOOL_OPTIONS: -Xmx3500m
+      JAVA_TOOL_OPTIONS: -Xmx3000m
       TERM: dumb
       AWS_REGION: eu-west-1
       RELEASE_NUMBER: << pipeline.number >>
