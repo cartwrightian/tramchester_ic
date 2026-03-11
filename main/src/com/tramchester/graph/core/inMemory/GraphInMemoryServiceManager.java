@@ -141,17 +141,19 @@ public class GraphInMemoryServiceManager {
         return transactionManager;
     }
 
-    public void loadFrom(final Path path) {
-        if (!Files.exists(path)) {
-            String message = "Could not find " + path.toAbsolutePath();
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
+    private void loadFrom(final Path path) {
         if (this.graphCore!=null) {
             String message = "Attempted to overwrite via load";
             logger.error(message);
             throw new RuntimeException(message);
         }
+
+        if (!Files.exists(path)) {
+            String message = "Could not find " + path.toAbsolutePath();
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+
         final GraphCore core = graphPersistence.loadDBFrom(path, idFactory);
         this.graphCore = core;
         this.transactionManager = new TransactionManager(providesNow, core, idFactory);

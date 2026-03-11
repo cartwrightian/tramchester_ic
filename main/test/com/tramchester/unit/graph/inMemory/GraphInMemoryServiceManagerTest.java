@@ -17,6 +17,8 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -24,14 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
 
-
     private GraphInMemoryServiceManager serviceManager;
     private GraphPersistence graphPersistence;
     private GraphIdFactory graphIdFactory;
     private GraphDatabaseStoredVersions storedVersions;
 
+    Path realPath = Path.of("testData/graph/");
+
     @BeforeEach
-    void onceBeforeEachTestRuns() {
+    void onceBeforeEachTestRuns() throws IOException {
         ProvidesNow providesNow = new ProvidesLocalNow();
         graphIdFactory = new GraphIdFactory();
 
@@ -41,6 +44,7 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
 
         serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, graphPersistence);
 
+        Files.createDirectories(realPath);
     }
 
     @Test
@@ -61,16 +65,15 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
         TramTransportDataForTestFactory factory = new TramTransportDataForTestFactory(new ProvidesLocalNow());
         DataSourceRepository dataSourceRepository = factory.getTestData();
 
-        Path path = Path.of("testData/graph/");
 
-        EasyMock.expect(graphPersistence.filesExistIn(path)).andReturn(true);
+        EasyMock.expect(graphPersistence.filesExistIn(realPath)).andReturn(true);
         GraphCore graphCore = new GraphCore(graphIdFactory, false);
-        EasyMock.expect(graphPersistence.loadDBFrom(path, graphIdFactory)).andReturn(graphCore);
+        EasyMock.expect(graphPersistence.loadDBFrom(realPath, graphIdFactory)).andReturn(graphCore);
 
         EasyMock.expect(storedVersions.upToDate(EasyMock.eq(dataSourceRepository), EasyMock.anyObject(GraphTransaction.class))).andReturn(true);
 
         replayAll();
-        serviceManager.startDatabase(dataSourceRepository, path, true);
+        serviceManager.startDatabase(dataSourceRepository, realPath, true);
         assertFalse(serviceManager.isCleanDB());
         verifyAll();
     }
@@ -80,16 +83,14 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
         TramTransportDataForTestFactory factory = new TramTransportDataForTestFactory(new ProvidesLocalNow());
         DataSourceRepository dataSourceRepository = factory.getTestData();
 
-        Path path = Path.of("testData/graph/");
-
-        EasyMock.expect(graphPersistence.filesExistIn(path)).andReturn(true);
+        EasyMock.expect(graphPersistence.filesExistIn(realPath)).andReturn(true);
         GraphCore graphCore = new GraphCore(graphIdFactory, false);
-        EasyMock.expect(graphPersistence.loadDBFrom(path, graphIdFactory)).andReturn(graphCore);
+        EasyMock.expect(graphPersistence.loadDBFrom(realPath, graphIdFactory)).andReturn(graphCore);
 
         EasyMock.expect(storedVersions.upToDate(EasyMock.eq(dataSourceRepository), EasyMock.anyObject(GraphTransaction.class))).andReturn(false);
 
         replayAll();
-        serviceManager.startDatabase(dataSourceRepository, path, true);
+        serviceManager.startDatabase(dataSourceRepository, realPath, true);
         assertTrue(serviceManager.isCleanDB());
         verifyAll();
     }
