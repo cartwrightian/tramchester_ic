@@ -19,6 +19,8 @@ public class KnownTramRoute {
 
     public static final TramDate latestCutoverDate = TramDate.of(2026,3,9);
 
+    public static final TramDate newRouteIdsDate = TramDate.of(2026,3,22);
+
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
 

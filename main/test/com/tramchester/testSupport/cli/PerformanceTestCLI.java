@@ -80,7 +80,7 @@ public class PerformanceTestCLI extends BaseCLI {
 
             stop = response==null || "n".equalsIgnoreCase(response);
 
-            Running running = () -> keepRunning.get();
+            Running running = keepRunning::get;
 
             if (!stop) {
                 try (Timing timing = new Timing(logger, "Journeys Between All Stations")) {

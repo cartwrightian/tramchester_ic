@@ -97,7 +97,8 @@ class FindStationsByNumberLinksTramTest {
                 StWerburghsRoad,
                 Pomona,
                 Broadway,
-                HarbourCity
+                HarbourCity,
+                OldhamKingStreet, OldhamMumps
 //                Shudehill
                 //VeloPark,
                 //HoltTown

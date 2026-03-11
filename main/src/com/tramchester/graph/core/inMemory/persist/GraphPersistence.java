@@ -47,10 +47,12 @@ public class GraphPersistence {
         final JsonMapper jsonMapper = createMapper();
 
         final Path relationshipsFile = graphFilename.resolve(RELATIONSHIPS_FILENAME);
-        final TransportDataFromJSONFile<GraphRelationshipInMemory> relationshipsLoader = new TransportDataFromJSONFile<>(relationshipsFile, GraphRelationshipInMemory.class, jsonMapper);
+        final TransportDataFromJSONFile<GraphRelationshipInMemory> relationshipsLoader =
+                new TransportDataFromJSONFile<>(relationshipsFile, GraphRelationshipInMemory.class, jsonMapper);
 
         final Path nodesFile = graphFilename.resolve(NODES_FILENAME);
-        final TransportDataFromJSONFile<GraphNodeInMemory> nodesLoader = new TransportDataFromJSONFile<>(nodesFile, GraphNodeInMemory.class, jsonMapper);
+        final TransportDataFromJSONFile<GraphNodeInMemory> nodesLoader =
+                new TransportDataFromJSONFile<>(nodesFile, GraphNodeInMemory.class, jsonMapper);
 
         Stream<GraphRelationshipInMemory> relationships = relationshipsLoader.load();
         Stream<GraphNodeInMemory> nodes = nodesLoader.load();

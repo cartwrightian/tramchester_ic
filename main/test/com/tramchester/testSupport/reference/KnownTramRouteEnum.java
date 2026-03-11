@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.latestCutoverDate;
+import static com.tramchester.testSupport.reference.KnownTramRoute.newRouteIdsDate;
 
 /*
  * see also TramRouteHelper
@@ -25,30 +26,39 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses
 
-    ReplacementBusOne(BusOne, "Replacement Bus One", "1950", TramDate.of(2026,3,8)),
+    ReplacementBusOne(BusOne, "Replacement Bus One", "3214", TramDate.of(2026,3,22)),
     //ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", EmergencyWorksDeansgateDev2025),
     //ReplacementBusThree(BusThree, "Replacement Bus Three", "3082", TramDate.of(2025,11,1)),
 
     // Blue
     EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", latestCutoverDate),
+    EcclesAshtonNewB(Blue, "Eccles - Manchester - Ashton Under Lyne", "3207", newRouteIdsDate),
+
 
     // Green
     BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "841", latestCutoverDate),
+    BuryManchesterAltrinchamB(Green, "Bury - Manchester - Altrincham", "3208", newRouteIdsDate),
 
     // Navy
     VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "2120", latestCutoverDate),
+    VictoriaManchesterAirportB(Navy, "Victoria - Wythenshawe - Manchester Airport", "3209", newRouteIdsDate),
 
     // Pink
     RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "845", latestCutoverDate),
+    RochdaleManchesterEastDidisburyB(Pink, "Rochdale - Manchester - East Didsbury", "3210", newRouteIdsDate),
 
     // Purple
     EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", latestCutoverDate),
+    EtihadPiccadillyAltrinchamB(Purple, "Etihad Campus - Piccadilly - Altrincham", "3211", newRouteIdsDate),
 
     // Red
     CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "849", latestCutoverDate),
+    CornbrookTheTraffordCentreB(Red, "Etihad Campus - The Trafford Centre", "3212", newRouteIdsDate),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", latestCutoverDate);
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", latestCutoverDate),
+    AshtonCrumpsallB(Yellow, "Ashton - Crumpsall Bay", "3213", newRouteIdsDate);
+
 
     private final TFGMRouteNames line;
     private final String longName; // diagnostics only

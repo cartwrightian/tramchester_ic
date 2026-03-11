@@ -56,6 +56,12 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
+    public List<RemoteDataSourceConfig> getRemoteSources() {
+        // remove postCodeDatasourceConfig for now
+        return Arrays.asList(remoteDataSourceConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
+    }
+
+    @Override
     public int getNumberQueries() { return 3; }
 
     @Override
@@ -91,12 +97,6 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     @Override
     public int getMaxJourneyDuration() {
         return 180;
-    }
-
-    @Override
-    public List<RemoteDataSourceConfig> getRemoteSources() {
-        // remove postCodeDatasourceConfig for now
-        return Arrays.asList(remoteDataSourceConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 
     @Override

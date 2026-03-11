@@ -14,6 +14,8 @@ import java.time.Month;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.reference.TramStations.OldhamCentral;
+
 public class UpcomingDates {
 
     private static final TramDate sunday;
@@ -31,8 +33,9 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
+    public static TramDate RochdaleLineClosure = TramDate.of(2026, 3, 22);
 
-    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,8), TramDate.of(2026,3,14));
+    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,22), TramDate.of(2026,4,5));
     public static List<TramDate> MissingGreenDates = Arrays.asList(TramDate.of(2026,4,3), TramDate.of(2026,4,6));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
@@ -47,11 +50,15 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(TramStations station, TramDate date) {
-
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
+        if (OldhamCentral.getId().equals(stationId)) {
+            if (date.equals(RochdaleLineClosure)) {
+                return true;
+            }
+        }
         return anyClosedOnDate(date);
     }
 
