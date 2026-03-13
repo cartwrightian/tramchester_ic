@@ -94,7 +94,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         this.stopCallRepository = stopCallRepository;
         this.stationsWithDiversionRepository = stationsWithDiversionRepository;
 
-        this.commitBatchSize = 1000;
+        this.commitBatchSize = 500;
     }
 
     @PostConstruct

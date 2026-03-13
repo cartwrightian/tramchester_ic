@@ -20,14 +20,15 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 final class PropertyContainer implements GraphEntityProperties.GraphProps<PropertyContainer> {
 
-    //private static final int INITIAL_SIZE = 4;
+    private static final int INITIAL_SIZE = 4;
 
-    private final EnumMap<GraphPropertyKey, Object> props;
+    // NOTE: EnumMap pre-allocates space for every instance of the Enum, which is inefficient in this case
+    private final Map<GraphPropertyKey, Object> props;
     private final EnumSet<GraphPropertyKey> used;
     private final boolean diagnostics;
 
     PropertyContainer(final boolean diagnostics) {
-        this(new EnumMap<>(GraphPropertyKey.class), diagnostics);
+        this(new HashMap<>(INITIAL_SIZE), diagnostics);
     }
 
     public PropertyContainer(final List<PropertyDTO> properties) {
@@ -35,7 +36,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         properties.forEach(prop -> setProperty(GraphPropertyKey.parse(prop.getKey()), prop.getContainedValue()));
     }
 
-    private PropertyContainer(final EnumMap<GraphPropertyKey, Object> props, final boolean diagnostics) {
+    private PropertyContainer(final HashMap<GraphPropertyKey, Object> props, final boolean diagnostics) {
         this.props = props;
         this.diagnostics = diagnostics;
         used = diagnostics ? EnumSet.noneOf(GraphPropertyKey.class) : null;
@@ -43,7 +44,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     @Override
     public PropertyContainer copy() {
-        return new PropertyContainer(new EnumMap<>(props), diagnostics);
+        return new PropertyContainer(new HashMap<>(props), diagnostics);
     }
 
     @Override
