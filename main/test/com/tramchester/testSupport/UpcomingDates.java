@@ -35,7 +35,9 @@ public class UpcomingDates {
 
     public static TramDate RochdaleLineClosure = TramDate.of(2026, 3, 22);
 
-    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,22), TramDate.of(2026,4,5));
+    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,22),
+            TramDate.of(2026,4,12));
+
     public static List<TramDate> MissingGreenDates = Arrays.asList(TramDate.of(2026,4,3), TramDate.of(2026,4,6));
 
     public static boolean hasClosure(final Station station, final TramDate date) {

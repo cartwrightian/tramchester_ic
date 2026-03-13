@@ -42,6 +42,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
@@ -894,8 +895,26 @@ class TramGraphBuilderTest {
         assertNotEquals(0, txn.numberOf(TO_SERVICE));
         assertNotEquals(0, txn.numberOf(TO_MINUTE));
         assertNotEquals(0, txn.numberOf(TO_HOUR));
+    }
 
 
+    @Disabled("diagnostics around number of relationships")
+    @Test
+    void shouldSaneNumberOfRelationships() {
+        int limit = 2250;
+
+        EnumSet<TransportRelationshipTypes> allRelTypes = EnumSet.allOf(TransportRelationshipTypes.class);
+
+        List<GraphNode> nodes = Arrays.stream(GraphLabel.values()).
+                flatMap(label -> txn.findNodes(label)).
+                filter(node -> node.getRelationships(txn, Incoming, allRelTypes).count() > limit).
+                toList();
+
+        if (!nodes.isEmpty()) {
+            Map<TransportRelationshipTypes, Integer> counts = nodes.getFirst().getRelationships(txn, Incoming, allRelTypes).
+                    collect(Collectors.toMap(GraphRelationship::getType, rel -> 1, Integer::sum));
+            fail(counts.toString());
+         }
 
     }
 

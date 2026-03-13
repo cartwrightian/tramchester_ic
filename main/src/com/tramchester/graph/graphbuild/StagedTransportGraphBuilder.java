@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.GraphLabel.INTERCHANGE;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -499,10 +500,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                            final StopCallRepository.Costs costs,
                                            final MutableGraphTransaction txn) {
 
-        if (from.hasRelationship(txn, GraphDirection.Outgoing, ON_ROUTE)) {
+        if (from.hasRelationship(txn, Outgoing, ON_ROUTE)) {
             // diff outbounds for same route actually a normal situation, where (especially) trains go via
             // different paths even thought route is the "same", or back to the depot
-            final boolean alreadyHasRelationship = from.getRelationships(txn, GraphDirection.Outgoing, ON_ROUTE).
+            final boolean alreadyHasRelationship = from.getRelationships(txn, Outgoing, ON_ROUTE).
                     map(relationship -> relationship.getEndNodeId(txn)).
                     anyMatch(endNodesId -> endNodesId.equals(to.getId()));
             if (alreadyHasRelationship) {
@@ -522,7 +523,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // station -> platform
         final TramDuration enterPlatformCost = station.getMinChangeDuration();
 
-        if (stationNode.hasRelationship(txn, GraphDirection.Outgoing, ENTER_PLATFORM, platformNode)) {
+        if (stationNode.hasRelationship(txn, Outgoing, ENTER_PLATFORM, platformNode)) {
             logger.warn("Already had ENTER_PLATFORM from " + station.getId() + " to " + platform.getId());
         } else {
             final MutableGraphRelationship crossToPlatform = createRelationship(txn, stationNode, platformNode, ENTER_PLATFORM);
@@ -545,18 +546,21 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final TramTime departureTime = beginStop.getDepartureTime();
 
         // time node -> end route station
-        final MutableGraphNode routeStationEnd = routeStationNodeCache.getRouteStation(tx, route, endStop.getStation().getId());
         final MutableGraphNode timeNode = timeNodes.get(StationTime.of(startStation, beginStop.getDepartureTime()));
-        final TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
-        final MutableGraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
-        // properties on relationship
+        final MutableGraphNode routeStationEnd = routeStationNodeCache.getRouteStation(tx, route, endStop.getStation().getId());
 
+        final TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
+
+        if (timeNode.hasRelationship(tx, Outgoing, transportRelationshipType)) {
+            throw new RuntimeException("Already has relationship from " + departureTime + " to " + startStation.getId());
+        }
+
+        final MutableGraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
+
+        // properties on relationship
         final TramDuration cost = TramTime.difference(endStop.getArrivalTime(), departureTime);
         goesToRelationship.setCost(cost);
         goesToRelationship.set(trip);
-        // TODO Still useful?
-        //goesToRelationship.set(trip.getService());
-        //goesToRelationship.set(route);
         goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
     }
 

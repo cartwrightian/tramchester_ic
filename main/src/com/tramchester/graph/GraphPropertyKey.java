@@ -68,7 +68,7 @@ public enum GraphPropertyKey {
         this.text = text.intern();
     }
 
-    public static <C extends CoreDomain> GraphPropertyKey getFor(Class<C> klass) {
+    public static <C extends CoreDomain> GraphPropertyKey getFor(final Class<C> klass) {
         if (klass.equals(Station.class)) {
             return STATION_ID;
         }
