@@ -29,29 +29,6 @@ public class GraphLabelTest {
     }
 
     @Test
-    void shouldGetLabelForHour() {
-        assertEquals(GraphLabel.HOUR_15, GraphLabel.getHourLabel(15));
-    }
-
-    @Test
-    void shouldGetHourFromSetOfLabels() {
-        ImmutableEnumSet<GraphLabel> setA = ImmutableEnumSet.of(HOUR, HOUR_9);
-        assertEquals(9, GraphLabel.getHourFrom(setA));
-
-        ImmutableEnumSet<GraphLabel> setB = ImmutableEnumSet.of(HOUR, HOUR_23);
-        assertEquals(23, GraphLabel.getHourFrom(setB));
-    }
-
-    @Test
-    void shouldRoundTripHours() {
-        for (int hour = 0; hour <23; hour++) {
-            GraphLabel label = GraphLabel.getHourLabel(hour);
-            int result = getHourFrom(ImmutableEnumSet.of(HOUR, label));
-            assertEquals(hour, result);
-        }
-    }
-
-    @Test
     void shouldGetGraphLabelsFromModes() {
         ImmutableEnumSet<TransportMode> modes = getTransportModes();
 

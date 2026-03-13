@@ -58,6 +58,8 @@ jobs:
           path: ~/repo/build/test-results/integration
       - store_artifacts:
           path: ~/repo/build/reports/tests/integration
+      - store_artifacts:
+          path: ~/repo/build/reports/problems
       - run:
           name: upload
           command: ./gradlew --build-cache upload --no-daemon

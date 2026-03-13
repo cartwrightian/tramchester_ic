@@ -114,7 +114,7 @@ public class ServiceHeuristics {
 
     public HeuristicsReason interestedInHour(final HowIGotHere howIGotHere, final TramTime currentTime,
                                              final ServiceReasons reasons, final int maxWait,
-                                             final ImmutableEnumSet<GraphLabel> hourLabels, GraphNode nextNode) {
+                                             GraphNode nextNode) {
         reasons.incrementTotalChecked();
 
         final int hourAtNode;

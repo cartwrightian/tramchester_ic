@@ -732,7 +732,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ZERO,howIGotHere, reasons)).
                 andReturn(createValidReason(DurationOk));
         int maxInitialWaitMins = (int) maxInitialWait.toMinutes();
-        EasyMock.expect(serviceHeuristics.interestedInHour(howIGotHere, time, reasons, maxInitialWaitMins, HOUR.singleton(), node)).
+        EasyMock.expect(serviceHeuristics.interestedInHour(howIGotHere, time, reasons, maxInitialWaitMins, node)).
                 andReturn(HeuristicsReasons.DoesNotOperateAtHour(time, howIGotHere, 8));
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(HeuristicsReasons.CacheMiss(howIGotHere));

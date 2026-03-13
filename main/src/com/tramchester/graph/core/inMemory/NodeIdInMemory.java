@@ -19,7 +19,7 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
 
     @JsonCreator
     public NodeIdInMemory(@JsonProperty("id") final int id) {
-        this(id, ImmutableEnumSet.noneOf(GraphLabel.class));
+        this(id, GraphLabel.NoneOf);
     }
 
     public NodeIdInMemory(final int id, final ImmutableEnumSet<GraphLabel> labels) {
