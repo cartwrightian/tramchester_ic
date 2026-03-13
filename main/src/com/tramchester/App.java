@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import ch.qos.logback.classic.LoggerContext;
+import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
@@ -62,8 +63,11 @@ public class App extends Application<AppConfiguration>  {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private static final String SERVICE_NAME = "tramchester";
+    public static final String LIVE_DATA_JOB_CHECK = "liveDataJobCheck";
 
     private GuiceContainerDependencies container;
+    private Environment environment;
+    private HealthCheckServlet healthCheckServlet;
 
     public App() {
 
@@ -180,14 +184,17 @@ public class App extends Application<AppConfiguration>  {
     }
 
     @Override
-    public void run(AppConfiguration configuration, Environment environment) {
+    public void run(final AppConfiguration configuration, final Environment environment) {
         logger.info("App run");
 
         final MutableServletContextHandler applicationContext = environment.getApplicationContext();
+
         final MetricRegistry metricRegistry = environment.metrics();
+        final RegistersMetricsWithDropwizard registersMetricsWithDropwizard = new RegistersMetricsWithDropwizard(metricRegistry);
         final CacheMetrics.RegistersCacheMetrics registersCacheMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
 
         this.container = new ComponentsBuilder().create(configuration, registersCacheMetrics);
+        this.environment = environment;
 
         try {
             logger.info("Initial dependency container");
@@ -244,7 +251,7 @@ public class App extends Application<AppConfiguration>  {
         // only enable live data present in config
         if (configuration.liveTfgmTramDataEnabled()) {
             logger.info("Start tram live data");
-            initLiveDataMetricAndHealthcheck(configuration.getTfgmTramliveData(), environment, executor, metricRegistry);
+            initLiveDataMetricAndHealthcheck(configuration.getTfgmTramliveData(), environment, executor, registersMetricsWithDropwizard);
         } else {
             logger.info("Tram live data disabled");
         }
@@ -263,9 +270,10 @@ public class App extends Application<AppConfiguration>  {
 
         // serve health checks (additionally) on separate URL as we don't want to expose whole of Admin pages
         logger.info("Expose healthchecks at /healthcheck");
+        healthCheckServlet = new HealthCheckServlet(environment.healthChecks());
         environment.servlets().addServlet(
                 "HealthCheckServlet",
-                new HealthCheckServlet(environment.healthChecks())
+                healthCheckServlet
             ).addMapping("/healthcheck");
 
         // ready to serve traffic
@@ -319,7 +327,7 @@ public class App extends Application<AppConfiguration>  {
     }
 
     private void initLiveDataMetricAndHealthcheck(TfgmTramLiveDataConfig configuration, Environment environment,
-                                                  ScheduledExecutorService executor, MetricRegistry metricRegistry) {
+                                                  ScheduledExecutorService executor, RegistersMetricsWithDropwizard registersMetricsWithDropwizard) {
         logger.info("Init live data and live data healthchecks");
         // initial load of live data
         final LiveDataFetcher fetchData = container.get(LiveDataFetcher.class);
@@ -342,7 +350,7 @@ public class App extends Application<AppConfiguration>  {
             }
         }, initialDelay, refreshPeriodSeconds, TimeUnit.SECONDS);
 
-        environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
+        environment.healthChecks().register(LIVE_DATA_JOB_CHECK, new LiveDataJobHealthCheck(liveDataFuture));
 
         final TramDepartureRepository tramDepartureRepository = container.get(TramDepartureRepository.class);
         final PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);
@@ -350,7 +358,6 @@ public class App extends Application<AppConfiguration>  {
 
         // TODO via DI
         logger.info("Register live data healthchecks");
-        final RegistersMetricsWithDropwizard registersMetricsWithDropwizard = new RegistersMetricsWithDropwizard(metricRegistry);
         registersMetricsWithDropwizard.registerMetricsFor(tramDepartureRepository);
         registersMetricsWithDropwizard.registerMetricsFor(messageRepository);
         registersMetricsWithDropwizard.registerMetricsFor(countsLiveDataUploads);
@@ -371,5 +378,26 @@ public class App extends Application<AppConfiguration>  {
         return container;
     }
 
-
+    public void closeDependencies() {
+        if (environment!=null) {
+            logger.info("remove metrics");
+            environment.metrics().removeMatching(MetricFilter.ALL);
+            logger.info("deregister healthchecks");
+            environment.healthChecks().unregister(LIVE_DATA_JOB_CHECK);
+            container.deregisterHealthchecks(environment.healthChecks());
+        }
+        if (healthCheckServlet!=null) {
+            logger.info("Destroy healthcheck servlet");
+            healthCheckServlet.destroy();
+            healthCheckServlet = null;
+        }
+        try {
+            logger.info("close container");
+            container.close();
+            container = null;
+        }
+        catch (Exception e) {
+            logger.warn("Failed to close container",e);
+        }
+    }
 }

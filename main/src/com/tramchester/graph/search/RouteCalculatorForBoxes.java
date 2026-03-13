@@ -95,7 +95,6 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // share selector across queries, to allow caching of station to station distances
         // TODO Optimise using box based distance calculation? -- avoid doing per station per box
 
-
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
@@ -104,7 +103,6 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest, timeRange);
-
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
 

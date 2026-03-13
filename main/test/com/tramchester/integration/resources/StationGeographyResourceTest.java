@@ -54,7 +54,7 @@ class StationGeographyResourceTest {
     static void onceBeforeAnyTestsRun() {
         App app = appExtension.getTestSupport().getApplication();
         dependencies = app.getDependencies();
-        factory = new APIClientFactory(appExtension);
+        factory =  appExtension.getApiClientFactory();
     }
 
     @BeforeEach

@@ -23,7 +23,7 @@ public class RegistersMetricsWithDropwizard implements RegistersMetrics {
         registerMetricForClass(hasMetrics.getClass(), category, name, method);
     }
 
-    public void registerMetricsFor(HasMetrics hasMetrics) {
+    public void registerMetricsFor(final HasMetrics hasMetrics) {
         if (hasMetrics.areMetricsEnabled()) {
             hasMetrics.registerMetrics(this);
         }

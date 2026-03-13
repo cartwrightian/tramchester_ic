@@ -43,7 +43,7 @@ public class StationResourceClosedStationTest {
 
     @Test
     void shouldGetClosedStations() {
-        APIClientFactory factory = new APIClientFactory(appExtension);
+        APIClientFactory factory =  appExtension.getApiClientFactory();
 
         Response result = APIClient.getApiResponse(factory, "stations/closures");
         assertEquals(200, result.getStatus());

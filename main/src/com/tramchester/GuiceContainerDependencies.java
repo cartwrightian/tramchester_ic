@@ -84,8 +84,15 @@ public class GuiceContainerDependencies implements ComponentContainer {
 
     public void registerHealthchecksInto(final HealthCheckRegistry healthChecks) {
         logger.info("Register healthchecks");
-        final RegistersHealthchecks instance = get(RegistersHealthchecks.class);
-        instance.registerAllInto(healthChecks);
+        final RegistersHealthchecks registersHealthchecks = get(RegistersHealthchecks.class);
+        registersHealthchecks.registerAllInto(healthChecks);
+    }
+
+
+    public void deregisterHealthchecks(HealthCheckRegistry healthCheckRegistry) {
+        logger.info("Deregister healthchecks");
+        final RegistersHealthchecks registersHealthchecks = get(RegistersHealthchecks.class);
+        registersHealthchecks.deregisterAllFrom(healthCheckRegistry);
     }
 
     synchronized public void close() {

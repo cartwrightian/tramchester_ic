@@ -61,7 +61,7 @@ class JourneyPlannerBusTest {
 
     @BeforeAll
     public static void onceBeforeAll() {
-        factory = new APIClientFactory(appExt);
+        factory =  appExt.getApiClientFactory();
     }
 
     @BeforeEach

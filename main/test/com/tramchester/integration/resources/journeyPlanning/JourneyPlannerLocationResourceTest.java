@@ -20,6 +20,7 @@ import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JourneyPlannerLocationResourceTest {
 
     private static final AppConfiguration config = new ResourceTramTestConfig<>(JourneyPlannerResource.class);
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
@@ -50,6 +51,11 @@ class JourneyPlannerLocationResourceTest {
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
         when = TestEnv.testDay();
         maxChanges = appExtension.getConfiguration().getMaxNumberChanges();
+    }
+
+    @AfterAll
+    static void afterAllTestsRun() {
+        //appExtension = null;
     }
 
     @Test

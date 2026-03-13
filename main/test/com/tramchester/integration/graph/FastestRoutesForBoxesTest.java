@@ -132,6 +132,8 @@ class FastestRoutesForBoxesTest {
                 filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).
                 toList();
 
+        results.stop();
+
         assertEquals(1, destinationBox.size());
         assertTrue(destinationBox.getFirst().contained(destination.getGridPosition()));
     }

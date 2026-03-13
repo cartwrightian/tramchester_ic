@@ -35,7 +35,7 @@ public class JourneyResourceTestFacade {
             throw new RuntimeException("Planning is not enabled!");
         }
         parseStream = new ParseJSONStream<>(JourneyDTO.class);
-        factory = new APIClientFactory(appExtension);
+        factory = appExtension.getApiClientFactory();
     }
 
     @NotNull

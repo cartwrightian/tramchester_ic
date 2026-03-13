@@ -59,9 +59,16 @@ public class RegistersHealthchecks {
         }
     }
 
-    public void registerAllInto(HealthCheckRegistry registry) {
+    public void registerAllInto(final HealthCheckRegistry registry) {
         healthChecks.forEach(healthCheck -> {
             logger.info("Register health check " + healthCheck.getName());
             registry.register(healthCheck.getName(), healthCheck); });
+    }
+
+    public void deregisterAllFrom(HealthCheckRegistry registry) {
+        healthChecks.forEach(healthCheck -> {
+            logger.info("Deregister health check " + healthCheck.getName());
+            registry.unregister(healthCheck.getName());
+        });
     }
 }

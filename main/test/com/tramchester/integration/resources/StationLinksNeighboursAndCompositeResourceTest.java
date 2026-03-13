@@ -55,7 +55,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     public static void beforeAnyTestsRun() {
         App app = appExtension.getTestSupport().getApplication();
         dependencies = app.getDependencies();
-        factory = new APIClientFactory(appExtension);
+        factory =  appExtension.getApiClientFactory();
     }
 
     @BeforeEach

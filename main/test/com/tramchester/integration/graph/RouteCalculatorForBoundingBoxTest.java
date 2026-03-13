@@ -129,6 +129,8 @@ class RouteCalculatorForBoundingBoxTest {
 
         List<JourneysForBox> groupedJourneys = stream.toList();
 
+        result.stop();
+
         assertFalse(groupedJourneys.isEmpty());
 
         List<JourneysForBox> missed = groupedJourneys.stream().

@@ -48,7 +48,7 @@ class StationMessagesResourceTest {
 
     @BeforeAll
     public static void onceBeforeAll() {
-        factory = new APIClientFactory(appExtension);
+        factory =  appExtension.getApiClientFactory();
     }
 
     @BeforeEach

@@ -2,13 +2,16 @@ package com.tramchester.integration.testSupport;
 
 
 import com.tramchester.App;
-import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
 import io.dropwizard.core.Application;
 import io.dropwizard.testing.DropwizardTestSupport;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IntegrationAppExtension extends DropwizardAppExtension<AppConfiguration> {
+    private static final Logger logger = LoggerFactory.getLogger(IntegrationAppExtension.class);
+    private APIClientFactory factory;
 
     // NOTE See TestConfig for set-up of server, including gzip
 
@@ -17,14 +20,31 @@ public class IntegrationAppExtension extends DropwizardAppExtension<AppConfigura
     }
 
     @Override
+    public void before() throws Exception {
+        super.before();
+        factory = null;
+    }
+
+    @Override
     public void after() {
-        final App app =  getApplication();
-        if (app!=null) {
-            final GuiceContainerDependencies deps = app.getDependencies();
-            if (deps != null) {
-                deps.close();
+        try {
+            if (factory!=null) {
+                factory.close();
             }
+            final App app =  getApplication();
+            if (app!=null) {
+                app.closeDependencies();
+            }
+        } catch (Exception e) {
+            logger.error("exception during after()",e);
         }
         super.after();
+    }
+
+    public APIClientFactory getApiClientFactory() {
+        if (factory==null) {
+            factory = new APIClientFactory(this);
+        }
+        return factory;
     }
 }
