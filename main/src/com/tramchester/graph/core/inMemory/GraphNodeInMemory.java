@@ -127,16 +127,26 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final TransportRelationshipTypes relationshipType) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+                                                      final TransportRelationshipTypes relationshipType) {
         return getRelationships(txn, direction, EnumSet.of(relationshipType));
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction, final EnumSet<TransportRelationshipTypes> types) {
+    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
+                                                      final EnumSet<TransportRelationshipTypes> types) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getRelationshipImmutable(id, direction, types);
     }
 
+    @Override
+    public Stream<GraphRelationship> getAllRelationships(final GraphTransaction txn, final GraphDirection direction) {
+        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
+
+        return inMemory.findRelationships(id, direction);
+    }
+
+    @Deprecated
     @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                       final TransportRelationshipTypes... transportRelationshipTypes) {

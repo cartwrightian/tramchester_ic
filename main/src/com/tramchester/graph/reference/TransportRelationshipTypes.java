@@ -42,15 +42,15 @@ public enum TransportRelationshipTypes {
     NEIGHBOUR, // stations within N meters, see also Neighbours.DIFF_MODES_ONLY
     LINKED; // capture how stations are linked together, added during graph build, aids debug, visualisation, etc
 
-    private static final TransportRelationshipTypes[] forPlanning;
+    private static final EnumSet<TransportRelationshipTypes> forPlanning;
 
     static {
         final EnumSet<TransportRelationshipTypes> values = EnumSet.allOf(TransportRelationshipTypes.class);
         values.remove(ON_ROUTE); // not used for traversals
         values.remove(LINKED);
         values.remove(STATION_TO_ROUTE);
-        forPlanning = new TransportRelationshipTypes[values.size()];
-        values.toArray(forPlanning);
+        //forPlanning = new TransportRelationshipTypes[values.size()];
+        forPlanning = EnumSet.copyOf(values);
     }
 
     public static final ImmutableEnumSet<TransportRelationshipTypes> NoneOf = ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);
@@ -69,7 +69,7 @@ public enum TransportRelationshipTypes {
         singleton = ImmutableEnumSet.of(this);
     }
 
-    public static TransportRelationshipTypes[] forPlanning() {
+    public static EnumSet<TransportRelationshipTypes> forPlanning() {
         return forPlanning;
     }
 
@@ -100,17 +100,19 @@ public enum TransportRelationshipTypes {
         return valueOf(name);
     }
 
-    public static TransportRelationshipTypes[] forModes(final ImmutableEnumSet<TransportMode> transportModes) {
+    public static EnumSet<TransportRelationshipTypes> forModes(final ImmutableEnumSet<TransportMode> transportModes) {
         final Set<TransportRelationshipTypes> unique = transportModes.stream().
                 map(TransportRelationshipTypes::forMode).collect(Collectors.toSet());
 
-        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[unique.size()];
-        int index = 0;
-        for (final TransportRelationshipTypes type: unique) {
-            results[index] = type;
-            index++;
-        }
-        return results;
+        return EnumSet.copyOf(unique);
+
+//        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[unique.size()];
+//        int index = 0;
+//        for (final TransportRelationshipTypes type: unique) {
+//            results[index] = type;
+//            index++;
+//        }
+//        return results;
     }
 
     public ImmutableEnumSet<TransportRelationshipTypes> singleton() {

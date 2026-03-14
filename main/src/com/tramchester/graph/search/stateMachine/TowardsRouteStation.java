@@ -6,15 +6,19 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilder;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 
+import java.util.EnumSet;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public abstract class TowardsRouteStation<T extends RouteStationState> extends StateBuilder<T> {
+
+    private static final EnumSet<TransportRelationshipTypes> departs = EnumSet.of(DEPART, INTERCHANGE_DEPART);
 
     private final boolean interchangesOnly;
 
@@ -39,7 +43,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
             }
         } else {
             // not only interchanges
-            outboundsToFollow = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART);
+            outboundsToFollow = node.getRelationships(txn, GraphDirection.Outgoing, departs);
         }
 
         // also follow any active diversions

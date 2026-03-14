@@ -86,7 +86,7 @@ class TramGraphBuilderTest {
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
         txn = graphDatabase.beginTx();
-        transportRelationshipTypes = EnumSet.copyOf(Arrays.asList(TransportRelationshipTypes.forPlanning()));
+        transportRelationshipTypes = TransportRelationshipTypes.forPlanning();
 
     }
 

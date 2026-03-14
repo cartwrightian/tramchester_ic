@@ -8,7 +8,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Objects;
 
 public final class StateBuilderParameters {
@@ -17,7 +17,7 @@ public final class StateBuilderParameters {
     private final TowardsDestination towardsDestination;
     private final boolean depthFirst;
     private final boolean interchangesOnly;
-    private final TransportRelationshipTypes[] currentModes;
+    private final EnumSet<TransportRelationshipTypes> currentModes;
 
     public StateBuilderParameters(final TramDate queryDate, final TramTime queryTime,
                                   final TowardsDestination towardsDestination,
@@ -46,7 +46,7 @@ public final class StateBuilderParameters {
         return interchangesOnly;
     }
 
-    public TransportRelationshipTypes[] currentModes() {
+    public EnumSet<TransportRelationshipTypes> currentModes() {
         return currentModes;
     }
 
@@ -63,12 +63,12 @@ public final class StateBuilderParameters {
                 this.queryHour == that.queryHour &&
                 this.depthFirst == that.depthFirst &&
                 this.interchangesOnly == that.interchangesOnly &&
-                Arrays.equals(this.currentModes, that.currentModes);
+                this.currentModes.equals(that.currentModes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(queryDate, queryHour, depthFirst, interchangesOnly, Arrays.hashCode(currentModes));
+        return Objects.hash(queryDate, queryHour, depthFirst, interchangesOnly, currentModes);
     }
 
     @Override
@@ -78,7 +78,7 @@ public final class StateBuilderParameters {
                 "queryHour=" + queryHour + ", " +
                 "depthFirst=" + depthFirst + ", " +
                 "interchangesOnly=" + interchangesOnly + ", " +
-                "currentModes=" + Arrays.toString(currentModes) + ']';
+                "currentModes=" + currentModes + ']';
     }
 
 

@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -197,7 +196,7 @@ public class TransactionManagerTest extends EasyMockSupport {
             GraphNode check = txn.findNode(routeStation);
             assertNotNull(check);
 
-            EnumSet<TransportRelationshipTypes> relationshipTypes = EnumSet.copyOf(Arrays.asList(TransportRelationshipTypes.forPlanning()));
+            EnumSet<TransportRelationshipTypes> relationshipTypes = TransportRelationshipTypes.forPlanning();
 
             List<GraphRelationship> initialSearch = GraphHelper.getRelationshipsForRouteStation(txn, routeStation, Outgoing, relationshipTypes);
             assertTrue(initialSearch.isEmpty());

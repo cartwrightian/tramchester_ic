@@ -301,4 +301,5 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     public Set<GraphPropertyKey> getUnusedProps() {
         return graphProps.getUnused();
     }
+
 }

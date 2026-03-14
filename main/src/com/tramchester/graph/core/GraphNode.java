@@ -71,7 +71,10 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, EnumSet<TransportRelationshipTypes> types);
 
+    @Deprecated
     Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes... transportRelationshipTypes);
+
+    Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction);
 
     boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 

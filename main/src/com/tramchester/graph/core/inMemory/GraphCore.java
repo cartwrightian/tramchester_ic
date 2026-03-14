@@ -658,7 +658,6 @@ public class GraphCore implements Graph {
             final RelationshipsForNode relationshipsForNode = theMap.computeIfAbsent(nodeId, key -> new RelationshipsForNode());
             return relationshipsForNode.putOutbound(relationshipId);
         }
-
         public synchronized RelationshipsForNode get(final NodeIdInMemory id) {
             return theMap.getOrDefault(id, RelationshipsForNode.empty());
         }

@@ -6,13 +6,18 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
+import java.util.EnumSet;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class FindStateAfterRouteStation  {
+
+    private final static EnumSet<TransportRelationshipTypes> nonePlatform = EnumSet.of(WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
+    private final static EnumSet<TransportRelationshipTypes> boards = EnumSet.of(BOARD, INTERCHANGE_BOARD);
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final TramDuration cost, final JourneyStateUpdate journeyStateUpdate,
@@ -78,7 +83,7 @@ public class FindStateAfterRouteStation  {
         if (isPlatform) {
             other = node.getRelationships(txn, GraphDirection.Outgoing, LEAVE_PLATFORM);
         } else {
-            other = node.getRelationships(txn, GraphDirection.Outgoing, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
+            other = node.getRelationships(txn, GraphDirection.Outgoing, nonePlatform);
         }
 
         final Stream<GraphRelationship> boarding = getBoardingRelationships(txn, node);
@@ -93,7 +98,7 @@ public class FindStateAfterRouteStation  {
     public Stream<GraphRelationship> getBoardingRelationships(final GraphTransaction txn, final GraphNode node) {
         // TODO Order here?
         // towards route stations
-        return node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
+        return node.getRelationships(txn, GraphDirection.Outgoing, boards);
     }
 
     private IterableWithEmptyCheck<GraphRelationship> getTowardsDestination(final StateBuilder<?> stateBuilder,

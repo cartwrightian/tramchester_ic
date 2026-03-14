@@ -11,13 +11,17 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class TowardsDestination {
+
+    private static final EnumSet<TransportRelationshipTypes> departs = EnumSet.of(DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
 
     private final LocationCollection expanded;
 
@@ -41,7 +45,7 @@ public class TowardsDestination {
     }
 
     public IterableWithEmptyCheck<GraphRelationship> fromRouteStation(final GraphTransaction txn, final GraphNode node) {
-        final Stream<GraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
+        final Stream<GraphRelationship> relationships = node.getRelationships(txn, GraphDirection.Outgoing, departs);
         return getTowardsDestination(txn, relationships);
     }
 

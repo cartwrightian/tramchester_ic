@@ -14,12 +14,13 @@ import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTrip
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
+import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public class MinuteState extends TraversalState implements HasTowardsStationId {
 
     public static class Builder extends StateBuilder<MinuteState> {
-        final TransportRelationshipTypes[] currentModes;
+        final EnumSet<TransportRelationshipTypes> currentModes;
 
         public Builder(StateBuilderParameters builderParameters) {
             super(builderParameters);

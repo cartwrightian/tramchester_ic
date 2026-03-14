@@ -55,7 +55,7 @@ public class ShortestPath {
         final GraphPath pathToHere = incomingPath.duplicateWith(txn, currentNode);
         final TramDuration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
 
-        final Stream<GraphRelationship> outgoing = currentNode.getRelationships(txn, GraphDirection.Outgoing).
+        final Stream<GraphRelationship> outgoing = currentNode.getAllRelationships(txn, GraphDirection.Outgoing).
                 filter(filter::include);
 
         outgoing.forEach(graphRelationship -> {
