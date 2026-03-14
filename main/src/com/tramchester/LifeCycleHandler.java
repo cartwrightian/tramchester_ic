@@ -1,6 +1,9 @@
 package com.tramchester;
 
+import ch.qos.logback.classic.LoggerContext;
+import com.tramchester.cloud.SignalToCloudformationReady;
 import org.eclipse.jetty.util.component.LifeCycle;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,14 @@ public class LifeCycleHandler implements LifeCycle.Listener {
     @Override
     public void lifeCycleStarted(LifeCycle event) {
         logger.info("Dropwizard started");
+
+        logger.info("Prepare to signal cloud formation if running in cloud");
+        if (dependencies!=null) {
+            final SignalToCloudformationReady signaller = dependencies.get(SignalToCloudformationReady.class);
+            signaller.send();
+        } else {
+            logger.error("Dependencies null, did start up fail?");
+        }
     }
 
     @Override
@@ -35,16 +46,26 @@ public class LifeCycleHandler implements LifeCycle.Listener {
 
     @Override
     public void lifeCycleStopping(LifeCycle event) {
-        logger.info("Dropwizard stopping");
+        logger.warn("Dropwizard stopping");
         logger.info("Shutdown dependencies");
-        dependencies.close();
+        if (dependencies!=null) {
+            dependencies.close();
+        } else {
+            logger.error("Dependencies null, did start up fail?");
+        }
         logger.info("Stop scheduled tasks");
         executor.shutdown();
-        logger.info("Dependencies stopped");
     }
 
     @Override
     public void lifeCycleStopped(LifeCycle event) {
+        logger.info("Attempt flush of logs. Bye.");
+        // attempt to flush logs, messages are being lost when exception is uncaught
+        final ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+        if(factory instanceof LoggerContext ctx) {
+            ctx.stop();
+        }
+
         logger.info("Dropwizard stopped");
     }
 }

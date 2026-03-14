@@ -1,12 +1,10 @@
 package com.tramchester;
 
-import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SendMetricsToCloudWatch;
-import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -42,7 +40,6 @@ import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ServerConnector;
-import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,21 +92,17 @@ public class App extends Application<AppConfiguration>  {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.warn("=====> Shutting down, shutdown hook called");
 
-            final GuiceContainerDependencies dependencies = app.getDependencies();
-            if (dependencies!=null) {
-                logger.info("Closing dependencies");
-                dependencies.close();
-                logger.info("Closed dependencies");
-            } else {
-                logger.error("Dependencies were null, did startup failed?");
-            }
+            // into LifeCycleHandler
+//            final GuiceContainerDependencies dependencies = app.getDependencies();
+//            if (dependencies!=null) {
+//                logger.info("Closing dependencies");
+//                dependencies.close();
+//                logger.info("Closed dependencies");
+//            } else {
+//                logger.error("Dependencies were null, did startup failed?");
+//            }
 
-            logger.info("Attempt flush of logs. Bye.");
-            // attempt to flush logs, messages are being lost when exception is uncaught
-            final ILoggerFactory factory = LoggerFactory.getILoggerFactory();
-            if(factory instanceof LoggerContext ctx) {
-                ctx.stop();
-            }
+            // flush of logs in LifeCycleHandler
         }));
 
         try {
@@ -243,7 +236,7 @@ public class App extends Application<AppConfiguration>  {
         // api end points registration
         registerAPIResources(environment.jersey(), configuration);
 
-        // TODO Check this
+        // TODO Check this still needed
         logger.info("Set samesite cookie attribute");
         applicationContext.getServletContext().setAttribute(HttpCookie.SAME_SITE_ATTRIBUTE,
                 HttpCookie.SameSite.STRICT);
@@ -276,10 +269,7 @@ public class App extends Application<AppConfiguration>  {
                 healthCheckServlet
             ).addMapping("/healthcheck");
 
-        // ready to serve traffic
-        logger.info("Prepare to signal cloud formation if running in cloud");
-        final SignalToCloudformationReady signaller = container.get(SignalToCloudformationReady.class);
-        signaller.send();
+        // ready to serve traffic - signal to cloudformation now in LifeCycleHandler
 
         logger.warn("Now running");
     }
@@ -385,6 +375,8 @@ public class App extends Application<AppConfiguration>  {
             logger.info("deregister healthchecks");
             environment.healthChecks().unregister(LIVE_DATA_JOB_CHECK);
             container.deregisterHealthchecks(environment.healthChecks());
+
+            environment.getObjectMapper().clearCaches();
         }
         if (healthCheckServlet!=null) {
             logger.info("Destroy healthcheck servlet");

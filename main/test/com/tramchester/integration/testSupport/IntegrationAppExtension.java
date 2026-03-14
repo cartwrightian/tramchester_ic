@@ -30,6 +30,7 @@ public class IntegrationAppExtension extends DropwizardAppExtension<AppConfigura
         try {
             if (factory!=null) {
                 factory.close();
+                factory = null;
             }
             final App app =  getApplication();
             if (app!=null) {

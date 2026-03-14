@@ -21,7 +21,7 @@ class RelationshipsForNode {
         return empty;
     }
 
-    public Stream<GraphRelationshipInMemory> getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
+    public Stream<GraphRelationshipInMemory>  getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
         synchronized (outboundIds) {
             return outboundIds.stream().map(source::get);
         }
