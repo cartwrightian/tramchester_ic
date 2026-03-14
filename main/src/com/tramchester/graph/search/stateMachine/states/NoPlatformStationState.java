@@ -9,6 +9,7 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
 
+import java.util.EnumSet;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -43,8 +44,9 @@ public class NoPlatformStationState extends StationState {
         @Override
         public NoPlatformStationState fromWalking(final WalkingState walkingState, final GraphNode node, final TramDuration cost, final JourneyStateUpdate journeyState,
                                                   final GraphTransaction txn) {
+            final EnumSet<TransportRelationshipTypes> fromWalking = EnumSet.of(GROUPED_TO_PARENT, NEIGHBOUR);
             return new NoPlatformStationState(walkingState,
-                    boardRelationshipsPlus(node, txn, GROUPED_TO_PARENT, NEIGHBOUR),
+                    boardRelationshipsPlus(node, txn, fromWalking),
                     cost, node, journeyState, getDestination());
         }
 
@@ -53,7 +55,8 @@ public class NoPlatformStationState extends StationState {
                                                 final JourneyStateUpdate journeyState,
                                                 final GraphTransaction txn) {
 
-            final Stream<GraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
+            final EnumSet<TransportRelationshipTypes> fromStart = EnumSet.of(WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
+            final Stream<GraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, fromStart);
 
             final Stream<GraphRelationship> relationships = addValidDiversions(walksAndGroup, node, journeyState, txn);
 
@@ -78,7 +81,7 @@ public class NoPlatformStationState extends StationState {
         public NoPlatformStationState fromNeighbour(final StationState noPlatformStation, final GraphNode node, final TramDuration cost,
                                                     final JourneyStateUpdate journeyState,
                                                     final GraphTransaction txn) {
-            final Stream<GraphRelationship> grouped = node.getRelationships(txn, GraphDirection.Outgoing,GROUPED_TO_PARENT);
+            final Stream<GraphRelationship> grouped = node.getRelationships(txn, GraphDirection.Outgoing, GROUPED_TO_PARENT);
             final Stream<GraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(noPlatformStation, Stream.concat(grouped, boarding), cost, node, journeyState, getDestination());
         }
@@ -86,14 +89,18 @@ public class NoPlatformStationState extends StationState {
         @Override
         public NoPlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode node, final TramDuration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final Stream<GraphRelationship> neighbour = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
+            final EnumSet<TransportRelationshipTypes> fromGrouped = EnumSet.of(BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
+            final Stream<GraphRelationship> neighbour = node.getRelationships(txn, GraphDirection.Outgoing, fromGrouped);
             final Stream<GraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(groupedStationState, Stream.concat(neighbour, boarding), cost,  node, journeyState, getDestination());
         }
 
-        Stream<GraphRelationship> boardRelationshipsPlus(final GraphNode node, final GraphTransaction txn, final TransportRelationshipTypes... others) {
+        Stream<GraphRelationship> boardRelationshipsPlus(final GraphNode node, final GraphTransaction txn,
+                                                         final EnumSet<TransportRelationshipTypes> others) {
+            final EnumSet<TransportRelationshipTypes> boards = EnumSet.of(BOARD, INTERCHANGE_BOARD);
+
             final Stream<GraphRelationship> other = node.getRelationships(txn, GraphDirection.Outgoing, others);
-            final Stream<GraphRelationship> board = node.getRelationships(txn, GraphDirection.Outgoing, BOARD, INTERCHANGE_BOARD);
+            final Stream<GraphRelationship> board = node.getRelationships(txn, GraphDirection.Outgoing, boards);
             // order matters here, i.e. explore walks first
             return Stream.concat(other, board);
         }

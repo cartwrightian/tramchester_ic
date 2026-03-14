@@ -265,8 +265,8 @@ public class GraphComparisons {
 
 
     public void checkSameDirections(final GraphNode graphNodeA, final GraphNode graphNodeB, final GraphDirection direction) {
-        final List<GraphRelationship> relationshipsA = graphNodeA.getRelationships(txnNeo4J, direction).toList();
-        final List<GraphRelationship> relationshipsB = graphNodeB.getRelationships(txnInMem, direction).toList();
+        final List<GraphRelationship> relationshipsA = graphNodeA.getAllRelationships(txnNeo4J, direction).toList();
+        final List<GraphRelationship> relationshipsB = graphNodeB.getAllRelationships(txnInMem, direction).toList();
 
         assertEquals(relationshipsA.size(), relationshipsB.size());
 

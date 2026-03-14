@@ -38,9 +38,10 @@ public class DiagramCreator {
     private static final Logger logger = LoggerFactory.getLogger(DiagramCreator.class);
 
     private final GraphDatabase graphDatabase;
-    private final TransportRelationshipTypes[] toplevelRelationships =
-            new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION,
-                    ENTER_PLATFORM, LEAVE_PLATFORM, DIVERSION_DEPART  };
+    private final EnumSet<TransportRelationshipTypes> toplevelRelationships =
+            EnumSet.of(LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION,
+                    ENTER_PLATFORM, LEAVE_PLATFORM, DIVERSION_DEPART);
+
     private final StationRepository stationRepository;
     private final NPTGRepository nptgRepository;
 
@@ -152,7 +153,7 @@ public class DiagramCreator {
 
     private Stream<GraphRelationship> getRelationships(GraphNode targetNode, GraphDirection direction,
                                                        boolean toplevelOnly, GraphTransaction txn) {
-        TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
+        final EnumSet<TransportRelationshipTypes> types = toplevelOnly ?  toplevelRelationships : EnumSet.allOf(TransportRelationshipTypes.class);
         return targetNode.getRelationships(txn, direction, types);
     }
 

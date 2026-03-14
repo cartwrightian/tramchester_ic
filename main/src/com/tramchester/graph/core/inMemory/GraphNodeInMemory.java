@@ -10,7 +10,6 @@ import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -145,22 +144,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
         return inMemory.findRelationships(id, direction);
     }
-
-    @Deprecated
-    @Override
-    public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
-                                                      final TransportRelationshipTypes... transportRelationshipTypes) {
-        final List<TransportRelationshipTypes> list = Arrays.asList(transportRelationshipTypes);
-        final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-
-        if (list.isEmpty()) {
-            return inMemory.findRelationships(id, direction);
-        } else {
-            final EnumSet<TransportRelationshipTypes> types = EnumSet.copyOf(list);
-            return inMemory.getRelationshipImmutable(id, direction, types);
-        }
-    }
-
+    
     @Override
     public boolean hasRelationship(GraphTransaction txn, GraphDirection graphDirection,
                                    TransportRelationshipTypes relationshipType, GraphNode end) {
