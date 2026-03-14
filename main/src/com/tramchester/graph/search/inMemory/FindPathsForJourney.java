@@ -51,7 +51,7 @@ public class FindPathsForJourney {
         this.numberJourneys = numberJourneys;
     }
 
-    public Stream<GraphPath> findPaths(final TramTime actualQueryTime, Running running) {
+    public Stream<GraphPath> findPaths(final TramTime actualQueryTime, final Running running) {
 
         final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
 
@@ -59,7 +59,7 @@ public class FindPathsForJourney {
 
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
-        SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
+        final SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
         final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys, false);
         searchState.setJourneyState(stateKey, journeyState);
 

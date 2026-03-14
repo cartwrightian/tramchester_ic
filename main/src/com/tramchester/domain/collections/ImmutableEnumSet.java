@@ -21,7 +21,7 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
         return createFrom(EnumSet.copyOf(set));
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> noneOf(Class<S> theClass) {
+    public static <S extends Enum<S>> ImmutableEnumSet<S> noneOf(final Class<S> theClass) {
         return createFrom(EnumSet.noneOf(theClass));
     }
 

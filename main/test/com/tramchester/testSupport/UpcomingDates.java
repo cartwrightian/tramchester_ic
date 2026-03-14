@@ -35,6 +35,8 @@ public class UpcomingDates {
 
     public static TramDate RochdaleLineClosure = TramDate.of(2026, 3, 22);
 
+    public static TramDate VictoriaEndOfMarch = TramDate.of(2026,3,29);
+
     public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,22),
             TramDate.of(2026,4,12));
 
@@ -57,7 +59,7 @@ public class UpcomingDates {
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         if (OldhamCentral.getId().equals(stationId)) {
-            if (date.equals(RochdaleLineClosure)) {
+            if (date.equals(RochdaleLineClosure) || date.equals(VictoriaEndOfMarch)) {
                 return true;
             }
         }

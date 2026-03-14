@@ -30,7 +30,7 @@ public class GraphCore implements Graph {
     private final ConcurrentMap<GraphLabel, Set<NodeIdInMemory>> labelsToNodes;
 
     private final RelationshipsForNodes relationshipsForNodes;
-    private final ConcurrentMap<NodeIdPair, EnumSet<TransportRelationshipTypes>> relationshipTypesBetweenNodes;
+    private final ConcurrentMap<NodeIdPair, ImmutableEnumSet<TransportRelationshipTypes>> relationshipTypesBetweenNodes;
     private final RelationshipTypeCounts relationshipTypeCounts;
     private final boolean diagnostics;
     private final boolean local; // => scoped to one single transaction
@@ -216,9 +216,9 @@ public class GraphCore implements Graph {
         }
         final NodeIdPair key = NodeIdPair.of(beginId, endId);
         if (!relationshipTypesBetweenNodes.containsKey(key)) {
-            relationshipTypesBetweenNodes.put(key, EnumSet.noneOf(TransportRelationshipTypes.class));
+            relationshipTypesBetweenNodes.put(key, TransportRelationshipTypes.NoneOf);
         }
-        relationshipTypesBetweenNodes.get(key).add(relationshipType);
+        relationshipTypesBetweenNodes.compute(key, (k, existing) -> ImmutableEnumSet.join(existing, relationshipType.singleton()));
         return relationship;
     }
 
@@ -234,11 +234,11 @@ public class GraphCore implements Graph {
                 throw new RuntimeException(message);
             } else {
                 // record we have a relationship of this type between begin and end nodes
-                relationshipTypesBetweenNodes.get(idPair).add(relationshipType);
+                relationshipTypesBetweenNodes.compute(idPair, (k, existing) -> ImmutableEnumSet.join(existing, relationshipType.singleton()));
             }
         } else {
             // no relationships for this node yet
-            relationshipTypesBetweenNodes.put(idPair, EnumSet.of(relationshipType));
+            relationshipTypesBetweenNodes.put(idPair, relationshipType.singleton());
         }
 
     }
@@ -563,9 +563,9 @@ public class GraphCore implements Graph {
     public ImmutableEnumSet<TransportRelationshipTypes> getTypesBetween(final GraphNodeId idA, final GraphNodeId idB) {
         final NodeIdPair key = NodeIdPair.of((NodeIdInMemory) idA, (NodeIdInMemory) idB);
         if (relationshipTypesBetweenNodes.containsKey(key)) {
-            return ImmutableEnumSet.copyOf(relationshipTypesBetweenNodes.get(key));
+            return relationshipTypesBetweenNodes.get(key);
         } else {
-            return ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);
+            return TransportRelationshipTypes.NoneOf;
         }
     }
 

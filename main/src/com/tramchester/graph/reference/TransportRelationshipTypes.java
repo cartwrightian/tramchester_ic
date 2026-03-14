@@ -53,13 +53,21 @@ public enum TransportRelationshipTypes {
         values.toArray(forPlanning);
     }
 
-    public static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE, LINKED);
+    public static final ImmutableEnumSet<TransportRelationshipTypes> NoneOf = ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);
+
+    private static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE, LINKED);
 
     private static final EnumSet<TransportRelationshipTypes> HasTripId = EnumSet.of(TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO,
             FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE);
 
     private static final EnumSet<TransportRelationshipTypes> GoesTo = EnumSet.of(TRAM_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO,
             TRAIN_GOES_TO, SUBWAY_GOES_TO);
+
+    private final ImmutableEnumSet<TransportRelationshipTypes> singleton;
+
+    TransportRelationshipTypes() {
+        singleton = ImmutableEnumSet.of(this);
+    }
 
     public static TransportRelationshipTypes[] forPlanning() {
         return forPlanning;
@@ -105,6 +113,8 @@ public enum TransportRelationshipTypes {
         return results;
     }
 
-
+    public ImmutableEnumSet<TransportRelationshipTypes> singleton() {
+        return singleton;
+    }
 }
 
