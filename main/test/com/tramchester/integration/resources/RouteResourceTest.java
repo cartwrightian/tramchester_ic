@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class RouteResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(RouteResource.class));
     private static APIClientFactory factory;
 

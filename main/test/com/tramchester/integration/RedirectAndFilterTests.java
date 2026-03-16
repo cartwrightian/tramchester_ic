@@ -1,6 +1,5 @@
 package com.tramchester.integration;
 
-import com.tramchester.App;
 import com.tramchester.RedirectToAppFilter;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.dataimport.URLStatus;
@@ -14,12 +13,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class RedirectAndFilterTests {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(new IntegrationTramTestConfig());
 
     private URI base;
     private URI app;

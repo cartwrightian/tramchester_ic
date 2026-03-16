@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerCookieTest {
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyPlannerResource.class));
+            new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDateTime now;

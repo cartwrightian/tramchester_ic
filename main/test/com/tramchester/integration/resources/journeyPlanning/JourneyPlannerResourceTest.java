@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JourneyPlannerResourceTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyPlannerResource.class));
+            new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
     private static GuiceContainerDependencies dependencies;
 
@@ -320,7 +320,6 @@ public class JourneyPlannerResourceTest {
         validateAtLeastOneJourney(Altrincham, ShawAndCrompton, when, TramTime.of(22,45));
     }
 
-    @Disabled("Causing timeouts on CI")
     @Test
     void shouldOnlyReturnFullJourneysForEndOfDaysJourney() {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Deansgate,

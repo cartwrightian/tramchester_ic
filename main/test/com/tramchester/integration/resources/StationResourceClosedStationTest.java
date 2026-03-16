@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
@@ -39,7 +38,7 @@ public class StationResourceClosedStationTest {
     // NOTE: planning disabled here
     private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false, IntegrationTestConfig.CurrentStationWalks);
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(config);
 
     @Test
     void shouldGetClosedStations() {

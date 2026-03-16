@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import ch.qos.logback.classic.LoggerContext;
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.ILoggerFactory;
@@ -15,10 +16,12 @@ public class LifeCycleHandler implements LifeCycle.Listener {
 
     private final GuiceContainerDependencies dependencies;
     private final ScheduledExecutorService executor;
+    private final HealthCheckRegistry healthchecks;
 
-    public LifeCycleHandler(GuiceContainerDependencies dependencies, ScheduledExecutorService executor) {
+    public LifeCycleHandler(GuiceContainerDependencies dependencies, ScheduledExecutorService executor, HealthCheckRegistry healthchecks) {
         this.dependencies = dependencies;
         this.executor = executor;
+        this.healthchecks = healthchecks;
     }
 
     @Override
@@ -49,6 +52,7 @@ public class LifeCycleHandler implements LifeCycle.Listener {
         logger.warn("Dropwizard stopping");
         logger.info("Shutdown dependencies");
         if (dependencies!=null) {
+            dependencies.deregisterHealthchecks(healthchecks);
             dependencies.close();
         } else {
             logger.error("Dependencies null, did start up fail?");

@@ -54,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class DeparturesResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(DeparturesResource.class, IntegrationTramTestConfig.LiveData.Enabled));
     private static APIClientFactory factory;
 

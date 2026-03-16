@@ -91,18 +91,7 @@ public class App extends Application<AppConfiguration>  {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.warn("=====> Shutting down, shutdown hook called");
-
-            // into LifeCycleHandler
-//            final GuiceContainerDependencies dependencies = app.getDependencies();
-//            if (dependencies!=null) {
-//                logger.info("Closing dependencies");
-//                dependencies.close();
-//                logger.info("Closed dependencies");
-//            } else {
-//                logger.error("Dependencies were null, did startup failed?");
-//            }
-
-            // flush of logs in LifeCycleHandler
+            // dep close now in LifeCycleHandler or in the Test AppExtension
         }));
 
         try {
@@ -205,7 +194,7 @@ public class App extends Application<AppConfiguration>  {
         final ScheduledExecutorService executor = executorServiceBuilder.build();
 
         logger.info("Add lifecycle event listener");
-        environment.lifecycle().addEventListener(new LifeCycleHandler(container, executor));
+        environment.lifecycle().addEventListener(new LifeCycleHandler(container, executor, environment.healthChecks()));
         environment.lifecycle().addServerLifecycleListener(server -> {
             logger.warn("Server has started " + server);
             for (Connector connector : server.getConnectors()) {
@@ -268,6 +257,7 @@ public class App extends Application<AppConfiguration>  {
                 "HealthCheckServlet",
                 healthCheckServlet
             ).addMapping("/healthcheck");
+
 
         // ready to serve traffic - signal to cloudformation now in LifeCycleHandler
 
@@ -374,7 +364,6 @@ public class App extends Application<AppConfiguration>  {
             environment.metrics().removeMatching(MetricFilter.ALL);
             logger.info("deregister healthchecks");
             environment.healthChecks().unregister(LIVE_DATA_JOB_CHECK);
-            container.deregisterHealthchecks(environment.healthChecks());
 
             environment.getObjectMapper().clearCaches();
         }

@@ -48,8 +48,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class DeparturesAfterJourneyResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(IntegrationTramTestConfig.LiveData.Enabled, true));
+
     private static APIClientFactory factory;
 
     private Station stationWithNotes;

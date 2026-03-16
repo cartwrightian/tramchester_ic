@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StationResourceRailTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceRailTestConfig<>(StationResource.class, GreaterManchester));
+            new IntegrationAppExtension(new ResourceRailTestConfig<>(StationResource.class, GreaterManchester));
     private static APIClientFactory factory;
 
     private StationRepository stationRepo;

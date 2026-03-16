@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StationResourceTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(StationResource.class));
+            new IntegrationAppExtension(new ResourceTramTestConfig<>(StationResource.class));
     private static APIClientFactory factory;
 
     private final ObjectMapper mapper = new ObjectMapper();

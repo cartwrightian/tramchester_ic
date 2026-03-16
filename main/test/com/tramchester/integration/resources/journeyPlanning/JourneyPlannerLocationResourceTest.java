@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
-import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.ChangeStationRefWithPosition;
@@ -40,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JourneyPlannerLocationResourceTest {
 
     private static final AppConfiguration config = new ResourceTramTestConfig<>(JourneyPlannerResource.class);
-    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(config);
 
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;

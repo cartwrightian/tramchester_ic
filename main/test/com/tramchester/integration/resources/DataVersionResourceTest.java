@@ -1,7 +1,6 @@
 package com.tramchester.integration.resources;
 
 
-import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.DataVersionDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
@@ -22,10 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DataVersionResourceTest {
 
-    public static final String version = "2026-03-14T02:45:46Z";
+    public static final String version = "2026-03-16T02:45:46Z";
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(DataVersionResource.class));
+
     private static APIClientFactory factory;
 
     @BeforeAll

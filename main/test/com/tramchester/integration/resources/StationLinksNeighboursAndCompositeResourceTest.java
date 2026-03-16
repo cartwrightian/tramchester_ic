@@ -43,7 +43,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     private static final AppConfiguration configuration = new IntegrationTramBusTestConfig();
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(configuration);
     private static GuiceContainerDependencies dependencies;
     private static APIClientFactory factory;
 

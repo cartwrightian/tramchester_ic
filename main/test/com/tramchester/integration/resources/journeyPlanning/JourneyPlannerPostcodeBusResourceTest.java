@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
-import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
@@ -30,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerPostcodeBusResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new IntegrationBusTestConfig());
 
     private TramDate day;

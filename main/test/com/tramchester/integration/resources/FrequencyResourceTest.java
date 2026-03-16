@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -36,7 +35,7 @@ public class FrequencyResourceTest {
     private static APIClientFactory factory;
     private ParseJSONStream<BoxWithFrequencyDTO> parseStream;
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(FrequencyResource.class));
 
     @BeforeAll

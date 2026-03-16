@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneysForGridResource.class));
+            new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneysForGridResource.class));
     private static APIClientFactory factory;
 
     private ParseJSONStream<BoxWithCostDTO> parseStream;

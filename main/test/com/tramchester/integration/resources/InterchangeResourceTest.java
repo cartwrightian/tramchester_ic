@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class InterchangeResourceTest  {
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(InterchangeResource.class));
+            new IntegrationAppExtension(new ResourceTramTestConfig<>(InterchangeResource.class));
     private static APIClientFactory factory;
 
     private InterchangeRepository interchangeRepository;

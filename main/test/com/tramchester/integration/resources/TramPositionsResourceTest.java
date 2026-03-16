@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.tramchester.App;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -27,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class TramPositionsResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(TramPositionsResource.class, IntegrationTramTestConfig.LiveData.Enabled));
     private static APIClientFactory factory;
 

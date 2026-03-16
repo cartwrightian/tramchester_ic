@@ -96,7 +96,9 @@ public class GuiceContainerDependencies implements ComponentContainer {
     }
 
     synchronized public void close() {
-        logger.info("Callbacks");
+        logger.info("Close called");
+
+        logger.info("close callbacks");
         closeCallbacks.forEach(closesResource -> {
             try {
                 closesResource.close();
@@ -106,22 +108,23 @@ public class GuiceContainerDependencies implements ComponentContainer {
         });
         closeCallbacks.clear();
 
-        logger.info("Dependencies close");
 
         if (injector==null) {
-            logger.info("Already closed");
+            logger.info("Already closed dependencies");
             return;
+        } else {
+            logger.info("Dependencies closing");
+
+            logger.info("Begin cache stats");
+            CacheMetrics cacheMetrics = get(CacheMetrics.class);
+            cacheMetrics.report();
+            logger.info("End cache stats");
+
+            logger.info("Stop components");
+            stop();
+
+            logger.info("Dependencies closed");
         }
-
-        logger.info("Begin cache stats");
-        CacheMetrics cacheMetrics = get(CacheMetrics.class);
-        cacheMetrics.report();
-        logger.info("End cache stats");
-
-        logger.info("Stop components");
-        stop();
-
-        logger.info("Dependencies closed");
         System.gc(); // for tests which accumulate/free a lot of memory
     }
 
@@ -131,7 +134,8 @@ public class GuiceContainerDependencies implements ComponentContainer {
     }
 
     protected void stop() {
-        LifecycleManager manager = injector.getInstance(LifecycleManager.class);
+        logger.info("stop");
+        final LifecycleManager manager = injector.getInstance(LifecycleManager.class);
         if (manager==null) {
             logger.error("Unable to get lifecycle manager for close()");
         } else {

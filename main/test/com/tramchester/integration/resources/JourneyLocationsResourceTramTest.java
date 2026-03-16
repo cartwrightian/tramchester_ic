@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JourneyLocationsResourceTramTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyLocationsResource.class));
+            new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneyLocationsResource.class));
     private static APIClientFactory factory;
 
     private final ObjectMapper mapper = new ObjectMapper();

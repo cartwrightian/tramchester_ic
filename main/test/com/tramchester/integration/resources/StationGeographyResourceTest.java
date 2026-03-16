@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationGeographyResourceTest {
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfigWithNaptan<>(StationGeographyResource.class));
 
     private static GuiceContainerDependencies dependencies;

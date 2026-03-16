@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
@@ -29,7 +28,7 @@ class VersionAndConfigResourceTest {
 
     private static final IntegrationTramTestConfig configuration = new ResourceTramTestConfig<>(VersionResource.class);
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(configuration);
     private static APIClientFactory factory;
 
     private final String endPoint = "version";

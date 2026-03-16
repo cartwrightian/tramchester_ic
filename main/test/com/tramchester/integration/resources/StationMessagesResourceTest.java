@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationMessagesResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(StationMessagesResource.class, IntegrationTramTestConfig.LiveData.Enabled));
     private static APIClientFactory factory;
 

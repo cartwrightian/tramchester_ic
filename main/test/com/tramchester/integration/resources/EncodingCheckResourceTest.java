@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.tramchester.App;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -29,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class EncodingCheckResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(IntegrationTramTestConfig.LiveData.Disabled, true));
     private static APIClientFactory factory;
 

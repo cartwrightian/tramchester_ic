@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
-import com.tramchester.App;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -24,7 +23,7 @@ import java.util.List;
 public class JourneyPlannerResourceStreamingTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyPlannerResource.class));
+            new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;

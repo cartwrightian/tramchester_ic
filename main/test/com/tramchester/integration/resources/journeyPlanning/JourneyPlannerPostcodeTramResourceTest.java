@@ -1,6 +1,5 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
-import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -29,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class JourneyPlannerPostcodeTramResourceTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled(IntegrationTramTestConfig.LiveData.Disabled, IntegrationTramTestConfig.Caching.Enabled));
+            new IntegrationAppExtension(new TramWithPostcodesEnabled(IntegrationTramTestConfig.LiveData.Disabled, IntegrationTramTestConfig.Caching.Enabled));
 
     private TramDate day;
     private TramTime time;
