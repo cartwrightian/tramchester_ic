@@ -6,14 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.graph.core.GraphRelationshipId;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<RelationshipIdInMemory> {
     private final int id;
+    private final int hash;
 
     @JsonCreator
     public RelationshipIdInMemory(@JsonProperty("id") int id) {
         this.id = id;
+        this.hash = Integer.hashCode(id);
     }
 
     @JsonGetter("id")
@@ -37,7 +37,7 @@ public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<R
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return hash;
     }
 
     @Override

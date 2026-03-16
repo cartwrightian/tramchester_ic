@@ -9,10 +9,9 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
+    private final int hash;
 
     @JsonIgnore
     private final ImmutableEnumSet<GraphLabel> labels; // diagnostics only
@@ -25,6 +24,7 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
     public NodeIdInMemory(final int id, final ImmutableEnumSet<GraphLabel> labels) {
         this.id = id;
         this.labels = labels;
+        this.hash = Integer.hashCode(id);
     }
 
     @JsonGetter("id")
@@ -56,7 +56,7 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return hash;
     }
 
     @Override

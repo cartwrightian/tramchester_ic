@@ -205,13 +205,16 @@ public class MutableTransactionGraph implements Graph {
         }
 
         if (localGraph.hasNodeId(nodeId)) {
-            // will have copied in relationships alongside node?
-            List<GraphRelationshipInMemory> fromParent = parent.findRelationshipsMutableFor(nodeId, direction).toList();
-            List<GraphRelationshipInMemory> local = localGraph.findRelationshipsMutableFor(nodeId, direction).toList();
-            if (!local.containsAll(fromParent)) {
-                throw new RuntimeException("Sanity check fail");
-            }
-            return local.stream();
+            // Performance hit from this check
+            // should have copied in relationships alongside node
+//            List<GraphRelationshipInMemory> fromParent = parent.findRelationshipsMutableFor(nodeId, direction).toList();
+//            List<GraphRelationshipInMemory> local = localGraph.findRelationshipsMutableFor(nodeId, direction).toList();
+//            if (!local.containsAll(fromParent)) {
+//                throw new RuntimeException("Sanity check fail");
+//            }
+//            return local.stream();
+
+            return localGraph.findRelationshipsMutableFor(nodeId, direction);
 
         }
 
