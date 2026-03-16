@@ -22,17 +22,15 @@ import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
@@ -45,11 +43,13 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincha
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class JourneyPlannerBusTest {
 
     private static final IntegrationBusTestConfig configuration = new IntegrationBusTestConfig();
-    private static final IntegrationAppExtension appExt = new IntegrationAppExtension(configuration);
+
+    @TramApp
+    private static IntegrationAppExtension appExt = new IntegrationAppExtension(configuration);
     private static APIClientFactory factory;
 
     private TramDate when;
@@ -78,6 +78,12 @@ class JourneyPlannerBusTest {
 
         stockportCentralStops = KnownLocality.Stockport.from(stationGroupRepository);
         nearShudehillCentralStops = KnownLocality.Shudehill.from(stationGroupRepository);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExt.after();
+        appExt = null;
     }
 
     @Test

@@ -8,9 +8,11 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.resources.InterchangeResource;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.TramAppTestExtension;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,9 +23,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 public class InterchangeResourceTest  {
-    private static final IntegrationAppExtension appExtension =
+
+    @TramApp
+    private static IntegrationAppExtension appExtension =
             new IntegrationAppExtension(new ResourceTramTestConfig<>(InterchangeResource.class));
     private static APIClientFactory factory;
 
@@ -38,6 +42,12 @@ public class InterchangeResourceTest  {
     void beforeEachTestRuns() {
         App app =  appExtension.getApplication();
         interchangeRepository = app.getDependencies().get(InterchangeRepository.class);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

@@ -7,23 +7,25 @@ import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.DataVersionResource;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
+import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.Response;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataUpdateTest
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 public class DataVersionResourceTest {
 
     public static final String version = "2026-03-16T02:45:46Z";
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(DataVersionResource.class));
 
     private static APIClientFactory factory;
@@ -31,6 +33,12 @@ public class DataVersionResourceTest {
     @BeforeAll
     public static void onceBeforeAll() {
         factory =  appExtension.getApiClientFactory();
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

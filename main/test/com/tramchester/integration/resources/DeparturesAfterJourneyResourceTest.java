@@ -29,12 +29,14 @@ import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,10 +47,11 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RequiresNetwork
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class DeparturesAfterJourneyResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(IntegrationTramTestConfig.LiveData.Enabled, true));
 
     private static APIClientFactory factory;
@@ -67,6 +70,12 @@ class DeparturesAfterJourneyResourceTest {
     @BeforeAll
     public static void onceBeforeAll() {
         factory =  appExtension.getApiClientFactory();
+    }
+
+    @AfterAll
+    public static void onceAfterAllRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @BeforeEach

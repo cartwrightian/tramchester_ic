@@ -1,12 +1,14 @@
-package com.tramchester.integration;
+package com.tramchester.integration.resources;
 
 import com.tramchester.RedirectToAppFilter;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.TramAppTestExtension;
+import com.tramchester.testSupport.testTags.TramApp;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +19,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class RedirectAndFilterTests {
 
+    @TramApp
     private static IntegrationAppExtension appExtension = new IntegrationAppExtension(new IntegrationTramTestConfig());
 
     private URI base;
@@ -29,6 +32,12 @@ class RedirectAndFilterTests {
     void onceBeforeEachTestRuns() throws URISyntaxException {
         base = new URI("http://localhost:" + appExtension.getLocalPort());
         app = new URI("http://localhost:" + appExtension.getLocalPort() + "/app");
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

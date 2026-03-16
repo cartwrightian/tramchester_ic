@@ -10,13 +10,11 @@ import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import com.tramchester.testSupport.testTags.TramApp;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Set;
@@ -24,10 +22,11 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Disabled("Postcode planning not currently in use")
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class JourneyPlannerPostcodeTramResourceTest {
 
-    private static final IntegrationAppExtension appExtension =
+    @TramApp
+    private static IntegrationAppExtension appExtension =
             new IntegrationAppExtension(new TramWithPostcodesEnabled(IntegrationTramTestConfig.LiveData.Disabled, IntegrationTramTestConfig.Caching.Enabled));
 
     private TramDate day;
@@ -39,6 +38,12 @@ class JourneyPlannerPostcodeTramResourceTest {
         day = TestEnv.testDay();
         time = TramTime.of(9,35);
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

@@ -14,10 +14,11 @@ import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,10 +36,12 @@ import static com.tramchester.testSupport.reference.TramStations.Deansgate;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class JourneyPlannerLocationResourceTest {
 
     private static final AppConfiguration config = new ResourceTramTestConfig<>(JourneyPlannerResource.class);
+
+    @TramApp
     private static IntegrationAppExtension appExtension = new IntegrationAppExtension(config);
 
     private TramDate when;
@@ -53,8 +56,9 @@ class JourneyPlannerLocationResourceTest {
     }
 
     @AfterAll
-    static void afterAllTestsRun() {
-        //appExtension = null;
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

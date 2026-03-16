@@ -19,8 +19,9 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,10 +34,11 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 public class JourneyPlannerResourceTest {
 
-    private static final IntegrationAppExtension appExtension =
+    @TramApp
+    private static IntegrationAppExtension appExtension =
             new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
     private static GuiceContainerDependencies dependencies;
@@ -66,6 +68,12 @@ public class JourneyPlannerResourceTest {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
         List<Platform> platforms = new ArrayList<>(altrincham.getPlatforms());
         firstPlatformAtAlty = platforms.getFirst();
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

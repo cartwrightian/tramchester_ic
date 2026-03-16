@@ -17,12 +17,14 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyLocationsResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,10 +38,11 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class JourneyLocationsResourceTramTest {
 
-    private static final IntegrationAppExtension appExtension =
+    @TramApp
+    private static IntegrationAppExtension appExtension =
             new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneyLocationsResource.class));
     private static APIClientFactory factory;
 
@@ -55,6 +58,12 @@ class JourneyLocationsResourceTramTest {
     void beforeEachTestRuns() {
         App app =  appExtension.getApplication();
         stationRepository = app.getDependencies().get(StationRepository.class);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

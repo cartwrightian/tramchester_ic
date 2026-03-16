@@ -1,7 +1,9 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -9,10 +11,12 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.BusTest;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -26,10 +30,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("wip for now")
 @BusTest
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class JourneyPlannerPostcodeBusResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new IntegrationBusTestConfig());
 
     private TramDate day;
@@ -41,6 +46,12 @@ class JourneyPlannerPostcodeBusResourceTest {
         day = TestEnv.testDay();
         time = TramTime.of(9,35);
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

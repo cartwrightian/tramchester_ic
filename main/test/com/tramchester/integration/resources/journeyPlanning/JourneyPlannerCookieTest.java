@@ -18,12 +18,14 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,9 +42,11 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 public class JourneyPlannerCookieTest {
-    private static final IntegrationAppExtension appExtension =
+
+    @TramApp
+    private static IntegrationAppExtension appExtension =
             new IntegrationAppExtension(new ResourceTramTestConfig<>(JourneyPlannerResource.class));
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -58,6 +62,12 @@ public class JourneyPlannerCookieTest {
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
         stationRepository = dependencies.get(StationRepository.class);
         now = TestEnv.LocalNow();
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

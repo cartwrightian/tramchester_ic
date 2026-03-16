@@ -4,8 +4,8 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
+import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -13,20 +13,22 @@ import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 public class StationResourceClosedStationTest {
     private final static TramDate when = TramDate.of(TestEnv.LocalNow().toLocalDate());
 
@@ -38,7 +40,14 @@ public class StationResourceClosedStationTest {
     // NOTE: planning disabled here
     private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false, IntegrationTestConfig.CurrentStationWalks);
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(config);
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(config);
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
+    }
 
     @Test
     void shouldGetClosedStations() {

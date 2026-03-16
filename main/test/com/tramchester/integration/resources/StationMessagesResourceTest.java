@@ -19,10 +19,12 @@ import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationMessagesResource;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,10 +39,11 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RequiresNetwork
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class StationMessagesResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(StationMessagesResource.class, IntegrationTramTestConfig.LiveData.Enabled));
     private static APIClientFactory factory;
 
@@ -70,6 +73,12 @@ class StationMessagesResourceTest {
                 findAny();
         searchForMessage.ifPresent(platformMessage -> stationWithNotes = platformMessage.getStation());
 
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

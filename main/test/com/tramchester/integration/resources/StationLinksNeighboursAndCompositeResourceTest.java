@@ -17,16 +17,14 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.KnownLocality;
+import com.tramchester.testSupport.testTags.TramApp;
 import com.tramchester.testSupport.testTags.TramBusTest;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
@@ -38,12 +36,13 @@ import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TramBusTest
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class StationLinksNeighboursAndCompositeResourceTest {
 
     private static final AppConfiguration configuration = new IntegrationTramBusTestConfig();
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(configuration);
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(configuration);
     private static GuiceContainerDependencies dependencies;
     private static APIClientFactory factory;
 
@@ -68,6 +67,12 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
         shudehillTramId = IdForDTO.createFor(shudehillTram);
 
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Disabled("needs trams and buses enabled")

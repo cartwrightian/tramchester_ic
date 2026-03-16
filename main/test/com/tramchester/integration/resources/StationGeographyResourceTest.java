@@ -24,10 +24,12 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.resources.StationGeographyResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,9 +42,11 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class StationGeographyResourceTest {
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
+
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfigWithNaptan<>(StationGeographyResource.class));
 
     private static GuiceContainerDependencies dependencies;
@@ -61,6 +65,12 @@ class StationGeographyResourceTest {
     void beforeEachTestRuns() {
         DTOFactory = dependencies.get(DTOFactory.class);
         nptgRepository = dependencies.get(NPTGRepository.class);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     // todo neighbours

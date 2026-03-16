@@ -13,11 +13,13 @@ import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.PostcodeTest;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,10 +32,11 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearWythensha
 import static org.junit.jupiter.api.Assertions.*;
 
 @PostcodeTest
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class PostcodeResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new PostcodesOnlyEnabledResourceConfig());
     private static APIClientFactory factory;
 
@@ -42,6 +45,12 @@ class PostcodeResourceTest {
     @BeforeAll
     public static void onceBeforeAll() {
         factory =  appExtension.getApiClientFactory();
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

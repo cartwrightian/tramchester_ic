@@ -1,21 +1,22 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.VersionResource;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.TramAppTestExtension;
+import com.tramchester.testSupport.testTags.TramApp;
+import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Set;
@@ -23,12 +24,13 @@ import java.util.Set;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class VersionAndConfigResourceTest {
 
     private static final IntegrationTramTestConfig configuration = new ResourceTramTestConfig<>(VersionResource.class);
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(configuration);
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(configuration);
     private static APIClientFactory factory;
 
     private final String endPoint = "version";
@@ -36,6 +38,12 @@ class VersionAndConfigResourceTest {
     @BeforeAll
     public static void onceBeforeAll() {
         factory = appExtension.getApiClientFactory();
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

@@ -13,9 +13,11 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.FrequencyResource;
 import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,13 +31,14 @@ import java.util.List;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 public class FrequencyResourceTest {
 
     private static APIClientFactory factory;
     private ParseJSONStream<BoxWithFrequencyDTO> parseStream;
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(
+    @TramApp
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(
             new ResourceTramTestConfig<>(FrequencyResource.class));
 
     @BeforeAll
@@ -46,6 +49,12 @@ public class FrequencyResourceTest {
     @BeforeEach
     public void beforeEachTest() {
         parseStream = new ParseJSONStream<>(BoxWithFrequencyDTO.class);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test

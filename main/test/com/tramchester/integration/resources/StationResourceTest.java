@@ -21,8 +21,9 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -37,11 +38,13 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(TramAppTestExtension.class)
 class StationResourceTest {
 
-    private static final IntegrationAppExtension appExtension =
+    @TramApp
+    private static IntegrationAppExtension appExtension =
             new IntegrationAppExtension(new ResourceTramTestConfig<>(StationResource.class));
+
     private static APIClientFactory factory;
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -59,6 +62,12 @@ class StationResourceTest {
         GuiceContainerDependencies dependencies = app.getDependencies();
         stationRepository = dependencies.get(StationRepository.class);
         config = dependencies.get(TramchesterConfig.class);
+    }
+
+    @AfterAll
+    public static void onceAfterAllTestsRun() {
+        appExtension.after();
+        appExtension = null;
     }
 
     @Test
