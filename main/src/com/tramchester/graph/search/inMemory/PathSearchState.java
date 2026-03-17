@@ -77,7 +77,8 @@ public class PathSearchState {
         }
     }
 
-    public void addCostAndQueue(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory graphPath, boolean towardsDest) {
+    public void addCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath,
+                                final boolean towardsDest) {
         final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath, towardsDest);
 
         synchronized (nodeQueue) {

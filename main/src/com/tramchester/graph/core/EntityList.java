@@ -2,7 +2,6 @@ package com.tramchester.graph.core;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 public interface EntityList {
@@ -16,5 +15,5 @@ public interface EntityList {
 
     int size();
 
-    List<GraphId> getIds();
+    GraphIdList getIds();
 }

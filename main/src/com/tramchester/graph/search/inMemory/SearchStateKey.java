@@ -1,20 +1,20 @@
 package com.tramchester.graph.search.inMemory;
 
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphIdList;
+import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 
-import java.util.List;
 import java.util.Objects;
 
 public class SearchStateKey {
     private final GraphNodeId nodeId;
-    private final List<GraphId> path;
+    private final GraphIdList path;
 
     public static SearchStateKey create(final GraphPathInMemory graphPath, final GraphNodeId lastNode) {
         return new SearchStateKey(lastNode, graphPath.getEntitiesIds());
     }
 
-    public SearchStateKey(final GraphNodeId nodeId, final List<GraphId> path) {
+    public SearchStateKey(final GraphNodeId nodeId, final GraphIdList path) {
         this.nodeId = nodeId;
         this.path = path;
     }

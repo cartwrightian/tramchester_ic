@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph.inMemory;
 
 import com.tramchester.domain.time.TramDuration;
+import com.tramchester.graph.core.inMemory.GraphIdListInMem;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.search.inMemory.PathSearchState;
@@ -10,7 +11,6 @@ import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.PriorityQueue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -107,14 +107,14 @@ public class NodeSearchStateTest extends EasyMockSupport {
         assertEquals(stateA, thrid);
     }
 
-    private GraphPathInMemory createMockPathOfLength(int len) {
+    private GraphPathInMemory createMockPathOfLength(final int len) {
         GraphPathInMemory path = createMock(GraphPathInMemory.class);
         EasyMock.expect(path.length()).andStubReturn(len);
         EasyMock.expect(path.duplicate()).andStubReturn(path);
         return path;
     }
 
-    private static @NotNull SearchStateKey getStateKey(int id) {
-        return new SearchStateKey(new NodeIdInMemory(id), Collections.emptyList());
+    private static @NotNull SearchStateKey getStateKey(final int id) {
+        return new SearchStateKey(new NodeIdInMemory(id), new GraphIdListInMem());
     }
 }

@@ -159,28 +159,28 @@ public class GraphPathInMemory implements GraphPath {
         return entityList.isEmpty();
     }
 
-    public List<GraphId> getEntitiesIds() {
+    public GraphIdList getEntitiesIds() {
         return entityList.getIds();
     }
 
     private static class SimpleEntityList implements EntityList {
 
         private final List<GraphEntity<? extends GraphId>> list;
-        private final List<GraphId> ids;
+        private final GraphIdListInMem ids;
 
         private SimpleEntityList() {
             list = new ArrayList<>();
-            ids = new ArrayList<>();
+            ids = new GraphIdListInMem();
         }
 
-        private SimpleEntityList(final List<GraphEntity<? extends GraphId>> list, final List<GraphId> ids) {
+        private SimpleEntityList(final List<GraphEntity<? extends GraphId>> list, final GraphIdListInMem ids) {
             this.list = list;
             this.ids = ids;
         }
 
         @Override
         public EntityList branchFrom() {
-            return new SimpleEntityList(new ArrayList<>(list), new ArrayList<>(ids));
+            return new SimpleEntityList(new ArrayList<>(list), new GraphIdListInMem(ids));
         }
 
         @Override
@@ -205,7 +205,7 @@ public class GraphPathInMemory implements GraphPath {
         }
 
         @Override
-        public List<GraphId> getIds() {
+        public GraphIdList getIds() {
             return ids;
         }
 
