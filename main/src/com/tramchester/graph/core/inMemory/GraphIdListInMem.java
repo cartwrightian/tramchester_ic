@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class GraphIdListInMem implements GraphIdList {
-    private final List<GraphId> ids;
+    private final List<Integer> ids;
 
     public GraphIdListInMem(final GraphIdListInMem other) {
         ids = new ArrayList<>(other.ids);
@@ -19,8 +19,9 @@ public class GraphIdListInMem implements GraphIdList {
     }
 
     @Override
-    public void add(GraphId id) {
-        ids.add(id);
+    public void add(final GraphId id) {
+        InternalGraphId internalGraphId = (InternalGraphId) id;
+        ids.add(internalGraphId.getInternalId());
     }
 
     @Override

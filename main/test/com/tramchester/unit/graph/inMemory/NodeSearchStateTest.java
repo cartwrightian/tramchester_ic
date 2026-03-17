@@ -5,7 +5,7 @@ import com.tramchester.graph.core.inMemory.GraphIdListInMem;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.search.inMemory.PathSearchState;
-import com.tramchester.graph.search.inMemory.SearchStateKey;
+import com.tramchester.graph.core.inMemory.SearchStateKey;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;

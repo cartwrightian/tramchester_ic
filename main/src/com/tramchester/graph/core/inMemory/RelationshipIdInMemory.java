@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.graph.core.GraphRelationshipId;
 import org.jetbrains.annotations.NotNull;
 
-public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<RelationshipIdInMemory> {
+public class RelationshipIdInMemory extends InternalGraphId implements GraphRelationshipId, Comparable<RelationshipIdInMemory>  {
     private final int id;
     private final int hash;
 
@@ -49,4 +49,8 @@ public class RelationshipIdInMemory implements GraphRelationshipId, Comparable<R
         idFactory.captureRelationshipId(id);
     }
 
+    @Override
+    int getInternalId() {
+        return id;
+    }
 }

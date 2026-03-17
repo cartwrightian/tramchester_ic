@@ -9,7 +9,7 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 
-public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
+public class NodeIdInMemory extends InternalGraphId implements GraphNodeId, Comparable<NodeIdInMemory> {
     private final int id;
     private final int hash;
 
@@ -66,5 +66,10 @@ public class NodeIdInMemory implements GraphNodeId, Comparable<NodeIdInMemory> {
 
     void recordIdTo(final GraphIdFactory toUpdate) {
         toUpdate.captureNodeId(id);
+    }
+
+    @Override
+    public int getInternalId() {
+        return id;
     }
 }

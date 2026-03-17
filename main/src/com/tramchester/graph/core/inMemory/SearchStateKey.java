@@ -1,14 +1,14 @@
-package com.tramchester.graph.search.inMemory;
+package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.graph.core.GraphIdList;
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 
 import java.util.Objects;
 
 public class SearchStateKey {
     private final GraphNodeId nodeId;
     private final GraphIdList path;
+    private final int internalNodeId;
 
     public static SearchStateKey create(final GraphPathInMemory graphPath, final GraphNodeId lastNode) {
         return new SearchStateKey(lastNode, graphPath.getEntitiesIds());
@@ -17,6 +17,7 @@ public class SearchStateKey {
     public SearchStateKey(final GraphNodeId nodeId, final GraphIdList path) {
         this.nodeId = nodeId;
         this.path = path;
+        internalNodeId = ((InternalGraphId)nodeId).getInternalId();
     }
 
     public GraphNodeId getNodeId() {
@@ -24,15 +25,15 @@ public class SearchStateKey {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        SearchStateKey stateKey = (SearchStateKey) o;
-        return Objects.equals(nodeId, stateKey.nodeId) && Objects.equals(path, stateKey.path);
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        SearchStateKey that = (SearchStateKey) object;
+        return internalNodeId == that.internalNodeId && Objects.equals(path, that.path);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeId, path);
+        return Objects.hash(path, internalNodeId);
     }
 
     @Override
