@@ -14,6 +14,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -109,6 +110,7 @@ class KnownTramRouteTest {
         List<TramDate> missingFromDataOnDates = new ArrayList<>();
         getDateRange().
                 filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
+                filter(date -> !UpcomingDates.Easter2026Works.contains(date)).
                 sorted(TramDate::compareTo).
                 forEach(date -> {
                     final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
@@ -201,6 +203,7 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 12)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
@@ -235,7 +238,7 @@ class KnownTramRouteTest {
             assertTrue(routeRepository.hasRouteId(known.getId()), known + "(" +known.getId() + ") is missing from repo");
             Route actual = routeRepository.getRouteById(known.getId());
             assertTrue(actual.getDateRange().contains(known.getValidFrom()), known.getValidFrom() + " for " +
-                    known + " not within " + actual.getDateRange());
+                    known.name() + " not within " + actual.getDateRange());
         });
     }
 

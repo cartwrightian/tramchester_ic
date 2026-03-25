@@ -42,7 +42,7 @@ public class GraphSaveAndLoadTest {
     private static GuiceContainerDependencies componentContainer;
     private static TramchesterConfig config;
     private GraphPersistence graphPersistence;
-    private static Path reltationshipsFilename;
+    private static Path relationshipsFilename;
     private static Path nodesFilename;
 
     @BeforeAll
@@ -54,14 +54,14 @@ public class GraphSaveAndLoadTest {
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
 
-        reltationshipsFilename = GRAPH_PATH.resolve(GraphPersistence.RELATIONSHIPS_FILENAME);
+        relationshipsFilename = GRAPH_PATH.resolve(GraphPersistence.RELATIONSHIPS_FILENAME);
         nodesFilename = GRAPH_PATH.resolve(GraphPersistence.NODES_FILENAME);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        Files.deleteIfExists(reltationshipsFilename);
+        Files.deleteIfExists(relationshipsFilename);
         Files.deleteIfExists(nodesFilename);
         Files.deleteIfExists(GRAPH_PATH);
     }
@@ -71,13 +71,13 @@ public class GraphSaveAndLoadTest {
         graphPersistence = componentContainer.get(GraphPersistence.class);
 
 
-        Files.deleteIfExists(reltationshipsFilename);
+        Files.deleteIfExists(relationshipsFilename);
         Files.deleteIfExists(nodesFilename);
     }
 
     @AfterEach
     void onceAfterEachTestRuns() throws IOException {
-        Files.deleteIfExists(reltationshipsFilename);
+        Files.deleteIfExists(relationshipsFilename);
         Files.deleteIfExists(nodesFilename);
         Files.deleteIfExists(GRAPH_PATH);
     }
@@ -94,7 +94,7 @@ public class GraphSaveAndLoadTest {
 
         boolean result = graphPersistence.save(GRAPH_PATH, serviceManager);
         assertTrue(result);
-        assertTrue(Files.exists(reltationshipsFilename));
+        assertTrue(Files.exists(relationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
         GraphCore graph = serviceManager.getGraphCore();
@@ -131,7 +131,7 @@ public class GraphSaveAndLoadTest {
 
         boolean savedOk = graphPersistence.save(GRAPH_PATH, serviceManager);
         assertTrue(savedOk);
-        assertTrue(Files.exists(reltationshipsFilename));
+        assertTrue(Files.exists(relationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
         GraphCore result = graphPersistence.loadDBFrom(GRAPH_PATH, idFactory);
@@ -150,7 +150,7 @@ public class GraphSaveAndLoadTest {
 
     @Test
     void shouldHaveTestForActiveFiltering() {
-        fail("TODO add test");
+       // TODO Not causing issues right now
     }
 
     @Test

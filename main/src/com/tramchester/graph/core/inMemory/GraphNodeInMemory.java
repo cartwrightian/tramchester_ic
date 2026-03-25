@@ -97,6 +97,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         return id;
     }
 
+
+
     @Override
     public boolean hasLabel(GraphLabel graphLabel) {
         return labels.contains(graphLabel);

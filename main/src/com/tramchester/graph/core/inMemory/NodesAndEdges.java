@@ -24,7 +24,7 @@ public class NodesAndEdges {
     private final ConcurrentMap<RelationshipIdInMemory, GraphRelationshipInMemory> relationships;
     private final ConcurrentMap<NodeIdInMemory, GraphNodeInMemory> nodes;
 
-    NodesAndEdges() {
+    public NodesAndEdges() {
         relationships = new ConcurrentHashMap<>();
         nodes = new ConcurrentHashMap<>();
     }

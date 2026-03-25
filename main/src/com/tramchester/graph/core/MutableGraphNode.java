@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
@@ -69,4 +70,6 @@ public interface MutableGraphNode extends GraphNode {
 
     MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction tx,
                                                           TransportRelationshipTypes transportRelationshipTypes, GraphDirection graphDirection);
+
+    void setStartDate(TramDate date);
 }

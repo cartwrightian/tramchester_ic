@@ -12,14 +12,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.MissingGreenDates;
-import static com.tramchester.testSupport.UpcomingDates.ReplacementBus1Running;
+import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate latestCutoverDate = TramDate.of(2026,3,9);
+    public static final TramDate latestCutoverDate = TramDate.of(2026,3,25);
 
-    public static final TramDate newRouteIdsDate = TramDate.of(2026,3,22);
+    public static final TramDate newRouteIdsDate = TramDate.of(2026,3,29);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -80,9 +79,6 @@ public class KnownTramRoute {
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.equals(TramDate.of(2026,3,1)) || date.isAfter(TramDate.of(2026,3,14))) {
-                routes.add(find.apply(Green));
-            }
             if (ReplacementBus1Running.contains(date)) {
                 routes.add(find.apply(BusOne));
             }
@@ -92,12 +88,15 @@ public class KnownTramRoute {
             }
         }
 
+        if (!Easter2026Works.contains(date)) {
+            routes.add(find.apply(Red));
+            routes.add(find.apply(Blue));
+            routes.add(find.apply(Purple));
+        }
+
         routes.add(find.apply(Yellow));
-        routes.add(find.apply(Blue));
-        routes.add(find.apply(Red));
         routes.add(find.apply(Navy));
         routes.add(find.apply(Pink));
-        routes.add(find.apply(Purple));
 
         return routes;
     }

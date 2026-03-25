@@ -3,6 +3,7 @@ package com.tramchester.graph.core;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -10,15 +11,13 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
 
 public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>> {
-    private static final Logger logger = LoggerFactory.getLogger(GraphEntityProperties.class);
 
     protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(final C domainItem, final E entity) {
         entity.setProperty(domainItem.getProp(), domainItem.getId().getGraphId());
@@ -69,6 +68,8 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
         void setTime(TramTime tramTime);
 
         TramTime getTime();
+
+        TramDate getStartDate();
 
         void addTripId(IdFor<Trip> tripId);
 

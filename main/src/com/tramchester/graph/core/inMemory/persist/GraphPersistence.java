@@ -6,8 +6,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.loader.files.TransportDataFromJSONFile;
+import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.inMemory.*;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.reference.GraphLabel;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -25,9 +31,11 @@ public class GraphPersistence {
     private static final Logger logger = LoggerFactory.getLogger(GraphPersistence.class);
 
     private final JsonMapper mapper;
+    private final GetsFileModTime getsFileModTimeModTime;
 
     @Inject
-    public GraphPersistence() {
+    public GraphPersistence(final GetsFileModTime getsFileModTimeModTime) {
+        this.getsFileModTimeModTime = getsFileModTimeModTime;
         this.mapper = createMapper();
     }
 
@@ -65,7 +73,7 @@ public class GraphPersistence {
     }
 
     // pass in GraphInMemoryServiceManager to avoid circular dependencies at create time
-    public boolean save(final Path graphPath, GraphInMemoryServiceManager serviceManager) {
+    public boolean save(final Path graphPath, final GraphInMemoryServiceManager serviceManager) {
         if (!Files.exists(graphPath)) {
             try {
                 logger.info("Create folder " + graphPath);
@@ -84,6 +92,16 @@ public class GraphPersistence {
         }
 
         final GraphCore core = serviceManager.getGraphCore();
+
+        final ZonedDateTime dbTimestamp = getTimestampFor(core);
+        final ZonedDateTime dirModTime = getsFileModTimeModTime.getFor(graphPath);
+        if (!dbTimestamp.isAfter(dirModTime)) {
+            logger.info("No need to save DB, already up to date for timestamp " +dbTimestamp);
+            return false;
+        } else {
+            logger.info("Need to save db:" + dbTimestamp + " folder:" + dirModTime);
+        }
+
         final NodesAndEdges nodesAndEdges = core.getNodesAndEdges();
 
         if (nodesAndEdges.getNodes().isEmpty() || nodesAndEdges.getRelationships().isEmpty()) {
@@ -116,9 +134,18 @@ public class GraphPersistence {
             return false;
         }
 
+        getsFileModTimeModTime.update(graphPath, dbTimestamp);
+
         logger.info("Saved Graph at " + graphPath.toAbsolutePath());
 
         return true;
+    }
+
+    private ZonedDateTime getTimestampFor(final GraphCore core) {
+        List<GraphNode> query = core.findNodesImmutable(GraphLabel.VERSION).toList();
+        final GraphNode versionNode = GraphDatabaseMetaInfo.getSingleVersionNode(query);
+
+        return GraphDatabaseMetaInfo.getTimestampFor(versionNode);
     }
 
 }

@@ -2,6 +2,7 @@ package com.tramchester.graph.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
@@ -158,6 +159,11 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         set(trip, graphProps);
     }
 
+    @Override
+    public void setStartDate(final TramDate date) {
+        graphProps.setProperty(START_DATE, date);
+    }
+
     ///// GET //////////////////////////////////////////////////
 
     // NOTE: Transaction closed exceptions will occur if keep reference to node beyond lifetime of the original transaction
@@ -215,6 +221,12 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     public TramTime getTime() {
         return graphProps.getTime();
+    }
+
+    @JsonIgnore
+    @Override
+    public TramDate getStartDate() {
+        return graphProps.getStartDate();
     }
 
     @JsonIgnore

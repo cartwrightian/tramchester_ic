@@ -3,6 +3,7 @@ package com.tramchester.graph.core;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
@@ -50,6 +51,8 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     boolean hasStationId();
 
     TramTime getTime();
+
+    TramDate getStartDate();
 
     LatLong getLatLong();
 

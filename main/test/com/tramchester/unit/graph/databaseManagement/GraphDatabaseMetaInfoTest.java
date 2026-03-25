@@ -1,8 +1,12 @@
 package com.tramchester.unit.graph.databaseManagement;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.MutableGraphNode;
@@ -16,6 +20,8 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -28,11 +34,13 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
     private MutableGraphTransaction transaction;
+    private ProvidesLocalNow providesNow;
 
     @BeforeEach
     public void beforeAnyTestRuns() {
         transaction = createMock(MutableGraphTransaction.class);
-        databaseMetaInfo = new GraphDatabaseMetaInfo();
+        providesNow = createMock(ProvidesLocalNow.class);
+        databaseMetaInfo = new GraphDatabaseMetaInfo(providesNow);
     }
 
     @Test
@@ -84,6 +92,45 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldGetTimestampFromVersionNode() {
+        GraphNode graphNode = createMock(GraphNode.class);
+
+        EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
+        TramTime time = TramTime.of(13,44);
+        EasyMock.expect(graphNode.getTime()).andReturn(time);
+
+        TramDate date = TramDate.of(2026, 11,25);
+        EasyMock.expect(graphNode.getStartDate()).andReturn(date);
+
+        replayAll();
+        ZonedDateTime timestamp = databaseMetaInfo.getTimestamp(transaction);
+        verifyAll();
+
+        LocalDateTime dataTime = LocalDateTime.of(date.toLocalDate(), timestamp.toLocalTime());
+        assertEquals(ZonedDateTime.of(dataTime, TramchesterConfig.TimeZoneId), timestamp);
+    }
+
+    @Test
+    void shouldSetTimestampFromVersionNode() {
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
+
+        EasyMock.expect(transaction.findNodesMutable(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
+        TramTime time = TramTime.of(13,44);
+        graphNode.setTime(time);
+        EasyMock.expectLastCall();
+
+        TramDate date = TramDate.of(2026, 11,25);
+        graphNode.setStartDate(date);
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(providesNow.getZoneDateTimeUTC()).andReturn(ZonedDateTime.of(date.toLocalDate(), time.asLocalTime(), TramchesterConfig.TimeZoneId));
+
+        replayAll();
+        databaseMetaInfo.setTimestamp(transaction);
+        verifyAll();
+    }
+
+    @Test
     void shouldGetVersionMapFromNode() {
         Map<DataSourceID, String> versionMap = new HashMap<>();
         versionMap.put(tfgm, "4.2");
@@ -100,10 +147,11 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
         assertEquals(2, results.size());
         assertTrue(results.containsKey(tfgm));
-        assertEquals(results.get(tfgm), "4.2");
+        assertEquals("4.2", results.get(tfgm));
         assertTrue(results.containsKey(openRailData));
-        assertEquals(results.get(openRailData), "81.91");
+        assertEquals("81.91", results.get(openRailData));
     }
+
 
     @Test
     void shouldSetNeighbourNode() {

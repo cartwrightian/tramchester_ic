@@ -57,7 +57,7 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    public static final int NumberOfStationLinks = 204;
+    public static final int NumberOfStationLinks = 204 + 2;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -78,7 +78,7 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     // validated via TripRepositoryTest
-    public static TramTime EarliestTramTime = TramTime.of(4,58);
+    public static TramTime EarliestTramTime = TramTime.of(4,53);
 
     public static GraphDBType getDefaultDBTYpe() {
         return GraphDBType.InMemory;

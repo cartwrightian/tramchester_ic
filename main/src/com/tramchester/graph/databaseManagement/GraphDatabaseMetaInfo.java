@@ -1,8 +1,12 @@
 package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
@@ -10,15 +14,28 @@ import com.tramchester.graph.core.MutableGraphNode;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
+import jakarta.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @LazySingleton
 public class GraphDatabaseMetaInfo {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseMetaInfo.class);
+
+    private final ProvidesLocalNow providesLocalNow;
+
+    @Inject
+    public GraphDatabaseMetaInfo(final ProvidesLocalNow providesLocalNow) {
+        this.providesLocalNow = providesLocalNow;
+    }
 
     public boolean isNeighboursEnabled(GraphTransaction txn) {
         return hasAnyNodeWith(txn, GraphLabel.NEIGHBOURS_ENABLED);
@@ -43,15 +60,19 @@ public class GraphDatabaseMetaInfo {
             logger.warn("version node not found");
             return Collections.emptyMap();
         }
+        final GraphNode versionNode = getSingleVersionNode(query);
+
+        return versionNode.getStoredVersions();
+    }
+
+    public static <N extends GraphNode> N getSingleVersionNode(List<N> query) {
         if (query.size()!=1) {
             String message = "Wrong number of VERSION nodes " + query;
             logger.error(message);
             throw new RuntimeException(message);
         }
 
-        final GraphNode versionNode = query.getFirst();
-
-        return versionNode.getStoredVersions();
+        return query.getFirst();
     }
 
     public void createVersionNode(MutableGraphTransaction tx, DataSourceRepository dataSourceRepository) {
@@ -98,5 +119,32 @@ public class GraphDatabaseMetaInfo {
         final MutableGraphNode node = transaction.createNode(GraphLabel.BOUNDS);
 
         node.setBounds(bounds);
+    }
+
+    public ZonedDateTime getTimestamp(final GraphTransaction txn) {
+        List<GraphNode> query = txn.findNodes(GraphLabel.VERSION).toList();
+        final GraphNode versionNode = getSingleVersionNode(query);
+
+        return getTimestampFor(versionNode);
+    }
+
+    public static @NotNull ZonedDateTime getTimestampFor(final GraphNode versionNode) {
+        TramTime time = versionNode.getTime();
+        TramDate date = versionNode.getStartDate();
+
+        return ZonedDateTime.of(date.toLocalDate(), time.asLocalTime(), TramchesterConfig.TimeZoneId);
+    }
+
+    public void setTimestamp(MutableGraphTransaction txn) {
+        List<MutableGraphNode> query = txn.findNodesMutable(GraphLabel.VERSION).toList();
+        final MutableGraphNode versionNode = getSingleVersionNode(query);
+
+        ZonedDateTime utc = providesLocalNow.getZoneDateTimeUTC();
+
+        TramTime time = TramTime.of(utc.getHour(), utc.getMinute());
+        TramDate date = TramDate.of(utc.getYear(), utc.getMonthValue(), utc.getDayOfMonth());
+
+        versionNode.setTime(time);
+        versionNode.setStartDate(date);
     }
 }

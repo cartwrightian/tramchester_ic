@@ -33,14 +33,19 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate RochdaleLineClosure = TramDate.of(2026, 3, 22);
+    //public static TramDate RochdaleLineClosure = TramDate.of(2026, 3, 22);
 
     public static TramDate VictoriaEndOfMarch = TramDate.of(2026,3,29);
 
-    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,22),
-            TramDate.of(2026,4,12));
+    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,25),
+            TramDate.of(2026,4,4));
 
-    public static List<TramDate> MissingGreenDates = Arrays.asList(TramDate.of(2026,4,3), TramDate.of(2026,4,6));
+    public static DateRange Easter2026Works = DateRange.of(TramDate.of(2026,4,3),
+            TramDate.of(2026,4,6));
+
+    public static List<TramDate> MissingGreenDates = Arrays.asList(TramDate.of(2026,4,3),
+            TramDate.of(2026,4,4),
+            TramDate.of(2026,4,6));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -54,19 +59,24 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(TramStations station, TramDate date) {
+
         return hasClosure(station.getId(), date);
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         if (OldhamCentral.getId().equals(stationId)) {
-            if (date.equals(RochdaleLineClosure) || date.equals(VictoriaEndOfMarch)) {
+            if (date.equals(VictoriaEndOfMarch)) {
                 return true;
             }
         }
+
         return anyClosedOnDate(date);
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
+        if (UpcomingDates.Easter2026Works.contains(date)) {
+            return true;
+        }
         return false;
     }
 

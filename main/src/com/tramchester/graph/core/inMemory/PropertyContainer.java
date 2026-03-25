@@ -2,6 +2,7 @@ package com.tramchester.graph.core.inMemory;
 
 import com.google.common.collect.ImmutableMap;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -108,6 +109,11 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     @Override
     public TramTime getTime() {
         return (TramTime) getProperty(TIME);
+    }
+
+    @Override
+    public TramDate getStartDate() {
+        return (TramDate) getProperty(START_DATE);
     }
 
     @Override
