@@ -335,10 +335,11 @@ public class TransactionManagerTest extends EasyMockSupport {
         final GraphNodeId node2Id;
         final GraphNodeId node3Id;
 
+        final MutableGraphNode node3;
         try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             MutableGraphNode node1 = txn.createNode(STATION);
             MutableGraphNode node2 = txn.createNode(STATION);
-            MutableGraphNode node3 = txn.createNode(STATION);
+            node3 = txn.createNode(STATION);
 
             node1Id = node1.getId();
             node2Id = node2.getId();
@@ -357,9 +358,11 @@ public class TransactionManagerTest extends EasyMockSupport {
             assertTrue(nodeA.hasRelationship(txn, Outgoing, LINKED, nodeB)); // immutable so uses union with Parent txn
 
             // bug would show here
-            List<MutableGraphRelationship> relsFromBtoC = nodeB.getRelationshipsMutable(txn, Outgoing, LINKED).
-                    filter(rel -> rel.getEndNodeId(txn).equals(node3Id)).toList();
-            assertEquals(1, relsFromBtoC.size());
+            nodeB.getSingleRelationshipMutable(txn, LINKED, Outgoing, node3);
+
+//            List<MutableGraphRelationship> relsFromBtoC = nodeB.getRelationshipsMutable(txn, Outgoing, LINKED).
+//                    filter(rel -> rel.getEndNodeId(txn).equals(node3Id)).toList();
+//            assertEquals(1, relsFromBtoC.size());
         }
     }
 
@@ -388,17 +391,17 @@ public class TransactionManagerTest extends EasyMockSupport {
             assertTrue(start.hasRelationship(txn, Outgoing, LINKED, end));
             assertTrue(start.hasRelationship(txn, Outgoing, LINKED, other));
 
-            final List<MutableGraphRelationship> allLinked = start.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
+            final List<GraphRelationship> allLinked = start.getRelationships(txn, Outgoing, LINKED).toList();
 
             assertEquals(2, allLinked.size());
 
-            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
+            final Optional<GraphRelationship> findToNode = allLinked.stream().
                     filter(relation -> relation.getEndNode(txn).equals(end)).
                     findFirst();
 
             assertTrue(findToNode.isPresent());
 
-            MutableGraphRelationship found = findToNode.get();
+            GraphRelationship found = findToNode.get();
             assertEquals(relationshipId, found.getId());
 
             txn.commit();
@@ -418,17 +421,17 @@ public class TransactionManagerTest extends EasyMockSupport {
             assertTrue(start.hasRelationship(txn, Outgoing, LINKED, end));
             assertTrue(start.hasRelationship(txn, Outgoing, LINKED, other));
 
-            final List<MutableGraphRelationship> allLinked = start.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
+            final List<GraphRelationship> allLinked = start.getRelationships(txn, Outgoing, LINKED).toList();
 
             assertEquals(3, allLinked.size());
 
-            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
+            final Optional<GraphRelationship> findToNode = allLinked.stream().
                     filter(relation -> relation.getEndNode(txn).equals(end)).
                     findFirst();
 
             assertTrue(findToNode.isPresent());
 
-            MutableGraphRelationship found = findToNode.get();
+            GraphRelationship found = findToNode.get();
 
             assertEquals(relationshipId, found.getId());
 
@@ -511,7 +514,7 @@ public class TransactionManagerTest extends EasyMockSupport {
             assertNotNull(singleIncoming);
             assertEquals(relationshipA.getId(), singleIncoming.getId());
 
-            List<MutableGraphRelationship> atStart = start.getRelationshipsMutable(txn, Outgoing, FERRY_GOES_TO).toList();
+            List<GraphRelationship> atStart = start.getRelationships(txn, Outgoing, FERRY_GOES_TO).toList();
             assertEquals(1, atStart.size());
             assertTrue(atStart.contains(relationshipA));
         }

@@ -15,11 +15,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public interface MutableGraphNode extends GraphNode {
     void delete(MutableGraphTransaction txn);
@@ -65,11 +64,15 @@ public interface MutableGraphNode extends GraphNode {
 
     void set(Trip trip);
 
-    Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction,
-                                                             TransportRelationshipTypes relationshipType);
+//    Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction,
+//                                                             TransportRelationshipTypes relationshipType);
 
     MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction tx,
                                                           TransportRelationshipTypes transportRelationshipTypes, GraphDirection graphDirection);
+
+    MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction tx,
+                                                          TransportRelationshipTypes transportRelationshipTypes,
+                                                          GraphDirection graphDirection, GraphNode end);
 
     void setStartDate(TramDate date);
 }

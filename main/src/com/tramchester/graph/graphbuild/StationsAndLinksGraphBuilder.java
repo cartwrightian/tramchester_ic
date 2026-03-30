@@ -29,7 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
@@ -237,23 +239,27 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         if (from.hasRelationship(txn, Outgoing, LINKED, end)) {
 
-            final List<MutableGraphRelationship> allLinked = from.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
+            final MutableGraphRelationship existingLinked = from.getSingleRelationshipMutable(txn, LINKED, Outgoing, end);
+            existingLinked.addTransportMode(mode);
 
-            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
-                    filter(relation -> relation.getEndNode(txn).equals(end)).
-                    findFirst();
-
-            if (findToNode.isPresent()) {
-                final MutableGraphRelationship existingLinked = findToNode.get();
-                existingLinked.addTransportMode(mode);
-            } else {
-                // for debug
-                from.hasRelationship(txn, Outgoing, LINKED, end);
-                String msg = "Failed to fetch existing LINKED from " + from + " to "
-                        + end + " within " + allLinked;
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
+//            final List<MutableGraphRelationship> allLinked = from.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
+//
+//            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
+//                    filter(relation -> relation.getEndNode(txn).equals(end)).
+//                    findFirst();
+//
+//            if (findToNode.isPresent()) {
+//                final MutableGraphRelationship existingLinked = findToNode.get();
+//                existingLinked.addTransportMode(mode);
+//            } else {
+//                // for debug
+//                // from.hasRelationship(txn, Outgoing, LINKED, end);
+//                final List<GraphRelationship> relationships = from.getRelationships(txn, Outgoing, LINKED).toList();
+//                String msg = "Failed to fetch existing LINKED from " + from + " to "
+//                        + end + " within " + relationships;
+//                logger.error(msg);
+//                throw new RuntimeException(msg);
+//            }
         } else {
             // else create new
             final MutableGraphRelationship stationsLinked = createRelationship(txn, from, end, LINKED);
