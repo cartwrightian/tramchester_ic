@@ -164,10 +164,22 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         return graph.findRelationshipsImmutableFor(id, direction);
     }
 
-    Stream<GraphRelationshipInMemory> getRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
-                                                              final EnumSet<TransportRelationshipTypes> relationshipTypes) {
-        return graph.findRelationshipsMutableFor(id, direction)
-                .filter(relationship -> relationshipTypes.contains(relationship.getType()));
+    MutableGraphRelationship getRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
+                                                           final EnumSet<TransportRelationshipTypes> transportRelationshipTypes, final GraphNode end) {
+
+        final List<MutableGraphRelationship> results = graph.findRelationshipsMutableFor(id, direction).
+                filter(relationship -> transportRelationshipTypes.contains(relationship.getType())).
+                filter(rel -> rel.getEndId().equals(end.getId())).
+                <MutableGraphRelationship>map(item -> item).
+                toList();
+
+        if (results.size()==1) {
+            return results.getFirst();
+        } else {
+            final String msg = "Wrong number of relationships between " + id + " and " + end.getId() + " direction " + direction +
+                    " type " + transportRelationshipTypes + " Size:" + results.size() + " ["+ results +"]";
+            throw new RuntimeException(msg);
+        }
     }
 
     public GraphRelationship getSingleRelationshipImmutable(NodeIdInMemory id, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes) {
@@ -218,4 +230,5 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
                 ", immutable=" + immutable +
                 '}';
     }
+
 }

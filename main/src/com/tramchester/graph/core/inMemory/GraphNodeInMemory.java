@@ -157,18 +157,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public MutableGraphRelationship getSingleRelationshipMutable(final MutableGraphTransaction txn, final TransportRelationshipTypes transportRelationshipTypes,
                                                                  final GraphDirection graphDirection, final GraphNode end) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        //return inMemory.getRelationshipMutable(id, graphDirection, EnumSet.of(transportRelationshipTypes), end);
-        final List<MutableGraphRelationship> results = inMemory.getRelationshipMutable(id, graphDirection, EnumSet.of(transportRelationshipTypes)).
-                filter(rel -> rel.getEndNode(txn).equals(end)).
-                <MutableGraphRelationship>map(item -> item).
-                toList();
-        if (results.size()==1) {
-            return results.getFirst();
-        } else {
-            final String msg = "Wrong number of relationships between " + this.getId() + " and " + end.getId() + " direction " + graphDirection +
-                    " type " + transportRelationshipTypes + " Size:" + results.size() + " ["+ results +"]";
-            throw new RuntimeException(msg);
-        }
+        return inMemory.getRelationshipMutable(id, graphDirection, EnumSet.of(transportRelationshipTypes), end);
     }
 
     @Override
