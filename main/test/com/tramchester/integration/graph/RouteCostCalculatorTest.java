@@ -84,8 +84,8 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(56).plusSeconds(1), routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
-        assertEquals(TramDuration.ofMinutes(54), routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
+        assertEquals(TramDuration.ofMinutes(56).plusSeconds(52), routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
+        assertEquals(TramDuration.ofMinutes(54).plusSeconds(51), routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
     }
 
     @Test
@@ -97,14 +97,14 @@ class RouteCostCalculatorTest {
         final TramDuration altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, when, modes);
 
         // often changes by a few seconds....
-        assertEquals(TramDuration.ofMinutes(63), buryToAlty.truncateToMinutes());
-        assertEquals(TramDuration.ofMinutes(64).plusSeconds(57), altyToBury);
+        assertEquals(TramDuration.ofMinutes(64), buryToAlty.truncateToMinutes());
+        assertEquals(TramDuration.ofMinutes(63).plusSeconds(6), altyToBury);
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(58), routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, when, modes));
-        assertEquals(TramDuration.ofMinutes(60), routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when, modes));
+        assertEquals(TramDuration.ofHours(1).plusSeconds(7), routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, when, modes));
+        assertEquals(TramDuration.ofMinutes(60).plusSeconds(22), routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when, modes));
     }
 
 }

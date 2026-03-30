@@ -14,6 +14,7 @@ import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -80,6 +81,7 @@ class FindStationsByNumberLinksTramTest {
                 " \nstations with links were " + additionalInterchanges);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldIdInterchangePointsLinked() {
 

@@ -27,6 +27,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.lang3.tuple.Pair;
@@ -166,6 +167,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -233,6 +235,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -275,6 +278,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);

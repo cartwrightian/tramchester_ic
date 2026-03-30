@@ -176,6 +176,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         try(MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
             logger.info("Adding version node to the DB");
             databaseMetaInfo.createVersionNode(tx, sourceRepository);
+            databaseMetaInfo.setTimestamp(tx);
             tx.commit();
         }
     }

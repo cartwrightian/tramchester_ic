@@ -89,7 +89,7 @@ public class JourneyPlannerResourceTest {
 
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
         final List<String> possibleHeadsigns = Arrays.asList( Bury.getName(), Piccadilly.getName(),
-                "Bury via Market Street & Victoria",
+                "Bury via Market Street & Victoria", Etihad.getName(),
                 // summer 2025 closures
                 Crumpsal.getName());
 

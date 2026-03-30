@@ -1,25 +1,25 @@
 package com.tramchester.domain.reference;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
 public enum TFGMRouteNames {
-    BusOne("Replacement Bus 1"),
-    BusTwo("Replacement Bus 2"),
-    BusThree("Replacement Bus 3"),
-    Red("Red Line"),
-    Pink("Pink Line"),
-    Purple("Purple Line"),
-    Green("Green Line"),
-    Navy("Navy Line"),
-    Yellow("Yellow Line"),
-    Blue("Blue Line");
+    BusOne("Replacement Bus 1", true),
+    BusTwo("Replacement Bus 2", true),
+    BusThree("Replacement Bus 3", true),
+    BusFour("Replacement Bus 4", true),
+    BusFive("Replacement Bus 5", true),
 
-    private final static EnumSet<TFGMRouteNames> Buses = EnumSet.of(BusOne, BusTwo, BusThree);
+    Red("Red Line", false),
+    Pink("Pink Line", false),
+    Purple("Purple Line", false),
+    Green("Green Line", false),
+    Navy("Navy Line", false),
+    Yellow("Yellow Line", false),
+    Blue("Blue Line", false);
 
     public boolean isReplacementBus() {
-        return Buses.contains(this);
+        return replacementBus;
     }
 
     // this pops up in the data as a metrolink route, but is the circular bus within the city centre
@@ -36,14 +36,16 @@ public enum TFGMRouteNames {
     }
 
     private final String shortName;
+    private final boolean replacementBus;
 
-    TFGMRouteNames(String shortName) {
+    TFGMRouteNames(String shortName, boolean replacementBus) {
         this.shortName = shortName;
+        this.replacementBus = replacementBus;
     }
 
     public static TFGMRouteNames parseFromSource(final String text) {
         if (!fromSource.containsKey(text)) {
-            throw new RuntimeException("Missing from Enum: route name " + text);
+            throw new RuntimeException("Missing from Enum: route name '" + text + "'");
         }
         return fromSource.get(text);
     }

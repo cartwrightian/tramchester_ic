@@ -135,14 +135,14 @@ public class GraphDatabaseMetaInfo {
         return ZonedDateTime.of(date.toLocalDate(), time.asLocalTime(), TramchesterConfig.TimeZoneId);
     }
 
-    public void setTimestamp(MutableGraphTransaction txn) {
-        List<MutableGraphNode> query = txn.findNodesMutable(GraphLabel.VERSION).toList();
+    public void setTimestamp(final MutableGraphTransaction txn) {
+        final List<MutableGraphNode> query = txn.findNodesMutable(GraphLabel.VERSION).toList();
         final MutableGraphNode versionNode = getSingleVersionNode(query);
 
-        ZonedDateTime utc = providesLocalNow.getZoneDateTimeUTC();
+        final ZonedDateTime utc = providesLocalNow.getZoneDateTimeUTC();
 
-        TramTime time = TramTime.of(utc.getHour(), utc.getMinute());
-        TramDate date = TramDate.of(utc.getYear(), utc.getMonthValue(), utc.getDayOfMonth());
+        final TramTime time = TramTime.of(utc.getHour(), utc.getMinute());
+        final TramDate date = TramDate.of(utc.getYear(), utc.getMonthValue(), utc.getDayOfMonth());
 
         versionNode.setTime(time);
         versionNode.setStartDate(date);

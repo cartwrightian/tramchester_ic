@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TramRouteHelperTest {
 
@@ -34,6 +35,15 @@ class TramRouteHelperTest {
     @BeforeEach
     void beforeEachTestRuns() {
         tramRouteHelper = new TramRouteHelper(componentContainer);
+    }
+
+    @Test
+    void shouldCheckBusRoutes() {
+        assertTrue(TFGMRouteNames.BusOne.isReplacementBus());
+        assertTrue(TFGMRouteNames.BusTwo.isReplacementBus());
+        assertTrue(TFGMRouteNames.BusThree.isReplacementBus());
+        assertTrue(TFGMRouteNames.BusFour.isReplacementBus());
+        assertTrue(TFGMRouteNames.BusFive.isReplacementBus());
     }
 
     @Test

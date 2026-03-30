@@ -184,37 +184,10 @@ public class RouteRepositoryTest {
         known.remove(TFGMRouteNames.BusOne);
         known.remove(TFGMRouteNames.BusTwo);
         known.remove(TFGMRouteNames.BusThree);
+        known.remove(TFGMRouteNames.BusFour);
+        known.remove(TFGMRouteNames.BusFive);
 
         Set<RoutePair> noOverlap = new HashSet<>();
-
-        for (TFGMRouteNames knownRouteA : known) {
-            for (TFGMRouteNames knownRouteB : known) {
-                Route routeA = routeHelper.getOneRoute(knownRouteA, when);
-                Route routeB = routeHelper.getOneRoute(knownRouteB, when);
-                if (!routeA.isDateOverlap(routeB)) {
-                    noOverlap.add(RoutePair.of(routeA, routeB));
-                }
-            }
-        }
-
-        assertTrue(noOverlap.isEmpty(), noOverlap.toString());
-
-    }
-
-    @Test
-    void shouldOverlapAsExpectedDuringSummer2025() {
-
-        EnumSet<TFGMRouteNames> known = EnumSet.allOf(TFGMRouteNames.class);
-        known.remove(TFGMRouteNames.BusOne);
-        known.remove(TFGMRouteNames.BusTwo);
-        known.remove(TFGMRouteNames.BusThree);
-
-        known.remove(TFGMRouteNames.Purple);
-        known.remove(TFGMRouteNames.Yellow);
-
-        Set<RoutePair> noOverlap = new HashSet<>();
-
-        //assertTrue(when.isBefore(TramDate.of(2025, 8, 11)),"renable other test, remove this one");
 
         for (TFGMRouteNames knownRouteA : known) {
             for (TFGMRouteNames knownRouteB : known) {

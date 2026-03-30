@@ -15,7 +15,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.reference.KnownTramRoute.latestCutoverDate;
+import static com.tramchester.testSupport.UpcomingDates.Easter2026Works;
 import static com.tramchester.testSupport.reference.KnownTramRoute.newRouteIdsDate;
 
 /*
@@ -26,37 +26,38 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses
 
-    ReplacementBusOne(BusOne, "Replacement Bus One", "3214", TramDate.of(2026,3,22)),
-    ReplacementBusOneNew(BusOne, "Replacement Bus One", "3224", newRouteIdsDate),
-    //ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", EmergencyWorksDeansgateDev2025),
-    //ReplacementBusThree(BusThree, "Replacement Bus Three", "3082", TramDate.of(2025,11,1)),
+    ReplacementBusOne(BusOne, "Replacement Bus One", "3080", Easter2026Works.getStartDate()),
+    ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", Easter2026Works.getStartDate()),
+    ReplacementBusThree(BusThree, "Replacement Bus Three", "2361", Easter2026Works.getStartDate()),
+    ReplacementBusFour(BusFour, "Replacement Bus Four", "3229", Easter2026Works.getStartDate()),
+    ReplacementBusFive(BusFive, "Replacement Bus Five", "2177", Easter2026Works.getStartDate()),
 
     // Blue
-    EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "3207", latestCutoverDate),
+    //EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "3207", latestCutoverDate),
     EcclesAshtonNewB(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", newRouteIdsDate),
 
     // Green
-    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "3208", latestCutoverDate),
+    //BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "3208", latestCutoverDate),
     BuryManchesterAltrinchamB(Green, "Bury - Manchester - Altrincham", "3218", newRouteIdsDate.plusDays(1)),
 
     // Navy
-    VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "3209", latestCutoverDate),
+    //VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "3209", latestCutoverDate),
     VictoriaManchesterAirportB(Navy, "Victoria - Wythenshawe - Manchester Airport", "3219", newRouteIdsDate),
 
     // Pink
-    RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3210", latestCutoverDate),
+    //RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3210", latestCutoverDate),
     RochdaleManchesterEastDidisburyB(Pink, "Rochdale - Manchester - East Didsbury", "3220", newRouteIdsDate),
 
     // Purple
-    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3211", latestCutoverDate),
+    //EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3211", latestCutoverDate),
     EtihadPiccadillyAltrinchamB(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", newRouteIdsDate),
 
     // Red
-    CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3212", latestCutoverDate),
+    //CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3212", latestCutoverDate),
     CornbrookTheTraffordCentreB(Red, "Etihad Campus - The Trafford Centre", "3222", newRouteIdsDate),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3213", latestCutoverDate),
+    //AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3213", latestCutoverDate),
     AshtonCrumpsallB(Yellow, "Ashton - Crumpsall Bay", "3223", newRouteIdsDate);
 
 

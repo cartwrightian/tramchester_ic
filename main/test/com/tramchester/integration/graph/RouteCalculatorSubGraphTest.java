@@ -22,6 +22,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -179,6 +180,7 @@ class RouteCalculatorSubGraphTest {
         assertFalse(results.isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
         List<Journey> results = getJourneys(Cornbrook, Pomona, UpcomingDates.nextSaturday(), 1);

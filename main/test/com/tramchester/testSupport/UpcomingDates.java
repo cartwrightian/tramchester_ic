@@ -47,6 +47,8 @@ public class UpcomingDates {
             TramDate.of(2026,4,4),
             TramDate.of(2026,4,6));
 
+    public static DateRange AshtonLineApril2026 = DateRange.of(TramDate.of(2026,4,11), TramDate.of(2026,4,12));
+
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
@@ -59,7 +61,6 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(TramStations station, TramDate date) {
-
         return hasClosure(station.getId(), date);
     }
 
@@ -74,7 +75,7 @@ public class UpcomingDates {
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-        if (UpcomingDates.Easter2026Works.contains(date)) {
+        if (Easter2026Works.contains(date)) {
             return true;
         }
         return false;

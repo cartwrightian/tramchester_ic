@@ -72,7 +72,7 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldGiveCorrectCostForAdjacencyDeansgateCornbrook() {
-        assertMinutesEquals(3, getAdjacent(Deansgate, Cornbrook));
+        assertEquals(TramDuration.ofMinutes(3).plusSeconds(40), getAdjacent(Deansgate, Cornbrook));
     }
 
     @Test

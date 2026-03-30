@@ -33,6 +33,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -279,6 +280,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 12)
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -297,6 +299,7 @@ public class RouteCalculatorTest {
         assertFalse(routeBJourneys.isEmpty());
         IdSet<Route> routesForB = routeBJourneys.stream().
                 flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
+        // Easter closures
         assertEquals(1, routesForB.size());
         assertTrue(routesForB.contains(getGreen(when).getId()), "not expecting " + routesForB);
 
@@ -342,6 +345,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 12)
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);
@@ -663,10 +667,7 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestD = standardJourneyRequest(when, TramTime.of(6,40), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequestD, Cornbrook, Weaste);
 
-        // see also RouteCalculatorSubGraphTest
-        // 2->1 for Spring 2025 closures
-        // also plus one day
-        JourneyRequest journeyRequestA = standardJourneyRequest(when.plusDays(1), TramTime.of(19,48), maxNumResults, 2);
+        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults, 2);
         assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
 
     }

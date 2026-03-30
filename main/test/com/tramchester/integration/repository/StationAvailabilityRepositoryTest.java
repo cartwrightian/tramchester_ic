@@ -109,7 +109,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,12), TramTime.nextDay(0,48)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,2), TramTime.nextDay(0,49)), result);
     }
 
     @Test
@@ -257,6 +257,7 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -280,7 +281,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 1)
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
@@ -320,7 +321,8 @@ public class StationAvailabilityRepositoryTest {
         Route blueInbound = tramRouteHelper.getPink(when);
         Route greenOutbound = tramRouteHelper.getGreen(when);
 
-        assertEquals(5, dropOffs.size());
+        // easter 2026
+        assertEquals(5+1, dropOffs.size());
         assertTrue(dropOffs.contains(yellowInbound));
         assertTrue(dropOffs.contains(blueInbound));
 
@@ -328,7 +330,8 @@ public class StationAvailabilityRepositoryTest {
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
-        assertEquals(5, pickups.size());
+        // easter 2026
+        assertEquals(5+1, pickups.size());
         assertTrue(pickups.contains(yellowInbound));
         assertTrue(pickups.contains(blueInbound));
         assertTrue(pickups.contains(greenOutbound));

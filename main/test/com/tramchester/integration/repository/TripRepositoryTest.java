@@ -24,6 +24,7 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -144,6 +145,7 @@ public class TripRepositoryTest {
         assertTrue(endTripNotInterchange.isEmpty(), "End trip not interchange: " + endTripNotInterchange);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {

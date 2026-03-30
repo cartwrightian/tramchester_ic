@@ -198,14 +198,17 @@ public class StationRepositoryTest {
             assertFalse(station.isCentral());
         }
 
+        final IdFor<Platform> expectedId = PlatformId.createId(Altrincham.getId(), "1");
+
         // platform
         assertTrue(station.hasPlatforms());
-        assertEquals(1, station.getPlatforms().size());
-        final Optional<Platform> maybePlatformOne = station.getPlatforms().stream().findFirst();
+        assertEquals(2, station.getPlatforms().size());
+        final Optional<Platform> maybePlatformOne = station.getPlatforms().
+                stream().filter(platform -> platform.getId().equals(expectedId))
+                .findFirst();
         assertTrue(maybePlatformOne.isPresent());
 
         Platform platformOne = maybePlatformOne.get();
-        final IdFor<Platform> expectedId = PlatformId.createId(Altrincham.getId(), "1");
 
         assertEquals(expectedId, platformOne.getId());
         assertEquals( "1", platformOne.getPlatformNumber());
@@ -279,11 +282,13 @@ public class StationRepositoryTest {
 
         IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertEquals(2, dropOffs.size(), dropOffs.toString());
+        // Easter 2026
+        assertEquals(2+1, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(blueRouteId));
 
         IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
-        assertEquals(2, pickUps.size(), pickUps.toString());
+        // Easter 2026
+        assertEquals(2+1, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(blueRouteId));
     }
 

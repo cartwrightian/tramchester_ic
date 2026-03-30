@@ -90,6 +90,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -100,6 +101,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getYellow, true);
