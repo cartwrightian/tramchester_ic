@@ -57,9 +57,9 @@ public class TransactionManager implements TransactionObserver {
         return new TimedTransactionInMemory(index, this, graph, logger, text, immutable);
     }
 
-    private Graph wrapGraph(boolean immutable) {
+    private Graph wrapGraph(final boolean immutable) {
         if (immutable) {
-            return new ImmutableGraph(graphCore);
+            return new ImmutableTransactionGraph(graphCore);
         } else {
             return new MutableTransactionGraph(graphCore, idFactory);
         }

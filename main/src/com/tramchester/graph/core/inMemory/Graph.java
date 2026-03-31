@@ -1,9 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
@@ -11,7 +9,13 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.stream.Stream;
 
-public interface Graph {
+public interface Graph extends ImmutableGraph {
+
+    // transaction handling
+    void commit(GraphTransaction owningTransaction);
+    void close(GraphTransaction owningTransaction);
+    Stream<GraphNodeInMemory> getUpdatedNodes();
+    Stream<GraphRelationshipInMemory> getUpdatedRelationships();
 
     // mutable
     GraphNodeInMemory createNode(ImmutableEnumSet<GraphLabel> labels);
@@ -26,8 +30,6 @@ public interface Graph {
 
     GraphNodeInMemory getNodeMutable(NodeIdInMemory nodeId);
 
-    Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction,
-                                                            ImmutableEnumSet<TransportRelationshipTypes> types);
 
     Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(NodeIdInMemory id, GraphDirection direction,
                                                                   ImmutableEnumSet<TransportRelationshipTypes> types);
@@ -38,22 +40,8 @@ public interface Graph {
     Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(NodeIdInMemory id, GraphDirection direction);
     Stream<GraphNodeInMemory> findNodesMutable(GraphLabel graphLabel);
 
-    // immutable
-    Stream<GraphNode> findNodesImmutable(GraphLabel graphLabel);
-    Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value);
-    GraphNode getNodeImmutable(NodeIdInMemory nodeId);
 
-    Stream<GraphRelationship> findRelationships(TransportRelationshipTypes type);
 
-    Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction);
-    GraphRelationship getRelationship(RelationshipIdInMemory graphRelationshipId);
 
-    long getNumberOf(TransportRelationshipTypes relationshipType);
-
-    // transaction handling
-    void commit(GraphTransaction owningTransaction);
-    void close(GraphTransaction owningTransaction);
-    Stream<GraphNodeInMemory> getUpdatedNodes();
-    Stream<GraphRelationshipInMemory> getUpdatedRelationships();
 
 }

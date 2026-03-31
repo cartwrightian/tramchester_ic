@@ -200,7 +200,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     Stream<GraphRelationship> getRelationshipImmutable(final NodeIdInMemory id, final GraphDirection direction,
                                                              final ImmutableEnumSet<TransportRelationshipTypes> relationshipTypes) {
         return graph.findRelationshipsImmutableFor(id, direction, relationshipTypes);
-        //.filter(relationship -> relationshipTypes.contains(relationship.getType()));
     }
 
     boolean hasRelationship(final NodeIdInMemory id, final GraphDirection direction, final TransportRelationshipTypes transportRelationshipType) {

@@ -116,13 +116,15 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes) {
+    public boolean hasRelationship(final GraphTransaction txn, final GraphDirection direction,
+                                   final TransportRelationshipTypes transportRelationshipTypes) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.hasRelationship(id, direction, transportRelationshipTypes);
     }
 
     @Override
-    public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, GraphDirection direction) {
+    public GraphRelationship getSingleRelationship(final GraphTransaction txn, final TransportRelationshipTypes transportRelationshipTypes,
+                                                   final GraphDirection direction) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getSingleRelationshipImmutable(id, direction, transportRelationshipTypes);
     }
@@ -148,8 +150,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
     
     @Override
-    public boolean hasRelationship(GraphTransaction txn, GraphDirection graphDirection,
-                                   TransportRelationshipTypes relationshipType, GraphNode end) {
+    public boolean hasRelationship(final GraphTransaction txn, final GraphDirection graphDirection,
+                                   final TransportRelationshipTypes relationshipType, final GraphNode end) {
         return getRelationships(txn, graphDirection, relationshipType).anyMatch(rel -> rel.getEndNode(txn).equals(end));
     }
 
@@ -182,8 +184,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes,
-                                                                 GraphDirection direction) {
+    public MutableGraphRelationship getSingleRelationshipMutable(final MutableGraphTransaction txn, final TransportRelationshipTypes transportRelationshipTypes,
+                                                                 final GraphDirection direction) {
         GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getSingleRelationshipMutable(id, direction, transportRelationshipTypes);
     }
