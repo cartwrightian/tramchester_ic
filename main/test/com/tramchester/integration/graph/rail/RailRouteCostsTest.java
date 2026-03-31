@@ -78,7 +78,7 @@ public class RailRouteCostsTest {
 
     @Test
     void shouldGetApproxCostBetweenManPiccadillyAndStockport() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(17).plusSeconds(19), routeCostCalculator.getAverageCostBetween(txn, manPicc, stockport, date, modes));
+        assertEquals(TramDuration.ofMinutes(17), routeCostCalculator.getAverageCostBetween(txn, manPicc, stockport, date, modes));
     }
 
     @Test

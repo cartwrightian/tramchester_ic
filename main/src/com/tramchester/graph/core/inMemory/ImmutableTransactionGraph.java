@@ -24,7 +24,6 @@ public class ImmutableTransactionGraph implements Graph {
         throw new RuntimeException("Got unexpected commit for " + owningTransaction);
     }
 
-
     @Override
     public void close(GraphTransaction owningTransaction) {
         cache.clear();
@@ -154,7 +153,7 @@ public class ImmutableTransactionGraph implements Graph {
             this.underlying = underlying;
             relationshipCache = new ConcurrentHashMap<>();
         }
-        
+
         public void clear() {
             relationshipCache.clear();
         }

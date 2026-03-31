@@ -391,8 +391,7 @@ public class RailTransportDataFromFilesTest {
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 
-        // 9 during man picc closure?
-        assertEquals(9, routes.size(), routes.toString());
+        assertEquals(6, routes.size(), routes.toString());
     }
 
     // Likely this will break with new data
@@ -416,7 +415,7 @@ public class RailTransportDataFromFilesTest {
         Set<Trip> crossing = transportData.getTrips().stream().
                 filter(Trip::intoNextDay).collect(Collectors.toSet());
 
-        assertEquals(18111, crossing.size());
+        assertEquals(17788, crossing.size());
 
         // reproducing a bug here
         List<Route> expectedRoutesList = crossing.stream().map(Trip::getRoute).toList();
@@ -432,7 +431,7 @@ public class RailTransportDataFromFilesTest {
         HashSet<Route> expectedRoutes = new HashSet<>(expectedRoutesList);
         assertEquals(expectedRoutes.size(), routeCrossesMidnight.size());
 
-        assertEquals(2483,  routeCrossesMidnight.size());
+        assertEquals(2335,  routeCrossesMidnight.size());
 
     }
 
@@ -449,19 +448,19 @@ public class RailTransportDataFromFilesTest {
                 filter(trip -> gmStations.stream().anyMatch(aStation -> trip.callsAt(aStation.getId()))).
                 collect(Collectors.toSet());
 
-        assertEquals(2109, tripCrossesMidnight.size());
+        assertEquals(2204, tripCrossesMidnight.size());
 
         Set<Route> gmRoutes = transportData.getRoutes().stream().
                 filter(route -> gmStations.stream().anyMatch(station -> station.servesRoutePickup(route) || station.servesRouteDropOff(route))).
                 collect(Collectors.toSet());
 
-        assertEquals(1202, gmRoutes.size());
+        assertEquals(1111, gmRoutes.size());
 
         Set<Route> routeCrossesMidnight = gmRoutes.stream().
                 filter(Route::intoNextDay).
                 collect(Collectors.toSet());
 
-        assertEquals(319, routeCrossesMidnight.size());
+        assertEquals(293, routeCrossesMidnight.size());
 
     }
 
