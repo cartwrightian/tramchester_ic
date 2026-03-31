@@ -2,7 +2,6 @@ package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -41,7 +40,5 @@ public interface Graph extends ImmutableGraph {
     Stream<GraphNodeInMemory> findNodesMutable(GraphLabel graphLabel);
 
 
-
-
-
+    boolean isImmutable();
 }

@@ -142,7 +142,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
         request.setDiag(true);
 
-        List<Journey> result = tramRouteCalculator.calculateRoute(txn, begin, dest, request, running).toList();
+        List<Journey> result = tramRouteCalculator.calculateRoute(txn.asImmutable(), begin, dest, request, running).toList();
 
         assertFalse(result.isEmpty());
 
@@ -163,7 +163,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
         request.setDiag(true);
 
-        List<Journey> result = tramRouteCalculator.calculateRoute(txn, begin, dest, request, running).toList();
+        List<Journey> result = tramRouteCalculator.calculateRoute(txn.asImmutable(), begin, dest, request, running).toList();
 
         assertFalse(result.isEmpty());
 
@@ -184,7 +184,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
         request.setDiag(true);
 
-        List<Journey> result = tramRouteCalculator.calculateRoute(txn, begin, dest, request, running).toList();
+        List<Journey> result = tramRouteCalculator.calculateRoute(txn.asImmutable(), begin, dest, request, running).toList();
 
         assertFalse(result.isEmpty());
 

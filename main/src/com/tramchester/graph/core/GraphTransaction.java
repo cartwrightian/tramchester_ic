@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 public interface GraphTransaction extends AutoCloseable {
 
+    boolean isImmutable();
+
     void close();
 
     int getTransactionId();
@@ -31,4 +33,6 @@ public interface GraphTransaction extends AutoCloseable {
     GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
     long numberOf(TransportRelationshipTypes relationshipType);
+
+    GraphTransaction asImmutable();
 }

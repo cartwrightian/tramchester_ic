@@ -28,6 +28,37 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         this.parent = parent;
         this.graph = graph;
         this.immutable = immutable;
+        if (immutable) {
+            if (!graph.isImmutable()) {
+                throw new RuntimeException("Mismatch on immutability");
+            }
+        }
+    }
+
+    @Override
+    public GraphTransaction asImmutable() {
+        if (immutable) {
+            logger.warn("Already immutable");
+            return this;
+        } else {
+            logger.info("Wrap immutable");
+            final Graph immutableGraph = new ImmutableTransactionGraph(graph);
+            TransactionObserver observer = new TransactionObserver() {
+                @Override
+                public void onClose(GraphTransaction graphTransaction) {
+                    logger.info("Close transaction " + graphTransaction.getTransactionId());
+                    parent.onClose(graphTransaction);
+                }
+
+                @Override
+                public void onCommit(GraphTransaction graphTransaction) {
+                    String message = "Commit for immutable seen " + graphTransaction.getTransactionId();
+                    logger.error(message);
+                    throw new RuntimeException(message);
+                }
+            };
+            return new GraphTransactionInMemory(id, observer, immutableGraph, true);
+        }
     }
 
     @Override
@@ -37,6 +68,11 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         }
         graph.commit(this);
         parent.onCommit(this);
+    }
+
+    @Override
+    public boolean isImmutable() {
+        return immutable;
     }
 
     @Override
@@ -94,6 +130,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     public long numberOf(final TransportRelationshipTypes relationshipType) {
         return graph.getNumberOf(relationshipType);
     }
+
 
     @Override
     public GraphNode getNodeById(final GraphNodeId nodeId) {

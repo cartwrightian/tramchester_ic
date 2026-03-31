@@ -279,6 +279,11 @@ public class MutableTransactionGraph implements Graph {
         return Stream.concat(localNodes, copiedIn);
     }
 
+    @Override
+    public boolean isImmutable() {
+        return false;
+    }
+
     ///  immutable
     ///
 

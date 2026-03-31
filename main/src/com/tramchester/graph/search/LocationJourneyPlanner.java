@@ -113,11 +113,6 @@ public class LocationJourneyPlanner {
         final Stream<Journey> journeys;
         Running running = () -> true;
         journeys = calculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
-//        if (journeyRequest.getArriveBy()) {
-//            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
-//        } else {
-//            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
-//        }
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);
@@ -200,13 +195,6 @@ public class LocationJourneyPlanner {
 
         journeys = calculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
                 journeyRequest, numberOfChanges, running);
-//        if (journeyRequest.getArriveBy()) {
-//            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
-//                    journeyRequest, numberOfChanges, running);
-//        } else {
-//            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
-//                    journeyRequest, numberOfChanges, running);
-//        }
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(nodesAndRelationships::delete);

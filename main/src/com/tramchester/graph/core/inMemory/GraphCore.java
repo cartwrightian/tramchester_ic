@@ -392,6 +392,12 @@ public class GraphCore implements Graph {
         }
     }
 
+    @JsonIgnore
+    @Override
+    public boolean isImmutable() {
+        return false;
+    }
+
     @Override
     public Stream<GraphNode> findNodesImmutable(final GraphLabel graphLabel) {
         return findNodesMutable(graphLabel).map(item -> item);

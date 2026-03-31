@@ -128,6 +128,10 @@ public abstract class RouteCalculatorSupport {
                                               final PreviousVisits previousSuccessfulVisit, final ArrivalHandler arrivalHandler,
                                               final Running running, final TramNetworkTraverserFactory traverserFactory,
                                               final TowardsDestination towardsDestination) {
+        if (!txn.isImmutable()) {
+            throw new RuntimeException("Not an immutable transaction");
+        }
+
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -246,11 +250,6 @@ public abstract class RouteCalculatorSupport {
     protected ImmutableEnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
         // need to take into account if a location is an interchange
         return ImmutableEnumSet.join(interchangeRepository.getInterchangeModes(destinations), destinations.getModes());
-
-//        final ImmutableEnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
-//        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
-//        results.addAll(interchangeModes);
-//        return results;
     }
 
     protected Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
@@ -300,7 +299,7 @@ public abstract class RouteCalculatorSupport {
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
                                 journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(), journeyRequest.getMaxNumberOfJourneys()))).
-                flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
+                flatMap(pathRequest -> findShortestPath(txn.asImmutable(), createServiceReasons(journeyRequest, pathRequest), pathRequest,
                         createPreviousVisits(journeyRequest), arrivalHandler, running, traverserFactory, towardsDestination)).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 

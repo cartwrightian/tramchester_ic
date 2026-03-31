@@ -12,10 +12,10 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import java.util.stream.Stream;
 
 public class ImmutableTransactionGraph implements Graph {
-    private final ImmutableGraph underlying;
+    private final GraphCache cache;
 
-    public ImmutableTransactionGraph(final Graph underlying) {
-        this.underlying = underlying;
+    public ImmutableTransactionGraph(final Graph graph) {
+        this.cache = new GraphCache(graph);
     }
 
     @Override
@@ -73,47 +73,52 @@ public class ImmutableTransactionGraph implements Graph {
         throw new ImmutableGraphException();
     }
 
+    @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
     // immutable
 
     @Override
     public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory id, final GraphDirection direction,
                                                                    final ImmutableEnumSet<TransportRelationshipTypes> types) {
-        return underlying.findRelationshipsImmutableFor(id, direction, types);
+        return cache.findRelationshipsImmutableFor(id, direction, types);
     }
 
     @Override
     public Stream<GraphNode> findNodesImmutable(final GraphLabel graphLabel) {
-        return underlying.findNodesImmutable(graphLabel);
+        return cache.findNodesImmutable(graphLabel);
     }
 
     @Override
     public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final String value) {
-        return underlying.findNodesImmutable(label, key, value);
+        return cache.findNodesImmutable(label, key, value);
     }
 
     @Override
     public GraphNode getNodeImmutable(final NodeIdInMemory nodeId) {
-        return underlying.getNodeImmutable(nodeId);
+        return cache.getNodeImmutable(nodeId);
     }
 
     @Override
     public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes type) {
-        return underlying.findRelationships(type);
+        return cache.findRelationships(type);
     }
 
     @Override
     public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory id, final GraphDirection direction) {
-        return underlying.findRelationshipsImmutableFor(id, direction);
+        return cache.findRelationshipsImmutableFor(id, direction);
     }
 
     @Override
     public GraphRelationship getRelationship(final RelationshipIdInMemory graphRelationshipId) {
-        return underlying.getRelationship(graphRelationshipId);
+        return cache.getRelationship(graphRelationshipId);
     }
 
     @Override
     public long getNumberOf(TransportRelationshipTypes relationshipType) {
-        return underlying.getNumberOf(relationshipType);
+        return cache.getNumberOf(relationshipType);
     }
 
 
@@ -135,6 +140,56 @@ public class ImmutableTransactionGraph implements Graph {
     private static class ImmutableGraphException extends RuntimeException {
         ImmutableGraphException() {
             super("Not implemented for ImmutableGraph");
+        }
+    }
+
+    private static class GraphCache implements ImmutableGraph {
+
+        private final Graph underlying;
+
+        public GraphCache(Graph underlying) {
+            this.underlying = underlying;
+        }
+
+        @Override
+        public Stream<GraphNode> findNodesImmutable(GraphLabel graphLabel) {
+            return underlying.findNodesImmutable(graphLabel);
+        }
+
+        @Override
+        public Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value) {
+            return underlying.findNodesImmutable(label, key, value);
+        }
+
+        @Override
+        public GraphNode getNodeImmutable(NodeIdInMemory nodeId) {
+            return underlying.getNodeImmutable(nodeId);
+        }
+
+        @Override
+        public Stream<GraphRelationship> findRelationships(TransportRelationshipTypes type) {
+            return underlying.findRelationships(type);
+        }
+
+        @Override
+        public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction) {
+            return underlying.findRelationshipsImmutableFor(id, direction);
+        }
+
+        @Override
+        public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction,
+                                                                       ImmutableEnumSet<TransportRelationshipTypes> types) {
+            return underlying.findRelationshipsImmutableFor(id, direction, types);
+        }
+
+        @Override
+        public GraphRelationship getRelationship(RelationshipIdInMemory graphRelationshipId) {
+            return underlying.getRelationship(graphRelationshipId);
+        }
+
+        @Override
+        public long getNumberOf(TransportRelationshipTypes relationshipType) {
+            return underlying.getNumberOf(relationshipType);
         }
     }
 }
