@@ -2,13 +2,14 @@ package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.core.GraphDirection;
-import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.core.GraphRelationship;
-import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 public class ImmutableTransactionGraph implements Graph {
@@ -21,6 +22,12 @@ public class ImmutableTransactionGraph implements Graph {
     @Override
     public void commit(GraphTransaction owningTransaction) {
         throw new RuntimeException("Got unexpected commit for " + owningTransaction);
+    }
+
+
+    @Override
+    public void close(GraphTransaction owningTransaction) {
+        cache.clear();
     }
 
     @Override
@@ -121,12 +128,6 @@ public class ImmutableTransactionGraph implements Graph {
         return cache.getNumberOf(relationshipType);
     }
 
-
-    @Override
-    public void close(GraphTransaction owningTransaction) {
-        // NO-OP
-    }
-
     @Override
     public Stream<GraphNodeInMemory> getUpdatedNodes() {
         return Stream.empty();
@@ -146,9 +147,16 @@ public class ImmutableTransactionGraph implements Graph {
     private static class GraphCache implements ImmutableGraph {
 
         private final Graph underlying;
+        // targeted on key methods used during route calculation
+        private final ConcurrentMap<Pair<NodeIdInMemory, GraphDirection>, List<GraphRelationship>> relationshipCache;
 
         public GraphCache(Graph underlying) {
             this.underlying = underlying;
+            relationshipCache = new ConcurrentHashMap<>();
+        }
+        
+        public void clear() {
+            relationshipCache.clear();
         }
 
         @Override
@@ -173,13 +181,20 @@ public class ImmutableTransactionGraph implements Graph {
 
         @Override
         public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction) {
-            return underlying.findRelationshipsImmutableFor(id, direction);
+            Pair<NodeIdInMemory, GraphDirection> key = Pair.of(id,direction);
+            List<GraphRelationship> items = relationshipCache.computeIfAbsent(key, x -> underlying.findRelationshipsImmutableFor(id, direction).toList());
+            return items.stream();
+            //return underlying.findRelationshipsImmutableFor(id, direction);
         }
 
         @Override
         public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction,
                                                                        ImmutableEnumSet<TransportRelationshipTypes> types) {
-            return underlying.findRelationshipsImmutableFor(id, direction, types);
+            Pair<NodeIdInMemory, GraphDirection> key = Pair.of(id,direction);
+            List<GraphRelationship> items = relationshipCache.computeIfAbsent(key, x -> underlying.findRelationshipsImmutableFor(id, direction).toList());
+
+            return items.stream().filter(rel -> types.contains(rel.getType()));
+            //return underlying.findRelationshipsImmutableFor(id, direction, types);
         }
 
         @Override
@@ -191,5 +206,6 @@ public class ImmutableTransactionGraph implements Graph {
         public long getNumberOf(TransportRelationshipTypes relationshipType) {
             return underlying.getNumberOf(relationshipType);
         }
+
     }
 }
