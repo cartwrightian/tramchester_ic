@@ -4,6 +4,7 @@ import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.MixedLocationSet;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -13,7 +14,6 @@ import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -21,7 +21,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class TowardsDestination {
 
-    private static final EnumSet<TransportRelationshipTypes> departs = EnumSet.of(DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
+    private static final ImmutableEnumSet<TransportRelationshipTypes> departs = ImmutableEnumSet.of(DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
 
     private final LocationCollection expanded;
 

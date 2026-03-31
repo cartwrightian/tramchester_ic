@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.core.GraphDirection;
@@ -11,14 +12,13 @@ import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilder;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public abstract class TowardsRouteStation<T extends RouteStationState> extends StateBuilder<T> {
 
-    private static final EnumSet<TransportRelationshipTypes> departs = EnumSet.of(DEPART, INTERCHANGE_DEPART);
+    private static final ImmutableEnumSet<TransportRelationshipTypes> departs = ImmutableEnumSet.of(DEPART, INTERCHANGE_DEPART);
 
     private final boolean interchangesOnly;
 

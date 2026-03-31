@@ -8,7 +8,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 
-import java.util.EnumSet;
 import java.util.Objects;
 
 public final class StateBuilderParameters {
@@ -17,7 +16,7 @@ public final class StateBuilderParameters {
     private final TowardsDestination towardsDestination;
     private final boolean depthFirst;
     private final boolean interchangesOnly;
-    private final EnumSet<TransportRelationshipTypes> currentModes;
+    private final ImmutableEnumSet<TransportRelationshipTypes> currentModes;
 
     public StateBuilderParameters(final TramDate queryDate, final TramTime queryTime,
                                   final TowardsDestination towardsDestination,
@@ -46,7 +45,7 @@ public final class StateBuilderParameters {
         return interchangesOnly;
     }
 
-    public EnumSet<TransportRelationshipTypes> currentModes() {
+    public ImmutableEnumSet<TransportRelationshipTypes> currentModes() {
         return currentModes;
     }
 

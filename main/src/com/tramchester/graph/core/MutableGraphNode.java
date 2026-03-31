@@ -64,9 +64,6 @@ public interface MutableGraphNode extends GraphNode {
 
     void set(Trip trip);
 
-//    Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, GraphDirection direction,
-//                                                             TransportRelationshipTypes relationshipType);
-
     MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction tx,
                                                           TransportRelationshipTypes transportRelationshipTypes, GraphDirection graphDirection);
 

@@ -157,6 +157,8 @@ public class MutableTransactionGraph implements Graph {
         return copyNodeIntoLocal(nodeId, true);
     }
 
+
+
     @Override
     public GraphRelationshipInMemory getSingleRelationshipMutable(NodeIdInMemory nodeId, GraphDirection direction,
                                                                   TransportRelationshipTypes transportRelationshipType) {
@@ -197,6 +199,35 @@ public class MutableTransactionGraph implements Graph {
         throw new RuntimeException("Could node find node (local or in parent) with id " + nodeId);
     }
 
+
+
+    @Override
+    public Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(final NodeIdInMemory nodeId, final GraphDirection direction,
+                                                                         final ImmutableEnumSet<TransportRelationshipTypes> types) {
+        if (locallyCreatedNodes.contains(nodeId)) {
+            // created here, can only have relationships within current transaction
+            return localGraph.findRelationshipsMutableFor(nodeId, direction, types);
+        }
+
+        if (localGraph.hasNodeId(nodeId)) {
+            return localGraph.findRelationshipsMutableFor(nodeId, direction, types);
+        }
+
+        if (parent.hasNodeId(nodeId)) {
+            final Stream<RelationshipIdInMemory> originalRelationships = parent.findRelationshipsMutableFor(nodeId, direction, types)
+                    .map(GraphRelationshipInMemory::getId);
+
+            final Stream<RelationshipIdInMemory> needCopyIn = originalRelationships.
+                    filter(relId -> !localGraph.hasRelationshipId(relId));
+
+            relationshipsCopiedIn.add(nodeId);
+
+            return needCopyIn.map(this::copyRelationshipIntoLocal);
+        }
+
+        throw new RuntimeException("Did not find node " + nodeId);
+    }
+
     @Override
     public Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(final NodeIdInMemory nodeId, final GraphDirection direction) {
         if (locallyCreatedNodes.contains(nodeId)) {
@@ -215,7 +246,6 @@ public class MutableTransactionGraph implements Graph {
 //            return local.stream();
 
             return localGraph.findRelationshipsMutableFor(nodeId, direction);
-
         }
 
         if (parent.hasNodeId(nodeId)) {
@@ -287,6 +317,14 @@ public class MutableTransactionGraph implements Graph {
     public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory nodeId, final GraphDirection direction) {
         final List<GraphRelationship> local = localGraph.findRelationshipsImmutableFor(nodeId, direction).toList();
         final Stream<GraphRelationship> fromParent = parent.findRelationshipsImmutableFor(nodeId, direction).
+                filter(graphRelationship -> !local.contains(graphRelationship));
+        return Stream.concat(local.stream(), fromParent);
+    }
+
+    @Override
+    public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory nodeId, GraphDirection direction, ImmutableEnumSet<TransportRelationshipTypes> types) {
+        final List<GraphRelationship> local = localGraph.findRelationshipsImmutableFor(nodeId, direction, types).toList();
+        final Stream<GraphRelationship> fromParent = parent.findRelationshipsImmutableFor(nodeId, direction, types).
                 filter(graphRelationship -> !local.contains(graphRelationship));
         return Stream.concat(local.stream(), fromParent);
     }

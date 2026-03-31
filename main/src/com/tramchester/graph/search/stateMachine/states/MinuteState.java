@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -14,13 +15,12 @@ import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTrip
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
 public class MinuteState extends TraversalState implements HasTowardsStationId {
 
     public static class Builder extends StateBuilder<MinuteState> {
-        final EnumSet<TransportRelationshipTypes> currentModes;
+        final ImmutableEnumSet<TransportRelationshipTypes> currentModes;
 
         public Builder(StateBuilderParameters builderParameters) {
             super(builderParameters);

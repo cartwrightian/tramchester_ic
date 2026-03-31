@@ -130,12 +130,12 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
                                                       final TransportRelationshipTypes relationshipType) {
-        return getRelationships(txn, direction, EnumSet.of(relationshipType));
+        return getRelationships(txn, direction, relationshipType.singleton());
     }
 
     @Override
     public Stream<GraphRelationship> getRelationships(final GraphTransaction txn, final GraphDirection direction,
-                                                      final EnumSet<TransportRelationshipTypes> types) {
+                                                      final ImmutableEnumSet<TransportRelationshipTypes> types) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
         return inMemory.getRelationshipImmutable(id, direction, types);
     }
@@ -157,7 +157,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public MutableGraphRelationship getSingleRelationshipMutable(final MutableGraphTransaction txn, final TransportRelationshipTypes transportRelationshipTypes,
                                                                  final GraphDirection graphDirection, final GraphNode end) {
         final GraphTransactionInMemory inMemory = (GraphTransactionInMemory) txn;
-        return inMemory.getRelationshipMutable(id, graphDirection, EnumSet.of(transportRelationshipTypes), end);
+        return inMemory.getRelationshipMutable(id, graphDirection, transportRelationshipTypes.singleton(), end);
     }
 
     @Override

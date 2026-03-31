@@ -49,6 +49,16 @@ public class ImmutableGraph implements Graph {
     }
 
     @Override
+    public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction, ImmutableEnumSet<TransportRelationshipTypes> types) {
+        return underlying.findRelationshipsImmutableFor(id, direction, types);
+    }
+
+    @Override
+    public Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(NodeIdInMemory id, GraphDirection direction, ImmutableEnumSet<TransportRelationshipTypes> types) {
+        throw new ImmutableGraphException();
+    }
+
+    @Override
     public GraphRelationshipInMemory getSingleRelationshipMutable(NodeIdInMemory id, GraphDirection direction, TransportRelationshipTypes transportRelationshipType) {
         throw new ImmutableGraphException();
     }

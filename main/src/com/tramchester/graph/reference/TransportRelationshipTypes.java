@@ -42,7 +42,7 @@ public enum TransportRelationshipTypes {
     NEIGHBOUR, // stations within N meters, see also Neighbours.DIFF_MODES_ONLY
     LINKED; // capture how stations are linked together, added during graph build, aids debug, visualisation, etc
 
-    private static final EnumSet<TransportRelationshipTypes> forPlanning;
+    private static final ImmutableEnumSet<TransportRelationshipTypes> forPlanning;
 
     static {
         final EnumSet<TransportRelationshipTypes> values = EnumSet.allOf(TransportRelationshipTypes.class);
@@ -50,7 +50,7 @@ public enum TransportRelationshipTypes {
         values.remove(LINKED);
         values.remove(STATION_TO_ROUTE);
         //forPlanning = new TransportRelationshipTypes[values.size()];
-        forPlanning = EnumSet.copyOf(values);
+        forPlanning = ImmutableEnumSet.copyOf(values);
     }
 
     public static final ImmutableEnumSet<TransportRelationshipTypes> NoneOf = ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);
@@ -69,7 +69,7 @@ public enum TransportRelationshipTypes {
         singleton = ImmutableEnumSet.of(this);
     }
 
-    public static EnumSet<TransportRelationshipTypes> forPlanning() {
+    public static ImmutableEnumSet<TransportRelationshipTypes> forPlanning() {
         return forPlanning;
     }
 
@@ -100,11 +100,11 @@ public enum TransportRelationshipTypes {
         return valueOf(name);
     }
 
-    public static EnumSet<TransportRelationshipTypes> forModes(final ImmutableEnumSet<TransportMode> transportModes) {
+    public static ImmutableEnumSet<TransportRelationshipTypes> forModes(final ImmutableEnumSet<TransportMode> transportModes) {
         final Set<TransportRelationshipTypes> unique = transportModes.stream().
                 map(TransportRelationshipTypes::forMode).collect(Collectors.toSet());
 
-        return EnumSet.copyOf(unique);
+        return ImmutableEnumSet.copyOf(unique);
 
 //        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[unique.size()];
 //        int index = 0;

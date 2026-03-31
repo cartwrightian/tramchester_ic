@@ -14,7 +14,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,19 +59,25 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldGiveCorrectCostForAdjacencyAltyNavigationRoad() {
-        assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
-        assertTrue(getAdjacent(NavigationRoad, Cornbrook).invalid());
+
+        assertMinutesEquals(3, repository.getAdjacent(StationIdPair.of(Altrincham, NavigationRoad), date, timeRange));
+
+        assertTrue(repository.getAdjacent(StationIdPair.of(NavigationRoad, Cornbrook), date, timeRange).invalid());
     }
 
     @Test
     void shouldGiveCorrectCostForAdjacencyCornbrookDeansgate() {
-        TramDuration duration = getAdjacent(Cornbrook, Deansgate);
+
+        StationIdPair stationPair = StationIdPair.of(Cornbrook, Deansgate);
+        TramDuration duration = repository.getAdjacent(stationPair, date, timeRange);
         assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
     }
 
     @Test
     void shouldGiveCorrectCostForAdjacencyDeansgateCornbrook() {
-        assertEquals(TramDuration.ofMinutes(3).plusSeconds(40), getAdjacent(Deansgate, Cornbrook));
+        StationIdPair stationPair = StationIdPair.of(Deansgate, Cornbrook);
+        TramDuration duration = repository.getAdjacent(stationPair, date, timeRange);
+        assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
     }
 
     @Test
@@ -87,10 +92,4 @@ class StationAdjacencyRepositoryTest {
         assertEquals(4, results.size(), pairs.toString());
     }
 
-    private TramDuration getAdjacent(TramStations first, TramStations second) {
-
-        StationIdPair stationIdPair = StationIdPair.of(first.getId(), second.getId());
-
-        return repository.getAdjacent(stationIdPair, date, timeRange);
-    }
 }

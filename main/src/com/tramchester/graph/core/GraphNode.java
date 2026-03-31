@@ -17,7 +17,6 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -72,7 +71,7 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes relationshipType);
 
-    Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, EnumSet<TransportRelationshipTypes> types);
+    Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, ImmutableEnumSet<TransportRelationshipTypes> types);
 
     Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction);
 

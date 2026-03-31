@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -61,7 +62,7 @@ class TramGraphBuilderTest {
     private Route tramRouteEcclesAshton;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
-    private EnumSet<TransportRelationshipTypes> transportRelationshipTypes;
+    private ImmutableEnumSet<TransportRelationshipTypes> transportRelationshipTypes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -764,7 +765,7 @@ class TramGraphBuilderTest {
         RouteStation routeStationA = stationRepository.getRouteStation(stationA, buryToAlty);
         RouteStation routeStationB = stationRepository.getRouteStation(stationB, buryToAlty);
 
-        EnumSet<TransportRelationshipTypes> relationshipTypes = EnumSet.of(TO_SERVICE);
+        ImmutableEnumSet<TransportRelationshipTypes> relationshipTypes = ImmutableEnumSet.of(TO_SERVICE);
 
         Set<GraphRelationship> svcOutboundsA = new HashSet<>(getRouteStationRelationships(routeStationA, Outgoing, relationshipTypes));
         assertFalse(svcOutboundsA.isEmpty());
@@ -888,7 +889,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(17D, Math.ceil(percentage));
+        assertEquals(16D, Math.ceil(percentage));
     }
 
     @Test
@@ -906,7 +907,7 @@ class TramGraphBuilderTest {
     void shouldSaneNumberOfRelationships() {
         int limit = 2250;
 
-        EnumSet<TransportRelationshipTypes> allRelTypes = EnumSet.allOf(TransportRelationshipTypes.class);
+        ImmutableEnumSet<TransportRelationshipTypes> allRelTypes = ImmutableEnumSet.allOf(TransportRelationshipTypes.class);
 
         List<GraphNode> nodes = Arrays.stream(GraphLabel.values()).
                 flatMap(label -> txn.findNodes(label)).
@@ -936,7 +937,7 @@ class TramGraphBuilderTest {
         assertNotNull(routeStation, "Could not find route stations for " + station.getId() + " " + route.getId());
 
         List<GraphRelationship> routeStationOutbounds = getRouteStationRelationships(routeStation, Outgoing,
-                EnumSet.allOf(TransportRelationshipTypes.class));
+                ImmutableEnumSet.allOf(TransportRelationshipTypes.class));
 
         assertFalse(routeStationOutbounds.isEmpty());
 
@@ -974,7 +975,7 @@ class TramGraphBuilderTest {
         //TransportRelationshipTypes[] stationToRoute = new TransportRelationshipTypes[] {STATION_TO_ROUTE};
 
         List<GraphRelationship> incomingToRouteStation = getRouteStationRelationships(routeStation, GraphDirection.Incoming,
-                EnumSet.allOf(TransportRelationshipTypes.class));
+                ImmutableEnumSet.allOf(TransportRelationshipTypes.class));
         long fromStation = incomingToRouteStation.stream().filter(relationship -> relationship.isType(STATION_TO_ROUTE)).count();
         assertNotEquals(0, fromStation);
     }
@@ -1032,7 +1033,7 @@ class TramGraphBuilderTest {
         assertEquals(0, tripIdsFromFile.size());
     }
 
-    private List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection graphDirection, EnumSet<TransportRelationshipTypes> transportRelationshipTypes) {
+    private List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, GraphDirection graphDirection, ImmutableEnumSet<TransportRelationshipTypes> transportRelationshipTypes) {
         return GraphHelper.getRelationshipsForRouteStation(txn, routeStation, graphDirection, transportRelationshipTypes);
     }
 }

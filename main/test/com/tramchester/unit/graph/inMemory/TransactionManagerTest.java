@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -196,7 +195,7 @@ public class TransactionManagerTest extends EasyMockSupport {
             GraphNode check = txn.findNode(routeStation);
             assertNotNull(check);
 
-            EnumSet<TransportRelationshipTypes> relationshipTypes = TransportRelationshipTypes.forPlanning();
+            ImmutableEnumSet<TransportRelationshipTypes> relationshipTypes = TransportRelationshipTypes.forPlanning();
 
             List<GraphRelationship> initialSearch = GraphHelper.getRelationshipsForRouteStation(txn, routeStation, Outgoing, relationshipTypes);
             assertTrue(initialSearch.isEmpty());
@@ -487,7 +486,7 @@ public class TransactionManagerTest extends EasyMockSupport {
                 assertNotNull(singleIncoming);
                 assertEquals(relationshipA.getId(), singleIncoming.getId());
 
-                List<GraphRelationship> atStart = start.getRelationships(txn, GraphDirection.Both, EnumSet.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
+                List<GraphRelationship> atStart = start.getRelationships(txn, GraphDirection.Both, ImmutableEnumSet.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
                 assertEquals(2, atStart.size());
                 assertTrue(atStart.contains(relationshipA));
                 assertTrue(atStart.contains(relationshipB));
@@ -584,7 +583,7 @@ public class TransactionManagerTest extends EasyMockSupport {
             assertFalse(start.hasRelationship(txn, Incoming, TRAIN_GOES_TO));
             assertFalse(end.hasRelationship(txn, Outgoing, TRAIN_GOES_TO));
 
-            List<GraphRelationship> foundBoth = start.getRelationships(txn, Both, EnumSet.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
+            List<GraphRelationship> foundBoth = start.getRelationships(txn, Both, ImmutableEnumSet.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
             assertTrue(foundBoth.isEmpty());
 
             assertEquals(0, txn.findRelationships(FERRY_GOES_TO).count());

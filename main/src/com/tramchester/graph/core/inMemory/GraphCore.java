@@ -209,8 +209,8 @@ public class GraphCore implements Graph {
         // TODO sanity check direction and type have not changed? These are immutable properties for the relationship
         nodesAndEdges.putRelationship(relationshipId, relationship);
 
-        final boolean addInbound = putInboundTo(endId, relationshipId);
-        final boolean addOutbound = putOutboundTo(beginId, relationshipId);
+        final boolean addInbound = putInboundTo(endId, relationshipId, relationshipType);
+        final boolean addOutbound = putOutboundTo(beginId, relationshipId, relationshipType);
         if (addInbound||addOutbound) {
             relationshipTypeCounts.increment(relationshipType);
         }
@@ -249,8 +249,8 @@ public class GraphCore implements Graph {
      * @param relationshipId id of outbound relationship to add
      * @return true if added a new relationship
      */
-    private boolean putInboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
-        return relationshipsForNodes.addInboundFor(nodeId, relationshipId);
+    private boolean putInboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes relationshipType) {
+        return relationshipsForNodes.addInboundFor(nodeId, relationshipId, relationshipType);
     }
 
     /***
@@ -259,8 +259,8 @@ public class GraphCore implements Graph {
      * @param relationshipId id of outbound relationship to add
      * @return true if added a new relationship
      */
-    private boolean putOutboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
-        return relationshipsForNodes.addOutboundFor(nodeId, relationshipId);
+    private boolean putOutboundTo(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes relationshipType) {
+        return relationshipsForNodes.addOutboundFor(nodeId, relationshipId, relationshipType);
     }
 
     @Override
@@ -281,6 +281,26 @@ public class GraphCore implements Graph {
         }
     }
 
+    @Override
+    public Stream<GraphRelationship> findRelationshipsImmutableFor(final NodeIdInMemory id, final GraphDirection direction,
+                                                                   final ImmutableEnumSet<TransportRelationshipTypes> types) {
+        return findRelationshipsMutableFor(id, direction, types).map(item -> item);
+    }
+
+    @Override
+    public Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(final NodeIdInMemory id, final GraphDirection direction,
+                                                                         final ImmutableEnumSet<TransportRelationshipTypes> types) {
+        synchronized (nodesAndEdges) {
+            final RelationshipsForNode relationshipsForNode = relationshipsForNodes.get(id);
+            return switch (direction) {
+                case Outgoing -> nodesAndEdges.getOutbounds(relationshipsForNode, types);
+                case Incoming -> nodesAndEdges.getInbounds(relationshipsForNode, types);
+                case Both -> Stream.concat(nodesAndEdges.getOutbounds(relationshipsForNode, types),
+                        nodesAndEdges.getInbounds(relationshipsForNode, types));
+            };
+        }
+    }
+
     /***
      * Find single relationship
      * If one found returns that
@@ -294,8 +314,8 @@ public class GraphCore implements Graph {
     @Override
     public GraphRelationshipInMemory getSingleRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
                                                                   final TransportRelationshipTypes transportRelationshipType) {
-        final List<GraphRelationshipInMemory> result = findRelationshipsMutableFor(id, direction).
-                filter(rel -> rel.isType(transportRelationshipType)).
+        final List<GraphRelationshipInMemory> result = findRelationshipsMutableFor(id, direction, transportRelationshipType.singleton()).
+                //filter(rel -> rel.isType(transportRelationshipType)).
                 toList();
 
         if (result.isEmpty()) {
@@ -649,14 +669,16 @@ public class GraphCore implements Graph {
             return theMap.getOrDefault(nodeId, RelationshipsForNode.empty()).getRelationshipIds();
         }
 
-        public synchronized boolean addInboundFor(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
+        public synchronized boolean addInboundFor(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId,
+                                                  final TransportRelationshipTypes relationshipType) {
             final RelationshipsForNode relationshipsForNode = theMap.computeIfAbsent(nodeId, key -> new RelationshipsForNode());
-            return relationshipsForNode.putInbound(relationshipId);
+            return relationshipsForNode.putInbound(relationshipId, relationshipType);
         }
 
-        public synchronized boolean addOutboundFor(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId) {
+        public synchronized boolean addOutboundFor(final GraphNodeId nodeId, final RelationshipIdInMemory relationshipId,
+                                                   final TransportRelationshipTypes relationshipType) {
             final RelationshipsForNode relationshipsForNode = theMap.computeIfAbsent(nodeId, key -> new RelationshipsForNode());
-            return relationshipsForNode.putOutbound(relationshipId);
+            return relationshipsForNode.putOutbound(relationshipId, relationshipType);
         }
         public synchronized RelationshipsForNode get(final NodeIdInMemory id) {
             return theMap.getOrDefault(id, RelationshipsForNode.empty());

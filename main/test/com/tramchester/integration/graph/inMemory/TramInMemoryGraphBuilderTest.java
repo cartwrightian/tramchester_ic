@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -19,7 +20,6 @@ import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,8 +72,8 @@ class TramInMemoryGraphBuilderTest {
                     // TODO
                     final NodeIdInMemory nodeId = (NodeIdInMemory) node.getId();
 
-                    long numFromNode = node.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
-                    long numViaGraph = graph.findRelationshipsImmutableFor(nodeId, direction).count();
+                    long numFromNode = node.getRelationships(txn, direction, ImmutableEnumSet.allOf(TransportRelationshipTypes.class)).count();
+                    long numViaGraph = graph.findRelationshipsImmutableFor(nodeId, direction, ImmutableEnumSet.allOf(TransportRelationshipTypes.class)).count();
 
                     assertEquals(numFromNode, numViaGraph);
                 }

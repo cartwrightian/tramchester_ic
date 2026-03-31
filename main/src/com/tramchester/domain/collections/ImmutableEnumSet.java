@@ -47,6 +47,14 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
         return createFrom(EnumSet.of(itemA, itemB, itemC));
     }
 
+    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC, final S itemD) {
+        return createFrom(EnumSet.of(itemA, itemB, itemC, itemD));
+    }
+
+    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC, final S itemD, final S itemE) {
+        return createFrom(EnumSet.of(itemA, itemB, itemC, itemD, itemE));
+    }
+
     public static <S extends Enum<S>> ImmutableEnumSet<S> join(final ImmutableEnumSet<S> setA, final ImmutableEnumSet<S> setB) {
         final EnumSet<S> result = EnumSet.copyOf(setA.getContained());
         result.addAll(setB.getContained());

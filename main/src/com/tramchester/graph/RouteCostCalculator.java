@@ -16,7 +16,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public interface RouteCostCalculator {
 
-    EnumSet<TransportRelationshipTypes> costApproxTypes = EnumSet.of(
+    ImmutableEnumSet<TransportRelationshipTypes> costApproxTypes = ImmutableEnumSet.copyOf(EnumSet.of(
             ON_ROUTE,
             STATION_TO_ROUTE,
             ROUTE_TO_STATION,
@@ -25,7 +25,7 @@ public interface RouteCostCalculator {
             NEIGHBOUR,
             GROUPED_TO_PARENT,
             GROUPED_TO_GROUPED,
-            GROUPED_TO_CHILD);
+            GROUPED_TO_CHILD));
 
     TramDuration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, GraphNode endNode,
                                        TramDate date, ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException;

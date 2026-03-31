@@ -1,5 +1,6 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -10,14 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 
 public class GraphHelper {
     private static final Logger logger = LoggerFactory.getLogger(GraphHelper.class);
 
     public static List<GraphRelationship> getRelationshipsForRouteStation(GraphTransaction txn, RouteStation routeStation, GraphDirection graphDirection,
-                                                                          EnumSet<TransportRelationshipTypes> relationshipTypes) {
+                                                                          ImmutableEnumSet<TransportRelationshipTypes> relationshipTypes) {
         final GraphNode node = txn.findNode(routeStation);
         if (node==null) {
             logger.info("Did not find node for " + routeStation.getId());

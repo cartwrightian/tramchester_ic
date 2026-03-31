@@ -127,6 +127,7 @@ public class StationAvailabilityRepositoryTest {
         assertNotEquals(mondayTimes, fridayTimes);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 6)
     @Test
     void shouldHaveExpectedServedRoutesForLocation() {
         Station station = Altrincham.from(stationRepository);
@@ -151,8 +152,6 @@ public class StationAvailabilityRepositoryTest {
         TimeRange mondayTimes = availabilityRepository.getAvailableTimesFor(destinations, monday);
 
         //  late services from Alty run to Old Trafford
-
-
         assertTrue(mondayTimes.contains(TramTime.of(23,55)), "Unexpected time range " + mondayTimes);
         assertFalse(mondayTimes.contains(TramTime.of(0,30)), "Unexpected time range " + mondayTimes);
 

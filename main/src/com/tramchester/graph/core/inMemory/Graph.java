@@ -25,6 +25,13 @@ public interface Graph {
     void addLabel(NodeIdInMemory id, GraphLabel label);
 
     GraphNodeInMemory getNodeMutable(NodeIdInMemory nodeId);
+
+    Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory id, GraphDirection direction,
+                                                            ImmutableEnumSet<TransportRelationshipTypes> types);
+
+    Stream<GraphRelationshipInMemory> findRelationshipsMutableFor(NodeIdInMemory id, GraphDirection direction,
+                                                                  ImmutableEnumSet<TransportRelationshipTypes> types);
+
     GraphRelationshipInMemory getSingleRelationshipMutable(NodeIdInMemory id, GraphDirection direction,
                                                            TransportRelationshipTypes transportRelationshipType);
 

@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -230,8 +230,8 @@ public class GraphSaveAndLoadTest {
 
         final NodeIdInMemory nodeId = expected.getId();
 
-        long numForExpected = expected.getRelationships(txn, direction, EnumSet.allOf(TransportRelationshipTypes.class)).count();
-        long resultCount = result.findRelationshipsImmutableFor(nodeId, direction).count();
+        long numForExpected = expected.getRelationships(txn, direction, ImmutableEnumSet.allOf(TransportRelationshipTypes.class)).count();
+        long resultCount = result.findRelationshipsImmutableFor(nodeId, direction, ImmutableEnumSet.allOf(TransportRelationshipTypes.class)).count();
         assertEquals(numForExpected, resultCount, "for " + expected.getAllProperties());
 
         for(TransportRelationshipTypes transportRelationshipType : TransportRelationshipTypes.values()) {
@@ -241,8 +241,8 @@ public class GraphSaveAndLoadTest {
                     collect(Collectors.toSet());
 
             final Set<GraphRelationship> resultRelationships = result.
-                    findRelationshipsImmutableFor(nodeId, direction).
-                    filter(relat -> relat.isType(transportRelationshipType)).
+                    findRelationshipsImmutableFor(nodeId, direction, transportRelationshipType.singleton()).
+                    //filter(relat -> relat.isType(transportRelationshipType)).
                     collect(Collectors.toSet());
 
             Set<GraphRelationship> diff = SetUtils.disjunction(expectedRelationships, resultRelationships);

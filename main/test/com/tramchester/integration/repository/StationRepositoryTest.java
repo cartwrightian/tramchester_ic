@@ -282,13 +282,12 @@ public class StationRepositoryTest {
 
         IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        // Easter 2026
-        assertEquals(2+1, dropOffs.size(), dropOffs.toString());
+        assertEquals(2, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(blueRouteId));
 
         IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
-        // Easter 2026
-        assertEquals(2+1, pickUps.size(), pickUps.toString());
+
+        assertEquals(2, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(blueRouteId));
     }
 

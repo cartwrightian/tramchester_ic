@@ -117,8 +117,16 @@ public class NodesAndEdges {
         return relationshipsForNode.getOutbound(relationships);
     }
 
+    Stream<GraphRelationshipInMemory> getOutbounds(RelationshipsForNode relationshipsForNode, final ImmutableEnumSet<TransportRelationshipTypes> types) {
+        return relationshipsForNode.getOutbound(relationships, types);
+    }
+
     Stream<GraphRelationshipInMemory> getInbounds(final RelationshipsForNode relationshipsForNode) {
         return relationshipsForNode.getInbound(relationships);
+    }
+
+    Stream<GraphRelationshipInMemory> getInbounds(final RelationshipsForNode relationshipsForNode, final ImmutableEnumSet<TransportRelationshipTypes> types) {
+        return relationshipsForNode.getInbound(relationships, types);
     }
 
     public void refreshNextNodeIdInto(final GraphIdFactory idFactory) {
@@ -189,4 +197,6 @@ public class NodesAndEdges {
     public void saveNodes(final JsonMapper mapper, final FileWriter output) throws IOException {
         mapper.writeValue(output, nodes.values());
     }
+
+
 }

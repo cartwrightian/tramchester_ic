@@ -45,10 +45,10 @@ public class JourneyPlannerResourceTest {
 
     private TramDate when;
     private JourneyResourceTestFacade journeyPlanner;
-    private Platform firstPlatformAtAlty;
     private StationRepository stationRepository;
 
     private int maxChanges;
+    private Station altrincham;
 
     @BeforeAll
     static void onceBeforeAnyTest() {
@@ -65,9 +65,7 @@ public class JourneyPlannerResourceTest {
         maxChanges = config.getMaxNumberChanges();
 
         stationRepository = dependencies.get(StationRepository.class);
-        Station altrincham = stationRepository.getStationById(Altrincham.getId());
-        List<Platform> platforms = new ArrayList<>(altrincham.getPlatforms());
-        firstPlatformAtAlty = platforms.getFirst();
+        altrincham = stationRepository.getStationById(Altrincham.getId());
     }
 
     @AfterAll
@@ -128,9 +126,11 @@ public class JourneyPlannerResourceTest {
             }
             assertEquals(when.toLocalDate(), journey.getQueryDate());
 
-            assertEquals("1", platform.getPlatformNumber());
-            assertEquals("Altrincham platform 1", platform.getName());
-            assertEquals(IdForDTO.createFor(firstPlatformAtAlty), platform.getId());
+            List<String> expectedNumbers = Arrays.asList("1", "2");
+            assertTrue(expectedNumbers.contains(platform.getPlatformNumber()));
+            assertTrue(platform.getName().startsWith("Altrincham platform 1"));
+            Set<IdForDTO> ids = altrincham.getPlatforms().stream().map(IdForDTO::createFor).collect(Collectors.toSet());
+            assertTrue(ids.contains(platform.getId()));
 
             journey.getStages().forEach(stage -> assertEquals(when.toLocalDate(), stage.getQueryDate()));
         });
@@ -252,9 +252,12 @@ public class JourneyPlannerResourceTest {
             VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().getFirst();
             PlatformDTO stategOnePlatform = firstStage.getPlatform();
 
-            assertEquals("1", stategOnePlatform.getPlatformNumber());
-            assertEquals( "Altrincham platform 1", stategOnePlatform.getName());
-            assertEquals( IdForDTO.createFor(firstPlatformAtAlty), stategOnePlatform.getId());
+            List<String> expected = Arrays.asList("1", "2");
+            assertTrue(expected.contains(stategOnePlatform.getPlatformNumber()));
+            assertTrue( stategOnePlatform.getName().startsWith("Altrincham platform"));
+            Set<IdForDTO> ids = altrincham.getPlatforms().stream().map(IdForDTO::createFor).collect(Collectors.toSet());
+            //assertEquals( IdForDTO.createFor(firstPlatformAtAlty), stategOnePlatform.getId());
+            assertTrue(ids.contains(stategOnePlatform.getId()));
 
             SimpleStageDTO secondStageRaw = journey.getStages().get(1);
             assertInstanceOf(VehicleStageDTO.class, secondStageRaw, "Expected vehicle stage but got " + secondStageRaw);

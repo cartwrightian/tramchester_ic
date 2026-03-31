@@ -53,15 +53,14 @@ public class ShortestPath {
 
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
         final GraphPath pathToHere = incomingPath.duplicateWith(txn, currentNode);
-        final TramDuration currentCostToNode = searchState.getCurrentCost(currentNodeId); //pair.getDuration();
+        final TramDuration currentCostToNode = searchState.getCurrentCost(currentNodeId);
 
         final Stream<GraphRelationship> outgoing = currentNode.getAllRelationships(txn, GraphDirection.Outgoing).
                 filter(filter::include);
 
         outgoing.forEach(graphRelationship -> {
             final TramDuration relationshipCost = graphRelationship.getCost();
-            //final GraphNode nextNode = graphRelationship.getEndNode(txn);
-            final GraphNodeId nextNodeId = graphRelationship.getEndNodeId(txn); //nextNode.getId();
+            final GraphNodeId nextNodeId = graphRelationship.getEndNodeId(txn);
             final TramDuration updatedCost = relationshipCost.plus(currentCostToNode);
 
             final GraphPath continuePath = pathToHere.duplicateWith(txn, graphRelationship);
