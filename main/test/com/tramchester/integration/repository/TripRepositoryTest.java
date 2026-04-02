@@ -270,7 +270,8 @@ public class TripRepositoryTest {
         assertFalse(findFirst.isEmpty());
 
         TramTime first = findFirst.get();
-        assertEquals(TestEnv.EarliestTramTime, first);
+        TramTime expected =  config.hasRailConfig() ? TestEnv.EarliestTrainTime : TestEnv.EarliestTramTime;
+        assertEquals(expected, first);
     }
 
     private Stream<Station> getOpenStations(final TramDate date) {

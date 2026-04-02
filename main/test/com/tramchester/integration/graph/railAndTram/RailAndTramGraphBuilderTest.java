@@ -73,7 +73,8 @@ class RailAndTramGraphBuilderTest {
         Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, GraphDirection.Outgoing, LINKED);
 
         List<GraphRelationship> list = outboundLinks.toList();
-        assertEquals(3, list.size());
+        // replacement buses
+        assertEquals(3+2, list.size(), list.toString());
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).

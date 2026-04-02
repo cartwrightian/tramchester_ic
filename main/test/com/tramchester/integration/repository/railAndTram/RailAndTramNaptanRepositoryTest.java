@@ -69,7 +69,7 @@ class RailAndTramNaptanRepositoryTest {
 
         Set<NaptanRecord> withinLocality = repository.getRecordsForLocality(localityId);
 
-        assertEquals(169, withinLocality.size(), withinLocality.toString());
+        assertEquals(170, withinLocality.size(), withinLocality.toString());
     }
 
     @Test

@@ -11,6 +11,7 @@ import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.LocationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -21,6 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static com.tramchester.domain.places.LocationType.Platform;
+import static com.tramchester.domain.places.LocationType.Station;
 import static com.tramchester.testSupport.reference.TramStations.Victoria;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -58,7 +61,7 @@ public class LocationRepositoryTest {
 
     @Test
     void shouldFindStationFromDTOId() {
-        Location<?> result = locationRepository.getLocation(LocationType.Station, Victoria.getIdForDTO());
+        Location<?> result = locationRepository.getLocation(Station, Victoria.getIdForDTO());
         assertEquals(Victoria.getId(), result.getId());
     }
 
@@ -68,15 +71,19 @@ public class LocationRepositoryTest {
 
         assumeTrue(naptanEnabled);
 
-        assertTrue(locationRepository.hasLocation(LocationType.Station, Victoria.getIdForDTO()));
-        IdFor<StationLocalityGroup> cityCentreId = KnownLocality.ManchesterCityCentre.getId();
+        assertTrue(locationRepository.hasLocation(Station, Victoria.getIdForDTO()));
+        IdFor<StationLocalityGroup> stationLocationGroup = KnownLocality.Shudehill.getId();
 
-        assertTrue(locationRepository.hasLocation(LocationType.StationGroup, IdForDTO.createFor(cityCentreId)),
-                "No group found for " + cityCentreId);
+        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        assertTrue(stationGroupsRepository.hasGroup(stationLocationGroup), "No group found in group repos for "
+                + stationLocationGroup);
+
+        assertTrue(locationRepository.hasLocation(LocationType.StationGroup, IdForDTO.createFor(stationLocationGroup)),
+                "No group found for " + stationLocationGroup);
     }
 
     @Test
     void shouldCheckIfLocationPMissing() {
-        assertFalse(locationRepository.hasLocation(LocationType.Platform, Victoria.getIdForDTO()));
+        assertFalse(locationRepository.hasLocation(Platform, Victoria.getIdForDTO()));
     }
 }

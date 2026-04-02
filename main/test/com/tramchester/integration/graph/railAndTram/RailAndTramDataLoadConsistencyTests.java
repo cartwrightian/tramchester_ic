@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
-@Disabled("Case caught and repdudced in the RailRouteTest class")
+@Disabled("Case caught and reproduced in the RailRouteTest class")
 @GMTest
 public class RailAndTramDataLoadConsistencyTests {
 

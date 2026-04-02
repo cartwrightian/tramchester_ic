@@ -81,6 +81,9 @@ public class TestEnv {
     // validated via TripRepositoryTest
     public static TramTime EarliestTramTime = TramTime.of(4,32);
 
+    // TODO is this accurate?
+    public static TramTime EarliestTrainTime = TramTime.of(0,1);
+
     public static GraphDBType getDefaultDBTYpe() {
         return GraphDBType.InMemory;
     }

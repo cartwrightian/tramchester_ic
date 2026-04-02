@@ -23,6 +23,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
 import org.junit.jupiter.api.AfterAll;
@@ -35,8 +36,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownLocality.GreaterManchester;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.tramchester.testSupport.reference.KnownLocality.LondonWestminster;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ValidateKnownLocalityTest {
     private static ComponentContainer componentContainer;
@@ -64,6 +65,31 @@ public class ValidateKnownLocalityTest {
     }
 
     @Test
+    void shouldAllBePresentInNptgData() {
+        NPTGRepository nptgRepository = componentContainer.get(NPTGRepository.class);
+
+        Set<KnownLocality> missing = Arrays.stream(KnownLocality.values()).
+                filter(place -> place!=LondonWestminster). // out of bounds, not loaded
+                filter(place -> !nptgRepository.hasLocality(place.getLocalityId())).
+                collect(Collectors.toSet());
+
+        assertTrue(missing.isEmpty(), "missing " + missing);
+
+    }
+
+    @Test
+    void shouldAllBePresentInNaptanData() {
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+
+        Set<KnownLocality> missing = KnownLocality.GreaterManchester.stream().
+                filter(place -> !naptanRepository.containsLocality(place.getLocalityId())).
+                collect(Collectors.toSet());
+
+        assertTrue(missing.isEmpty(), "missing " + missing);
+
+    }
+
+    @Test
     void shouldLoadKnownLocalities() {
         Set<KnownLocality> missing = KnownLocality.GreaterManchester.stream().
                 filter(place -> !stationGroupsRepository.hasGroup(place.getId())).
@@ -80,7 +106,6 @@ public class ValidateKnownLocalityTest {
                 collect(Collectors.toSet());
 
         assertTrue(outOfBounds.isEmpty(), "out of bounds " + outOfBounds);
-
     }
 
     @Test
@@ -105,7 +130,18 @@ public class ValidateKnownLocalityTest {
 
         StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
+        Set<KnownLocality> missing = GreaterManchester.stream().
+                filter(knownLocality -> !stationGroupsRepository.hasGroup(knownLocality.getId())).
+                collect(Collectors.toSet());
+
+        assertEquals(Collections.emptySet(), missing);
+    }
+
+    @Test
+    void shouldHaveAtLeastOneStationInKnowLocality() {
+
         GreaterManchester.forEach(knowLocality -> {
+            assertTrue(stationGroupsRepository.hasGroup(knowLocality.getId()), "Missing " + knowLocality);
             StationLocalityGroup group = knowLocality.from(stationGroupsRepository);
             assertTrue(group.getAllContained().size()>1, "not enough stations for " + group);
         });

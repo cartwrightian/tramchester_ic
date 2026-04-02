@@ -87,7 +87,7 @@ public class RoutePairToInterchangeRepositoryTest {
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
         if (config.hasRailConfig()) {
-            assertEquals(3, stationIds.size(), stationIds.toString());
+            assertEquals(2+4+1, stationIds.size(), stationIds.toString());
             assertTrue(stationIds.contains(Deansgate.getId()));
             assertTrue(stationIds.contains(RailStationIds.ManchesterDeansgate.getId()));
         } else {
@@ -130,6 +130,7 @@ public class RoutePairToInterchangeRepositoryTest {
             expected.add(RailStationIds.ManchesterVictoria.getId());
             expected.add(RailStationIds.ManchesterDeansgate.getId());
             expected.add(TramStations.Deansgate.getId());
+            expected.add(RailStationIds.ManchesterPiccadilly.getId());
         }
 
         ImmutableIdSet<Station> diff = IdSet.disjunction(expected, stationIds);

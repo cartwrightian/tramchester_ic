@@ -4,12 +4,14 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.RouteRepository;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RailRouteHelper {
@@ -53,5 +55,14 @@ public class RailRouteHelper {
                 filter(id -> id.getEnd().equals(end.getId())).
                 map(routeRepository::getRouteById).
                 collect(Collectors.toSet());
+    }
+
+
+    public static int GetMinFor(Function<RoutePair, Integer> mapper, Set<Route> routesA, Set<Route> routesB) {
+        Optional<Integer> query = routesA.stream().flatMap(routeA -> routesB.stream().map(routeB -> RoutePair.of(routeA, routeB))).
+                filter(pair -> !pair.areSame()).
+                map(mapper).
+                min(Integer::compare);
+        return query.orElseThrow();
     }
 }

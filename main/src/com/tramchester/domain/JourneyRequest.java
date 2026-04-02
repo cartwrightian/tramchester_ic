@@ -57,9 +57,11 @@ public class JourneyRequest {
         warnIfNoResults = true;
         diagnosticsReceived = new AtomicBoolean(false);
 
-        if (maxChanges.get()>2) {
-            throw new RuntimeException("Finding out where it's too high, got " + maxChanges);
+        final int limit = (requestedModes.size()==1) ? 2 : 3;
+        if (maxChanges.get() > limit) {
+            throw new RuntimeException("Finding out where it's too high, got " + maxChanges +" > " + limit + " " + requestedModes);
         }
+
     }
 
     public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {

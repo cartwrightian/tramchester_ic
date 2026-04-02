@@ -103,18 +103,19 @@ class RailAndTramLocationJourneyPlannerTest {
     }
 
     @Test
-    void shouldHaveDirectWalkFromPiccadily() {
+    void shouldHaveDirectWalkFromPiccadillyToNearPiccGardens() {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, TransportMode.TramsOnly);
 
-        Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(Piccadilly, nearPiccGardens, journeyRequest, 2);
+        Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(Piccadilly, nearPiccGardens,
+                journeyRequest, 1);
 
         assertFalse(unsortedResults.isEmpty());
 
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            assertEquals(TransportMode.Walk, stages.getFirst().getMode(), "Expected walk, go " + stages.getFirst());
+            assertEquals(TransportMode.Walk, stages.getFirst().getMode(), "Expected walk, go " + journey);
 
             WalkingFromStationStage walkingStage = (WalkingFromStationStage) stages.getFirst();
             assertEquals(PiccadillyGardens.getId(), walkingStage.getFirstStation().getId());

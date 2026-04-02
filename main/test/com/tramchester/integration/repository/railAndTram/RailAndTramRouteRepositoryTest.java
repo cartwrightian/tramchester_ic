@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 638;
+    public static final int ALL_GM_ROUTES = 581;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 
@@ -61,7 +61,7 @@ public class RailAndTramRouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        int numberTramRoutes = 7;
+        int numberTramRoutes = 13; // replacement buses
 
         Set<Route> tramRoutes = routeRepository.getRoutes(TransportMode.TramsOnly);
         assertEquals(numberTramRoutes, tramRoutes.size());
@@ -77,7 +77,7 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> beginsAtAndCallsAt(route, ManchesterPiccadilly.getId(), Stockport.getId())).
                 collect(Collectors.toList());
 
-        assertEquals(68, result.size(), HasId.asIds(result));
+        assertEquals(56, result.size(), HasId.asIds(result));
     }
 
     @Test
@@ -90,21 +90,21 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> callsAtEndsAt(route, Stockport.getId(), ManchesterPiccadilly.getId())).
                 collect(Collectors.toSet());
 
-        assertEquals(13, matchingRoutes.size(), HasId.asIds(matchingRoutes));
+        assertEquals(9, matchingRoutes.size(), HasId.asIds(matchingRoutes));
 
         Set<Route> routesFromEustonViaStockport = matchingRoutes.stream().
                 filter(route -> railRouteStartsAt(route, LondonEuston.getId())).
                 filter(route -> railRouteEndsAt(route, ManchesterPiccadilly.getId())).
                 collect(Collectors.toSet());
 
-        assertEquals(6, routesFromEustonViaStockport.size());
+        assertEquals(5, routesFromEustonViaStockport.size());
 
         Set<Integer> indexes = routesFromEustonViaStockport.stream().
                 map(route -> (RailRouteId) route.getId()).
                 map(RailRouteId::getIndex).
                 collect(Collectors.toSet());
 
-        assertEquals(6, indexes.size());
+        assertEquals(5, indexes.size());
         assertTrue(indexes.contains(4), indexes + " routes: " + HasId.asIds(routesFromEustonViaStockport));
 
     }

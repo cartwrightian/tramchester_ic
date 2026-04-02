@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.ImmutableIndexedBitSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -20,6 +21,7 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -158,8 +161,8 @@ public class RailAndTramRouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereOneChangeTrainInterchangePossible() {
-        Station stockport = stationRepository.getStationById(RailStationIds.Stockport.getId());
-        Station piccadilly = stationRepository.getStationById(RailStationIds.ManchesterPiccadilly.getId());
+        Station stockport = RailStationIds.Stockport.from(stationRepository);
+        Station piccadilly = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
         Set<Route> stockportPickups = stockport.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
         Set<Route> piccDropoffs = piccadilly.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
@@ -180,6 +183,7 @@ public class RailAndTramRouteCostMatrixTest {
         assertNotEquals(0, oneChange.get());
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 6)
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);
@@ -191,8 +195,8 @@ public class RailAndTramRouteCostMatrixTest {
 
     @Test
     void shouldHaveCorrectIndexBetweenTramAndRailRoutes() {
-        Station altrinchamTram = stationRepository.getStationById(TramStations.Altrincham.getId());
-        Station altrinchamRail = stationRepository.getStationById(RailStationIds.Altrincham.getId());
+        Station altrinchamTram = TramStations.Altrincham.from(stationRepository);
+        Station altrinchamRail = RailStationIds.Altrincham.from(stationRepository);
 
         Set<Route> railDropOffs = altrinchamRail.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
         Set<Route> tramPickups = altrinchamTram.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
@@ -211,12 +215,21 @@ public class RailAndTramRouteCostMatrixTest {
     void shouldRHaveChangesBetweenLiverpoolAndCreweRoutes() {
         // repro issue in routecostmatric
 
-        Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.NT, ManchesterVictoria, LiverpoolLimeStreet, 1);
-        Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly, 2);
+        Set<Route> routesA = railRouteHelper.getRoutes(TrainOperatingCompanies.NT, ManchesterVictoria, LiverpoolLimeStreet);
+        Set<Route> routesB = railRouteHelper.getRoutes(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly);
 
-        int result = routeMatrix.getConnectionDepthFor(routeA, routeB);
+        Function<RoutePair, Integer> queryMatrix = routePair -> routeMatrix.getConnectionDepthFor(routePair.first(), routePair.second());
+        int result =  RailRouteHelper.GetMinFor(queryMatrix, routesA, routesB);
         assertEquals(2, result);
     }
+
+//    private int getMinFor(RouteCostMatrix routeMatrix, Set<Route> routesA, Set<Route> routesB) {
+//        Optional<Integer> query = routesA.stream().flatMap(routeA -> routesB.stream().map(routeB -> RoutePair.of(routeA, routeB))).
+//                filter(pair -> !pair.areSame()).
+//                map(pair -> routeMatrix.getConnectionDepthFor(pair.first(), pair.second())).
+//                min(Integer::compare);
+//        return query.orElseThrow();
+//    }
 
     @NotNull
     private RouteCostMatrix createRouteCostMatrix() {

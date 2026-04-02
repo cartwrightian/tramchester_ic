@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -27,6 +28,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Set;
+import java.util.function.Function;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
@@ -194,14 +198,16 @@ public class RailAndTramRouteToRouteCostsTest {
     }
 
     @Test
-    void shouldRHaveChangesBetweenLiverpoolAndCreweRoutes() {
+    void shouldHaveChangesBetweenLiverpoolAndCreweRoutes() {
         // repro issue in routecostmatric
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,0), TramTime.of(10,0));
 
-        Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.NT, RailStationIds.ManchesterVictoria, LiverpoolLimeStreet, 1);
-        Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly, 2);
+        Set<Route> routesA = railRouteHelper.getRoutes(TrainOperatingCompanies.NT, ManchesterVictoria, LiverpoolLimeStreet);
+        Set<Route> routesB = railRouteHelper.getRoutes(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly);
 
-        int changes = routeToRouteCosts.getPossibleMinChanges(routeA, routeB, date, timeRange, allTransportModes);
+        Function<RoutePair, Integer> queryChanges = routePair ->
+                routeToRouteCosts.getPossibleMinChanges(routePair.first(), routePair.second(), date, timeRange, allTransportModes);
+        int changes =  RailRouteHelper.GetMinFor(queryChanges, routesA, routesB);
 
         assertEquals(2, changes);
 

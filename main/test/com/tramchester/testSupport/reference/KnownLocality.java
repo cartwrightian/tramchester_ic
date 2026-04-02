@@ -17,19 +17,21 @@ public enum KnownLocality {
     Knutsford("E0044368"),
     Broadheath("E0028613"),
     ManchesterCityCentre("E0057786"),
-    Manchester("N0076111"),
     PiccadillyGardens("N0075071"),
     Bollington("E0044356"),
 
     // see below, keep last of the GM locations
     OldfieldBrow("E0029171"),
 
+    // top level
+    Manchester("N0076111"),
+
     // out of bounds
     LondonWestminster("E0034961");
 
     private final String localityId;
 
-    public static final EnumSet<KnownLocality> GreaterManchester = EnumSet.range(KnownLocality.Altrincham, Knutsford);
+    public static final EnumSet<KnownLocality> GreaterManchester = EnumSet.range(Altrincham, OldfieldBrow);
 
     KnownLocality(String localityId) {
         this.localityId = localityId;
@@ -55,4 +57,10 @@ public enum KnownLocality {
      * @see BusRouteToRouteCostsTest for verification, useful to record this as used on several tests
      */
     public static final int MIN_CHANGES = 2;
+
+
+    @Override
+    public String toString() {
+        return name() + "[" + localityId+ "]";
+    }
 }
