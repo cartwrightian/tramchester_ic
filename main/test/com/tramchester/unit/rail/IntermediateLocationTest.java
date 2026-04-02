@@ -2,16 +2,24 @@ package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.IntermediateLocation;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.EnumSet;
 
 import static com.tramchester.dataimport.rail.records.reference.LocationActivityCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IntermediateLocationTest {
+
+
+    private Parser locationActivityCodeParser;
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        locationActivityCodeParser = new Parser();
+    }
 
     @Test
     void shouldParseRecord() {
@@ -133,7 +141,7 @@ public class IntermediateLocationTest {
 
         assertEquals("HOPTONH", intermediateLocation.getTiplocCode());
 
-        assertEquals(EnumSet.of(LocationActivityCode.StopsWhenRequired), intermediateLocation.getActivity());
+        assertEquals(ImmutableEnumSet.of(LocationActivityCode.StopsWhenRequired), intermediateLocation.getActivity());
         assertTrue(intermediateLocation.doesStop(), intermediateLocation.toString());
     }
 
@@ -158,7 +166,7 @@ public class IntermediateLocationTest {
 
         IntermediateLocation result = parseWithPadding(text);
 
-        EnumSet<LocationActivityCode> activityCodes = result.getActivity();
+        ImmutableEnumSet<LocationActivityCode> activityCodes = result.getActivity();
         assertTrue(activityCodes.contains(PassesAnotherTrainAtCrossingPointOnASingleLine), activityCodes.toString());
         assertTrue(activityCodes.contains(StopsOrPassesForTabletStaffOrToken), activityCodes.toString());
     }
@@ -171,6 +179,6 @@ public class IntermediateLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return IntermediateLocation.parse(toParse);
+        return IntermediateLocation.parse(toParse, locationActivityCodeParser);
     }
 }

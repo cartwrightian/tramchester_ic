@@ -9,6 +9,7 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.RailPlatformStopCall;
@@ -369,7 +370,7 @@ public class RailTimetableMapper {
 
             stationRecords.markAsInUse(station);
 
-            final EnumSet<LocationActivityCode> activity = railLocation.getActivity();
+            final ImmutableEnumSet<LocationActivityCode> activity = railLocation.getActivity();
 
             // Platform
             final IdFor<NPTGLocality> areaId = station.getLocalityId(); // naptan seems only to have rail stations, not platforms

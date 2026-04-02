@@ -20,9 +20,8 @@ package com.tramchester.dataimport.rail.records;
 
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
-
-import java.util.EnumSet;
 
 public class IntermediateLocation implements RailLocationRecord {
 
@@ -30,15 +29,15 @@ public class IntermediateLocation implements RailLocationRecord {
     private final TramTime publicArrival;
     private final TramTime publicDeparture;
     private final TramTime passingTime;
-    private final EnumSet<LocationActivityCode> activity;
+    private final ImmutableEnumSet<LocationActivityCode> activity;
     private final String platform;
     private final TramTime scheduledArrival;
     private final TramTime scheduledDepart;
     private final TramTime blankTime = TramTime.of(0,0); // 0000 is in some of the data records
 
-    public IntermediateLocation(String tiplocCode, TramTime scheduledArrival, TramTime scheduledDepart, TramTime publicArrival,
-                                TramTime publicDeparture, String platform,
-                                TramTime passingTime, EnumSet<LocationActivityCode> activity) {
+    public IntermediateLocation(final String tiplocCode, final TramTime scheduledArrival, final TramTime scheduledDepart,
+                                final TramTime publicArrival, final TramTime publicDeparture, final String platform,
+                                final TramTime passingTime, final ImmutableEnumSet<LocationActivityCode> activity) {
         this.tiplocCode = tiplocCode;
         this.scheduledArrival = scheduledArrival;
         this.scheduledDepart = scheduledDepart;
@@ -49,21 +48,22 @@ public class IntermediateLocation implements RailLocationRecord {
         this.activity = activity;
     }
 
-    public static IntermediateLocation parse(final String text) {
+    public static IntermediateLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser) {
         final String tiplocCode = RecordHelper.extract(text, 3, 10); // tiploc is 7 long
         final TramTime scheduledArrival = RecordHelper.extractTime(text, 10);
         final TramTime scheduledDepart = RecordHelper.extractTime(text, 15);
         final TramTime passingTime = RecordHelper.extractTime(text, 20);
         final TramTime publicArrival = RecordHelper.extractTime(text, 25);
         final TramTime publicDeparture = RecordHelper.extractTime(text, 29);
-        final String platform = RecordHelper.extract(text, 34, 36+1).trim();
+        final String platform = RecordHelper.extract(text, 34, 36+1); //.trim();
 
-        final EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text,43,54));
+        final ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(RecordHelper.extract(text,43,54));
 
         return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture,
                 platform, passingTime, activity);
     }
 
+    @Override
     public String getTiplocCode() {
         return tiplocCode;
     }
@@ -96,6 +96,7 @@ public class IntermediateLocation implements RailLocationRecord {
         return publicDeparture;
     }
 
+    @Override
     public String getPlatform() {
         return platform;
     }
@@ -141,6 +142,7 @@ public class IntermediateLocation implements RailLocationRecord {
         return result;
     }
 
+    @Override
     public TramTime getPassingTime() {
         if (passingTime.isValid()) {
             return passingTime;
@@ -160,7 +162,8 @@ public class IntermediateLocation implements RailLocationRecord {
         return scheduledDepart;
     }
 
-    public EnumSet<LocationActivityCode> getActivity() {
+    @Override
+    public ImmutableEnumSet<LocationActivityCode> getActivity() {
         return activity;
     }
 
@@ -174,6 +177,7 @@ public class IntermediateLocation implements RailLocationRecord {
         return false;
     }
 
+    @Override
     public boolean doesStop() {
         return LocationActivityCode.doesStop(activity);
     }

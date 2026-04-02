@@ -6,6 +6,7 @@ import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,11 @@ public class RailDataFilenameRepositoryTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         repository = componentContainer.get(RailDataFilenameRepository.class);
+    }
+
+    @AfterAll
+    static void onceAfterAllTestsHaveRun() {
+        componentContainer.close();
     }
 
     @Test

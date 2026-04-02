@@ -67,7 +67,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     }
 
     @Override
-    public void loadInto(TransportDataContainer dataContainer) {
+    public void loadInto(final TransportDataContainer dataContainer) {
         if (!enabled) {
             logger.info("Disabled");
             return;

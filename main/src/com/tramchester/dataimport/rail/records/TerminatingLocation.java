@@ -11,25 +11,25 @@ package com.tramchester.dataimport.rail.records;
 
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.EnumSet;
 
 public class TerminatingLocation extends OriginOrTerminatingLocation implements RailLocationRecord {
     private static final Logger logger = LoggerFactory.getLogger(TerminatingLocation.class);
 
     private final String path;
 
-    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path, EnumSet<LocationActivityCode> activity) {
+    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path,
+                                  ImmutableEnumSet<LocationActivityCode> activity) {
         super(tiplocCode, publicDeptTime, platform, activity);
         this.path = path;
     }
 
-    public static TerminatingLocation parse(String text) {
-        String path = RecordHelper.extract(text,23, 25+1);
-        EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text, 26, 37));
+    public static TerminatingLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser) {
+        final String path = RecordHelper.extract(text,23, 25+1);
+        ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(RecordHelper.extract(text, 26, 37));
         if (activity.isEmpty()) {
             logger.warn("Unknown activity for " + text);
         }
@@ -93,15 +93,15 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     private static class Creator implements Constructor<TerminatingLocation> {
 
         private final String path;
-        private final EnumSet<LocationActivityCode> activity;
+        private final ImmutableEnumSet<LocationActivityCode> activity;
 
-        public Creator(String path, EnumSet<LocationActivityCode> activity) {
+        public Creator(String path, ImmutableEnumSet<LocationActivityCode> activity) {
             this.path = path;
             this.activity = activity;
         }
 
         @Override
-        public TerminatingLocation create(String tiplocCode, TramTime tramTime, String platform) {
+        public TerminatingLocation create(final String tiplocCode, final TramTime tramTime, final String platform) {
             return new TerminatingLocation(tiplocCode, tramTime, platform, path, activity);
         }
     }

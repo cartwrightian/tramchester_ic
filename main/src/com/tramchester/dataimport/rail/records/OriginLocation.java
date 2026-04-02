@@ -14,21 +14,20 @@ package com.tramchester.dataimport.rail.records;
 
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
-
-import java.util.EnumSet;
 
 public class OriginLocation extends OriginOrTerminatingLocation  implements RailLocationRecord {
     private final String line;
 
-    public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform, String line, EnumSet<LocationActivityCode> activity) {
+    public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform, String line, ImmutableEnumSet<LocationActivityCode> activity) {
         super(tiplocCode, publicDeptTime, platform, activity);
         this.line = line;
     }
 
-    public static OriginLocation parse(final String text) {
+    public static OriginLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser) {
         final String line = RecordHelper.extract(text, 23,25+1);
-        final EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text, 30, 41));
+        final ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(RecordHelper.extract(text, 30, 41));
         return OriginOrTerminatingLocation.parse(text, new Creator(line, activity));
     }
 
@@ -88,9 +87,9 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
 
     private static class Creator implements Constructor<OriginLocation> {
         private final String line;
-        private final EnumSet<LocationActivityCode> activity;
+        private final ImmutableEnumSet<LocationActivityCode> activity;
 
-        private Creator(String line, EnumSet<LocationActivityCode> activity) {
+        private Creator(final String line, final ImmutableEnumSet<LocationActivityCode> activity) {
             this.line = line;
             this.activity = activity;
         }

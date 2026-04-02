@@ -7,6 +7,7 @@ import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.SkippedRecord;
 import com.tramchester.dataimport.rail.records.UnknownRecord;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,17 +63,18 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     public Stream<RailTimetableRecord> load(final Reader in) {
         logger.info("Loading lines");
         final BufferedReader bufferedReader = new BufferedReader(in);
-        return bufferedReader.lines().map(this::processLine);
+        final LocationActivityCode.Parser locationActivityCodeParser = new LocationActivityCode.Parser();
+        return bufferedReader.lines().map(line -> processLine(line, locationActivityCodeParser));
     }
 
-    private RailTimetableRecord processLine(final String line) {
+    private RailTimetableRecord processLine(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
         final RailRecordType recordType = getRecordTypeFor(line);
         return switch (recordType) {
             case TiplocInsert -> factory.createTIPLOC(line);
             case BasicSchedule -> factory.createBasicSchedule(line);
-            case OriginLocation -> factory.createOrigin(line);
-            case IntermediateLocation -> factory.createIntermediate(line);
-            case TerminatingLocation -> factory.createTerminating(line);
+            case OriginLocation -> factory.createOrigin(line, locationActivityCodeParser);
+            case IntermediateLocation -> factory.createIntermediate(line, locationActivityCodeParser);
+            case TerminatingLocation -> factory.createTerminating(line, locationActivityCodeParser);
             case BasicScheduleExtra -> factory.createBasicScheduleExtraDetails(line);
             case Header -> logHeader(line);
             case Association, ChangesEnRoute, Trailer

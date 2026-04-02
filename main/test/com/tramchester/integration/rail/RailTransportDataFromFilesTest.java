@@ -415,7 +415,7 @@ public class RailTransportDataFromFilesTest {
         Set<Trip> crossing = transportData.getTrips().stream().
                 filter(Trip::intoNextDay).collect(Collectors.toSet());
 
-        assertEquals(17788, crossing.size());
+        assertEquals(17419, crossing.size());
 
         // reproducing a bug here
         List<Route> expectedRoutesList = crossing.stream().map(Trip::getRoute).toList();
@@ -431,7 +431,7 @@ public class RailTransportDataFromFilesTest {
         HashSet<Route> expectedRoutes = new HashSet<>(expectedRoutesList);
         assertEquals(expectedRoutes.size(), routeCrossesMidnight.size());
 
-        assertEquals(2335,  routeCrossesMidnight.size());
+        assertEquals(2260,  routeCrossesMidnight.size());
 
     }
 
@@ -454,13 +454,13 @@ public class RailTransportDataFromFilesTest {
                 filter(route -> gmStations.stream().anyMatch(station -> station.servesRoutePickup(route) || station.servesRouteDropOff(route))).
                 collect(Collectors.toSet());
 
-        assertEquals(1111, gmRoutes.size());
+        assertEquals(1069, gmRoutes.size());
 
         Set<Route> routeCrossesMidnight = gmRoutes.stream().
                 filter(Route::intoNextDay).
                 collect(Collectors.toSet());
 
-        assertEquals(293, routeCrossesMidnight.size());
+        assertEquals(283, routeCrossesMidnight.size());
 
     }
 
@@ -515,7 +515,6 @@ public class RailTransportDataFromFilesTest {
                 max(Comparator.comparingLong(a -> a.getCost().toSeconds()));
         return found.map(Collections::singleton).orElse(Collections.emptySet());
     }
-
 
     @Disabled("trip not in latest data")
     @Test

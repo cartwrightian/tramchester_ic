@@ -3,17 +3,25 @@ package com.tramchester.unit.rail;
 import com.tramchester.dataimport.rail.records.TerminatingLocation;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.tramchester.dataimport.rail.records.reference.LocationActivityCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TerminatingLocationTest {
+    private Parser locationActivityCodeParser;
 
     // LTWLWYNGC 1918 19184     TF
     // LTUPMNLT 21022H1023      TF
     // LTDRBY    0825 0825   BUSTF
     // 0123456789012345678901234567890
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        locationActivityCodeParser = new Parser();
+    }
+
 
     @Test
     void shouldParseRecord() {
@@ -101,6 +109,6 @@ public class TerminatingLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return TerminatingLocation.parse(toParse);
+        return TerminatingLocation.parse(toParse, locationActivityCodeParser);
     }
 }

@@ -4,11 +4,19 @@ import com.tramchester.dataimport.rail.records.OriginLocation;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OriginLocationTest {
+
+    private LocationActivityCode.Parser locationActivityCodeParser;
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        locationActivityCodeParser = new LocationActivityCode.Parser();
+    }
 
     @Test
     void shouldParseOriginLocationFromExample() {
@@ -17,7 +25,7 @@ public class OriginLocationTest {
 
         String text = "LOLINCLNC 1237 12384A        TB";
 
-        OriginLocation originLocation = parseWithPadding(text);
+        OriginLocation originLocation = parseWithPadding(text, locationActivityCodeParser);
 
         assertEquals("LINCLNC", originLocation.getTiplocCode());
         assertEquals(TramTime.of(12, 38), originLocation.getDeparture());
@@ -36,7 +44,7 @@ public class OriginLocationTest {
 
         String text = "LODRBY    1749 17494B DTS    TBT";
 
-        OriginLocation originLocation = parseWithPadding(text);
+        OriginLocation originLocation = parseWithPadding(text, locationActivityCodeParser);
 
         assertEquals("DRBY", originLocation.getTiplocCode());
         assertEquals(TramTime.of(17, 49), originLocation.getDeparture());
@@ -56,7 +64,7 @@ public class OriginLocationTest {
 
         String text = "LOMINEBUT 1845 1845   BUS    TB     ";
 
-        OriginLocation originLocation = parseWithPadding(text);
+        OriginLocation originLocation = parseWithPadding(text, locationActivityCodeParser);
 
         assertEquals("MINEBUT", originLocation.getTiplocCode());
         assertEquals(TramTime.of(18, 45), originLocation.getDeparture());
@@ -68,13 +76,13 @@ public class OriginLocationTest {
     }
 
     @NotNull
-    private OriginLocation parseWithPadding(String text) {
+    private OriginLocation parseWithPadding(String text, LocationActivityCode.Parser locationActivityCodeParser) {
         String toParse = text;
         int currentLen = text.length();
         if (currentLen<80) {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return OriginLocation.parse(toParse);
+        return OriginLocation.parse(toParse, locationActivityCodeParser);
     }
 }

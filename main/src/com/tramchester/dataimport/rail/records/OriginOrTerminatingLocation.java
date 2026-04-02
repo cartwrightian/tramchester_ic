@@ -1,31 +1,30 @@
 package com.tramchester.dataimport.rail.records;
 
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
 import org.apache.commons.lang3.NotImplementedException;
-
-import java.util.EnumSet;
 
 public abstract class OriginOrTerminatingLocation {
 
     private final String tiplocCode;
     private final TramTime publicTime;
     private final String platform;
-    private final EnumSet<LocationActivityCode> activity;
+    private final ImmutableEnumSet<LocationActivityCode> activity;
 
-    protected OriginOrTerminatingLocation(String tiplocCode, TramTime publicTime, String platform, EnumSet<LocationActivityCode> activity) {
+    protected OriginOrTerminatingLocation(String tiplocCode, TramTime publicTime, String platform, ImmutableEnumSet<LocationActivityCode> activity) {
         this.tiplocCode = tiplocCode;
         this.publicTime = publicTime;
         this.platform = platform;
         this.activity = activity;
     }
 
-    protected static <T extends OriginOrTerminatingLocation> T parse(String text, Constructor<T> builder) {
+    protected static <T extends OriginOrTerminatingLocation> T parse(final String text, final Constructor<T> builder) {
         // NOTE: for terminating and originating locations a suffix is added and docs give total length as 8
         // but this causes stations not to be found, so use length of 7 here
-        String tiplocCode = RecordHelper.extract(text, 3, 10);
-        TramTime tramTime = RecordHelper.extractTime(text, 15);
-        String platform = RecordHelper.extract(text, 20, 22+1).trim();
+        final String tiplocCode = RecordHelper.extract(text, 3, 10);
+        final TramTime tramTime = RecordHelper.extractTime(text, 15);
+        final String platform = RecordHelper.extract(text, 20, 22+1).trim();
         return builder.create(tiplocCode, tramTime, platform);
     }
 
@@ -78,7 +77,7 @@ public abstract class OriginOrTerminatingLocation {
         throw new NotImplementedException("Not implemented, record was " + this);
     }
 
-    public EnumSet<LocationActivityCode> getActivity() {
+    public ImmutableEnumSet<LocationActivityCode> getActivity() {
         return activity;
     }
 

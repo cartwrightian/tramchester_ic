@@ -2,7 +2,11 @@ package com.tramchester.dataimport.rail.records.reference;
 
 // https://wiki.openraildata.com/index.php?title=Activity_codes
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
+
 import java.util.EnumSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public enum LocationActivityCode implements EnumMap.HasCodes {
     StopsToTakeUpAndSetDownPassengers("T"),
@@ -50,43 +54,43 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     // TrainBegins and TrainFinishes seem to be used inconsistently,
     // i.e. TF is not always paired with T even when train does actually drop off passengers
 
-    private static final EnumSet<LocationActivityCode> dropOffs = EnumSet.of(TrainFinishes, StopsToSetDownPassengers,
+    private static final ImmutableEnumSet<LocationActivityCode> dropOffs = ImmutableEnumSet.of(TrainFinishes, StopsToSetDownPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
 
-    private static final EnumSet<LocationActivityCode> pickUps = EnumSet.of(TrainBegins, StopsToTakeUpPassengers,
+    private static final ImmutableEnumSet<LocationActivityCode> pickUps = ImmutableEnumSet.of(TrainBegins, StopsToTakeUpPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
 
-    private static final EnumSet<LocationActivityCode> stops = EnumSet.of(TrainBegins, TrainFinishes,
+    private static final ImmutableEnumSet<LocationActivityCode> stops = ImmutableEnumSet.copyOf(EnumSet.of(TrainBegins, TrainFinishes,
             StopsToSetDownPassengers, StopsToTakeUpPassengers,
-            StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
+            StopsToTakeUpAndSetDownPassengers, StopsWhenRequired));
 
     private final String code;
 
-    LocationActivityCode(String code) {
+    LocationActivityCode(final String code) {
         this.code = code;
     }
 
-    public static EnumSet<LocationActivityCode> parse(final String code) {
+    private static ImmutableEnumSet<LocationActivityCode> parse(final String code) {
         final String lookup = code.trim();
         if (lookup.isEmpty()) {
-            return EnumSet.noneOf(LocationActivityCode.class);
+            return ImmutableEnumSet.noneOf(LocationActivityCode.class);
         }
 
         return getCodesFor(lookup);
     }
 
-    private static EnumSet<LocationActivityCode> getCodesFor(final String text) {
+    private static ImmutableEnumSet<LocationActivityCode> getCodesFor(final String text) {
        final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
         final String[] tokens = text.split(" ");
         for (final String token : tokens) {
-            result.addAll(parseToken(token));
+            result.addAll(parseToken(token, result));
         }
-        return result;
+        return ImmutableEnumSet.copyOf(result);
     }
 
-    private static EnumSet<LocationActivityCode> parseToken(final String token) {
-        final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
+    private static EnumSet<LocationActivityCode> parseToken(final String token, final EnumSet<LocationActivityCode> accumulator) {
+        //final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
         String toProcess = token;
 
@@ -100,11 +104,11 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
             if (attempt == None) {
                 toProcess = toProcess.substring(2);
             } else {
-                result.add(attempt);
+                accumulator.add(attempt);
                 toProcess = toProcess.substring(attempt.code.length());
             }
         }
-        return result;
+        return accumulator;
 
     }
 
@@ -115,24 +119,34 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
         return None;
     }
 
-    public static boolean doesStop(final EnumSet<LocationActivityCode> activity) {
-        final EnumSet<LocationActivityCode> copyOfStops = EnumSet.copyOf(stops);
-        return copyOfStops.removeAll(activity);
+    public static boolean doesStop(final ImmutableEnumSet<LocationActivityCode> activity) {
+        return stops.anyIntersectionWith(activity);
     }
 
-    public static boolean doesPickup(final EnumSet<LocationActivityCode> activity) {
-        final EnumSet<LocationActivityCode> copyOfPickups = EnumSet.copyOf(pickUps);
-        return copyOfPickups.removeAll(activity);
+    public static boolean doesPickup(final ImmutableEnumSet<LocationActivityCode> activity) {
+        return pickUps.anyIntersectionWith(activity);
     }
 
-    public static boolean doesDropOff(final EnumSet<LocationActivityCode> activity) {
-        final EnumSet<LocationActivityCode> copyOfDropoffs = EnumSet.copyOf(dropOffs);
-        return copyOfDropoffs.removeAll(activity);
+    public static boolean doesDropOff(final ImmutableEnumSet<LocationActivityCode> activity) {
+        return dropOffs.anyIntersectionWith(activity);
     }
 
-    //@Override
+    @Override
     public String getCode() {
         return code;
+    }
+
+    public static class Parser {
+
+        private final ConcurrentMap<String, ImmutableEnumSet<LocationActivityCode>> cache;
+
+        public Parser() {
+            cache = new ConcurrentHashMap<>();
+        }
+
+        public ImmutableEnumSet<LocationActivityCode> parse(final String text) {
+            return cache.computeIfAbsent(text, z -> LocationActivityCode.parse(text));
+        }
     }
 
 }
