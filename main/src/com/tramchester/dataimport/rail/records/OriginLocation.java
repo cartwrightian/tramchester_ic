@@ -20,15 +20,14 @@ import com.tramchester.domain.time.TramTime;
 public class OriginLocation extends OriginOrTerminatingLocation  implements RailLocationRecord {
     private final String line;
 
-    public OriginLocation(String tiplocCode, TramTime publicDeptTime, String platform, String line, ImmutableEnumSet<LocationActivityCode> activity) {
+    public OriginLocation(final String tiplocCode, final TramTime publicDeptTime, final String platform, final String line, final ImmutableEnumSet<LocationActivityCode> activity) {
         super(tiplocCode, publicDeptTime, platform, activity);
         this.line = line;
     }
 
-    public static OriginLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser,
-                                       final RecordHelper recordHelper) {
+    public static OriginLocation parse(final String text, final RecordHelper recordHelper) {
         final String line = recordHelper.extract(text, 23,25+1);
-        final ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(recordHelper.extract(text, 30, 41));
+        final ImmutableEnumSet<LocationActivityCode> activity = recordHelper.parseLocationActivityCode(text, 30, 41);
         return OriginOrTerminatingLocation.parse(text, new Creator(line, activity), recordHelper);
     }
 

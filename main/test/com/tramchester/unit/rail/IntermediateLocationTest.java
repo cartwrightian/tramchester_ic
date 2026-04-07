@@ -14,13 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class IntermediateLocationTest {
 
-
-    private Parser locationActivityCodeParser;
     private RecordHelper recordHelper;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        locationActivityCodeParser = new Parser();
         recordHelper = new RecordHelper();
     }
 
@@ -183,6 +180,6 @@ public class IntermediateLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return IntermediateLocation.parse(toParse, locationActivityCodeParser, recordHelper);
+        return IntermediateLocation.parse(toParse, recordHelper);
     }
 }

@@ -7,11 +7,10 @@ import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.SkippedRecord;
 import com.tramchester.dataimport.rail.records.UnknownRecord;
-import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -63,18 +62,17 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     public Stream<RailTimetableRecord> load(final Reader in) {
         logger.info("Loading lines");
         final BufferedReader bufferedReader = new BufferedReader(in);
-        final LocationActivityCode.Parser locationActivityCodeParser = new LocationActivityCode.Parser();
-        return bufferedReader.lines().map(line -> processLine(line, locationActivityCodeParser));
+        return bufferedReader.lines().map(this::processLine);
     }
 
-    private RailTimetableRecord processLine(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
+    private RailTimetableRecord processLine(final String line) {
         final RailRecordType recordType = getRecordTypeFor(line);
         return switch (recordType) {
             case TiplocInsert -> factory.createTIPLOC(line);
             case BasicSchedule -> factory.createBasicSchedule(line);
-            case OriginLocation -> factory.createOrigin(line, locationActivityCodeParser);
-            case IntermediateLocation -> factory.createIntermediate(line, locationActivityCodeParser);
-            case TerminatingLocation -> factory.createTerminating(line, locationActivityCodeParser);
+            case OriginLocation -> factory.createOrigin(line);
+            case IntermediateLocation -> factory.createIntermediate(line);
+            case TerminatingLocation -> factory.createTerminating(line);
             case BasicScheduleExtra -> factory.createBasicScheduleExtraDetails(line);
             case Header -> logHeader(line);
             case Association, ChangesEnRoute, Trailer

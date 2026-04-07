@@ -6,7 +6,6 @@ import com.tramchester.dataimport.rail.LoadRailTimetableRecords;
 import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.dataimport.rail.RailDataRecordFactory;
 import com.tramchester.dataimport.rail.records.*;
-import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -49,11 +48,11 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
 
         EasyMock.expect(factory.createTIPLOC(lineA)).andReturn(createMock(TIPLOCInsert.class));
         EasyMock.expect(factory.createBasicSchedule(lineB)).andReturn(createMock(BasicSchedule.class));
-        EasyMock.expect(factory.createIntermediate(EasyMock.eq(lineC), EasyMock.isA(LocationActivityCode.Parser.class))).
+        EasyMock.expect(factory.createIntermediate(EasyMock.eq(lineC))).
                 andReturn(createMock(IntermediateLocation.class));
-        EasyMock.expect(factory.createOrigin(EasyMock.eq(lineD), EasyMock.isA(LocationActivityCode.Parser.class))).
+        EasyMock.expect(factory.createOrigin(EasyMock.eq(lineD))).
                 andReturn(createMock(OriginLocation.class));
-        EasyMock.expect(factory.createTerminating(EasyMock.eq(lineE), EasyMock.isA(LocationActivityCode.Parser.class))).
+        EasyMock.expect(factory.createTerminating(EasyMock.eq(lineE))).
                 andReturn(createMock(TerminatingLocation.class));
 
         replayAll();

@@ -48,8 +48,7 @@ public class IntermediateLocation implements RailLocationRecord {
         this.activity = activity;
     }
 
-    public static IntermediateLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser,
-                                             final RecordHelper recordHelper) {
+    public static IntermediateLocation parse(final String text, final RecordHelper recordHelper) {
         final String tiplocCode = recordHelper.extract(text, 3, 10); // tiploc is 7 long
         final TramTime scheduledArrival = recordHelper.extractTime(text, 10);
         final TramTime scheduledDepart = recordHelper.extractTime(text, 15);
@@ -58,7 +57,7 @@ public class IntermediateLocation implements RailLocationRecord {
         final TramTime publicDeparture = recordHelper.extractTime(text, 29);
         final String platform = recordHelper.extract(text, 34, 36+1); //.trim();
 
-        final ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(recordHelper.extract(text,43,54));
+        final ImmutableEnumSet<LocationActivityCode> activity = recordHelper.parseLocationActivityCode(text,43,54);
 
         return new IntermediateLocation(tiplocCode, scheduledArrival, scheduledDepart, publicArrival, publicDeparture,
                 platform, passingTime, activity);

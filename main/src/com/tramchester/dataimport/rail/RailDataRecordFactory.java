@@ -2,9 +2,7 @@ package com.tramchester.dataimport.rail;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.rail.records.*;
-import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.ProvidesNow;
-
 import jakarta.inject.Inject;
 
 @LazySingleton
@@ -27,16 +25,16 @@ public class RailDataRecordFactory {
         return BasicSchedule.parse(line, century, recordHelper);
     }
 
-    public RailTimetableRecord createOrigin(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
-        return OriginLocation.parse(line, locationActivityCodeParser, recordHelper);
+    public RailTimetableRecord createOrigin(final String line) {
+        return OriginLocation.parse(line, recordHelper);
     }
 
-    public IntermediateLocation createIntermediate(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
-        return IntermediateLocation.parse(line, locationActivityCodeParser, recordHelper);
+    public IntermediateLocation createIntermediate(final String line) {
+        return IntermediateLocation.parse(line, recordHelper);
     }
 
-    public TerminatingLocation createTerminating(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
-        return TerminatingLocation.parse(line, locationActivityCodeParser, recordHelper);
+    public TerminatingLocation createTerminating(final String line) {
+        return TerminatingLocation.parse(line, recordHelper);
     }
 
     public RailTimetableRecord createBasicScheduleExtraDetails(final String line) {

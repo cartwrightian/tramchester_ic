@@ -28,7 +28,7 @@ public class OriginLocationTest {
 
         String text = "LOLINCLNC 1237 12384A        TB";
 
-        OriginLocation originLocation = parseWithPadding(text, locationActivityCodeParser);
+        OriginLocation originLocation = parseWithPadding(text);
 
         assertEquals("LINCLNC", originLocation.getTiplocCode());
         assertEquals(TramTime.of(12, 38), originLocation.getDeparture());
@@ -47,7 +47,7 @@ public class OriginLocationTest {
 
         String text = "LODRBY    1749 17494B DTS    TBT";
 
-        OriginLocation originLocation = parseWithPadding(text, locationActivityCodeParser);
+        OriginLocation originLocation = parseWithPadding(text);
 
         assertEquals("DRBY", originLocation.getTiplocCode());
         assertEquals(TramTime.of(17, 49), originLocation.getDeparture());
@@ -67,7 +67,7 @@ public class OriginLocationTest {
 
         String text = "LOMINEBUT 1845 1845   BUS    TB     ";
 
-        OriginLocation originLocation = parseWithPadding(text, locationActivityCodeParser);
+        OriginLocation originLocation = parseWithPadding(text);
 
         assertEquals("MINEBUT", originLocation.getTiplocCode());
         assertEquals(TramTime.of(18, 45), originLocation.getDeparture());
@@ -79,13 +79,13 @@ public class OriginLocationTest {
     }
 
     @NotNull
-    private OriginLocation parseWithPadding(String text, LocationActivityCode.Parser locationActivityCodeParser) {
+    private OriginLocation parseWithPadding(String text) {
         String toParse = text;
         int currentLen = text.length();
         if (currentLen<80) {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return OriginLocation.parse(toParse, locationActivityCodeParser, recordHelper);
+        return OriginLocation.parse(toParse, recordHelper);
     }
 }

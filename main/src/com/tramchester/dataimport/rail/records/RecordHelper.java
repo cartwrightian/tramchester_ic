@@ -1,6 +1,8 @@
 package com.tramchester.dataimport.rail.records;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import jakarta.inject.Inject;
@@ -18,10 +20,12 @@ public class RecordHelper {
     private static final Logger logger = LoggerFactory.getLogger(RecordHelper.class);
 
     private final ConcurrentMap<String, TramTime> timeCache;
+    private final LocationActivityCode.Parser locationActivityCodeParser;
 
     @Inject
     public RecordHelper() {
         timeCache = new ConcurrentHashMap<>();
+        locationActivityCodeParser = new LocationActivityCode.Parser();
     }
 
     @PreDestroy
@@ -91,5 +95,9 @@ public class RecordHelper {
         return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(text, begin));
         //return TramTime.parseBasicFormat(text, begin);
 
+    }
+
+    public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final String text, final int begin, final int end) {
+        return locationActivityCodeParser.parse( extract(text, begin, end));
     }
 }

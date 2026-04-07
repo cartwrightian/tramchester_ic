@@ -112,6 +112,6 @@ public class TerminatingLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return TerminatingLocation.parse(toParse, locationActivityCodeParser, recordHelper);
+        return TerminatingLocation.parse(toParse, recordHelper);
     }
 }
