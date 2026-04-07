@@ -1,14 +1,33 @@
 package com.tramchester.dataimport.rail.records;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import static java.lang.String.format;
 
+@LazySingleton
 public class RecordHelper {
     private static final Logger logger = LoggerFactory.getLogger(RecordHelper.class);
+
+    private final ConcurrentMap<String, TramTime> timeCache;
+
+    @Inject
+    public RecordHelper() {
+        timeCache = new ConcurrentHashMap<>();
+    }
+
+    @PreDestroy
+    void stop() {
+        timeCache.clear();
+    }
 
     /***
      *
@@ -17,7 +36,7 @@ public class RecordHelper {
      * @param end counting from 1, as per docs
      * @return the extracted record
      */
-    public static String extract(final String text, final int begin, final int end) {
+    public String extract(final String text, final int begin, final int end) {
         final int length = text.length();
 
         // change to zero-indexed, rail standards are index'ed from 1
@@ -40,7 +59,7 @@ public class RecordHelper {
         return trimmedSubstring(text, realBegin, realEnd);
     }
 
-    public static String trimmedSubstring(final String source, final int begin, final int substringEnd) {
+    public String trimmedSubstring(final String source, final int begin, final int substringEnd) {
         int actualEnd = substringEnd; // String substring end is defined as index+1, hence -1 below
         do {
             if (actualEnd<begin) {
@@ -51,21 +70,10 @@ public class RecordHelper {
         actualEnd++;
         // substring end is spec'ed as required char index + 1
         return source.substring(begin, actualEnd);
-//        final int subStringEnd = end +1;
-//        if (!Character.isWhitespace(source.charAt(end))) {
-//            return source.substring(begin, end);
-//        }
-//        int remove = end;
-//        do {
-//            remove--;
-//            if (remove<begin) {
-//                return "";
-//            }
-//        } while(Character.isWhitespace(source.charAt(remove)));
-//        return source.substring(begin, remove+1);
+
     }
 
-    public static TramDate extractTramDate(final String text, final int begin, final int century) {
+    public TramDate extractTramDate(final String text, final int begin, final int century) {
         return TramDate.parseSimple(text, century, begin);
     }
 
@@ -75,11 +83,13 @@ public class RecordHelper {
      * @param begin begin index of time
      * @return TramTime or TramTime.Invalid
      */
-    public static TramTime extractTime(final String text, final int begin) {
+    public TramTime extractTime(final String text, final int begin) {
         if (text.isBlank()) {
             return TramTime.invalid();
         }
-        return TramTime.parseBasicFormat(text, begin);
+        final String timeText = text.substring(begin, begin+4);
+        return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(text, begin));
+        //return TramTime.parseBasicFormat(text, begin);
 
     }
 }

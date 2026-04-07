@@ -3,19 +3,28 @@ package com.tramchester.unit.dataimport.rail;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RecordHelperTest {
 
+    private RecordHelper recordHelper;
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        recordHelper = new RecordHelper();
+    }
 
     @Test
     void shouldParseTime() {
         String text = "xxxx1145yyyy";
-        TramTime result = RecordHelper.extractTime(text, 4);
+        TramTime result = recordHelper.extractTime(text, 4);
 
         assertEquals(TramTime.of(11,45), result);
+        // cached
+        assertEquals(TramTime.of(11,45),  recordHelper.extractTime(text, 4));
     }
 
     @Test
@@ -24,7 +33,7 @@ public class RecordHelperTest {
 
         int century = 20;
 
-        TramDate result = RecordHelper.extractTramDate(text, 4, century);
+        TramDate result = recordHelper.extractTramDate(text, 4, century);
 
         assertEquals(TramDate.of(2022, 5, 13), result);
     }
@@ -33,11 +42,11 @@ public class RecordHelperTest {
     void shouldExtractText() {
         String text = "ABCD12345vwxyz";
 
-        assertEquals("ABCD", RecordHelper.extract(text, 1, 5));
+        assertEquals("ABCD", recordHelper.extract(text, 1, 5));
 
-        assertEquals("12345", RecordHelper.extract(text, 5, 10));
+        assertEquals("12345", recordHelper.extract(text, 5, 10));
 
-        assertEquals("vwxyz", RecordHelper.extract(text, 10, 15));
+        assertEquals("vwxyz", recordHelper.extract(text, 10, 15));
 
     }
 

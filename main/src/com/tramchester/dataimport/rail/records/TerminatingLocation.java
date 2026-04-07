@@ -27,13 +27,14 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
         this.path = path;
     }
 
-    public static TerminatingLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser) {
-        final String path = RecordHelper.extract(text,23, 25+1);
-        ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(RecordHelper.extract(text, 26, 37));
+    public static TerminatingLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser,
+                                            final RecordHelper recordHelper) {
+        final String path = recordHelper.extract(text,23, 25+1);
+        ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(recordHelper.extract(text, 26, 37));
         if (activity.isEmpty()) {
             logger.warn("Unknown activity for " + text);
         }
-        return OriginOrTerminatingLocation.parse(text, new Creator(path, activity));
+        return OriginOrTerminatingLocation.parse(text, new Creator(path, activity), recordHelper);
     }
 
     @Override

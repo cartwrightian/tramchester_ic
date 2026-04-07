@@ -2,6 +2,7 @@ package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.BasicSchedule;
 import com.tramchester.dataimport.rail.records.RailRecordTransactionType;
+import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
@@ -18,12 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BasicScheduleTest {
     private int century;
+    private RecordHelper recordHelper;
 
     /// see https://wiki.openraildata.com/index.php/CIF_Codes
 
     @BeforeEach
     void beforeEachTestRuns() {
-
+        recordHelper = new RecordHelper();
         century = 20;
     }
 
@@ -35,7 +37,7 @@ public class BasicScheduleTest {
 
         String text = "BSNC532901705241709200000001 POO2T07    124207004 EMU319 100D     B            P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C53290", basicSchedule.getUniqueTrainId());
@@ -56,7 +58,7 @@ public class BasicScheduleTest {
     void shouldParseBusServiceRecord() {
         String text = "BSNG546602112122112190000001 BBS0B0028  125527005                              P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("G54660", basicSchedule.getUniqueTrainId());
@@ -77,7 +79,7 @@ public class BasicScheduleTest {
     void shouldParseShipRecord() {
         String text = "BSNP208612112142205140111110 S  0S000074122340000                 S A          P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("P20861", basicSchedule.getUniqueTrainId());
@@ -94,7 +96,7 @@ public class BasicScheduleTest {
     void shouldParseLondonUndergroundRecord() {
         String text = "BSNC611912105162112050000001 POL2I01    124682004 EMU    045                   P";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
         assertEquals(RailRecordTransactionType.New, basicSchedule.getTransactionType());
         assertEquals("C61191", basicSchedule.getUniqueTrainId());
@@ -110,7 +112,7 @@ public class BasicScheduleTest {
     void shouldParseBasicScheduleThatCancelsUnseenService() {
         String text = "BSNX625452301292301290000001 1OO2K26    124782000 EMU    100D                  N";
 
-        BasicSchedule basicSchedule = BasicSchedule.parse(text, century);
+        BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
         assertEquals("X62545", basicSchedule.getUniqueTrainId());
         DateRange dateRange = basicSchedule.getDateRange();

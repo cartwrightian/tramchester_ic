@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
+import com.tramchester.dataimport.rail.records.RecordHelper;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class ProvidesRailStationRecords {
     private final Path filePath;
     private final Map<String, RecordType> recordTypes;
     private final boolean enabled;
+    private final RecordHelper recordHelper;
 
     public enum RecordType {
         A, // phyiscal station
@@ -35,8 +37,10 @@ public class ProvidesRailStationRecords {
     }
 
     @Inject
-    public ProvidesRailStationRecords(TramchesterConfig config, UnzipFetchedData.Ready ready, RailDataFilenameRepository filenameRepository) {
+    public ProvidesRailStationRecords(TramchesterConfig config, UnzipFetchedData.Ready ready,
+                                      RailDataFilenameRepository filenameRepository, RecordHelper recordHelper) {
         enabled = config.hasRailConfig();
+        this.recordHelper = recordHelper;
         if (enabled) {
             this.filePath = filenameRepository.getStations();
         } else {
@@ -86,7 +90,7 @@ public class ProvidesRailStationRecords {
     }
 
     private PhysicalStationRecord createPhysicalStation(final String line) {
-        return PhysicalStationRecord.parse(line);
+        return PhysicalStationRecord.parse(line, recordHelper);
     }
 
     private RecordType getRecordTypeFor(final String line) {

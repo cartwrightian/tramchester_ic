@@ -4,7 +4,6 @@ import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.tramchester.dataimport.rail.records.RecordHelper.extract;
 import static java.lang.String.format;
 
 // https://stackoverflow.com/questions/54555623/what-format-are-atoc-master-stations-file-eastings-and-northings-in
@@ -33,20 +32,20 @@ public class PhysicalStationRecord {
         this.crs = crs;
     }
 
-    public static PhysicalStationRecord parse(String text) {
-        final String name = extract(text, 6, 31);
-        final String tiplocCode = extract(text, 37, 43+1); // docs?
-        final int easting = getEasting(text);
-        final int northing = getNorthing(text);
+    public static PhysicalStationRecord parse(final String text, final RecordHelper recordHelper) {
+        final String name = recordHelper.extract(text, 6, 31);
+        final String tiplocCode = recordHelper.extract(text, 37, 43+1); // docs?
+        final int easting = getEasting(text, recordHelper);
+        final int northing = getNorthing(text, recordHelper);
         final char textRailInterchangeType = text.charAt(35);
         final RailInterchangeType railInterchangeType = RailInterchangeType.getFor(textRailInterchangeType);
-        final int minChangeTime = getMinChangeTime(text);
-        final String crs = extract(text,50, 52+1);
+        final int minChangeTime = getMinChangeTime(text, recordHelper);
+        final String crs = recordHelper.extract(text,50, 52+1);
         return new PhysicalStationRecord(name, tiplocCode, easting, northing, railInterchangeType, minChangeTime, crs);
     }
 
-    private static int getMinChangeTime(String text) {
-        String raw = extract(text, 64, 65+1).trim();
+    private static int getMinChangeTime(final String text, final RecordHelper recordHelper) {
+        final String raw = recordHelper.extract(text, 64, 65+1).trim();
         if (raw.isBlank()) {
             return INVALID_MIN_CHANGE;
         }
@@ -62,14 +61,14 @@ public class PhysicalStationRecord {
         return minChangeTime!=INVALID_MIN_CHANGE;
     }
 
-    private static int getEasting(String line) {
-        String field = extract(line, 53, 57+1); // docs wrong?
+    private static int getEasting(final String line, final RecordHelper recordHelper) {
+        final String field = recordHelper.extract(line, 53, 57+1); // docs wrong?
 
         return parseGrid(line, field, "easting", '1');
     }
 
-    private static int getNorthing(String line) {
-        String field = extract(line, 59, 63+1); // docs wrong?
+    private static int getNorthing(final String line, final RecordHelper recordHelper) {
+        final String field = recordHelper.extract(line, 59, 63+1); // docs wrong?
         return parseGrid(line, field, "northing", '6');
     }
 

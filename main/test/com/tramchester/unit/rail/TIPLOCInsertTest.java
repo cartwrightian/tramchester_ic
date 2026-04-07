@@ -1,17 +1,26 @@
 package com.tramchester.unit.rail;
 
+import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.TIPLOCInsert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TIPLOCInsertTest {
 
+    private RecordHelper recordHelper;
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        recordHelper = new RecordHelper();
+    }
+
     @Test
     void shouldParseSimpleRecord() {
         String text = "TIAACHEN 00081601LAACHEN                    00005   0";
 
-        TIPLOCInsert result = TIPLOCInsert.parse(text);
+        TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
         assertEquals("AACHEN", result.getTiplocCode());
     }
@@ -20,7 +29,7 @@ public class TIPLOCInsertTest {
     void shouldHaveRecordTruncated() {
         String text = "TIBATRSH 24528866ABATTERSEA PIER STAFF HALT 87239   0";
         //             01234567890123456789012345678901234567890123456789012
-        TIPLOCInsert result = TIPLOCInsert.parse(text);
+        TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
         assertEquals("BATRSH", result.getTiplocCode());
         assertEquals("BATTERSEA PIER STAFF HALT", result.getName());
@@ -38,7 +47,7 @@ public class TIPLOCInsertTest {
 
         String text = "TIBATRSPJ48528862ZBATTERSEA PIER JN.        87199   0";
 
-        TIPLOCInsert result = TIPLOCInsert.parse(text);
+        TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
         assertEquals("BATRSPJ", result.getTiplocCode());
         assertEquals("BATTERSEA PIER JN.", result.getName());
@@ -53,7 +62,7 @@ public class TIPLOCInsertTest {
 
         String text = "TITRNHMGN16073400DTURNHAM GREEN LT          87130   0ZTUTURNHAM GREEN LT";
 
-        TIPLOCInsert result = TIPLOCInsert.parse(text);
+        TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
         assertEquals("TRNHMGN", result.getTiplocCode());
         assertEquals("TURNHAM GREEN LT", result.getName());

@@ -25,10 +25,11 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
         this.line = line;
     }
 
-    public static OriginLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser) {
-        final String line = RecordHelper.extract(text, 23,25+1);
-        final ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(RecordHelper.extract(text, 30, 41));
-        return OriginOrTerminatingLocation.parse(text, new Creator(line, activity));
+    public static OriginLocation parse(final String text, final LocationActivityCode.Parser locationActivityCodeParser,
+                                       final RecordHelper recordHelper) {
+        final String line = recordHelper.extract(text, 23,25+1);
+        final ImmutableEnumSet<LocationActivityCode> activity = locationActivityCodeParser.parse(recordHelper.extract(text, 30, 41));
+        return OriginOrTerminatingLocation.parse(text, new Creator(line, activity), recordHelper);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.IntermediateLocation;
+import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
@@ -15,10 +16,12 @@ public class IntermediateLocationTest {
 
 
     private Parser locationActivityCodeParser;
+    private RecordHelper recordHelper;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         locationActivityCodeParser = new Parser();
+        recordHelper = new RecordHelper();
     }
 
     @Test
@@ -180,6 +183,6 @@ public class IntermediateLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return IntermediateLocation.parse(toParse, locationActivityCodeParser);
+        return IntermediateLocation.parse(toParse, locationActivityCodeParser, recordHelper);
     }
 }

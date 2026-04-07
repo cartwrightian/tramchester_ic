@@ -116,6 +116,7 @@ public class TramTime implements Comparable<TramTime> {
 
     /***
      * Parse string with format HHMM i.e. 1145 0326 2355
+     * This format is used in the rail data
      * @param text the string to parse
      * @param offset to HHMM part of the string
      * @return TramTime or TramTime.Invalid

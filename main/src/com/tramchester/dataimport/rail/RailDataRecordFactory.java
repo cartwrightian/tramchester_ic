@@ -11,33 +11,35 @@ import jakarta.inject.Inject;
 public class RailDataRecordFactory {
 
     private final int century;
+    private final RecordHelper recordHelper;
 
     @Inject
-    public RailDataRecordFactory(final ProvidesNow providesNow) {
+    public RailDataRecordFactory(final ProvidesNow providesNow, RecordHelper recordHelper) {
         century = Math.floorDiv(providesNow.getDate().getYear(), 100);
+        this.recordHelper = recordHelper;
     }
 
     public RailTimetableRecord createTIPLOC(final String line) {
-        return TIPLOCInsert.parse(line);
+        return TIPLOCInsert.parse(line, recordHelper);
     }
 
     public RailTimetableRecord createBasicSchedule(final String line) {
-        return BasicSchedule.parse(line, century);
+        return BasicSchedule.parse(line, century, recordHelper);
     }
 
     public RailTimetableRecord createOrigin(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
-        return OriginLocation.parse(line, locationActivityCodeParser);
+        return OriginLocation.parse(line, locationActivityCodeParser, recordHelper);
     }
 
     public IntermediateLocation createIntermediate(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
-        return IntermediateLocation.parse(line, locationActivityCodeParser);
+        return IntermediateLocation.parse(line, locationActivityCodeParser, recordHelper);
     }
 
     public TerminatingLocation createTerminating(final String line, final LocationActivityCode.Parser locationActivityCodeParser) {
-        return TerminatingLocation.parse(line, locationActivityCodeParser);
+        return TerminatingLocation.parse(line, locationActivityCodeParser, recordHelper);
     }
 
     public RailTimetableRecord createBasicScheduleExtraDetails(final String line) {
-        return BasicScheduleExtraDetails.parse(line);
+        return BasicScheduleExtraDetails.parse(line, recordHelper);
     }
 }

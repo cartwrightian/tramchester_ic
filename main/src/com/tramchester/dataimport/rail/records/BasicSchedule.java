@@ -72,26 +72,26 @@ public class BasicSchedule implements RailTimetableRecord {
         this.trainCategory = trainCategory;
     }
 
-    public static BasicSchedule parse(String text, int century) {
-        char transactionTypeRaw = text.charAt(2); //RecordHelper.extract(text, 3, 4);
-        RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
-        String uniqueTrainId = RecordHelper.extract(text, 4, 9+1);
-        String headcode = RecordHelper.extract(text, 33, 36+1);
-        TramDate startDate = RecordHelper.extractTramDate(text, 10-1, century);
-        TramDate endDate = RecordHelper.extractTramDate(text, 16-1, century);
-        EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 21);
-        char stpIndicatorRaw = text.charAt(80-1);
-        char trainStatusRaw = text.charAt(29);
-        String trainCategoryRaw = RecordHelper.extract(text, 31, 32+1);
-        TrainCategory trainCategory = TrainCategory.getFor(trainCategoryRaw);
+    public static BasicSchedule parse(final String text, final int century, final RecordHelper recordHelper) {
+        final char transactionTypeRaw = text.charAt(2); //RecordHelper.extract(text, 3, 4);
+        final RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
+        final String uniqueTrainId = recordHelper.extract(text, 4, 9+1);
+        final String headcode = recordHelper.extract(text, 33, 36+1);
+        final TramDate startDate = recordHelper.extractTramDate(text, 10-1, century);
+        final TramDate endDate = recordHelper.extractTramDate(text, 16-1, century);
+        final EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 21);
+        final char stpIndicatorRaw = text.charAt(80-1);
+        final char trainStatusRaw = text.charAt(29);
+        final String trainCategoryRaw = recordHelper.extract(text, 31, 32+1);
+        final TrainCategory trainCategory = TrainCategory.getFor(trainCategoryRaw);
         return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek,
                 ShortTermPlanIndicator.getFor(stpIndicatorRaw), headcode,
                 TrainStatus.getFor(trainStatusRaw), trainCategory);
     }
 
-    private static EnumSet<DayOfWeek> extractDays(CharSequence line, int begin) {
+    private static EnumSet<DayOfWeek> extractDays(final CharSequence line, final int begin) {
 
-        Set<DayOfWeek> result = new HashSet<>();
+        final Set<DayOfWeek> result = new HashSet<>();
         for (int day = 0; day < 7; day++) {
             if (line.charAt(day+begin) == '1') {
                 result.add(DayOfWeek.of(day+1));

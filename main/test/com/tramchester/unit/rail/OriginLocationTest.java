@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.OriginLocation;
+import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class OriginLocationTest {
 
     private LocationActivityCode.Parser locationActivityCodeParser;
+    private RecordHelper recordHelper;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         locationActivityCodeParser = new LocationActivityCode.Parser();
+        recordHelper = new RecordHelper();
     }
 
     @Test
@@ -83,6 +86,6 @@ public class OriginLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return OriginLocation.parse(toParse, locationActivityCodeParser);
+        return OriginLocation.parse(toParse, locationActivityCodeParser, recordHelper);
     }
 }
