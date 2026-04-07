@@ -151,8 +151,9 @@ public class IntermediateLocationTest {
 
         IntermediateLocation intermediateLocation = parseWithPadding(text);
 
-        assertEquals(7, intermediateLocation.getTiplocCode().length());
-        assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
+        String tiplocCode = intermediateLocation.getTiplocCode();
+        assertEquals(7, tiplocCode.length(), tiplocCode);
+        assertEquals("KEWGRDN", tiplocCode);
 
         assertEquals(TramTime.of(20,10), intermediateLocation.getPassingTime());
 

@@ -11,10 +11,9 @@ import com.tramchester.testSupport.reference.TramStations;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
-
-import static com.tramchester.testSupport.reference.TramStations.OldhamCentral;
 
 public class UpcomingDates {
 
@@ -33,21 +32,9 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    //public static TramDate RochdaleLineClosure = TramDate.of(2026, 3, 22);
+    public static DateRange AshtonLineApril2026 = DateRange.of(TramDate.of(2026,4,11), 1);
 
-    public static TramDate VictoriaEndOfMarch = TramDate.of(2026,3,29);
-
-    public static DateRange ReplacementBus1Running = DateRange.of(TramDate.of(2026,3,25),
-            TramDate.of(2026,4,4));
-
-    public static DateRange Easter2026Works = DateRange.of(TramDate.of(2026,4,3),
-            TramDate.of(2026,4,6));
-
-    public static List<TramDate> MissingGreenDates = Arrays.asList(TramDate.of(2026,4,3),
-            TramDate.of(2026,4,4),
-            TramDate.of(2026,4,6));
-
-    public static DateRange AshtonLineApril2026 = DateRange.of(TramDate.of(2026,4,11), TramDate.of(2026,4,12));
+    public static DateRange AshtonLineMissing = DateRange.of(TramDate.of(2026, 4, 18), 1);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -65,19 +52,19 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
-        if (OldhamCentral.getId().equals(stationId)) {
-            if (date.equals(VictoriaEndOfMarch)) {
-                return true;
-            }
-        }
+//        if (OldhamCentral.getId().equals(stationId)) {
+//            if (date.equals(VictoriaEndOfMarch)) {
+//                return true;
+//            }
+//        }
 
         return anyClosedOnDate(date);
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-        if (Easter2026Works.contains(date)) {
-            return true;
-        }
+//        if (Easter2026Works.contains(date)) {
+//            return true;
+//        }
         return false;
     }
 

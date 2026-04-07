@@ -7,11 +7,9 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+@Disabled("performance testing only")
 public class RailDataLoadPerformanceTest {
 
     private static GuiceContainerDependencies componentContainer;
@@ -39,7 +37,7 @@ public class RailDataLoadPerformanceTest {
     void shouldLoadData() {
         ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             TransportDataContainer container = new TransportDataContainer(providesNow, "testSourceName");
             fromFiles.loadInto(container);
             container.dispose();

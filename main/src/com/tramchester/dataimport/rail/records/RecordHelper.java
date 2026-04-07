@@ -19,20 +19,50 @@ public class RecordHelper {
      */
     public static String extract(final String text, final int begin, final int end) {
         final int length = text.length();
+
+        // change to zero-indexed, rail standards are index'ed from 1
         final int realBegin = begin - 1;
+        final int realEnd = end - 1;
+
         if (realBegin > length) {
+//            throw new RuntimeException("Index out of range " + realBegin + "'" + text + "'");
             logger.warn(format("Record length too short (begin) was %s but looking for substring(%s,%s) in '%s'",
                     length, begin, end, text));
             return "";
         }
-        final int realEnd = end - 1;
         if (realEnd > length) {
+//            throw new RuntimeException("Index out of range " + realEnd + "'" + text + "'");
             logger.warn(format("Record length too short (end) was %s but looking for substring(%s,%s) in '%s'",
                     length, begin, end, text));
-            return text.substring(realBegin, length-1).trim();
+            return trimmedSubstring(text, realBegin, length-1);
         }
 
-        return text.substring(realBegin, realEnd).trim();
+        return trimmedSubstring(text, realBegin, realEnd);
+    }
+
+    public static String trimmedSubstring(final String source, final int begin, final int substringEnd) {
+        int actualEnd = substringEnd; // String substring end is defined as index+1, hence -1 below
+        do {
+            if (actualEnd<begin) {
+                return "";
+            }
+        } while (Character.isWhitespace(source.charAt((actualEnd--)-1)));
+
+        actualEnd++;
+        // substring end is spec'ed as required char index + 1
+        return source.substring(begin, actualEnd);
+//        final int subStringEnd = end +1;
+//        if (!Character.isWhitespace(source.charAt(end))) {
+//            return source.substring(begin, end);
+//        }
+//        int remove = end;
+//        do {
+//            remove--;
+//            if (remove<begin) {
+//                return "";
+//            }
+//        } while(Character.isWhitespace(source.charAt(remove)));
+//        return source.substring(begin, remove+1);
     }
 
     public static TramDate extractTramDate(final String text, final int begin, final int century) {

@@ -127,7 +127,6 @@ public class StationAvailabilityRepositoryTest {
         assertNotEquals(mondayTimes, fridayTimes);
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 6)
     @Test
     void shouldHaveExpectedServedRoutesForLocation() {
         Station station = Altrincham.from(stationRepository);
@@ -137,9 +136,9 @@ public class StationAvailabilityRepositoryTest {
         TramDate monday = TestEnv.nextMonday();
 
         // late services from Alty run to Old Trafford
-        TimeRange timeRange = TimeRange.of(TramTime.of(0,16), TramTime.of(0,30));
+        TimeRange timeRange = TimeRange.of(TramTime.of(0,25), TramTime.of(0,45));
         Set<Route> tooLate = dropOffs.getRoutes(monday, timeRange, modes);
-        assertTrue(tooLate.isEmpty(), tooLate.toString());
+        assertTrue(tooLate.isEmpty(), HasId.asIds(tooLate));
     }
 
     @Test

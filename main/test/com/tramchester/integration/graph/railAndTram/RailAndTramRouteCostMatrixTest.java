@@ -21,7 +21,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.jetbrains.annotations.NotNull;
@@ -183,7 +182,6 @@ public class RailAndTramRouteCostMatrixTest {
         assertNotEquals(0, oneChange.get());
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 6)
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);

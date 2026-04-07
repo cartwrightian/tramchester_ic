@@ -112,7 +112,7 @@ class KnownTramRouteTest {
         List<TramDate> missingFromDataOnDates = new ArrayList<>();
         getDateRange().
                 filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
-                filter(date -> !UpcomingDates.Easter2026Works.contains(date)).
+                //filter(date -> !UpcomingDates.Easter2026Works.contains(date)).
                 sorted(TramDate::compareTo).
                 forEach(date -> {
                     final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());

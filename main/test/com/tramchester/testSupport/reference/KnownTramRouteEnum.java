@@ -15,7 +15,6 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.Easter2026Works;
 import static com.tramchester.testSupport.reference.KnownTramRoute.newRouteIdsDate;
 
 /*
@@ -26,11 +25,10 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses
 
-    ReplacementBusOne(BusOne, "Replacement Bus One", "3080", Easter2026Works.getStartDate()),
-    ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", Easter2026Works.getStartDate()),
-    ReplacementBusThree(BusThree, "Replacement Bus Three", "2361", Easter2026Works.getStartDate()),
-    ReplacementBusFour(BusFour, "Replacement Bus Four", "3229", Easter2026Works.getStartDate()),
-    ReplacementBusFive(BusFive, "Replacement Bus Five", "2177", Easter2026Works.getStartDate()),
+    ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", Constants.replacementBusEaster2026),
+    ReplacementBusThree(BusThree, "Replacement Bus Three", "2361", TramDate.of(2026,4,3)),
+    ReplacementBusFour(BusFour, "Replacement Bus Four", "3229", TramDate.of(2026,4,3)),
+    ReplacementBusFive(BusFive, "Replacement Bus Five", "2177", TramDate.of(2026,4,3)),
 
     // Blue
     //EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "3207", latestCutoverDate),
@@ -122,5 +120,9 @@ public enum KnownTramRouteEnum implements TestRoute {
     @Override
     public String toString() {
         return line + "["+name()+"]";
+    }
+
+    private static class Constants {
+        private static final TramDate replacementBusEaster2026 = TramDate.of(2026, 4, 3);
     }
 }

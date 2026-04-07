@@ -696,6 +696,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 13)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 15), maxNumResults, 1);
@@ -730,6 +731,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, TraffordCentre, Wharfside);
     }
 
+    @DisabledUntilDate(year = 2026, month = 4, day = 13)
     @Test
     void shouldReproduceIssueCornbrookToAshtonSatursdays() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSaturday(), TramTime.of(9,0), maxNumResults, 1);
