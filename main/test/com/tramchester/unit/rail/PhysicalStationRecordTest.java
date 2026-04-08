@@ -1,5 +1,6 @@
 package com.tramchester.unit.rail;
 
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
@@ -19,7 +20,7 @@ public class PhysicalStationRecordTest {
 
     @Test
     void shouldParseBasicRecordCorrectly() {
-        String text = "A    DERBY                         2DRBY   DBY   DBY14362 63356 6";
+        Line text = Line.of("A    DERBY                         2DRBY   DBY   DBY14362 63356 6");
 
         PhysicalStationRecord result = PhysicalStationRecord.parse(text, recordHelper);
 
@@ -35,23 +36,23 @@ public class PhysicalStationRecordTest {
 
     @Test
     void shouldParseMinChangeTimeCorrectly() {
-        String edin = "A    EDINBURGH                     3EDINBUREDB   EDB13259 6673910";
+        Line edin = Line.of("A    EDINBURGH                     3EDINBUREDB   EDB13259 6673910");
         PhysicalStationRecord resultA = PhysicalStationRecord.parse(edin, recordHelper);
         assertTrue(resultA.isMinChangeTimeValid());
         assertEquals(10, resultA.getMinChangeTime());
 
-        String missing = "A    EDINBURGH                     3EDINBUREDB   EDB13259 66739  ";
+        Line missing = Line.of("A    EDINBURGH                     3EDINBUREDB   EDB13259 66739  ");
         PhysicalStationRecord resultB = PhysicalStationRecord.parse(missing, recordHelper);
         assertFalse(resultB.isMinChangeTimeValid());
 
-        String invalid = "A    EDINBURGH                     3EDINBUREDB   EDB13259 66739XX";
+        Line invalid = Line.of("A    EDINBURGH                     3EDINBUREDB   EDB13259 66739XX");
         PhysicalStationRecord resultC = PhysicalStationRecord.parse(invalid, recordHelper);
         assertFalse(resultC.isMinChangeTimeValid());
     }
 
     @Test
     void shouldParseRecordsWithMissingGridCorrectly() {
-        String text = "A    BALLINASLOE (CIE              0CATZBSGBSG   BSG00000E00000 5";
+        Line text = Line.of("A    BALLINASLOE (CIE              0CATZBSGBSG   BSG00000E00000 5");
 
         PhysicalStationRecord result = PhysicalStationRecord.parse(text, recordHelper);
 
@@ -64,7 +65,7 @@ public class PhysicalStationRecordTest {
 
     @Test
     void shouldParseFileSpec() {
-        String text = "A                             FILE-SPEC=05 1.00 12/11/21 18.10.25   193";
+        Line text = Line.of("A                             FILE-SPEC=05 1.00 12/11/21 18.10.25   193");
 
         PhysicalStationRecord result = PhysicalStationRecord.parse(text, recordHelper);
 
@@ -74,8 +75,8 @@ public class PhysicalStationRecordTest {
     }
 
     @Test
-    void shouldParseKeyGardens() {
-        String text = "A    KEW GARDENS                   0KEWGRDNKWG   KWG15192 61768 5";
+    void shouldParseKewGardens() {
+        Line text = Line.of("A    KEW GARDENS                   0KEWGRDNKWG   KWG15192 61768 5");
 
         PhysicalStationRecord result = PhysicalStationRecord.parse(text, recordHelper);
 

@@ -55,13 +55,13 @@ public class RecordHelperTest {
 
     @Test
     void shouldExtractText() {
-        String text = "ABCD12345vwxyz";
+        Line text = Line.of("ABCD12345vwxyz");
 
-        assertEquals("ABCD", recordHelper.extract(text, 1, 5));
+        assertEquals("ABCD", recordHelper.extractToString(text, 1, 4));
 
-        assertEquals("12345", recordHelper.extract(text, 5, 10));
+        assertEquals("12345", recordHelper.extractToString(text, 5, 9));
 
-        assertEquals("vwxyz", recordHelper.extract(text, 10, 15));
+        assertEquals("vwxyz", recordHelper.extractToString(text, 10, 14));
 
     }
 

@@ -3,6 +3,7 @@ package com.tramchester.dataimport.rail;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import jakarta.inject.Inject;
@@ -85,14 +86,15 @@ public class ProvidesRailStationRecords {
     public Stream<PhysicalStationRecord> load(final Reader in) {
         final BufferedReader bufferedReader = new BufferedReader(in);
         return bufferedReader.lines().
-                filter(line -> getRecordTypeFor(line).equals(RecordType.A)).
-                map(this::createPhysicalStation);
+                filter(text -> getRecordTypeFor(text).equals(RecordType.A)).
+                map(text -> createPhysicalStation(new Line(text)));
     }
 
-    private PhysicalStationRecord createPhysicalStation(final String line) {
+    private PhysicalStationRecord createPhysicalStation(final Line line) {
         return PhysicalStationRecord.parse(line, recordHelper);
     }
 
+    // TODO Use Line here
     private RecordType getRecordTypeFor(final String line) {
         final String rawType = line.substring(0, 1);
         if (recordTypes.containsKey(rawType)) {

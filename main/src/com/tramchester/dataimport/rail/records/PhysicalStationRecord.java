@@ -32,20 +32,21 @@ public class PhysicalStationRecord {
         this.crs = crs;
     }
 
-    public static PhysicalStationRecord parse(final String text, final RecordHelper recordHelper) {
-        final String name = recordHelper.extract(text, 6, 31);
-        final String tiplocCode = recordHelper.extract(text, 37, 43+1); // docs?
+    public static PhysicalStationRecord parse(final Line text, final RecordHelper recordHelper) {
+        final String name = recordHelper.extractToString(text, 6, 30);
+        final String tiplocCode = recordHelper.extractToString(text, 37, 43); // docs?
         final int easting = getEasting(text, recordHelper);
         final int northing = getNorthing(text, recordHelper);
         final char textRailInterchangeType = text.charAt(35);
         final RailInterchangeType railInterchangeType = RailInterchangeType.getFor(textRailInterchangeType);
         final int minChangeTime = getMinChangeTime(text, recordHelper);
-        final String crs = recordHelper.extract(text,50, 52+1);
+        final String crs = recordHelper.extractToString(text,50, 52);
         return new PhysicalStationRecord(name, tiplocCode, easting, northing, railInterchangeType, minChangeTime, crs);
     }
 
-    private static int getMinChangeTime(final String text, final RecordHelper recordHelper) {
-        final String raw = recordHelper.extract(text, 64, 65+1).trim();
+    private static int getMinChangeTime(final Line text, final RecordHelper recordHelper) {
+        // trim since might have leading space
+        final String raw = recordHelper.extractToString(text, 64, 65).trim();
         if (raw.isBlank()) {
             return INVALID_MIN_CHANGE;
         }
@@ -61,18 +62,18 @@ public class PhysicalStationRecord {
         return minChangeTime!=INVALID_MIN_CHANGE;
     }
 
-    private static int getEasting(final String line, final RecordHelper recordHelper) {
-        final String field = recordHelper.extract(line, 53, 57+1); // docs wrong?
+    private static int getEasting(final Line line, final RecordHelper recordHelper) {
+        final String field = recordHelper.extractToString(line, 53, 57); // docs wrong?
 
         return parseGrid(line, field, "easting", '1');
     }
 
-    private static int getNorthing(final String line, final RecordHelper recordHelper) {
-        final String field = recordHelper.extract(line, 59, 63+1); // docs wrong?
+    private static int getNorthing(final Line line, final RecordHelper recordHelper) {
+        final String field = recordHelper.extractToString(line, 59, 63+1); // docs wrong?
         return parseGrid(line, field, "northing", '6');
     }
 
-    private static int parseGrid(final String line, final String field, final String fieldName, final char expectedPrefix) {
+    private static int parseGrid(final Line line, final String field, final String fieldName, final char expectedPrefix) {
         if (field.equals(MISSING_POSITION)) {
             return Integer.MIN_VALUE;
         }
