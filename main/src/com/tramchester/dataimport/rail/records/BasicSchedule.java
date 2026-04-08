@@ -75,14 +75,14 @@ public class BasicSchedule implements RailTimetableRecord {
     public static BasicSchedule parse(final Line text, final int century, final RecordHelper recordHelper) {
         final char transactionTypeRaw = text.charAt(2); //RecordHelper.extract(text, 3, 4);
         final RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
-        final String uniqueTrainId = recordHelper.extract(text, 4, 9);
-        final String headcode = recordHelper.extract(text, 33, 36);
+        final String uniqueTrainId = recordHelper.extractToString(text, 4, 9);
+        final String headcode = recordHelper.extractToString(text, 33, 36);
         final TramDate startDate = recordHelper.extractTramDate(text, 10-1, century);
         final TramDate endDate = recordHelper.extractTramDate(text, 16-1, century);
         final EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 21);
         final char stpIndicatorRaw = text.charAt(80-1);
         final char trainStatusRaw = text.charAt(29);
-        final String trainCategoryRaw = recordHelper.extract(text, 31, 32);
+        final String trainCategoryRaw = recordHelper.extractToString(text, 31, 32);
         final TrainCategory trainCategory = TrainCategory.getFor(trainCategoryRaw);
         return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek,
                 ShortTermPlanIndicator.getFor(stpIndicatorRaw), headcode,

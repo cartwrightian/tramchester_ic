@@ -22,8 +22,8 @@ public class BasicScheduleExtraDetails implements RailTimetableRecord {
     }
 
     public static BasicScheduleExtraDetails parse(final Line line, final RecordHelper recordHelper) {
-        final String atocCode = recordHelper.extract(line, 12, 13);
-        final String retailServiceId = recordHelper.extract(line, 15, 22);
+        final String atocCode = recordHelper.extractToString(line, 12, 13);
+        final String retailServiceId = recordHelper.extractToString(line, 15, 22);
         return new BasicScheduleExtraDetails(atocCode, retailServiceId);
     }
 

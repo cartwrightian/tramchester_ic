@@ -32,9 +32,9 @@ public class TIPLOCInsert implements RailTimetableRecord {
     }
 
     public static TIPLOCInsert parse(final Line line, final RecordHelper recordHelper) {
-        final String tiplocCode = recordHelper.extract(line, 3, 9);
-        final String corpus = recordHelper.extract(line,12,17);
-        final String name = recordHelper.extract(line, 19, 44);
+        final String tiplocCode = recordHelper.extractToString(line, 3, 9);
+        final String corpus = recordHelper.extractToString(line,12,17);
+        final String name = recordHelper.extractToString(line, 19, 44);
         final String crs = extractTruncatedSafe(line, 54, 56 , recordHelper);
 
         return new TIPLOCInsert(tiplocCode, name, crs, corpus);
@@ -44,7 +44,7 @@ public class TIPLOCInsert implements RailTimetableRecord {
         if (line.length()<end) {
             return "";
         }
-        return recordHelper.extract(line, begin, end);
+        return recordHelper.extractToString(line, begin, end);
     }
 
     public String getTiplocCode() {

@@ -15,11 +15,7 @@ public class Line {
         return new Line(text);
     }
 
-    public CharSequence subSequence(final int begin, final int end) {
-        return extract(begin, end);
-    }
-
-    public String extract(final int begin, final int end) {
+    public String extractToString(final int begin, final int end) {
         int count = end-begin;
 
         int previous = count+1;
@@ -67,5 +63,11 @@ public class Line {
                 "text='" + new String(chars) + "', " +
                 "chars=" + result +
                 '}';
+    }
+
+    public char[] subArray(final int begin, final int count) {
+        final char[] result = new char[count];
+        System.arraycopy(chars, begin, result, 0, count);
+        return result;
     }
 }

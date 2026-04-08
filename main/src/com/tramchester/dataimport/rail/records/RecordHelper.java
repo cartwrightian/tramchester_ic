@@ -84,35 +84,22 @@ public class RecordHelper {
 
     /***
      * Parse time in format HHMM embedded within larger string
-     * @param text the text to extract time from
+     * @param line the text to extract time from
      * @param begin begin index of time
      * @return TramTime or TramTime.Invalid
      */
-    public TramTime extractTime(final String text, final int begin) {
-        final String timeText = trimmedSubstring(text, begin, begin + 4);
-        if (timeText.isEmpty()) {
-            return TramTime.invalid();
-        }
-        //final String timeText = text.substring(begin, begin+4);
-        return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(timeText, 0));
-    }
-
     public TramTime extractTime(final Line line, final int begin) {
-        final String timeText = line.extract(begin, begin+5);
-        if (timeText.isEmpty()) {
-            return TramTime.invalid();
-        }
-        //final String timeText = text.substring(begin, begin+4);
-        return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(timeText, 0));
+        char[] timeText = line.subArray(begin, 4);
+        return timeCache.computeIfAbsent(new String(timeText), key -> TramTime.parseBasicFormat(timeText));
     }
 
     public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final Line text, final int begin, final int end) {
-        final String substring = extract(text, begin, end);
+        final String substring = extractToString(text, begin, end);
         return locationActivityCodeParser.parse(substring);
     }
 
     // Rail spec's index from one
-    public String extract(final Line line, final int begin, final int end) {
-        return line.extract(begin-1, end-1);
+    public String extractToString(final Line line, final int begin, final int end) {
+        return line.extractToString(begin-1, end-1);
     }
 }

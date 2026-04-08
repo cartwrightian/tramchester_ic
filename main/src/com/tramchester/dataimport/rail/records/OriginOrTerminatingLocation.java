@@ -23,9 +23,9 @@ public abstract class OriginOrTerminatingLocation {
                                                                      final RecordHelper recordHelper) {
         // NOTE: for terminating and originating locations a suffix is added and docs give total length as 8
         // but this causes stations not to be found, so use length of 7 here
-        final String tiplocCode = recordHelper.extract(text, 3, 9);
+        final String tiplocCode = recordHelper.extractToString(text, 3, 9);
         final TramTime tramTime = recordHelper.extractTime(text, 15);
-        final String platform = recordHelper.extract(text, 20, 22);//.trim();
+        final String platform = recordHelper.extractToString(text, 20, 22);//.trim();
         return builder.create(tiplocCode, tramTime, platform);
     }
 

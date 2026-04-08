@@ -23,12 +23,12 @@ public class RecordHelperTest {
 
     @Test
     void shouldParseTime() {
-        String text = "xxxx1145yyyy";
-        TramTime result = recordHelper.extractTime(text, 4);
+        Line line = Line.of("xxxx1145yyyy");
+        TramTime result = recordHelper.extractTime(line, 4);
 
         assertEquals(TramTime.of(11,45), result);
         // cached
-        assertEquals(TramTime.of(11,45),  recordHelper.extractTime(text, 4));
+        assertEquals(TramTime.of(11,45),  recordHelper.extractTime(line, 4));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class RecordHelperTest {
     void shouldExtractLocationCode() {
         Line line = Line.of("LTLILBDGE 2030 2030      TF               ");
 
-        final String tiplocCode = recordHelper.extract(line, 3, 10);
+        final String tiplocCode = recordHelper.extractToString(line, 3, 10);
 
         assertEquals("LILBDGE", tiplocCode);
     }
@@ -88,7 +88,7 @@ public class RecordHelperTest {
     void shouldExtractLocationCodeWithTrailingSpaces() {
         Line line = Line.of("LTUPMNLT 21022H1023      TF");
 
-        final String tiplocCode = recordHelper.extract(line, 3, 9);
+        final String tiplocCode = recordHelper.extractToString(line, 3, 9);
 
         assertEquals("UPMNLT", tiplocCode);
     }
@@ -97,7 +97,7 @@ public class RecordHelperTest {
     void shouldExtractToEmptyString() {
         Line line = Line.of("LTWLWYNGC 1918 19184     TF");
 
-        final String path = recordHelper.extract(line,23, 25);
+        final String path = recordHelper.extractToString(line,23, 25);
         assertTrue(path.isEmpty());
     }
 
@@ -105,7 +105,7 @@ public class RecordHelperTest {
     void shouldExtract2Characters() {
         Line line = Line.of("BX         EMYEM813500");
 
-        String result = recordHelper.extract(line, 12, 13);
+        String result = recordHelper.extractToString(line, 12, 13);
         assertEquals("EM", result);
     }
 

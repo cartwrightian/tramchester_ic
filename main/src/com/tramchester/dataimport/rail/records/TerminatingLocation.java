@@ -29,7 +29,7 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
 
     public static TerminatingLocation parse(final Line text,
                                             final RecordHelper recordHelper) {
-        final String path = recordHelper.extract(text,23, 25);
+        final String path = recordHelper.extractToString(text,23, 25);
         final ImmutableEnumSet<LocationActivityCode> activity = recordHelper.parseLocationActivityCode(text, 26, 37);
         if (activity.isEmpty()) {
             logger.warn("Unknown activity for " + text);

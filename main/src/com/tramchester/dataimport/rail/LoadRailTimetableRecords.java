@@ -98,7 +98,7 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     }
 
     private RailRecordType getRecordTypeFor(final Line line) {
-        return RailRecordType.parse(line.subSequence(0,1));
+        return RailRecordType.parse(line.extractToString(0,1));
     }
 
     @Override
