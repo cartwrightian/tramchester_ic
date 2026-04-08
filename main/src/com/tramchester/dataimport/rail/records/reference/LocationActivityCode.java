@@ -3,6 +3,7 @@ package com.tramchester.dataimport.rail.records.reference;
 // https://wiki.openraildata.com/index.php?title=Activity_codes
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.EnumSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,7 +83,7 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     private static ImmutableEnumSet<LocationActivityCode> getCodesFor(final String text) {
        final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
-        final String[] tokens = text.split(" ");
+        final String[] tokens = StringUtils.split(text,' '); //text.split(" ");
         for (final String token : tokens) {
             result.addAll(parseToken(token, result));
         }
@@ -90,7 +91,6 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     }
 
     private static EnumSet<LocationActivityCode> parseToken(final String token, final EnumSet<LocationActivityCode> accumulator) {
-        //final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
         String toProcess = token;
 

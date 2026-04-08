@@ -64,17 +64,17 @@ public class RecordHelper {
     }
 
     public String trimmedSubstring(final String source, final int begin, final int substringEnd) {
-        int actualEnd = substringEnd; // String substring end is defined as index+1, hence -1 below
+        int length = substringEnd - begin;
+        final int offset = begin - 1;
         do {
-            if (actualEnd<begin) {
+            if (length<0) {
                 return "";
             }
-        } while (Character.isWhitespace(source.charAt((actualEnd--)-1)));
+        } while (Character.isWhitespace(source.charAt((offset +(length--)))));
 
-        actualEnd++;
+        length++;
         // substring end is spec'ed as required char index + 1
-        return source.substring(begin, actualEnd);
-
+        return new String(source.getBytes(), begin, length);
     }
 
     public TramDate extractTramDate(final String text, final int begin, final int century) {
@@ -93,8 +93,6 @@ public class RecordHelper {
         }
         final String timeText = text.substring(begin, begin+4);
         return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(text, begin));
-        //return TramTime.parseBasicFormat(text, begin);
-
     }
 
     public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final String text, final int begin, final int end) {

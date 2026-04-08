@@ -9,7 +9,7 @@ import static com.tramchester.domain.reference.TransportMode.*;
 
 public class RailTransportModeMapper {
 
-    public static TransportMode getModeFor(TrainStatus status, TrainCategory category) {
+    public static TransportMode getModeFor(final TrainStatus status, final TrainCategory category) {
         return switch (status) {
             case Bus, STPBus -> getBusModeFor(category);
             case STPPassengerParcels, PassengerAndParcels -> getRailOrSubwayMode(category);
@@ -19,18 +19,18 @@ public class RailTransportModeMapper {
         };
     }
 
-    public static TransportMode getModeFor(BasicSchedule basicScheduleRecord) {
+    public static TransportMode getModeFor(final BasicSchedule basicScheduleRecord) {
         return getModeFor(basicScheduleRecord.getTrainStatus(), basicScheduleRecord.getTrainCategory());
     }
 
-    private static TransportMode getRailOrSubwayMode(TrainCategory category) {
+    private static TransportMode getRailOrSubwayMode(final TrainCategory category) {
         if (category==TrainCategory.LondonUndergroundOrMetroService) {
             return Subway;
         }
         return Train;
     }
 
-    private static TransportMode getBusModeFor(TrainCategory category) {
+    private static TransportMode getBusModeFor(final TrainCategory category) {
         if (category==TrainCategory.BusReplacement) {
             return RailReplacementBus;
         }

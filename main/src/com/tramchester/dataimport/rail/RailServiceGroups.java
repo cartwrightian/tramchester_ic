@@ -36,7 +36,7 @@ public class RailServiceGroups {
         unmatchedCancellations = new HashSet<>();
     }
 
-    public void applyCancellation(BasicSchedule cancellationSchedule) {
+    public void applyCancellation(final BasicSchedule cancellationSchedule) {
         final String uniqueTrainId = cancellationSchedule.getUniqueTrainId();
         final List<MutableService> matchingServices = serviceGroups.servicesFor(uniqueTrainId);
         if (matchingServices.isEmpty()) {
@@ -72,7 +72,7 @@ public class RailServiceGroups {
                 collect(Collectors.toSet());
     }
 
-    MutableService getOrCreateService(final BasicSchedule schedule, final boolean isOverlay, DataSourceID dataSourceId) {
+    MutableService getOrCreateService(final BasicSchedule schedule, final boolean isOverlay, final DataSourceID dataSourceId) {
         final String uniqueTrainId = schedule.getUniqueTrainId();
 
         final IdFor<Service> serviceId = getServiceIdFor(schedule, isOverlay);
@@ -106,7 +106,7 @@ public class RailServiceGroups {
                     logger.debug(format("Overlap: Marking existing service %s as cancelled for %s %s",
                             impactedServiceId, scheduleDateRange, schedule.getDaysOfWeek()));
                     final MutableServiceCalendar impactedCalendar = impactedService.getMutableCalendar();
-                    DateRange impactedCalendarDateRange = impactedCalendar.getDateRange();
+                    final DateRange impactedCalendarDateRange = impactedCalendar.getDateRange();
 
                     if (impactedCalendarDateRange.overlapsWith(scheduleDateRange)) {
                         recordOverlapAsSuperseding(impactedCalendar, scheduleDateRange, schedule.getDaysOfWeek());
@@ -127,16 +127,17 @@ public class RailServiceGroups {
         return service;
     }
 
-    private void recordOverlapAsSuperseding(MutableServiceCalendar calendarToUpdate, DateRange rangeForUpdates, Set<DayOfWeek> excludedDays) {
+    private void recordOverlapAsSuperseding(final MutableServiceCalendar calendarToUpdate, final DateRange rangeForUpdates,
+                                            final EnumSet<DayOfWeek> excludedDays) {
         // TODO Need proper testing on this
-        TramDate toUpdateState = calendarToUpdate.getDateRange().getStartDate();
-        TramDate toUpdateEnd = calendarToUpdate.getDateRange().getEndDate();
+        final TramDate toUpdateState = calendarToUpdate.getDateRange().getStartDate();
+        final TramDate toUpdateEnd = calendarToUpdate.getDateRange().getEndDate();
 
-        TramDate updateStart = rangeForUpdates.getStartDate();
-        TramDate updateEnd = rangeForUpdates.getEndDate();
+        final TramDate updateStart = rangeForUpdates.getStartDate();
+        final TramDate updateEnd = rangeForUpdates.getEndDate();
+        final TramDate endDate = updateEnd.isAfter(toUpdateEnd) ? toUpdateEnd : updateEnd;
 
         TramDate current = updateStart.isBefore(toUpdateState) ? toUpdateState : updateStart;
-        TramDate endDate = updateEnd.isAfter(toUpdateEnd) ? toUpdateEnd : updateEnd;
 
         while (!current.isAfter(endDate)) {
             if (excludedDays.contains(current.getDayOfWeek())) {
@@ -146,11 +147,11 @@ public class RailServiceGroups {
         }
     }
 
-    public void recordSkip(BasicSchedule basicSchedule) {
+    public void recordSkip(final BasicSchedule basicSchedule) {
         skippedSchedules.add(basicSchedule.getUniqueTrainId());
     }
 
-    private IdFor<Service> getServiceIdFor(BasicSchedule schedule, boolean isOverlay) {
+    private IdFor<Service> getServiceIdFor(final BasicSchedule schedule, final boolean isOverlay) {
         final DateRange dateRange = schedule.getDateRange();
         final String startDate = dateRange.getStartDate().format(RailTimetableMapper.dateFormatter);
         final String endDate = dateRange.getEndDate().format(RailTimetableMapper.dateFormatter);
@@ -186,7 +187,7 @@ public class RailServiceGroups {
             return groups.get(scheduleId);
         }
 
-        public void addService(String scheduleId, MutableService service) {
+        public void addService(final String scheduleId, final MutableService service) {
             if (!groups.containsKey(scheduleId)) {
                 groups.put(scheduleId, new ArrayList<>());
             }

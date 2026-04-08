@@ -55,7 +55,7 @@ public class RailTimetableMapper {
                 .appendValue(DAY_OF_MONTH, 2).toFormatter();
 
     private final RailServiceGroups railServiceGroups;
-    private final RailStationRecordsRepository stationRecords;
+    //private final RailStationRecordsRepository stationRecords;
 
     private enum State {
         SeenSchedule,
@@ -81,7 +81,7 @@ public class RailTimetableMapper {
         skippedService = new AtomicInteger(0);
 
         railServiceGroups = new RailServiceGroups(container);
-        this.stationRecords = stationRecords;
+        //this.stationRecords = stationRecords;
         processor = new CreatesTransportDataForRail(stationRecords, container, travelCombinations,
                 config, filter, bounds, railServiceGroups, railRouteRepository);
     }
@@ -174,24 +174,24 @@ public class RailTimetableMapper {
         private OriginLocation originLocation;
         private TerminatingLocation terminatingLocation;
 
-        public RawService(RailTimetableRecord basicScheduleRecord) {
+        public RawService(final RailTimetableRecord basicScheduleRecord) {
             this.basicScheduleRecord = (BasicSchedule) basicScheduleRecord;
             intermediateLocations = new ArrayList<>();
         }
 
-        public void addIntermediate(RailTimetableRecord record) {
+        public void addIntermediate(final RailTimetableRecord record) {
             intermediateLocations.add((IntermediateLocation) record);
         }
 
-        public void addOrigin(RailTimetableRecord record) {
+        public void addOrigin(final RailTimetableRecord record) {
             this.originLocation = (OriginLocation) record;
         }
 
-        public void finish(RailTimetableRecord record) {
+        public void finish(final RailTimetableRecord record) {
             this.terminatingLocation = (TerminatingLocation) record;
         }
 
-        public void addScheduleExtra(RailTimetableRecord record) {
+        public void addScheduleExtra(final RailTimetableRecord record) {
             this.extraDetails = (BasicScheduleExtraDetails) record;
         }
 
@@ -232,7 +232,7 @@ public class RailTimetableMapper {
         }
 
         public void consume(final RawService rawService, final boolean isOverlay, final AtomicInteger skipped) {
-            BasicSchedule basicSchedule = rawService.basicScheduleRecord;
+            final BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             switch (basicSchedule.getTransactionType()) {
                 case New -> {
@@ -332,7 +332,7 @@ public class RailTimetableMapper {
             int stopSequence = 1;
             populateForLocationIfWithinBounds(originLocation, route, trip, stopSequence, originTime);
             stopSequence = stopSequence + 1;
-            for (IntermediateLocation intermediateLocation : intermediateLocations) {
+            for (final IntermediateLocation intermediateLocation : intermediateLocations) {
                 populateForLocationIfWithinBounds(intermediateLocation, route, trip, stopSequence, originTime);
                 // if ....  stopSequence = stopSequence + 1; - keep sequence same as source even if skipping
                 stopSequence = stopSequence + 1;

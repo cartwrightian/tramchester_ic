@@ -108,10 +108,10 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         private final RailConfig railConfig;
         private final GraphFilterActive graphFilterActive;
 
-        public Loader(ProvidesRailTimetableRecords providesRailTimetableRecords,
-                      RailRouteIdRepository railRouteRepository,
-                      RailConfig railConfig,
-                      GraphFilterActive graphFilterActive) {
+        public Loader(final ProvidesRailTimetableRecords providesRailTimetableRecords,
+                      final RailRouteIdRepository railRouteRepository,
+                      final RailConfig railConfig,
+                      final GraphFilterActive graphFilterActive) {
             this.providesRailTimetableRecords = providesRailTimetableRecords;
             this.railRouteRepository = railRouteRepository;
             this.railConfig = railConfig;
@@ -132,8 +132,9 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
 
         }
 
-        private void processTimetableRecords(RailStationRecordsRepository stationRecords, WriteableTransportData dataContainer,
-                                             Stream<RailTimetableRecord> recordStream, BoundingBox bounds, RailRouteIdRepository railRouteRepository) {
+        private void processTimetableRecords(final RailStationRecordsRepository stationRecords, final WriteableTransportData dataContainer,
+                                             final Stream<RailTimetableRecord> recordStream, final BoundingBox bounds,
+                                             final RailRouteIdRepository railRouteRepository) {
             logger.info("Process timetable stream");
             final RailTimetableMapper mapper = new RailTimetableMapper(stationRecords, dataContainer, railConfig,
                     graphFilterActive, bounds, railRouteRepository);

@@ -21,8 +21,8 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
 
     private final String path;
 
-    protected TerminatingLocation(String tiplocCode, TramTime publicDeptTime, String platform, String path,
-                                  ImmutableEnumSet<LocationActivityCode> activity) {
+    protected TerminatingLocation(final String tiplocCode, final TramTime publicDeptTime, final String platform, final String path,
+                                  final ImmutableEnumSet<LocationActivityCode> activity) {
         super(tiplocCode, publicDeptTime, platform, activity);
         this.path = path;
     }
@@ -30,7 +30,7 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
     public static TerminatingLocation parse(final String text,
                                             final RecordHelper recordHelper) {
         final String path = recordHelper.extract(text,23, 25+1);
-        ImmutableEnumSet<LocationActivityCode> activity = recordHelper.parseLocationActivityCode(text, 26, 37);
+        final ImmutableEnumSet<LocationActivityCode> activity = recordHelper.parseLocationActivityCode(text, 26, 37);
         if (activity.isEmpty()) {
             logger.warn("Unknown activity for " + text);
         }
@@ -96,7 +96,7 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
         private final String path;
         private final ImmutableEnumSet<LocationActivityCode> activity;
 
-        public Creator(String path, ImmutableEnumSet<LocationActivityCode> activity) {
+        public Creator(final String path, final ImmutableEnumSet<LocationActivityCode> activity) {
             this.path = path;
             this.activity = activity;
         }

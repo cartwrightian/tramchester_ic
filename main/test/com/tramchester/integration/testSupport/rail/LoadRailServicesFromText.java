@@ -43,16 +43,16 @@ public class LoadRailServicesFromText  {
         this.railDataFilenameRepository = railDataFilenameRepository;
     }
 
-    public void loadInto(TransportDataContainer dataContainer, String text) {
+    public void loadInto(final TransportDataContainer dataContainer, final String text) {
 
-        ProvidesRailTimetableRecords loadTimeTableRecords = new LocalRailRecords(config, railDataRecordFactory, ready, text, railDataFilenameRepository);
+        final ProvidesRailTimetableRecords loadTimeTableRecords = new LocalRailRecords(config, railDataRecordFactory, ready, text, railDataFilenameRepository);
 
-        RailConfig railConfig = config.getRail();
+        final RailConfig railConfig = config.getRail();
 
-        RailRouteIds railRouteIdRepository = new RailRouteIds(stationRecordsRepository, loadTimeTableRecords, railRouteIdBuilder, config, cacheMetric);
+        final RailRouteIds railRouteIdRepository = new RailRouteIds(stationRecordsRepository, loadTimeTableRecords, railRouteIdBuilder, config, cacheMetric);
         railRouteIdRepository.start();
 
-        RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(loadTimeTableRecords,
+        final RailTransportDataFromFiles.Loader loader = new RailTransportDataFromFiles.Loader(loadTimeTableRecords,
                 railRouteIdRepository, railConfig, filter);
 
         loader.loadInto(dataContainer, config.getBounds(), stationRecordsRepository);
@@ -69,19 +69,19 @@ public class LoadRailServicesFromText  {
 
         @Override
         public Stream<RailTimetableRecord> load() {
-            String padded = padTo80Cols();
-            Reader paddedReader = new StringReader(padded);
+            final String padded = padTo80Cols();
+            final Reader paddedReader = new StringReader(padded);
             return super.load(paddedReader);
         }
 
         @NotNull
         private String padTo80Cols() {
             // since cut and paste of example text into the tests messes up columns
-            Reader reader = new StringReader(text);
-            BufferedReader bufferedReader = new BufferedReader(reader);
-            StringBuilder padded = new StringBuilder();
+            final Reader reader = new StringReader(text);
+            final BufferedReader bufferedReader = new BufferedReader(reader);
+            final StringBuilder padded = new StringBuilder();
             bufferedReader.lines().forEach(line -> {
-                String clean = line.stripTrailing();
+                final String clean = line.stripTrailing();
                 padded.append(StringUtils.rightPad(clean, 80)).append(System.lineSeparator());
             });
             return padded.toString();

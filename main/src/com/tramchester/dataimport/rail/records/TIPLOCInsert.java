@@ -40,7 +40,7 @@ public class TIPLOCInsert implements RailTimetableRecord {
         return new TIPLOCInsert(tiplocCode, name, crs, corpus);
     }
 
-    private static String extractTruncatedSafe(final String line, int begin, int end, final RecordHelper recordHelper) {
+    private static String extractTruncatedSafe(final String line, final int begin, final int end, final RecordHelper recordHelper) {
         if (line.length()<end) {
             return "";
         }

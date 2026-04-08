@@ -82,7 +82,7 @@ public class ProvidesRailStationRecords {
         }
     }
 
-    public Stream<PhysicalStationRecord> load(Reader in) {
+    public Stream<PhysicalStationRecord> load(final Reader in) {
         final BufferedReader bufferedReader = new BufferedReader(in);
         return bufferedReader.lines().
                 filter(line -> getRecordTypeFor(line).equals(RecordType.A)).

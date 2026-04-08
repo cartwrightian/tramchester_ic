@@ -81,17 +81,17 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
         };
     }
 
-    private RailTimetableRecord skipRecord(RailRecordType recordType, String line) {
+    private RailTimetableRecord skipRecord(final RailRecordType recordType, final String line) {
         // Record that for now we choose to ignore
         return new SkippedRecord(recordType, line);
     }
 
-    private RailTimetableRecord logHeader(String line) {
+    private RailTimetableRecord logHeader(final String line) {
         logger.info("Header: '" + line + "'");
         return new UnknownRecord(line);
     }
 
-    private RailRecordType getRecordTypeFor(CharSequence line) {
+    private RailRecordType getRecordTypeFor(final CharSequence line) {
         return RailRecordType.parse(line.subSequence(0,2));
     }
 

@@ -31,7 +31,7 @@ public class RailRouteIDBuilder {
         callingPointsToId = new HashMap<>();
     }
 
-    public RailRouteId getIdFor(RailRouteCallingPoints agencyCallingPoints) {
+    public RailRouteId getIdFor(final RailRouteCallingPoints agencyCallingPoints) {
         return getIdFor(agencyCallingPoints.getAgencyId(), agencyCallingPoints.getCallingPoints());
     }
 
@@ -134,7 +134,7 @@ public class RailRouteIDBuilder {
         private final IdFor<Agency> agencyId;
         private final List<IdFor<Station>> callingPoints; // order matters
 
-        private AgencyCallingPoints(IdFor<Agency> agencyId, List<IdFor<Station>> stationCallingPoints) {
+        private AgencyCallingPoints(final IdFor<Agency> agencyId, final List<IdFor<Station>> stationCallingPoints) {
             this.callingPoints = stationCallingPoints;
             this.agencyId = agencyId;
         }

@@ -78,7 +78,7 @@ public class IntermediateLocation implements RailLocationRecord {
         return pickPublicOrSchedule(publicDeparture, scheduledDepart);
     }
 
-    private TramTime pickPublicOrSchedule(TramTime pub, TramTime scheduled) {
+    private TramTime pickPublicOrSchedule(final TramTime pub, final TramTime scheduled) {
         if (pub.isValid()) {
             if (scheduled.isValid() && pub.equals(blankTime)) {
                 return scheduled;

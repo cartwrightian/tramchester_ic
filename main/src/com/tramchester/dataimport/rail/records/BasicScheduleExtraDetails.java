@@ -16,7 +16,7 @@ public class BasicScheduleExtraDetails implements RailTimetableRecord {
     private final String atocCode;
     private final String retailServiceID;
 
-    public BasicScheduleExtraDetails(String atocCode, String retailServiceID) {
+    public BasicScheduleExtraDetails(final String atocCode, final String retailServiceID) {
         this.atocCode = atocCode;
         this.retailServiceID = retailServiceID;
     }

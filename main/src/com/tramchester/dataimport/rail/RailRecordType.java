@@ -21,12 +21,12 @@ public enum RailRecordType {
     private static final HashMap<CharSequence, RailRecordType> map = new HashMap<>();
 
     static {
-        for(RailRecordType recordType : RailRecordType.values()) {
+        for(final RailRecordType recordType : RailRecordType.values()) {
             map.put(recordType.code, recordType);
         }
     }
 
-    RailRecordType(CharSequence code) {
+    RailRecordType(final CharSequence code) {
         this.code = code;
     }
 

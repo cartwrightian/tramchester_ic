@@ -72,7 +72,7 @@ public class PhysicalStationRecord {
         return parseGrid(line, field, "northing", '6');
     }
 
-    private static int parseGrid(String line, String field, String fieldName, char expectedPrefix) {
+    private static int parseGrid(final String line, final String field, final String fieldName, final char expectedPrefix) {
         if (field.equals(MISSING_POSITION)) {
             return Integer.MIN_VALUE;
         }

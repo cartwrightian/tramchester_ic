@@ -12,7 +12,7 @@ public class RailDataRecordFactory {
     private final RecordHelper recordHelper;
 
     @Inject
-    public RailDataRecordFactory(final ProvidesNow providesNow, RecordHelper recordHelper) {
+    public RailDataRecordFactory(final ProvidesNow providesNow, final RecordHelper recordHelper) {
         century = Math.floorDiv(providesNow.getDate().getYear(), 100);
         this.recordHelper = recordHelper;
     }

@@ -22,7 +22,7 @@ public enum RailRecordTransactionType {
         this.code = code;
     }
 
-    public static RailRecordTransactionType parse(char theChar) {
+    public static RailRecordTransactionType parse(final char theChar) {
         if (map.containsKey(theChar)) {
             return map.get(theChar);
         }
