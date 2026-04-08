@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.BasicScheduleExtraDetails;
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ public class BasicScheduleExtraDetailsTest {
 
     @Test
     void shouldParseCorrectly() {
-        String line = "BX         EMYEM813500";
+        Line line = Line.of("BX         EMYEM813500");
 
         BasicScheduleExtraDetails extraDetails = BasicScheduleExtraDetails.parse(line, recordHelper);
 

@@ -41,23 +41,24 @@ public class RecordHelper {
      * @return the extracted record
      */
     public String extract(final String text, final int begin, final int end) {
-        final int length = text.length();
+        final int totalLength = text.length();
 
         // change to zero-indexed, rail standards are index'ed from 1
         final int realBegin = begin - 1;
         final int realEnd = end - 1;
 
-        if (realBegin > length) {
+        if (realBegin > totalLength) {
 //            throw new RuntimeException("Index out of range " + realBegin + "'" + text + "'");
             logger.warn(format("Record length too short (begin) was %s but looking for substring(%s,%s) in '%s'",
-                    length, begin, end, text));
+                    totalLength, begin, end, text));
             return "";
         }
-        if (realEnd > length) {
+        if (realEnd > totalLength) {
 //            throw new RuntimeException("Index out of range " + realEnd + "'" + text + "'");
             logger.warn(format("Record length too short (end) was %s but looking for substring(%s,%s) in '%s'",
-                    length, begin, end, text));
-            return trimmedSubstring(text, realBegin, length-1);
+                    totalLength, begin, end, text));
+            // trim to length
+            return trimmedSubstring(text, realBegin, totalLength-1);
         }
 
         return trimmedSubstring(text, realBegin, realEnd);
@@ -77,7 +78,7 @@ public class RecordHelper {
         return new String(source.getBytes(), begin, length);
     }
 
-    public TramDate extractTramDate(final String text, final int begin, final int century) {
+    public TramDate extractTramDate(final Line text, final int begin, final int century) {
         return TramDate.parseSimple(text, century, begin);
     }
 
@@ -88,14 +89,30 @@ public class RecordHelper {
      * @return TramTime or TramTime.Invalid
      */
     public TramTime extractTime(final String text, final int begin) {
-        if (text.isBlank()) {
+        final String timeText = trimmedSubstring(text, begin, begin + 4);
+        if (timeText.isEmpty()) {
             return TramTime.invalid();
         }
-        final String timeText = text.substring(begin, begin+4);
-        return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(text, begin));
+        //final String timeText = text.substring(begin, begin+4);
+        return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(timeText, 0));
     }
 
-    public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final String text, final int begin, final int end) {
-        return locationActivityCodeParser.parse( extract(text, begin, end));
+    public TramTime extractTime(final Line line, final int begin) {
+        final String timeText = line.extract(begin, begin+5);
+        if (timeText.isEmpty()) {
+            return TramTime.invalid();
+        }
+        //final String timeText = text.substring(begin, begin+4);
+        return timeCache.computeIfAbsent(timeText, x -> TramTime.parseBasicFormat(timeText, 0));
+    }
+
+    public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final Line text, final int begin, final int end) {
+        final String substring = extract(text, begin, end);
+        return locationActivityCodeParser.parse(substring);
+    }
+
+    // Rail spec's index from one
+    public String extract(final Line line, final int begin, final int end) {
+        return line.extract(begin-1, end-1);
     }
 }

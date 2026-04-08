@@ -31,16 +31,16 @@ public class TIPLOCInsert implements RailTimetableRecord {
         this.corpus = corpus;
     }
 
-    public static TIPLOCInsert parse(final String line, final RecordHelper recordHelper) {
-        final String tiplocCode = recordHelper.extract(line, 3, 9+1);
-        final String corpus = recordHelper.extract(line,12,17+1);
-        final String name = recordHelper.extract(line, 19, 44+1);
-        final String crs = extractTruncatedSafe(line, 54, 56 + 1, recordHelper);
+    public static TIPLOCInsert parse(final Line line, final RecordHelper recordHelper) {
+        final String tiplocCode = recordHelper.extract(line, 3, 9);
+        final String corpus = recordHelper.extract(line,12,17);
+        final String name = recordHelper.extract(line, 19, 44);
+        final String crs = extractTruncatedSafe(line, 54, 56 , recordHelper);
 
         return new TIPLOCInsert(tiplocCode, name, crs, corpus);
     }
 
-    private static String extractTruncatedSafe(final String line, final int begin, final int end, final RecordHelper recordHelper) {
+    private static String extractTruncatedSafe(final Line line, final int begin, final int end, final RecordHelper recordHelper) {
         if (line.length()<end) {
             return "";
         }

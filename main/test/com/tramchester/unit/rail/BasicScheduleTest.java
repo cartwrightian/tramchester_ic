@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.BasicSchedule;
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.RailRecordTransactionType;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
@@ -35,7 +36,7 @@ public class BasicScheduleTest {
         // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
         // 00000000001111111111222222222233333333334444444444555555555566666666667777777777
 
-        String text = "BSNC532901705241709200000001 POO2T07    124207004 EMU319 100D     B            P";
+        Line text = Line.of("BSNC532901705241709200000001 POO2T07    124207004 EMU319 100D     B            P");
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
@@ -56,7 +57,7 @@ public class BasicScheduleTest {
 
     @Test
     void shouldParseBusServiceRecord() {
-        String text = "BSNG546602112122112190000001 BBS0B0028  125527005                              P";
+        Line text = Line.of("BSNG546602112122112190000001 BBS0B0028  125527005                              P");
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
@@ -77,7 +78,7 @@ public class BasicScheduleTest {
 
     @Test
     void shouldParseShipRecord() {
-        String text = "BSNP208612112142205140111110 S  0S000074122340000                 S A          P";
+        Line text = Line.of("BSNP208612112142205140111110 S  0S000074122340000                 S A          P");
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
@@ -94,7 +95,7 @@ public class BasicScheduleTest {
 
     @Test
     void shouldParseLondonUndergroundRecord() {
-        String text = "BSNC611912105162112050000001 POL2I01    124682004 EMU    045                   P";
+        Line text = Line.of("BSNC611912105162112050000001 POL2I01    124682004 EMU    045                   P");
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 
@@ -110,7 +111,7 @@ public class BasicScheduleTest {
 
     @Test
     void shouldParseBasicScheduleThatCancelsUnseenService() {
-        String text = "BSNX625452301292301290000001 1OO2K26    124782000 EMU    100D                  N";
+        Line text = Line.of("BSNX625452301292301290000001 1OO2K26    124782000 EMU    100D                  N");
 
         BasicSchedule basicSchedule = BasicSchedule.parse(text, century, recordHelper);
 

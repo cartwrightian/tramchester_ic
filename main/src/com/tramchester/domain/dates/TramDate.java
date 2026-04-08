@@ -3,6 +3,7 @@ package com.tramchester.domain.dates;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.mappers.serialisation.TramDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramDateJsonSerializer;
 
@@ -141,6 +142,23 @@ public class TramDate implements Comparable<TramDate> {
         final int month = parseTens(text, offset+2);
         final int day = parseTens(text, offset+4);
         return TramDate.of((century*100) + year, month, day);
+    }
+
+    public static TramDate parseSimple(final Line line, final int century, final int offset) {
+        final int year = parseTens(line, offset);
+        final int month = parseTens(line, offset+2);
+        final int day = parseTens(line, offset+4);
+        return TramDate.of((century*100) + year, month, day);
+    }
+
+    private static int parseTens(final Line text, final int offset) {
+        final char digit1 = text.charAt(offset);
+        final char digit2 = text.charAt(offset+1);
+
+        final int tens = Character.digit(digit1, 10);
+        final int unit = Character.digit(digit2, 10);
+
+        return (tens*10) + unit;
     }
 
     private static int parseTens(final String text, final int offset) {

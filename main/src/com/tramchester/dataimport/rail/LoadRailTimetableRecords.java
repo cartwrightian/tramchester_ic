@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.SkippedRecord;
 import com.tramchester.dataimport.rail.records.UnknownRecord;
@@ -62,37 +63,42 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     public Stream<RailTimetableRecord> load(final Reader in) {
         logger.info("Loading lines");
         final BufferedReader bufferedReader = new BufferedReader(in);
-        return bufferedReader.lines().map(this::processLine);
+        return bufferedReader.lines().map(text -> processLine(new Line(text)));
     }
 
-    private RailTimetableRecord processLine(final String line) {
+    private RailTimetableRecord processLine(final Line line) {
         final RailRecordType recordType = getRecordTypeFor(line);
-        return switch (recordType) {
-            case TiplocInsert -> factory.createTIPLOC(line);
-            case BasicSchedule -> factory.createBasicSchedule(line);
-            case OriginLocation -> factory.createOrigin(line);
-            case IntermediateLocation -> factory.createIntermediate(line);
-            case TerminatingLocation -> factory.createTerminating(line);
-            case BasicScheduleExtra -> factory.createBasicScheduleExtraDetails(line);
-            case Header -> logHeader(line);
-            case Association, ChangesEnRoute, Trailer
-                    -> skipRecord(recordType, line);
-            default -> throw new RuntimeException("Missing record type for " + line);
-        };
+        try {
+            return switch (recordType) {
+                case TiplocInsert -> factory.createTIPLOC(line);
+                case BasicSchedule -> factory.createBasicSchedule(line);
+                case OriginLocation -> factory.createOrigin(line);
+                case IntermediateLocation -> factory.createIntermediate(line);
+                case TerminatingLocation -> factory.createTerminating(line);
+                case BasicScheduleExtra -> factory.createBasicScheduleExtraDetails(line);
+                case Header -> logHeader(line);
+                case Association, ChangesEnRoute, Trailer -> skipRecord(recordType, line);
+                default -> throw new RuntimeException("Missing record type for " + line);
+            };
+        } catch (IndexOutOfBoundsException outOfBoundsException) {
+            String msg = "Got index out of bounds for recordType " + recordType + " line " + line;
+            logger.error(msg, outOfBoundsException);
+            throw new RuntimeException(msg, outOfBoundsException);
+        }
     }
 
-    private RailTimetableRecord skipRecord(final RailRecordType recordType, final String line) {
+    private RailTimetableRecord skipRecord(final RailRecordType recordType, final Line line) {
         // Record that for now we choose to ignore
         return new SkippedRecord(recordType, line);
     }
 
-    private RailTimetableRecord logHeader(final String line) {
+    private RailTimetableRecord logHeader(final Line line) {
         logger.info("Header: '" + line + "'");
         return new UnknownRecord(line);
     }
 
-    private RailRecordType getRecordTypeFor(final CharSequence line) {
-        return RailRecordType.parse(line.subSequence(0,2));
+    private RailRecordType getRecordTypeFor(final Line line) {
+        return RailRecordType.parse(line.subSequence(0,1));
     }
 
     @Override

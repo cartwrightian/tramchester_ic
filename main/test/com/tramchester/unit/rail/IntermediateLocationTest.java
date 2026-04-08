@@ -1,6 +1,7 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.IntermediateLocation;
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.collections.ImmutableEnumSet;
@@ -121,7 +122,7 @@ public class IntermediateLocationTest {
 
         IntermediateLocation intermediateLocation = parseWithPadding(text);
 
-        assertEquals(7, intermediateLocation.getTiplocCode().length());
+        assertEquals(7, intermediateLocation.getTiplocCode().length(), intermediateLocation.getTiplocCode());
         assertEquals("KEWGRDN", intermediateLocation.getTiplocCode());
         //assertFalse(intermediateLocation.isPassingRecord());
 
@@ -180,6 +181,6 @@ public class IntermediateLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return IntermediateLocation.parse(toParse, recordHelper);
+        return IntermediateLocation.parse(Line.of(toParse), recordHelper);
     }
 }

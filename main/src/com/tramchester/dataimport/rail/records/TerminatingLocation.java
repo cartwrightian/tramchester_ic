@@ -27,9 +27,9 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
         this.path = path;
     }
 
-    public static TerminatingLocation parse(final String text,
+    public static TerminatingLocation parse(final Line text,
                                             final RecordHelper recordHelper) {
-        final String path = recordHelper.extract(text,23, 25+1);
+        final String path = recordHelper.extract(text,23, 25);
         final ImmutableEnumSet<LocationActivityCode> activity = recordHelper.parseLocationActivityCode(text, 26, 37);
         if (activity.isEmpty()) {
             logger.warn("Unknown activity for " + text);

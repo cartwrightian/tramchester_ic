@@ -1,14 +1,17 @@
 package com.tramchester.unit.rail;
 
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.OriginLocation;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OriginLocationTest {
 
@@ -78,6 +81,15 @@ public class OriginLocationTest {
         assertTrue(originLocation.getActivity().contains(LocationActivityCode.TrainBegins));
     }
 
+    @Test
+    void shouldParseWithPathingAllowance() {
+        String text = "LOUPMNLT  2219 2219        15TB                                                 ";
+        OriginLocation originLocation = parseWithPadding(text);
+
+        assertEquals(ImmutableEnumSet.of(LocationActivityCode.TrainBegins), originLocation.getActivity());
+
+    }
+
     @NotNull
     private OriginLocation parseWithPadding(String text) {
         String toParse = text;
@@ -86,6 +98,6 @@ public class OriginLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return OriginLocation.parse(toParse, recordHelper);
+        return OriginLocation.parse(Line.of(toParse), recordHelper);
     }
 }

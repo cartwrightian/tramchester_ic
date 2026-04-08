@@ -72,24 +72,24 @@ public class BasicSchedule implements RailTimetableRecord {
         this.trainCategory = trainCategory;
     }
 
-    public static BasicSchedule parse(final String text, final int century, final RecordHelper recordHelper) {
+    public static BasicSchedule parse(final Line text, final int century, final RecordHelper recordHelper) {
         final char transactionTypeRaw = text.charAt(2); //RecordHelper.extract(text, 3, 4);
         final RailRecordTransactionType transactionType = RailRecordTransactionType.parse(transactionTypeRaw);
-        final String uniqueTrainId = recordHelper.extract(text, 4, 9+1);
-        final String headcode = recordHelper.extract(text, 33, 36+1);
+        final String uniqueTrainId = recordHelper.extract(text, 4, 9);
+        final String headcode = recordHelper.extract(text, 33, 36);
         final TramDate startDate = recordHelper.extractTramDate(text, 10-1, century);
         final TramDate endDate = recordHelper.extractTramDate(text, 16-1, century);
         final EnumSet<DayOfWeek> daysOfWeek = extractDays(text, 21);
         final char stpIndicatorRaw = text.charAt(80-1);
         final char trainStatusRaw = text.charAt(29);
-        final String trainCategoryRaw = recordHelper.extract(text, 31, 32+1);
+        final String trainCategoryRaw = recordHelper.extract(text, 31, 32);
         final TrainCategory trainCategory = TrainCategory.getFor(trainCategoryRaw);
         return new BasicSchedule(transactionType, uniqueTrainId, startDate, endDate, daysOfWeek,
                 ShortTermPlanIndicator.getFor(stpIndicatorRaw), headcode,
                 TrainStatus.getFor(trainStatusRaw), trainCategory);
     }
 
-    private static EnumSet<DayOfWeek> extractDays(final CharSequence line, final int begin) {
+    private static EnumSet<DayOfWeek> extractDays(final Line line, final int begin) {
 
         final Set<DayOfWeek> result = new HashSet<>();
         for (int day = 0; day < 7; day++) {

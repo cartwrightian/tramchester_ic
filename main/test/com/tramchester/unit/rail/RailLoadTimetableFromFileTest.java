@@ -5,6 +5,7 @@ import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.LoadRailTimetableRecords;
 import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.dataimport.rail.RailDataRecordFactory;
+import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -36,6 +37,22 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldParseHeader() {
+        final String lineA = "HDTPS.UCFCATE.PD1107191907112108DFTTIST       FA190711300912                    ";
+        final String sep = System.lineSeparator();
+
+        StringReader reader = new StringReader(lineA + sep);
+
+        replayAll();
+        Stream<RailTimetableRecord> stream = loadRailTimetableRecords.load(reader);
+        List<RailTimetableRecord> results = stream.toList();
+        verifyAll();
+
+        assertEquals(1, results.size());
+        assertEquals(RailRecordType.Unknown, results.getFirst().getRecordType());
+    }
+
+    @Test
     void shouldConsumeLinesAndCreateCorrectRecords() {
         final String lineA = "TIAACHEN 00081601LAACHEN                    00005   0";
         final String lineB = "BSNC532901705241709200000001 POO2T07    124207004 EMU319 100D     B            P";
@@ -46,13 +63,13 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
         final String sep = System.lineSeparator();
         StringReader reader = new StringReader(lineA + sep + lineB + sep + lineC + sep + lineD + sep + lineE + sep);
 
-        EasyMock.expect(factory.createTIPLOC(lineA)).andReturn(createMock(TIPLOCInsert.class));
-        EasyMock.expect(factory.createBasicSchedule(lineB)).andReturn(createMock(BasicSchedule.class));
-        EasyMock.expect(factory.createIntermediate(EasyMock.eq(lineC))).
+        EasyMock.expect(factory.createTIPLOC(Line.of(lineA))).andReturn(createMock(TIPLOCInsert.class));
+        EasyMock.expect(factory.createBasicSchedule(Line.of(lineB))).andReturn(createMock(BasicSchedule.class));
+        EasyMock.expect(factory.createIntermediate(EasyMock.eq(Line.of(lineC)))).
                 andReturn(createMock(IntermediateLocation.class));
-        EasyMock.expect(factory.createOrigin(EasyMock.eq(lineD))).
+        EasyMock.expect(factory.createOrigin(EasyMock.eq(Line.of(lineD)))).
                 andReturn(createMock(OriginLocation.class));
-        EasyMock.expect(factory.createTerminating(EasyMock.eq(lineE))).
+        EasyMock.expect(factory.createTerminating(EasyMock.eq(Line.of(lineE)))).
                 andReturn(createMock(TerminatingLocation.class));
 
         replayAll();

@@ -19,13 +19,13 @@ public abstract class OriginOrTerminatingLocation {
         this.activity = activity;
     }
 
-    protected static <T extends OriginOrTerminatingLocation> T parse(final String text, final Constructor<T> builder,
+    protected static <T extends OriginOrTerminatingLocation> T parse(final Line text, final Constructor<T> builder,
                                                                      final RecordHelper recordHelper) {
         // NOTE: for terminating and originating locations a suffix is added and docs give total length as 8
         // but this causes stations not to be found, so use length of 7 here
-        final String tiplocCode = recordHelper.extract(text, 3, 10);
+        final String tiplocCode = recordHelper.extract(text, 3, 9);
         final TramTime tramTime = recordHelper.extractTime(text, 15);
-        final String platform = recordHelper.extract(text, 20, 22+1).trim();
+        final String platform = recordHelper.extract(text, 20, 22);//.trim();
         return builder.create(tiplocCode, tramTime, platform);
     }
 

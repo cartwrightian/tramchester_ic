@@ -1,5 +1,6 @@
 package com.tramchester.unit.rail;
 
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.TerminatingLocation;
 import com.tramchester.domain.time.TramTime;
@@ -24,7 +25,6 @@ public class TerminatingLocationTest {
         locationActivityCodeParser = new Parser();
         recordHelper = new RecordHelper();
     }
-
 
     @Test
     void shouldParseRecord() {
@@ -112,6 +112,6 @@ public class TerminatingLocationTest {
             int padding = 80 - currentLen;
             toParse = toParse.concat(" ".repeat(padding));
         }
-        return TerminatingLocation.parse(toParse, recordHelper);
+        return TerminatingLocation.parse(Line.of(toParse), recordHelper);
     }
 }

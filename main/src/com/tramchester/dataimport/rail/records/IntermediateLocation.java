@@ -48,8 +48,8 @@ public class IntermediateLocation implements RailLocationRecord {
         this.activity = activity;
     }
 
-    public static IntermediateLocation parse(final String text, final RecordHelper recordHelper) {
-        final String tiplocCode = recordHelper.extract(text, 3, 10); // tiploc is 7 long
+    public static IntermediateLocation parse(final Line text, final RecordHelper recordHelper) {
+        final String tiplocCode = recordHelper.extract(text, 3, 9); // tiploc is 7 long
         final TramTime scheduledArrival = recordHelper.extractTime(text, 10);
         final TramTime scheduledDepart = recordHelper.extractTime(text, 15);
         final TramTime passingTime = recordHelper.extractTime(text, 20);

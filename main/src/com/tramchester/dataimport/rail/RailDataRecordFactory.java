@@ -17,27 +17,27 @@ public class RailDataRecordFactory {
         this.recordHelper = recordHelper;
     }
 
-    public RailTimetableRecord createTIPLOC(final String line) {
+    public RailTimetableRecord createTIPLOC(final Line line) {
         return TIPLOCInsert.parse(line, recordHelper);
     }
 
-    public RailTimetableRecord createBasicSchedule(final String line) {
+    public RailTimetableRecord createBasicSchedule(final Line line) {
         return BasicSchedule.parse(line, century, recordHelper);
     }
 
-    public RailTimetableRecord createOrigin(final String line) {
+    public RailTimetableRecord createOrigin(final Line line) {
         return OriginLocation.parse(line, recordHelper);
     }
 
-    public IntermediateLocation createIntermediate(final String line) {
+    public IntermediateLocation createIntermediate(final Line line) {
         return IntermediateLocation.parse(line, recordHelper);
     }
 
-    public TerminatingLocation createTerminating(final String line) {
+    public TerminatingLocation createTerminating(final Line line) {
         return TerminatingLocation.parse(line, recordHelper);
     }
 
-    public RailTimetableRecord createBasicScheduleExtraDetails(final String line) {
+    public RailTimetableRecord createBasicScheduleExtraDetails(final Line line) {
         return BasicScheduleExtraDetails.parse(line, recordHelper);
     }
 }

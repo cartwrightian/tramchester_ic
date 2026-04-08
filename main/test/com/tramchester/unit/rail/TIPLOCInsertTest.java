@@ -1,5 +1,6 @@
 package com.tramchester.unit.rail;
 
+import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.TIPLOCInsert;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,7 @@ public class TIPLOCInsertTest {
 
     @Test
     void shouldParseSimpleRecord() {
-        String text = "TIAACHEN 00081601LAACHEN                    00005   0";
+        Line text = Line.of("TIAACHEN 00081601LAACHEN                    00005   0");
 
         TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
@@ -27,8 +28,8 @@ public class TIPLOCInsertTest {
 
     @Test
     void shouldHaveRecordTruncated() {
-        String text = "TIBATRSH 24528866ABATTERSEA PIER STAFF HALT 87239   0";
-        //             01234567890123456789012345678901234567890123456789012
+        Line text = Line.of("TIBATRSH 24528866ABATTERSEA PIER STAFF HALT 87239   0");
+        //                        01234567890123456789012345678901234567890123456789012
         TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
         assertEquals("BATRSH", result.getTiplocCode());
@@ -45,7 +46,7 @@ public class TIPLOCInsertTest {
         // 01234567890123456789012345678901234567890123456789012
         // 0         1         2         3         4         5
 
-        String text = "TIBATRSPJ48528862ZBATTERSEA PIER JN.        87199   0";
+        Line text = Line.of("TIBATRSPJ48528862ZBATTERSEA PIER JN.        87199   0");
 
         TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
@@ -60,7 +61,7 @@ public class TIPLOCInsertTest {
         // 012345678901234567890123456789012345678901234567890123456789012345678901
         // 0         1         2         3         4         5
 
-        String text = "TITRNHMGN16073400DTURNHAM GREEN LT          87130   0ZTUTURNHAM GREEN LT";
+        Line text = Line.of("TITRNHMGN16073400DTURNHAM GREEN LT          87130   0ZTUTURNHAM GREEN LT");
 
         TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
