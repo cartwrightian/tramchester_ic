@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TFGMRouteNames {
-    BusOne("Replacement Bus 1", true),
-    BusTwo("Replacement Bus 2", true),
-    BusThree("Replacement Bus 3", true),
-    BusFour("Replacement Bus 4", true),
-    BusFive("Replacement Bus 5", true),
+    BusOne("Metrolink Replacement Bus 1", true),
+    BusTwo("Metrolink Replacement Bus 2", true),
+    BusThree("Metrolink Replacement Bus 3", true),
+    BusFour("Metrolink Replacement Bus 4", true),
+    BusFive("Metrolink Replacement Bus 5", true),
+    BusBlue("Metrolink Replacement Bus Blue Line", true),
 
     Red("Red Line", false),
     Pink("Pink Line", false),
@@ -26,12 +27,12 @@ public enum TFGMRouteNames {
     // exception will be thrown in TransportEntityFactoryForTFGM if it ever appears as a tram route
     public static final String EXT2_IS_A_BUS = "EXT2";
 
-    private final static Map<String, TFGMRouteNames> fromSource;
+    private final static Map<String, TFGMRouteNames> routeNameMap;
 
     static {
-        fromSource = new HashMap<>();
+        routeNameMap = new HashMap<>();
         for(TFGMRouteNames name : values()) {
-            fromSource.put(name.shortName, name);
+            routeNameMap.put(name.shortName, name);
         }
     }
 
@@ -44,10 +45,10 @@ public enum TFGMRouteNames {
     }
 
     public static TFGMRouteNames parseFromSource(final String text) {
-        if (!fromSource.containsKey(text)) {
-            throw new RuntimeException("Missing from Enum: route name '" + text + "'");
+        if (!routeNameMap.containsKey(text)) {
+            throw new RuntimeException("Missing from Enum: route name '" + text + "' not found in" + routeNameMap);
         }
-        return fromSource.get(text);
+        return routeNameMap.get(text);
     }
 
     public static TFGMRouteNames parseFromName(final String name) {

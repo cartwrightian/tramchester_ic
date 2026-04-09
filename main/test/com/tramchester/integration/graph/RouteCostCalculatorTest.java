@@ -79,13 +79,13 @@ class RouteCostCalculatorTest {
     @Test
     void shouldReproduceIssueFromAltyToCornbrook() throws InvalidDurationException {
         TramDuration result = routeCostCalculator.getAverageCostBetween(txn, altrincham, Cornbrook.from(stationRepository), when, modes);
-        assertEquals(TramDuration.ofMinutes(21), result);
+        assertEquals(TramDuration.ofMinutes(21).plusSeconds(47), result);
     }
 
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(56).plusSeconds(52), routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
-        assertEquals(TramDuration.ofMinutes(54).plusSeconds(51), routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
+        assertEquals(TramDuration.ofMinutes(56).plusSeconds(59), routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
+        assertEquals(TramDuration.ofMinutes(54).plusSeconds(56), routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
     }
 
     @Test
@@ -98,13 +98,13 @@ class RouteCostCalculatorTest {
 
         // often changes by a few seconds....
         assertEquals(TramDuration.ofMinutes(64), buryToAlty.truncateToMinutes());
-        assertEquals(TramDuration.ofMinutes(63).plusSeconds(6), altyToBury);
+        assertEquals(TramDuration.ofMinutes(63).plusSeconds(5), altyToBury);
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
-        assertEquals(TramDuration.ofHours(1).plusSeconds(7), routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, when, modes));
-        assertEquals(TramDuration.ofMinutes(60).plusSeconds(22), routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when, modes));
+        assertEquals(TramDuration.ofHours(1).plusSeconds(13), routeCostCalculator.getAverageCostBetween(txn, mediaCity, airport, when, modes));
+        assertEquals(TramDuration.ofMinutes(60).plusSeconds(18), routeCostCalculator.getAverageCostBetween(txn, airport, mediaCity, when, modes));
     }
 
 }

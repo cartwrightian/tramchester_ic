@@ -8,18 +8,27 @@ public class Line {
     final char[] chars;
 
     public Line(final String text) {
-        chars = text.toCharArray();
+        this(text.toCharArray());
+    }
+
+    private Line(final char[] chars) {
+        this.chars = chars;
     }
 
     public static Line of(final String text) {
         return new Line(text);
     }
 
+    public static Line of(final char[] chars) {
+        return new Line(Arrays.copyOf(chars, chars.length));
+    }
+
     public String extractToString(final int begin, final int end) {
         int count = end-begin;
 
         int previous = count+1;
-        while (Character.isWhitespace(chars[begin+count])) {
+        // assuming ascii
+        while (chars[begin+count]==32) {
             previous = count;
             if (count==0) {
                 return "";
@@ -69,5 +78,9 @@ public class Line {
         final char[] result = new char[count];
         System.arraycopy(chars, begin, result, 0, count);
         return result;
+    }
+
+    public boolean isEmpty() {
+        return chars.length==0;
     }
 }

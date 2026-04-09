@@ -15,6 +15,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.testSupport.UpcomingDates.ReplacementBusEaster2026;
 import static com.tramchester.testSupport.reference.KnownTramRoute.newRouteIdsDate;
 
 /*
@@ -24,39 +25,33 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.newRouteIdsDa
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses
-
-    ReplacementBusTwo(BusTwo, "Replacement Bus Two", "2736", Constants.replacementBusEaster2026),
-    ReplacementBusThree(BusThree, "Replacement Bus Three", "2361", TramDate.of(2026,4,3)),
-    ReplacementBusFour(BusFour, "Replacement Bus Four", "3229", TramDate.of(2026,4,3)),
-    ReplacementBusFive(BusFive, "Replacement Bus Five", "2177", TramDate.of(2026,4,3)),
+    ReplacementBusOne(BusOne, "Replacement Bus 1", "3080", ReplacementBusEaster2026),
+    ReplacementBusTwo(BusTwo, "Replacement Bus 2", "2736", ReplacementBusEaster2026),
+    ReplacementBusThree(BusThree, "Replacement Bus 3", "2361", ReplacementBusEaster2026),
+    ReplacementBusFour(BusFour, "Replacement Bus 4", "3229", ReplacementBusEaster2026),
+    ReplacementBusFive(BusFive, "Replacement Bus 5", "2177", ReplacementBusEaster2026),
+    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,11)),
 
     // Blue
-    //EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "3207", latestCutoverDate),
-    EcclesAshtonNewB(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", newRouteIdsDate),
+    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", newRouteIdsDate),
 
     // Green
-    //BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "3208", latestCutoverDate),
-    BuryManchesterAltrinchamB(Green, "Bury - Manchester - Altrincham", "3218", newRouteIdsDate.plusDays(1)),
+    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "3218", newRouteIdsDate),
 
     // Navy
-    //VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "3209", latestCutoverDate),
-    VictoriaManchesterAirportB(Navy, "Victoria - Wythenshawe - Manchester Airport", "3219", newRouteIdsDate),
+    VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "3219", newRouteIdsDate),
 
     // Pink
-    //RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3210", latestCutoverDate),
-    RochdaleManchesterEastDidisburyB(Pink, "Rochdale - Manchester - East Didsbury", "3220", newRouteIdsDate),
+    RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3220", newRouteIdsDate),
 
     // Purple
-    //EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3211", latestCutoverDate),
-    EtihadPiccadillyAltrinchamB(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", newRouteIdsDate),
+    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", newRouteIdsDate),
 
     // Red
-    //CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3212", latestCutoverDate),
-    CornbrookTheTraffordCentreB(Red, "Etihad Campus - The Trafford Centre", "3222", newRouteIdsDate),
+    CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3222", newRouteIdsDate),
 
     // Yellow
-    //AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3213", latestCutoverDate),
-    AshtonCrumpsallB(Yellow, "Ashton - Crumpsall Bay", "3223", newRouteIdsDate);
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3223", newRouteIdsDate);
 
 
     private final TFGMRouteNames line;
@@ -122,7 +117,4 @@ public enum KnownTramRouteEnum implements TestRoute {
         return line + "["+name()+"]";
     }
 
-    private static class Constants {
-        private static final TramDate replacementBusEaster2026 = TramDate.of(2026, 4, 3);
-    }
 }

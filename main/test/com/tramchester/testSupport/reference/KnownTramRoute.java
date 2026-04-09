@@ -18,7 +18,7 @@ public class KnownTramRoute {
 
     //public static final TramDate latestCutoverDate = TramDate.of(2026,3,25);
 
-    public static final TramDate newRouteIdsDate = TramDate.of(2026,3,29);
+    public static final TramDate newRouteIdsDate = TramDate.of(2026,4,7);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -79,16 +79,20 @@ public class KnownTramRoute {
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (AshtonLineApril2026.contains(date) || date.isAfter(AshtonLineApril2026.getEndDate())) {
+            if (AshtonLineApril2026.contains(date)) {
                 routes.add(find.apply(Green));
             }
         } else { // Not Sunday
             routes.add(find.apply(Green));
         }
 
-        if (!(AshtonLineApril2026.contains(date) || (AshtonLineMissing.contains(date)))) {
+        if (!(AshtonLineApril2026.contains(date))) {
             routes.add(find.apply(Purple));
             routes.add(find.apply(Yellow));
+        }
+
+        if (AshtonLineApril2026.contains(date)) {
+            routes.add(find.apply(BusBlue));
         }
 
         routes.add(find.apply(Navy));
@@ -99,9 +103,9 @@ public class KnownTramRoute {
         return routes;
     }
 
-    private static List<TestRoute> replacementBuses(Function<TFGMRouteNames, KnownTramRouteEnum> find) {
-        return Arrays.asList(find.apply(BusOne), find.apply(BusTwo), find.apply(BusThree), find.apply(BusFour), find.apply(BusFive));
-    }
+//    private static List<TestRoute> replacementBuses(Function<TFGMRouteNames, KnownTramRouteEnum> find) {
+//        return Arrays.asList(find.apply(BusOne), find.apply(BusTwo), find.apply(BusThree), find.apply(BusFour), find.apply(BusFive));
+//    }
 
     public static KnownTramRouteEnum findFor(final TFGMRouteNames line, final TramDate date) {
         final List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).

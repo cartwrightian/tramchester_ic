@@ -83,7 +83,7 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     private static ImmutableEnumSet<LocationActivityCode> getCodesFor(final String text) {
        final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
-        final String[] tokens = StringUtils.split(text,' '); //text.split(" ");
+        final String[] tokens = StringUtils.split(text,' ');
         for (final String token : tokens) {
             result.addAll(parseToken(token, result));
         }

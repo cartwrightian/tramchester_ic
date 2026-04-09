@@ -6,8 +6,6 @@ import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import jakarta.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,9 +13,8 @@ import java.util.concurrent.ConcurrentMap;
 
 @LazySingleton
 public class RecordHelper {
-    private static final Logger logger = LoggerFactory.getLogger(RecordHelper.class);
 
-    private final ConcurrentMap<String, TramTime> timeCache;
+    private final ConcurrentMap<Line, TramTime> timeCache;
     private final LocationActivityCode.Parser locationActivityCodeParser;
 
     @Inject
@@ -43,7 +40,8 @@ public class RecordHelper {
      */
     public TramTime extractTime(final Line line, final int begin) {
         char[] timeText = line.subArray(begin, 4);
-        return timeCache.computeIfAbsent(new String(timeText), key -> TramTime.parseBasicFormat(timeText));
+        //return TramTime.parseBasicFormat(timeText);
+        return timeCache.computeIfAbsent(Line.of(timeText), key -> TramTime.parseBasicFormat(timeText));
     }
 
     public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final Line text, final int begin, final int end) {

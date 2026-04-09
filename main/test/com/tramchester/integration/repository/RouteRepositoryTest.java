@@ -26,10 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -180,17 +177,14 @@ public class RouteRepositoryTest {
     @Test
     void shouldOverlapAsExpected() {
 
-        EnumSet<TFGMRouteNames> known = EnumSet.allOf(TFGMRouteNames.class);
-        known.remove(TFGMRouteNames.BusOne);
-        known.remove(TFGMRouteNames.BusTwo);
-        known.remove(TFGMRouteNames.BusThree);
-        known.remove(TFGMRouteNames.BusFour);
-        known.remove(TFGMRouteNames.BusFive);
+        Set<TFGMRouteNames> knownTram = Arrays.stream(TFGMRouteNames.values()).
+                filter(route -> !route.isReplacementBus()).
+                collect(Collectors.toSet());
 
         Set<RoutePair> noOverlap = new HashSet<>();
 
-        for (TFGMRouteNames knownRouteA : known) {
-            for (TFGMRouteNames knownRouteB : known) {
+        for (TFGMRouteNames knownRouteA : knownTram) {
+            for (TFGMRouteNames knownRouteB : knownTram) {
                 Route routeA = routeHelper.getOneRoute(knownRouteA, when);
                 Route routeB = routeHelper.getOneRoute(knownRouteB, when);
                 if (!routeA.isDateOverlap(routeB)) {

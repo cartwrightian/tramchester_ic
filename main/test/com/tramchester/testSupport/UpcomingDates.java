@@ -34,7 +34,7 @@ public class UpcomingDates {
 
     public static DateRange AshtonLineApril2026 = DateRange.of(TramDate.of(2026,4,11), 1);
 
-    public static DateRange AshtonLineMissing = DateRange.of(TramDate.of(2026, 4, 18), 1);
+    public static final TramDate ReplacementBusEaster2026 = TramDate.of(2026, 4, 3);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
