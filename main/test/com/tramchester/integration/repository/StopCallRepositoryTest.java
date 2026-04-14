@@ -19,7 +19,6 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -79,7 +78,6 @@ public class StopCallRepositoryTest {
         when = TestEnv.testDay();
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldGetStopCallsForAStation() {
         Set<Service> servicesForDate = serviceRepository.getServicesOnDate(when, config.getTransportModesImmutable());
@@ -106,7 +104,8 @@ public class StopCallRepositoryTest {
                 count();
         assertEquals(results.size(), correctTimes);
 
-        assertEquals(5, results.size(), results.toString());
+        // 15 min service -1
+        assertEquals(5-1, results.size(), results.toString());
     }
 
     @Test
@@ -168,7 +167,6 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 11)
     @Test
     void shouldFindUniqueCallingPointsEndOfALineDateRange() {
         DateRange range = DateRange.of(when, when.plusWeeks(1));

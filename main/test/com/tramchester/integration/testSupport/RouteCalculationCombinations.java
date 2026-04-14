@@ -50,15 +50,13 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         this.checksOpen = checksOpen;
     }
 
-    public CreatePairs getCreatePairs(TramDate date) {
+    public CreatePairs getCreatePairs(final TramDate date) {
         return new CreatePairs(stationRepository, routeEndRepository, interchangeRepository, date);
     }
 
     public static ChecksOpen<Station> checkStationOpen(final ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
-        return (stationId, date) -> {
-            return !( UpcomingDates.hasClosure(stationId, date) || closedStationRepository.isStationClosed(stationId, date) );
-        };
+        return (stationId, date) -> !( UpcomingDates.hasClosure(stationId, date) || closedStationRepository.isStationClosed(stationId, date) );
     }
 
     public static ChecksOpen<StationLocalityGroup> checkGroupOpen(final ComponentContainer componentContainer) {
@@ -89,7 +87,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
-                                                                             final JourneyRequest journeyRequest, final boolean check,
+                                                                  final JourneyRequest journeyRequest, final boolean check,
                                                                   final Duration timeout, final Running running) {
 
         if (stationIdPairs.isEmpty()) {
@@ -188,9 +186,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             this.date = date;
         }
 
-        public LocationIdPairSet<Station> createStationPairsForAll(final EnumSet<TransportMode> modes) {
-            return createStationPairsForAll(ImmutableEnumSet.copyOf(modes));
-        }
+//        public LocationIdPairSet<Station> createStationPairsForAll(final EnumSet<TransportMode> modes) {
+//            return createStationPairsForAll(ImmutableEnumSet.copyOf(modes));
+//        }
 
         public LocationIdPairSet<Station> createStationPairsForAll(final ImmutableEnumSet<TransportMode> modes) {
 
@@ -245,7 +243,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return createJourneyPairs(interchanges, endRoutes, date);
         }
 
-        public LocationIdPairSet<Station> interchangeToInterchange(TransportMode mode) {
+        public LocationIdPairSet<Station> interchangeToInterchange(final TransportMode mode) {
             return interchangeToInterchange(EnumSet.of(mode));
         }
 
@@ -279,8 +277,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                     collect(IdSet.idCollector());
         }
 
-        private LocationIdPairSet<Station> createJourneyPairs(ImmutableIdSet<Station> starts, ImmutableIdSet<Station> ends, TramDate date) {
-            LocationIdPairSet<Station> combinations = new LocationIdPairSet<>();
+        private LocationIdPairSet<Station> createJourneyPairs(final ImmutableIdSet<Station> starts, final ImmutableIdSet<Station> ends,
+                                                              final TramDate date) {
+            final LocationIdPairSet<Station> combinations = new LocationIdPairSet<>();
             for (IdFor<Station> start : starts) {
                 for (IdFor<Station> dest : ends) {
                     if (!dest.equals(start)) {

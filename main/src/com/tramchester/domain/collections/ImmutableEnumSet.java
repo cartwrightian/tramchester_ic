@@ -25,8 +25,8 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
         return createFrom(EnumSet.noneOf(theClass));
     }
 
-    public static <S extends Enum<S>> EnumSet<S> createEnumSet(final ImmutableEnumSet<S> labels) {
-        return EnumSet.copyOf(labels.getContained());
+    public static <S extends Enum<S>> EnumSet<S> createEnumSet(final ImmutableEnumSet<S> items) {
+        return EnumSet.copyOf(items.getContained());
     }
 
     /***
@@ -81,7 +81,7 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
 
     public abstract boolean anyIntersectionWith(ImmutableEnumSet<T> other);
 
-    public abstract boolean anyIntersectionWith(Set<T> other);
+    public abstract boolean anyIntersectionWith(EnumSet<T> other);
 
     public abstract <D extends Enum<D>> ImmutableEnumSet<D> convertTo(Class<D> targetClass, Function<T, D> convert);
 
@@ -128,12 +128,12 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
         }
 
         @Override
-        public boolean contains(T item) {
+        public boolean contains(final T item) {
             return this.item.equals(item);
         }
 
         @Override
-        public Sets.SetView<T> intersectionWith(ImmutableEnumSet<T> other) {
+        public Sets.SetView<T> intersectionWith(final ImmutableEnumSet<T> other) {
             return other.intersectionWith(this);
         }
 
@@ -148,17 +148,17 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
         }
 
         @Override
-        public boolean anyIntersectionWith(ImmutableEnumSet<T> other) {
+        public boolean anyIntersectionWith(final ImmutableEnumSet<T> other) {
             return other.contains(item);
         }
 
         @Override
-        public boolean anyIntersectionWith(Set<T> other) {
+        public boolean anyIntersectionWith(final EnumSet<T> other) {
             return other.contains(item);
         }
 
         @Override
-        public <D extends Enum<D>> ImmutableEnumSet<D> convertTo(Class<D> targetClass, Function<T, D> convert) {
+        public <D extends Enum<D>> ImmutableEnumSet<D> convertTo(final Class<D> targetClass, Function<T, D> convert) {
             return new One<>(convert.apply(item));
         }
 
@@ -184,7 +184,7 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
         }
 
         @Override
-        public void forEach(Consumer<? super T> action) {
+        public void forEach(final Consumer<? super T> action) {
             action.accept(item);
         }
     }
@@ -250,7 +250,7 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
         }
 
         @Override
-        public boolean anyIntersectionWith(final Set<T> other) {
+        public boolean anyIntersectionWith(final EnumSet<T> other) {
             for (final T item : other) {
                 if (contains(item)) {
                     return true;

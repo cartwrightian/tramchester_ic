@@ -198,6 +198,7 @@ public class ServiceHeuristics {
             return reasons.recordReason(HeuristicsReasons.RouteNotToday(howIGotHere, currentRoute.getId()));
         }
 
+        // this is expensive but does produce better overall performance
         final int fewestChanges = lowestCostsForDestRoutes.getFewestChanges(currentRoute);
 
         if (fewestChanges > currentChangesLimit) {

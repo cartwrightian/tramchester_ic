@@ -342,12 +342,13 @@ public class GraphCore implements Graph {
             final GraphNodeId begin = relationship.getStartId();
             final GraphNodeId end = relationship.getEndId();
 
-            deleteRelationshipFrom(begin, relId);
-            deleteRelationshipFrom(end, relId);
+            final TransportRelationshipTypes type = relationship.getType();
+            deleteRelationshipFrom(begin, relId, type);
+            deleteRelationshipFrom(end, relId, type);
 
             nodesAndEdges.removeRelationship(relId);
 
-            relationshipTypeCounts.decrement(relationship.getType());
+            relationshipTypeCounts.decrement(type);
         }
     }
 
@@ -370,8 +371,9 @@ public class GraphCore implements Graph {
         }
     }
 
-    private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId) {
-        relationshipsForNodes.removeFrom(graphNodeId, relationshipId);
+    private void deleteRelationshipFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId,
+                                        TransportRelationshipTypes type) {
+        relationshipsForNodes.removeFrom(graphNodeId, relationshipId, type);
     }
 
     @Override
@@ -702,10 +704,11 @@ public class GraphCore implements Graph {
             }
         }
 
-        public synchronized void removeFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId) {
+        public synchronized void removeFrom(final GraphNodeId graphNodeId, final RelationshipIdInMemory relationshipId,
+                                            final TransportRelationshipTypes type) {
             if (theMap.containsKey(graphNodeId)) {
                 final RelationshipsForNode relationshipsForNode = theMap.get(graphNodeId);
-                relationshipsForNode.remove(relationshipId);
+                relationshipsForNode.remove(relationshipId, type);
             }
         }
 

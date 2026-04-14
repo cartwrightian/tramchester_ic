@@ -32,9 +32,13 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange AshtonLineApril2026 = DateRange.of(TramDate.of(2026,4,11), 1);
+    public static DateRange AshtonLineLateApril2026 = DateRange.of(TramDate.of(2026,4,25), 1);
 
-    public static final TramDate ReplacementBusEaster2026 = TramDate.of(2026, 4, 3);
+    public static DateRange BlueReplaceBusEarlyMay = DateRange.of(TramDate.of(2026,5,2), 1);
+    public static DateRange BlueReplaceBusMidMay = DateRange.of(TramDate.of(2026,5,9), 1);
+
+    public static TramDate earlyMayBankHold = TramDate.of(2026, 5,4);
+    public static TramDate lateMayBankHold = TramDate.of(2026, 5,25);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);

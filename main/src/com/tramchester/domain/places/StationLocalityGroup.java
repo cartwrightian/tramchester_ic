@@ -187,7 +187,7 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
         return groupedStations.stream().anyMatch(predicate);
     }
 
-    private <R> Set<R> flatten(Function<Station, Collection<R>> map) {
+    private <R> Set<R> flatten(final Function<Station, Collection<R>> map) {
         return groupedStations.stream().
                 flatMap(station -> map.apply(station).stream()).
                 collect(Collectors.toUnmodifiableSet());

@@ -87,6 +87,7 @@ dependencies {
             'commons-codec:commons-codec:1.21.0',
             'org.apache.commons:commons-collections4:4.5.0',
             'org.apache.commons:commons-compress:1.28.0',
+            'org.apache.commons:commons-lang3:3.0',
             'com.github.ben-manes.caffeine:caffeine:3.2.3'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
@@ -467,6 +468,7 @@ tasks.register('integrationGM', Test) {
     dependsOn 'compileJava'
     minHeapSize = "1g"
     maxHeapSize = "3g"
+    outputs.upToDateWhen { false }
     useJUnitPlatform {
         includeTags "GMTest"
         includeTags "dataExpiry"
@@ -480,6 +482,8 @@ tasks.register('integrationGM', Test) {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    classpath = sourceSets.test.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
 }
 
 tasks.register('dataUpdated', Test) {
@@ -514,6 +518,8 @@ tasks.register('integrationBus', Test) {
         events = logEvents
         exceptionFormat = "full" // default is "short"
     }
+    classpath = sourceSets.test.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
 }
 
 tasks.register('integrationRail', Test) {
@@ -521,36 +527,6 @@ tasks.register('integrationRail', Test) {
     useJUnitPlatform {
         includeTags "TrainTest"
     }
-}
-
-tasks.register('graphTests', Test) {
-    configure integrationTestConfiguration
-    dependsOn 'compileJava'
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
-    useJUnitPlatform()
-    filter {
-        includeTestsMatching "com.tramchester.integration.graph.*"
-    }
-    testLogging {
-        events = logEvents
-        exceptionFormat = "full" // default is "short"
-    }
-}
-
-tasks.register('buildGraphTest', Test) {
-    dependsOn 'compileJava'
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
-    useJUnitPlatform()
-    filter {
-        includeTestsMatching "com.tramchester.integration.graph.GraphBuildAndStartTest"
-    }
-    testLogging {
-        events = logEvents
-        exceptionFormat = "full" // default is "short"
-    }
-    configure integrationTestConfiguration
 }
 
 def acceptanceTestConfiguration = {
@@ -775,21 +751,3 @@ tasks.register('tidy') {
     }
 }
 
-//
-//tasks.register('allowhost') {
-//    dependsOn 'cfnassist'
-//    doLast {
-//        ant.cfnassist(project: 'tramchesterB', env: environment) {
-//            WhiteList(port: '443', tag: 'web')
-//        }
-//    }
-//}
-//
-//tasks.register('blockhost') {
-//    dependsOn 'cfnassist'
-//    doLast {
-//        ant.cfnassist(project: 'tramchesterB', env: environment) {
-//            BlackList(port: '443', tag: 'web')
-//        }
-//    }
-//}

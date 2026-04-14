@@ -2,26 +2,25 @@ package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 class RelationshipsForNode {
-    private final Set<RelationshipIdInMemory> outboundIds;
-    private final Set<RelationshipIdInMemory> inboundIds;
-    private final ConcurrentMap<RelationshipIdInMemory, TransportRelationshipTypes> typeMap;
+    private final ConcurrentMap<TransportRelationshipTypes, Set<RelationshipIdInMemory>> outboundIds;
+    private final ConcurrentMap<TransportRelationshipTypes, Set<RelationshipIdInMemory>> inboundIds;
+
+    //private final ConcurrentMap<RelationshipIdInMemory, TransportRelationshipTypes> typeMap;
 
     private static final RelationshipsForNode empty = new RelationshipsForNode();
 
     RelationshipsForNode() {
-        outboundIds = new HashSet<>();
-        inboundIds = new HashSet<>();
-        typeMap = new ConcurrentHashMap<>();
+        outboundIds = new ConcurrentHashMap<>();
+        inboundIds = new ConcurrentHashMap<>();
+        //typeMap = new ConcurrentHashMap<>();
     }
 
     public static RelationshipsForNode empty() {
@@ -30,27 +29,45 @@ class RelationshipsForNode {
 
     public Stream<GraphRelationshipInMemory>  getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
         synchronized (outboundIds) {
-            return outboundIds.stream().map(source::get);
+            return getOutbounds().map(source::get);
+            //return outboundIds.stream().map(source::get);
         }
+    }
+
+    private @NotNull Stream<RelationshipIdInMemory> getOutbounds() {
+        return outboundIds.values().stream().flatMap(Collection::stream);
     }
 
     public Stream<GraphRelationshipInMemory> getOutbound(final ConcurrentMap<RelationshipIdInMemory, GraphRelationshipInMemory> source,
                                                          final ImmutableEnumSet<TransportRelationshipTypes> types) {
         synchronized (outboundIds) {
-            return outboundIds.stream().filter(id -> types.contains(typeMap.get(id))).map(source::get);
+            return types.stream().
+                    filter(outboundIds::containsKey).
+                    flatMap(type -> outboundIds.get(type).stream()).
+                    map(source::get);
+            //return outboundIds.stream().filter(id -> types.contains(typeMap.get(id))).map(source::get);
         }
     }
 
     public Stream<GraphRelationshipInMemory> getInbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
         synchronized (inboundIds) {
-            return inboundIds.stream().map(source::get);
+            return getInbounds().map(source::get);
+            //return inboundIds.stream().map(source::get);
         }
+    }
+
+    private @NotNull Stream<RelationshipIdInMemory> getInbounds() {
+        return inboundIds.values().stream().flatMap(Collection::stream);
     }
 
     public Stream<GraphRelationshipInMemory> getInbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source,
                                                         final ImmutableEnumSet<TransportRelationshipTypes> types) {
         synchronized (inboundIds) {
-            return inboundIds.stream().filter(id -> types.contains(typeMap.get(id))).map(source::get);
+            return types.stream().
+                    filter(inboundIds::containsKey).
+                    flatMap(type -> inboundIds.get(type).stream()).
+                    map(source::get);
+            //return inboundIds.stream().filter(id -> types.contains(typeMap.get(id))).map(source::get);
         }
     }
 
@@ -60,9 +77,13 @@ class RelationshipsForNode {
      * @return true if added new outbound
      */
     public boolean putOutbound(final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes relationshipType) {
-        typeMap.put(relationshipId, relationshipType);
+        //typeMap.put(relationshipId, relationshipType);
         synchronized (outboundIds) {
-            return outboundIds.add(relationshipId);
+            if (!outboundIds.containsKey(relationshipType)) {
+                outboundIds.put(relationshipType, new HashSet<>());
+            }
+            return outboundIds.get(relationshipType).add(relationshipId);
+            //return outboundIds.add(relationshipId);
         }
     }
 
@@ -72,20 +93,34 @@ class RelationshipsForNode {
      * @return true if added new inbound
      */
     public boolean putInbound(final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes relationshipType) {
-        typeMap.put(relationshipId, relationshipType);
+        //typeMap.put(relationshipId, relationshipType);
         synchronized (inboundIds) {
-            return inboundIds.add(relationshipId);
+            if (!inboundIds.containsKey(relationshipType)) {
+                inboundIds.put(relationshipType, new HashSet<>());
+            }
+            return inboundIds.get(relationshipType).add(relationshipId);
+            //return inboundIds.add(relationshipId);
         }
     }
 
-    public boolean remove(final RelationshipIdInMemory relationshipId) {
-        boolean flag;
-        typeMap.remove(relationshipId);
+    public boolean remove(final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes type) {
+        boolean flag = false;
+        //typeMap.remove(relationshipId);
         synchronized (outboundIds) {
-            flag = outboundIds.remove(relationshipId);
+            if (outboundIds.containsKey(type)) {
+                flag = outboundIds.get(type).remove(relationshipId);
+                if (outboundIds.get(type).isEmpty()) {
+                    outboundIds.remove(type);
+                }
+            }
         }
         synchronized (inboundIds) {
-            flag = flag || inboundIds.remove(relationshipId);
+            if (inboundIds.containsKey(type)) {
+                flag = flag || inboundIds.get(type).remove(relationshipId);
+                if (inboundIds.get(type).isEmpty()) {
+                    inboundIds.remove(type);
+                }
+            }
         }
         return flag;
     }
@@ -99,7 +134,7 @@ class RelationshipsForNode {
         return "RelationshipsForNode{" +
                 "outbound=" + outboundIds +
                 ", inbound=" + inboundIds +
-                ", typeMap=" + typeMap +
+                //", typeMap=" + typeMap +
                 '}';
     }
 
@@ -116,7 +151,7 @@ class RelationshipsForNode {
     }
 
     public synchronized Stream<RelationshipIdInMemory> getRelationshipIds() {
-        return Stream.concat(outboundIds.stream(), inboundIds.stream());
+        return Stream.concat(getOutbounds(), getInbounds());
     }
 
 

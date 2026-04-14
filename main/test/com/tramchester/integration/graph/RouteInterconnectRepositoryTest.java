@@ -167,7 +167,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 11)
+    @DisabledUntilDate(year = 2026, month = 4, day = 19)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -235,7 +235,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 11)
+    @DisabledUntilDate(year = 2026, month = 4, day = 19)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -278,7 +278,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 11)
+    @DisabledUntilDate(year = 2026, month = 4, day = 19)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);

@@ -79,21 +79,28 @@ public class KnownTramRoute {
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (AshtonLineApril2026.contains(date)) {
+//            if (AshtonLineApril2026.contains(date)) {
+//                routes.add(find.apply(Green));
+//            }
+        } else { // Not Sunday
+            if (! (earlyMayBankHold.equals(date) || lateMayBankHold.equals(date))) {
                 routes.add(find.apply(Green));
             }
-        } else { // Not Sunday
-            routes.add(find.apply(Green));
         }
 
-        if (!(AshtonLineApril2026.contains(date))) {
-            routes.add(find.apply(Purple));
-            routes.add(find.apply(Yellow));
-        }
-
-        if (AshtonLineApril2026.contains(date)) {
+        if (AshtonLineLateApril2026.contains(date)
+                || BlueReplaceBusEarlyMay.contains(date) || BlueReplaceBusMidMay.contains(date)) {
             routes.add(find.apply(BusBlue));
         }
+
+//        if (!(AshtonLineApril2026.contains(date))) {
+            routes.add(find.apply(Purple));
+            routes.add(find.apply(Yellow));
+//        }
+//
+//        if (AshtonLineApril2026.contains(date)) {
+//            routes.add(find.apply(BusBlue));
+//        }
 
         routes.add(find.apply(Navy));
         routes.add(find.apply(Pink));

@@ -38,7 +38,9 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public GraphTransaction asImmutable() {
         if (immutable) {
-            logger.warn("Already immutable");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Already immutable");
+            }
             return this;
         } else {
             logger.info("Wrap immutable");

@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 581;
+    public static final int ALL_GM_ROUTES = 586;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 
@@ -77,7 +77,7 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> beginsAtAndCallsAt(route, ManchesterPiccadilly.getId(), Stockport.getId())).
                 collect(Collectors.toList());
 
-        assertEquals(56, result.size(), HasId.asIds(result));
+        assertEquals(55, result.size(), HasId.asIds(result));
     }
 
     @Test

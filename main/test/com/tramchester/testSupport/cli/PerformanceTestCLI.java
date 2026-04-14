@@ -43,7 +43,7 @@ public class PerformanceTestCLI extends BaseCLI {
             throw new RuntimeException("Expected 2 arguments: <config file> <scope> <transaction timeout minutes>");
         }
         final Path configFile = Paths.get(args[0]).toAbsolutePath();
-        Scope scope = Scope.valueOf(args[1]);
+        final Scope scope = Scope.valueOf(args[1]);
         final int transactionTimeout = Integer.parseInt(args[2]);
         logger.info("Config from: " + configFile +  " scope: " + scope + " txn timeout: " + transactionTimeout);
 

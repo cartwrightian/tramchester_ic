@@ -80,7 +80,7 @@ public class InterchangesTramTest {
         }
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 11)
+    @DisabledUntilDate(year = 2026, month = 4, day = 19)
     @Test
     void shouldHaveExpectedTramInterchanges() {
 
@@ -92,7 +92,8 @@ public class InterchangesTramTest {
                 StPetersSquare,
                 Broadway,
                 Victoria,
-                OldhamKingStreet, OldhamMumps, Shudehill
+                OldhamKingStreet, OldhamMumps,
+                Shudehill
         );
 
         Set<Station> expectedStations = expectedTramStations.

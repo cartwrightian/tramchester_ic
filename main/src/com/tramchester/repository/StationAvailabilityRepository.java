@@ -200,14 +200,14 @@ public class StationAvailabilityRepository {
 
         final Set<Service> services = servicesForLocations.get(locationId);
 
-        boolean modesMatch = services.stream().
+        final boolean modesMatch = services.stream().
                 anyMatch(service -> service.anyOverlapWith(requestedModes));
 
         if (!modesMatch) {
             logger.warn("No services modes overlap for " + locationId + " and " + requestedModes);
         }
 
-        boolean datesMatch = services.stream().
+        final boolean datesMatch = services.stream().
                 anyMatch(service -> service.getCalendar().operatesOn(date));
 
         if (!datesMatch) {

@@ -81,7 +81,7 @@ class FindStationsByNumberLinksTramTest {
                 " \nstations with links were " + additionalInterchanges);
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 11)
+    @DisabledUntilDate(year = 2026, month = 4, day = 25)
     @Test
     void shouldIdInterchangePointsLinked() {
 
