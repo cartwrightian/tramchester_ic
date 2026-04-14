@@ -533,9 +533,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         // platform -> station
-        final MutableGraphRelationship crossFromPlatform = createRelationship(txn, platformNode, stationNode, LEAVE_PLATFORM);
-        crossFromPlatform.setCost(TramDuration.ZERO);
-        crossFromPlatform.set(station);
+        if (platformNode.hasRelationship(txn, Outgoing, LEAVE_PLATFORM, stationNode)) {
+            logger.warn("Already had LEAVE_PLATFORM from " + platform.getId() + " to " + station.getId());
+        } else {
+            final MutableGraphRelationship crossFromPlatform = createRelationship(txn, platformNode, stationNode, LEAVE_PLATFORM);
+            crossFromPlatform.setCost(TramDuration.ZERO);
+            crossFromPlatform.set(station);
+        }
     }
 
 
