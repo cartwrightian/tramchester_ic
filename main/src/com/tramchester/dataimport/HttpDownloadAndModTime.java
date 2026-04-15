@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.http.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -44,8 +45,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
     public HttpDownloadAndModTime() {
 
-        // TODO Could we use Redirect Policy here insteaf of handrolled solution?
-        //  Maybe not since handrolled contains workarounds got various bugs and issues
+        // TODO Could we use Redirect Policy here instead of hand-rolled solution?
+        //  Maybe not since hand-rolled contains workarounds for various bugs and issues with data providers...
         client = HttpClient.newBuilder().
                 connectTimeout(HEADER_FETCH_TIMEOUT).
                 build();
@@ -228,8 +229,19 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             }
 
         } catch (IOException | InterruptedException exception) {
-            String msg = format("Unable to download data from %s to %s exception %s", originalUrl, path, exception);
+            final String msg = format("Unable to download data from %s to %s exception %s", originalUrl, path, exception);
             logger.error(msg);
+
+            // failed downloads cause issues with unzip etc
+            final Path absolutePath = path.toAbsolutePath();
+            try {
+                logger.warn(format("Attempting to delete %s due to exception", absolutePath));
+                Files.deleteIfExists(path);
+                logger.warn(format("Deleted %s due to exception", absolutePath));
+            } catch (IOException ioException) {
+                logger.error("Failed to delete " + absolutePath, ioException);
+            }
+
             throw new RuntimeException(msg,exception);
         }
 
