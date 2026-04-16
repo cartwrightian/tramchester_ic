@@ -58,7 +58,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // easter 2026
-    public static final int NumberOfStationLinks = 204 + 16;
+    public static final int NumberOfStationLinks = 204;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
