@@ -15,7 +15,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.reference.KnownTramRoute.newRouteIdsDate;
+import static com.tramchester.testSupport.reference.KnownTramRoute.routeChangeOverDate;
 
 /*
  * see also TramRouteHelper
@@ -32,25 +32,25 @@ public enum KnownTramRouteEnum implements TestRoute {
     ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,11)),
 
     // Blue
-    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", newRouteIdsDate),
+    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", routeChangeOverDate),
 
     // Green
-    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "3218", newRouteIdsDate),
+    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "3218", routeChangeOverDate),
 
     // Navy
-    VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "3219", newRouteIdsDate),
+    VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "3219", routeChangeOverDate),
 
     // Pink
-    RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3220", newRouteIdsDate),
+    RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3220", routeChangeOverDate),
 
     // Purple
-    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", newRouteIdsDate),
+    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", routeChangeOverDate),
 
     // Red
-    CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3222", newRouteIdsDate),
+    CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3222", routeChangeOverDate),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3223", newRouteIdsDate);
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3223", routeChangeOverDate);
 
 
     private final TFGMRouteNames line;

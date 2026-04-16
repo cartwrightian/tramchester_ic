@@ -202,7 +202,7 @@ public class StationRepositoryTest {
 
         // platform
         assertTrue(station.hasPlatforms());
-        assertEquals(2, station.getPlatforms().size());
+        assertEquals(1, station.getPlatforms().size());
         final Optional<Platform> maybePlatformOne = station.getPlatforms().
                 stream().filter(platform -> platform.getId().equals(expectedId))
                 .findFirst();
@@ -282,12 +282,12 @@ public class StationRepositoryTest {
 
         IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertEquals(2, dropOffs.size(), dropOffs.toString());
+        assertEquals(1, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(blueRouteId));
 
         IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertEquals(2, pickUps.size(), pickUps.toString());
+        assertEquals(1, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(blueRouteId));
     }
 

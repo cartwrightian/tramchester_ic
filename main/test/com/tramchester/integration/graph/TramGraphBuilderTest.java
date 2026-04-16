@@ -110,7 +110,7 @@ class TramGraphBuilderTest {
         List<GraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
 
         // easter closures, bus links
-        assertEquals(3+2, list.size());
+        assertEquals(3, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -196,8 +196,7 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> list = outboundLinks.toList();
 
-        // easter closures, bus link to timperley
-        assertEquals(2, list.size(), list.toString());
+        assertEquals(1, list.size(), list.toString());
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
