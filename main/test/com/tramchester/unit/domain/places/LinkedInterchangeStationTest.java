@@ -4,7 +4,6 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -81,7 +80,7 @@ public class LinkedInterchangeStationTest {
         LinkedInterchangeStation tramInterchange = new LinkedInterchangeStation(tramToTrain);
 
         assertTrue(tramInterchange.isMultiMode());
-        assertEquals(ImmutableEnumSetImpl.of(Tram, Train), tramInterchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, Train), tramInterchange.getTransportModes());
 
         assertEquals(tramId, tramInterchange.getStationId());
         assertEquals(tramStation, tramInterchange.getStation());
@@ -99,7 +98,7 @@ public class LinkedInterchangeStationTest {
         pickupRoutes = tramInterchange.getPickupRoutes();
         assertEquals(3, pickupRoutes.size());
 
-        assertEquals(ImmutableEnumSetImpl.of(Tram, Train, Bus), tramInterchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, Train, Bus), tramInterchange.getTransportModes());
 
 
 //        InterchangeStation trainInterchange = new LinkedInterchangeStation(trainToTram);

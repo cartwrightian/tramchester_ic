@@ -7,7 +7,6 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -32,7 +31,10 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.TramBusTest;
 import org.junit.jupiter.api.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -58,7 +60,7 @@ public class NeighbourJourneysTest {
     private TramDuration maxJourneyDuration;
     private TramDate date;
     private TimeRange timeRange;
-    private final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSetImpl.of(Bus, Tram);
+    private final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Bus, Tram);
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

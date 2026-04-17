@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -151,7 +150,7 @@ public class GraphSerializationTest {
             assertEquals(2, trips.size());
             assertTrue(trips.contains(tripA));
             assertTrue(trips.contains(tripB));
-            assertEquals(ImmutableEnumSetImpl.of(Bus,Tram), result.getTransportModes());
+            assertEquals(ImmutableEnumSet.of(Bus,Tram), result.getTransportModes());
 
         }
         catch(ClassCastException e) {
@@ -246,7 +245,7 @@ public class GraphSerializationTest {
         assertEquals(relationship, result);
 
         try {
-            assertEquals(ImmutableEnumSetImpl.of(Bus,Tram), result.getTransportModes());
+            assertEquals(ImmutableEnumSet.of(Bus,Tram), result.getTransportModes());
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);

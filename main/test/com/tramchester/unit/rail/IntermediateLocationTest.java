@@ -5,7 +5,6 @@ import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,7 +142,7 @@ public class IntermediateLocationTest {
 
         assertEquals("HOPTONH", intermediateLocation.getTiplocCode());
 
-        assertEquals(ImmutableEnumSetImpl.of(LocationActivityCode.StopsWhenRequired), intermediateLocation.getActivity());
+        assertEquals(ImmutableEnumSet.of(LocationActivityCode.StopsWhenRequired), intermediateLocation.getActivity());
         assertTrue(intermediateLocation.doesStop(), intermediateLocation.toString());
     }
 

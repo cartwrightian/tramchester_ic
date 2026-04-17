@@ -3,7 +3,6 @@ package com.tramchester.unit.graph.inMemory;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -487,7 +486,7 @@ public class TransactionManagerTest extends EasyMockSupport {
                 assertNotNull(singleIncoming);
                 assertEquals(relationshipA.getId(), singleIncoming.getId());
 
-                List<GraphRelationship> atStart = start.getRelationships(txn, GraphDirection.Both, ImmutableEnumSetImpl.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
+                List<GraphRelationship> atStart = start.getRelationships(txn, GraphDirection.Both, ImmutableEnumSet.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
                 assertEquals(2, atStart.size());
                 assertTrue(atStart.contains(relationshipA));
                 assertTrue(atStart.contains(relationshipB));
@@ -584,7 +583,7 @@ public class TransactionManagerTest extends EasyMockSupport {
             assertFalse(start.hasRelationship(txn, Incoming, TRAIN_GOES_TO));
             assertFalse(end.hasRelationship(txn, Outgoing, TRAIN_GOES_TO));
 
-            List<GraphRelationship> foundBoth = start.getRelationships(txn, Both, ImmutableEnumSetImpl.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
+            List<GraphRelationship> foundBoth = start.getRelationships(txn, Both, ImmutableEnumSet.of(FERRY_GOES_TO, TRAIN_GOES_TO)).toList();
             assertTrue(foundBoth.isEmpty());
 
             assertEquals(0, txn.findRelationships(FERRY_GOES_TO).count());

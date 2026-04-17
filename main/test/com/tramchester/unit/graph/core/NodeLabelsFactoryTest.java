@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph.core;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.graph.core.inMemory.NodeLabelsFactory;
 import com.tramchester.graph.reference.GraphLabel;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +20,8 @@ public class NodeLabelsFactoryTest {
 
     @Test
     void shouldReturnSameLabelsSet() {
-        ImmutableEnumSet<GraphLabel> originalA = ImmutableEnumSetImpl.of(BUS, HOUR);
-        ImmutableEnumSet<GraphLabel> originalB = ImmutableEnumSetImpl.of(BUS, HOUR);
+        ImmutableEnumSet<GraphLabel> originalA = ImmutableEnumSet.of(BUS, HOUR);
+        ImmutableEnumSet<GraphLabel> originalB = ImmutableEnumSet.of(BUS, HOUR);
 
         ImmutableEnumSet<GraphLabel> resultA = factory.getFor(originalA);
         ImmutableEnumSet<GraphLabel> resultB = factory.getFor(originalB);

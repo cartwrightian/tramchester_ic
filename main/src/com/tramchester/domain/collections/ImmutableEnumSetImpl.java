@@ -29,37 +29,6 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         return EnumSet.copyOf(items.getContained());
     }
 
-    /***
-     * Use singleton() where possible
-     * @param item item to place into Set
-     * @return Immutable Enum Set
-     * @param <S> Must be an Enum
-     */
-    @Deprecated
-    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S item) {
-        return new One<>(item);
-    }
-
-    @Deprecated
-    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB) {
-        return createFrom(EnumSet.of(itemA, itemB));
-    }
-
-    @Deprecated
-    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC) {
-        return createFrom(EnumSet.of(itemA, itemB, itemC));
-    }
-
-    @Deprecated
-    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC, final S itemD) {
-        return createFrom(EnumSet.of(itemA, itemB, itemC, itemD));
-    }
-
-    @Deprecated
-    public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC, final S itemD, final S itemE) {
-        return createFrom(EnumSet.of(itemA, itemB, itemC, itemD, itemE));
-    }
-
     static <S extends Enum<S>> ImmutableEnumSet<S> join(final ImmutableEnumSetImpl<S> setA, final ImmutableEnumSetImpl<S> setB) {
         if (setA.isEmpty()) {
             return setB;
@@ -74,10 +43,6 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
 
     static <S extends Enum<S>> ImmutableEnumSet<S> allOf(final Class<S> theClass) {
         return createFrom(EnumSet.allOf(theClass));
-    }
-
-    public static <S extends Enum<S>> ImmutableEnumSet<S> range(final S begin, final S end) {
-        return createFrom(EnumSet.range(begin, end));
     }
 
     @Override

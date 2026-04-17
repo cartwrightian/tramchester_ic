@@ -2,7 +2,6 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -11,7 +10,10 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -110,7 +112,7 @@ class StationLocalityGroupTest {
         assertTrue(transportModes.contains(Tram));
         assertTrue(transportModes.contains(Bus));
 
-        assertTrue(stationGroup.anyOverlapWith(ImmutableEnumSetImpl.of(Tram,Bus)));
+        assertTrue(stationGroup.anyOverlapWith(ImmutableEnumSet.of(Tram,Bus)));
         assertTrue(stationGroup.anyOverlapWith(BusesOnly));
         assertTrue(stationGroup.anyOverlapWith(TransportMode.TramsOnly));
 

@@ -2,7 +2,6 @@ package com.tramchester.unit.domain.collections;
 
 import com.google.common.collect.Sets;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.reference.GraphLabel;
 import org.junit.jupiter.api.Test;
@@ -16,12 +15,12 @@ public class ImmutableEnumSetTest {
 
     @Test
     void shouldCreateWithOneItem() {
-        ImmutableEnumSet<TransportMode> set = ImmutableEnumSetImpl.of(Tram);
+        ImmutableEnumSet<TransportMode> set = ImmutableEnumSet.of(Tram);
 
-        ImmutableEnumSet<TransportMode> otherA = ImmutableEnumSetImpl.of(Tram);
+        ImmutableEnumSet<TransportMode> otherA = ImmutableEnumSet.of(Tram);
         assertEquals(set, otherA);
 
-        ImmutableEnumSet<TransportMode> otherB = ImmutableEnumSetImpl.of(Bus);
+        ImmutableEnumSet<TransportMode> otherB = ImmutableEnumSet.of(Bus);
         assertNotEquals(set, otherB);
 
         assertEquals(1, set.size());
@@ -29,14 +28,14 @@ public class ImmutableEnumSetTest {
         assertTrue(set.contains(Tram));
         assertFalse(set.contains(Bus));
 
-        assertTrue(set.anyIntersectionWith(ImmutableEnumSetImpl.of(Tram)));
-        assertTrue(set.anyIntersectionWith(ImmutableEnumSetImpl.of(Bus,Tram)));
-        assertFalse(set.anyIntersectionWith(ImmutableEnumSetImpl.of(Bus,Ferry)));
+        assertTrue(set.anyIntersectionWith(ImmutableEnumSet.of(Tram)));
+        assertTrue(set.anyIntersectionWith(ImmutableEnumSet.of(Bus,Tram)));
+        assertFalse(set.anyIntersectionWith(ImmutableEnumSet.of(Bus,Ferry)));
 
-        Sets.SetView<TransportMode> resultA = set.intersectionWith(ImmutableEnumSetImpl.of(Bus, Ferry));
+        Sets.SetView<TransportMode> resultA = set.intersectionWith(ImmutableEnumSet.of(Bus, Ferry));
         assertTrue(resultA.isEmpty());
 
-        Sets.SetView<TransportMode> resultB = set.intersectionWith(ImmutableEnumSetImpl.of(Bus, Tram));
+        Sets.SetView<TransportMode> resultB = set.intersectionWith(ImmutableEnumSet.of(Bus, Tram));
         assertEquals(1, resultB.size());
         assertTrue(resultB.contains(Tram));
 
@@ -60,7 +59,7 @@ public class ImmutableEnumSetTest {
 
     @Test
     void shouldHandleTransitionOneToManyAndVisaVersa() {
-        ImmutableEnumSet<TransportMode> set = ImmutableEnumSetImpl.of(Tram);
+        ImmutableEnumSet<TransportMode> set = ImmutableEnumSet.of(Tram);
 
         EnumSet<TransportMode> enumSet = ImmutableEnumSet.createEnumSet(set);
         assertEquals(1, enumSet.size());
@@ -69,10 +68,10 @@ public class ImmutableEnumSetTest {
         ImmutableEnumSet<TransportMode> mergeSame = ImmutableEnumSet.join(set, set);
         assertEquals(1, mergeSame.size());
 
-        ImmutableEnumSet<TransportMode> mergeDiff = ImmutableEnumSet.join(set, ImmutableEnumSetImpl.of(Bus, Ferry));
+        ImmutableEnumSet<TransportMode> mergeDiff = ImmutableEnumSet.join(set, ImmutableEnumSet.of(Bus, Ferry));
         assertEquals(3, mergeDiff.size());
 
-        ImmutableEnumSet<TransportMode> largerSet = ImmutableEnumSetImpl.of(Tram, Ferry, Bus);
+        ImmutableEnumSet<TransportMode> largerSet = ImmutableEnumSet.of(Tram, Ferry, Bus);
 
         ImmutableEnumSet<TransportMode> removedResult = largerSet.without(EnumSet.of(Tram, Ferry));
         assertEquals(1, removedResult.size());
@@ -81,12 +80,12 @@ public class ImmutableEnumSetTest {
 
     @Test
     void shouldCreateWithOneManyItem() {
-        ImmutableEnumSet<TransportMode> set = ImmutableEnumSetImpl.of(Tram, Walk, RailReplacementBus);
+        ImmutableEnumSet<TransportMode> set = ImmutableEnumSet.of(Tram, Walk, RailReplacementBus);
 
-        ImmutableEnumSet<TransportMode> otherA = ImmutableEnumSetImpl.of(Tram, Walk, RailReplacementBus);
+        ImmutableEnumSet<TransportMode> otherA = ImmutableEnumSet.of(Tram, Walk, RailReplacementBus);
         assertEquals(set, otherA);
 
-        ImmutableEnumSet<TransportMode> otherB = ImmutableEnumSetImpl.of(Bus, Ferry);
+        ImmutableEnumSet<TransportMode> otherB = ImmutableEnumSet.of(Bus, Ferry);
         assertNotEquals(set, otherB);
 
         assertEquals(3, set.size());
@@ -96,14 +95,14 @@ public class ImmutableEnumSetTest {
         assertTrue(set.contains(RailReplacementBus));
         assertFalse(set.contains(Bus));
 
-        assertTrue(set.anyIntersectionWith(ImmutableEnumSetImpl.of(Tram)));
-        assertTrue(set.anyIntersectionWith(ImmutableEnumSetImpl.of(Bus,Tram)));
-        assertFalse(set.anyIntersectionWith(ImmutableEnumSetImpl.of(Bus,Ferry)));
+        assertTrue(set.anyIntersectionWith(ImmutableEnumSet.of(Tram)));
+        assertTrue(set.anyIntersectionWith(ImmutableEnumSet.of(Bus,Tram)));
+        assertFalse(set.anyIntersectionWith(ImmutableEnumSet.of(Bus,Ferry)));
 
-        Sets.SetView<TransportMode> resultA = set.intersectionWith(ImmutableEnumSetImpl.of(Bus, Ferry));
+        Sets.SetView<TransportMode> resultA = set.intersectionWith(ImmutableEnumSet.of(Bus, Ferry));
         assertTrue(resultA.isEmpty());
 
-        Sets.SetView<TransportMode> resultB = set.intersectionWith(ImmutableEnumSetImpl.of(Bus, Tram));
+        Sets.SetView<TransportMode> resultB = set.intersectionWith(ImmutableEnumSet.of(Bus, Tram));
         assertEquals(1, resultB.size());
         assertTrue(resultB.contains(Tram));
 

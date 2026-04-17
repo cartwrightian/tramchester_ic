@@ -4,7 +4,6 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -455,7 +454,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     @Test
     void shouldExcludeIfStationIsClosed() throws TramchesterException {
 
-        final ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSetImpl.of(ROUTE_STATION, TRAM);
+        final ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSet.of(ROUTE_STATION, TRAM);
         ImmutableEnumSet<GraphLabel> requestedLabels = TRAM.singleton();
 
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -509,7 +508,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     void shouldIncludeIfNotOnTramNode() throws TramchesterException {
 //        BranchState<JourneyState> branchState = new TestBranchState();
 
-        final ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSetImpl.of(ROUTE_STATION, TRAM);
+        final ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSet.of(ROUTE_STATION, TRAM);
 
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
@@ -522,7 +521,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(createValidReason(NeighbourConnectionsOk));
         EasyMock.expect(serviceHeuristics.checkModes(labels, TRAM.singleton(), howIGotHere, reasons)).
                 andStubReturn(createValidReason(TransportModeOk));
-        EasyMock.expect(serviceHeuristics.checkModesMatchForFinalChange(0, ImmutableEnumSetImpl.of(ROUTE_STATION, TRAM),
+        EasyMock.expect(serviceHeuristics.checkModesMatchForFinalChange(0, ImmutableEnumSet.of(ROUTE_STATION, TRAM),
                 TRAM.singleton(), howIGotHere, reasons)).andStubReturn(createValidReason(NumChangesOK));
 
         TramTime time = TramTime.of(8, 15);

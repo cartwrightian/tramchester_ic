@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
@@ -82,7 +82,7 @@ class StationTest {
 
         assertEquals(2, station.getTransportModes().size());
 
-        assertTrue(station.anyOverlapWith(ImmutableEnumSetImpl.of(Train, Tram)));
+        assertTrue(station.anyOverlapWith(ImmutableEnumSet.of(Train, Tram)));
         assertTrue(station.anyOverlapWith(RailOnly));
         assertTrue(station.anyOverlapWith(RailOnly));
 

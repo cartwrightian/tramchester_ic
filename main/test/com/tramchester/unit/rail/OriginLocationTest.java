@@ -4,7 +4,7 @@ import com.tramchester.dataimport.rail.records.Line;
 import com.tramchester.dataimport.rail.records.OriginLocation;
 import com.tramchester.dataimport.rail.records.RecordHelper;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +86,7 @@ public class OriginLocationTest {
         String text = "LOUPMNLT  2219 2219        15TB                                                 ";
         OriginLocation originLocation = parseWithPadding(text);
 
-        assertEquals(ImmutableEnumSetImpl.of(LocationActivityCode.TrainBegins), originLocation.getActivity());
+        assertEquals(ImmutableEnumSet.of(LocationActivityCode.TrainBegins), originLocation.getActivity());
 
     }
 

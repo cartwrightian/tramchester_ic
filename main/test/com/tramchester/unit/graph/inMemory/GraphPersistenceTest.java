@@ -3,7 +3,7 @@ package com.tramchester.unit.graph.inMemory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.inMemory.*;
@@ -67,16 +67,16 @@ public class GraphPersistenceTest extends EasyMockSupport {
 
         nodesAndEdges = new NodesAndEdges();
 
-        GraphNodeInMemory nodeA = new GraphNodeInMemory(new NodeIdInMemory(1), ImmutableEnumSetImpl.of(GraphLabel.STATION), false);
+        GraphNodeInMemory nodeA = new GraphNodeInMemory(new NodeIdInMemory(1), ImmutableEnumSet.of(GraphLabel.STATION), false);
         nodeA.setTransportMode(Tram);
         nodesAndEdges.addNode(nodeA.getId(), nodeA);
 
-        GraphNodeInMemory nodeB = new GraphNodeInMemory(new NodeIdInMemory(2), ImmutableEnumSetImpl.of(GraphLabel.PLATFORM), false);
+        GraphNodeInMemory nodeB = new GraphNodeInMemory(new NodeIdInMemory(2), ImmutableEnumSet.of(GraphLabel.PLATFORM), false);
         nodeB.setPlatformNumber(buryPlatform);
         nodeB.set(buryPlatform.getStation());
         nodesAndEdges.addNode(nodeB.getId(), nodeB);
 
-        versionNode = new GraphNodeInMemory(new NodeIdInMemory(3), ImmutableEnumSetImpl.of(GraphLabel.VERSION), false);
+        versionNode = new GraphNodeInMemory(new NodeIdInMemory(3), ImmutableEnumSet.of(GraphLabel.VERSION), false);
         versionNode.setTime(time);
         versionNode.setStartDate(date);
         nodesAndEdges.addNode(versionNode.getId(), versionNode);

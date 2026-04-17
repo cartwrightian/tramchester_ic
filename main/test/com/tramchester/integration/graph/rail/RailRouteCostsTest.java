@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -60,7 +59,7 @@ public class RailRouteCostsTest {
         manPicc = ManchesterPiccadilly.from(stationRepository);
         wilmslow = Wilmslow.from(stationRepository);
 
-        modes = ImmutableEnumSetImpl.of(TransportMode.Train, TransportMode.RailReplacementBus);
+        modes = ImmutableEnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
     }
 
     /***

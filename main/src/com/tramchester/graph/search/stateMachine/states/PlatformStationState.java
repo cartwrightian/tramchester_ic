@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -82,7 +81,7 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode stationNode, final TramDuration cost,
                                                 final JourneyStateUpdate journeyState, final GraphTransaction txn) {
 
-            final ImmutableEnumSet<TransportRelationshipTypes> fromGrouped = ImmutableEnumSetImpl.of(ENTER_PLATFORM, GROUPED_TO_PARENT);
+            final ImmutableEnumSet<TransportRelationshipTypes> fromGrouped = ImmutableEnumSet.of(ENTER_PLATFORM, GROUPED_TO_PARENT);
 
             final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromGrouped);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
