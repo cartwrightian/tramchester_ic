@@ -3,7 +3,6 @@ package com.tramchester.dataimport.rail.records.reference;
 // https://wiki.openraildata.com/index.php?title=Activity_codes
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.EnumSet;
@@ -56,13 +55,13 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     // TrainBegins and TrainFinishes seem to be used inconsistently,
     // i.e. TF is not always paired with T even when train does actually drop off passengers
 
-    private static final ImmutableEnumSet<LocationActivityCode> dropOffs = ImmutableEnumSetImpl.of(TrainFinishes, StopsToSetDownPassengers,
+    private static final ImmutableEnumSet<LocationActivityCode> dropOffs = ImmutableEnumSet.of(TrainFinishes, StopsToSetDownPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
 
-    private static final ImmutableEnumSet<LocationActivityCode> pickUps = ImmutableEnumSetImpl.of(TrainBegins, StopsToTakeUpPassengers,
+    private static final ImmutableEnumSet<LocationActivityCode> pickUps = ImmutableEnumSet.of(TrainBegins, StopsToTakeUpPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired);
 
-    private static final ImmutableEnumSet<LocationActivityCode> stops = ImmutableEnumSetImpl.copyOf(EnumSet.of(TrainBegins, TrainFinishes,
+    private static final ImmutableEnumSet<LocationActivityCode> stops = ImmutableEnumSet.copyOf(EnumSet.of(TrainBegins, TrainFinishes,
             StopsToSetDownPassengers, StopsToTakeUpPassengers,
             StopsToTakeUpAndSetDownPassengers, StopsWhenRequired));
 
@@ -75,7 +74,7 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     private static ImmutableEnumSet<LocationActivityCode> parse(final String code) {
         final String lookup = code.trim();
         if (lookup.isEmpty()) {
-            return ImmutableEnumSetImpl.noneOf(LocationActivityCode.class);
+            return ImmutableEnumSet.noneOf(LocationActivityCode.class);
         }
 
         return getCodesFor(lookup);
@@ -88,7 +87,7 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
         for (final String token : tokens) {
             result.addAll(parseToken(token, result));
         }
-        return ImmutableEnumSetImpl.copyOf(result);
+        return ImmutableEnumSet.copyOf(result);
     }
 
     private static EnumSet<LocationActivityCode> parseToken(final String token, final EnumSet<LocationActivityCode> accumulator) {

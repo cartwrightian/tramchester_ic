@@ -5,7 +5,6 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -106,7 +105,7 @@ public class MutableStation implements Station {
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        return ImmutableEnumSetImpl.copyOf(modes);
+        return ImmutableEnumSet.copyOf(modes);
     }
 
     @Override

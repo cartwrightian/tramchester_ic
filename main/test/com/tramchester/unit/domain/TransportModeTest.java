@@ -1,7 +1,6 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +34,7 @@ public class TransportModeTest {
         short[] numbers = { 1 , 4 , 8};
         ImmutableEnumSet<TransportMode> result = TransportMode.fromNumbers(numbers);
 
-        assertEquals(ImmutableEnumSetImpl.copyOf(EnumSet.of(Bus, Walk, Ship)), result);
+        assertEquals(ImmutableEnumSet.copyOf(EnumSet.of(Bus, Walk, Ship)), result);
     }
 
     @Test
@@ -45,7 +44,7 @@ public class TransportModeTest {
 
         ImmutableEnumSet<TransportMode> result = TransportMode.parseCSV(text);
 
-        assertEquals(ImmutableEnumSetImpl.of(Bus, Walk, Ship), result);
+        assertEquals(ImmutableEnumSet.of(Bus, Walk, Ship), result);
     }
 
     @Test

@@ -5,7 +5,6 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -175,7 +174,7 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
     }
 
     @Override
-    public ImmutableEnumSetImpl<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModes() {
         return flattenEnum(Station::getTransportModes);
     }
 
@@ -194,11 +193,11 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
                 collect(Collectors.toUnmodifiableSet());
     }
 
-    private <R extends Enum<R>> ImmutableEnumSetImpl<R> flattenEnum(Function<Station, ImmutableEnumSet<R>> map) {
+    private <R extends Enum<R>> ImmutableEnumSet<R> flattenEnum(Function<Station, ImmutableEnumSet<R>> map) {
         final Set<R> collect = groupedStations.stream().
                 flatMap(station -> map.apply(station).stream()).
                 collect(Collectors.toUnmodifiableSet());
-        return ImmutableEnumSetImpl.copyOf(collect);
+        return ImmutableEnumSet.copyOf(collect);
     }
 
 

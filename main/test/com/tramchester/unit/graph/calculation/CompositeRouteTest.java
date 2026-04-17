@@ -7,7 +7,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -120,7 +119,7 @@ class CompositeRouteTest {
         RunningRoutesAndServices runningRoutesAndServices = componentContainer.get(RunningRoutesAndServices.class);
         Service svcA = transportData.getServiceById(Service.createId("serviceAId"));
         RunningRoutesAndServices.FilterForDate running = runningRoutesAndServices.getFor(queryDate,
-                ImmutableEnumSetImpl.copyOf(config.getTransportModes()));
+                ImmutableEnumSet.copyOf(config.getTransportModes()));
         assertTrue(running.isServiceRunningByTime(svcA.getId(), queryTime, 10), svcA.toString());
     }
 

@@ -7,7 +7,6 @@ import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.id.*;
@@ -297,16 +296,16 @@ public class Interchanges implements InterchangeRepository {
      * @return transport modes for only those destinations that are interchange, which might be none of them
      */
     @Override
-    public ImmutableEnumSetImpl<TransportMode> getInterchangeModes(final LocationCollection destinations) {
+    public ImmutableEnumSet<TransportMode> getInterchangeModes(final LocationCollection destinations) {
         final Set<TransportMode> modes = destinations.locationStream().
                 filter(this::isInterchange).
                 map(this::getInterchange).
                 flatMap(interchangeStation -> interchangeStation.getTransportModes().stream()).
                 collect(Collectors.toSet());
         if (modes.isEmpty()) {
-            return ImmutableEnumSetImpl.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         } else {
-            return ImmutableEnumSetImpl.copyOf(modes);
+            return ImmutableEnumSet.copyOf(modes);
         }
     }
 
@@ -315,7 +314,7 @@ public class Interchanges implements InterchangeRepository {
         if (isInterchange(location)) {
             return getInterchange(location).getTransportModes();
         } else {
-            return ImmutableEnumSetImpl.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         }
     }
 

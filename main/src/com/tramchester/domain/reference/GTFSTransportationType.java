@@ -1,9 +1,11 @@
 package com.tramchester.domain.reference;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public enum GTFSTransportationType {
 
@@ -65,6 +67,6 @@ public enum GTFSTransportationType {
     public static ImmutableEnumSet<TransportMode> toTransportMode(Set<GTFSTransportationType> gtfsTransportationTypes) {
         EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);
         gtfsTransportationTypes.forEach(gtfsTransportationType -> result.add(toTransportMode(gtfsTransportationType)));
-        return ImmutableEnumSetImpl.copyOf(result);
+        return ImmutableEnumSet.copyOf(result);
     }
 }

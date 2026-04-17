@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
@@ -79,7 +78,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         final TramDuration maxDuration = TramDuration.ofMinutes(gridQueryDTO.getMaxDuration());
 
         // todo into parameters
-        final ImmutableEnumSet<TransportMode> allModes = ImmutableEnumSetImpl.copyOf(config.getTransportModes());
+        final ImmutableEnumSet<TransportMode> allModes = ImmutableEnumSet.copyOf(config.getTransportModes());
 
         int maxChanges = gridQueryDTO.getMaxChanges();
         final JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,

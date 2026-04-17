@@ -2,7 +2,6 @@ package com.tramchester.config;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -134,7 +133,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract BoundingBox getBounds();
 
     public ImmutableEnumSet<TransportMode> getTransportModesImmutable() {
-        return ImmutableEnumSetImpl.copyOf(getTransportModes());
+        return ImmutableEnumSet.copyOf(getTransportModes());
     }
 
     public EnumSet<TransportMode> getTransportModes() {

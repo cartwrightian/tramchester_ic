@@ -2,7 +2,6 @@ package com.tramchester.testSupport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
@@ -40,7 +39,7 @@ public class DiagramCreator {
 
     private final GraphDatabase graphDatabase;
     private final ImmutableEnumSet<TransportRelationshipTypes> toplevelRelationships =
-            ImmutableEnumSetImpl.copyOf(EnumSet.of(LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION,
+            ImmutableEnumSet.copyOf(EnumSet.of(LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION,
                     ENTER_PLATFORM, LEAVE_PLATFORM, DIVERSION_DEPART));
 
     private final StationRepository stationRepository;
@@ -154,7 +153,7 @@ public class DiagramCreator {
 
     private Stream<GraphRelationship> getRelationships(GraphNode targetNode, GraphDirection direction,
                                                        boolean toplevelOnly, GraphTransaction txn) {
-        final ImmutableEnumSet<TransportRelationshipTypes> types = toplevelOnly ?  toplevelRelationships : ImmutableEnumSetImpl.allOf(TransportRelationshipTypes.class);
+        final ImmutableEnumSet<TransportRelationshipTypes> types = toplevelOnly ?  toplevelRelationships : ImmutableEnumSet.allOf(TransportRelationshipTypes.class);
         return targetNode.getRelationships(txn, direction, types);
     }
 

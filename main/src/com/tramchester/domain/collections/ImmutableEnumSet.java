@@ -23,6 +23,18 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
         return ImmutableEnumSetImpl.join((ImmutableEnumSetImpl<S>)itemsA, (ImmutableEnumSetImpl<S>)itemsB);
     }
 
+    static <S extends Enum<S>> ImmutableEnumSet<S> copyOf(Set<S> items) {
+        return ImmutableEnumSetImpl.copyOf(items);
+    }
+
+    static <S extends Enum<S>> ImmutableEnumSet<S> noneOf(Class<S> theClass) {
+        return ImmutableEnumSetImpl.noneOf(theClass);
+    }
+
+    static <S extends Enum<S>> ImmutableEnumSet<S> allOf(Class<S> theClass) {
+        return ImmutableEnumSetImpl.allOf(theClass);
+    }
+
     Stream<T> stream();
 
     boolean contains(T item);

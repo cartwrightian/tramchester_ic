@@ -2,7 +2,6 @@ package com.tramchester.graph.core.inMemory;
 
 import com.google.common.collect.ImmutableMap;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -207,9 +206,9 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     public ImmutableEnumSet<TransportMode> getTransportModes() {
         if (hasProperty(TRANSPORT_MODES)) {
             final Set<TransportMode> theSet = (Set<TransportMode>) getProperty(TRANSPORT_MODES);
-            return ImmutableEnumSetImpl.copyOf(theSet);
+            return ImmutableEnumSet.copyOf(theSet);
         } else {
-            return ImmutableEnumSetImpl.noneOf(TransportMode.class);
+            return ImmutableEnumSet.noneOf(TransportMode.class);
         }
     }
 

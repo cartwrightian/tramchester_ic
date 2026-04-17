@@ -39,14 +39,14 @@ public class PlatformStationState extends StationState {
         @Override
         public PlatformStationState fromWalking(final WalkingState walkingState, final GraphNode stationNode, final TramDuration cost,
                                                 final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final ImmutableEnumSet<TransportRelationshipTypes> fromWalking = ImmutableEnumSetImpl.of(ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR);
+            final ImmutableEnumSet<TransportRelationshipTypes> fromWalking = ImmutableEnumSet.of(ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR);
             final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromWalking);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromPlatform(final PlatformState platformState, final GraphNode stationNode, final TramDuration cost,
                                                  final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final ImmutableEnumSet<TransportRelationshipTypes> fromPlatform = ImmutableEnumSetImpl.of(WALKS_FROM_STATION, ENTER_PLATFORM,
+            final ImmutableEnumSet<TransportRelationshipTypes> fromPlatform = ImmutableEnumSet.of(WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromPlatform);
             final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
@@ -60,7 +60,7 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode stationNode, final TramDuration cost,
                                               final JourneyStateUpdate journeyState,
                                               final GraphTransaction txn) {
-            final ImmutableEnumSet<TransportRelationshipTypes> fromStart = ImmutableEnumSetImpl.of(WALKS_FROM_STATION, GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
+            final ImmutableEnumSet<TransportRelationshipTypes> fromStart = ImmutableEnumSet.of(WALKS_FROM_STATION, GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
             final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromStart);
             final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
@@ -70,7 +70,7 @@ public class PlatformStationState extends StationState {
         @Override
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final TramDuration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            final ImmutableEnumSet<TransportRelationshipTypes> fromNeighbour = ImmutableEnumSetImpl.of(ENTER_PLATFORM, GROUPED_TO_PARENT);
+            final ImmutableEnumSet<TransportRelationshipTypes> fromNeighbour = ImmutableEnumSet.of(ENTER_PLATFORM, GROUPED_TO_PARENT);
 
             final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromNeighbour);
 

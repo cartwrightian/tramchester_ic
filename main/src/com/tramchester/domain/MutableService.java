@@ -2,7 +2,6 @@ package com.tramchester.domain;
 
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.HasId;
@@ -164,7 +163,7 @@ public class MutableService implements Service {
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        return ImmutableEnumSetImpl.copyOf(modes);
+        return ImmutableEnumSet.copyOf(modes);
     }
 
     @Override

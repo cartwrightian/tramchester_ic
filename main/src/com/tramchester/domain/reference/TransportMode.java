@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,12 +64,12 @@ public enum TransportMode implements HasTransportMode {
         for (final short value : numbers) {
             result.add(index.get(value));
         }
-        return ImmutableEnumSetImpl.copyOf(result);
+        return ImmutableEnumSet.copyOf(result);
     }
 
     public static ImmutableEnumSet<TransportMode> parseCSV(final String csv) {
         final String[] divided = csv.split(",");
-        return ImmutableEnumSetImpl.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
+        return ImmutableEnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
     }
 
     @JsonIgnore

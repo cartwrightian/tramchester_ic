@@ -3,7 +3,6 @@ package com.tramchester.repository;
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
@@ -24,7 +23,7 @@ public interface InterchangeRepository {
 
     Stream<InterchangeStation> getInterchangesFor(RouteIndexPair indexPair);
 
-    ImmutableEnumSetImpl<TransportMode> getInterchangeModes(LocationCollection destinations);
+    ImmutableEnumSet<TransportMode> getInterchangeModes(LocationCollection destinations);
 
     ImmutableEnumSet<TransportMode> getInterchangeModes(Location<?> location);
 }

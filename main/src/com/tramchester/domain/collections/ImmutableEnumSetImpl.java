@@ -17,11 +17,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         return new Many<>(source);
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSetImpl<S> copyOf(final Set<S> set) {
+    static <S extends Enum<S>> ImmutableEnumSetImpl<S> copyOf(final Set<S> set) {
         return createFrom(EnumSet.copyOf(set));
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSetImpl<S> noneOf(final Class<S> theClass) {
+    static <S extends Enum<S>> ImmutableEnumSetImpl<S> noneOf(final Class<S> theClass) {
         return createFrom(EnumSet.noneOf(theClass));
     }
 
@@ -35,6 +35,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
      * @return Immutable Enum Set
      * @param <S> Must be an Enum
      */
+    @Deprecated
     public static <S extends Enum<S>> ImmutableEnumSet<S> of(final S item) {
         return new One<>(item);
     }
@@ -71,7 +72,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         return createFrom(result);
     }
 
-    public static <S extends Enum<S>> ImmutableEnumSet<S> allOf(final Class<S> theClass) {
+    static <S extends Enum<S>> ImmutableEnumSet<S> allOf(final Class<S> theClass) {
         return createFrom(EnumSet.allOf(theClass));
     }
 

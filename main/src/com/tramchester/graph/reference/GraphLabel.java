@@ -1,7 +1,6 @@
 package com.tramchester.graph.reference;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
@@ -36,10 +35,10 @@ public enum GraphLabel { //implements Label {
 
     public static final EnumSet<GraphLabel> TransportModesLabels = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
 
-    public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSetImpl.copyOf(
+    public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSet.copyOf(
             EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE));
 
-    public static final ImmutableEnumSet<GraphLabel> NoneOf = ImmutableEnumSetImpl.noneOf(GraphLabel.class);
+    public static final ImmutableEnumSet<GraphLabel> NoneOf = ImmutableEnumSet.noneOf(GraphLabel.class);
 
     private final ImmutableEnumSet<GraphLabel> singleton;
 
@@ -70,7 +69,7 @@ public enum GraphLabel { //implements Label {
     public ImmutableEnumSet<GraphLabel> addTo(final ImmutableEnumSet<GraphLabel> labels) {
         final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(labels);
         updated.add(this);
-        return ImmutableEnumSetImpl.copyOf(updated);
+        return ImmutableEnumSet.copyOf(updated);
     }
 
     public ImmutableEnumSet<GraphLabel> singleton() {
