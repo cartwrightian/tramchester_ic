@@ -15,6 +15,7 @@ package com.tramchester.dataimport.rail.records;
 import com.tramchester.dataimport.rail.RailRecordType;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.time.TramTime;
 
 public class OriginLocation extends OriginOrTerminatingLocation  implements RailLocationRecord {

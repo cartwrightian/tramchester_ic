@@ -3,7 +3,7 @@ package com.tramchester.integration.graph.railAndTram;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
@@ -86,7 +86,7 @@ public class TramTrainNeighboursAsInterchangesTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTram);
         assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
-        assertEquals(ImmutableEnumSet.of(Tram, Train), interchange.getTransportModes());
+        assertEquals(ImmutableEnumSetImpl.of(Tram, Train), interchange.getTransportModes());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TramTrainNeighboursAsInterchangesTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTrain);
         assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
-        assertEquals(ImmutableEnumSet.of(Tram, Train), interchange.getTransportModes());
+        assertEquals(ImmutableEnumSetImpl.of(Tram, Train), interchange.getTransportModes());
     }
 
 }

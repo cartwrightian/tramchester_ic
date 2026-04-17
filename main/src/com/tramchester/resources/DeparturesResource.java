@@ -4,7 +4,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
@@ -103,12 +103,12 @@ public class DeparturesResource extends TransportResource implements APIResource
 
 
         final EnumSet<TransportMode> modesFromQuery = departuresQuery.getModes();
-        final ImmutableEnumSet<TransportMode> modes;
+        final ImmutableEnumSetImpl<TransportMode> modes;
         if (modesFromQuery.isEmpty()) {
             logger.warn("modes not supplied, fall back to all configured modes");
-            modes = ImmutableEnumSet.copyOf(config.getTransportModes());
+            modes = ImmutableEnumSetImpl.copyOf(config.getTransportModes());
         } else {
-            modes = ImmutableEnumSet.copyOf(modesFromQuery);
+            modes = ImmutableEnumSetImpl.copyOf(modesFromQuery);
         }
 
         final List<UpcomingDeparture> dueTrams = departuresRepository.getDueForLocation(location, dateTime.toLocalDate(), queryTime, modes);

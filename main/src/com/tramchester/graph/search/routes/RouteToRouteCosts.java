@@ -5,10 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
-import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.IndexedBitSet;
-import com.tramchester.domain.collections.RouteIndexPair;
-import com.tramchester.domain.collections.RouteIndexPairFactory;
+import com.tramchester.domain.collections.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
@@ -230,7 +227,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private int getPossibleMinChanges(final Location<?> startLocation, final Location<?> destLocation,
-                                     final ImmutableEnumSet<TransportMode> requestedModes, final TramDate date, final TimeRange timeRange) {
+                                      final ImmutableEnumSet<TransportMode> requestedModes, final TramDate date, final TimeRange timeRange) {
 
         // TODO requested modes is problematic when we have an interchange station that has multiple modes?
 

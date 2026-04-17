@@ -3,7 +3,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.*;
@@ -80,7 +80,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expectLastCall().andReturn(Bury.fake());
 
         replayAll();
-        Set<Location<?>> locations = mapper.from(recentJourneys, ImmutableEnumSet.allOf(TransportMode.class));
+        Set<Location<?>> locations = mapper.from(recentJourneys, ImmutableEnumSetImpl.allOf(TransportMode.class));
         verifyAll();
 
         assertEquals(timestampedIds.size(), locations.size());
@@ -105,7 +105,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expect(locationRepository.hasLocation(LocationType.Station, buryIdForDTO)).andReturn(false);
 
         replayAll();
-        Set<Location<?>> locations = mapper.from(recentJourneys, ImmutableEnumSet.allOf(TransportMode.class));
+        Set<Location<?>> locations = mapper.from(recentJourneys, ImmutableEnumSetImpl.allOf(TransportMode.class));
         verifyAll();
 
         assertEquals(1, locations.size());
@@ -133,7 +133,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         EasyMock.expectLastCall().andReturn(stockportRail);
 
         replayAll();
-        Set<Location<?>> all = mapper.from(recentJourneys, ImmutableEnumSet.allOf(TransportMode.class));
+        Set<Location<?>> all = mapper.from(recentJourneys, ImmutableEnumSetImpl.allOf(TransportMode.class));
         verifyAll();
 
         assertEquals(2, all.size());

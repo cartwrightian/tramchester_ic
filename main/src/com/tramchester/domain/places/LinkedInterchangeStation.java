@@ -4,6 +4,7 @@ import com.tramchester.domain.HasRoutes;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -110,7 +111,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        return ImmutableEnumSet.copyOf(allModes);
+        return ImmutableEnumSetImpl.copyOf(allModes);
     }
 
     @Override

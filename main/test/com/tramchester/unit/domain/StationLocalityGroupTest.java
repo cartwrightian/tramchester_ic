@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -109,7 +110,7 @@ class StationLocalityGroupTest {
         assertTrue(transportModes.contains(Tram));
         assertTrue(transportModes.contains(Bus));
 
-        assertTrue(stationGroup.anyOverlapWith(ImmutableEnumSet.of(Tram,Bus)));
+        assertTrue(stationGroup.anyOverlapWith(ImmutableEnumSetImpl.of(Tram,Bus)));
         assertTrue(stationGroup.anyOverlapWith(BusesOnly));
         assertTrue(stationGroup.anyOverlapWith(TransportMode.TramsOnly));
 

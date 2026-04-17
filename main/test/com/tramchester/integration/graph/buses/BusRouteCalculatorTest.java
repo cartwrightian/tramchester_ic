@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
@@ -292,7 +293,7 @@ class BusRouteCalculatorTest {
         Station end = stations.get(1);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(7,30), false, 1,
-                TramDuration.ofMinutes(120), 1,  ImmutableEnumSet.noneOf(TransportMode.class));
+                TramDuration.ofMinutes(120), 1,  ImmutableEnumSetImpl.noneOf(TransportMode.class));
 
         List<Journey> results = calculator.calculateRouteAsList(start, end, journeyRequest);
 

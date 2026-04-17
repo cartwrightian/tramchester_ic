@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport.rail;
 import com.tramchester.config.RailConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 
@@ -37,7 +38,7 @@ public class TestRailConfig implements RailConfig {
 
     @Override
     public ImmutableEnumSet<TransportMode> getModes() {
-        return ImmutableEnumSet.of(Train, RailReplacementBus);
+        return ImmutableEnumSetImpl.of(Train, RailReplacementBus);
     }
 
 }

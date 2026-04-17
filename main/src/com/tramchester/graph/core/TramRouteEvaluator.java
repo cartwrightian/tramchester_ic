@@ -2,6 +2,7 @@ package com.tramchester.graph.core;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;

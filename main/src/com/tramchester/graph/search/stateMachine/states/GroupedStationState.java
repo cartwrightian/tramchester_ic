@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TramDuration;
@@ -21,7 +22,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.GROUPED
 
 public class GroupedStationState extends TraversalState {
 
-    private static final ImmutableEnumSet<TransportRelationshipTypes> grouped = ImmutableEnumSet.of(GROUPED_TO_CHILD, GROUPED_TO_GROUPED);
+    private static final ImmutableEnumSet<TransportRelationshipTypes> grouped = ImmutableEnumSetImpl.of(GROUPED_TO_CHILD, GROUPED_TO_GROUPED);
 
     public static class Builder extends StateBuilder<GroupedStationState> {
         protected Builder(StateBuilderParameters parameters) {

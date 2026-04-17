@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -16,12 +17,12 @@ public class TransportModeRepository {
 
     public static final ImmutableEnumSet<TransportMode> ProductionModes = TramsOnly;
 
-    private final ImmutableEnumSet<TransportMode> enabledModes;
+    private final ImmutableEnumSetImpl<TransportMode> enabledModes;
     private final boolean inProduction;
 
     @Inject
     public TransportModeRepository(TramchesterConfig config) {
-        this.enabledModes = ImmutableEnumSet.copyOf(config.getTransportModes());
+        this.enabledModes = ImmutableEnumSetImpl.copyOf(config.getTransportModes());
         this.inProduction = config.inProdEnv();
     }
 

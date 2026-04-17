@@ -2,9 +2,9 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.places.Location;
 
 import java.util.Set;
 

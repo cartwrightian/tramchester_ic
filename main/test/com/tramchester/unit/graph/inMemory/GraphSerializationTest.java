@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -16,7 +17,10 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.core.inMemory.*;
+import com.tramchester.graph.core.inMemory.GraphNodeInMemory;
+import com.tramchester.graph.core.inMemory.GraphRelationshipInMemory;
+import com.tramchester.graph.core.inMemory.NodeIdInMemory;
+import com.tramchester.graph.core.inMemory.RelationshipIdInMemory;
 import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -147,7 +151,7 @@ public class GraphSerializationTest {
             assertEquals(2, trips.size());
             assertTrue(trips.contains(tripA));
             assertTrue(trips.contains(tripB));
-            assertEquals(ImmutableEnumSet.of(Bus,Tram), result.getTransportModes());
+            assertEquals(ImmutableEnumSetImpl.of(Bus,Tram), result.getTransportModes());
 
         }
         catch(ClassCastException e) {
@@ -242,7 +246,7 @@ public class GraphSerializationTest {
         assertEquals(relationship, result);
 
         try {
-            assertEquals(ImmutableEnumSet.of(Bus,Tram), result.getTransportModes());
+            assertEquals(ImmutableEnumSetImpl.of(Bus,Tram), result.getTransportModes());
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);

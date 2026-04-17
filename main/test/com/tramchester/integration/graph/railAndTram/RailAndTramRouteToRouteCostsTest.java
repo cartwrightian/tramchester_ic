@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -64,7 +65,7 @@ public class RailAndTramRouteToRouteCostsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         date = TestEnv.testDay();
-        allTransportModes = ImmutableEnumSet.allOf(TransportMode.class);
+        allTransportModes = ImmutableEnumSetImpl.allOf(TransportMode.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         stationRepository = componentContainer.get(StationRepository.class);
         railRouteHelper = new RailRouteHelper(componentContainer);

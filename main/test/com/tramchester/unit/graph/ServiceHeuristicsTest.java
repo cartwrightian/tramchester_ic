@@ -32,7 +32,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 
-import static com.tramchester.graph.reference.GraphLabel.*;
+import static com.tramchester.graph.reference.GraphLabel.TRAIN;
+import static com.tramchester.graph.reference.GraphLabel.TRAM;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static java.lang.String.format;

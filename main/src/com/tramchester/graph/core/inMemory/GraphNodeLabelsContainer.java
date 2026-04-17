@@ -1,6 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.graph.reference.GraphLabel;
 
 public class GraphNodeLabelsContainer {

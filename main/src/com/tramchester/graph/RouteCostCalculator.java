@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
@@ -16,7 +17,7 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public interface RouteCostCalculator {
 
-    ImmutableEnumSet<TransportRelationshipTypes> costApproxTypes = ImmutableEnumSet.copyOf(EnumSet.of(
+    ImmutableEnumSet<TransportRelationshipTypes> costApproxTypes = ImmutableEnumSetImpl.copyOf(EnumSet.of(
             ON_ROUTE,
             STATION_TO_ROUTE,
             ROUTE_TO_STATION,

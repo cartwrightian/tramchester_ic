@@ -1,6 +1,7 @@
 package com.tramchester.graph.reference;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.EnumSet;
@@ -50,10 +51,10 @@ public enum TransportRelationshipTypes {
         values.remove(LINKED);
         values.remove(STATION_TO_ROUTE);
         //forPlanning = new TransportRelationshipTypes[values.size()];
-        forPlanning = ImmutableEnumSet.copyOf(values);
+        forPlanning = ImmutableEnumSetImpl.copyOf(values);
     }
 
-    public static final ImmutableEnumSet<TransportRelationshipTypes> NoneOf = ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);
+    public static final ImmutableEnumSet<TransportRelationshipTypes> NoneOf = ImmutableEnumSetImpl.noneOf(TransportRelationshipTypes.class);
 
     private static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE, LINKED);
 
@@ -104,7 +105,7 @@ public enum TransportRelationshipTypes {
         final Set<TransportRelationshipTypes> unique = transportModes.stream().
                 map(TransportRelationshipTypes::forMode).collect(Collectors.toSet());
 
-        return ImmutableEnumSet.copyOf(unique);
+        return ImmutableEnumSetImpl.copyOf(unique);
 
 //        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[unique.size()];
 //        int index = 0;

@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -74,7 +75,7 @@ class RailRouteCalculatorCombinationTests {
     }
 
     private ImmutableEnumSet<TransportMode> getRequestedModes() {
-        return ImmutableEnumSet.noneOf(TransportMode.class);
+        return ImmutableEnumSetImpl.noneOf(TransportMode.class);
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.google.common.collect.Sets;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.reference.TransportMode;
@@ -59,7 +60,7 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
         final EnumSet<TransportMode> theSet = locations.stream().
                 flatMap(location -> location.getTransportModes().stream()).
                 collect(Collectors.toCollection(() -> EnumSet.noneOf(TransportMode.class)));
-        return ImmutableEnumSet.copyOf(theSet);
+        return ImmutableEnumSetImpl.copyOf(theSet);
     }
 
     @Override

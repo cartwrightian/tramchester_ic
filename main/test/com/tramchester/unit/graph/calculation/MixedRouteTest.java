@@ -6,6 +6,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -85,7 +86,7 @@ class MixedRouteTest {
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
 
-        modes = ImmutableEnumSet.copyOf(config.getTransportModes());
+        modes = ImmutableEnumSetImpl.copyOf(config.getTransportModes());
     }
 
     @AfterEach

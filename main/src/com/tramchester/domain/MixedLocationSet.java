@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
@@ -36,7 +37,7 @@ public class MixedLocationSet implements LocationCollection {
         final EnumSet<TransportMode> theSet = locations.stream().
                 flatMap(location -> location.getTransportModes().stream()).
                 collect(Collectors.toCollection(() -> EnumSet.noneOf(TransportMode.class)));
-        return ImmutableEnumSet.copyOf(theSet);
+        return ImmutableEnumSetImpl.copyOf(theSet);
     }
 
     @Override

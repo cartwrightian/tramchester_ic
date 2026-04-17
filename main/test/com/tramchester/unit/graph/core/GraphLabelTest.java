@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph.core;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.reference.GraphLabel;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ public class GraphLabelTest {
         ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
         ImmutableEnumSet<GraphLabel> results = GraphLabel.forModes(modes);
-        assertEquals(ImmutableEnumSet.copyOf(GraphLabel.TransportModesLabels), results);
+        assertEquals(ImmutableEnumSetImpl.copyOf(GraphLabel.TransportModesLabels), results);
     }
 
     private static @NotNull ImmutableEnumSet<TransportMode> getTransportModes() {
@@ -56,7 +57,7 @@ public class GraphLabelTest {
         modes.remove(TransportMode.NotSet);
         modes.remove(TransportMode.Unknown);
         modes.remove(TransportMode.Walk); // TODO inconsistency on use of QUERY_NODE for walks, needs sorting out
-        return ImmutableEnumSet.copyOf(modes);
+        return ImmutableEnumSetImpl.copyOf(modes);
     }
 
 }

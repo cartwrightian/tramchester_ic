@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -35,7 +36,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
             @JsonProperty("nodeId") final NodeIdInMemory id,
             @JsonProperty("labels") final EnumSet<GraphLabel> labels,
             @JsonProperty("properties") List<PropertyDTO> properties) {
-        this(new PropertyContainer(properties), id, ImmutableEnumSet.copyOf(labels));
+        this(new PropertyContainer(properties), id, ImmutableEnumSetImpl.copyOf(labels));
     }
 
     private GraphNodeInMemory(final PropertyContainer propertyContainer, final NodeIdInMemory id, final ImmutableEnumSet<GraphLabel> labels) {

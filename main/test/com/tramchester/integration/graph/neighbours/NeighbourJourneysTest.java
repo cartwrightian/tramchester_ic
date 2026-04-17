@@ -7,6 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -57,7 +58,7 @@ public class NeighbourJourneysTest {
     private TramDuration maxJourneyDuration;
     private TramDate date;
     private TimeRange timeRange;
-    private final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(Bus, Tram);
+    private final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSetImpl.of(Bus, Tram);
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

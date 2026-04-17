@@ -137,7 +137,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
     }
 
 
-    private List<UpcomingDeparture> getAllDepartures(final StationPair journeyStations, ImmutableEnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getAllDepartures(final StationPair journeyStations, final ImmutableEnumSet<TransportMode> modes) {
         final CountDownLatch latch = new CountDownLatch(1);
 
         // need to wait until we have some live data

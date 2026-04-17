@@ -1,6 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
@@ -39,7 +40,7 @@ public class CreateNodesAndRelationships {
         }
 
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
-        final MutableGraphNode stationNode = createGraphNode(tx, ImmutableEnumSet.copyOf(labels));
+        final MutableGraphNode stationNode = createGraphNode(tx, ImmutableEnumSetImpl.copyOf(labels));
         stationNode.set(station);
         return stationNode;
     }

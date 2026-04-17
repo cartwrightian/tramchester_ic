@@ -3,6 +3,7 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import io.dropwizard.core.Configuration;
@@ -50,7 +51,7 @@ public class RailAppConfig extends Configuration implements RailConfig {
 
     @Override
     public ImmutableEnumSet<TransportMode> getModes() {
-        return ImmutableEnumSet.copyOf(modes);
+        return ImmutableEnumSetImpl.copyOf(modes);
     }
 
 }

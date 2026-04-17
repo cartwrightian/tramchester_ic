@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.google.common.collect.Streams;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.LocationId;
@@ -234,9 +235,9 @@ public class MutablePlatform implements Platform {
         Set<TransportMode> modes = Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
                 map(Route::getTransportMode).collect(Collectors.toSet());
         if (modes.isEmpty()) {
-            return ImmutableEnumSet.noneOf(TransportMode.class);
+            return ImmutableEnumSetImpl.noneOf(TransportMode.class);
         }
-        return ImmutableEnumSet.copyOf(modes);
+        return ImmutableEnumSetImpl.copyOf(modes);
     }
 
     @Override

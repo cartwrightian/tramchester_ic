@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;

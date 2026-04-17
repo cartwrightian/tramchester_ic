@@ -6,6 +6,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -234,7 +235,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> endOfRoutesToInterchanges(final EnumSet<TransportMode> modes) {
-            return endOfRoutesToInterchanges(ImmutableEnumSet.copyOf(modes));
+            return endOfRoutesToInterchanges(ImmutableEnumSetImpl.copyOf(modes));
         }
 
         public LocationIdPairSet<Station> endOfRoutesToInterchanges(final ImmutableEnumSet<TransportMode> modes) {
@@ -248,7 +249,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> interchangeToInterchange(final EnumSet<TransportMode> modes) {
-            return interchangeToInterchange(ImmutableEnumSet.copyOf(modes));
+            return interchangeToInterchange(ImmutableEnumSetImpl.copyOf(modes));
         }
 
         public LocationIdPairSet<Station> interchangeToInterchange(final ImmutableEnumSet<TransportMode> modes) {
@@ -261,7 +262,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         }
 
         public LocationIdPairSet<Station> interchangeToEndRoutes(final EnumSet<TransportMode> modes) {
-            return interchangeToEndRoutes(ImmutableEnumSet.copyOf(modes));
+            return interchangeToEndRoutes(ImmutableEnumSetImpl.copyOf(modes));
         }
 
             public LocationIdPairSet<Station> interchangeToEndRoutes(final ImmutableEnumSet<TransportMode> modes) {

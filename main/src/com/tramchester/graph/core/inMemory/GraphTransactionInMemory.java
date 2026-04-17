@@ -4,6 +4,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
@@ -209,7 +210,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     MutableGraphRelationship getRelationshipMutable(final NodeIdInMemory id, final GraphDirection direction,
-                                                           final ImmutableEnumSet<TransportRelationshipTypes> transportRelationshipTypes, final GraphNode end) {
+                                                    final ImmutableEnumSet<TransportRelationshipTypes> transportRelationshipTypes, final GraphNode end) {
 
         final List<MutableGraphRelationship> results = graph.findRelationshipsMutableFor(id, direction, transportRelationshipTypes).
                 //filter(relationship -> transportRelationshipTypes.contains(relationship.getType())).

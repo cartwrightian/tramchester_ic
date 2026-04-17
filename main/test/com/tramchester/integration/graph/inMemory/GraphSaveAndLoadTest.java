@@ -4,7 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
@@ -230,8 +230,8 @@ public class GraphSaveAndLoadTest {
 
         final NodeIdInMemory nodeId = expected.getId();
 
-        long numForExpected = expected.getRelationships(txn, direction, ImmutableEnumSet.allOf(TransportRelationshipTypes.class)).count();
-        long resultCount = result.findRelationshipsImmutableFor(nodeId, direction, ImmutableEnumSet.allOf(TransportRelationshipTypes.class)).count();
+        long numForExpected = expected.getRelationships(txn, direction, ImmutableEnumSetImpl.allOf(TransportRelationshipTypes.class)).count();
+        long resultCount = result.findRelationshipsImmutableFor(nodeId, direction, ImmutableEnumSetImpl.allOf(TransportRelationshipTypes.class)).count();
         assertEquals(numForExpected, resultCount, "for " + expected.getAllProperties());
 
         for(TransportRelationshipTypes transportRelationshipType : TransportRelationshipTypes.values()) {

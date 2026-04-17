@@ -28,7 +28,7 @@ public class NodeLabelsFactory {
         return cache.computeIfAbsent(initial, key -> initial);
     }
 
-    public ImmutableEnumSet<GraphLabel> appendTo(ImmutableEnumSet<GraphLabel> original, GraphLabel addition) {
+    public ImmutableEnumSet<GraphLabel> appendTo(final ImmutableEnumSet<GraphLabel> original, final GraphLabel addition) {
         if (!cache.containsKey(original)) {
             throw new RuntimeException(format("original %s is not present, cannot append %s", original, addition));
         }

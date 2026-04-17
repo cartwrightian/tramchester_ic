@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphDirection;
@@ -16,9 +17,9 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class FindStateAfterRouteStation  {
 
-    private final static ImmutableEnumSet<TransportRelationshipTypes> nonePlatform = ImmutableEnumSet.of(WALKS_FROM_STATION,
+    private final static ImmutableEnumSet<TransportRelationshipTypes> nonePlatform = ImmutableEnumSetImpl.of(WALKS_FROM_STATION,
             NEIGHBOUR, GROUPED_TO_PARENT);
-    private final static ImmutableEnumSet<TransportRelationshipTypes> boards = ImmutableEnumSet.of(BOARD, INTERCHANGE_BOARD);
+    private final static ImmutableEnumSet<TransportRelationshipTypes> boards = ImmutableEnumSetImpl.of(BOARD, INTERCHANGE_BOARD);
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final TramDuration cost, final JourneyStateUpdate journeyStateUpdate,

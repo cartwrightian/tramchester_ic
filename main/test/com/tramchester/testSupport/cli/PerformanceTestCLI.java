@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.deployment.cli.BaseCLI;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -101,7 +102,7 @@ public class PerformanceTestCLI extends BaseCLI {
     private void doCalculations(TramDate date,
                                 TramchesterConfig config, RouteCalculationCombinations<Station> combinations, Running running) {
 
-        final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.copyOf(config.getTransportModes());
+        final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSetImpl.copyOf(config.getTransportModes());
 
         final LocationIdPairSet<Station> stationIdPairs = getPairs(date, modes, combinations);
 
