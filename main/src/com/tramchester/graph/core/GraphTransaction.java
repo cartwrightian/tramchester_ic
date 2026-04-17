@@ -35,4 +35,6 @@ public interface GraphTransaction extends AutoCloseable {
     long numberOf(TransportRelationshipTypes relationshipType);
 
     GraphTransaction asImmutable();
+
+    Stream<GraphNode> allNodes();
 }

@@ -65,7 +65,7 @@ public class NodesAndEdges {
         nodes.clear();
     }
 
-    public void addNode(NodeIdInMemory id, GraphNodeInMemory node) {
+    public void addNode(final NodeIdInMemory id, final GraphNodeInMemory node) {
         nodes.put(id, node);
     }
 
@@ -81,7 +81,7 @@ public class NodesAndEdges {
         return relationships.containsKey(id);
     }
 
-    public GraphRelationshipInMemory getRelationship(RelationshipIdInMemory id) {
+    public GraphRelationshipInMemory getRelationship(final RelationshipIdInMemory id) {
         return relationships.get(id);
     }
 
@@ -89,7 +89,7 @@ public class NodesAndEdges {
         return nodes.get(id);
     }
 
-    public void removeNode(NodeIdInMemory id) {
+    public void removeNode(final NodeIdInMemory id) {
         nodes.remove(id);
     }
 
@@ -117,7 +117,7 @@ public class NodesAndEdges {
         return relationshipsForNode.getOutbound(relationships);
     }
 
-    Stream<GraphRelationshipInMemory> getOutbounds(RelationshipsForNode relationshipsForNode, final ImmutableEnumSet<TransportRelationshipTypes> types) {
+    Stream<GraphRelationshipInMemory> getOutbounds(final RelationshipsForNode relationshipsForNode, final ImmutableEnumSet<TransportRelationshipTypes> types) {
         return relationshipsForNode.getOutbound(relationships, types);
     }
 

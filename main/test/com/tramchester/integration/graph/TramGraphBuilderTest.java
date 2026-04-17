@@ -892,6 +892,20 @@ class TramGraphBuilderTest {
     }
 
     @Test
+    void shouldHaveRatioOfUniqueLabelSetsForNodes() {
+
+        // to support work on memory optimisation i.e. do we need a factory for the (very) small set of unique
+        // node labels....
+
+        long uniqueSize = txn.allNodes().map(GraphNode::getLabels).collect(Collectors.toSet()).size();
+        long allNodes = txn.allNodes().count();
+
+        double percentage = 100D * (double) uniqueSize / allNodes;
+
+        assertEquals(1D, Math.ceil(percentage));
+    }
+
+    @Test
     void shouldCountNumberOfRelationshipTypes() {
         // sanity check on counters which are only used for diagnostic output
         assertNotEquals(0, txn.numberOf(TRAM_GOES_TO));

@@ -123,6 +123,12 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         return graph.findNodesImmutable(graphLabel);
     }
 
+
+    @Override
+    public Stream<GraphNode> allNodes() {
+        return graph.allNodes();
+    }
+
     @Override
     public Stream<GraphRelationship> findRelationships(final TransportRelationshipTypes type) {
         return graph.findRelationships(type);

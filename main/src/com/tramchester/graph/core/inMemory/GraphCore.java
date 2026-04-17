@@ -400,13 +400,23 @@ public class GraphCore implements Graph {
         return false;
     }
 
+    /***
+     * primarily for test/analysis support
+     * @return all nodes in the DB
+     */
+    @JsonIgnore
+    @Override
+    public Stream<GraphNode> allNodes() {
+        return nodesAndEdges.getNodes().stream().map(node->node);
+    }
+
     @Override
     public Stream<GraphNode> findNodesImmutable(final GraphLabel graphLabel) {
         return findNodesMutable(graphLabel).map(item -> item);
     }
 
     @Override
-    public Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value) {
+    public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final String value) {
         return findNodesMutable(label).
                 filter(node -> node.hasProperty(key)).
                 filter(node -> node.getProperty(key).equals(value)).

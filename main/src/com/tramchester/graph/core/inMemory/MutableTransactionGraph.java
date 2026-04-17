@@ -303,6 +303,16 @@ public class MutableTransactionGraph implements Graph {
         return Stream.concat(local.stream(), fromParent);
     }
 
+    /***
+     * Unsafe for MutableTransactionGraph
+     * Not Implemented
+     * @return throws RuntimeException
+     */
+    @Override
+    public Stream<GraphNode> allNodes() {
+        throw new RuntimeException("Not implemented");
+    }
+
     @Override
     public GraphNode getNodeImmutable(final NodeIdInMemory nodeId) {
         if (localGraph.hasNodeId(nodeId)) {

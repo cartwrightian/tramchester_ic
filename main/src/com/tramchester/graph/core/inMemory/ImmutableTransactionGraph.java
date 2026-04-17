@@ -103,6 +103,11 @@ public class ImmutableTransactionGraph implements Graph {
     }
 
     @Override
+    public Stream<GraphNode> allNodes() {
+        return cache.allNodes();
+    }
+
+    @Override
     public GraphNode getNodeImmutable(final NodeIdInMemory nodeId) {
         return cache.getNodeImmutable(nodeId);
     }
@@ -206,5 +211,12 @@ public class ImmutableTransactionGraph implements Graph {
             return underlying.getNumberOf(relationshipType);
         }
 
+        /***
+         * primarily for test/analysis support
+         * @return all nodes in the DB
+         */
+        public Stream<GraphNode> allNodes() {
+            return underlying.allNodes();
+        }
     }
 }

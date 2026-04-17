@@ -9,6 +9,7 @@ import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationBoxFactory;
 import com.tramchester.geo.StationsBoxSimpleGrid;
@@ -47,7 +48,8 @@ public class FastestRoutesForBoxes {
     }
 
     @NotNull
-    private RequestStopStream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
+    private RequestStopStream<BoundingBoxWithCost> findForGrid(final GridPosition destinationGrid, final int gridSize,
+                                                               final JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
         final List<StationsBoxSimpleGrid> searchGrid = stationBoxFactory.getStationBoxes(gridSize);
@@ -67,25 +69,27 @@ public class FastestRoutesForBoxes {
                 map(box -> cheapest(box, destinationGrid));
     }
 
-    private List<StationsBoxSimpleGrid> sortGridNearestFirst(List<StationsBoxSimpleGrid> searchGrid, GridPosition destinationGrid) {
+    private List<StationsBoxSimpleGrid> sortGridNearestFirst(final List<StationsBoxSimpleGrid> searchGrid, final GridPosition destinationGrid) {
         return searchGrid.stream().
                 sorted((a,b) -> geography.chooseNearestToGrid(destinationGrid, a.getMidPoint(), b.getMidPoint())).
                 collect(Collectors.toList());
     }
 
-    private BoundingBoxWithCost cheapest(JourneysForBox results, GridPosition destination) {
+    private BoundingBoxWithCost cheapest(final JourneysForBox results, final GridPosition destination) {
+
+        final BoundingBoxWithStations box = results.getBox();
 
         if (results.contains(destination)) {
-            return new BoundingBoxWithCost(results.getBox(), TramDuration.ZERO, null);
+            return new BoundingBoxWithCost(box, TramDuration.ZERO, null);
         }
 
         if (results.isEmpty()) {
-            return new BoundingBoxWithCost(results.getBox(), TramDuration.Invalid, null);
+            return new BoundingBoxWithCost(box, TramDuration.Invalid, null);
         }
 
-        Journey result = results.getLowestCost();
+        final Journey result = results.getLowestCost();
 
-        TramDuration cost = TramTime.difference(result.getDepartTime(), result.getArrivalTime());
-        return new BoundingBoxWithCost(results.getBox(), cost, result);
+        final TramDuration cost = TramTime.difference(result.getDepartTime(), result.getArrivalTime());
+        return new BoundingBoxWithCost(box, cost, result);
     }
 }

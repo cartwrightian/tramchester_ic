@@ -13,14 +13,11 @@ class RelationshipsForNode {
     private final ConcurrentMap<TransportRelationshipTypes, Set<RelationshipIdInMemory>> outboundIds;
     private final ConcurrentMap<TransportRelationshipTypes, Set<RelationshipIdInMemory>> inboundIds;
 
-    //private final ConcurrentMap<RelationshipIdInMemory, TransportRelationshipTypes> typeMap;
-
     private static final RelationshipsForNode empty = new RelationshipsForNode();
 
     RelationshipsForNode() {
-        outboundIds = new ConcurrentHashMap<>();
-        inboundIds = new ConcurrentHashMap<>();
-        //typeMap = new ConcurrentHashMap<>();
+        outboundIds = new ConcurrentHashMap<>(4);
+        inboundIds = new ConcurrentHashMap<>(4);
     }
 
     public static RelationshipsForNode empty() {
@@ -30,7 +27,6 @@ class RelationshipsForNode {
     public Stream<GraphRelationshipInMemory>  getOutbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
         synchronized (outboundIds) {
             return getOutbounds().map(source::get);
-            //return outboundIds.stream().map(source::get);
         }
     }
 
@@ -45,14 +41,12 @@ class RelationshipsForNode {
                     filter(outboundIds::containsKey).
                     flatMap(type -> outboundIds.get(type).stream()).
                     map(source::get);
-            //return outboundIds.stream().filter(id -> types.contains(typeMap.get(id))).map(source::get);
         }
     }
 
     public Stream<GraphRelationshipInMemory> getInbound(final Map<RelationshipIdInMemory, GraphRelationshipInMemory> source) {
         synchronized (inboundIds) {
             return getInbounds().map(source::get);
-            //return inboundIds.stream().map(source::get);
         }
     }
 
@@ -67,7 +61,6 @@ class RelationshipsForNode {
                     filter(inboundIds::containsKey).
                     flatMap(type -> inboundIds.get(type).stream()).
                     map(source::get);
-            //return inboundIds.stream().filter(id -> types.contains(typeMap.get(id))).map(source::get);
         }
     }
 
@@ -77,13 +70,11 @@ class RelationshipsForNode {
      * @return true if added new outbound
      */
     public boolean putOutbound(final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes relationshipType) {
-        //typeMap.put(relationshipId, relationshipType);
         synchronized (outboundIds) {
             if (!outboundIds.containsKey(relationshipType)) {
                 outboundIds.put(relationshipType, new HashSet<>());
             }
             return outboundIds.get(relationshipType).add(relationshipId);
-            //return outboundIds.add(relationshipId);
         }
     }
 
@@ -93,19 +84,16 @@ class RelationshipsForNode {
      * @return true if added new inbound
      */
     public boolean putInbound(final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes relationshipType) {
-        //typeMap.put(relationshipId, relationshipType);
         synchronized (inboundIds) {
             if (!inboundIds.containsKey(relationshipType)) {
                 inboundIds.put(relationshipType, new HashSet<>());
             }
             return inboundIds.get(relationshipType).add(relationshipId);
-            //return inboundIds.add(relationshipId);
         }
     }
 
     public boolean remove(final RelationshipIdInMemory relationshipId, final TransportRelationshipTypes type) {
         boolean flag = false;
-        //typeMap.remove(relationshipId);
         synchronized (outboundIds) {
             if (outboundIds.containsKey(type)) {
                 flag = outboundIds.get(type).remove(relationshipId);

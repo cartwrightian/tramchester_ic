@@ -38,7 +38,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         this(new PropertyContainer(properties), id, ImmutableEnumSet.copyOf(labels));
     }
 
-    private GraphNodeInMemory(PropertyContainer propertyContainer, NodeIdInMemory id, ImmutableEnumSet<GraphLabel> labels) {
+    private GraphNodeInMemory(final PropertyContainer propertyContainer, final NodeIdInMemory id, final ImmutableEnumSet<GraphLabel> labels) {
         super(propertyContainer);
         this.id = id;
         this.labels = new GraphNodeLabelsContainer(this, labels);

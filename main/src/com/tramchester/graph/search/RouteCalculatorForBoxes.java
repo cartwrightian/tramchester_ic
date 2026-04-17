@@ -86,7 +86,8 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     }
 
     private RequestStopStream<JourneysForBox> calculateRoutes(final JourneyRequest journeyRequest,
-                                                             final List<StationsBoxSimpleGrid> startingBoxes, final TramNetworkTraverserFactory tramNetworkTraverserFactory,
+                                                             final List<StationsBoxSimpleGrid> startingBoxes,
+                                                              final TramNetworkTraverserFactory tramNetworkTraverserFactory,
                                                              final LocationSet<Station> destinations) {
         logger.info("Finding routes from " + startingBoxes.size() + " bounding boxes");
 
@@ -150,12 +151,6 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         return result.setStream(stream);
     }
-
-//    @SuppressWarnings("unchecked")
-//    private static @NotNull BranchOrderingPolicy getBranchOrderingPolicy(final StationsBoxSimpleGrid destinationBox, final List<StationsBoxSimpleGrid> boxes) {
-//        return (startBranch, expander) -> new BreadthFirstBranchSelectorForGridSearch(startBranch, expander,
-//                destinationBox, boxes);
-//    }
 
     private static void scheduleLogging(final Running results, final ServiceReasons serviceReasons) {
         final Timer timer = new Timer("GridSearchLoggingTimer");

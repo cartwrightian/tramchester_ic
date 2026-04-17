@@ -56,6 +56,12 @@ public abstract class ImmutableEnumSet<T extends Enum<T>> implements Iterable<T>
     }
 
     public static <S extends Enum<S>> ImmutableEnumSet<S> join(final ImmutableEnumSet<S> setA, final ImmutableEnumSet<S> setB) {
+        if (setA.isEmpty()) {
+            return setB;
+        }
+        if (setB.isEmpty()) {
+            return setA;
+        }
         final EnumSet<S> result = EnumSet.copyOf(setA.getContained());
         result.addAll(setB.getContained());
         return createFrom(result);
