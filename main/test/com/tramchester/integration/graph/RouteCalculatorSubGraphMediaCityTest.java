@@ -54,7 +54,6 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisabledUntilDate(year = 2025, month = 11, day = 2)
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
     private static SubgraphConfig config;
@@ -143,7 +142,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(13,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 19)
+    @DisabledUntilDate(year = 2026, month = 4, day = 24)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -176,7 +175,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 19)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 

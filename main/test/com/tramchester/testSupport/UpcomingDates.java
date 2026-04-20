@@ -34,9 +34,6 @@ public class UpcomingDates {
 
     public static DateRange AshtonLineLateApril2026 = DateRange.of(TramDate.of(2026,4,25), 1);
 
-//    public static DateRange BlueReplaceBusEarlyMay = DateRange.of(TramDate.of(2026,5,2), 1);
-//    public static DateRange BlueReplaceBusMidMay = DateRange.of(TramDate.of(2026,5,9), 1);
-
     public static TramDate earlyMayBankHold = TramDate.of(2026, 5,4);
     public static TramDate lateMayBankHold = TramDate.of(2026, 5,25);
 
@@ -56,11 +53,9 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
-//        if (OldhamCentral.getId().equals(stationId)) {
-//            if (date.equals(VictoriaEndOfMarch)) {
-//                return true;
-//            }
-//        }
+        if (TramStations.Shudehill.getId().equals(stationId) || TramStations.MarketStreet.getId().equals(stationId)) {
+            return date.isEqual(TramDate.of(2026,5,3));
+        }
 
         return anyClosedOnDate(date);
     }

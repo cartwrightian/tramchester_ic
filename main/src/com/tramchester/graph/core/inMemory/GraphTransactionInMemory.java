@@ -4,7 +4,6 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;

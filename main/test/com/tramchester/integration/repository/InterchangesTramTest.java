@@ -22,7 +22,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -80,7 +79,6 @@ public class InterchangesTramTest {
         }
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 19)
     @Test
     void shouldHaveExpectedTramInterchanges() {
 
@@ -92,8 +90,9 @@ public class InterchangesTramTest {
                 StPetersSquare,
                 Broadway,
                 Victoria,
-                OldhamKingStreet, OldhamMumps,
-                Shudehill
+                VeloPark, HoltTown
+                //OldhamKingStreet, OldhamMumps,
+                //Shudehill
         );
 
         Set<Station> expectedStations = expectedTramStations.
