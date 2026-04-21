@@ -1,6 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.annotations.Cached;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.reference.GraphLabel;
 
@@ -28,7 +29,7 @@ public class NodeLabelsFactory {
         return cache.computeIfAbsent(initial, key -> initial);
     }
 
-    public ImmutableEnumSet<GraphLabel> appendTo(final ImmutableEnumSet<GraphLabel> original, final GraphLabel addition) {
+    public ImmutableEnumSet<GraphLabel> appendTo(@Cached final ImmutableEnumSet<GraphLabel> original, final GraphLabel addition) {
         if (!cache.containsKey(original)) {
             throw new RuntimeException(format("original %s is not present, cannot append %s", original, addition));
         }

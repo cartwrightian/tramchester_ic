@@ -2,12 +2,14 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.tramchester.annotations.Cached;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.apache.commons.collections4.SetUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LoggingEventBuilder;
@@ -159,8 +161,9 @@ public class GraphCore implements Graph {
         nodesAndEdges.captureNextRelationshipId(idFactory);
     }
 
+    @NotNull
     @Override
-    public GraphNodeInMemory createNode(final ImmutableEnumSet<GraphLabel> labels) {
+    public GraphNodeInMemory createNode(@Cached final ImmutableEnumSet<GraphLabel> labels) {
         synchronized (nodesAndEdges) {
             final int id = idFactory.getNextNodeId();
             final NodeIdInMemory idInMemory;

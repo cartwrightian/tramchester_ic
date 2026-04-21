@@ -101,6 +101,9 @@ dependencies {
         exclude group: 'org.glassfish.jersey.core', module: 'jersey-common'
     }
     implementation 'org.reflections:reflections:0.10.2'
+    implementation('com.google.auto.service:auto-service:1.1.1')
+
+    annotationProcessor('com.google.auto.service:auto-service:1.1.1')
 
     // aws sdk
     implementation("software.amazon.awssdk:s3:$awsSdkVersion")
@@ -236,13 +239,9 @@ distributions {
     }
 }
 
-// WIP removed, problem with runtime classpath for the apache tool that only happened with circleci build env
-//compileJava.dependsOn 'railLiveDataCodeGen'
-
-//tasks.withType(JavaCompile).configureEach {
-//    options.deprecation = true
-//    options.compilerArgs.addAll(['-Xlint'])
-//}
+compileJava {
+    options.annotationProcessorPath = configurations.annotationProcessor
+}
 
 tasks.register('cfnassist') {
     doLast {
@@ -386,7 +385,7 @@ tasks.register('archUnit', Test) {
 
 def integrationTestConfiguration = {
     minHeapSize = "1g"
-    maxHeapSize = "1750m"
+    maxHeapSize = "1500m"
     useJUnitPlatform {
         //         excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
 //        excludeTags "liveDataMessages" // exclude these when tfgm api is missing messages

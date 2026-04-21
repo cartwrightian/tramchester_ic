@@ -49,7 +49,8 @@ public class MutableTransactionGraph implements Graph {
     }
 
     @Override
-    public synchronized GraphRelationshipInMemory createRelationship(TransportRelationshipTypes relationshipType, GraphNodeInMemory begin, GraphNodeInMemory end) {
+    public synchronized GraphRelationshipInMemory createRelationship(final TransportRelationshipTypes relationshipType,
+                                                                     final GraphNodeInMemory begin, final GraphNodeInMemory end) {
         GraphRelationshipInMemory result = localGraph.createRelationship(relationshipType, begin, end);
         locallyCreatedRelationships.add(result.getId());
         return result;
