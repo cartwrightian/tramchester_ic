@@ -2,7 +2,6 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.tramchester.annotations.Cached;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
@@ -163,7 +162,7 @@ public class GraphCore implements Graph {
 
     @NotNull
     @Override
-    public GraphNodeInMemory createNode(@Cached final ImmutableEnumSet<GraphLabel> labels) {
+    public GraphNodeInMemory createNode(final ImmutableEnumSet<GraphLabel> labels) {
         synchronized (nodesAndEdges) {
             final int id = idFactory.getNextNodeId();
             final NodeIdInMemory idInMemory;
