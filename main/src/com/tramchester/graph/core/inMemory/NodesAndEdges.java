@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -173,7 +173,7 @@ public class NodesAndEdges {
             }
         });
 
-        Map<ImmutableEnumSet<GraphLabel>, Set<GraphPropertyKey>> unusedPerLabels = nodes.values().stream().
+        Map<GraphLabels, Set<GraphPropertyKey>> unusedPerLabels = nodes.values().stream().
                 map(node -> Pair.of(node.getLabels(), node.getUnusedProps())).
                 filter(pair -> !pair.getValue().isEmpty()).
                 collect(Collectors.toMap(Pair::getKey, Pair::getValue, NodesAndEdges::getIntersectionSafe));

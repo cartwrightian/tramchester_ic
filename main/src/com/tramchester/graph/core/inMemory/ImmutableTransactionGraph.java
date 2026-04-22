@@ -7,6 +7,7 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -111,6 +112,11 @@ public class ImmutableTransactionGraph implements Graph {
     }
 
     @Override
+    public GraphLabels updateLabels(GraphLabels original, GraphLabel addition) {
+        throw new ImmutableGraphException();
+    }
+
+    @Override
     public GraphNode getNodeImmutable(final NodeIdInMemory nodeId) {
         return cache.getNodeImmutable(nodeId);
     }
@@ -167,7 +173,7 @@ public class ImmutableTransactionGraph implements Graph {
         }
 
         @Override
-        public Stream<GraphNode> findNodesImmutable(GraphLabel graphLabel) {
+        public Stream<GraphNode> findNodesImmutable(final GraphLabel graphLabel) {
             return underlying.findNodesImmutable(graphLabel);
         }
 

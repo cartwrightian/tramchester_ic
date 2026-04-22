@@ -7,6 +7,8 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.metrics.Timing;
 import org.slf4j.Logger;
@@ -28,9 +30,9 @@ public class MutableTransactionGraph implements Graph {
     private final Set<NodeIdInMemory> notesToDelete;
     private final Set<NodeIdInMemory> relationshipsCopiedIn;
 
-    MutableTransactionGraph(final GraphCore parent, final GraphIdFactory graphIdFactory) {
+    MutableTransactionGraph(final GraphCore parent, final GraphIdFactory graphIdFactory, GraphLabelsFactory graphLabelsFactory) {
         this.parent = parent;
-        this.localGraph = new GraphCore(graphIdFactory, true);
+        this.localGraph = new GraphCore(graphIdFactory, graphLabelsFactory,true);
 
         localGraph.doStart(true);
 
@@ -90,6 +92,11 @@ public class MutableTransactionGraph implements Graph {
             copyNodeIntoLocal(id, true);
             localGraph.addLabel(id, label);
         }
+    }
+
+    @Override
+    public GraphLabels updateLabels(final GraphLabels original, final GraphLabel addition) {
+        return parent.updateLabels(original, addition);
     }
 
     private synchronized GraphNodeInMemory copyNodeIntoLocal(final NodeIdInMemory nodeId, final boolean includeRelationships) {

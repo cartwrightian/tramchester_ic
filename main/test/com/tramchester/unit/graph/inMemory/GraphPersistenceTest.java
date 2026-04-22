@@ -5,10 +5,13 @@ import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -38,7 +41,6 @@ public class GraphPersistenceTest extends EasyMockSupport {
     private TramTime time;
     private TramDate date;
 
-
     @BeforeAll
     public static void onceBeforeAnyTestRuns() throws IOException {
         Files.deleteIfExists(GRAPH_PATH);
@@ -63,20 +65,23 @@ public class GraphPersistenceTest extends EasyMockSupport {
         Files.deleteIfExists(nodesFilename);
 
         GetsFileModTime getFileModeTime = new GetsFileModTime();
-        graphPersistence = new GraphPersistence(getFileModeTime);
+        ProvidesLocalNow providesLocalNow =  new ProvidesLocalNow();
+        graphPersistence = new GraphPersistence(getFileModeTime, providesLocalNow);
 
         nodesAndEdges = new NodesAndEdges();
 
-        GraphNodeInMemory nodeA = new GraphNodeInMemory(new NodeIdInMemory(1), ImmutableEnumSet.of(GraphLabel.STATION), false);
+        GraphNodeInMemory nodeA = new GraphNodeInMemory(new NodeIdInMemory(1), GraphLabels.from(ImmutableEnumSet.of(GraphLabel.STATION)),
+                false);
         nodeA.setTransportMode(Tram);
         nodesAndEdges.addNode(nodeA.getId(), nodeA);
 
-        GraphNodeInMemory nodeB = new GraphNodeInMemory(new NodeIdInMemory(2), ImmutableEnumSet.of(GraphLabel.PLATFORM), false);
+        GraphNodeInMemory nodeB = new GraphNodeInMemory(new NodeIdInMemory(2), GraphLabels.from(ImmutableEnumSet.of(GraphLabel.PLATFORM)),
+                false);
         nodeB.setPlatformNumber(buryPlatform);
         nodeB.set(buryPlatform.getStation());
         nodesAndEdges.addNode(nodeB.getId(), nodeB);
 
-        versionNode = new GraphNodeInMemory(new NodeIdInMemory(3), ImmutableEnumSet.of(GraphLabel.VERSION), false);
+        versionNode = new GraphNodeInMemory(new NodeIdInMemory(3), GraphLabels.from(ImmutableEnumSet.of(GraphLabel.VERSION)), false);
         versionNode.setTime(time);
         versionNode.setStartDate(date);
         nodesAndEdges.addNode(versionNode.getId(), versionNode);
@@ -177,10 +182,11 @@ public class GraphPersistenceTest extends EasyMockSupport {
         EasyMock.expect(graphCode.getNodesAndEdges()).andReturn(nodesAndEdges);
 
         GraphIdFactory idFactory = new GraphIdFactory();
+        GraphLabelsFactory graphLabelsFactory = new GraphLabelsFactory();
 
         replayAll();
         graphPersistence.save(GRAPH_PATH, serviceManager);
-        GraphCore result = graphPersistence.loadDBFrom(GRAPH_PATH, idFactory);
+        GraphCore result = graphPersistence.loadDBFrom(GRAPH_PATH, idFactory, graphLabelsFactory);
         verifyAll();
 
         List<GraphNodeInMemory> stations = result.findNodesMutable(GraphLabel.STATION).toList();

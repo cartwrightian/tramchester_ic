@@ -220,14 +220,20 @@ class TramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
+        assertFalse(fromConfigAndDiscovered.isEmpty());
 
-        IdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
+        List<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE).toList();
+
+        assertFalse(interchangeNodes.isEmpty());
+
+        IdSet<Station> fromDB = interchangeNodes.stream().
+                map(GraphNode::getStationId).
+                collect(IdSet.idCollector());
 
         ImmutableIdSet<Station> diffs = IdSet.disjunction(fromConfigAndDiscovered, fromDB);
 
-        assertTrue(diffs.isEmpty(), "Diff was " + diffs + " between expected "
-                + fromConfigAndDiscovered + " and DB " + fromDB);
+        assertTrue(diffs.isEmpty(), "Diff was (" + +diffs.size() + ") " +  diffs + "\n between expected "
+                + fromConfigAndDiscovered + "\n and DB " + fromDB);
     }
 
     @Test

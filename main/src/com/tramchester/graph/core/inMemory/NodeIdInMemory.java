@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import org.jetbrains.annotations.NotNull;
 
 public class NodeIdInMemory extends InternalGraphId implements GraphNodeId, Comparable<NodeIdInMemory> {
@@ -14,14 +13,14 @@ public class NodeIdInMemory extends InternalGraphId implements GraphNodeId, Comp
     private final int hash;
 
     @JsonIgnore
-    private final ImmutableEnumSet<GraphLabel> labels; // diagnostics only
+    private final GraphLabels labels; // diagnostics only
 
     @JsonCreator
     public NodeIdInMemory(@JsonProperty("id") final int id) {
-        this(id, GraphLabel.NoneOf);
+        this(id, GraphLabels.empty());
     }
 
-    public NodeIdInMemory(final int id, final ImmutableEnumSet<GraphLabel> labels) {
+    public NodeIdInMemory(final int id, final GraphLabels labels) {
         this.id = id;
         this.labels = labels;
         this.hash = Integer.hashCode(id);

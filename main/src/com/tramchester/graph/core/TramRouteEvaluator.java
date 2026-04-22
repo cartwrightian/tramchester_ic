@@ -11,6 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.ArrivalHandler;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.PreviousVisits;
@@ -73,7 +74,7 @@ public abstract class TramRouteEvaluator {
         final GraphNode nextNode = graphPath.getEndNode(txn);
 
         // reuse these, label operations on nodes are expensive
-        final ImmutableEnumSet<GraphLabel> labels = nextNode.getLabels();
+        final GraphLabels labels = nextNode.getLabels();
 
         final List<PropertyDTO> endNodeProps;
         if (serviceHeuristics.isDiagnostics()) {
@@ -121,7 +122,7 @@ public abstract class TramRouteEvaluator {
 
     private HeuristicsReason doEvaluate(final GraphPath thePath, final ImmutableJourneyState journeyState,
                                         final GraphNode nextNode,
-                                        final ImmutableEnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
+                                        final GraphLabels nodeLabels, final HowIGotHere howIGotHere) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 

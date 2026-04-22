@@ -2,7 +2,6 @@ package com.tramchester.graph.search.inMemory;
 
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -13,7 +12,7 @@ import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
-import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
@@ -202,7 +201,7 @@ public class FindPathsForJourney {
                 throw new RuntimeException("end node mismatch " + pathToHere + " current node " + currentNode);
             }
 
-            final ImmutableEnumSet<GraphLabel> labels = currentNode.getLabels();
+            final GraphLabels labels = currentNode.getLabels();
             final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, currentNode,
                     journeyStateForChildren, cost);
 

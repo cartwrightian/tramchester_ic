@@ -15,7 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.*;
@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static com.tramchester.graph.reference.GraphLabel.STATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -84,7 +85,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(nodeId);
 
         GraphNode node = createMock(GraphNode.class);
-        EasyMock.expect(node.getLabels()).andStubReturn(GraphLabel.STATION.singleton());
+        EasyMock.expect(node.getLabels()).andStubReturn(GraphLabels.from(STATION.singleton()));
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
         EasyMock.expect(node.getId()).andStubReturn(nodeId);
 

@@ -8,10 +8,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.loader.files.TransportDataFromJSONFile;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +34,12 @@ public class GraphPersistence {
 
     private final JsonMapper mapper;
     private final GetsFileModTime getsFileModTimeModTime;
+    private final ProvidesLocalNow providesLocalNow;
 
     @Inject
-    public GraphPersistence(final GetsFileModTime getsFileModTimeModTime) {
+    public GraphPersistence(final GetsFileModTime getsFileModTimeModTime, ProvidesLocalNow providesLocalNow) {
         this.getsFileModTimeModTime = getsFileModTimeModTime;
+        this.providesLocalNow = providesLocalNow;
         this.mapper = createMapper();
     }
 
@@ -49,7 +53,7 @@ public class GraphPersistence {
                 build();
     }
 
-    public GraphCore loadDBFrom(final Path graphFilename, final GraphIdFactory graphIdFactory) {
+    public GraphCore loadDBFrom(final Path graphFilename, final GraphIdFactory graphIdFactory, final GraphLabelsFactory graphLabelsFactory) {
         logger.info("Load DB from folder " + graphFilename.toAbsolutePath());
 
         final JsonMapper jsonMapper = createMapper();
@@ -65,7 +69,7 @@ public class GraphPersistence {
         Stream<GraphRelationshipInMemory> relationships = relationshipsLoader.load();
         Stream<GraphNodeInMemory> nodes = nodesLoader.load();
 
-        return GraphCore.createFrom(graphIdFactory, nodes, relationships);
+        return GraphCore.createFrom(graphIdFactory, graphLabelsFactory, nodes, relationships);
     }
 
     public boolean filesExistIn(final Path dbPath) {
@@ -77,7 +81,11 @@ public class GraphPersistence {
         if (!Files.exists(graphPath)) {
             try {
                 logger.info("Create folder " + graphPath);
+                // this creates a folder with an immediately up-to-date timestamp
                 Files.createDirectories(graphPath);
+                // make out of date
+                ZonedDateTime modTime = providesLocalNow.getZoneDateTimeUTC().minusYears(1);
+                getsFileModTimeModTime.update(graphPath, modTime);
             } catch (IOException e) {
                 logger.error("Could not create dir " + graphPath.toAbsolutePath(), e);
                 return false;

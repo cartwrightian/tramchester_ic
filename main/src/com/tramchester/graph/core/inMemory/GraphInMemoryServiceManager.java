@@ -2,10 +2,10 @@ package com.tramchester.graph.core.inMemory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -22,9 +22,9 @@ public class GraphInMemoryServiceManager {
 
     private final GraphIdFactory idFactory;
     private final GraphDatabaseStoredVersions storedVersions;
-    private final ProvidesNow providesNow;
     private final TramchesterConfig config;
     private final GraphPersistence graphPersistence;
+    private final GraphLabelsFactory graphLabelsFactory;
 
     private GraphCore graphCore;
     private TransactionManager transactionManager;
@@ -32,12 +32,13 @@ public class GraphInMemoryServiceManager {
 
     @Inject
     public GraphInMemoryServiceManager(GraphIdFactory idFactory, GraphDatabaseStoredVersions storedVersions,
-                                       ProvidesNow providesNow, TramchesterConfig config, GraphPersistence graphPersistence) {
+                                       TramchesterConfig config, GraphPersistence graphPersistence,
+                                       GraphLabelsFactory graphLabelsFactory) {
         this.idFactory = idFactory;
         this.storedVersions = storedVersions;
-        this.providesNow = providesNow;
         this.config = config;
         this.graphPersistence = graphPersistence;
+        this.graphLabelsFactory = graphLabelsFactory;
         graphCore = null;
     }
 
@@ -92,9 +93,9 @@ public class GraphInMemoryServiceManager {
         if (createEmptyDB) {
             logger.warn("Creating clean DB");
             loadedFromDisc = false;
-            graphCore = new GraphCore(idFactory, false);
+            graphCore = new GraphCore(idFactory, graphLabelsFactory,false);
             graphCore.start();
-            transactionManager = new TransactionManager(providesNow, graphCore, idFactory);
+            transactionManager = new TransactionManager(graphCore, idFactory, graphLabelsFactory);
         }
 
         logger.info("started");
@@ -154,9 +155,9 @@ public class GraphInMemoryServiceManager {
             throw new RuntimeException(message);
         }
 
-        final GraphCore core = graphPersistence.loadDBFrom(path, idFactory);
+        final GraphCore core = graphPersistence.loadDBFrom(path, idFactory, graphLabelsFactory);
         this.graphCore = core;
-        this.transactionManager = new TransactionManager(providesNow, core, idFactory);
+        this.transactionManager = new TransactionManager(core, idFactory, graphLabelsFactory);
     }
 
     public boolean isCleanDB() {

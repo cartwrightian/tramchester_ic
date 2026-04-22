@@ -2,13 +2,13 @@ package com.tramchester.unit.graph.inMemory;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.inMemory.GraphCore;
 import com.tramchester.graph.core.inMemory.GraphIdFactory;
 import com.tramchester.graph.core.inMemory.GraphInMemoryServiceManager;
 import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -32,17 +32,18 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
     private GraphDatabaseStoredVersions storedVersions;
 
     Path realPath = Path.of("testData/graph/");
+    private GraphLabelsFactory graphLabelsFactory;
 
     @BeforeEach
     void onceBeforeEachTestRuns() throws IOException {
-        ProvidesNow providesNow = new ProvidesLocalNow();
         graphIdFactory = new GraphIdFactory();
+        graphLabelsFactory = new GraphLabelsFactory();
 
         AppConfiguration config = TestEnv.GET();
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
         graphPersistence = createMock(GraphPersistence.class);
 
-        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, graphPersistence);
+        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, config, graphPersistence, graphLabelsFactory);
 
         Files.createDirectories(realPath);
     }
@@ -67,8 +68,8 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
 
 
         EasyMock.expect(graphPersistence.filesExistIn(realPath)).andReturn(true);
-        GraphCore graphCore = new GraphCore(graphIdFactory, false);
-        EasyMock.expect(graphPersistence.loadDBFrom(realPath, graphIdFactory)).andReturn(graphCore);
+        GraphCore graphCore = new GraphCore(graphIdFactory, graphLabelsFactory,false);
+        EasyMock.expect(graphPersistence.loadDBFrom(realPath, graphIdFactory, graphLabelsFactory)).andReturn(graphCore);
 
         EasyMock.expect(storedVersions.upToDate(EasyMock.eq(dataSourceRepository), EasyMock.anyObject(GraphTransaction.class))).andReturn(true);
 
@@ -84,8 +85,8 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
         DataSourceRepository dataSourceRepository = factory.getTestData();
 
         EasyMock.expect(graphPersistence.filesExistIn(realPath)).andReturn(true);
-        GraphCore graphCore = new GraphCore(graphIdFactory, false);
-        EasyMock.expect(graphPersistence.loadDBFrom(realPath, graphIdFactory)).andReturn(graphCore);
+        GraphCore graphCore = new GraphCore(graphIdFactory, graphLabelsFactory,false);
+        EasyMock.expect(graphPersistence.loadDBFrom(realPath, graphIdFactory, graphLabelsFactory)).andReturn(graphCore);
 
         EasyMock.expect(storedVersions.upToDate(EasyMock.eq(dataSourceRepository), EasyMock.anyObject(GraphTransaction.class))).andReturn(false);
 

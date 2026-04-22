@@ -1,9 +1,9 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.TransactionObserver;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +21,12 @@ public class TransactionManager implements TransactionObserver {
     private final GraphIdFactory idFactory;
     private final Set<Integer> openTransactions;
     private final Set<Integer> committedTransactions;
+    private final GraphLabelsFactory graphLabelsFactory;
 
-    TransactionManager(final ProvidesNow providesNow, final GraphCore graphCore, final GraphIdFactory idFactory) {
+    TransactionManager(final GraphCore graphCore, final GraphIdFactory idFactory, GraphLabelsFactory graphLabelsFactory) {
         this.graphCore = graphCore;
         this.idFactory = idFactory;
+        this.graphLabelsFactory = graphLabelsFactory;
         openTransactions = new HashSet<>();
         committedTransactions = new HashSet<>();
         transactionSequenceNumber = new AtomicInteger(1);
@@ -61,7 +63,7 @@ public class TransactionManager implements TransactionObserver {
         if (immutable) {
             return new ImmutableTransactionGraph(graphCore);
         } else {
-            return new MutableTransactionGraph(graphCore, idFactory);
+            return new MutableTransactionGraph(graphCore, idFactory, graphLabelsFactory);
         }
     }
 

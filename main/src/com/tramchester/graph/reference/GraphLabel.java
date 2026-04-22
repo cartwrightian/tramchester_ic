@@ -66,11 +66,15 @@ public enum GraphLabel { //implements Label {
         return valueOf(name);
     }
 
-    public ImmutableEnumSet<GraphLabel> addTo(final ImmutableEnumSet<GraphLabel> labels) {
+    ImmutableEnumSet<GraphLabel> addTo(final ImmutableEnumSet<GraphLabel> labels) {
         final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(labels);
         updated.add(this);
         return ImmutableEnumSet.copyOf(updated);
     }
+
+//    GraphLabels addTo(final GraphLabels labels) {
+//        return labels.add(this);
+//    }
 
     public ImmutableEnumSet<GraphLabel> singleton() {
         return singleton;

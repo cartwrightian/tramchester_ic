@@ -1,14 +1,13 @@
 package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphPath;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
@@ -54,7 +53,7 @@ public class MapPathToLocations {
     }
 
     private Optional<Location<?>> mapNode(final GraphNode node) {
-        final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
+        final GraphLabels labels = node.getLabels();
         if (labels.contains(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
             final IdFor<NPTGLocality> areaId = node.getAreaId();

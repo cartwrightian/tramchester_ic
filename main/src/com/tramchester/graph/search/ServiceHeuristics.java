@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.*;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
@@ -158,7 +159,7 @@ public class ServiceHeuristics {
 
     }
 
-    public HeuristicsReason checkModes(final ImmutableEnumSet<GraphLabel> modelLabels, final ImmutableEnumSet<GraphLabel> requestedModeLabels,
+    public HeuristicsReason checkModes(final GraphLabels modelLabels, final ImmutableEnumSet<GraphLabel> requestedModeLabels,
                                        final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         if (!modelLabels.anyIntersectionWith(requestedModeLabels)) {
             return reasons.recordReason(HeuristicsReasons.TransportModeWrong(howIGotHere));
@@ -168,7 +169,7 @@ public class ServiceHeuristics {
 
 
     public HeuristicsReason checkModesMatchForFinalChange(final int currentNumberOfChanges,
-                                                          final ImmutableEnumSet<GraphLabel> nodeLabels, final ImmutableEnumSet<GraphLabel> destinationLabels,
+                                                          final GraphLabels nodeLabels, final ImmutableEnumSet<GraphLabel> destinationLabels,
                                                           final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         // TODO potential optimisation where only one mode is configured, in which case this check does nothing
         if (currentNumberOfChanges==penultimateChange) {

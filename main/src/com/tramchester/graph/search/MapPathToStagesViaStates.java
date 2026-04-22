@@ -13,6 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.stateMachine.NextStateNotFoundException;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -78,7 +79,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         pathMapper.process(initial, new PathMapper.ForGraphNode() {
             @Override
             public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final TramDuration currentCost) {
-                final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
+                final GraphLabels labels = node.getLabels();
                 try {
                     final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
                     logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());

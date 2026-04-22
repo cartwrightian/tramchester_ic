@@ -6,6 +6,8 @@ import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +27,7 @@ public class GraphCore implements Graph {
     private static final Logger logger = LoggerFactory.getLogger(GraphCore.class);
 
     private final GraphIdFactory idFactory;
+    private final GraphLabelsFactory graphLabelsFactory;
 
     private final NodesAndEdges nodesAndEdges;
 
@@ -40,12 +43,13 @@ public class GraphCore implements Graph {
      * Use with care, normally want the local copy version of this cons
      * @param idFactory global id factory
      */
-    GraphCore(final GraphIdFactory idFactory) {
-        this(idFactory, false);
+    GraphCore(final GraphIdFactory idFactory, final GraphLabelsFactory graphLabelsFactory) {
+        this(idFactory, graphLabelsFactory,false);
     }
 
-    public GraphCore(final GraphIdFactory idFactory, final boolean local) {
+    public GraphCore(final GraphIdFactory idFactory, final GraphLabelsFactory graphLabelsFactory, final boolean local) {
         this.idFactory = idFactory;
+        this.graphLabelsFactory = graphLabelsFactory;
 
         nodesAndEdges = new NodesAndEdges();
 
@@ -112,9 +116,9 @@ public class GraphCore implements Graph {
         level.log("stopped " + postfix);
     }
 
-    public static GraphCore createFrom(final GraphIdFactory graphIdFactory,
+    public static GraphCore createFrom(final GraphIdFactory graphIdFactory, final GraphLabelsFactory graphLabelsFactory,
                                        final Stream<GraphNodeInMemory> nodes, final Stream<GraphRelationshipInMemory> relationships) {
-        final GraphCore result = new GraphCore(graphIdFactory);
+        final GraphCore result = new GraphCore(graphIdFactory, graphLabelsFactory);
         result.start();
 
         result.addNodes(nodes);
@@ -144,7 +148,7 @@ public class GraphCore implements Graph {
             nodesAndEdges.addNode(id, node);
 
             // update labels for the node
-            final ImmutableEnumSet<GraphLabel> labels = node.getLabels();
+            final GraphLabels labels = node.getLabels();
             labels.forEach(label -> labelsToNodes.get(label).add(id));
         });
         // using loaded id's so work out new next node id
@@ -162,7 +166,8 @@ public class GraphCore implements Graph {
 
     @NotNull
     @Override
-    public GraphNodeInMemory createNode(final ImmutableEnumSet<GraphLabel> labels) {
+    public GraphNodeInMemory createNode(final ImmutableEnumSet<GraphLabel> requestedLabels) {
+        final GraphLabels labels = graphLabelsFactory.getFor(requestedLabels);
         synchronized (nodesAndEdges) {
             final int id = idFactory.getNextNodeId();
             final NodeIdInMemory idInMemory;
@@ -176,7 +181,7 @@ public class GraphCore implements Graph {
         }
     }
 
-    synchronized GraphNodeInMemory insertNode(final GraphNodeInMemory nodeToInsert, final ImmutableEnumSet<GraphLabel> labels) {
+    synchronized GraphNodeInMemory insertNode(final GraphNodeInMemory nodeToInsert, final GraphLabels labels) {
         final NodeIdInMemory id = nodeToInsert.getId();
         nodesAndEdges.addNode(id, nodeToInsert);
         labels.forEach(label -> labelsToNodes.get(label).add(id));
@@ -366,7 +371,7 @@ public class GraphCore implements Graph {
             // relationships
             relationshipsForNodes.remove(id);
             // label map
-            final ImmutableEnumSet<GraphLabel> labels = nodesAndEdges.getNode(id).getLabels();
+            final GraphLabels labels = nodesAndEdges.getNode(id).getLabels();
             labels.forEach(label -> labelsToNodes.get(label).remove(id));
             // the node
             nodesAndEdges.removeNode(id);
@@ -410,6 +415,11 @@ public class GraphCore implements Graph {
     @Override
     public Stream<GraphNode> allNodes() {
         return nodesAndEdges.getNodes().stream().map(node->node);
+    }
+
+    @Override
+    public GraphLabels updateLabels(final GraphLabels original, final GraphLabel addition) {
+        return graphLabelsFactory.appendTo(original, addition);
     }
 
     @Override

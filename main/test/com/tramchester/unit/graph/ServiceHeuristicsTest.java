@@ -15,6 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -218,8 +219,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         verifyAll();
     }
 
-    private static @NotNull ImmutableEnumSet<GraphLabel> getHourLabels(GraphLabel graphLabel) {
-        return graphLabel.singleton();
+    private static @NotNull GraphLabels getGraphLabels(final GraphLabel graphLabel) {
+        return GraphLabels.from(graphLabel.singleton());
     }
 
     @Test
@@ -644,19 +645,19 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         // always ok if modes match
         for (int i = 0; i < maxChanges; i++) {
-            assertTrue(serviceHeuristics.checkModesMatchForFinalChange(i, getHourLabels(TRAM),
-                    getHourLabels(TRAM), howIGotHere, reasons).isValid());
+            assertTrue(serviceHeuristics.checkModesMatchForFinalChange(i, getGraphLabels(TRAM),
+                    TRAM.singleton(), howIGotHere, reasons).isValid());
         }
 
         // ok as long as not penultimate change if modes diff
         for (int i = 0; i < maxChanges-1; i++) {
-            assertTrue(serviceHeuristics.checkModesMatchForFinalChange(i, getHourLabels(TRAM),
-                    getHourLabels(TRAIN), howIGotHere, reasons).isValid());
+            assertTrue(serviceHeuristics.checkModesMatchForFinalChange(i, getGraphLabels(TRAM),
+                    TRAIN.singleton(), howIGotHere, reasons).isValid());
         }
 
         // no ok if modes mismatch and this is the last change
-        assertFalse(serviceHeuristics.checkModesMatchForFinalChange(maxChanges-1, getHourLabels(TRAM),
-                getHourLabels(TRAIN), howIGotHere, reasons).isValid());
+        assertFalse(serviceHeuristics.checkModesMatchForFinalChange(maxChanges-1, getGraphLabels(TRAM),
+                TRAIN.singleton(), howIGotHere, reasons).isValid());
 
         verifyAll();
     }

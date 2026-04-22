@@ -5,6 +5,7 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.stream.Stream;
@@ -47,4 +48,6 @@ public interface Graph extends ImmutableGraph {
      * @return all nodes in the DB
      */
     Stream<GraphNode> allNodes();
+
+    GraphLabels updateLabels(GraphLabels original, GraphLabel addition);
 }

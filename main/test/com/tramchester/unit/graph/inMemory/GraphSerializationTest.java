@@ -21,7 +21,7 @@ import com.tramchester.graph.core.inMemory.GraphRelationshipInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.core.inMemory.RelationshipIdInMemory;
 import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
-import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
@@ -75,7 +75,7 @@ public class GraphSerializationTest {
     @Test
     void shouldRoundTripGraphNode()  {
         NodeIdInMemory id = new NodeIdInMemory(678);
-        ImmutableEnumSet<GraphLabel> labels = ImmutableEnumSet.of(STATION, INTERCHANGE);
+        GraphLabels labels = GraphLabels.from(ImmutableEnumSet.of(STATION, INTERCHANGE));
         GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(id, labels, false);
 
         TramTime tramTime = TramTime.of(11, 42);

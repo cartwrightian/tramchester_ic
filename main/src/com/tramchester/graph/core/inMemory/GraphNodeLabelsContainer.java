@@ -1,15 +1,17 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
+import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
+
+import java.util.EnumSet;
 
 public class GraphNodeLabelsContainer {
 
-    private ImmutableEnumSet<GraphLabel> labels;
+    private GraphLabels labels;
     private final GraphNodeInMemory parent;
 
-    public GraphNodeLabelsContainer(final GraphNodeInMemory parent, final ImmutableEnumSet<GraphLabel> labels) {
+    public GraphNodeLabelsContainer(final GraphNodeInMemory parent, final GraphLabels labels) {
         this.labels = labels;
         this.parent = parent;
     }
@@ -18,12 +20,12 @@ public class GraphNodeLabelsContainer {
         return labels.contains(graphLabel);
     }
 
-    public ImmutableEnumSet<GraphLabel> getLabels() {
+    public GraphLabels getLabels() {
         return labels;
     }
 
-    public void add(final GraphLabel label) {
-        labels = label.addTo(labels);
+    public void add(final MutableGraphTransaction txn, final GraphLabel toAdd) {
+        labels = txn.updateLabels(labels, toAdd); // label.addTo(labels);
         // needed to ensure Node marked as Dirty
         parent.invalidateCache();
     }
@@ -34,5 +36,9 @@ public class GraphNodeLabelsContainer {
                 "labels=" + labels +
                 ", parent=" + parent.getId() +
                 '}';
+    }
+
+    public EnumSet<GraphLabel> createEnumSet() {
+        return labels.createEnumSet();
     }
 }

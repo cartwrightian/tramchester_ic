@@ -1,19 +1,18 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
 import java.util.stream.Stream;
 
 public interface ImmutableTraversalState {
 
-    ImmutableTraversalState nextState(ImmutableEnumSet<GraphLabel> nodeLabels, GraphNode node,
+    ImmutableTraversalState nextState(GraphLabels nodeLabels, GraphNode node,
                                       JourneyStateUpdate journeyState, TramDuration duration);
 
     TramDuration getTotalDuration();

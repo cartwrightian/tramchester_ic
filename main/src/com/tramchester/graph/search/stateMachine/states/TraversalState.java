@@ -6,6 +6,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
 import java.util.stream.Stream;
@@ -79,14 +80,14 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     @Override
-    public TraversalState nextState(final ImmutableEnumSet<GraphLabel> originalLabels, final GraphNode node,
+    public TraversalState nextState(final GraphLabels originalLabels, final GraphNode node,
                                     final JourneyStateUpdate journeyState, final TramDuration cost) {
 
         final boolean isInterchange = originalLabels.contains(INTERCHANGE);
         final boolean hasPlatforms = originalLabels.contains(HAS_PLATFORMS);
 
         // TODO assumption here that performance is ok as using EnumSet for these operations
-        ImmutableEnumSet<GraphLabel> otherLabels = originalLabels.without(TransportModesLabels);
+        GraphLabels otherLabels = originalLabels.without(TransportModesLabels);
 
         final GraphLabel actualNodeType;
         final int numLabels = otherLabels.size();

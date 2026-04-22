@@ -15,6 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.List;
@@ -61,7 +62,7 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
 
     boolean hasLabel(GraphLabel graphLabel);
 
-    ImmutableEnumSet<GraphLabel> getLabels();
+    GraphLabels getLabels();
 
     boolean hasRelationship(GraphTransaction txn, GraphDirection direction, TransportRelationshipTypes transportRelationshipTypes);
 
@@ -85,7 +86,7 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     // but different RouteIds
     @JsonIgnore
     default IdFor<? extends CoreDomain> getCoreDomainId() {
-        final ImmutableEnumSet<GraphLabel> labels = getLabels();
+        final GraphLabels labels = getLabels();
         final List<GraphLabel> matched = labels.stream().filter(GraphLabel.CoreDomain::contains).distinct().toList();
         if (matched.size()==1) {
             final GraphLabel label = matched.getFirst();

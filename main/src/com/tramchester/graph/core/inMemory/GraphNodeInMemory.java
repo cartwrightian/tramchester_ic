@@ -8,6 +8,7 @@ import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.EnumSet;
@@ -24,29 +25,29 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     private final AtomicInteger dirtyCount;
 
     // push labels into graph, so can do the validation check etc
-    private final GraphNodeLabelsContainer labels;
+    private final GraphNodeLabelsContainer labelsContainer;
 
-    public GraphNodeInMemory(final NodeIdInMemory id, final ImmutableEnumSet<GraphLabel> labels, final boolean diagnostics) {
-        this(new PropertyContainer(diagnostics), id, labels);
+    public GraphNodeInMemory(final NodeIdInMemory id, final GraphLabels labelsContainer, final boolean diagnostics) {
+        this(new PropertyContainer(diagnostics), id, labelsContainer);
     }
 
     @JsonCreator
     public GraphNodeInMemory(
             @JsonProperty("nodeId") final NodeIdInMemory id,
-            @JsonProperty("labels") final EnumSet<GraphLabel> labels,
+            @JsonProperty("labels") final EnumSet<GraphLabel> labelsContainer,
             @JsonProperty("properties") List<PropertyDTO> properties) {
-        this(new PropertyContainer(properties), id, ImmutableEnumSet.copyOf(labels));
+        this(new PropertyContainer(properties), id, GraphLabels.from(labelsContainer));
     }
 
-    private GraphNodeInMemory(final PropertyContainer propertyContainer, final NodeIdInMemory id, final ImmutableEnumSet<GraphLabel> labels) {
+    private GraphNodeInMemory(final PropertyContainer propertyContainer, final NodeIdInMemory id, final GraphLabels labelsContainer) {
         super(propertyContainer);
         this.id = id;
-        this.labels = new GraphNodeLabelsContainer(this, labels);
+        this.labelsContainer = new GraphNodeLabelsContainer(this, labelsContainer);
         dirtyCount = new AtomicInteger(0);
     }
 
     public GraphNodeInMemory copy() {
-        return new GraphNodeInMemory(super.copyProperties(), id, labels.getLabels());
+        return new GraphNodeInMemory(super.copyProperties(), id, labelsContainer.getLabels());
     }
 
     @Override
@@ -87,7 +88,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public String toString() {
         return "GraphNodeInMemory{" +
                 "id=" + id +
-                ", labels=" + labels +
+                ", labels=" + labelsContainer +
                 '}';
     }
 
@@ -99,18 +100,19 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @Override
     public boolean hasLabel(GraphLabel graphLabel) {
-        return labels.contains(graphLabel);
+        return labelsContainer.contains(graphLabel);
     }
 
     @JsonIgnore
     @Override
-    public ImmutableEnumSet<GraphLabel> getLabels() {
-        return labels.getLabels();
+    public GraphLabels getLabels() {
+        return labelsContainer.getLabels();
     }
 
     @JsonProperty(value = "labels")
     EnumSet<GraphLabel> getLabelsForSerialization() {
-        return ImmutableEnumSet.createEnumSet(labels.getLabels());
+        return labelsContainer.createEnumSet();
+        //return ImmutableEnumSet.createEnumSet(labels.getLabels());
     }
 
     @Override
@@ -176,7 +178,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @Override
     public synchronized void addLabel(final MutableGraphTransaction txn, final GraphLabel label) {
         final GraphTransactionInMemory inMemoryTxn = (GraphTransactionInMemory) txn;
-        labels.add(label);
+        //labels.add(label);
+        labelsContainer.add(txn, label);
         // update labels to nodes mapping in GraphCore
         inMemoryTxn.addLabel(id, label);
     }

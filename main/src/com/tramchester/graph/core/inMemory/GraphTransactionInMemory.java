@@ -8,6 +8,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +112,16 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     public MutableGraphRelationship createRelationship(final MutableGraphNode begin, final MutableGraphNode end,
                                                        final TransportRelationshipTypes relationshipType) {
         return graph.createRelationship(relationshipType, (GraphNodeInMemory) begin, (GraphNodeInMemory) end);
+    }
+
+    @Override
+    public GraphLabels updateLabels(final GraphLabels original, final GraphLabel addition) {
+        return graph.updateLabels(original, addition);
+    }
+
+    void addLabel(final NodeIdInMemory id, final GraphLabel label) {
+        // update labels to nodes mapping
+        graph.addLabel(id, label);
     }
 
     @Override
@@ -258,11 +269,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
 
     void delete(final NodeIdInMemory id) {
         graph.delete(id);
-    }
-
-    void addLabel(final NodeIdInMemory id, final GraphLabel label) {
-        // update labels to nodes mapping
-        graph.addLabel(id, label);
     }
 
     @Override

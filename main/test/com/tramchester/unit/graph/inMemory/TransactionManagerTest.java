@@ -7,12 +7,12 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.core.inMemory.*;
 import com.tramchester.graph.core.inMemory.persist.GraphPersistence;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
+import com.tramchester.graph.reference.GraphLabelsFactory;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.GraphHelper;
@@ -42,14 +42,14 @@ public class TransactionManagerTest extends EasyMockSupport {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        ProvidesNow providesNow = new ProvidesLocalNow();
         GraphIdFactory graphIdFactory = new GraphIdFactory();
+        GraphLabelsFactory graphLabelsFactory = new GraphLabelsFactory();
 
         AppConfiguration config = TestEnv.GET();
         GraphDatabaseStoredVersions storedVersions = createMock(GraphDatabaseStoredVersions.class);
         GraphPersistence graphPersistence = createMock(GraphPersistence.class);
 
-        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, providesNow, config, graphPersistence);
+        serviceManager = new GraphInMemoryServiceManager(graphIdFactory, storedVersions, config, graphPersistence, graphLabelsFactory);
 
         TramTransportDataForTestFactory factory = new TramTransportDataForTestFactory(new ProvidesLocalNow());
         DataSourceRepository dataSourceRepository = factory.getTestData();
@@ -138,6 +138,32 @@ public class TransactionManagerTest extends EasyMockSupport {
 
             node.addLabel(txn, TRAIN);
 
+            List<GraphNode> findTrainAfter = txn.findNodes(TRAIN).toList();
+            assertEquals(1, findTrainAfter.size());
+            assertEquals(id, findTrainAfter.getFirst().getId());
+        }
+    }
+
+    @Test
+    void shouldUpdateLabelAcrossTransactions() {
+        final GraphNodeId id;
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
+            final MutableGraphNode node = txn.createNode(FERRY);
+            id = node.getId();
+
+            List<GraphNode> findFerry = txn.findNodes(FERRY).toList();
+            assertEquals(1, findFerry.size());
+            assertEquals(id, findFerry.getFirst().getId());
+
+            List<GraphNode> findTrain = txn.findNodes(TRAIN).toList();
+            assertTrue(findTrain.isEmpty());
+
+            node.addLabel(txn, TRAIN);
+
+            txn.commit();
+        }
+
+        try (MutableGraphTransaction txn = transactionManager.createTransaction(Duration.ofMinutes(1), false)) {
             List<GraphNode> findTrainAfter = txn.findNodes(TRAIN).toList();
             assertEquals(1, findTrainAfter.size());
             assertEquals(id, findTrainAfter.getFirst().getId());
