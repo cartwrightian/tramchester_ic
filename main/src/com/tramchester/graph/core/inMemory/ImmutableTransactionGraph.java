@@ -163,7 +163,7 @@ public class ImmutableTransactionGraph implements Graph {
         // targeted on key methods used during route calculation
         private final ConcurrentMap<Pair<NodeIdInMemory, GraphDirection>, List<GraphRelationship>> relationshipCache;
 
-        public GraphCache(Graph underlying) {
+        public GraphCache(final Graph underlying) {
             this.underlying = underlying;
             relationshipCache = new ConcurrentHashMap<>();
         }

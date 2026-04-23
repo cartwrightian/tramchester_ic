@@ -142,7 +142,7 @@ public class PropertyDTODeserializer extends JsonDeserializer<PropertyDTO.Proper
         return TripIdSet.Factory.deserialize(ids);
     }
 
-    private EnumSet<?> deserializeEnumSet(final JsonParser jsonParser, JsonNode enumSetNode) throws JsonParseException {
+    private EnumSet<?> deserializeEnumSet(final JsonParser jsonParser, final JsonNode enumSetNode) throws JsonParseException {
         if (!enumSetNode.isObject()) {
             throw new JsonParseException(jsonParser, "Expected object for EnumSet " + enumSetNode);
         }

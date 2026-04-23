@@ -28,6 +28,7 @@ public enum TransportMode implements HasTransportMode {
     public static final ImmutableEnumSet<TransportMode> TramsOnly = Tram.singleton();
 
     private static final Map<Short, TransportMode> index;
+    private static final ImmutableEnumSet<TransportMode> NoneOf = ImmutableEnumSet.noneOf(TransportMode.class);
 
     static {
         index = new HashMap<>();
@@ -70,6 +71,10 @@ public enum TransportMode implements HasTransportMode {
     public static ImmutableEnumSet<TransportMode> parseCSV(final String csv) {
         final String[] divided = csv.split(",");
         return ImmutableEnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
+    }
+
+    public static ImmutableEnumSet<TransportMode> noneOf() {
+        return NoneOf;
     }
 
     @JsonIgnore

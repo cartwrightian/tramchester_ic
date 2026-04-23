@@ -133,7 +133,11 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract BoundingBox getBounds();
 
     public ImmutableEnumSet<TransportMode> getTransportModesImmutable() {
-        return ImmutableEnumSet.copyOf(getTransportModes());
+        final EnumSet<TransportMode> transportModes = getTransportModes();
+        if (transportModes.isEmpty()) {
+            return ImmutableEnumSet.noneOf(TransportMode.class);
+        }
+        return ImmutableEnumSet.copyOf(transportModes);
     }
 
     public EnumSet<TransportMode> getTransportModes() {

@@ -29,7 +29,7 @@ public enum KnownTramRouteEnum implements TestRoute {
 //    ReplacementBusThree(BusThree, "Replacement Bus 3", "2361", ReplacementBusEaster2026),
 //    ReplacementBusFour(BusFour, "Replacement Bus 4", "3229", ReplacementBusEaster2026),
 //    ReplacementBusFive(BusFive, "Replacement Bus 5", "2177", ReplacementBusEaster2026),
-    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,11)),
+    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,25)),
 
     // Blue
     EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", routeChangeOverDate),

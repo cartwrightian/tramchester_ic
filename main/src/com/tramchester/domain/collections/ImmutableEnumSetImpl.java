@@ -14,6 +14,14 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
     abstract EnumSet<T> getContained();
 
     static <C extends Enum<C>> ImmutableEnumSetImpl<C> createFrom(final EnumSet<C> source) {
+        if (source.isEmpty()) {
+            throw new RuntimeException("Empty" + source);
+        }
+        if (source.size()==1) {
+            C element = source.iterator().next();
+            return new One<>(element);
+
+        }
         return new Many<>(source);
     }
 
@@ -22,7 +30,8 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
     }
 
     static <S extends Enum<S>> ImmutableEnumSetImpl<S> noneOf(final Class<S> theClass) {
-        return createFrom(EnumSet.noneOf(theClass));
+        return new None<>(theClass);
+        //return createFrom(EnumSet.noneOf(theClass));
     }
 
     static <S extends Enum<S>> EnumSet<S> createEnumSet(final ImmutableEnumSetImpl<S> items) {
@@ -61,6 +70,85 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         return getContained().hashCode();
     }
 
+    static class None<T extends Enum<T>> extends ImmutableEnumSetImpl<T> {
+
+        private final Class<T> theClass;
+
+        None(Class<T> theClass) {
+            this.theClass = theClass;
+        }
+
+        @Override
+        EnumSet<T> getContained() {
+            return EnumSet.noneOf(theClass);
+        }
+
+        @Override
+        public Stream<T> stream() {
+            return Stream.empty();
+        }
+
+        @Override
+        public boolean contains(T item) {
+            return false;
+        }
+
+        @Override
+        public Set<T> intersectionWith(final ImmutableEnumSet<T> other) {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return true;
+        }
+
+        @Override
+        public boolean anyIntersectionWith(ImmutableEnumSet<T> other) {
+            return false;
+        }
+
+        @Override
+        public boolean anyIntersectionWith(EnumSet<T> other) {
+            return false;
+        }
+
+        @Override
+        public <D extends Enum<D>> ImmutableEnumSet<D> convertTo(Class<D> targetClass, Function<T, D> convert) {
+            return ImmutableEnumSetImpl.noneOf(targetClass);
+        }
+
+        @Override
+        public void addAllTo(final EnumSet<T> mutableTarget) {
+            // no-op
+        }
+
+        @Override
+        public ImmutableEnumSet<T> without(Set<T> remove) {
+            return this;
+        }
+
+        @Override
+        public @NotNull Iterator<T> iterator() {
+            return new Iterator<>() {
+                @Override
+                public boolean hasNext() {
+                    return false;
+                }
+
+                @Override
+                public T next() {
+                    return null;
+                }
+            };
+        }
+    }
+
     static class One<T extends Enum<T>> extends ImmutableEnumSetImpl<T> {
         private final T item;
 
@@ -89,8 +177,18 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         }
 
         @Override
-        public Sets.SetView<T> intersectionWith(final ImmutableEnumSet<T> other) {
-            return other.intersectionWith(this);
+        public Set<T> intersectionWith(final ImmutableEnumSet<T> other) {
+            // only intersection can be if the other set contains item
+            if (other.isEmpty()) {
+                return Collections.emptySet();
+            }
+
+            if (other.contains(item)) {
+                return Collections.singleton(item);
+            } else {
+                return Collections.emptySet();
+            }
+            //return other.intersectionWith(this);
         }
 
         @Override

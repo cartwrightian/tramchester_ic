@@ -208,7 +208,8 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
             final Set<TransportMode> theSet = (Set<TransportMode>) getProperty(TRANSPORT_MODES);
             return ImmutableEnumSet.copyOf(theSet);
         } else {
-            return ImmutableEnumSet.noneOf(TransportMode.class);
+            return TransportMode.noneOf();
+            //return ImmutableEnumSet.noneOf(TransportMode.class);
         }
     }
 

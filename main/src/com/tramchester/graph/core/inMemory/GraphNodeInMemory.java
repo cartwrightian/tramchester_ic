@@ -11,7 +11,6 @@ import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,9 +33,9 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     @JsonCreator
     public GraphNodeInMemory(
             @JsonProperty("nodeId") final NodeIdInMemory id,
-            @JsonProperty("labels") final EnumSet<GraphLabel> labelsContainer,
+            @JsonProperty("labels") final GraphLabels labels,
             @JsonProperty("properties") List<PropertyDTO> properties) {
-        this(new PropertyContainer(properties), id, GraphLabels.from(labelsContainer));
+        this(new PropertyContainer(properties), id, labels);
     }
 
     private GraphNodeInMemory(final PropertyContainer propertyContainer, final NodeIdInMemory id, final GraphLabels labelsContainer) {
@@ -110,9 +109,8 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @JsonProperty(value = "labels")
-    EnumSet<GraphLabel> getLabelsForSerialization() {
-        return labelsContainer.createEnumSet();
-        //return ImmutableEnumSet.createEnumSet(labels.getLabels());
+    GraphLabels getLabelsForSerialization() {
+        return labelsContainer.getLabels();
     }
 
     @Override

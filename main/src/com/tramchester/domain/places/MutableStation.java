@@ -105,6 +105,9 @@ public class MutableStation implements Station {
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
+        if (modes.isEmpty()) {
+            return ImmutableEnumSet.noneOf(TransportMode.class);
+        }
         return ImmutableEnumSet.copyOf(modes);
     }
 

@@ -38,7 +38,7 @@ public enum GraphLabel { //implements Label {
     public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSet.copyOf(
             EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE));
 
-    public static final ImmutableEnumSet<GraphLabel> NoneOf = ImmutableEnumSet.noneOf(GraphLabel.class);
+    //public static final ImmutableEnumSet<GraphLabel> NoneOf = ImmutableEnumSet.noneOf(GraphLabel.class);
 
     private final ImmutableEnumSet<GraphLabel> singleton;
 

@@ -1,5 +1,6 @@
 package com.tramchester.graph.reference;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,34 +11,35 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class GraphLabels implements Iterable<GraphLabel> {
+
+    private static final GraphLabels empty = from(ImmutableEnumSet.noneOf(GraphLabel.class));
+
+    @JsonIgnore
     private final ImmutableEnumSet<GraphLabel> theLabels;
 
     private GraphLabels(final ImmutableEnumSet<GraphLabel> theLabels) {
         this.theLabels = theLabels;
     }
 
-    public static GraphLabels from(final EnumSet<GraphLabel> labels) {
-        return new GraphLabels(ImmutableEnumSet.copyOf(labels));
-    }
+//    static GraphLabels from(final EnumSet<GraphLabel> labels) {
+//        return new GraphLabels(ImmutableEnumSet.copyOf(labels));
+//    }
 
-    public static GraphLabels from(final ImmutableEnumSet<GraphLabel> labels) {
+    static GraphLabels from(final ImmutableEnumSet<GraphLabel> labels) {
         return new GraphLabels(labels);
     }
 
     public static GraphLabels empty() {
-        return from(ImmutableEnumSet.noneOf(GraphLabel.class));
+        return empty;
+    }
+
+    public static @NotNull GraphLabels forTesting(ImmutableEnumSet<GraphLabel> labels) {
+        return from(labels);
     }
 
     public boolean contains(GraphLabel label) {
         return theLabels.contains(label);
     }
-
-//    public GraphLabels add(final GraphLabel graphLabel) {
-//        final EnumSet<GraphLabel> updated = ImmutableEnumSet.createEnumSet(theLabels);
-//        updated.add(graphLabel);
-//        theLabels = ImmutableEnumSet.copyOf(updated);
-//        return this;
-//    }
 
     public EnumSet<GraphLabel> createEnumSet() {
         return ImmutableEnumSet.createEnumSet(theLabels);
@@ -47,6 +49,7 @@ public class GraphLabels implements Iterable<GraphLabel> {
         return theLabels.stream();
     }
 
+    @JsonIgnore
     @Override
     public @NotNull Iterator<GraphLabel> iterator() {
         return theLabels.iterator();
@@ -87,10 +90,12 @@ public class GraphLabels implements Iterable<GraphLabel> {
         return theLabels.anyIntersectionWith(labels);
     }
 
+    @JsonIgnore
     ImmutableEnumSet<GraphLabel> contained() {
         return theLabels;
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return theLabels.isEmpty();
     }

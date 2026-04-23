@@ -220,7 +220,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     private static @NotNull GraphLabels getGraphLabels(final GraphLabel graphLabel) {
-        return GraphLabels.from(graphLabel.singleton());
+        return GraphLabels.forTesting(graphLabel.singleton());
     }
 
     @Test

@@ -85,7 +85,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(nodeId);
 
         GraphNode node = createMock(GraphNode.class);
-        EasyMock.expect(node.getLabels()).andStubReturn(GraphLabels.from(STATION.singleton()));
+        EasyMock.expect(node.getLabels()).andStubReturn(GraphLabels.forTesting(STATION.singleton()));
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
         EasyMock.expect(node.getId()).andStubReturn(nodeId);
 

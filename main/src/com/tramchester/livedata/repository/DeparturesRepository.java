@@ -1,6 +1,5 @@
 package com.tramchester.livedata.repository;
 
-import com.google.common.collect.Sets;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -117,7 +117,7 @@ public class DeparturesRepository {
     }
 
     private List<UpcomingDeparture> getStationDepartures(final Station station, final ImmutableEnumSet<TransportMode> modes) {
-        Sets.SetView<TransportMode> toFetch = station.getTransportModes().intersectionWith(modes);
+        Set<TransportMode> toFetch = station.getTransportModes().intersectionWith(modes);
 
         if (toFetch.isEmpty()) {
             logger.error(format("Station modes %s and filter modes %s do not overlap", station.getId(), modes));

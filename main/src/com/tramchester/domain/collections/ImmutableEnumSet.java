@@ -1,7 +1,5 @@
 package com.tramchester.domain.collections;
 
-import com.google.common.collect.Sets;
-
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,7 +37,7 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
 
     boolean contains(T item);
 
-    Sets.SetView<T> intersectionWith(ImmutableEnumSet<T> other);
+    Set<T> intersectionWith(ImmutableEnumSet<T> other);
 
     int size();
 

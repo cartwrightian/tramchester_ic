@@ -66,22 +66,23 @@ public class GraphPersistenceTest extends EasyMockSupport {
 
         GetsFileModTime getFileModeTime = new GetsFileModTime();
         ProvidesLocalNow providesLocalNow =  new ProvidesLocalNow();
-        graphPersistence = new GraphPersistence(getFileModeTime, providesLocalNow);
+        GraphLabelsFactory graphLabelsFactory = new GraphLabelsFactory();
+        graphPersistence = new GraphPersistence(getFileModeTime, providesLocalNow, graphLabelsFactory);
 
         nodesAndEdges = new NodesAndEdges();
 
-        GraphNodeInMemory nodeA = new GraphNodeInMemory(new NodeIdInMemory(1), GraphLabels.from(ImmutableEnumSet.of(GraphLabel.STATION)),
+        GraphNodeInMemory nodeA = new GraphNodeInMemory(new NodeIdInMemory(1), GraphLabels.forTesting(ImmutableEnumSet.of(GraphLabel.STATION)),
                 false);
         nodeA.setTransportMode(Tram);
         nodesAndEdges.addNode(nodeA.getId(), nodeA);
 
-        GraphNodeInMemory nodeB = new GraphNodeInMemory(new NodeIdInMemory(2), GraphLabels.from(ImmutableEnumSet.of(GraphLabel.PLATFORM)),
+        GraphNodeInMemory nodeB = new GraphNodeInMemory(new NodeIdInMemory(2), GraphLabels.forTesting(ImmutableEnumSet.of(GraphLabel.PLATFORM)),
                 false);
         nodeB.setPlatformNumber(buryPlatform);
         nodeB.set(buryPlatform.getStation());
         nodesAndEdges.addNode(nodeB.getId(), nodeB);
 
-        versionNode = new GraphNodeInMemory(new NodeIdInMemory(3), GraphLabels.from(ImmutableEnumSet.of(GraphLabel.VERSION)), false);
+        versionNode = new GraphNodeInMemory(new NodeIdInMemory(3), GraphLabels.forTesting(ImmutableEnumSet.of(GraphLabel.VERSION)), false);
         versionNode.setTime(time);
         versionNode.setStartDate(date);
         nodesAndEdges.addNode(versionNode.getId(), versionNode);
