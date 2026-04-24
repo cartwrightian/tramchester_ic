@@ -23,11 +23,10 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     private final NodeIdInMemory id;
     private final AtomicInteger dirtyCount;
 
-    // push labels into graph, so can do the validation check etc
-    private final GraphNodeLabelsContainer labelsContainer;
+    private GraphLabels graphLabels;
 
-    public GraphNodeInMemory(final NodeIdInMemory id, final GraphLabels labelsContainer, final boolean diagnostics) {
-        this(new PropertyContainer(diagnostics), id, labelsContainer);
+    public GraphNodeInMemory(final NodeIdInMemory id, final GraphLabels graphLabels, final boolean diagnostics) {
+        this(new PropertyContainer(diagnostics), id, graphLabels);
     }
 
     @JsonCreator
@@ -38,15 +37,17 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         this(new PropertyContainer(properties), id, labels);
     }
 
-    private GraphNodeInMemory(final PropertyContainer propertyContainer, final NodeIdInMemory id, final GraphLabels labelsContainer) {
+    private GraphNodeInMemory(final PropertyContainer propertyContainer, final NodeIdInMemory id,
+                              final GraphLabels graphLabels) {
         super(propertyContainer);
         this.id = id;
-        this.labelsContainer = new GraphNodeLabelsContainer(this, labelsContainer);
+        this.graphLabels = graphLabels;
+        //this.labelsContainer = new GraphNodeLabelsContainer(this, labelsContainer);
         dirtyCount = new AtomicInteger(0);
     }
 
     public GraphNodeInMemory copy() {
-        return new GraphNodeInMemory(super.copyProperties(), id, labelsContainer.getLabels());
+        return new GraphNodeInMemory(super.copyProperties(), id, graphLabels);
     }
 
     @Override
@@ -87,7 +88,7 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     public String toString() {
         return "GraphNodeInMemory{" +
                 "id=" + id +
-                ", labels=" + labelsContainer +
+                ", labels=" + graphLabels +
                 '}';
     }
 
@@ -99,18 +100,13 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
     @Override
     public boolean hasLabel(GraphLabel graphLabel) {
-        return labelsContainer.contains(graphLabel);
-    }
-
-    @JsonIgnore
-    @Override
-    public GraphLabels getLabels() {
-        return labelsContainer.getLabels();
+        return graphLabels.contains(graphLabel);
     }
 
     @JsonProperty(value = "labels")
-    GraphLabels getLabelsForSerialization() {
-        return labelsContainer.getLabels();
+    @Override
+    public GraphLabels getLabels() {
+        return graphLabels;
     }
 
     @Override
@@ -174,12 +170,14 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
     }
 
     @Override
-    public synchronized void addLabel(final MutableGraphTransaction txn, final GraphLabel label) {
+    public synchronized void addLabel(final MutableGraphTransaction txn, final GraphLabel toAdd) {
         final GraphTransactionInMemory inMemoryTxn = (GraphTransactionInMemory) txn;
         //labels.add(label);
-        labelsContainer.add(txn, label);
+        //labelsContainer.add(txn, label);
+        invalidateCache();
+        graphLabels = txn.updateLabels(graphLabels, toAdd);
         // update labels to nodes mapping in GraphCore
-        inMemoryTxn.addLabel(id, label);
+        inMemoryTxn.addLabel(id, toAdd);
     }
 
     @Override

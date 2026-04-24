@@ -102,6 +102,7 @@ public class GraphSerializationTest {
         assertEquals(graphNodeInMemory, result);
 
         try {
+            assertEquals(labels, graphNodeInMemory.getLabels());
             assertEquals(tramTime, result.getTime());
             assertEquals(KnownLocations.nearBury.latLong(), result.getLatLong());
             assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
