@@ -8,10 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
@@ -280,28 +277,31 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 24)
+    @DisabledUntilDate(year = 2026, month = 4, day = 26)
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
+
+        // TODO Rework this test to ID journeys that go via unexpected routes, and ID why that is happening
 
         long maxNumberJourneys = 5;
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21), maxNumberJourneys, maxChanges);
 
-        List<Journey> routeAJourneys = calculator.calculateRouteAsList(Altrincham, PiccadillyGardens, journeyRequest);
-        assertFalse(routeAJourneys.isEmpty());
-        IdSet<Route> routesForA = routeAJourneys.stream().
+        List<Journey> altyToPicGardens = calculator.calculateRouteAsList(Altrincham, PiccadillyGardens, journeyRequest);
+        assertFalse(altyToPicGardens.isEmpty());
+        IdSet<Route> routesAltyToPicGardens = altyToPicGardens.stream().
                 flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
-        assertEquals(1, routesForA.size());
-        assertTrue(routesForA.contains(getPurple(when).getId()), "not expecting " + routesForA);
+        assertEquals(1, routesAltyToPicGardens.size());
+        assertTrue(routesAltyToPicGardens.contains(getPurple(when).getId()), "not expecting " + routesAltyToPicGardens);
 
-        List<Journey> routeBJourneys = calculator.calculateRouteAsList(Altrincham, MarketStreet, journeyRequest);
-        assertFalse(routeBJourneys.isEmpty());
-        IdSet<Route> routesForB = routeBJourneys.stream().
+        List<Journey> altyToMarketStreet = calculator.calculateRouteAsList(Altrincham, MarketStreet, journeyRequest);
+        assertFalse(altyToMarketStreet.isEmpty());
+        IdSet<Route> routesAltyToMarketStreet = altyToMarketStreet.stream().
                 flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
-        // Easter closures
-        assertEquals(1, routesForB.size());
-        assertTrue(routesForB.contains(getGreen(when).getId()), "not expecting " + routesForB);
+
+        assertEquals(1, routesAltyToMarketStreet.size(), routesAltyToMarketStreet.toString());
+        assertTrue(routesAltyToMarketStreet.contains(getGreen(when).getId()),
+                "not expecting " + routesAltyToMarketStreet);
 
         JourneyRequest journeyRequestBoth = standardJourneyRequest(when, TramTime.of(10, 21),
                 2*maxNumberJourneys, 0);
@@ -314,10 +314,10 @@ public class RouteCalculatorTest {
                 flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
         assertEquals(2, routesForBoth.size(), "Did use both available routes " + routesForBoth);
 
-        assertEquals(routeAJourneys.size()+routeBJourneys.size(), servedByBothRoutes.size(),
-            "Mismatch Alty to Picc G " + routeAJourneys.size() +
-                    " Alty to Market St " + routeBJourneys.size() +
-                    " both " + servedByBothRoutes.size());
+        assertEquals(altyToPicGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size(),
+            "Mismatch on routes. Alty to Picc G: " + altyToPicGardens.size() +
+                    " Alty to Market St only: " + altyToMarketStreet.size() +
+                    " both (deansgate): " + servedByBothRoutes.size());
     }
 
     // over max wait, catch failure to accumulate journey times correctly
