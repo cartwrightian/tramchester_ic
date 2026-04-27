@@ -1,7 +1,6 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -34,7 +33,7 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange AshtonLineLateApril2026 = DateRange.of(TramDate.of(2026,4,25), 1);
+//    public static DateRange AshtonLineLateApril2026 = DateRange.of(TramDate.of(2026,4,25), 1);
 
     public static TramDate earlyMayBankHold = TramDate.of(2026, 5,4);
     public static TramDate lateMayBankHold = TramDate.of(2026, 5,25);

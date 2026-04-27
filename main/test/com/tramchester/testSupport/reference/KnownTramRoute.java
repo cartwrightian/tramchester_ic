@@ -87,9 +87,9 @@ public class KnownTramRoute {
             }
         }
 
-        if (AshtonLineLateApril2026.contains(date)) {
-            routes.add(find.apply(BusBlue));
-        }
+//        if (AshtonLineLateApril2026.contains(date)) {
+//            routes.add(find.apply(BusBlue));
+//        }
 
         routes.add(find.apply(Purple));
         routes.add(find.apply(Yellow));
