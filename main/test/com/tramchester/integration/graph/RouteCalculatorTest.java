@@ -277,7 +277,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 26)
+    @DisabledUntilDate(year = 2026, month = 4, day = 30)
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 

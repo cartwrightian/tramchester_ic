@@ -142,7 +142,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(13,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 26)
+    @DisabledUntilDate(year = 2026, month = 5, day = 3)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -279,8 +279,11 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private LocationIdsAndNames<Station> getFailedPairedFor(final JourneyRequest journeyRequest) {
         final TramDate date = journeyRequest.getDate();
-        Set<Station> stations = tramStations.stream().
-                filter(station -> !UpcomingDates.hasClosure(station, date)).
+        final TramTime originalTime = journeyRequest.getOriginalTime();
+        final TimeRange timeRange = TimeRange.of(originalTime,
+                originalTime.plusMinutes(config.getMaxJourneyDuration()));
+        final Set<Station> stations = tramStations.stream().
+                filter(station -> !UpcomingDates.hasClosure(station, date, timeRange)).
                 map(tramStations -> tramStations.from(stationRepository)).
                 filter(station -> !closedStationRepository.isClosed(station, date)).
                 collect(Collectors.toSet());

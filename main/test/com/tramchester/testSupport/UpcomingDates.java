@@ -3,9 +3,11 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -37,19 +39,38 @@ public class UpcomingDates {
     public static TramDate earlyMayBankHold = TramDate.of(2026, 5,4);
     public static TramDate lateMayBankHold = TramDate.of(2026, 5,25);
 
+    public static TramDate victoriaWorkEarlyMay2026 = TramDate.of(2026, 5, 3);
+    public static TramDate victoriaAndRochdaleLineMay2026 = TramDate.of(2026, 5, 10);
+
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
 
-    public static boolean hasClosure(Station station, TramDate date, TimeRange timeRange) {
-        if (hasClosure(station, date)) {
-            return true;
-        }
-        return false;
-    }
-
     public static boolean hasClosure(TramStations station, TramDate date) {
         return hasClosure(station.getId(), date);
+    }
+
+    public static boolean hasClosure(HasId<Station> station, TramDate date, TimeRange timeRange) {
+        return hasClosure(station.getId(), date, timeRange);
+    }
+
+    public static boolean hasClosure(IdFor<Station> stationId, TramDate date, TimeRange timeRange) {
+        if (hasClosure(stationId, date)) {
+            return true;
+        }
+        if (victoriaWorkEarlyMay2026.equals(date)) {
+            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(10,0));
+            if (closure.anyOverlap(timeRange)) {
+                return true;
+            }
+        }
+        if (victoriaAndRochdaleLineMay2026.equals(date)) {
+            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(11,0));
+            if (closure.anyOverlap(timeRange)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {

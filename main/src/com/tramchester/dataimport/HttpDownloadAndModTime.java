@@ -251,6 +251,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     private URLStatus downloadWhenStatusIsOK(HttpResponse<InputStream> response, final Path destination, final int statusCode)
             throws IOException {
 
+        // TODO need a timeout here
+
         String finalURL = response.toString();
         logger.info(format("Download is available from %s, save to %s", finalURL, destination));
 

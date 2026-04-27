@@ -14,7 +14,6 @@ import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -81,7 +80,6 @@ class FindStationsByNumberLinksTramTest {
                 " \nstations with links were " + additionalInterchanges);
     }
 
-    @DisabledUntilDate(year = 2026, month = 4, day = 25)
     @Test
     void shouldIdInterchangePointsLinked() {
 
@@ -100,16 +98,16 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                OldhamKingStreet, OldhamMumps,
-                Shudehill
-                //VeloPark,
-                //HoltTown
+                //OldhamKingStreet, OldhamMumps,
+                //Shudehill
+                VeloPark,
+                HoltTown
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);
         ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);
 
-        assertTrue(diff.isEmpty(), diff + " between expected:\n" + expected + " \nfound:" + found);
+        assertTrue(diff.isEmpty(), "Different: " + diff + "\nbetween expected:\n" + expected + " \nfound:" + found);
 
     }
 
