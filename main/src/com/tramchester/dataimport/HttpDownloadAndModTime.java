@@ -190,17 +190,18 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus downloadTo(Path path, URI originalUrl, ZonedDateTime existingLocalModTime, List<Pair<String, String>> headers) {
+    public URLStatus downloadTo(final Path path, final URI originalUrl, final ZonedDateTime existingLocalModTime,
+                                final List<Pair<String, String>> headers) {
 
         logger.info(format("Download from %s to %s", originalUrl, path.toAbsolutePath()));
 
         try {
 
-            HttpResponse<InputStream> response = fetchHeaders(originalUrl, existingLocalModTime, HttpMethod.GET,
+            final HttpResponse<InputStream> response = fetchHeaders(originalUrl, existingLocalModTime, HttpMethod.GET,
                     headers,
                     HttpResponse.BodyHandlers.ofInputStream());
 
-            int statusCode = response.statusCode();
+            final int statusCode = response.statusCode();
 
             final boolean redirect = URLStatus.isRedirectCode(statusCode);
 
@@ -229,8 +230,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             }
 
         } catch (IOException | InterruptedException exception) {
-            final String msg = format("Unable to download data from %s to %s exception %s", originalUrl, path, exception);
-            logger.error(msg);
+            String msg = format("Unable to download data from %s to %s", originalUrl, path);
+            logger.error(msg, exception);
 
             // failed downloads cause issues with unzip etc
             final Path absolutePath = path.toAbsolutePath();
@@ -238,11 +239,13 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 logger.warn(format("Attempting to delete %s due to exception", absolutePath));
                 Files.deleteIfExists(path);
                 logger.warn(format("Deleted %s due to exception", absolutePath));
+                msg = msg + " File Deleted";
             } catch (IOException ioException) {
                 logger.error("Failed to delete " + absolutePath, ioException);
+                msg = msg + " Failed to delete";
             }
 
-            throw new RuntimeException(msg,exception);
+            throw new RuntimeException(msg, exception);
         }
 
     }

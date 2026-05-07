@@ -8,7 +8,10 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
@@ -277,7 +280,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 5)
+    @DisabledUntilDate(year = 2026, month = 6)
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -299,7 +302,8 @@ public class RouteCalculatorTest {
         IdSet<Route> routesAltyToMarketStreet = altyToMarketStreet.stream().
                 flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
 
-        assertEquals(1, routesAltyToMarketStreet.size(), routesAltyToMarketStreet.toString());
+        // TODO closures
+        assertEquals(1+1, routesAltyToMarketStreet.size(), routesAltyToMarketStreet.toString());
         assertTrue(routesAltyToMarketStreet.contains(getGreen(when).getId()),
                 "not expecting " + routesAltyToMarketStreet);
 

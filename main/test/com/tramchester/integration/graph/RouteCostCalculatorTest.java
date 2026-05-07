@@ -93,7 +93,7 @@ class RouteCostCalculatorTest {
 
         final Station bury = Bury.from(stationRepository);
 
-        assertEquals(TramDuration.ofMinutes(63), getAverageCostBetween(bury, altrincham));
+        assertEquals(TramDuration.ofMinutes(64), getAverageCostBetween(bury, altrincham));
         assertEquals(TramDuration.ofMinutes(63), getAverageCostBetween(altrincham, bury));
     }
 

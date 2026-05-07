@@ -89,8 +89,8 @@ public class InterchangesTramTest {
                 PiccadillyGardens,
                 StPetersSquare,
                 Broadway,
-                Victoria,
-                VeloPark, HoltTown
+                Victoria
+                //VeloPark, HoltTown
                 //OldhamKingStreet, OldhamMumps,
                 //Shudehill
         );

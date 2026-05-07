@@ -97,11 +97,11 @@ class FindStationsByNumberLinksTramTest {
                 StWerburghsRoad,
                 Pomona,
                 Broadway,
-                HarbourCity,
+                HarbourCity
                 //OldhamKingStreet, OldhamMumps,
                 //Shudehill
-                VeloPark,
-                HoltTown
+//                VeloPark,
+//                HoltTown
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);

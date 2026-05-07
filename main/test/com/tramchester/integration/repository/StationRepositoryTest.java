@@ -109,7 +109,8 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        assertEquals(4, lines.size(), lines.toString());
+        // upcoming closures summer 2026
+        assertEquals(4+1, lines.size(), lines.toString());
 
     }
 

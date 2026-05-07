@@ -440,7 +440,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1196, maximumNumberOfTrips);
+        assertEquals(1223, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")
