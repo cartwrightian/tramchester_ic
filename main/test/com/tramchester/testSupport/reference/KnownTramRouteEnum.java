@@ -9,6 +9,7 @@ import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -30,6 +31,8 @@ public enum KnownTramRouteEnum implements TestRoute {
 //    ReplacementBusFour(BusFour, "Replacement Bus 4", "3229", ReplacementBusEaster2026),
 //    ReplacementBusFive(BusFive, "Replacement Bus 5", "2177", ReplacementBusEaster2026),
 //    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,25)),
+    ReplacementBusRochdaleLine(BusRochdaleLine, "Replacement BusRochdale Line","2462" ,
+            UpcomingDates.rochdaleLineClosure2026.getStartDate().plusDays(1)),
 
     // Blue
     EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", routeChangeOverDate),

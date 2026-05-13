@@ -58,7 +58,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // easter 2026
-    public static final int NumberOfStationLinks = 202;
+    public static final int NumberOfStationLinks = 202+2;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -79,7 +79,7 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     // validated via TripRepositoryTest
-    public static TramTime EarliestTramTime = TramTime.of(4,53);
+    public static TramTime EarliestTramTime = TramTime.of(4,7);
 
     // TODO is this accurate?
     public static TramTime EarliestTrainTime = TramTime.of(0,1);

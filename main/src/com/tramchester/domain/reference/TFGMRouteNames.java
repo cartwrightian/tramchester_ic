@@ -10,6 +10,7 @@ public enum TFGMRouteNames {
     BusFour("Metrolink Replacement Bus 4", true),
     BusFive("Metrolink Replacement Bus 5", true),
     BusBlue("Metrolink Replacement Bus Blue Line", true),
+    BusRochdaleLine("Replacement Bus Rochdale Line", true),
 
     Red("Red Line", false),
     Pink("Pink Line", false),

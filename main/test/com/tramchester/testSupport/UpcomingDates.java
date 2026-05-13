@@ -7,7 +7,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -40,12 +39,12 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate victoriaAndRochdaleLineMay2026 = of(2026, 5, 10);
+    //public static TramDate victoriaAndRochdaleLineMay2026 = of(2026, 5, 10);
 
     public static DateRange piccGardensMay2026 = DateRange.of(of(2026, 5, 25), of(2026, 5, 29));
 
-    // official end date for this work is 10th, but routes missing until 18th
-    public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1), of(2026, 6, 18));
+    // official end date for this work is 10th, but routes missing until 25th
+    public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1), of(2026, 6, 25));
 
     public static DateRange rochdaleLineClosure2026 = DateRange.of(of(2026, 5, 15), of(2026, 5, 30));
 
@@ -66,12 +65,6 @@ public class UpcomingDates {
             return true;
         }
 
-        if (victoriaAndRochdaleLineMay2026.equals(date)) {
-            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(11,0));
-            if (closure.anyOverlap(timeRange)) {
-                return true;
-            }
-        }
         return false;
     }
 
@@ -80,6 +73,9 @@ public class UpcomingDates {
             if (rochdaleLineClosure2026.contains(date)) {
                 return true;
             }
+        }
+        if (TramStations.PiccadillyGardens.getId().equals(stationId)) {
+            return piccGardensMay2026.contains(date);
         }
         return anyClosedOnDate(date);
     }

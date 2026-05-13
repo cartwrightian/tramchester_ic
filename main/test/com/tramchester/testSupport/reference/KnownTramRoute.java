@@ -1,6 +1,7 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
@@ -16,7 +17,7 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate routeChangeOverDate = TramDate.of(2026,5,2);
+    public static final TramDate routeChangeOverDate = TramDate.of(2026,5,11);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -76,18 +77,26 @@ public class KnownTramRoute {
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
-        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-//            if (date.equals(earlyMayBankHold.minusDays(1))) {
-//                routes.add(find.apply(Green));
-//            }
+        if (rochdaleLineClosure2026.contains(date) && !date.equals(TramDate.of(2026,5,15))) {
+            routes.add(find.apply(BusRochdaleLine));
+        }
 
-        } else { // Not Sunday
-//            if (! (earlyMayBankHold.equals(date))) {
-                routes.add(find.apply(Green));
-//            }
+        if (shudehillMarketStreet2026.contains(date) || date.equals(TramDate.of(2026, 5, 31))) {
+            routes.add(find.apply(BusRochdaleLine));
+        }
+
+        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+
+        } else {
+            routes.add(find.apply(Green));
         }
 
         if (!(piccGardensMay2026.contains(date) || shudehillMarketStreet2026.contains(date))) {
+            routes.add(find.apply(Purple));
+            routes.add(find.apply(Yellow));
+        }
+
+        if (DateRange.of(TramDate.of(2026,6,6),1).contains(date)) {
             routes.add(find.apply(Purple));
             routes.add(find.apply(Yellow));
         }

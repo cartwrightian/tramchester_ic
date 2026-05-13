@@ -38,7 +38,6 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -46,7 +45,10 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -142,7 +144,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(13,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 10)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 

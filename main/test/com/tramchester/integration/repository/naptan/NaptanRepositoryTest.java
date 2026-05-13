@@ -203,7 +203,7 @@ class NaptanRepositoryTest {
 
         Set<NaptanRecord> allRecordsForArea = repository.getRecordsForLocality(locality);
 
-        assertEquals(46, allRecordsForArea.size(), allRecordsForArea.toString());
+        assertEquals(50, allRecordsForArea.size(), allRecordsForArea.toString());
 
         Set<NaptanRecord> central = allRecordsForArea.stream().filter(NaptanRecord::isLocalityCenter).collect(Collectors.toSet());
 
