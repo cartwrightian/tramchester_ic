@@ -64,7 +64,6 @@ public class UpcomingDates {
         if (hasClosure(stationId, date)) {
             return true;
         }
-
         return false;
     }
 
