@@ -205,6 +205,8 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
+    // Routes missing from data for shudehillMarketStreet2026 closures
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());

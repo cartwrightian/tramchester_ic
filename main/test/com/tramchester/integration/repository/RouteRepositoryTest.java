@@ -19,6 +19,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -111,6 +112,7 @@ public class RouteRepositoryTest {
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldNotHaveRedRouteServingShudehill() {
         Route red = routeHelper.getOneRoute(TFGMRouteNames.Red, when);

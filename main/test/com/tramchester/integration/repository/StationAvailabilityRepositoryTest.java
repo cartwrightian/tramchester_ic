@@ -313,19 +313,19 @@ public class StationAvailabilityRepositoryTest {
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
         Route yellowInbound = tramRouteHelper.getYellow(when);
-        Route blueInbound = tramRouteHelper.getPink(when);
+        Route blueInbound = tramRouteHelper.getBlue(when);
         Route greenOutbound = tramRouteHelper.getGreen(when);
 
-        // easter 2026
+        // summer 2026
         assertEquals(5+1, dropOffs.size());
         assertTrue(dropOffs.contains(yellowInbound));
-        assertTrue(dropOffs.contains(blueInbound));
+        assertTrue(dropOffs.contains(blueInbound), HasId.asIds(dropOffs) + " is missing " + blueInbound.getId());
 
         assertTrue(dropOffs.contains(greenOutbound));
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
-        // easter 2026
+        // summer 2026
         assertEquals(5+1, pickups.size());
         assertTrue(pickups.contains(yellowInbound));
         assertTrue(pickups.contains(blueInbound));

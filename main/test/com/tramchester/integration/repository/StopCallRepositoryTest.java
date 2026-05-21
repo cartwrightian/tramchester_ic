@@ -20,6 +20,7 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -188,7 +189,8 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
-        assertThrows(RuntimeException.class, () -> stopCallRepository.getStopcallsBetween(StPetersSquare.getId(), Victoria.getId(), when));
+        TramDate date = TramDate.of(2026,5,30);
+        assertThrows(RuntimeException.class, () -> stopCallRepository.getStopcallsBetween(StPetersSquare.getId(), Victoria.getId(), date));
     }
 
     @Test
@@ -205,12 +207,14 @@ public class StopCallRepositoryTest {
         assertEquals(Rochdale.getId(), stopsBetween.getLast());
     }
 
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldHaveExpectedFreeHoldToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(freeHold, Rochdale.getId(), when);
         assertEquals(FreeholdToRochdaleStations, stopsBetween);
     }
 
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldHaveVictoriaToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Victoria.getId(), Rochdale.getId(), when);

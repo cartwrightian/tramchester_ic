@@ -467,16 +467,22 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             departType = DEPART;
         }
 
-        final MutableGraphRelationship departRelationship = createRelationship(txn, routeStationNode, boardingNode, departType);
-        departRelationship.setCost(TramDuration.ZERO);
-        departRelationship.setRouteStationId(routeStationId);
-        departRelationship.set(station);
-        boardingDepartNodeCache.putDepart(boardingNode.getId(), routeStationNode.getId());
+        if (routeStationNode.hasRelationship(txn, Outgoing, departType, boardingNode)) {
+            routeStationNode.getSingleRelationship(txn, departType, Outgoing);
+            logger.warn("Already have depart relationship " + departType + " from " + routeStationId
+                    + "[" + routeStationNode.getId() + "] to " + boardingNode.getId());
+        } else {
+            final MutableGraphRelationship departRelationship = createRelationship(txn, routeStationNode, boardingNode, departType);
+            departRelationship.setCost(TramDuration.ZERO);
+            departRelationship.setRouteStationId(routeStationId);
+            departRelationship.set(station);
+            boardingDepartNodeCache.putDepart(boardingNode.getId(), routeStationNode.getId());
 
-        // if station has diversions and is also an interchange, then always valid to depart at any date
-        if (departType.equals(DIVERSION_DEPART)) {
-            final Set<DateTimeRange> ranges = stationsWithDiversionRepository.getDateTimeRangesFor(station);
-            ranges.forEach(departRelationship::setDateTimeRange);
+            // if station has diversions and is also an interchange, then always valid to depart at any date
+            if (departType.equals(DIVERSION_DEPART)) {
+                final Set<DateTimeRange> ranges = stationsWithDiversionRepository.getDateTimeRangesFor(station);
+                ranges.forEach(departRelationship::setDateTimeRange);
+            }
         }
     }
 

@@ -218,13 +218,19 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainToNavigationRoadWhenAvailable() {
 
-        JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                TramDuration.ofMinutes(30), 1, getRequestedModes());
+        // train at 14:57 as of 14/5/26
+
+        TramTime trainTime = TramTime.of(14,55);
+        JourneyRequest request = new JourneyRequest(when, trainTime, false, 1,
+                TramDuration.ofMinutes(30), 6, getRequestedModes());
 
         Station start = rail(Altrincham);
         Station dest = rail(NavigationRaod);
 
-        List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
+        List<Journey> allJourneys = testFacade.calculateRouteAsList(start, dest, request);
+
+        List<Journey> journeys = allJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
+
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
 
         journeys.forEach(journey -> {

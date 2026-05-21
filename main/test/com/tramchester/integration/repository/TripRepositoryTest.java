@@ -24,6 +24,7 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -114,7 +115,8 @@ public class TripRepositoryTest {
         Set<Route> routes = trips.stream().map(Trip::getRoute).collect(Collectors.toSet());
 
         assertFalse(routes.isEmpty());
-        assertEquals(4, routes.size(), HasId.asIds(routes));
+        // summer 2026 changes
+        assertEquals(4+1, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
@@ -123,7 +125,8 @@ public class TripRepositoryTest {
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
         assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
 
-        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
+        // False -> True summer 2026
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
 
     }
 
@@ -144,6 +147,8 @@ public class TripRepositoryTest {
         assertTrue(endTripNotInterchange.isEmpty(), "End trip not interchange: " + endTripNotInterchange);
     }
 
+    // Oldham Central and Picc Gardens missing from data 1/june -> 6/June (as of 20th May)
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {
@@ -158,6 +163,18 @@ public class TripRepositoryTest {
 
         assertTrue(missing.isEmpty(), "Got missing trips for " + missing);
 
+    }
+
+    @Disabled("Raised TFGM 20th May")
+    @Test
+    void shouldReproIssueWithOldhamCentralSummer2026() {
+        Set<Trip> trips = UpcomingDates.daysAhead().stream().
+                flatMap(date -> tripRepository.getTripsCallingAt(OldhamCentral.from(stationRepository), date).stream()).
+                collect(Collectors.toSet());
+        assertFalse(trips.isEmpty());
+
+        Set<Service> services = trips.stream().map(Trip::getService).collect(Collectors.toSet());
+        assertTrue(services.isEmpty(), HasId.asIds(services));
     }
     
     @DataExpiryTest

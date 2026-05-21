@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
 import static com.tramchester.integration.repository.StopCallRepositoryTest.VictoriaToRochdaleStations;
+import static com.tramchester.testSupport.reference.TramStations.OldhamCentral;
+import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
 
 public class UpcomingDates {
 
@@ -39,12 +41,13 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    //public static TramDate victoriaAndRochdaleLineMay2026 = of(2026, 5, 10);
-
     public static DateRange piccGardensMay2026 = DateRange.of(of(2026, 5, 25), of(2026, 5, 29));
 
-    // official end date for this work is 10th, but routes missing until 25th
-    public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1), of(2026, 6, 25));
+    // official end date for this work is 10th, but routes missing until ....
+    public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1), of(2026, 6, 10));
+
+    // TODO reported to TFGM 20/May/2026
+    public static DateRange missingStationsSumer2026 = DateRange.of(shudehillMarketStreet2026.getStartDate(), 4);
 
     public static DateRange rochdaleLineClosure2026 = DateRange.of(of(2026, 5, 15), of(2026, 5, 30));
 
@@ -73,8 +76,15 @@ public class UpcomingDates {
                 return true;
             }
         }
-        if (TramStations.PiccadillyGardens.getId().equals(stationId)) {
-            return piccGardensMay2026.contains(date);
+        if (PiccadillyGardens.getId().equals(stationId)) {
+            if (piccGardensMay2026.contains(date) || missingStationsSumer2026.contains(date)) {
+                return true;
+            }
+        }
+        if (OldhamCentral.getId().equals(stationId)) {
+            if (missingStationsSumer2026.contains(date)) {
+                return true;
+            }
         }
         return anyClosedOnDate(date);
     }

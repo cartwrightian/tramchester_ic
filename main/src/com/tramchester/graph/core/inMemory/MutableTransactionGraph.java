@@ -346,10 +346,12 @@ public class MutableTransactionGraph implements Graph {
 
     @Override
     public Stream<GraphRelationship> findRelationshipsImmutableFor(NodeIdInMemory nodeId, GraphDirection direction, ImmutableEnumSet<TransportRelationshipTypes> types) {
+
+        // .toList here since otherwise accessing the underlying storage outside the bounds of the lock
         final List<GraphRelationship> local = localGraph.findRelationshipsImmutableFor(nodeId, direction, types).toList();
-        final Stream<GraphRelationship> fromParent = parent.findRelationshipsImmutableFor(nodeId, direction, types).
-                filter(graphRelationship -> !local.contains(graphRelationship));
-        return Stream.concat(local.stream(), fromParent);
+        final List<GraphRelationship> fromParent = parent.findRelationshipsImmutableFor(nodeId, direction, types).
+                filter(graphRelationship -> !local.contains(graphRelationship)).toList();
+        return Stream.concat(local.stream(), fromParent.stream());
     }
 
     @Override

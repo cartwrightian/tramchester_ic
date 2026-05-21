@@ -16,11 +16,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.graph.search.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -33,10 +33,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.betweenPiccAndPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.Piccadilly;
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @GMTest
 class RailAndTramLocationJourneyPlannerTest {
@@ -105,11 +105,13 @@ class RailAndTramLocationJourneyPlannerTest {
     @Test
     void shouldHaveDirectWalkFromPiccadillyToNearPiccGardens() {
 
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
-                false, 1, maxJourneyDuration, maxNumberOfJourneys, TransportMode.TramsOnly);
+        // tram + walk from picc gardens is faster for KnownLocations.nearPiccGardens
 
-        Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(Piccadilly, nearPiccGardens,
-                journeyRequest, 1);
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
+                false, 0, maxJourneyDuration, maxNumberOfJourneys, TransportMode.TramsOnly);
+
+        Set<Journey> unsortedResults = testFacade.quickestRouteForLocation(Piccadilly, betweenPiccAndPiccGardens,
+                journeyRequest, 2);
 
         assertFalse(unsortedResults.isEmpty());
 
@@ -118,8 +120,8 @@ class RailAndTramLocationJourneyPlannerTest {
             assertEquals(TransportMode.Walk, stages.getFirst().getMode(), "Expected walk, go " + journey);
 
             WalkingFromStationStage walkingStage = (WalkingFromStationStage) stages.getFirst();
-            assertEquals(PiccadillyGardens.getId(), walkingStage.getFirstStation().getId());
-            assertEquals(nearPiccGardens.latLong(), walkingStage.getLastStation().getLatLong());
+            assertEquals(Piccadilly.getId(), walkingStage.getFirstStation().getId());
+            assertEquals(betweenPiccAndPiccGardens.latLong(), walkingStage.getLastStation().getLatLong());
         });
     }
 

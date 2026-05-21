@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 586;
+    public static final int ALL_GM_ROUTES = 583;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 
@@ -61,7 +61,7 @@ public class RailAndTramRouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        int numberTramRoutes = 13; // replacement buses
+        int numberTramRoutes = 8; // some replacement buses
 
         Set<Route> tramRoutes = routeRepository.getRoutes(TransportMode.TramsOnly);
         assertEquals(numberTramRoutes, tramRoutes.size());
@@ -77,7 +77,7 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> beginsAtAndCallsAt(route, ManchesterPiccadilly.getId(), Stockport.getId())).
                 collect(Collectors.toList());
 
-        assertEquals(55, result.size(), HasId.asIds(result));
+        assertEquals(49, result.size(), HasId.asIds(result));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> callsAtEndsAt(route, Stockport.getId(), ManchesterPiccadilly.getId())).
                 collect(Collectors.toSet());
 
-        assertEquals(9, matchingRoutes.size(), HasId.asIds(matchingRoutes));
+        assertEquals(7, matchingRoutes.size(), HasId.asIds(matchingRoutes));
 
         Set<Route> routesFromEustonViaStockport = matchingRoutes.stream().
                 filter(route -> railRouteStartsAt(route, LondonEuston.getId())).

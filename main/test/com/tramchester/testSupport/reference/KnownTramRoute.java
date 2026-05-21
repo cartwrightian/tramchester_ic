@@ -17,7 +17,7 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate routeChangeOverDate = TramDate.of(2026,5,11);
+    public static final TramDate routeChangeOverDate = TramDate.of(2026,5,16);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -77,7 +77,15 @@ public class KnownTramRoute {
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
-        if (rochdaleLineClosure2026.contains(date) && !date.equals(TramDate.of(2026,5,15))) {
+        if (rochdaleLineClosure2026.contains(date) &&
+                !date.equals(TramDate.of(2026,5,15))) {
+            routes.add(find.apply(BusRochdaleLine));
+        }
+
+        DateRange unexpectedBus = DateRange.of(rochdaleLineClosure2026.getEndDate(),
+                TramDate.of(2026,6,18));
+
+        if (unexpectedBus.contains(date)) {
             routes.add(find.apply(BusRochdaleLine));
         }
 
@@ -91,7 +99,9 @@ public class KnownTramRoute {
             routes.add(find.apply(Green));
         }
 
-        if (!(piccGardensMay2026.contains(date) || shudehillMarketStreet2026.contains(date))) {
+        if (! (piccGardensMay2026.contains(date) || shudehillMarketStreet2026.contains(date) )
+                || date.equals(TramDate.of(2026, 6,13))
+                || date.equals(TramDate.of(2026, 6,14))) {
             routes.add(find.apply(Purple));
             routes.add(find.apply(Yellow));
         }

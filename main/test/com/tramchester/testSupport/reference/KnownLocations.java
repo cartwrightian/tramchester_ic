@@ -10,6 +10,7 @@ public enum KnownLocations implements HasGridPosition {
     nearAltrincham(53.387483D, -2.351463D),
     nearAltrinchamInterchange(53.3873279D,-2.3498573D),
     nearPiccGardens(53.4805248D, -2.2394929D),
+    betweenPiccAndPiccGardens(53.4800292D,-2.2361723D),
     nearShudehill(53.485846, -2.239472),
     atMancArena(53.4871468,-2.2445687),
     nearStockportBus(53.408735,-2.1656593),
