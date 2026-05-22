@@ -49,7 +49,7 @@ public class TemporaryStationWalksRepository {
         logger.info("Started");
     }
 
-    private TemporaryStationWalk resolveStations(TemporaryStationsWalkIds temporaryStationWalkIds, DataSourceID dataSourceId) {
+    private TemporaryStationWalk resolveStations(final TemporaryStationsWalkIds temporaryStationWalkIds, final DataSourceID dataSourceId) {
         StationPair stationPair = stationRepository.getStationPair(temporaryStationWalkIds.getStationPair());
         return new TemporaryStationWalk(stationPair, temporaryStationWalkIds.getDateRange(), dataSourceId);
     }

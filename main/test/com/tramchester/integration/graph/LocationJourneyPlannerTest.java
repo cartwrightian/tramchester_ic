@@ -29,6 +29,7 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -372,6 +373,7 @@ class LocationJourneyPlannerTest {
 
     }
 
+    @PiccGardensSummer2025
     @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(9, 0),

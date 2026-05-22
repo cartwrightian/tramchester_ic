@@ -9,19 +9,7 @@ dataExpiryThreshold: 3
 cacheFolder: data/cache
 
 gtfsSourceConfig:
-  -
-    name: tfgm
-    hasFeedInfo: false
-    transportModes: [ tram ]
-    transportModesWithPlatforms: [ Tram ]
-    initialWaitMinutes: 13
-    noServices: []
-    markedInterchangesOnly: false
-    additionalInterchanges: []
-    groupedStationModes: []
-    addWalksForClosed: true
-    stationClosures: []
-    temporaryStationsWalks: []
+%[shared/tfgm_trams.yml]
 remoteSources:
   - name: openRailData
     dataURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable

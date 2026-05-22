@@ -21,5 +21,11 @@ public class StationIdPair extends LocationIdPair<Station> {
         return new StationIdPair(begin, end);
     }
 
-
+    @Override
+    public String toString() {
+        return "StationIdPair{" +
+                getBeginId() +
+                ", " + getEndId() +
+                '}';
+    }
 }

@@ -50,7 +50,7 @@ public class UpcomingDates {
     // Seems like causes by replacement buses being unable to call at Oldham Central due to local road works
     public static DateRange missingStationsSumer2026 = DateRange.of(shudehillMarketStreet2026.getStartDate(), 4);
 
-    public static DateRange rochdaleLineClosure2026 = DateRange.of(of(2026, 5, 15), of(2026, 5, 30));
+    public static DateRange rochdaleLineClosure2026 = DateRange.of(of(2026, 5, 15), of(2026, 5, 29));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);

@@ -89,7 +89,9 @@ public class KnownTramRoute {
         }
 
         if (shudehillMarketStreet2026.contains(date)) {
-            routes.add(find.apply(BusRochdaleLine));
+            if (!date.equals(TramDate.of(2026, 6, 6))) {
+                routes.add(find.apply(BusRochdaleLine));
+            }
         }
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
