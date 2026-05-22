@@ -29,6 +29,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,7 +109,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,2), TramTime.nextDay(0,49)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,23), TramTime.nextDay(0,39)), result);
     }
 
     @Test
@@ -250,7 +251,8 @@ public class StationAvailabilityRepositoryTest {
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
-        assertEquals(2, results.size(),
+        // summer 2026
+        assertEquals(2-1, results.size(),
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
@@ -304,6 +306,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
+    @PiccGardensSummer2025
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
         TramDate date = TestEnv.testDay();

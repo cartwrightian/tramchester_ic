@@ -27,8 +27,7 @@ import java.util.List;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RouteReachableTramTest {
     private static ComponentContainer componentContainer;
@@ -66,10 +65,11 @@ class RouteReachableTramTest {
 
         IdSet<Route> routeIds = results.stream().collect(IdSet.collector());
 
-        assertEquals(2, routeIds.size(), routeIds.toString());
+        // summer 2026 2->1
+        assertEquals(2-1, routeIds.size(), routeIds.toString());
 
         assertTrue(routeIds.contains(KnownTramRoute.getGreen(when).getId()), routeIds.toString());
-        assertTrue(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
+        assertFalse(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
     }
 
 

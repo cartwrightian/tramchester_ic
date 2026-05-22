@@ -87,6 +87,7 @@ class LocationJourneyPlannerTest {
         txn.close();
     }
 
+    @PiccGardensSummer2025
     @Test
     void shouldHaveDirectWalkNearPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
@@ -125,6 +126,7 @@ class LocationJourneyPlannerTest {
         return TransportMode.TramsOnly;
     }
 
+    @PiccGardensSummer2025
     @Test
     void shouldHaveDirectWalkFromPiccadilly() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),

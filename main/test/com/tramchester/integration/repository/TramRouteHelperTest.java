@@ -8,6 +8,7 @@ import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,7 @@ class TramRouteHelperTest {
         assertTrue(TFGMRouteNames.BusFive.isReplacementBus());
     }
 
+    @PiccGardensSummer2025
     @Test
     void shouldFindAllKnownRoutes() {
 

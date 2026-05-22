@@ -39,6 +39,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -246,6 +247,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
+    @PiccGardensSummer2025
     @Test
     void shouldHaveExpectedRouteConnections() {
         Station salfordQuay = SalfordQuay.from(stationRepository);
