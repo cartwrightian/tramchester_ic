@@ -77,19 +77,18 @@ public class KnownTramRoute {
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
-        if (rochdaleLineClosure2026.contains(date) &&
-                !date.equals(TramDate.of(2026,5,15))) {
+        if (rochdaleLineClosure2026.contains(date)) {
             routes.add(find.apply(BusRochdaleLine));
         }
 
-        DateRange unexpectedBus = DateRange.of(rochdaleLineClosure2026.getEndDate(),
-                TramDate.of(2026,6,18));
+        DateRange unexpectedBus = DateRange.of(TramDate.of(2026, 6,11),
+                TramDate.of(2026,6,25));
 
         if (unexpectedBus.contains(date)) {
             routes.add(find.apply(BusRochdaleLine));
         }
 
-        if (shudehillMarketStreet2026.contains(date) || date.equals(TramDate.of(2026, 5, 31))) {
+        if (shudehillMarketStreet2026.contains(date)) {
             routes.add(find.apply(BusRochdaleLine));
         }
 

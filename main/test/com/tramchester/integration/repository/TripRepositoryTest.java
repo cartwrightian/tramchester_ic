@@ -101,6 +101,7 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 

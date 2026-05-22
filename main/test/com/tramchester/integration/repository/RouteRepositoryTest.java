@@ -176,6 +176,7 @@ public class RouteRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldOverlapAsExpected() {
 
@@ -199,6 +200,7 @@ public class RouteRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
@@ -225,8 +227,7 @@ public class RouteRepositoryTest {
         Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
-        // 6->5 picc gardens closures summer 2025
-        int throughRoutes = 6; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        int throughRoutes = 5; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 

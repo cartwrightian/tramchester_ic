@@ -47,6 +47,7 @@ public class UpcomingDates {
     public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1), of(2026, 6, 10));
 
     // TODO reported to TFGM 20/May/2026
+    // Seems like causes by replacement buses being unable to call at Oldham Central due to local road works
     public static DateRange missingStationsSumer2026 = DateRange.of(shudehillMarketStreet2026.getStartDate(), 4);
 
     public static DateRange rochdaleLineClosure2026 = DateRange.of(of(2026, 5, 15), of(2026, 5, 30));

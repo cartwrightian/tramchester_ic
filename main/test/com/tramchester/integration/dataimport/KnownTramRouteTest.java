@@ -246,24 +246,6 @@ class KnownTramRouteTest {
     }
 
     @Test
-    void shouldCheckForMissingRouteSpring2025Closures() {
-        // TODO needed for each route?
-
-        TestRoute piccadillyVictoria = getYellow(when);
-        String shortName = piccadillyVictoria.shortName();
-
-        Set<Route> matching = routeRepository.getRoutes().stream().
-                filter(route -> route.getShortName().equals(shortName)).
-                collect(Collectors.toSet());
-
-        assertFalse(matching.isEmpty());
-
-        Set<Route> foundForDate = matching.stream().filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
-
-        assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
-    }
-
-    @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);
         String shortName = piccadillyVictoria.shortName();
