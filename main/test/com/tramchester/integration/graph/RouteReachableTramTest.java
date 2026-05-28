@@ -18,10 +18,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 
@@ -69,7 +66,8 @@ class RouteReachableTramTest {
         assertEquals(2-1, routeIds.size(), routeIds.toString());
 
         assertTrue(routeIds.contains(KnownTramRoute.getGreen(when).getId()), routeIds.toString());
-        assertFalse(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
+        assertThrows(RuntimeException.class,  () -> KnownTramRoute.getPurple(when), "reinstate below");
+        //assertFalse(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
     }
 
 

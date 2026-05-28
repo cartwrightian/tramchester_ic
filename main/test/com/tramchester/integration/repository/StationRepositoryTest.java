@@ -80,7 +80,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 25;
+        int expectedNumStations = 26;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 

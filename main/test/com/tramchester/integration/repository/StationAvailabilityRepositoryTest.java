@@ -256,6 +256,7 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
+    @PiccGardensSummer2025
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -279,6 +280,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
+    @PiccGardensSummer2025
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {

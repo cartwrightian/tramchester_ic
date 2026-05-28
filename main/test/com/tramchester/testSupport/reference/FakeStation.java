@@ -15,6 +15,10 @@ public interface FakeStation extends HasId<Station> {
         return Station.createId(getRawId());
     }
 
+    default boolean matches(IdFor<Station> id) {
+        return getId().equals(id);
+    }
+
     String getName();
 
     LatLong getLatLong();

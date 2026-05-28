@@ -18,8 +18,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
 import static com.tramchester.integration.repository.StopCallRepositoryTest.VictoriaToRochdaleStations;
-import static com.tramchester.testSupport.reference.TramStations.OldhamCentral;
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -77,13 +76,19 @@ public class UpcomingDates {
                 return true;
             }
         }
-        if (PiccadillyGardens.getId().equals(stationId)) {
+        if (PiccadillyGardens.matches(stationId)) {
             if (piccGardensMay2026.contains(date) || missingStationsSumer2026.contains(date)) {
                 return true;
             }
         }
-        if (OldhamCentral.getId().equals(stationId)) {
+        if (OldhamCentral.matches(stationId)) {
             if (missingStationsSumer2026.contains(date)) {
+                return true;
+            }
+        }
+        if (shudehillMarketStreet2026.contains(date) ||
+                DateRange.of(shudehillMarketStreet2026.getEndDate(),2).contains(date)) {
+            if (Shudehill.matches(stationId) || MarketStreet.matches(stationId)) {
                 return true;
             }
         }
@@ -91,9 +96,7 @@ public class UpcomingDates {
     }
 
     public static boolean anyClosedOnDate(TramDate date) {
-//        if (Easter2026Works.contains(date)) {
-//            return true;
-//        }
+
         return false;
     }
 

@@ -90,7 +90,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 27)
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -101,7 +101,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 27)
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getYellow, true);
@@ -245,6 +245,7 @@ class KnownTramRouteTest {
         });
     }
 
+    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);

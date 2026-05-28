@@ -296,7 +296,6 @@ class RouteCalculatorSubGraphMediaCityTest {
                 return new LocationIdsAndNames<>();
             } else {
                 fail("No stations for " + date);
-
             }
         }
 
