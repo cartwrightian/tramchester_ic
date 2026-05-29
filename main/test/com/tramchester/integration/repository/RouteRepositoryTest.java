@@ -19,15 +19,18 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -112,7 +115,7 @@ public class RouteRepositoryTest {
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldNotHaveRedRouteServingShudehill() {
         Route red = routeHelper.getOneRoute(TFGMRouteNames.Red, when);
@@ -176,7 +179,7 @@ public class RouteRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldOverlapAsExpected() {
 
@@ -200,7 +203,7 @@ public class RouteRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 

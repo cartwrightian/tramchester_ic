@@ -17,7 +17,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -87,7 +86,6 @@ public class RouteCalculatorInMemoryTest {
         assertFalse(journeys.isEmpty(), "missing for " + journeyRequest);
     }
 
-    @PiccGardensSummer2025
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
 
@@ -109,7 +107,6 @@ public class RouteCalculatorInMemoryTest {
 
     }
 
-    @PiccGardensSummer2025
     @Test
     void shouldHaveJourney() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);

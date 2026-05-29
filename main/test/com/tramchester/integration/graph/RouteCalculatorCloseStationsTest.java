@@ -19,8 +19,8 @@ import com.tramchester.integration.testSupport.config.closures.StationClosuresLi
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -115,7 +115,7 @@ class RouteCalculatorCloseStationsTest {
         assertTrue(singleStage.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2026, month = 6, day = 10)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldFindRouteToClosedStationViaDirectTramWhenAfterClosurePeriod() {
         TramDate travelDate = UpcomingDates.avoidChristmasDate(end.plusDays(2));

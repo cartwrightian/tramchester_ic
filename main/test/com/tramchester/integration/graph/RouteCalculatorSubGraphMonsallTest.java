@@ -16,7 +16,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
@@ -28,7 +27,6 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-@DisabledUntilDate(year = 2026, month = 5, day = 30)
 class RouteCalculatorSubGraphMonsallTest {
     private static ComponentContainer componentContainer;
     private static SubgraphConfig config;

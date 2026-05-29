@@ -24,12 +24,12 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,7 +101,7 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -111,7 +111,7 @@ public class TripRepositoryTest {
 
         Set<Trip> trips = tripRepository.getTripsCallingAt(shudehill, when);
 
-        assertFalse(trips.isEmpty());
+        assertFalse(trips.isEmpty(), "No trips found " + when);
 
         Set<Route> routes = trips.stream().map(Trip::getRoute).collect(Collectors.toSet());
 
@@ -149,7 +149,7 @@ public class TripRepositoryTest {
     }
 
     // Oldham Central and Picc Gardens missing from data 1/june -> 6/June (as of 20th May)
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    //@DisabledUntilDate(year = 2026, month = 5, day = 30)
     @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {

@@ -20,9 +20,9 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -207,14 +207,14 @@ public class StopCallRepositoryTest {
         assertEquals(Rochdale.getId(), stopsBetween.getLast());
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedFreeHoldToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(freeHold, Rochdale.getId(), when);
         assertEquals(FreeholdToRochdaleStations, stopsBetween);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveVictoriaToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Victoria.getId(), Rochdale.getId(), when);

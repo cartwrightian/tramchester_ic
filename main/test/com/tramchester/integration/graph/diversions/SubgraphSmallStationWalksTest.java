@@ -21,7 +21,6 @@ import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -34,7 +33,6 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@PiccGardensSummer2025
 class SubgraphSmallStationWalksTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;

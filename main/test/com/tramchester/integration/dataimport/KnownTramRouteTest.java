@@ -14,12 +14,12 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -90,7 +90,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -101,7 +101,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getYellow, true);
@@ -205,8 +205,7 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
-    // Routes missing from data for shudehillMarketStreet2026 closures
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
@@ -245,7 +244,7 @@ class KnownTramRouteTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);

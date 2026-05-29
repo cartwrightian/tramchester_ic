@@ -9,7 +9,10 @@ import com.tramchester.dataimport.data.RoutePairInterconnectsData;
 import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.collections.IndexedBitSet;
+import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
@@ -24,9 +27,9 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -164,7 +167,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldCheckFor2Changes() {
 
@@ -232,7 +235,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -275,7 +278,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
