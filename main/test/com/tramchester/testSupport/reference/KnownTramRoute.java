@@ -81,7 +81,7 @@ public class KnownTramRoute {
             routes.add(find.apply(BusRochdaleLine));
         }
 
-        DateRange unexpectedBus = DateRange.of(TramDate.of(2026, 6,13),
+        DateRange unexpectedBus = DateRange.of(TramDate.of(2026, 6,14),
                 TramDate.of(2026,6,25));
 
         if (unexpectedBus.contains(date)) {
@@ -97,9 +97,8 @@ public class KnownTramRoute {
         }
 
         if (! (piccGardensMay2026.contains(date) || shudehillMarketStreet2026.contains(date)
-                || DateRange.of(shudehillMarketStreet2026.getEndDate(), 2).contains(date))
+                || DateRange.of(shudehillMarketStreet2026.getEndDate(), 3).contains(date))
 
-                || date.equals(TramDate.of(2026, 6,13))
                 || date.equals(TramDate.of(2026, 6,14)) ) {
             routes.add(find.apply(Purple));
             routes.add(find.apply(Yellow));

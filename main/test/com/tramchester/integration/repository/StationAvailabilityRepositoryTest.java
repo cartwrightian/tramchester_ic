@@ -29,7 +29,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -109,7 +109,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,23), TramTime.nextDay(0,39)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,2), TramTime.nextDay(0,49)), result);
     }
 
     @Test
@@ -256,7 +256,6 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
-    @PiccGardensSummer2025
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -280,7 +279,6 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @PiccGardensSummer2025
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
@@ -308,7 +306,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @PiccGardensSummer2025
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
         TramDate date = TestEnv.testDay();

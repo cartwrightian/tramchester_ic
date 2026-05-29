@@ -18,7 +18,7 @@ import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardensSummer2025;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -249,6 +249,7 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnly() {
         TramDate testDay = when;
@@ -269,6 +270,7 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(testDay, 9, 2), stage.getExpectedArrivalTime());
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnlyArriveBy() {
         TramTime queryTime = TramTime.of(9, 0);
@@ -291,7 +293,6 @@ class JourneyPlannerLocationResourceTest {
         return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
-    @PiccGardensSummer2025
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 

@@ -92,7 +92,7 @@ public class RoutePairToInterchangeRepositoryTest {
             assertTrue(stationIds.contains(RailStationIds.ManchesterDeansgate.getId()));
         } else {
             // summer 2026
-            assertEquals(1+4, stationIds.size(), stationIds.toString());
+            assertEquals(1+2, stationIds.size(), stationIds.toString());
         }
 
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());

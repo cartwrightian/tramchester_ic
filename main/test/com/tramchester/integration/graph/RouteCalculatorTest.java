@@ -107,14 +107,12 @@ public class RouteCalculatorTest {
         }
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldReproIssueWithChangesVeloToTraffordBar() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(8,0), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, VeloPark, TraffordBar);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() {
 
@@ -219,7 +217,6 @@ public class RouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
         TramDuration cutoffInterval = TramDuration.ofMinutes(16);
@@ -354,7 +351,6 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);
@@ -387,7 +383,6 @@ public class RouteCalculatorTest {
         });
     }
 
-    //@DisabledUntilDate(year = 2025, month = 12, day = 15)
     @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -418,7 +413,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, TraffordCentre, TraffordBar);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldHandleCrossingMidnightWithChangeCentral() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,15), maxNumResults, maxChanges);
@@ -594,7 +588,6 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void ShouldReproIssueWithSomeMediaCityJourneys() {
 
@@ -678,12 +671,10 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestD = standardJourneyRequest(when, TramTime.of(6,40), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequestD, Cornbrook, Weaste);
 
-//        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults, 2);
-//        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
-        assertFalse(when.isAfter(UpcomingDates.piccGardensMay2026.getEndDate()));
+        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults, 2);
+        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,0);
@@ -696,7 +687,6 @@ public class RouteCalculatorTest {
         assertTrue(missingTimes.isEmpty(), missingTimes.toString());
     }
 
-    @DisabledUntilDate(year = 2026, month = 5, day = 30)
     @Test
     void reproduceIssueWithImmediateDepartOffABoardedTram() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(8,0), maxNumResults, 1);

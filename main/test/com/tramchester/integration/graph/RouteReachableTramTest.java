@@ -66,8 +66,7 @@ class RouteReachableTramTest {
         assertEquals(2-1, routeIds.size(), routeIds.toString());
 
         assertTrue(routeIds.contains(KnownTramRoute.getGreen(when).getId()), routeIds.toString());
-        assertThrows(RuntimeException.class,  () -> KnownTramRoute.getPurple(when), "reinstate below");
-        //assertFalse(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
+        assertFalse(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
     }
 
 
