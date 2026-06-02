@@ -166,17 +166,17 @@ public class TripRepositoryTest {
 
     }
 
-    @Disabled("Raised TFGM 20th May")
-    @Test
-    void shouldReproIssueWithOldhamCentralSummer2026() {
-        Set<Trip> trips = UpcomingDates.daysAhead().stream().
-                flatMap(date -> tripRepository.getTripsCallingAt(OldhamCentral.from(stationRepository), date).stream()).
-                collect(Collectors.toSet());
-        assertFalse(trips.isEmpty());
-
-        Set<Service> services = trips.stream().map(Trip::getService).collect(Collectors.toSet());
-        assertTrue(services.isEmpty(), HasId.asIds(services));
-    }
+    //@Disabled("Raised TFGM 20th May")
+//    @Test
+//    void shouldReproIssueWithOldhamCentralSummer2026() {
+//        Set<Trip> trips = UpcomingDates.daysAhead().stream().
+//                flatMap(date -> tripRepository.getTripsCallingAt(OldhamCentral.from(stationRepository), date).stream()).
+//                collect(Collectors.toSet());
+//        assertFalse(trips.isEmpty());
+//
+//        Set<Service> services = trips.stream().map(Trip::getService).collect(Collectors.toSet());
+//        assertTrue(services.isEmpty(), HasId.asIds(services));
+//    }
     
     @DataExpiryTest
     @Test

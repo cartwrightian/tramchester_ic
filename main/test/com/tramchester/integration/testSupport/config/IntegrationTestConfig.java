@@ -4,7 +4,6 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
@@ -15,12 +14,8 @@ import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static com.tramchester.testSupport.UpcomingDates.piccGardensMay2026;
-import static com.tramchester.testSupport.reference.TramStations.*;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -52,10 +47,11 @@ public abstract class IntegrationTestConfig extends TestConfig {
      *         end: 2025-08-10
      */
 
-    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Arrays.asList(
-            new TemporaryStationsWalkConfigForTest(StationIdPair.of(PiccadillyGardens, MarketStreet), piccGardensMay2026),
-            new TemporaryStationsWalkConfigForTest(StationIdPair.of(Piccadilly, MarketStreet), piccGardensMay2026)
-            );
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
+//    Arrays.asList(
+//            new TemporaryStationsWalkConfigForTest(StationIdPair.of(Shudehill, Victoria), shudehillMarketStreet2026),
+//            new TemporaryStationsWalkConfigForTest(StationIdPair.of(Piccadilly, MarketStreet), shudehillMarketStreet2026)
+//            );
 
     private final GraphDBTestConfig dbConfig;
 

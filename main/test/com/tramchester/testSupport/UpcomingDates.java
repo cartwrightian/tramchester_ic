@@ -40,21 +40,15 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange piccGardensMay2026 = DateRange.of(of(2026, 5, 25),
-            of(2026, 5, 29));
-
     // official end date for this work is 10th, but routes missing until ....
     public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1),
             of(2026, 6, 10));
 
-    // TODO reported to TFGM 20/May/2026
-    // Seems like causes by replacement buses being unable to call at Oldham Central due to local road works
-    public static DateRange missingStationsSumer2026 = DateRange.of(shudehillMarketStreet2026.getStartDate(), 4);
-
-    public static DateRange rochdaleLineClosure2026 = DateRange.of(of(2026, 5, 15),
-            of(2026, 5, 29));
-
     public static TramDate rochdaleLineSunday2026 = TramDate.of(2026,6,7);
+
+    // TODO These missing dates are not on the tfgm website
+    public static TramDate rochdaleLineMissing2026 = TramDate.of(2026,6,14);
+    public static DateRange shudehillAndMarketStMissing2026 = DateRange.of(TramDate.of(2026, 6,11), 7);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -77,25 +71,12 @@ public class UpcomingDates {
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         if (VictoriaToRochdaleStations.contains(stationId)) {
-            if (rochdaleLineClosure2026.contains(date)) {
-                return true;
-            }
-            if (date.equals(rochdaleLineSunday2026)) {
+            if (date.equals(rochdaleLineSunday2026) || date.equals(rochdaleLineMissing2026)) {
                 return true;
             }
         }
-        if (PiccadillyGardens.matches(stationId)) {
-            if (piccGardensMay2026.contains(date) || missingStationsSumer2026.contains(date)) {
-                return true;
-            }
-        }
-        if (OldhamCentral.matches(stationId)) {
-            if (missingStationsSumer2026.contains(date)) {
-                return true;
-            }
-        }
-        if (shudehillMarketStreet2026.contains(date) ||
-                DateRange.of(shudehillMarketStreet2026.getEndDate(),3).contains(date)) {
+        if (shudehillMarketStreet2026.contains(date) || shudehillAndMarketStMissing2026.contains(date)
+        ) {
             if (Shudehill.matches(stationId) || MarketStreet.matches(stationId)) {
                 return true;
             }

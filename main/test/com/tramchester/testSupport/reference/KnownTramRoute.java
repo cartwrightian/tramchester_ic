@@ -77,16 +77,16 @@ public class KnownTramRoute {
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
-        if (rochdaleLineClosure2026.contains(date)) {
-            routes.add(find.apply(BusRochdaleLine));
-        }
+//        if (rochdaleLineClosure2026.contains(date)) {
+//            routes.add(find.apply(BusRochdaleLine));
+//        }
 
-        DateRange unexpectedBus = DateRange.of(TramDate.of(2026, 6,14),
-                TramDate.of(2026,6,25));
-
-        if (unexpectedBus.contains(date)) {
-            routes.add(find.apply(BusRochdaleLine));
-        }
+//        DateRange unexpectedBus = DateRange.of(TramDate.of(2026, 6,17),
+//                TramDate.of(2026,6,25));
+//
+//        if (unexpectedBus.contains(date)) {
+//            routes.add(find.apply(BusRochdaleLine));
+//        }
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             if (date.isAfter(TramDate.of(2026, 6, 6))) {
@@ -96,10 +96,8 @@ public class KnownTramRoute {
             routes.add(find.apply(Green));
         }
 
-        if (! (piccGardensMay2026.contains(date) || shudehillMarketStreet2026.contains(date)
-                || DateRange.of(shudehillMarketStreet2026.getEndDate(), 3).contains(date))
-
-                || date.equals(TramDate.of(2026, 6,14)) ) {
+        if (! (shudehillMarketStreet2026.contains(date)
+                || DateRange.of(shudehillMarketStreet2026.getEndDate(), 7).contains(date))) {
             routes.add(find.apply(Purple));
             routes.add(find.apply(Yellow));
         }
