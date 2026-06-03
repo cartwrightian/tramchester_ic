@@ -68,7 +68,8 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         long tramRoutes = results.stream().filter(route -> route.getTransportMode()==Tram).count();
 
-        assertEquals(2, tramRoutes, HasId.asIds(results));
+        // summer 2026
+        assertEquals(2-1, tramRoutes, HasId.asIds(results));
 
         IdSet<Route> trainRouteIds = results.stream().filter(route -> route.getTransportMode() == Train).collect(IdSet.collector());
         assertFalse(trainRouteIds.isEmpty());
@@ -130,7 +131,8 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamRail, when, timeRange, TransportMode.TramsOnly);
 
-        assertEquals(2, results.size(),
+        // summer 2026
+        assertEquals(2-1, results.size(),
                 timeRange + " missing routes from " + altrinchamRail.getId() + " got " + HasId.asIds(results));
     }
 
@@ -160,7 +162,8 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         long tramDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Tram)).count();
 
-        assertEquals(3, tramDropoffs, "wrong number tram in " + HasId.asIds(dropOffs));
+        // summer 2026
+        assertEquals(3-1, tramDropoffs, "wrong number tram in " + HasId.asIds(dropOffs));
 
         long trainDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Train)).count();
         assertNotEquals(0, trainDropoffs, "no train in " + HasId.asIds(dropOffs));

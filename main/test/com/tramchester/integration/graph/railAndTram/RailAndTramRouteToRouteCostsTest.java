@@ -24,6 +24,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,7 +104,8 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = getPossibleMinChanges(tram(Altrincham), rail(ManchesterPiccadilly),
                 TransportMode.TramsOnly, date, timeRange);
 
-        assertEquals(0, result);
+        // 0 -> 1 summer 2026 closures
+        assertEquals(0+1, result);
     }
 
     private int getPossibleMinChanges(Station being, Station end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -120,7 +122,8 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = getPossibleMinChanges(rail(RailStationIds.Altrincham), tram(Piccadilly),
                 TransportMode.TramsOnly, date, timeRange);
 
-        assertEquals(0, result);
+        // 0 -> 1 summer 2026 closures
+        assertEquals(0+1, result);
     }
 
     @Test
@@ -213,6 +216,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldReproduceErrorWithPinkAndYellowRoutesTramOnly() {
         // error was due to handling of linked interchange stations in StationAvailabilityRepository

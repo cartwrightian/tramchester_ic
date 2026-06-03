@@ -21,6 +21,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -123,6 +124,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldFindRoutesWhenTramAndTrainPossible() {
         TramTime time = TramTime.of(15,50);
@@ -213,6 +215,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveMarketStreetToEccles() {
         TramTime time = TramTime.of(9,0);

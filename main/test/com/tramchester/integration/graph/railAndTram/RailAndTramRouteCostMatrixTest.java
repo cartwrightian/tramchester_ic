@@ -23,6 +23,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -182,6 +183,7 @@ public class RailAndTramRouteCostMatrixTest {
         assertNotEquals(0, oneChange.get());
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);

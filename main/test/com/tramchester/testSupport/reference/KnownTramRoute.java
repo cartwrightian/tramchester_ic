@@ -97,7 +97,7 @@ public class KnownTramRoute {
         }
 
         if (! (shudehillMarketStreet2026.contains(date)
-                || DateRange.of(shudehillMarketStreet2026.getEndDate(), 7).contains(date))) {
+                || DateRange.of(shudehillMarketStreet2026.getEndDate(), 8).contains(date))) {
             routes.add(find.apply(Purple));
             routes.add(find.apply(Yellow));
         }
