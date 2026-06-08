@@ -106,8 +106,8 @@ class NaptanRepositoryTest {
         assertTrue(repository.containsTiploc(tiploc));
 
         NaptanRecord record = repository.getForTiploc(tiploc);
-        assertEquals(record.getCommonName(), "Macclesfield Rail Station");
-        assertEquals(record.getTown(), "Macclesfield");
+        assertEquals("Macclesfield Rail Station", record.getCommonName());
+        assertEquals("Macclesfield", record.getTown());
         assertTrue(record.getSuburb().isEmpty());
         assertEquals(record.getId(), NaptanRecord.createId("9100MACLSFD"));
 

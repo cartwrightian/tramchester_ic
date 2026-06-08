@@ -24,7 +24,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -68,6 +70,16 @@ public class NPTGRepositoryTest {
         assertEquals(KnownLocality.ManchesterCityCentre.getLocalityId(), result.getParentLocalityId(), result.toString());
 
         assertEquals(new LatLong(53.47642,-2.253821), result.getLatLong());
+    }
+
+    @Test
+    void shouldHaveKnownLocalities() {
+        List<KnownLocality> missing = Arrays.stream(KnownLocality.values()).
+                filter(knownLocality -> knownLocality!=KnownLocality.LondonWestminster).
+                filter(knownLocality -> !repository.hasLocality(knownLocality.getLocalityId())).
+                toList();
+
+        assertTrue(missing.isEmpty(), missing.toString());
     }
 
     @Test

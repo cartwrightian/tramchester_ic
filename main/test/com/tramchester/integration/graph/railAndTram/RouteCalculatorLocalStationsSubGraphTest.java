@@ -220,20 +220,23 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         // train at 14:57 as of 14/5/26
 
-        TramTime trainTime = TramTime.of(14,55);
+        TramTime trainTime = TramTime.of(14,56);
         JourneyRequest request = new JourneyRequest(when, trainTime, false, 1,
-                TramDuration.ofMinutes(30), 6, getRequestedModes());
+                TramDuration.ofMinutes(10), 6, getRequestedModes());
 
         Station start = rail(Altrincham);
         Station dest = rail(NavigationRaod);
 
         List<Journey> allJourneys = testFacade.calculateRouteAsList(start, dest, request);
 
-        List<Journey> journeys = allJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
+        assertFalse(allJourneys.isEmpty(), "No journeys");
 
-        assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
+        List<Journey> oneStageJourneys = allJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
 
-        journeys.forEach(journey -> {
+        assertFalse(oneStageJourneys.isEmpty(), "No one stage journeys, got " + allJourneys);
+        assertEquals(1, oneStageJourneys.size(), "unexpected number of journeys " + oneStageJourneys);
+
+        oneStageJourneys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
             assertEquals(Train, stages.getFirst().getMode(), "wrong first stage for " + stages);

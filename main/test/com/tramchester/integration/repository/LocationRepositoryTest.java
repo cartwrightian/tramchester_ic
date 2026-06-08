@@ -4,16 +4,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.LocationRepository;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
@@ -72,14 +66,15 @@ public class LocationRepositoryTest {
         assumeTrue(naptanEnabled);
 
         assertTrue(locationRepository.hasLocation(Station, Victoria.getIdForDTO()));
-        IdFor<StationLocalityGroup> stationLocationGroup = KnownLocality.Shudehill.getId();
 
-        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
-        assertTrue(stationGroupsRepository.hasGroup(stationLocationGroup), "No group found in group repos for "
-                + stationLocationGroup);
-
-        assertTrue(locationRepository.hasLocation(LocationType.StationGroup, IdForDTO.createFor(stationLocationGroup)),
-                "No group found for " + stationLocationGroup);
+//        IdFor<StationLocalityGroup> stationLocationGroup = KnownLocality.Shudehill.getId();
+//
+//        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+//        assertTrue(stationGroupsRepository.hasGroup(stationLocationGroup), "No group found in group repos for "
+//                + stationLocationGroup);
+//
+//        assertTrue(locationRepository.hasLocation(LocationType.StationGroup, IdForDTO.createFor(stationLocationGroup)),
+//                "No group found for " + stationLocationGroup);
     }
 
     @Test

@@ -9,8 +9,11 @@ import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -21,8 +24,14 @@ import java.util.Set;
 import static java.lang.String.format;
 
 public class ConfigParameterResolver implements ParameterResolver {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigParameterResolver.class);
 
+    // used to override test config from gradle
     public static final String PARAMETER_KEY = "com.tramchester.config";
+
+    // used to override via Environmental variable i.e. when starting IDE
+    public static final String ENV_VAR_NAME = "CONFIG_OVERRIDE";
+
     private static final String dualTest = getTagName(MultiMode.class);
     private static final String trainTest = getTagName(TrainTest.class);
     private static final String gmTest = getTagName(GMTest.class);
@@ -35,18 +44,42 @@ public class ConfigParameterResolver implements ParameterResolver {
             graphDBType);
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public boolean supportsParameter(ParameterContext parameterContext, @NonNull ExtensionContext extensionContext) throws ParameterResolutionException {
         return parameterContext.getParameter().getType().equals(TramchesterConfig.class);
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public Object resolveParameter(@NonNull ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         final Set<String> testTags = extensionContext.getTags();
 
         // check if config is set via, for example
         //     systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
-        final Optional<String> haveOverride = extensionContext.getConfigurationParameter(PARAMETER_KEY);
+        final Optional<String> sysPropOverride = extensionContext.getConfigurationParameter(PARAMETER_KEY);
+        final Optional<String> envOverride = Optional.ofNullable(System.getenv(ENV_VAR_NAME));
 
+        sysPropOverride.ifPresent(value -> logger.info(PARAMETER_KEY + ":" + value));
+        envOverride.ifPresent(value -> logger.info(ENV_VAR_NAME + ":" + value));
+
+        if (sysPropOverride.isPresent() && envOverride.isPresent()) {
+            throw new RuntimeException("Both overrides are set: " + sysPropOverride + " and " + envOverride);
+        }
+
+        final TramchesterConfig config;
+        if (envOverride.isPresent()) {
+            config = getConfigForOverride(testTags, envOverride);
+        } else {
+            config = getConfigForOverride(testTags, sysPropOverride);
+        }
+
+        logger.info("Config:"+config.getClass().getSimpleName());
+
+        // TODO is this used ??
+        extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put("tramchester.config", config);
+
+        return config;
+    }
+
+    private static @NonNull TramchesterConfig getConfigForOverride(Set<String> testTags, Optional<String> haveOverride) {
         final TramchesterConfig config;
         if (testTags.contains(dualTest)) {
             config = haveOverride.map(override -> getExpectedOverride(override, tramAndTrain)).orElse(tramOnly);
@@ -58,10 +91,6 @@ public class ConfigParameterResolver implements ParameterResolver {
         else {
             throw new ExtensionConfigurationException("ConfigParameterResolver and overrides not defined for tags " + testTags);
         }
-
-        // TODO is this used ??
-        extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put("tramchester.config", config);
-
         return config;
     }
 

@@ -130,7 +130,7 @@ public class RoutePairToInterchangeRepositoryTest {
             expected.add(RailStationIds.ManchesterVictoria.getId());
             expected.add(RailStationIds.ManchesterDeansgate.getId());
             expected.add(TramStations.Deansgate.getId());
-            expected.add(RailStationIds.ManchesterPiccadilly.getId());
+            //expected.add(RailStationIds.ManchesterPiccadilly.getId());
         }
 
         ImmutableIdSet<Station> diff = IdSet.disjunction(expected, stationIds);

@@ -26,6 +26,8 @@ public enum TransportMode implements HasTransportMode {
 
     public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
     public static final ImmutableEnumSet<TransportMode> TramsOnly = Tram.singleton();
+    public static final ImmutableEnumSet<TransportMode> TrainOnly = Train.singleton();
+
 
     private static final Map<Short, TransportMode> index;
     private static final ImmutableEnumSet<TransportMode> NoneOf = ImmutableEnumSet.noneOf(TransportMode.class);

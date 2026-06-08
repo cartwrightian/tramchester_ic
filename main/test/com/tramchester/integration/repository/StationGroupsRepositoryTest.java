@@ -23,7 +23,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StationLocalityGroupRepositoryTest {
+class StationGroupsRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;
     private StationGroupsRepository stationGroupsRepository;
@@ -80,13 +80,12 @@ class StationLocalityGroupRepositoryTest {
     }
 
     @Test
-    void shouldFindGroupByName() {
+    void shouldFindSaleGroupByName() {
         StationLocalityGroup found = stationGroupsRepository.findByName("Sale");
 
         assertNotNull(found);
 
         assertEquals(3, found.getAllContained().size());
     }
-
 
 }
