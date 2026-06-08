@@ -146,8 +146,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // 2->1 picc gardens closure
-        assertEquals(2-1, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -204,10 +203,9 @@ public class TransportDataFromFilesTramTest {
                         map(routeStation -> routeStation.getRoute().getShortName()).
                         collect(Collectors.toSet());
 
-        // 2 -> 1 picc gardens closure
-        assertEquals(2-1, lines.size(), lines.toString());
+        assertEquals(2, lines.size(), lines.toString());
 
-        assertFalse(lines.contains(TFGMRouteNames.Purple.getShortName()));
+        assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()));
         assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()));
 
     }
@@ -442,7 +440,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1388, maximumNumberOfTrips);
+        assertEquals(1195, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

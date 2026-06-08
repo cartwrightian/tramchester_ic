@@ -1,7 +1,6 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TFGMRouteNames;
@@ -13,11 +12,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.*;
+import static com.tramchester.testSupport.UpcomingDates.rochdaleLineSunday2026;
+import static com.tramchester.testSupport.UpcomingDates.shudehillMarketStreet2026;
 
 public class KnownTramRoute {
 
-    public static final TramDate routeChangeOverDate = TramDate.of(2026,5,25);
+    public static final TramDate routeChangeOverDate = TramDate.of(2026,6,1);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -77,27 +77,20 @@ public class KnownTramRoute {
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
-//        if (rochdaleLineClosure2026.contains(date)) {
-//            routes.add(find.apply(BusRochdaleLine));
-//        }
-
-//        DateRange unexpectedBus = DateRange.of(TramDate.of(2026, 6,17),
-//                TramDate.of(2026,6,25));
-//
-//        if (unexpectedBus.contains(date)) {
-//            routes.add(find.apply(BusRochdaleLine));
-//        }
-
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.isAfter(TramDate.of(2026, 6, 6))) {
+            if (date.equals(TramDate.of(2026, 6, 7))) {
                 routes.add(find.apply(Green));
             }
         } else {
             routes.add(find.apply(Green));
         }
 
-        if (! (shudehillMarketStreet2026.contains(date)
-                || DateRange.of(shudehillMarketStreet2026.getEndDate(), 8).contains(date))) {
+        if (rochdaleLineSunday2026.equals(date)) {
+            routes.add(find.apply(BusRochdaleLine));
+        }
+
+        if (! (shudehillMarketStreet2026.contains(date)) ) {
+                //|| DateRange.of(shudehillMarketStreet2026.getEndDate(), 9).contains(date))) {
             routes.add(find.apply(Purple));
             routes.add(find.apply(Yellow));
         }

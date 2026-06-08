@@ -79,7 +79,7 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     // validated via TripRepositoryTest
-    public static TramTime EarliestTramTime = TramTime.of(4,7);
+    public static TramTime EarliestTramTime = TramTime.of(4,53);
 
     // TODO is this accurate?
     public static TramTime EarliestTrainTime = TramTime.of(0,1);

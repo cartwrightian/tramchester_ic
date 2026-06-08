@@ -187,6 +187,7 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
         TramDate date = TramDate.of(2026,5,30);
@@ -207,14 +208,12 @@ public class StopCallRepositoryTest {
         assertEquals(Rochdale.getId(), stopsBetween.getLast());
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedFreeHoldToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(freeHold, Rochdale.getId(), when);
         assertEquals(FreeholdToRochdaleStations, stopsBetween);
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveVictoriaToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Victoria.getId(), Rochdale.getId(), when);

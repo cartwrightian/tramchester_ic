@@ -251,8 +251,7 @@ public class StationAvailabilityRepositoryTest {
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
-        // summer 2026
-        assertEquals(2-1, results.size(),
+        assertEquals(2, results.size(),
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 

@@ -42,13 +42,13 @@ public class UpcomingDates {
 
     // official end date for this work is 10th, but routes missing until ....
     public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1),
-            of(2026, 6, 10));
+            of(2026, 6, 9));
 
     public static TramDate rochdaleLineSunday2026 = TramDate.of(2026,6,7);
 
     // TODO These missing dates are not on the tfgm website
     public static TramDate rochdaleLineMissing2026 = TramDate.of(2026,6,14);
-    public static DateRange shudehillAndMarketStMissing2026 = DateRange.of(TramDate.of(2026, 6,11), 7);
+    public static DateRange shudehillAndMarketStMissing2026 = DateRange.of(TramDate.of(2026, 6,11), 8);
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);

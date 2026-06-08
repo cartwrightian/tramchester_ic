@@ -62,11 +62,10 @@ class RouteReachableTramTest {
 
         IdSet<Route> routeIds = results.stream().collect(IdSet.collector());
 
-        // summer 2026 2->1
-        assertEquals(2-1, routeIds.size(), routeIds.toString());
+        assertEquals(2, routeIds.size(), routeIds.toString());
 
         assertTrue(routeIds.contains(KnownTramRoute.getGreen(when).getId()), routeIds.toString());
-        assertFalse(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
     }
 
 

@@ -230,6 +230,7 @@ class KnownTramRouteTest {
                 "\n Have known but not loaded routes " + unusedForDate);
     }
 
+    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveCorrectDateForKnownRoutes() {
         EnumSet<KnownTramRouteEnum> knowRoutes = KnownTramRouteEnum.validRoutes();

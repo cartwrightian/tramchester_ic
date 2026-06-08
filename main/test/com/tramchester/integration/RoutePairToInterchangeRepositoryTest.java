@@ -78,11 +78,11 @@ public class RoutePairToInterchangeRepositoryTest {
         Route toTraffordCentre = routeHelper.getRed(date);
         Route toAirport = routeHelper.getNavy(date);
 
-        RoutePair routeIndexPair = RoutePair.of(toTraffordCentre, toAirport);
+        RoutePair routePair = RoutePair.of(toTraffordCentre, toAirport);
 
-        assertTrue(repository.hasAnyInterchangesFor(routeIndexPair));
+        assertTrue(repository.hasAnyInterchangesFor(routePair));
 
-        Set<InterchangeStation> interchanges = repository.getInterchanges(routeIndexPair, modes);
+        Set<InterchangeStation> interchanges = repository.getInterchanges(routePair, modes);
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
@@ -92,7 +92,7 @@ public class RoutePairToInterchangeRepositoryTest {
             assertTrue(stationIds.contains(RailStationIds.ManchesterDeansgate.getId()));
         } else {
             // summer 2026
-            assertEquals(1+2, stationIds.size(), stationIds.toString());
+            assertEquals(1+3, stationIds.size(), stationIds.toString());
         }
 
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());

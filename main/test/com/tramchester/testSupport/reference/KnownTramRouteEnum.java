@@ -15,6 +15,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.testSupport.UpcomingDates.rochdaleLineSunday2026;
 import static com.tramchester.testSupport.reference.KnownTramRoute.routeChangeOverDate;
 
 /*
@@ -31,7 +32,7 @@ public enum KnownTramRouteEnum implements TestRoute {
 //    ReplacementBusFive(BusFive, "Replacement Bus 5", "2177", ReplacementBusEaster2026),
 //    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,25)),
     ReplacementBusRochdaleLine(BusRochdaleLine, "Replacement BusRochdale Line","2462" ,
-            routeChangeOverDate),
+            rochdaleLineSunday2026),
 
     // Blue
     EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", routeChangeOverDate),
@@ -46,11 +47,12 @@ public enum KnownTramRouteEnum implements TestRoute {
     RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3220", routeChangeOverDate),
 
     // Purple
-    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", routeChangeOverDate.plusDays(5)),
+    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", routeChangeOverDate),
 
     // Red
     CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3222", routeChangeOverDate),
-    CornbrookTheTraffordCentreB(Red, "Etihad Campus - The Trafford Centre", "849", TramDate.of(2026, 6, 1)),
+    CornbrookTheTraffordCentreB(Red, "Etihad Campus - The Trafford Centre", "849", TramDate.of(2026, 6, 6)),
+    CornbrookTheTraffordCentreC(Red, "Etihad Campus - The Trafford Centre", "3222", TramDate.of(2026, 6, 10)),
 
     // Yellow
     AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3223", routeChangeOverDate.plusDays(5));
