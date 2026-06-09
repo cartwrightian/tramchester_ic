@@ -67,8 +67,6 @@ class RouteCalculatorLocalStationsSubGraphTest {
     private TramTime time;
     private IdFor<Agency> northern;
 
-    public static TramTime trainTimeFromAltyToNav = TramTime.of(14,57).minusMinutes(7);
-
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
@@ -219,37 +217,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
     @Test
     void shouldTakeDirectTrainToNavigationRoadWhenAvailable() {
-
-        // train at 14:57 as of 8/6/26
-
-        Station start = rail(Altrincham);
-        Station dest = rail(NavigationRaod);
-        TramDuration maxJourneyDuration = TramDuration.ofMinutes(10);
-
-        JourneyRequest requestTrainOnly = new JourneyRequest(when, trainTimeFromAltyToNav, false, 1,
-                maxJourneyDuration, 2, TrainOnly);
-
-        List<Journey> trainOnlyJourneys = testFacade.calculateRouteAsList(start, dest, requestTrainOnly);
-        assertFalse(trainOnlyJourneys.isEmpty(), "No train only journeys");
-
-        JourneyRequest requestBoth = new JourneyRequest(when, trainTimeFromAltyToNav, false, 1,
-                maxJourneyDuration, 6, getRequestedModes());
-        //requestBoth.setDiag(true);
-
-        List<Journey> trainAndTramJourneys = testFacade.calculateRouteAsList(start, dest, requestBoth);
-        assertFalse(trainAndTramJourneys.isEmpty(), "No train/tram journeys");
-
-        List<Journey> oneStageJourneys = trainAndTramJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
-
-        assertFalse(oneStageJourneys.isEmpty(), "No one stage journeys, got " + trainAndTramJourneys);
-        assertEquals(1, oneStageJourneys.size(), "unexpected number of journeys " + oneStageJourneys);
-
-        oneStageJourneys.forEach(journey -> {
-            List<TransportStage<?, ?>> stages = journey.getStages();
-            assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(Train, stages.getFirst().getMode(), "wrong first stage for " + stages);
-        });
-
+        RailAndTramRouteCalculatorTest.SharedShouldTakeDirectTrainToNavigationRoadWhenAvailable(when, getRequestedModes(),
+                stationRepository, testFacade);
     }
 
     @Test

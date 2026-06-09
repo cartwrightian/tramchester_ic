@@ -149,12 +149,13 @@ public class PathSearchState {
             this.stateKey = stateKey;
             this.duration = duration;
             this.pathToHere = pathToHere.duplicate();
-            this.jumpQueue = jumpQueue; // used when we can id state leads direct to a destination
+            this.jumpQueue = jumpQueue; // used when we can id states that lead directly to a destination
         }
 
+        // TODO Currently this is path length only which is a naive algo
         @Override
         public int compareTo(final NodeSearchState other) {
-            // depth first
+            // depth first - longest path comes first
             if (jumpQueue && other.jumpQueue) {
                 return Integer.compare(this.pathToHere.length(), other.pathToHere.length());
             }
@@ -164,7 +165,12 @@ public class PathSearchState {
             if (other.jumpQueue) {
                 return 1;
             }
-            return Integer.compare(other.pathToHere.length(), pathToHere.length());
+            int comparison = Integer.compare(other.pathToHere.length(), pathToHere.length());
+            if (comparison==0) {
+                // tie-break via duration (shortest wins)
+                comparison = duration.compareTo(other.duration);
+            }
+            return comparison;
         }
 
         public SearchStateKey getStateKey() {

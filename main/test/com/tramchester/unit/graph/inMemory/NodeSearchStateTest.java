@@ -49,6 +49,35 @@ public class NodeSearchStateTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldOrderOnDurationAfterLongestPath() {
+
+        GraphPathInMemory pathA = createMockPathOfLength(8);
+        GraphPathInMemory pathB = createMockPathOfLength(8);
+        GraphPathInMemory pathC = createMockPathOfLength(4);
+
+        replayAll();
+        PathSearchState.NodeSearchState stateA = new PathSearchState.NodeSearchState(getStateKey(1), TramDuration.ofSeconds(50), pathA, false);
+        PathSearchState.NodeSearchState stateB = new PathSearchState.NodeSearchState(getStateKey(2), TramDuration.ofSeconds(45), pathB, false);
+        PathSearchState.NodeSearchState stateC = new PathSearchState.NodeSearchState(getStateKey(3), TramDuration.ofSeconds(60), pathC, false);
+
+        PriorityQueue<PathSearchState.NodeSearchState> queue = new PriorityQueue<>();
+        queue.add(stateA);
+        queue.add(stateB);
+        queue.add(stateC);
+
+        PathSearchState.NodeSearchState first = queue.poll();
+        PathSearchState.NodeSearchState second = queue.poll();
+        PathSearchState.NodeSearchState third = queue.poll();
+
+        verifyAll();
+
+        assertEquals(stateB, first);
+        assertEquals(stateA, second);
+        assertEquals(stateC, third);
+
+    }
+
+    @Test
     void shouldOrderOnShortestPathFirstWhenMultipleJumpQueue() {
         TramDuration duration = TramDuration.ZERO;
 

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -24,15 +25,18 @@ import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.integration.graph.railAndTram.RouteCalculatorLocalStationsSubGraphTest.trainTimeFromAltyToNav;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
-import static com.tramchester.testSupport.TestEnv.Modes.*;
+import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
+import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramStations.Eccles;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,16 +44,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @GMTest
 public class RailAndTramRouteCalculatorTest {
     private static final int TXN_TIMEOUT = 5*60;
-    private static StationRepository stationRepository;
-    private static RailAndTramGreaterManchesterConfig config;
-
     private final TramDate when = TestEnv.testDay();
 
+    private static RailAndTramGreaterManchesterConfig config;
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
 
     private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
+    private StationRepository stationRepository;
+
 
     private TramTime travelTime;
     private TramDuration maxDurationFromConfig;
@@ -62,8 +65,6 @@ public class RailAndTramRouteCalculatorTest {
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        stationRepository = componentContainer.get(StationRepository.class);
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterEach
@@ -78,12 +79,15 @@ public class RailAndTramRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        testFacade = new RouteCalculatorTestFacade(componentContainer, txn);
-
         travelTime = TramTime.of(8, 0);
 
         maxDurationFromConfig = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        testFacade = new RouteCalculatorTestFacade(componentContainer, txn);
+
+        stationRepository = componentContainer.get(StationRepository.class);
 
     }
 
@@ -177,7 +181,6 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
-
     @Test
     void shouldHaveVictoriaToEcclesTrainAndTramAllowed() {
         // check if allowing all transport modes makes a difference.....
@@ -193,7 +196,7 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveDeangateToEccles() {
+    void shouldHaveDeansgateToEccles() {
         // check if failing when TramsOnly and nearby rail station
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
@@ -389,27 +392,50 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
-    void shouldTakeDirectTrainWhenStartAtTramStationNextToStation() {
+    void shouldTakeDirectTrainToNavigationRoadWhenAvailable() {
+        // also called from sub-graph tests in class:RouteCalculatorLocalStationsSubGraphTest
 
-        // timing dependent...need to make sure a train is due, otherwise will just get tram results
+        // NOTES: Works ok for subgraph, but for larger graph fails. Suggests depth or breadth is leading to the
+        // direct train not being prioritized (i.e. chooise paths with lower number of ConnectingStage?)
+        SharedShouldTakeDirectTrainToNavigationRoadWhenAvailable(when, TrainAndTram, stationRepository, testFacade);
+    }
 
-        TramTime trainTime = trainTimeFromAltyToNav;
+    public static void SharedShouldTakeDirectTrainToNavigationRoadWhenAvailable(TramDate when, ImmutableEnumSet<TransportMode> modes,
+                                                                                StationRepository stationRepository,
+                                                                                RouteCalculatorTestFacade testFacade) {
+        // valid as of 9/June/26
+        TramTime trainTimeFromAltyToNav = TramTime.of(14,57).minusMinutes(7);
 
-        JourneyRequest request = new JourneyRequest(when, trainTime, false, 1,
-                TramDuration.ofMinutes(10), 3, TrainAndTram);
+        Station start = RailStationIds.Altrincham.from(stationRepository);
+        Station dest = RailStationIds.NavigationRaod.from(stationRepository);
 
-        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(RailStationIds.Altrincham, RailStationIds.NavigationRaod, request));
-        assertFalse(journeys.isEmpty(), "no journeys found");
+        int maxChanges = 0;
 
-        Set<Journey> directs = journeys.stream().filter(Journey::isDirect).collect(Collectors.toSet());
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(10);
 
-        assertFalse(directs.isEmpty(), "no direct journeys in " + journeys);
+        JourneyRequest requestTrainOnly = new JourneyRequest(when, trainTimeFromAltyToNav, false, maxChanges,
+                maxJourneyDuration, 2, TrainOnly);
 
-        directs.forEach(direct -> {
-            List<TransportStage<?, ?>> stages = direct.getStages();
-            assertEquals(Train, stages.getFirst().getMode(), "wrong first stage for " + journeys);
+        List<Journey> trainOnlyJourneys = testFacade.calculateRouteAsList(start, dest, requestTrainOnly);
+        assertFalse(trainOnlyJourneys.isEmpty(), "Sanity check failure, No train only journeys");
+
+        JourneyRequest requestBoth = new JourneyRequest(when, trainTimeFromAltyToNav, false, maxChanges,
+                maxJourneyDuration, 6, modes);
+        //requestBoth.setDiag(true);
+
+        List<Journey> trainAndTramJourneys = testFacade.calculateRouteAsList(start, dest, requestBoth);
+        assertFalse(trainAndTramJourneys.isEmpty(), "No train/tram journeys");
+
+        List<Journey> oneStageJourneys = trainAndTramJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
+
+        assertFalse(oneStageJourneys.isEmpty(), "No one stage journeys, got " + trainAndTramJourneys);
+        assertEquals(1, oneStageJourneys.size(), "unexpected number of journeys " + oneStageJourneys);
+
+        oneStageJourneys.forEach(journey -> {
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(1, stages.size(), "too many stages " + journey);
+            assertEquals(Train, stages.getFirst().getMode(), "wrong first stage for " + stages);
         });
-
     }
 
     // TODO keep or not?
