@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.integration.graph.railAndTram.RouteCalculatorLocalStationsSubGraphTest.trainTimeFromAltyToNav;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
 import static com.tramchester.testSupport.TestEnv.Modes.*;
@@ -392,12 +393,12 @@ public class RailAndTramRouteCalculatorTest {
 
         // timing dependent...need to make sure a train is due, otherwise will just get tram results
 
-        TramTime time = TramTime.of(10,50);
+        TramTime trainTime = trainTimeFromAltyToNav;
 
-        JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                TramDuration.ofMinutes(240), 3, TrainAndTram);
+        JourneyRequest request = new JourneyRequest(when, trainTime, false, 1,
+                TramDuration.ofMinutes(10), 3, TrainAndTram);
 
-        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(RailStationIds.Altrincham, NavigationRaod, request));
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(RailStationIds.Altrincham, RailStationIds.NavigationRaod, request));
         assertFalse(journeys.isEmpty(), "no journeys found");
 
         Set<Journey> directs = journeys.stream().filter(Journey::isDirect).collect(Collectors.toSet());

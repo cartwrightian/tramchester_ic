@@ -57,8 +57,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
             TramStations.NavigationRoad,
             TramStations.Timperley,
             RailStationIds.Altrincham,
-            NavigationRaod,
-            Stockport).map(HasId::getId).toList();
+            RailStationIds.NavigationRaod,
+            RailStationIds.Stockport).map(HasId::getId).toList();
 
     private GraphTransaction txn;
     private StationRepository stationRepository;
@@ -66,6 +66,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
     private RouteCalculatorTestFacade testFacade;
     private TramTime time;
     private IdFor<Agency> northern;
+
+    public static TramTime trainTimeFromAltyToNav = TramTime.of(14,57).minusMinutes(7);
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -218,22 +220,28 @@ class RouteCalculatorLocalStationsSubGraphTest {
     @Test
     void shouldTakeDirectTrainToNavigationRoadWhenAvailable() {
 
-        // train at 14:57 as of 14/5/26
-
-        TramTime trainTime = TramTime.of(14,56);
-        JourneyRequest request = new JourneyRequest(when, trainTime, false, 1,
-                TramDuration.ofMinutes(10), 6, getRequestedModes());
+        // train at 14:57 as of 8/6/26
 
         Station start = rail(Altrincham);
         Station dest = rail(NavigationRaod);
+        TramDuration maxJourneyDuration = TramDuration.ofMinutes(10);
 
-        List<Journey> allJourneys = testFacade.calculateRouteAsList(start, dest, request);
+        JourneyRequest requestTrainOnly = new JourneyRequest(when, trainTimeFromAltyToNav, false, 1,
+                maxJourneyDuration, 2, TrainOnly);
 
-        assertFalse(allJourneys.isEmpty(), "No journeys");
+        List<Journey> trainOnlyJourneys = testFacade.calculateRouteAsList(start, dest, requestTrainOnly);
+        assertFalse(trainOnlyJourneys.isEmpty(), "No train only journeys");
 
-        List<Journey> oneStageJourneys = allJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
+        JourneyRequest requestBoth = new JourneyRequest(when, trainTimeFromAltyToNav, false, 1,
+                maxJourneyDuration, 6, getRequestedModes());
+        //requestBoth.setDiag(true);
 
-        assertFalse(oneStageJourneys.isEmpty(), "No one stage journeys, got " + allJourneys);
+        List<Journey> trainAndTramJourneys = testFacade.calculateRouteAsList(start, dest, requestBoth);
+        assertFalse(trainAndTramJourneys.isEmpty(), "No train/tram journeys");
+
+        List<Journey> oneStageJourneys = trainAndTramJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
+
+        assertFalse(oneStageJourneys.isEmpty(), "No one stage journeys, got " + trainAndTramJourneys);
         assertEquals(1, oneStageJourneys.size(), "unexpected number of journeys " + oneStageJourneys);
 
         oneStageJourneys.forEach(journey -> {
