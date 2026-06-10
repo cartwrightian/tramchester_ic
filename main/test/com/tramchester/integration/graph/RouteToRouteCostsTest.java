@@ -9,6 +9,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -26,7 +27,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,19 +115,18 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
         Route routeB = routeHelper.getYellow(date);
 
-        assertEquals(2, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
+        // -1 since Trafford Centre route currently starting at Victoria
+        assertEquals(2-1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(2, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, timeRange, modes)),
+        assertEquals(2-1, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, timeRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
@@ -211,7 +210,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldSortAsExpected() {
 
@@ -220,17 +218,18 @@ public class RouteToRouteCostsTest {
         Route routeC = routeHelper.getYellow(date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
+
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalculatorFor(LocationCollectionSingleton.of(destination), date, timeRange, modes);
-
         Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
-
         List<Route> results = sorts.sortByDestinations(toSort).toList();
-        //List<Route> list = results.collect(Collectors.toList());
+
+        // as Trafford Centre trams currently running from Victoria no difference between any of the other routes,
+        // all have only one changce to get onto Red Route
 
         assertEquals(3, results.size());
         assertEquals(routeA.getShortName(), results.get(0).getShortName());
-        assertEquals(routeB.getShortName(), results.get(1).getShortName());
-        assertEquals(routeC.getShortName(), results.get(2).getShortName());
+        assertEquals(routeC.getShortName(), results.get(1).getShortName(), HasId.asIds(results));
+        assertEquals(routeB.getShortName(), results.get(2).getShortName(), HasId.asIds(results));
 
     }
 

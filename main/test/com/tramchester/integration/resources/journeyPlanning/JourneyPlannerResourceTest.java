@@ -21,7 +21,6 @@ import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.*;
@@ -211,7 +210,6 @@ public class JourneyPlannerResourceTest {
         assertTrue(plan.getJourneys().isEmpty());
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 

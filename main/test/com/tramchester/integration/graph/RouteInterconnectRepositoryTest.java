@@ -29,7 +29,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
+import com.tramchester.testSupport.testTags.TraffordBarTramsFromVictoria2026;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -167,7 +167,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @ShudehillMarketStreetSummer2025
+    @TraffordBarTramsFromVictoria2026
     @Test
     void shouldCheckFor2Changes() {
 
@@ -235,7 +235,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @ShudehillMarketStreetSummer2025
+    @TraffordBarTramsFromVictoria2026
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -278,7 +278,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @ShudehillMarketStreetSummer2025
+    @TraffordBarTramsFromVictoria2026
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);

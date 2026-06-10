@@ -24,13 +24,14 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.routeChangeOv
  */
 public enum KnownTramRouteEnum implements TestRoute {
 
-    // Replacement Buses
+    // Replacement Buses, come and go
 //    ReplacementBusOne(BusOne, "Replacement Bus 1", "3080", ReplacementBusEaster2026),
 //    ReplacementBusTwo(BusTwo, "Replacement Bus 2", "2736", ReplacementBusEaster2026),
 //    ReplacementBusThree(BusThree, "Replacement Bus 3", "2361", ReplacementBusEaster2026),
 //    ReplacementBusFour(BusFour, "Replacement Bus 4", "3229", ReplacementBusEaster2026),
 //    ReplacementBusFive(BusFive, "Replacement Bus 5", "2177", ReplacementBusEaster2026),
 //    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,25)),
+
     ReplacementBusRochdaleLine(BusRochdaleLine, "Replacement BusRochdale Line","2462" ,
             rochdaleLineSunday2026),
 
@@ -47,15 +48,15 @@ public enum KnownTramRouteEnum implements TestRoute {
     RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3220", routeChangeOverDate),
 
     // Purple
-    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", routeChangeOverDate),
+    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", TramDate.of(2026,6,10)),
 
     // Red
-    CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3222", routeChangeOverDate),
+    //CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3222", routeChangeOverDate),
     CornbrookTheTraffordCentreB(Red, "Etihad Campus - The Trafford Centre", "849", TramDate.of(2026, 6, 6)),
     CornbrookTheTraffordCentreC(Red, "Etihad Campus - The Trafford Centre", "3222", TramDate.of(2026, 6, 10)),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3223", routeChangeOverDate.plusDays(5));
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3223", routeChangeOverDate.plusDays(9));
 
 
     private final TFGMRouteNames line;

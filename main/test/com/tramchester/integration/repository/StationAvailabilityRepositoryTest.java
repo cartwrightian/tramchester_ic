@@ -29,7 +29,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -305,7 +304,6 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
         TramDate date = TestEnv.testDay();

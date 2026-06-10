@@ -37,7 +37,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -282,15 +281,14 @@ public class RouteCalculatorTest {
         });
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
-        // TODO Rework this test to ID journeys that go via unexpected routes, and ID why that is happening
+        // TODO perhaps rework this test to ID journeys that go via unexpected routes, and ID why that is happening
 
         long maxNumberJourneys = 5;
 
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21), maxNumberJourneys, maxChanges);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21), maxNumberJourneys, 0);
 
         List<Journey> altyToPicGardens = calculator.calculateRouteAsList(Altrincham, PiccadillyGardens, journeyRequest);
         assertFalse(altyToPicGardens.isEmpty());
@@ -304,8 +302,7 @@ public class RouteCalculatorTest {
         IdSet<Route> routesAltyToMarketStreet = altyToMarketStreet.stream().
                 flatMap(j -> j.getStages().stream().map(TransportStage::getRoute)).collect(IdSet.collector());
 
-        // TODO closures
-        assertEquals(1+1, routesAltyToMarketStreet.size(), routesAltyToMarketStreet.toString());
+        assertEquals(1, routesAltyToMarketStreet.size(), routesAltyToMarketStreet.toString());
         assertTrue(routesAltyToMarketStreet.contains(getGreen(when).getId()),
                 "not expecting " + routesAltyToMarketStreet);
 

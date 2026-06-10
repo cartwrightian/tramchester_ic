@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 
 public class PathSearchState {
     private static final Logger logger = LoggerFactory.getLogger(PathSearchState.class);
@@ -152,12 +153,12 @@ public class PathSearchState {
             this.jumpQueue = jumpQueue; // used when we can id states that lead directly to a destination
         }
 
-        // TODO Currently this is path length only which is a naive algo
         @Override
         public int compareTo(final NodeSearchState other) {
             // depth first - longest path comes first
             if (jumpQueue && other.jumpQueue) {
-                return Integer.compare(this.pathToHere.length(), other.pathToHere.length());
+                // shortest path here
+                return compareWith(other, Integer::compare);
             }
             if (jumpQueue) {
                 return -1;
@@ -165,13 +166,18 @@ public class PathSearchState {
             if (other.jumpQueue) {
                 return 1;
             }
-            int comparison = Integer.compare(other.pathToHere.length(), pathToHere.length());
-            if (comparison==0) {
-                // tie-break via duration (shortest wins)
-                comparison = duration.compareTo(other.duration);
-            }
-            return comparison;
+            return compareWith(other, (a, b) -> Integer.compare(b, a));
         }
+
+        private int compareWith(final NodeSearchState other, final BinaryOperator<Integer> comparison) {
+            int result = comparison.apply(pathToHere.length(), other.pathToHere.length());
+            if (result==0) {
+                // tie-break via duration (shortest wins)
+                result = duration.compareTo(other.duration);
+            }
+            return result;
+        }
+
 
         public SearchStateKey getStateKey() {
             return stateKey;

@@ -22,7 +22,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -115,7 +114,6 @@ public class RouteRepositoryTest {
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldNotHaveRedRouteServingShudehill() {
         Route red = routeHelper.getOneRoute(TFGMRouteNames.Red, when);
@@ -179,7 +177,6 @@ public class RouteRepositoryTest {
 
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldOverlapAsExpected() {
 
@@ -203,7 +200,6 @@ public class RouteRepositoryTest {
 
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 

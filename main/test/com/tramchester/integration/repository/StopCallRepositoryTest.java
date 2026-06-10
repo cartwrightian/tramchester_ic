@@ -22,7 +22,6 @@ import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -187,11 +186,10 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
-        TramDate date = TramDate.of(2026,5,30);
-        assertThrows(RuntimeException.class, () -> stopCallRepository.getStopcallsBetween(StPetersSquare.getId(), Victoria.getId(), date));
+        //TramDate date = TramDate.of(2026,5,30);
+        assertThrows(RuntimeException.class, () -> stopCallRepository.getStopcallsBetween(StPetersSquare.getId(), Victoria.getId(), when));
     }
 
     @Test

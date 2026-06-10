@@ -19,7 +19,6 @@ import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -90,7 +89,6 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -101,7 +99,6 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getYellow, true);
@@ -205,7 +202,6 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
@@ -230,7 +226,6 @@ class KnownTramRouteTest {
                 "\n Have known but not loaded routes " + unusedForDate);
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldHaveCorrectDateForKnownRoutes() {
         EnumSet<KnownTramRouteEnum> knowRoutes = KnownTramRouteEnum.validRoutes();
@@ -241,11 +236,10 @@ class KnownTramRouteTest {
             assertTrue(routeRepository.hasRouteId(known.getId()), known + "(" +known.getId() + ") is missing from repo");
             Route actual = routeRepository.getRouteById(known.getId());
             assertTrue(actual.getDateRange().contains(known.getValidFrom()), known.getValidFrom() + " for " +
-                    known.name() + " not within " + actual.getDateRange());
+                    known.name() + " not within " + actual.getDateRange() + " (id:" + actual.getId() +")");
         });
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);

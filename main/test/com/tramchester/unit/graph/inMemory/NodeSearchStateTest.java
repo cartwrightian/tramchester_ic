@@ -4,8 +4,8 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.inMemory.GraphIdListInMem;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
-import com.tramchester.graph.search.inMemory.PathSearchState;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
+import com.tramchester.graph.search.inMemory.PathSearchState;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -104,7 +104,34 @@ public class NodeSearchStateTest extends EasyMockSupport {
         assertEquals(stateB, first);
         assertEquals(stateA, second);
         assertEquals(stateC, thrid);
+    }
 
+    @Test
+    void shouldOrderOnDurationWhenSamePathLenAndMultipleJumpQueue() {
+
+        GraphPathInMemory pathA = createMockPathOfLength(2);
+        GraphPathInMemory pathB = createMockPathOfLength(2);
+        GraphPathInMemory pathC = createMockPathOfLength(11);
+
+        replayAll();
+        PathSearchState.NodeSearchState stateA = new PathSearchState.NodeSearchState(getStateKey(1), TramDuration.ofSeconds(40), pathA, true);
+        PathSearchState.NodeSearchState stateB = new PathSearchState.NodeSearchState(getStateKey(2), TramDuration.ofSeconds(30), pathB, true);
+        PathSearchState.NodeSearchState stateC = new PathSearchState.NodeSearchState(getStateKey(3), TramDuration.ofSeconds(10), pathC, true);
+
+        PriorityQueue<PathSearchState.NodeSearchState> queue = new PriorityQueue<>();
+        queue.add(stateA);
+        queue.add(stateB);
+        queue.add(stateC);
+
+        PathSearchState.NodeSearchState first = queue.poll();
+        PathSearchState.NodeSearchState second = queue.poll();
+        PathSearchState.NodeSearchState thrid = queue.poll();
+
+        verifyAll();
+
+        assertEquals(stateB, first);
+        assertEquals(stateA, second);
+        assertEquals(stateC, thrid);
     }
 
     @Test

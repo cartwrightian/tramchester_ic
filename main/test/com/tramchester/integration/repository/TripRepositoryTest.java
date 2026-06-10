@@ -29,7 +29,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetSummer2025;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,7 +100,6 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
-    @ShudehillMarketStreetSummer2025
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -117,7 +115,7 @@ public class TripRepositoryTest {
 
         assertFalse(routes.isEmpty());
         // summer 2026 changes
-        assertEquals(4+1, routes.size(), HasId.asIds(routes));
+        assertEquals(4, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
@@ -126,8 +124,7 @@ public class TripRepositoryTest {
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
         assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
 
-        // False -> True summer 2026
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
+        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
 
     }
 
