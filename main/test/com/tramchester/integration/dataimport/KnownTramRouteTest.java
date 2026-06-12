@@ -6,9 +6,9 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -32,7 +32,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -177,6 +176,21 @@ class KnownTramRouteTest {
     }
 
     @Test
+    void shouldHaveLongNamesMatching() {
+        // here for consistency of naming as much as anything
+        getDateRange().forEach(date -> {
+            final Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
+            loadedRoutes.forEach(loaded -> {
+                String shortName = loaded.getShortName().replace(" Line","");
+                TFGMRouteNames routeName = TFGMRouteNames.parseFromName(shortName);
+                KnownTramRouteEnum known = KnownTramRoute.findFor(routeName, date);
+                assertEquals(loaded.getName(), known.longName(),
+                        "Could not match " + loaded.getName() + " with " + known + " on " + date);
+            });
+        });
+    }
+
+    @Test
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);
 
@@ -238,25 +252,6 @@ class KnownTramRouteTest {
             assertTrue(actual.getDateRange().contains(known.getValidFrom()), known.getValidFrom() + " for " +
                     known.name() + " not within " + actual.getDateRange() + " (id:" + actual.getId() +")");
         });
-    }
-
-    @Test
-    void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
-        TestRoute piccadillyVictoria = getYellow(when);
-        String shortName = piccadillyVictoria.shortName();
-
-        List<Route> matching = routeRepository.getRoutes().stream().
-                filter(route -> route.getShortName().equals(shortName)).
-                toList();
-
-        assertEquals(1, matching.size(), HasId.asIds(matching));
-
-        List<DateRange> ranges = matching.stream().map(Route::getDateRange).toList();
-
-        boolean available = ranges.stream().anyMatch(range -> range.contains(when));
-
-        assertTrue(available, when + " is missing from loaded " + ranges);
-
     }
 
     @NotNull

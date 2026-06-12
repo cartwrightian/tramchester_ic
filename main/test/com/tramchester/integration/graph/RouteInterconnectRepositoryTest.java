@@ -112,7 +112,8 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5);
+        // closure bus replacements
+        int expectedChanges = ((config.hasRailConfig()) ? 8+1 : 5+1);
 
         assertEquals(expectedChanges, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
@@ -204,7 +205,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5);
+        int expectedChanges = ((config.hasRailConfig()) ? 8+1 : 5+1);
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 

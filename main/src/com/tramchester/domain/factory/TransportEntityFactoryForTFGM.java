@@ -70,8 +70,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
         if (transportMode.equals(TransportMode.Tram)) {
             final TFGMRouteNames routeName = TFGMRouteNames.parseFromSource(routeNameText);
-            final IdFor<Route> routeId = TramRouteId.create(routeName, idText);
-            return new MutableRoute(routeId, routeName.getShortName(), longName, agency, transportMode);
+            final TramRouteId routeId = TramRouteId.create(routeName, idText);
+            return new MutableRoute(routeId, longName, agency, transportMode);
         } else {
             // Buses
             return new MutableRoute(Route.createBasicRouteId(idText), routeNameText, longName, agency, transportMode);

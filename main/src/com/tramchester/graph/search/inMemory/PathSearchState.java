@@ -173,7 +173,10 @@ public class PathSearchState {
             int result = comparison.apply(pathToHere.length(), other.pathToHere.length());
             if (result==0) {
                 // tie-break via duration (shortest wins)
+                // TODO WIP - shortest first breaks some tram/train tests, digging into why
+                //result = other.duration.compareTo(duration);
                 result = duration.compareTo(other.duration);
+
             }
             return result;
         }

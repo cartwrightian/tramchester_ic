@@ -13,6 +13,7 @@ import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.CoordinateTransforms;
@@ -80,7 +81,8 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 26;
+        // summer 2026
+        int expectedNumStations = 26-1;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
@@ -278,17 +280,23 @@ public class StationRepositoryTest {
     void shouldHaveExpectedPickupAndDropOffsForMediaCity() {
         // seen issues here
         Station mediaCity = MediaCityUK.from(stationRepository);
-        IdFor<Route> blueRouteId = getBlue(when).getId();
+        //IdFor<Route> blueRouteId = getBlue(when).getId();
 
-        IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
+        Set<TFGMRouteNames> dropOffs = mediaCity.getDropoffRoutes().stream().
+                map(route -> (TramRouteId)route.getId()).
+                map(TramRouteId::getRouteName).
+                collect(Collectors.toSet());
 
         assertEquals(1, dropOffs.size(), dropOffs.toString());
-        assertTrue(dropOffs.contains(blueRouteId));
+        assertTrue(dropOffs.contains(TFGMRouteNames.Blue));
 
-        IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
+        Set<TFGMRouteNames> pickUps = mediaCity.getPickupRoutes().stream().
+                map(route -> (TramRouteId)route.getId()).
+                map(TramRouteId::getRouteName).
+                collect(Collectors.toSet());
 
         assertEquals(1, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(blueRouteId));
+        assertTrue(pickUps.contains(TFGMRouteNames.Blue));
     }
 
     @Test

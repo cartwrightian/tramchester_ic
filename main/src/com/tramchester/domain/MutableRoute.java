@@ -43,6 +43,10 @@ public class MutableRoute implements Route {
         routeCalendar = new RouteCalendar(this);
     }
 
+    public MutableRoute(TramRouteId routeId, String longName, MutableAgency agency, TransportMode transportMode) {
+        this(routeId, routeId.getRouteName().getShortName(), longName, agency, transportMode);
+    }
+
     // test support
     public static Route getRoute(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
         return new MutableRoute(id, shortName, name, agency, transportMode);

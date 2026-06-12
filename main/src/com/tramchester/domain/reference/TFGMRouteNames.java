@@ -10,7 +10,8 @@ public enum TFGMRouteNames {
     BusFour("Metrolink Replacement Bus 4", true),
     BusFive("Metrolink Replacement Bus 5", true),
     BusBlue("Metrolink Replacement Bus Blue Line", true),
-    BusRochdaleLine("Rochdale Line Replacement Bus", true),
+    //BusRochdaleLine("Rochdale Line Replacement Bus", true),
+    BusPicVic("PIC-VIC Replacement Bus", true),
 
     Red("Red Line", false),
     Pink("Pink Line", false),
@@ -52,10 +53,12 @@ public enum TFGMRouteNames {
         return routeNameMap.get(text);
     }
 
+    // remember - TramRouteId contains TFGMRouteNames
     public static TFGMRouteNames parseFromName(final String name) {
         return Enum.valueOf(TFGMRouteNames.class, name);
     }
 
+    // remember - TramRouteId contains TFGMRouteNames
     public String getShortName() {
         return shortName;
     }

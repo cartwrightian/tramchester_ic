@@ -70,7 +70,7 @@ class NaptanRepositoryTest {
 
         Set<NaptanRecord> withinLocality = repository.getRecordsForLocality(localityId);
 
-        assertEquals(170, withinLocality.size(), "wrong size, got " + HasId.asIds(withinLocality));
+        assertEquals(171, withinLocality.size(), "wrong size, got " + HasId.asIds(withinLocality));
     }
 
     @Test

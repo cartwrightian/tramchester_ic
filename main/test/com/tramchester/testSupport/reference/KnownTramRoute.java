@@ -12,12 +12,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.rochdaleLineSunday2026;
 import static com.tramchester.testSupport.UpcomingDates.shudehillMarketStreet2026;
+import static com.tramchester.testSupport.UpcomingDates.victoriaClosedUntil10amSummer2026;
 
 public class KnownTramRoute {
 
-    public static final TramDate routeChangeOverDate = TramDate.of(2026,6,1);
+    public static final TramDate currentValidityDate = TramDate.of(2026,6,10);
+    public static final TramDate cutoverDateA = TramDate.of(2026,6,20);
+    public static final TramDate cutoverDateB = TramDate.of(2026,6,22);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -71,22 +73,21 @@ public class KnownTramRoute {
         return getFor(date).size();
     }
 
-    public static Set<TestRoute> getFor(final TramDate date) {
+    public static Set<KnownTramRouteEnum> getFor(final TramDate date) {
 
-        final Set<TestRoute> routes = new HashSet<>();
+        final Set<KnownTramRouteEnum> routes = new HashSet<>();
 
         Function<TFGMRouteNames, KnownTramRouteEnum> find = getFinder(date);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.equals(TramDate.of(2026, 6, 7))) {
+            if (date.equals(TramDate.of(2026, 6, 21))) {
                 routes.add(find.apply(Green));
+            }
+            if (date.equals(victoriaClosedUntil10amSummer2026)) {
+                routes.add(find.apply(BusPicVic));
             }
         } else {
             routes.add(find.apply(Green));
-        }
-
-        if (rochdaleLineSunday2026.equals(date)) {
-            routes.add(find.apply(BusRochdaleLine));
         }
 
         if (! (shudehillMarketStreet2026.contains(date)) ) {

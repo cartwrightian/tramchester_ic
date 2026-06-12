@@ -15,8 +15,8 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.rochdaleLineSunday2026;
-import static com.tramchester.testSupport.reference.KnownTramRoute.routeChangeOverDate;
+import static com.tramchester.testSupport.UpcomingDates.victoriaClosedUntil10amSummer2026;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 
 /*
  * see also TramRouteHelper
@@ -32,35 +32,57 @@ public enum KnownTramRouteEnum implements TestRoute {
 //    ReplacementBusFive(BusFive, "Replacement Bus 5", "2177", ReplacementBusEaster2026),
 //    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,25)),
 
-    ReplacementBusRochdaleLine(BusRochdaleLine, "Replacement BusRochdale Line","2462" ,
-            rochdaleLineSunday2026),
+    ReplacementBusPicVic(BusPicVic, "PIC-VIC Replacement Bus", "1950", victoriaClosedUntil10amSummer2026),
 
     // Blue
-    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "3217", routeChangeOverDate),
+    Blue1(Blue, "Eccles - Ashton Under Lyne", "3217", currentValidityDate),
+    Blue2(Blue, "Eccles - Manchester - Ashton Under Lyne", "843", cutoverDateA),
+    Blue3(Blue, "Eccles - Ashton Under Lyne", "3217", cutoverDateB),
+    Blue4(Blue, "Eccles - Ashton Under Lyne", "1788", victoriaClosedUntil10amSummer2026),
+    Blue5(Blue, "Eccles - Ashton Under Lyne", "3217", victoriaClosedUntil10amSummer2026.plusDays(1)),
 
     // Green
-    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "3218", routeChangeOverDate),
+    Green1(Green, "Bury - Manchester - Altrincham", "3218", currentValidityDate),
+    Green2(Green, "Altrincham - Bury", "3262", cutoverDateA),
+    Green3(Green, "Bury - Manchester - Altrincham", "3218", cutoverDateB),
 
     // Navy
-    VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "3219", routeChangeOverDate),
+    Navy1(Navy, "Victoria - Manchester Airport", "3219", currentValidityDate),
+    Navy2(Navy, "Manchester Airport - Victoria", "3264", cutoverDateA),
+    Navy3(Navy, "Victoria - Manchester Airport", "3219", cutoverDateB),
+    Navy4(Navy, "Victoria - Manchester Airport", "3273", victoriaClosedUntil10amSummer2026),
+    Navy5(Navy, "Victoria - Manchester Airport", "3219", victoriaClosedUntil10amSummer2026.plusDays(1)),
 
     // Pink
-    RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "3220", routeChangeOverDate),
+    Pink1(Pink, "Rochdale - East Didsbury", "3220", currentValidityDate),
+    Pink2(Pink, "East Didsbury - Rochdale", "3263", cutoverDateA),
+    Pink3(Pink, "Rochdale - East Didsbury", "3220", cutoverDateB),
+    Pink4(Pink, "Rochdale - Manchester - East Didsbury", "3272", victoriaClosedUntil10amSummer2026),
+    Pink5(Pink, "Rochdale - Manchester - East Didsbury", "3220", victoriaClosedUntil10amSummer2026.plusDays(1)),
 
     // Purple
-    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", TramDate.of(2026,6,10)),
+    Purple1(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", currentValidityDate),
+    Purple2(Purple, "Altrincham - Etihad Campus", "3266", cutoverDateA),
+    Purple3(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", cutoverDateB),
+    Purple4(Purple, "Etihad Campus - Piccadilly - Altrincham", "3275", victoriaClosedUntil10amSummer2026),
+    Purple5(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", victoriaClosedUntil10amSummer2026.plusDays(1)),
 
     // Red
-    //CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "3222", routeChangeOverDate),
-    CornbrookTheTraffordCentreB(Red, "Etihad Campus - The Trafford Centre", "849", TramDate.of(2026, 6, 6)),
-    CornbrookTheTraffordCentreC(Red, "Etihad Campus - The Trafford Centre", "3222", TramDate.of(2026, 6, 10)),
+    Red1(Red, "Deansgate Castlefield - The Trafford Centre", "3222", currentValidityDate),
+    Red2(Red, "Trafford Centre - Crumpsall", "3265", cutoverDateA),
+    Red3(Red, "Deansgate Castlefield - The Trafford Centre", "3222", cutoverDateB),
+    Red4(Red, "Deansgate Castlefield - The Trafford Centre", "3274", victoriaClosedUntil10amSummer2026),
+    Red5(Red, "Deansgate Castlefield - The Trafford Centre", "3222", victoriaClosedUntil10amSummer2026.plusDays(1)),
 
     // Yellow
-    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "3223", routeChangeOverDate.plusDays(9));
-
+    Yellow1(Yellow, "Piccadilly - Bury", "3223", currentValidityDate),
+    Yellow2(Yellow, "Piccadilly - Bury", "844", cutoverDateA),
+    Yellow3(Yellow, "Piccadilly - Bury", "3223", cutoverDateB),
+    Yellow4(Yellow, "Ashton - Crumpsall Bay", "844", victoriaClosedUntil10amSummer2026),
+    Yellow5(Yellow, "Ashton - Crumpsall Bay", "3223", victoriaClosedUntil10amSummer2026.plusDays(1));
 
     private final TFGMRouteNames line;
-    private final String longName; // diagnostics only
+    private final String longName;
     private final IdFor<Route> id;
     private final TramDate validFrom;
 
@@ -88,6 +110,10 @@ public enum KnownTramRouteEnum implements TestRoute {
     @Override
     public TransportMode mode() {
         return TransportMode.Tram;
+    }
+
+    public String longName() {
+        return longName;
     }
 
     /**

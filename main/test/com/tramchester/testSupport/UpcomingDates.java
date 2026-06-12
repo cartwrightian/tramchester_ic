@@ -44,7 +44,7 @@ public class UpcomingDates {
     public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1),
             of(2026, 6, 9));
 
-    public static TramDate rochdaleLineSunday2026 = TramDate.of(2026,6,7);
+    public static TramDate victoriaClosedUntil10amSummer2026 = TramDate.of(2026,6,28);
 
     // TODO These missing dates are not on the tfgm website
     public static TramDate rochdaleLineMissing2026 = TramDate.of(2026,6,14);
@@ -71,7 +71,7 @@ public class UpcomingDates {
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         if (VictoriaToRochdaleStations.contains(stationId)) {
-            if (date.equals(rochdaleLineSunday2026) || date.equals(rochdaleLineMissing2026)) {
+            if (date.equals(rochdaleLineMissing2026)) {
                 return true;
             }
         }
