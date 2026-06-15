@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
@@ -181,11 +182,13 @@ class KnownTramRouteTest {
         getDateRange().forEach(date -> {
             final Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
             loadedRoutes.forEach(loaded -> {
-                String shortName = loaded.getShortName().replace(" Line","");
-                TFGMRouteNames routeName = TFGMRouteNames.parseFromName(shortName);
-                KnownTramRouteEnum known = KnownTramRoute.findFor(routeName, date);
+//                final String shortName = loaded.getShortName().replace(" Line","");
+//                final TFGMRouteNames routeName = TFGMRouteNames.parseFromName(shortName);
+                TFGMRouteNames routeName = ((TramRouteId)loaded.getId()).getRouteName();
+                final KnownTramRouteEnum known = KnownTramRoute.findFor(routeName, date);
                 assertEquals(loaded.getName(), known.longName(),
-                        "Could not match " + loaded.getName() + " with " + known + " on " + date);
+                        "Could not match loaded:" + loaded.getName() + " with " + known + ": "
+                                + known.longName() + " on " + date);
             });
         });
     }

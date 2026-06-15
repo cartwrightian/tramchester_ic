@@ -7,6 +7,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
-import static com.tramchester.integration.repository.StopCallRepositoryTest.VictoriaToRochdaleStations;
 import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
@@ -40,15 +40,16 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    // official end date for this work is 10th, but routes missing until ....
-    public static DateRange shudehillMarketStreet2026 = DateRange.of(of(2026, 6, 1),
-            of(2026, 6, 9));
-
-    public static TramDate victoriaClosedUntil10amSummer2026 = TramDate.of(2026,6,28);
+    // upcoming early morning work at victoria
+    private static final TimeRange victoriaClosed = TimeRange.of(TramTime.of(3,0),
+            TramTime.of(10,0));
+    public static TramDate victoriaClosedUntil10amJune2026 = TramDate.of(2026,6,28);
+    public static TramDate victoriaClosedUntil10amJuly2026 = TramDate.of(2026,7,5);
 
     // TODO These missing dates are not on the tfgm website
-    public static TramDate rochdaleLineMissing2026 = TramDate.of(2026,6,14);
-    public static DateRange shudehillAndMarketStMissing2026 = DateRange.of(TramDate.of(2026, 6,11), 8);
+    //public static TramDate rochdaleLineMissing2026 = TramDate.of(2026,6,14);
+    public static DateRange shudehillAndMarketStMissing2026 = DateRange.of(TramDate.of(2026, 6,11),
+            TramDate.of(2026, 6,10));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -63,6 +64,13 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date, TimeRange timeRange) {
+        if (date.equals(victoriaClosedUntil10amJune2026) || date.equals(victoriaClosedUntil10amJuly2026)) {
+            if (victoriaClosed.anyOverlap(timeRange)) {
+                if (MarketStreet.matches(stationId) || Shudehill.matches(stationId) || Victoria.matches(stationId)) {
+                    return true;
+                }
+            }
+        }
         if (hasClosure(stationId, date)) {
             return true;
         }
@@ -70,13 +78,7 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
-        if (VictoriaToRochdaleStations.contains(stationId)) {
-            if (date.equals(rochdaleLineMissing2026)) {
-                return true;
-            }
-        }
-        if (shudehillMarketStreet2026.contains(date) || shudehillAndMarketStMissing2026.contains(date)
-        ) {
+        if (shudehillAndMarketStMissing2026.contains(date)) {
             if (Shudehill.matches(stationId) || MarketStreet.matches(stationId)) {
                 return true;
             }

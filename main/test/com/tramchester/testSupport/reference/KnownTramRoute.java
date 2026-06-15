@@ -12,8 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.shudehillMarketStreet2026;
-import static com.tramchester.testSupport.UpcomingDates.victoriaClosedUntil10amSummer2026;
+import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
@@ -83,18 +82,15 @@ public class KnownTramRoute {
             if (date.equals(TramDate.of(2026, 6, 21))) {
                 routes.add(find.apply(Green));
             }
-            if (date.equals(victoriaClosedUntil10amSummer2026)) {
+            if (date.equals(victoriaClosedUntil10amJune2026) || date.equals(victoriaClosedUntil10amJuly2026)) {
                 routes.add(find.apply(BusPicVic));
             }
         } else {
             routes.add(find.apply(Green));
         }
 
-        if (! (shudehillMarketStreet2026.contains(date)) ) {
-                //|| DateRange.of(shudehillMarketStreet2026.getEndDate(), 9).contains(date))) {
-            routes.add(find.apply(Purple));
-            routes.add(find.apply(Yellow));
-        }
+        routes.add(find.apply(Purple));
+        routes.add(find.apply(Yellow));
 
         routes.add(find.apply(Navy));
         routes.add(find.apply(Pink));

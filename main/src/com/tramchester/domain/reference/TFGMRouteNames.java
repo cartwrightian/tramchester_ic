@@ -9,8 +9,6 @@ public enum TFGMRouteNames {
     BusThree("Metrolink Replacement Bus 3", true),
     BusFour("Metrolink Replacement Bus 4", true),
     BusFive("Metrolink Replacement Bus 5", true),
-    BusBlue("Metrolink Replacement Bus Blue Line", true),
-    //BusRochdaleLine("Rochdale Line Replacement Bus", true),
     BusPicVic("PIC-VIC Replacement Bus", true),
 
     Red("Red Line", false),
@@ -55,7 +53,12 @@ public enum TFGMRouteNames {
 
     // remember - TramRouteId contains TFGMRouteNames
     public static TFGMRouteNames parseFromName(final String name) {
-        return Enum.valueOf(TFGMRouteNames.class, name);
+        try {
+            return Enum.valueOf(TFGMRouteNames.class, name);
+        }
+        catch(IllegalArgumentException missing) {
+            throw new RuntimeException("Could not parse '"+name+"'", missing);
+        }
     }
 
     // remember - TramRouteId contains TFGMRouteNames
