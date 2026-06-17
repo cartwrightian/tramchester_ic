@@ -198,7 +198,7 @@ class KnownTramRouteTest {
         TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);
 
         Stream<TramDate> dateRange = DateRange.of(start, when.plusWeeks(4)).stream().
-                filter(UpcomingDates::validTestDate);
+                filter(date -> !date.isChristmasPeriod());
 
         SortedMap<TramDate, ImmutableIdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
 
@@ -224,7 +224,7 @@ class KnownTramRouteTest {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
         Stream<TramDate> dateRange = DateRange.of(start, when.plusWeeks(6)).stream().
-                filter(UpcomingDates::validTestDate);
+                filter(UpcomingDates::notChristmasPeriod);
 
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 

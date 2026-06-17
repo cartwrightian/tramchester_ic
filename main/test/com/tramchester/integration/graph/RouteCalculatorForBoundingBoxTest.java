@@ -152,7 +152,7 @@ class RouteCalculatorForBoundingBoxTest {
 
     private boolean allClosed(JourneysForBox group) {
         return group.getBox().getStations().stream().
-                allMatch(station -> UpcomingDates.hasClosure(station, when));
+                allMatch(station -> UpcomingDates.hasClosure(station.getId(), when));
     }
 
 }

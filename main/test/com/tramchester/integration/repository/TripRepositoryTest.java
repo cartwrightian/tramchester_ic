@@ -194,7 +194,7 @@ public class TripRepositoryTest {
                                         flatMap(trip -> trip.getStopCalls().stream()).
                                         filter(stopCall -> stopCall.getStation().equals(station)).
                                         anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
-                                if (!calls && !UpcomingDates.hasClosure(station, date, range)) {
+                                if (!calls && !UpcomingDates.hasClosure(station.getId(), date, range)) {
                                     final Pair<TramDate, TramTime> key = Pair.of(date, time);
                                     if (!missing.containsKey(key)) {
                                         missing.put(key, new IdSet<>());
@@ -277,16 +277,18 @@ public class TripRepositoryTest {
 
     private Stream<Station> getOpenStations(final TramDate date) {
         return stationRepository.getStations(TransportMode.TramsOnly).stream().
-                filter(station -> !UpcomingDates.hasClosure(station, date));
+                filter(station -> !UpcomingDates.hasClosure(station.getId(), date));
     }
 
     private boolean isOpen(final TramDate date, final Station station) {
-        return ! (closedStationRepository.isClosed(station, date) || UpcomingDates.hasClosure(station, date));
+        return ! (closedStationRepository.isClosed(station, date) ||
+                UpcomingDates.hasClosure(station.getId(), date));
     }
 
     private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
         return times.stream().
-                filter(time -> UpcomingDates.hasClosure(station, date, TimeRange.of(time, time.plusMinutes(1)))).
+                filter(time -> UpcomingDates.hasClosure(station.getId(), date,
+                        TimeRange.of(time, time.plusMinutes(1)))).
                 toList();
     }
 }

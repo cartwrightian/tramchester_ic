@@ -535,6 +535,15 @@ class TramTimeTest {
     }
 
     @Test
+    void reproduceIssueWith9amOrdering() {
+        List<Integer> hours = Arrays.asList(20,13,16,7,23,14,0,21,8,17,9,19,15,12,11,22,10,18);
+        int mid = 9;
+        List<Integer> result = hours.stream().sorted(RollingHourComparator(mid, integer -> integer)).toList();
+
+        assertEquals(Arrays.asList(9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,0,7,8), result);
+    }
+
+    @Test
     void shouldHaveTimesOrderedFromAnHourAllSparseStartOfDay() {
         List<Integer> hours = Arrays.asList(22,0,1,23);
         List<Integer> expected = Arrays.asList(1,22,23,0);
@@ -548,7 +557,7 @@ class TramTimeTest {
     }
 
     @Test
-    void shouldHaveTimesOrderedFromAnHourAllSparseEndfDay() {
+    void shouldHaveTimesOrderedFromAnHourAllSparseEndDay() {
         List<Integer> hours = Arrays.asList(0,1,22,23);
         List<Integer> expected = Arrays.asList(23,0,1,22);
 

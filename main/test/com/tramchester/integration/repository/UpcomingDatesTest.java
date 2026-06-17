@@ -25,7 +25,7 @@ public class UpcomingDatesTest {
         TramDate testDay = TestEnv.testDay();
         assertFalse(testDay.isChristmasPeriod());
         assertEquals(DayOfWeek.THURSDAY, testDay.getDayOfWeek());
-        assertTrue(UpcomingDates.validTestDate(testDay));
+        assertTrue(UpcomingDates.notChristmasPeriod(testDay));
     }
 
 }

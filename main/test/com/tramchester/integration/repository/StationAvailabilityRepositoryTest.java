@@ -40,8 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Ferry;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -265,7 +264,7 @@ public class StationAvailabilityRepositoryTest {
 
             TimeRange lateRange = TimeRangePartial.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().
-                    filter(station -> !UpcomingDates.hasClosure(station, date)).
+                    filter(station -> !UpcomingDates.hasClosure(station.getId(), date)).
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
@@ -277,20 +276,30 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
+    @Test
+    void reproduceIssueWithEcclesOnSundayJune2026() {
+
+        TramTime tramTime = of(9, 25);
+        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(config.getMaxWait()));
+        boolean result = availabilityRepository.isAvailable(Eccles.from(stationRepository), UpcomingDates.nextSunday(),
+                timeRange, TramsOnly);
+        assertTrue(result);
+    }
+
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
-        TramTime earlistHour = TramTime.of(7,0);
+        TramTime earliestHour = TramTime.of(7,0);
 
         TramDuration maxwait = TramDuration.ofMinutes(config.getMaxWait());
 
-        final TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
+        final TimeRange earlyRange = TimeRangePartial.of(earliestHour, maxwait, maxwait);
 
         UpcomingDates.getUpcomingDates().forEach(date -> {
 
             Set<Station> shouldBeAvailable =  stationRepository.getStations(TransportMode.TramsOnly).stream().
                     filter(Location::isActive).
-                    filter(station -> !UpcomingDates.hasClosure(station, date, earlyRange)).
+                    filter(station -> !UpcomingDates.hasClosure(station.getId(), date, earlyRange)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     collect(Collectors.toSet());
 

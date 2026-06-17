@@ -121,15 +121,16 @@ public class FindPathsForJourney {
 
         final TramDuration currentCostToNode = searchState.getCurrentCost(stateKey);
         outgoing.forEach(graphRelationship -> {
+            final GraphNodeId endNodeId = graphRelationship.getEndNodeId(txn);
 
-            // TODO prioritise those Towards Dest
-            final boolean towardsDest = (evaluator.matchesDestination(graphRelationship.getEndNodeId(txn)));
+            // prioritise those Towards Dest
+            final boolean towardsDest = (evaluator.matchesDestination(endNodeId));
 
             final TramDuration relationshipCost = graphRelationship.getCost();
 
-            final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, graphRelationship.getEndNodeId(txn));
             final TramDuration newCost = relationshipCost.plus(currentCostToNode);
 
+            final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, endNodeId);
             final boolean alreadySeen = searchState.hasSeen(endStateKey);
 
             final GraphPathInMemory continuePath;
@@ -138,7 +139,6 @@ public class FindPathsForJourney {
             } else {
                 continuePath = pathToCurrentNode.duplicate();
             }
-
 
             if (alreadySeen) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(endStateKey);

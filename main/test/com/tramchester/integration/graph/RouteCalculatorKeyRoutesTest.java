@@ -115,28 +115,34 @@ class RouteCalculatorKeyRoutesTest {
 
         final Map<TramDate, LocationIdsAndNames<Station>> missing = new HashMap<>();
 
-        UpcomingDates.daysAhead().stream().filter(this::shouldCheckDate).forEach(testDate -> {
-            JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 3,
-                    maxJourneyDuration, 1, modes);
-            Running running = () -> true;
-            RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofMinutes(1),
-                    running);
-            LocationIdsAndNames<Station> missingForDate = results.getMissing();
-            if (!missingForDate.isEmpty()) {
-                missing.put(testDate, missingForDate);
-            }
+        Duration timeout = Duration.ofMinutes(1);
+        TramTime tramTime = TramTime.of(8, 5);
+
+        UpcomingDates.daysAhead().stream().
+                filter(UpcomingDates::notChristmasPeriod).
+                filter(date -> date.getDayOfWeek() != DayOfWeek.SUNDAY).
+                forEach(testDate -> {
+                    JourneyRequest request = new JourneyRequest(testDate, tramTime, false, 2,
+                            maxJourneyDuration, 1, modes);
+                    Running running = () -> true;
+                    RouteCalculationCombinations.CombinationResults<Station> results =
+                            combinations.getJourneysFor(pairs, request, timeout, running);
+                    LocationIdsAndNames<Station> missingForDate = results.getMissing();
+                    if (!missingForDate.isEmpty()) {
+                        missing.put(testDate, missingForDate);
+                    }
         });
 
         assertTrue(missing.isEmpty(), missing.toString());
 
     }
 
-    private boolean shouldCheckDate(TramDate testDate) {
-        if (UpcomingDates.validTestDate(testDate)) {
-            return false;
-        }
-        return testDate.getDayOfWeek() != DayOfWeek.SUNDAY;
-    }
+//    private boolean avoidChristmasAndSunday(final TramDate testDate) {
+//        if (UpcomingDates.avoidChristmas(testDate)) {
+//            return false;
+//        }
+//        return testDate.getDayOfWeek() != DayOfWeek.SUNDAY;
+//    }
 
     @DataExpiryTest
     @Test

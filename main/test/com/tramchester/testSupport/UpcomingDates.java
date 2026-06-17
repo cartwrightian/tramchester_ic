@@ -1,14 +1,11 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -46,24 +43,12 @@ public class UpcomingDates {
     public static TramDate victoriaClosedUntil10amJune2026 = TramDate.of(2026,6,28);
     public static TramDate victoriaClosedUntil10amJuly2026 = TramDate.of(2026,7,5);
 
-    // TODO These missing dates are not on the tfgm website
-    //public static TramDate rochdaleLineMissing2026 = TramDate.of(2026,6,14);
-    public static DateRange shudehillAndMarketStMissing2026 = DateRange.of(TramDate.of(2026, 6,11),
-            TramDate.of(2026, 6,10));
-
-    public static boolean hasClosure(final Station station, final TramDate date) {
-        return hasClosure(station.getId(), date);
+    public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
+        // Add closures to the TimeRange version
+        return hasClosure(stationId, date, TimeRange.AllDay());
     }
 
-    public static boolean hasClosure(TramStations station, TramDate date) {
-        return hasClosure(station.getId(), date);
-    }
-
-    public static boolean hasClosure(HasId<Station> station, TramDate date, TimeRange timeRange) {
-        return hasClosure(station.getId(), date, timeRange);
-    }
-
-    public static boolean hasClosure(IdFor<Station> stationId, TramDate date, TimeRange timeRange) {
+    public static boolean hasClosure(final IdFor<Station> stationId, TramDate date, TimeRange timeRange) {
         if (date.equals(victoriaClosedUntil10amJune2026) || date.equals(victoriaClosedUntil10amJuly2026)) {
             if (victoriaClosed.anyOverlap(timeRange)) {
                 if (MarketStreet.matches(stationId) || Shudehill.matches(stationId) || Victoria.matches(stationId)) {
@@ -71,27 +56,10 @@ public class UpcomingDates {
                 }
             }
         }
-        if (hasClosure(stationId, date)) {
-            return true;
-        }
         return false;
     }
 
-    public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
-        if (shudehillAndMarketStMissing2026.contains(date)) {
-            if (Shudehill.matches(stationId) || MarketStreet.matches(stationId)) {
-                return true;
-            }
-        }
-        return anyClosedOnDate(date);
-    }
-
-    public static boolean anyClosedOnDate(TramDate date) {
-
-        return false;
-    }
-
-    public static boolean validTestDate(final TramDate date) {
+    public static boolean notChristmasPeriod(final TramDate date) {
         return !(date.isChristmasPeriod());
     }
 
@@ -100,7 +68,7 @@ public class UpcomingDates {
 
         final List<TramDate> dates = new ArrayList<>();
         while (dates.size() <= DAYS_AHEAD) {
-            if (validTestDate(date)) {
+            if (notChristmasPeriod(date)) {
                 dates.add(date);
             }
             date = date.plusDays(1);
@@ -115,7 +83,7 @@ public class UpcomingDates {
 
     public static TramDate nextSunday() {
         TramDate result = sunday;
-        while (!validTestDate(result)) {
+        while (result.isChristmasPeriod()) {
             result = result.plusWeeks(1);
         }
         return result;
@@ -123,7 +91,7 @@ public class UpcomingDates {
 
     public static TramDate nextSaturday() {
         TramDate result = saturday;
-        while (!validTestDate(result)) {
+        while (result.isChristmasPeriod()) {
             result = result.plusWeeks(1);
         }
         return result;
@@ -139,7 +107,7 @@ public class UpcomingDates {
         while (result.getDayOfWeek() != dayOfWeek) {
             result = result.plusDays(1);
         }
-        while (!validTestDate(result)) {
+        while (result.isChristmasPeriod()) {
             result = result.plusWeeks(1);
         }
         return result;

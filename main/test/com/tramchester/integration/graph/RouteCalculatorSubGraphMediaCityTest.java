@@ -149,6 +149,15 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     @Test
+    void reproduceSundayToFromCornbrook() {
+        TramDate testSunday = UpcomingDates.nextSunday();
+
+        TramTime tramTime = TramTime.of(9, 30);
+        validateAtLeastOneJourney(Cornbrook, HarbourCity, tramTime, testSunday);
+        validateAtLeastOneJourney(HarbourCity, Cornbrook, tramTime, testSunday);
+    }
+
+    @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
         TramTime queryTime = TramTime.of(9, 0);
@@ -292,14 +301,18 @@ class RouteCalculatorSubGraphMediaCityTest {
         final TramTime originalTime = journeyRequest.getOriginalTime();
         final TimeRange timeRange = TimeRange.of(originalTime,
                 originalTime.plusMinutes(config.getMaxJourneyDuration()));
-        final Set<Station> stations = tramStations.stream().
-                filter(station -> !UpcomingDates.hasClosure(station, date, timeRange)).
+
+        final Set<TramStations> availableStations = tramStations.stream().
+                filter(station -> !UpcomingDates.hasClosure(station.getId(), date, timeRange)).
+                collect(Collectors.toSet());
+
+        final Set<Station> stations = availableStations.stream().
                 map(tramStations -> tramStations.from(stationRepository)).
                 filter(station -> !closedStationRepository.isClosed(station, date)).
                 collect(Collectors.toSet());
 
         if (stations.isEmpty()) {
-            if (UpcomingDates.anyClosedOnDate(date)) {
+            if (availableStations.isEmpty()) {
                 return new LocationIdsAndNames<>();
             } else {
                 fail("No stations for " + date);

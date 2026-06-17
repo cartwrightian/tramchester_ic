@@ -77,22 +77,13 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
 
     @Override
     public Stream<GraphRelationship> getOutbounds() {
-        if (depthFirst) {
-
-            return super.getOutbounds().sorted(TramTime.RollingHourComparator(queryHour,
-                    relationship -> {
-                        final GraphNode endNode = relationship.getEndNode(txn);
-                        return hourFor(endNode);
-                    }));
-        } else {
-            return super.getOutbounds();
-        }
+        return super.getOutbounds().sorted(TramTime.RollingHourComparator(queryHour, GraphRelationship::getHour));
     }
 
-    private int hourFor(final GraphNode endNode) {
-        return endNode.getHour();
-        //return GraphLabel.getHourFrom(endNode.getLabels());
-    }
+//    private int hourFor(final GraphNode endNode) {
+//        return endNode.getHour();
+//        //return GraphLabel.getHourFrom(endNode.getLabels());
+//    }
 
     @Override
     public IdFor<Station> getTowards() {

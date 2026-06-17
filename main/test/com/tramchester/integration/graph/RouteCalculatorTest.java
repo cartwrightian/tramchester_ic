@@ -33,7 +33,6 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -697,9 +696,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    // TODO Unclear why next two are failing, no dates listed
-
-    @DisabledUntilDate(year = 2026, month = 6, day = 16)
     @Test
     void reproduceSundayToFromEcclesAndCornbrookWithNoChanges() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -709,7 +705,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
-    @DisabledUntilDate(year = 2026, month = 6, day = 16)
     @Test
     void reproduceIssueSundayToFromEcclesAndCornbrookWithOneChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -803,8 +798,8 @@ public class RouteCalculatorTest {
 
         final List<TramDate> candidateDates = UpcomingDates.daysAhead();
         final List<TramDate> dates = candidateDates.stream().
-                filter(date -> !UpcomingDates.hasClosure(start, date)).
-                filter(date -> !UpcomingDates.hasClosure(dest, date)).
+                filter(date -> !UpcomingDates.hasClosure(start.getId(), date)).
+                filter(date -> !UpcomingDates.hasClosure(dest.getId(), date)).
                 toList();
 
         if (dates.isEmpty()) {

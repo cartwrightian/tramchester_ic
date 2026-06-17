@@ -6,7 +6,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -18,6 +17,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -26,18 +26,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@Disabled("Just used to track down specific issue")
-class RouteCalculatorSubGraphEcclesAshtonLine {
+class RouteCalculatorSubGraphEcclesLineSundayTest {
     private static ComponentContainer componentContainer;
 
     private static SubgraphConfig config;
     private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
-    private final static TramDate when = TestEnv.testDay();
+    private final static TramDate sunday = UpcomingDates.nextSunday();
 
     private GraphTransaction txn;
     private TramDuration maxJourneyDuration;
@@ -48,8 +48,9 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
-                configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
+                configureGraphFilter(RouteCalculatorSubGraphEcclesLineSundayTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
+
         componentContainer.initialise();
 
         tramRouteHelper = new TramRouteHelper(componentContainer);
@@ -57,7 +58,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        Route route = tramRouteHelper.getBlue(when);
+        Route route = tramRouteHelper.getBlue(sunday);
         graphFilter.addRoute(route.getId());
     }
 
@@ -83,14 +84,77 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     }
 
     @Test
-    void ShouldReproIssueWithMediaCityToVelopark() {
-        JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                1, maxJourneyDuration, 2, TransportMode.TramsOnly);
-//        request.setDiag(true);
+    void shouldReproIssueWithMediaCityToVelopark() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(8, 5), false,
+                1, maxJourneyDuration, 2, TramsOnly);
 
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
+    @Test
+    void shouldHaveEcclesCornbrook() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                0, maxJourneyDuration, 2, TramsOnly);
+
+        assertFalse(calculator.calculateRouteAsList(Eccles, Cornbrook, request).isEmpty());
+    }
+
+    @Test
+    void shouldHaveBroadwayCornbrook() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                0, maxJourneyDuration, 1, TramsOnly);
+
+        assertFalse(calculator.calculateRouteAsList(Broadway, Cornbrook, request).isEmpty());
+    }
+
+    @Test
+    void shouldHaveBroadwayHarbourCity() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                0, maxJourneyDuration, 1, TramsOnly);
+
+        request.setDiag(true);
+
+        assertFalse(calculator.calculateRouteAsList(Broadway, Cornbrook, request).isEmpty());
+    }
+
+    @Test
+    void shouldHaveBroadwayMediaCity() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                0, maxJourneyDuration, 1, TramsOnly);
+
+        assertFalse(calculator.calculateRouteAsList(Broadway, MediaCityUK, request).isEmpty());
+    }
+
+    @Test
+    void shouldHaveMediaCityHarbourCity() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                0, maxJourneyDuration, 1, TramsOnly);
+
+        assertFalse(calculator.calculateRouteAsList(MediaCityUK, HarbourCity, request).isEmpty());
+    }
+
+    @Test
+    void shouldHaveMediaCityCornbrook() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                0, maxJourneyDuration, 2, TramsOnly);
+
+        //request.setDiag(true);
+
+        assertFalse(calculator.calculateRouteAsList(MediaCityUK, Cornbrook, request).isEmpty());
+    }
+
+    @Test
+    void shouldHaveCornbrookEccles() {
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                0, maxJourneyDuration, 2, TramsOnly);
+
+//        request.setDiag(true);
+
+        assertFalse(calculator.calculateRouteAsList(Cornbrook, Eccles, request).isEmpty());
+    }
+
+
+    @Disabled
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
@@ -98,6 +162,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         creator.create(Path.of("subgraph_eccles_ashton_velo.dot"),starts, 2, true);
     }
 
+    @Disabled
     @Test
     void produceDiagramOfGraphSubsetEtihad() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
@@ -105,6 +170,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         creator.create(Path.of("subgraph_eccles_ashton_etihad.dot"),starts, 1, false);
     }
 
+    @Disabled
     @Test
     void produceDiagramOfGraphSubsetMediaCity() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
@@ -117,6 +183,16 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         public SubgraphConfig() {
             // TODO no closures, but is this correct?
             super(Collections.emptyList());
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
+        }
+
+        @Override
+        public Path getCacheFolder() {
+            return TestEnv.CACHE_DIR.resolve("RouteCalculatorSubGraphEcclesLine");
         }
     }
 

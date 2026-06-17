@@ -141,7 +141,7 @@ public class RunningRoutesAndServicesTest {
         TramDate when = UpcomingDates.testDay().plusDays(1);
         TramDate previousDay = when.minusDays(1);
 
-        while (!UpcomingDates.validTestDate(when) || !UpcomingDates.validTestDate(previousDay)) {
+        while (when.isChristmasPeriod() || previousDay.isChristmasPeriod()) {
             when = when.plusWeeks(1);
             previousDay = when.minusDays(1);
         }
