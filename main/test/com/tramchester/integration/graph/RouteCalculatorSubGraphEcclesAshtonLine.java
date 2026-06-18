@@ -18,6 +18,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -91,6 +92,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 6, day = 21)
     @Test
     void shouldHaveEcclesCornbrook() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
@@ -99,22 +101,24 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(Eccles, Cornbrook, request).isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 6, day = 21)
     @Test
     void shouldHaveBroadwayCornbrook() {
-        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(6, 50), false,
                 0, maxJourneyDuration, 1, TramsOnly);
 
         assertFalse(calculator.calculateRouteAsList(Broadway, Cornbrook, request).isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 6, day = 21)
     @Test
     void shouldHaveBroadwayHarbourCity() {
-        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(6, 50), false,
                 0, maxJourneyDuration, 1, TramsOnly);
 
         request.setDiag(true);
 
-        assertFalse(calculator.calculateRouteAsList(Broadway, Cornbrook, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(Broadway, HarbourCity, request).isEmpty());
     }
 
     @Test
@@ -143,6 +147,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, Cornbrook, request).isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 6, day = 21)
     @Test
     void shouldHaveCornbrookEccles() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,

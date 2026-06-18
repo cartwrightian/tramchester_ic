@@ -31,6 +31,7 @@ public class DiagnosticsToGraphViz {
         nodes = new HashSet<>();
     }
 
+    @Deprecated
     public void appendTo(final StringBuilder builder, final JourneyDiagnostics diagnostics) {
         final DiagramState diagramState = new DiagramState();
         final List<StationDiagnosticsDTO> stationDiagnostics = diagnostics.getDtoList();

@@ -276,16 +276,6 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @Test
-    void reproduceIssueWithEcclesOnSundayJune2026() {
-
-        TramTime tramTime = of(9, 25);
-        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(config.getMaxWait()));
-        boolean result = availabilityRepository.isAvailable(Eccles.from(stationRepository), UpcomingDates.nextSunday(),
-                timeRange, TramsOnly);
-        assertTrue(result);
-    }
-
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {

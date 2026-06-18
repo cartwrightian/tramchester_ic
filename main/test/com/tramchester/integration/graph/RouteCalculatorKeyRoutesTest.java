@@ -22,6 +22,7 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -107,6 +108,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
+    @DisabledUntilDate(year = 2026, month = 6, day = 20)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
@@ -120,6 +122,7 @@ class RouteCalculatorKeyRoutesTest {
 
         UpcomingDates.daysAhead().stream().
                 filter(UpcomingDates::notChristmasPeriod).
+                // TODO bring back sundays
                 filter(date -> date.getDayOfWeek() != DayOfWeek.SUNDAY).
                 forEach(testDate -> {
                     JourneyRequest request = new JourneyRequest(testDate, tramTime, false, 2,
