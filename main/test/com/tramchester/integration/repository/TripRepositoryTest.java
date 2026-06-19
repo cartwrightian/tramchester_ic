@@ -208,23 +208,27 @@ public class TripRepositoryTest {
 
     @DisabledUntilDate(year = 2026, month = 6, day = 20)
     @Test
-    void shouldHaveTripsFor21June2026MorningAtBroadway() {
-        TramDate date = TramDate.of(2026, 6, 21);
+    void shouldHaveTripsForSundayMorningAtBroadway() {
+        TramDate date = UpcomingDates.nextSunday();
+
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
 
         TimeRange timeRange = TimeRange.of(TramTime.of(9,30), TramTime.of(15,0));
 
         Route blueRoute = tramRouteHelper.getBlue(date);
 
-        Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Broadway);
+        final Set<Trip> allTrips = tripRepository.getTrips();
 
         Set<Trip> tripsToHarbourCity = allTrips.stream().
-                filter(trip -> trip.callsAt(HarbourCity.getId())).
-                filter(trip -> trip.callsAt(Broadway.getId())).
+                filter(trip -> trip.serviceOperatesOn(date)).
                 filter(trip -> blueRoute.equals(trip.getRoute())).
+                filter(trip -> trip.callsAt(Broadway.getId())).
+                filter(trip -> trip.callsAt(HarbourCity.getId())).
                 collect(Collectors.toSet());
 
         assertFalse(tripsToHarbourCity.isEmpty());
+
+        Set<Service> servicesForDiag = tripsToHarbourCity.stream().map(Trip::getService).collect(Collectors.toSet());
 
         Set<TramTime> arrivalTimesFor = tripsToHarbourCity.stream().map(Trip::getStopCalls).
                 map(stopCalls -> stopCalls.getStopFor(Broadway.getId())).
@@ -237,7 +241,9 @@ public class TripRepositoryTest {
                 filter(timeRange::contains).
                 collect(Collectors.toSet());
 
-        assertFalse(duringPeriod.isEmpty(), "No times from " + arrivalTimesFor + " match time range " + timeRange);
+        assertFalse(duringPeriod.isEmpty(), "No times from " + arrivalTimesFor +
+                " match time range " + timeRange + "\n services were " + HasId.asIds(servicesForDiag) +
+                "\n trips were " + HasId.asIds(tripsToHarbourCity));
 
     }
 

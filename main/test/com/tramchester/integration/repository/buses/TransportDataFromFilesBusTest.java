@@ -202,7 +202,7 @@ class TransportDataFromFilesBusTest {
 
         TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
-        TransportDataReader transportDataReader = transportDataReaders.get(0); // yuk
+        TransportDataReader transportDataReader = transportDataReaders.getFirst(); // yuk
 
         Stream<CalendarDateData> allExceptions = transportDataReader.getCalendarDates();
 
@@ -215,7 +215,7 @@ class TransportDataFromFilesBusTest {
         assertFalse(exceptionalDatesForServices.isEmpty());
 
         assertEquals(1,  config.getGtfsSourceConfig().size(), "expected only one data source");
-        GTFSSourceConfig sourceConfig = config.getGtfsSourceConfig().get(0);
+        GTFSSourceConfig sourceConfig = config.getGtfsSourceConfig().getFirst();
         TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         exceptionalDatesForServices.forEach(exception -> {

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class TransportDataFilter {
 
-    public static Set<Trip> getTripsFor(Collection<Trip> trips, HasId<Station> station) {
+    public static Set<Trip> getTripsFor(final Collection<Trip> trips, final HasId<Station> station) {
         return trips.stream().filter(trip -> trip.callsAt(station.getId())).collect(Collectors.toSet());
     }
 }
