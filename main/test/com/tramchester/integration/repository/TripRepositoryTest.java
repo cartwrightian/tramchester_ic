@@ -23,10 +23,10 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.MissingTripsJune2026;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -206,7 +206,7 @@ public class TripRepositoryTest {
         assertTrue(missing.isEmpty(), missing.toString());
     }
 
-    @DisabledUntilDate(year = 2026, month = 6, day = 20)
+    @MissingTripsJune2026
     @Test
     void shouldHaveTripsForSundayMorningAtBroadway() {
         TramDate date = UpcomingDates.nextSunday();

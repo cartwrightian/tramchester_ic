@@ -36,59 +36,45 @@ public enum KnownTramRouteEnum implements TestRoute {
     ReplacementBusPicVic(BusPicVic, "Piccadilly - Victoria", "1950", victoriaClosedUntil10amJune2026),
 
     // Blue
-    Blue1(Blue, "Eccles - Ashton Under Lyne", "3217", currentValidityDate),
-    Blue2(Blue, "Eccles - Manchester - Ashton Under Lyne", "843", cutoverDateA),
-    Blue3(Blue, "Eccles - Ashton Under Lyne", "3217", cutoverDateB),
+    Blue3(Blue, "Eccles - Ashton Under Lyne", "3217", cutoverDate),
     Blue4(Blue, "Eccles - Manchester - Ashton Under Lyne", "1788", victoriaClosedUntil10amJune2026),
     Blue5(Blue, "Eccles - Ashton Under Lyne", "3217", victoriaClosedUntil10amJune2026.plusDays(1)),
     Blue6(Blue, "Eccles - Manchester - Ashton Under Lyne", "1788", victoriaClosedUntil10amJuly2026),
     Blue7(Blue, "Eccles - Ashton Under Lyne", "3217", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Green
-    Green1(Green, "Bury - Manchester - Altrincham", "3218", currentValidityDate),
-    Green2(Green, "Altrincham - Bury", "3262", cutoverDateA),
-    Green3(Green, "Bury - Manchester - Altrincham", "3218", cutoverDateB),
+    Green3(Green, "Bury - Manchester - Altrincham", "3218", cutoverDate),
 
     // Navy
-    Navy1(Navy, "Victoria - Manchester Airport", "3219", currentValidityDate),
-    Navy2(Navy, "Manchester Airport - Victoria", "3264", cutoverDateA),
-    Navy3(Navy, "Victoria - Manchester Airport", "3219", cutoverDateB),
+    Navy3(Navy, "Victoria - Manchester Airport", "3219", cutoverDate),
     Navy4(Navy, "Manchester Airport - Victoria", "3273", victoriaClosedUntil10amJune2026),
     Navy5(Navy, "Victoria - Manchester Airport", "3219", victoriaClosedUntil10amJune2026.plusDays(1)),
     Navy6(Navy, "Manchester Airport - Victoria", "3273", victoriaClosedUntil10amJuly2026),
     Navy7(Navy, "Victoria - Manchester Airport", "3219", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Pink
-    Pink1(Pink, "Rochdale - East Didsbury", "3220", currentValidityDate),
-    Pink2(Pink, "East Didsbury - Rochdale", "3263", cutoverDateA),
-    Pink3(Pink, "Rochdale - East Didsbury", "3220", cutoverDateB),
+    Pink3(Pink, "Rochdale - East Didsbury", "3220", cutoverDate),
     Pink4(Pink, "East Didsbury - Rochdale", "3272", victoriaClosedUntil10amJune2026),
     Pink5(Pink, "Rochdale - East Didsbury", "3220", victoriaClosedUntil10amJune2026.plusDays(1)),
     Pink6(Pink, "East Didsbury - Rochdale", "3272", victoriaClosedUntil10amJuly2026),
     Pink7(Pink, "Rochdale - East Didsbury", "3220", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Purple
-    Purple1(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", currentValidityDate),
-    Purple2(Purple, "Altrincham - Etihad Campus", "3266", cutoverDateA),
-    Purple3(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", cutoverDateB),
+    Purple3(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", cutoverDate),
     Purple4(Purple, "Altrincham - Etihad Campus", "3275", victoriaClosedUntil10amJune2026),
     Purple5(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", victoriaClosedUntil10amJune2026.plusDays(1)),
     Purple6(Purple, "Altrincham - Etihad Campus", "3275", victoriaClosedUntil10amJuly2026),
     Purple7(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Red
-    Red1(Red, "Deansgate Castlefield - The Trafford Centre", "3222", currentValidityDate),
-    Red2(Red, "Trafford Centre - Crumpsall", "3265", cutoverDateA),
-    Red3(Red, "Deansgate Castlefield - The Trafford Centre", "3222", cutoverDateB),
+    Red3(Red, "Deansgate Castlefield - The Trafford Centre", "3222", cutoverDate),
     Red4(Red, "Trafford Centre - Crumpsall", "3274", victoriaClosedUntil10amJune2026),
     Red5(Red, "Deansgate Castlefield - The Trafford Centre", "3222", victoriaClosedUntil10amJune2026.plusDays(1)),
     Red6(Red, "Trafford Centre - Crumpsall", "3274", victoriaClosedUntil10amJuly2026),
     Red7(Red, "Deansgate Castlefield - The Trafford Centre", "3222", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Yellow
-    Yellow1(Yellow, "Piccadilly - Bury", "3223", currentValidityDate),
-    Yellow2(Yellow, "Piccadilly - Bury", "844", cutoverDateA),
-    Yellow3(Yellow, "Piccadilly - Bury", "3223", cutoverDateB),
+    Yellow3(Yellow, "Piccadilly - Bury", "3223", cutoverDate),
     Yellow4(Yellow, "Piccadilly - Bury", "844", victoriaClosedUntil10amJune2026),
     Yellow5(Yellow, "Piccadilly - Bury", "3223", victoriaClosedUntil10amJune2026.plusDays(1)),
     Yellow6(Yellow, "Piccadilly - Bury", "844", victoriaClosedUntil10amJuly2026),

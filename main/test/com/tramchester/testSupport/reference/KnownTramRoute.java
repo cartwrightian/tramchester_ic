@@ -16,9 +16,7 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate currentValidityDate = TramDate.of(2026,6,10);
-    public static final TramDate cutoverDateA = TramDate.of(2026,6,20);
-    public static final TramDate cutoverDateB = TramDate.of(2026,6,22);
+    public static final TramDate cutoverDate = TramDate.of(2026,6,22);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
