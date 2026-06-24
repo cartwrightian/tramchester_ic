@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramStations.Eccles;
@@ -290,7 +289,7 @@ public class RailAndTramRouteCalculatorTest {
         TramDate date = TestEnv.testDay();
 
         JourneyRequest request = new JourneyRequest(date, time, false, 0,
-                TramDuration.ofMinutes(30), 1, RailOnly);
+                TramDuration.ofMinutes(30), 1, TrainOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(Altrincham, NavigationRaod, request);
 
@@ -374,7 +373,7 @@ public class RailAndTramRouteCalculatorTest {
         TramTime time = TramTime.of(10,30);
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                TramDuration.ofMinutes(240), 3, RailOnly);
+                TramDuration.ofMinutes(240), 3, TrainOnly);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(TramStations.Altrincham, Stockport, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -443,7 +442,7 @@ public class RailAndTramRouteCalculatorTest {
 
         TramDate date = TramDate.of(2022, 10,14);
         JourneyRequest request = new JourneyRequest(date, time, false, 1,
-                TramDuration.ofMinutes(240), 1, RailOnly);
+                TramDuration.ofMinutes(240), 1, TrainOnly);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(TramStations.Altrincham, Stockport, request));
         assertFalse(journeys.isEmpty(), "no journeys");

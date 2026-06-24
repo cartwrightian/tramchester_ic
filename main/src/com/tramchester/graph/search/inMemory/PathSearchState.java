@@ -155,7 +155,6 @@ public class PathSearchState {
 
         @Override
         public int compareTo(final NodeSearchState other) {
-            // depth first - longest path comes first
             if (jumpQueue && other.jumpQueue) {
                 // shortest path here
                 return compareWith(other, Integer::compare);
@@ -166,6 +165,7 @@ public class PathSearchState {
             if (other.jumpQueue) {
                 return 1;
             }
+            // depth first - longest path comes first
             return compareWith(other, (a, b) -> Integer.compare(b, a));
         }
 

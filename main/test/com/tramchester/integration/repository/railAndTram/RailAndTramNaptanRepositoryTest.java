@@ -3,6 +3,7 @@ package com.tramchester.integration.repository.railAndTram;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -69,7 +70,7 @@ class RailAndTramNaptanRepositoryTest {
 
         Set<NaptanRecord> withinLocality = repository.getRecordsForLocality(localityId);
 
-        assertEquals(170, withinLocality.size(), withinLocality.toString());
+        assertEquals(171, withinLocality.size(), HasId.asIds(withinLocality));
     }
 
     @Test

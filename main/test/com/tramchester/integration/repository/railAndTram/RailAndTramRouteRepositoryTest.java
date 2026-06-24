@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 537;
+    public static final int ALL_GM_ROUTES = 566;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 
@@ -61,12 +61,12 @@ public class RailAndTramRouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        int numberTramRoutes = 8+1; // some replacement buses
+        int numberTramRoutes = 14; // some replacement buses, upcoming route changes
 
         Set<Route> tramRoutes = routeRepository.getRoutes(TramsOnly);
         assertEquals(numberTramRoutes, tramRoutes.size());
 
-        Set<Route> railRoutes = routeRepository.getRoutes(RailOnly);
+        Set<Route> railRoutes = routeRepository.getRoutes(TrainOnly);
         assertEquals(ALL_GM_ROUTES-numberTramRoutes, railRoutes.size());
     }
 
@@ -77,7 +77,7 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> beginsAtAndCallsAt(route, ManchesterPiccadilly.getId(), Stockport.getId())).
                 collect(Collectors.toList());
 
-        assertEquals(49, result.size(), HasId.asIds(result));
+        assertEquals(53, result.size(), HasId.asIds(result));
     }
 
     @Test
@@ -90,21 +90,21 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> callsAtEndsAt(route, Stockport.getId(), ManchesterPiccadilly.getId())).
                 collect(Collectors.toSet());
 
-        assertEquals(6, matchingRoutes.size(), HasId.asIds(matchingRoutes));
+        assertEquals(9, matchingRoutes.size(), HasId.asIds(matchingRoutes));
 
         Set<Route> routesFromEustonViaStockport = matchingRoutes.stream().
                 filter(route -> railRouteStartsAt(route, LondonEuston.getId())).
                 filter(route -> railRouteEndsAt(route, ManchesterPiccadilly.getId())).
                 collect(Collectors.toSet());
 
-        assertEquals(5, routesFromEustonViaStockport.size());
+        assertEquals(8, routesFromEustonViaStockport.size());
 
         Set<Integer> indexes = routesFromEustonViaStockport.stream().
                 map(route -> (RailRouteId) route.getId()).
                 map(RailRouteId::getIndex).
                 collect(Collectors.toSet());
 
-        assertEquals(5, indexes.size());
+        assertEquals(8, indexes.size());
         assertTrue(indexes.contains(4), indexes + " routes: " + HasId.asIds(routesFromEustonViaStockport));
 
     }
