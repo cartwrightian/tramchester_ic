@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
 
 public class PathSearchState {
     private static final Logger logger = LoggerFactory.getLogger(PathSearchState.class);
@@ -22,20 +21,16 @@ public class PathSearchState {
     final List<GraphPathInMemory> foundPaths;
     private final long numberJourneys;
 
-    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys, boolean towardsDest) {
+    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys) {
         this.numberJourneys = numberJourneys;
         nodeQueue = new PriorityQueue<>();
-        nodeQueue.add(new NodeSearchState(searchStateKey, TramDuration.ZERO, pathToHere, towardsDest));
+        nodeQueue.add(NodeSearchState.createInitialState(searchStateKey, pathToHere));
 
         currentCost = new HashMap<>();
         currentCost.put(searchStateKey, TramDuration.ZERO);
 
         foundPaths = new ArrayList<>();
         journeyStates = new HashMap<>();
-    }
-
-    public static NodeSearchState createNodeSearchState(SearchStateKey endStateKey, TramDuration newCost, GraphPathInMemory continuePath, boolean towardsDest) {
-        return new NodeSearchState(endStateKey, newCost, continuePath, towardsDest);
     }
 
     public void clear() {
@@ -66,8 +61,10 @@ public class PathSearchState {
         }
     }
 
+
+
     public void updateCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath, boolean towardsDest) {
-        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath, towardsDest);
+        final NodeSearchState update = NodeSearchState.createNodeSearchState(stateKey, duration, graphPath, towardsDest);
 
         synchronized (nodeQueue) {
             // clunky, relies on NodeSearchState defining equals to be on NodeId only
@@ -85,7 +82,7 @@ public class PathSearchState {
 
     public void addCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath,
                                 final boolean towardsDest) {
-        final NodeSearchState update = new NodeSearchState(stateKey, duration, graphPath, towardsDest);
+        final NodeSearchState update = NodeSearchState.createNodeSearchState(stateKey, duration, graphPath, towardsDest);
 
         synchronized (nodeQueue) {
             if (nodeQueue.contains(update)) {
@@ -142,86 +139,6 @@ public class PathSearchState {
             }
         }
         return true;
-    }
-
-    public static class NodeSearchState implements Comparable<NodeSearchState> {
-        private final SearchStateKey stateKey;
-        private final TramDuration duration;
-        private final GraphPathInMemory pathToHere;
-        private final boolean jumpQueue;
-
-        private NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere, boolean jumpQueue) {
-            this.stateKey = stateKey;
-            this.duration = duration;
-            this.pathToHere = pathToHere.duplicate();
-            this.jumpQueue = jumpQueue; // used when we can id states that lead directly to a destination
-        }
-
-        @Override
-        public int compareTo(final NodeSearchState other) {
-            if (jumpQueue && other.jumpQueue) {
-                // shortest path here
-                return compareWith(other, Integer::compare);
-            }
-            if (jumpQueue) {
-                return -1;
-            }
-            if (other.jumpQueue) {
-                return 1;
-            }
-            // depth first - longest path comes first
-            return compareWith(other, (a, b) -> Integer.compare(b, a));
-        }
-
-        private int compareWith(final NodeSearchState other, final BinaryOperator<Integer> comparison) {
-            int result = comparison.apply(pathToHere.length(), other.pathToHere.length());
-            if (result==0) {
-                // tie-break via duration (shortest wins)
-                // TODO WIP - shortest first breaks some tram/train tests, digging into why
-                //result = other.duration.compareTo(duration);
-                result = duration.compareTo(other.duration);
-
-            }
-            return result;
-        }
-
-
-        public SearchStateKey getStateKey() {
-            return stateKey;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            NodeSearchState nodeSearchState = (NodeSearchState) o;
-            return Objects.equals(stateKey, nodeSearchState.stateKey);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(stateKey);
-        }
-
-        public GraphPathInMemory getPathToHere() {
-            return pathToHere;
-        }
-
-        @Override
-        public String toString() {
-            return "NodeSearchState{" +
-                    "stateKey=" + stateKey +
-                    ", duration=" + duration +
-                    ", pathToHere=" + pathToHere +
-                    '}';
-        }
-
-        public TramDuration getDuration() {
-            return duration;
-        }
-
-        public boolean getTowardsDest() {
-            return jumpQueue;
-        }
     }
 
 }

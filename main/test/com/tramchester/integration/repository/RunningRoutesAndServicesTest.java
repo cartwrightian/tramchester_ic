@@ -111,7 +111,8 @@ public class RunningRoutesAndServicesTest {
                 filter(service -> filter.isServiceRunningByTime(service.getId(), TramTime.of(0, 0), 25)).
                 collect(Collectors.toSet());
 
-        assertFalse(fromPreviousDay.isEmpty(), "no services from previous day " + HasId.asIds(allPreviousDay));
+        assertFalse(fromPreviousDay.isEmpty(), "no services from previous day " + HasId.asIds(allPreviousDay)
+                + " for route " + routeId + " of routes " + HasId.asIds(intoNextDay));
 
     }
 

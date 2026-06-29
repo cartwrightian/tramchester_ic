@@ -60,12 +60,12 @@ public class FindPathsForJourney {
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         final SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
-        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys, false);
+        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys);
         searchState.setJourneyState(stateKey, journeyState);
 
         // TODO ideally want yield/stream here
         while (searchState.continueSearch() && running.isRunning()) {
-            final PathSearchState.NodeSearchState nodeSearchState = searchState.getNext();
+            final NodeSearchState nodeSearchState = searchState.getNext();
             visitNodeOnPath(nodeSearchState, searchState);
         }
 
@@ -76,7 +76,7 @@ public class FindPathsForJourney {
         return results.stream().map(item -> item);
     }
 
-    private void visitNodeOnPath(final PathSearchState.NodeSearchState nodeSearchState, final PathSearchState searchState) {
+    private void visitNodeOnPath(final NodeSearchState nodeSearchState, final PathSearchState searchState) {
 
         final boolean debugEnabled = logger.isDebugEnabled();
 
@@ -116,15 +116,15 @@ public class FindPathsForJourney {
 
         final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
 
-        final List<PathSearchState.NodeSearchState> updatedNodes = new LinkedList<>();
-        final List<PathSearchState.NodeSearchState> notVisitedYet = new LinkedList<>();
+        final List<NodeSearchState> updatedNodes = new LinkedList<>();
+        final List<NodeSearchState> notVisitedYet = new LinkedList<>();
 
         final TramDuration currentCostToNode = searchState.getCurrentCost(stateKey);
         outgoing.forEach(graphRelationship -> {
             final GraphNodeId endNodeId = graphRelationship.getEndNodeId(txn);
 
             // prioritise those Towards Dest
-            final boolean towardsDest = (evaluator.matchesDestination(endNodeId));
+            final boolean towardsDest = evaluator.matchesDestination(endNodeId);
 
             final TramDuration relationshipCost = graphRelationship.getCost();
 
@@ -143,12 +143,12 @@ public class FindPathsForJourney {
             if (alreadySeen) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
                 if (newCost.compareTo(currentDurationForEnd) != 0) {
-                    updatedNodes.add(PathSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
+                    updatedNodes.add(NodeSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
                 }
                 //updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
             } else { // not seen before
                 searchState.updateCost(endStateKey, newCost);
-                notVisitedYet.add(PathSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
+                notVisitedYet.add(NodeSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
             }
         });
 
