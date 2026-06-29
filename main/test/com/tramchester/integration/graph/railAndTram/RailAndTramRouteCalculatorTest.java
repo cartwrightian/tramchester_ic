@@ -420,12 +420,16 @@ public class RailAndTramRouteCalculatorTest {
         //requestBoth.setDiag(true);
 
         List<Journey> trainAndTramJourneys = testFacade.calculateRouteAsList(start, dest, requestBoth);
-        assertFalse(trainAndTramJourneys.isEmpty(), "No train/tram journeys");
+        assertFalse(trainAndTramJourneys.isEmpty(), "No train/tram journeys"
+                + "\n Train available: " + trainOnlyJourneys);
 
         List<Journey> oneStageJourneys = trainAndTramJourneys.stream().filter(journey -> journey.getStages().size() == 1).toList();
 
-        assertFalse(oneStageJourneys.isEmpty(), "No one stage journeys, got " + trainAndTramJourneys);
-        assertEquals(1, oneStageJourneys.size(), "unexpected number of journeys " + oneStageJourneys);
+        assertFalse(oneStageJourneys.isEmpty(), "No one stage journeys, got " + trainAndTramJourneys +
+                "\n Train available: " + trainOnlyJourneys);
+
+        assertEquals(1, oneStageJourneys.size(), "unexpected number of journeys " + oneStageJourneys +
+                "\n Train available: " + trainOnlyJourneys);
 
         oneStageJourneys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();

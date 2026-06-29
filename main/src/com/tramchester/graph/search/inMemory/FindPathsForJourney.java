@@ -143,12 +143,12 @@ public class FindPathsForJourney {
             if (alreadySeen) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
                 if (newCost.compareTo(currentDurationForEnd) != 0) {
-                    updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath, towardsDest));
+                    updatedNodes.add(PathSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
                 }
                 //updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
             } else { // not seen before
                 searchState.updateCost(endStateKey, newCost);
-                notVisitedYet.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath, towardsDest));
+                notVisitedYet.add(PathSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
             }
         });
 

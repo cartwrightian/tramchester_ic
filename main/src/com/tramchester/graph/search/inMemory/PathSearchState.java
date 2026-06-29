@@ -34,6 +34,10 @@ public class PathSearchState {
         journeyStates = new HashMap<>();
     }
 
+    public static NodeSearchState createNodeSearchState(SearchStateKey endStateKey, TramDuration newCost, GraphPathInMemory continuePath, boolean towardsDest) {
+        return new NodeSearchState(endStateKey, newCost, continuePath, towardsDest);
+    }
+
     public void clear() {
         nodeQueue.clear();
         currentCost.clear();
@@ -146,7 +150,7 @@ public class PathSearchState {
         private final GraphPathInMemory pathToHere;
         private final boolean jumpQueue;
 
-        public NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere, boolean jumpQueue) {
+        private NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere, boolean jumpQueue) {
             this.stateKey = stateKey;
             this.duration = duration;
             this.pathToHere = pathToHere.duplicate();
