@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -85,6 +86,16 @@ public class CreateQueryTimesTest {
     }
 
     @Test
+    void shouldFallbackToFullRangeWhenModesDontOverlap() {
+        TramTime queryTime = TramTime.of(9, 45);
+
+        Station location = StPetersSquare.from(stationRepository);
+        List<TramTime> times = createQueryTimes.generate(queryTime, location, date, TrainOnly);
+
+        assertFalse(times.isEmpty());
+    }
+
+    @Test
     void shouldHaveNormalQueryTimesEndOfDayCentral() {
         TramTime queryTime = TramTime.of(23, 55);
 
@@ -111,6 +122,28 @@ public class CreateQueryTimesTest {
 
         assertEquals(1, results.size());
         assertEquals(queryTime, results.getFirst());
+    }
+
+    @Test
+    void shouldGetTimesForStationWalksNoOverlapOnModes() {
+        TramTime queryTime = TramTime.nextDay(0, 15);
+
+        Station stPetersSquare = StPetersSquare.from(stationRepository);
+        Station marketStreet = MarketStreet.from(stationRepository);
+
+        Set<StationWalk> stationWalks = new HashSet<>();
+        stationWalks.add(new StationWalk(stPetersSquare, TramDuration.ofMinutes(1)));
+        stationWalks.add(new StationWalk(marketStreet, TramDuration.ofMinutes(2)));
+
+        List<TramTime> results = createQueryTimes.generate(queryTime, stationWalks, date, TrainOnly);
+
+        assertFalse(results.isEmpty());
+
+        assertEquals(numberQueries, results.size());
+        assertEquals(queryTime, results.getFirst());
+
+        TramTime lastTime = queryTime.plusMinutes(mins * (numberQueries -1));
+        assertEquals(lastTime, results.getLast(), "wrong last time " + results);
     }
 
     @Test

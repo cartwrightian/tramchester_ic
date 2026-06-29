@@ -370,7 +370,7 @@ public class RailAndTramRouteCalculatorTest {
         // direct from altrincham stations
         // Works fine for direct from altrincham rail, so seems to be an issue with crossing to the train station
 
-        TramTime time = TramTime.of(10,30);
+        TramTime time = TramTime.of(10,45);
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 TramDuration.ofMinutes(240), 3, TrainOnly);

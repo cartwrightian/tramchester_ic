@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @LazySingleton
 public class CreateQueryTimes {
@@ -35,36 +34,61 @@ public class CreateQueryTimes {
         maxWaitMins = config.getMaxWait();
     }
 
-    public List<TramTime> generate(final TramTime initialQueryTime, final Location<?> location, final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
+    public List<TramTime> generate(final TramTime initialQueryTime, final Location<?> location, final TramDate date,
+                                   final ImmutableEnumSet<TransportMode> modes) {
 
-        Stream<TramTime> durations = IntStream.range(0, numberQueries).
+        final List<TimeRange> times = IntStream.range(0, numberQueries).
                 mapToObj(index -> initialQueryTime.plusMinutes(index * interval)).
-                filter(time -> availabilityRepository.isAvailablePickups(location, date, rangeFor(time), modes));
+                map(this::rangeFor).
+                toList();
 
-        List<TramTime> result = durations.toList();
-
-        if (result.isEmpty()) {
-            logger.error("No query times for " + initialQueryTime + " " + location.getId() + " " + date + " " + modes);
+        final List<TramTime> results;
+        if (location.anyOverlapWith(modes)) {
+            results = times.stream().
+                    filter(range -> availabilityRepository.isAvailablePickups(location, date, range, modes)).
+                    map(TimeRange::getStart).
+                    toList();
         } else {
-            logger.info("Query times " + result);
+            logger.warn("No modes overlap between " + location.getId() + " " + location.getTransportModes() +
+                "requested  " + modes);
+            results = times.stream().map(TimeRange::getStart).toList();
         }
-        return result;
+
+        if (results.isEmpty()) {
+            logger.error("No available times for " + initialQueryTime + " location:" + location.getId() + " " + date + " " + modes +
+                    " " + times);
+        } else {
+            logger.info("Query times " + results);
+        }
+        return results;
     }
 
     private TimeRange rangeFor(final TramTime time) {
         return TimeRange.of(time, time.plusMinutes(maxWaitMins));
     }
 
-    public List<TramTime> generate(TramTime initialQueryTime, Set<StationWalk> stationWalks, TramDate date, ImmutableEnumSet<TransportMode> modes) {
+    public List<TramTime> generate(final TramTime initialQueryTime, final Set<StationWalk> stationWalks, final TramDate date,
+                                   final ImmutableEnumSet<TransportMode> modes) {
 
-        Stream<TramTime> durations = IntStream.range(0, numberQueries).
+        final boolean hasOverlap = stationWalks.stream().anyMatch(stationWalk -> stationWalk.getStation().anyOverlapWith(modes));
+
+        final List<TramTime> times = IntStream.range(0, numberQueries).
                 mapToObj(index -> initialQueryTime.plusMinutes(index * interval)).
-                filter( time -> available(stationWalks, date, time, modes));
+                toList();
 
-        List<TramTime> result = durations.toList();
+        final List<TramTime> result;
+        if (hasOverlap) {
+            result = times.stream().
+                    filter(time -> available(stationWalks, date, time, modes)).
+                    toList();
+        } else {
+            logger.warn("No modes overlap between " + stationWalks + " " + "requested  " + modes);
+            result = times;
+        }
 
         if (result.isEmpty()) {
-            logger.error("No query times for " + initialQueryTime + " " + stationWalks + " " + date + " " + modes);
+            logger.error("No available times for " + initialQueryTime + " walks: " + stationWalks + " " + date + " " + modes +
+                    " " + times);
         } else {
             logger.info("Query times " + result);
         }

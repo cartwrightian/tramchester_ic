@@ -18,6 +18,7 @@ public enum RailStationIds implements HasId<Station>, FakeStation {
     Altrincham("ALTRNHM", true, "ALT"),
     NavigationRaod("NAVGTNR", true, "NVR"),
     Crewe("CREWE", false, "CRE"),
+    Stafford("STAFFRD", false, "STA"),
     LondonEuston("EUSTON", false, "EUS"),
     Derby("DRBY", false, "DBY"),
     Belper("BELPER", false, "BLP"),

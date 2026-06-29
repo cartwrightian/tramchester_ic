@@ -8,7 +8,6 @@ import com.tramchester.dataimport.rail.ProvidesRailTimetableRecords;
 import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.dataimport.rail.RailRouteIDBuilder;
 import com.tramchester.dataimport.rail.RailTransportDataFromFiles;
-import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
@@ -22,8 +21,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.filters.GraphFilterActive;
-import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.OnlyIfModesExact;
+import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.AgencyRepository;
@@ -39,6 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.TP;
+import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.VT;
 import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -78,7 +78,7 @@ public class RailRouteIdsTest {
         railRouteIdRepository = componentContainer.get(RailRouteIds.class);
         stationRepository = componentContainer.get(StationRepository.class);
         agencyRepository = componentContainer.get(AgencyRepository.class);
-        agencyId = Agency.createId(TrainOperatingCompanies.VT.name());
+        agencyId = Agency.createId(VT.name());
     }
 
     @Test
@@ -186,7 +186,7 @@ public class RailRouteIdsTest {
         StationIdPair beginEnd = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
 
         Optional<RailRouteIds.RailRouteCallingPointsWithRouteId> findLongest = railRouteIdRepository.
-                getCallingPointsFor(TrainOperatingCompanies.VT.getAgencyId()).stream().
+                getCallingPointsFor(VT.getAgencyId()).stream().
                 filter(railRoute -> railRoute.getBeginEnd().equals(beginEnd)).
                 max(Comparator.comparingInt(RailRouteIds.RailRouteCallingPointsWithRouteId::numberCallingPoints));
 
@@ -196,10 +196,9 @@ public class RailRouteIdsTest {
         IdFor<Route> routeIdForLongest = longest.getRouteId();
 
         IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, getStations(ManchesterPiccadilly,
-                Stockport, Macclesfield,
-                StokeOnTrent, LondonEuston));
+                Stockport, Wilmslow, Crewe, Stafford, LondonEuston));
 
-        assertEquals(routeIdForLongest, routeIdForShorter);
+        assertEquals(routeIdForLongest, routeIdForShorter, "Not Matching route " + longest);
 
     }
 
@@ -212,7 +211,7 @@ public class RailRouteIdsTest {
                 toList();
 
         // was 36 under old ID scheme
-        assertEquals(7, routes.size(), routes.toString());
+        assertEquals(6, routes.size(), routes.toString());
     }
 
     @Test

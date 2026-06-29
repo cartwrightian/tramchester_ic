@@ -185,9 +185,7 @@ public class StationAvailabilityRepository {
         final LocationId<?> locationId = location.getLocationId();
 
         if (!location.anyOverlapWith(requestedModes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(locationId + " no overlap between requested " + requestedModes + " and " + location.getTransportModes());
-            }
+            logger.warn(locationId + " no overlap between requested " + requestedModes + " and " + location.getTransportModes());
             return false;
         }
 
