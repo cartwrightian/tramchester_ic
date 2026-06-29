@@ -123,16 +123,6 @@ public class FindPathsForJourney {
         outgoing.forEach(graphRelationship -> {
             final GraphNodeId endNodeId = graphRelationship.getEndNodeId(txn);
 
-            // prioritise those Towards Dest
-            final boolean towardsDest = evaluator.matchesDestination(endNodeId);
-
-            final TramDuration relationshipCost = graphRelationship.getCost();
-
-            final TramDuration newCost = relationshipCost.plus(currentCostToNode);
-
-            final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, endNodeId);
-            final boolean alreadySeen = searchState.hasSeen(endStateKey);
-
             final GraphPathInMemory continuePath;
             if (depthFirst) {
                 continuePath = pathToCurrentNode.duplicateWith(txn, graphRelationship);
@@ -140,22 +130,31 @@ public class FindPathsForJourney {
                 continuePath = pathToCurrentNode.duplicate();
             }
 
+            final TramDuration relationshipCost = graphRelationship.getCost();
+            final TramDuration newCost = relationshipCost.plus(currentCostToNode);
+
+            final SearchStateKey endStateKey = SearchStateKey.create(pathToCurrentNode, endNodeId);
+            final boolean alreadySeen = searchState.hasSeen(endStateKey);
+
+            // prioritise those Towards Dest
+            final boolean towardsDest = evaluator.matchesDestination(endNodeId);
+            final NodeSearchState nextSearchNodeState = NodeSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest);
+
             if (alreadySeen) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
+                // TODO is this correct?
                 if (newCost.compareTo(currentDurationForEnd) != 0) {
-                    updatedNodes.add(NodeSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
+                    updatedNodes.add(nextSearchNodeState);
                 }
-                //updatedNodes.add(new PathSearchState.NodeSearchState(endStateKey, newCost, continuePath));
             } else { // not seen before
                 searchState.updateCost(endStateKey, newCost);
-                notVisitedYet.add(NodeSearchState.createNodeSearchState(endStateKey, newCost, continuePath, towardsDest));
+                notVisitedYet.add(nextSearchNodeState);
             }
         });
 
         notVisitedYet.forEach(toVisit -> {
-            final SearchStateKey searchStateKey = toVisit.getStateKey();
-            searchState.addCostAndQueue(searchStateKey, toVisit.getDuration(), toVisit.getPathToHere(), toVisit.getTowardsDest());
-            searchState.setJourneyState(searchStateKey, graphStateForChildren);
+            searchState.addCostAndQueue(toVisit);
+            searchState.setJourneyState(toVisit.getStateKey(), graphStateForChildren);
         });
 
         updatedNodes.forEach(toUpdate -> {
@@ -163,7 +162,7 @@ public class FindPathsForJourney {
             if (depthFirst) {
                 searchState.updateCost(searchStateKey, toUpdate.getDuration());
             } else {
-                searchState.updateCostAndQueue(searchStateKey, toUpdate.getDuration(),  toUpdate.getPathToHere(), toUpdate.getTowardsDest());
+                searchState.updateCostAndUpdateQueue(toUpdate);
             }
             searchState.setJourneyState(searchStateKey, graphStateForChildren);
         });

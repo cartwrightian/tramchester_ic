@@ -11,13 +11,13 @@ public class NodeSearchState implements Comparable<NodeSearchState> {
     private final SearchStateKey stateKey;
     private final TramDuration duration;
     private final GraphPathInMemory pathToHere;
-    private final boolean jumpQueue;
+    private final boolean towardsDest;
 
-    private NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere, boolean jumpQueue) {
+    private NodeSearchState(SearchStateKey stateKey, TramDuration duration, GraphPathInMemory pathToHere, boolean towardsDest) {
         this.stateKey = stateKey;
         this.duration = duration;
         this.pathToHere = pathToHere.duplicate();
-        this.jumpQueue = jumpQueue; // used when we can id states that lead directly to a destination
+        this.towardsDest = towardsDest; // used when we can id states that lead directly to a destination
     }
 
     public static NodeSearchState createNodeSearchState(final SearchStateKey endStateKey, final TramDuration newCost,
@@ -31,14 +31,14 @@ public class NodeSearchState implements Comparable<NodeSearchState> {
 
     @Override
     public int compareTo(final NodeSearchState other) {
-        if (jumpQueue && other.jumpQueue) {
+        if (towardsDest && other.towardsDest) {
             // shortest path here
             return compareWith(other, Integer::compare);
         }
-        if (jumpQueue) {
+        if (towardsDest) {
             return -1;
         }
-        if (other.jumpQueue) {
+        if (other.towardsDest) {
             return 1;
         }
         // depth first - longest path comes first
@@ -91,6 +91,6 @@ public class NodeSearchState implements Comparable<NodeSearchState> {
     }
 
     public boolean getTowardsDest() {
-        return jumpQueue;
+        return towardsDest;
     }
 }

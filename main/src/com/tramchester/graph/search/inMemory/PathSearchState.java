@@ -61,29 +61,22 @@ public class PathSearchState {
         }
     }
 
-
-
-    public void updateCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath, boolean towardsDest) {
-        final NodeSearchState update = NodeSearchState.createNodeSearchState(stateKey, duration, graphPath, towardsDest);
-
+    void updateCostAndUpdateQueue(final NodeSearchState update) {
         synchronized (nodeQueue) {
             // clunky, relies on NodeSearchState defining equals to be on NodeId only
             if (nodeQueue.contains(update)) {
                 nodeQueue.remove(update);
                 nodeQueue.add(update);
             } else {
-                String message = "Node was not in the queue " + stateKey + " for " + update;
+                String message = "Node was not in the queue " + update.getStateKey() + " for " + update;
                 logger.error(message);
                 throw new RuntimeException(message);
             }
-            currentCost.put(stateKey, duration);
+            currentCost.put(update.getStateKey(), update.getDuration());
         }
     }
 
-    public void addCostAndQueue(final SearchStateKey stateKey, final TramDuration duration, final GraphPathInMemory graphPath,
-                                final boolean towardsDest) {
-        final NodeSearchState update = NodeSearchState.createNodeSearchState(stateKey, duration, graphPath, towardsDest);
-
+    void addCostAndQueue(final NodeSearchState update) {
         synchronized (nodeQueue) {
             if (nodeQueue.contains(update)) {
                 String message = "Already in queue " + update.getStateKey();
@@ -91,7 +84,7 @@ public class PathSearchState {
                 throw new RuntimeException(message);
             }
             nodeQueue.add(update);
-            currentCost.put(stateKey, duration);
+            currentCost.put(update.getStateKey(), update.getDuration());
         }
     }
 
@@ -140,5 +133,6 @@ public class PathSearchState {
         }
         return true;
     }
+
 
 }
