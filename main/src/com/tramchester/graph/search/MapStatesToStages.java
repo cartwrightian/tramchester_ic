@@ -100,7 +100,7 @@ class MapStatesToStages implements JourneyStateUpdate {
             boardingTime = time;
         }
         if (walkFromStartPending != null) {
-            WalkingToStationStage walkingToStationStage = walkFromStartPending.createStage(actualTime, totalCost);
+            final WalkingToStationStage walkingToStationStage = walkFromStartPending.createStage(actualTime, totalCost);
             logger.info("Add " + walkingToStationStage);
             stages.add(walkingToStationStage);
             walkFromStartPending = null;
@@ -203,11 +203,18 @@ class MapStatesToStages implements JourneyStateUpdate {
     public void toNeighbour(final GraphNode startNode, final GraphNode endNode, final TramDuration cost) {
         final IdFor<Station> startId = startNode.getStationId();
         final IdFor<Station> endId = endNode.getStationId();
-        final Station start = stationRepository.getStationById(startId);
-        final Station end = stationRepository.getStationById(endId);
-        final ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(start, end, cost, getActualClock());
-        logger.info("Added stage " + connectingStage);
-        stages.add(connectingStage);
+
+        if (walkFromStartPending!=null) {
+            String message = String.format("Skip connect stage as already on a walk, start %s end %s cost %s ",
+                    startId, endId, cost);
+            logger.info(message);
+        } else {
+            final Station start = stationRepository.getStationById(startId);
+            final Station end = stationRepository.getStationById(endId);
+            final ConnectingStage<Station, Station> connectingStage = new ConnectingStage<>(start, end, cost, getActualClock());
+            logger.info("Added connecting stage " + connectingStage);
+            stages.add(connectingStage);
+        }
     }
 
     @Override
@@ -289,6 +296,16 @@ class MapStatesToStages implements JourneyStateUpdate {
 
             final TramTime walkStartTime = actualTime.minusRounded(duration.plus(offset));
             return new WalkingToStationStage(walkStation, destination, duration, walkStartTime);
+        }
+
+        @Override
+        public String toString() {
+            return "WalkFromStartPending{" +
+                    "walkStart=" + walkStart +
+                    ", totalCostAtDestination=" + totalCostAtDestination +
+                    ", destination=" + destination.getId() +
+                    ", duration=" + duration +
+                    '}';
         }
     }
 

@@ -17,7 +17,7 @@ public class PathMapper {
     public void process(final TraversalState initial, final ForGraphNode forGraphNode, final ForGraphRelationship forGraphRelationship) {
         currentState = initial;
         TramDuration currentCost = TramDuration.ZERO;
-        for (GraphEntity entity : path.getEntities(txn)) {
+        for (GraphEntity<?> entity : path.getEntities(txn)) {
             if (entity.isNode()) {
                 final GraphNode graphNode = (GraphNode) entity;
                 currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);

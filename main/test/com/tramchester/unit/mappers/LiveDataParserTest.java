@@ -438,6 +438,41 @@ class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldReproIssueWithAshtonViaMCUK() {
+        String exampleData = """
+                {
+                  "@odata.context":"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks","value":[
+                    {
+                        "PIDREF":"WST-TPTS01","Dest1":"Ashton via MCUK","Dest0":"Ashton via MCUK","Status2":"Due","Status3":"",
+                        "Wait3":"","Wait2":"27","Wait1":"12","Wait0":"1","Direction":"Incoming","StationLocation":"Weaste",
+                        "LastUpdated":"2026-06-30T16:00:14Z","Dest3":"","Dest2":"Ashton via MCUK","AtcoCode":"9400ZZMAWST2",
+                        "TLAREF":"WST","Line":"Eccles","Carriages3":"","Carriages2":"Double","Carriages1":"Double","Carriages0":"Double",
+                        "MessageBoard":"Due to a vehicle fault we are experiencing a minor delay on the Eccles and Ashton line. Metrolink apologises for any inconvenience caused.",
+                        "Status0":"Due","Id":1404198435,"Status1":"Due"
+                    }]
+                }
+                """;
+
+        LocalDateTime dateTime = LocalDateTime.of(2026,6,30,16,0,14).plusHours(1);
+
+        String msgText = "Due to a vehicle fault we are experiencing a minor delay on the Eccles and Ashton line. Metrolink apologises for any inconvenience caused.";
+
+        TramStationDepartureInfo dep = setExpectationsForDeparture(1404198435,
+                OverheadDisplayLines.Eccles, LineDirection.Incoming, msgText,
+                Weaste, dateTime, "2", null);
+
+        expectDueTram(dep, Ashton, 1, "Due", "Double", null);
+        expectDueTram(dep, Ashton, 12, "Due", "Double", null);
+        expectDueTram(dep, Ashton, 27, "Due", "Double", null);
+
+        expectationByName(Ashton);
+       // expectationByName(Ashton);
+
+        List<TramStationDepartureInfo> results = doParsing(exampleData);
+
+    }
+
+    @Test
     void shouldParseDeansgateWithMappingViaMCUK() {
         String exampleData = """
                 {

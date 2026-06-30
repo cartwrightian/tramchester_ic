@@ -93,7 +93,7 @@ public class LocationJourneyPlanner {
 
         final GridPosition startGrid = start.getGridPosition();
         if (!stationLocations.getActiveStationBounds().within(margin, startGrid)) {
-            logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getActiveStationBounds()));
+            logger.error(format("Start %s not within %s of active station bounds %s", startGrid, margin, stationLocations.getActiveStationBounds()));
         }
 
         final Set<StationWalk> walksToStart = getStationWalks(start, journeyRequest.getRequestedModes());
@@ -215,7 +215,7 @@ public class LocationJourneyPlanner {
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
         final Set<StationWalk> stationWalks = createWalks(location, filtered);
-        logger.info(format("Stops within %s of %s are [%s]", maxResults, location, stationWalks));
+        logger.info(format("Stops within %s of %s are [%s]", margin, location, stationWalks));
         return stationWalks;
     }
 

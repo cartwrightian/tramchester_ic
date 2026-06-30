@@ -23,6 +23,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
@@ -33,10 +34,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
+import static com.tramchester.testSupport.reference.KnownLocations.betweenAltrinchamAndNavigationRoad;
 import static com.tramchester.testSupport.reference.KnownLocations.betweenPiccAndPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.Piccadilly;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
 class RailAndTramLocationJourneyPlannerTest {
@@ -100,6 +101,46 @@ class RailAndTramLocationJourneyPlannerTest {
                 rail(ManchesterPiccadilly), request, 4));
 
         assertFalse(journeys.isEmpty(), "no journeys");
+    }
+
+
+    @Test
+    void shouldReproIssueWithConnectingStageWhenNearPiccadillyStation() {
+        // Plan journey from Id{'MyLocation:53.48164755769937,-2.2322533654743064'} to Id{'Station:9400ZZMAALT'} on
+        // JourneyRequest{date=TramDate{epochDays=20634, dayOfWeek=TUESDAY, date=2026-06-30},
+        // originalQueryTime=TramTime{h=17, m=22}, arriveBy=false,
+        // maxChanges=MaxNumberOfChanges{maxChanges=2}, uid=838e66fd-5b30-473b-834b-b570b4af6c5f,
+        // maxJourneyDuration=TramDuration{duration=PT2H35M}, maxNumberOfJourneys=5,
+        // allowedModes=ImmutableEnumSet{[Tram, Train, RailReplacementBus]}}
+
+        TramTime time = TramTime.of(17,22);
+        //TramDate date = TramDate.of(2026, 6,30);
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2, maxJourneyDuration,
+                5, TrainAndTram);
+
+        Location<?> nearPiccStation = new MyLocation(new LatLong(53.48164755769937,-2.2322533654743064));
+        Set<Journey> results = testFacade.quickestRouteForLocation(nearPiccStation, TramStations.Altrincham, journeyRequest, 3);
+
+        assertFalse(results.isEmpty());
+    }
+
+
+    @Test
+    void shouldHaveCorrectStagesWhenWalkingToTrain() {
+        TramTime time = TramTime.of(19,8);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2, maxJourneyDuration,
+                5, TrainAndTram);
+
+        Set<Journey> results = testFacade.quickestRouteForLocation(betweenAltrinchamAndNavigationRoad,
+                Piccadilly, journeyRequest, 3);
+
+        assertFalse(results.isEmpty());
+
+        results.forEach(journey -> {
+            assertTrue(journey.firstStageIsWalk(), "Not a walk at start " + journey.getStages());
+        });
+
     }
 
     @Test

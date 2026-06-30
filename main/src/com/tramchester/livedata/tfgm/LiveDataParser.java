@@ -39,7 +39,7 @@ public class LiveDataParser {
     private static final String SEE_TRAM_FRONT = "See Tram Front";
     private static final List<String> NotADestination = Arrays.asList(SEE_TRAM_FRONT, NOT_IN_SERVICE);
 
-    private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZoneId);
+    //private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZoneId);
 
     private final StationByName stationByName;
     private final Map<String, String> destinationNameMappings;
@@ -54,11 +54,11 @@ public class LiveDataParser {
 
     public enum LiveDataNamesMapping {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
-        //Firswood("Firswood", "Firswood Station"), // now Firswood in tram data
-        AshtonViaMediaCity("Ashton via MCUK", "Ashton-under-Lyne"),
+        AshtonViaMediaCity("Ashton", "Ashton-under-Lyne"), // NOTE: remove  "via MCUK"
         RochdaleStn("Rochdale Stn", "Rochdale Railway Station");
 
 // No longer in use?
+            //Firswood("Firswood", "Firswood Station"), // now Firswood in tram data
 //        Ashton("Ashton","Ashton-Under-Lyne"),
 //        DeansgateAliasA("Deansgate - Castlefield","Deansgate-Castlefield"),
 //        BessesOThBarns("Besses O’ Th’ Barn","Besses o'th'barn"),
@@ -68,21 +68,20 @@ public class LiveDataParser {
 //        RochdaleCentre("Rochdale Ctr", "Rochdale Town Centre");
 
         private final String from;
-        private final String too;
+        private final String to;
 
-        LiveDataNamesMapping(String from, String too) {
+        LiveDataNamesMapping(String from, String to) {
             this.from = from;
-            this.too = too;
+            this.to = to;
         }
 
-        public String getToo() {
-            return too;
+        public String getTo() {
+            return to;
         }
-
 
         @Override
         public String toString() {
-            return "{"+from+"-->"+too+"}";
+            return "{"+from+"-->"+ to +"}";
         }
     }
 
@@ -101,7 +100,7 @@ public class LiveDataParser {
     public void start() {
         logger.info("starting");
         for(LiveDataNamesMapping item : LiveDataNamesMapping.values()) {
-            destinationNameMappings.put(item.from, item.too);
+            destinationNameMappings.put(item.from, item.to);
         }
 
         logger.info("started");
@@ -263,20 +262,19 @@ public class LiveDataParser {
                             final int waitInMinutes = Integer.parseInt(waitString);
                             final String carriages = getNumberedField(jsonObject, "Carriages", index);
 
-                            UpcomingDeparture dueTram = departureFactory.createDueTram(departureInfo, status, station, waitInMinutes, carriages);
+                            final UpcomingDeparture dueTram = departureFactory.createDueTram(departureInfo, status, station,
+                                    waitInMinutes, carriages);
 
                             departureInfo.addDueTram(dueTram);
 
                         },
-
                         () -> monitorParsing.missingDestinationStation(destinationName, index));
             }
         }
     }
 
     private Optional<Station> getTramDestination(final String name) {
-        if (name.isEmpty())
-        {
+        if (name.isEmpty()) {
             logger.warn("Got empty name");
             return Optional.empty();
         }
@@ -360,7 +358,7 @@ public class LiveDataParser {
         }
 
         @Override
-        public void missingDestinationStation(String destinationName, int index) {
+        public void missingDestinationStation(final String destinationName, final int index) {
             logWarning("Unable to match due tram destination '" + destinationName + "' index: " + index);
         }
 
@@ -370,7 +368,7 @@ public class LiveDataParser {
 
         }
 
-        private void logWarning(String text) {
+        private void logWarning(final String text) {
             logger.warn(prefix() + text + postfix());
         }
 
@@ -379,7 +377,7 @@ public class LiveDataParser {
         }
 
         private String postfix() {
-            return " for JSON '" + jsonObject + "'";
+            return " for JSON '" + jsonObject.toJson() + "'";
         }
     }
 

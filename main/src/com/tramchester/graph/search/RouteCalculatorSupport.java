@@ -9,6 +9,7 @@ import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
@@ -473,7 +474,7 @@ public abstract class RouteCalculatorSupport {
 
         private final Map<Location<?>, AtomicLong> journeysPerStation;
 
-        public InitialWalksFinished(JourneyRequest journeyRequest, Set<StationWalk> stationWalks) {
+        public InitialWalksFinished(final JourneyRequest journeyRequest, final Set<StationWalk> stationWalks) {
             this.maxJourneys = journeyRequest.getMaxNumberOfJourneys();
             journeysPerStation = new HashMap<>();
 
@@ -482,22 +483,31 @@ public abstract class RouteCalculatorSupport {
 
         }
 
-        public boolean notDoneYet(Journey journey) {
+        public boolean notDoneYet(final Journey journey) {
             if (!(journey.firstStageIsWalk() || journey.firstStageIsConnect())) {
-                throw new RuntimeException("Expected walk to be first stage of " + journey);
+                throw new RuntimeException("Expected walk or connecting to be first stage of " + journey);
             }
 
-            TransportStage<?, ?> walkingStage = journey.getStages().getFirst();
+            TransportStage<?, ?> first = journey.getStages().getFirst();
 
-            final Location<?> lastStation = walkingStage.getLastStation();
+            final Location<?> endOfFirstStage = first.getLastStation();
 
-            if (!journeysPerStation.containsKey(lastStation)) {
-                throw new RuntimeException("Unexpected " + lastStation.getId() + " as not present in " + journeysPerStation);
+            if (!journeysPerStation.containsKey(endOfFirstStage)) {
+                if (journey.firstStageIsWalk()) {
+                    // TODO Make a warning and just add the key here?
+                    String message = "Unexpected " + endOfFirstStage.getId() + " as not present in " +
+                            HasId.asIds(journeysPerStation.keySet()) + " stage was " + first;
+                    logger.error(message);
+                    throw new RuntimeException(message);
+                } else {
+                    logger.info("Adding count for connecting stage " + endOfFirstStage.getId());
+                    journeysPerStation.put(endOfFirstStage, new AtomicLong(0));
+                }
             }
 
-            long countForStation = journeysPerStation.get(lastStation).incrementAndGet();
+            long countForStation = journeysPerStation.get(endOfFirstStage).incrementAndGet();
             if (countForStation==maxJourneys) {
-                logger.info("Seen " + maxJourneys + " for " + lastStation.getId());
+                logger.info("Seen " + maxJourneys + " for " + endOfFirstStage.getId());
                 seenMaxJourneys = seenMaxJourneys + 1;
             }
             return seenMaxJourneys < journeysPerStation.size();

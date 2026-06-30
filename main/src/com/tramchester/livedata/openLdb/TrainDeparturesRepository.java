@@ -3,10 +3,7 @@ package com.tramchester.livedata.openLdb;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.thalesgroup.rtti._2015_11_27.ldb.types.ArrayOfServiceLocations;
 import com.thalesgroup.rtti._2015_11_27.ldb.types.ServiceLocation;
-import com.thalesgroup.rtti._2017_10_01.ldb.types.CoachData;
-import com.thalesgroup.rtti._2017_10_01.ldb.types.FormationData;
-import com.thalesgroup.rtti._2017_10_01.ldb.types.ServiceItem;
-import com.thalesgroup.rtti._2017_10_01.ldb.types.StationBoard;
+import com.thalesgroup.rtti._2017_10_01.ldb.types.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.Agency;
@@ -95,9 +92,14 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             final Optional<StationBoard> maybeBoard = dataFetcher.getFor(station);
             maybeBoard.ifPresent(board -> {
                 final LocalDateTime generated = getDate(board);
-                result.addAll(board.getTrainServices().getService().stream().
-                        map(serviceItem -> mapToDeparture(serviceItem, station, generated)).
-                        toList());
+                final ArrayOfServiceItems trainServices = board.getTrainServices();
+                if (trainServices==null) {
+                    logger.warn("train services are null for StationBoard, station: " + station.getId());
+                } else {
+                    result.addAll(trainServices.getService().stream().
+                            map(serviceItem -> mapToDeparture(serviceItem, station, generated)).
+                            toList());
+                }
             });
             logger.info("Got " + result.size() + " departures for " + station.getId());
             return result;

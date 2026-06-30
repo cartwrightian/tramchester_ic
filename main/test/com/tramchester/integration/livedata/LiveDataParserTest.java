@@ -55,7 +55,7 @@ public class LiveDataParserTest {
                 map(Location::getName).collect(Collectors.toSet());
 
         Set<LiveDataParser.LiveDataNamesMapping> missing = Arrays.stream(LiveDataParser.LiveDataNamesMapping.values()).
-                filter(mapping -> !validNames.contains(mapping.getToo())).
+                filter(mapping -> !validNames.contains(mapping.getTo())).
                 collect(Collectors.toSet());
 
         assertTrue(missing.isEmpty(), missing.toString());

@@ -9,6 +9,7 @@ import com.tramchester.geo.HasGridPosition;
 public enum KnownLocations implements HasGridPosition {
     nearAltrincham(53.387483D, -2.351463D),
     nearAltrinchamInterchange(53.3873279D,-2.3498573D),
+    betweenAltrinchamAndNavigationRoad(53.391504,-2.3482839),
     nearPiccGardens(53.4805248D, -2.2394929D),
     betweenPiccAndPiccGardens(53.4800292D,-2.2361723D),
     nearShudehill(53.485846, -2.239472),
