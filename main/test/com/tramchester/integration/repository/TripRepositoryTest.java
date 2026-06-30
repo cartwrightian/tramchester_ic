@@ -241,7 +241,7 @@ public class TripRepositoryTest {
                 filter(timeRange::contains).
                 collect(Collectors.toSet());
 
-        assertFalse(duringPeriod.isEmpty(), "No times from " + arrivalTimesFor +
+        assertFalse(duringPeriod.isEmpty(), "On " + date + " no times from " + arrivalTimesFor +
                 " match time range " + timeRange + "\n services were " + HasId.asIds(servicesForDiag) +
                 "\n trips were " + HasId.asIds(tripsToHarbourCity));
 
