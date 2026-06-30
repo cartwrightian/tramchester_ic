@@ -54,10 +54,8 @@ public class TramDuration implements Comparable<TramDuration> {
         return duration.toSeconds();
     }
 
-    @Deprecated
-    public long getSeconds() {
-        // TODO suspect call?
-        return duration.getSeconds();
+    public Duration toDuration() {
+        return duration;
     }
 
     public int getMinutesSafe() {

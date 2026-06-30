@@ -5,7 +5,7 @@ import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
 
 import java.util.Objects;
-import java.util.function.BinaryOperator;
+import java.util.function.BiFunction;
 
 public class NodeSearchState implements Comparable<NodeSearchState> {
     private final SearchStateKey stateKey;
@@ -33,7 +33,7 @@ public class NodeSearchState implements Comparable<NodeSearchState> {
     public int compareTo(final NodeSearchState other) {
         if (towardsDest && other.towardsDest) {
             // shortest path here
-            return compareWith(other, Integer::compare);
+            return compareWith(other, Long::compare);
         }
         if (towardsDest) {
             return -1;
@@ -42,19 +42,20 @@ public class NodeSearchState implements Comparable<NodeSearchState> {
             return 1;
         }
         // depth first - longest path comes first
-        return compareWith(other, (a, b) -> Integer.compare(b, a));
+        return compareWith(other, (a, b) -> Long.compare(b, a));
     }
 
-    private int compareWith(final NodeSearchState other, final BinaryOperator<Integer> comparison) {
-        int result = comparison.apply(pathToHere.length(), other.pathToHere.length());
-        if (result == 0) {
-            // tie-break via duration (shortest wins)
-            // TODO WIP - shortest first breaks some tram/train tests, digging into why
-            //result = other.duration.compareTo(duration);
-            result = duration.compareTo(other.duration);
-
-        }
-        return result;
+    private int compareWith(final NodeSearchState other, final BiFunction<Long, Long, Integer> comparison) {
+        return comparison.apply(duration.toSeconds(), other.duration.toSeconds());
+//        int result = comparison.apply(pathToHere.length(), other.pathToHere.length());
+//        if (result == 0) {
+//            // tie-break via duration (shortest wins)
+//            // TODO WIP - shortest first breaks some tram/train tests, digging into why
+//            //result = other.duration.compareTo(duration);
+//            result = duration.compareTo(other.duration);
+//
+//        }
+//        return result;
     }
 
     public SearchStateKey getStateKey() {

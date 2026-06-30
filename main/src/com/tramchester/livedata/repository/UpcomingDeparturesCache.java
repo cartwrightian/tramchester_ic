@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class UpcomingDeparturesCache  {
     private static final Logger logger = LoggerFactory.getLogger(UpcomingDeparturesCache.class);
@@ -44,7 +43,7 @@ public class UpcomingDeparturesCache  {
 
         private DeparturesCache(long size, TramDuration duration) {
             cache = Caffeine.newBuilder().maximumSize(size).
-                    expireAfterWrite(duration.getSeconds(), TimeUnit.SECONDS).
+                    expireAfterWrite(duration.toDuration()).
                     initialCapacity((int) size).
                     recordStats().build();
         }

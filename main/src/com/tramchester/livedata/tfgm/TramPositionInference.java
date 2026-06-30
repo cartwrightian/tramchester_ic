@@ -114,7 +114,7 @@ public class TramPositionInference {
 
         final TramDuration delta = duration.minus(truncated);
 
-        if (delta.getSeconds()>=30) {
+        if (delta.toSeconds()>=30) {
             truncated = truncated.plusMinutes(1);
         }
 

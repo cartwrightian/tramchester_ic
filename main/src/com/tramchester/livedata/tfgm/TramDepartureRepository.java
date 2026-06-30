@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,7 +58,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         this.providesNow = providesNow;
 
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
-                expireAfterWrite(TIME_LIMIT_MINS.getSeconds(), TimeUnit.SECONDS).recordStats().build();
+                expireAfterWrite(TIME_LIMIT_MINS.toDuration()).recordStats().build();
 
         cacheMetrics.register(this::reportStats);
     }

@@ -253,7 +253,7 @@ public class StopCallRepository  {
 
         public TramDuration average() {
             double avg = costs.stream().
-                    mapToLong(TramDuration::getSeconds).average().orElse(0D);
+                    mapToLong(TramDuration::toSeconds).average().orElse(0D);
             @SuppressWarnings("WrapperTypeMayBePrimitive")
             final Double ceil = Math.ceil(avg);
             return TramDuration.ofSeconds( ceil.intValue() );
