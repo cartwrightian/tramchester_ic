@@ -143,7 +143,7 @@ dependencies {
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.3'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
-    implementation 'com.sun.xml.ws:jaxws-rt:4.0.4'
+    implementation 'com.sun.xml.ws:jaxws-rt:4.0.5'
 
     // allure test reports
     testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))
