@@ -1,12 +1,12 @@
 
 plugins {
-    id 'com.mgd.core.gradle.s3' version '3.0.2'
-    id 'io.mateo.cxf-codegen' version '2.4.1'
+    id 'com.mgd.core.gradle.s3' version '3.0.4'
+    id 'io.mateo.cxf-codegen' version '2.5.0'
     id 'java'
     id 'java-library'
     id 'application'
     id 'idea'
-    id 'com.gradleup.shadow' version '9.3.1'
+    id 'com.gradleup.shadow' version '9.4.1'
 }
 
 idea{
@@ -55,12 +55,12 @@ version = buildNumber
 
 ext {
     dropwizardVersion = '5.0.1'
-    jacksonVersion = '2.21.0'
-    awsSdkVersion = '2.41.20'
+    jacksonVersion = '2.21.2'
+    awsSdkVersion = '2.42.40'
 }
 
 // see also allure.properties file
-def allureVersion = "2.32.0"
+def allureVersion = "2.34.0"
 
 repositories {
     maven {
@@ -83,11 +83,11 @@ dependencies {
     // failure to load the DynamicServiceLocator in glassfish
 
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
-            'commons-io:commons-io:2.20.0',
+            'commons-io:commons-io:2.21.0',
             'commons-codec:commons-codec:1.21.0',
             'org.apache.commons:commons-collections4:4.5.0',
             'org.apache.commons:commons-compress:1.28.0',
-            'org.apache.commons:commons-lang3:3.0',
+            'org.apache.commons:commons-lang3:3.20.0',
             'com.github.ben-manes.caffeine:caffeine:3.2.3'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
@@ -115,31 +115,31 @@ dependencies {
     // todo replace with jakarta version, but used by governator and cxf code gen
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    implementation  'org.jetbrains:annotations:26.0.2-1'
+    implementation  'org.jetbrains:annotations:26.1.0'
 
     // note multiple incompatible forks of geotools see repo specified above and
     // https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
     // gt-epsg-hsql: hsql backed slow, gt-epsg-wkt property file backed faster (well ought to be...)
-    implementation('org.geotools:gt-main:34.2', 'org.geotools:gt-epsg-wkt:34.2')
+    implementation('org.geotools:gt-main:34.3', 'org.geotools:gt-epsg-wkt:34.3')
 
     implementation('javax.measure:unit-api:2.2')
 
-    implementation('org.roaringbitmap:RoaringBitmap:1.3.0')
+    implementation('org.roaringbitmap:RoaringBitmap:1.6.14')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
-    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.2',
-            'org.junit.platform:junit-platform-launcher:6.0.2',
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3',
+            'org.junit.platform:junit-platform-launcher:6.0.3',
             'org.easymock:easymock:5.6.0',
             'org.seleniumhq.selenium:selenium-java:4.39.0',
             'org.hamcrest:hamcrest:3.0'
 
     testImplementation("org.javassist:javassist:3.30.2-GA")
-    testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.2'
 
     // cxf complains about missing conduit without this
-    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.4'
+    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.2.0'
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
-    implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
+    implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.3'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
     implementation 'com.sun.xml.ws:jaxws-rt:4.0.3'
 
