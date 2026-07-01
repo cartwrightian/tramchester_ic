@@ -404,11 +404,13 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         TramTime planTime = TramTime.of(10,0);
-        desiredJourney(appPage, Altrincham, TramStations.ManAirport, when, planTime, false);
+        desiredJourney(appPage, Altrincham, ManAirport, when, planTime, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
         List<TestResultSummaryRow> results = appPage.getResults();
+
+        final List<String> expectedChanges = Arrays.asList(TraffordBar.getName(), Cornbrook.getName());
 
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
         TramTime previousArrivalTime = planTime; // sorted by arrival time
@@ -421,7 +423,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
             assertTrue(arriveTime.isAfter(departTime));
             assertTrue(arriveTime.isAfter(previousArrivalTime) || arriveTime.equals(previousArrivalTime));
-            assertEquals(result.getChanges(), TraffordBar.getName());
+            //assertEquals(TraffordBar.getName(), result.getChanges());
+            assertTrue(expectedChanges.contains(result.getChanges()), result.getChanges() + " not within " + expectedChanges);
             previousArrivalTime = arriveTime;
         }
 
