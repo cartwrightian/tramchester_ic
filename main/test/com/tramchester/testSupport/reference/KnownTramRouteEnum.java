@@ -16,8 +16,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.UpcomingDates.victoriaClosedUntil10amJuly2026;
-import static com.tramchester.testSupport.UpcomingDates.victoriaClosedUntil10amJune2026;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.cutoverDate;
 
 /*
  * see also TramRouteHelper
@@ -33,12 +32,12 @@ public enum KnownTramRouteEnum implements TestRoute {
 //    ReplacementBusFive(BusFive, "Replacement Bus 5", "2177", ReplacementBusEaster2026),
 //    ReplacementBusBlue(BusBlue,"Replacement Bus Blue", "3224", TramDate.of(2026,4,25)),
 
-    ReplacementBusPicVic(BusPicVic, "Piccadilly - Victoria", "1950", victoriaClosedUntil10amJune2026),
+    ReplacementBusPicVic(BusPicVic, "Piccadilly - Victoria", "1950", victoriaClosedUntil10amJuly2026),
 
     // Blue
     Blue3(Blue, "Eccles - Ashton Under Lyne", "3217", cutoverDate),
-    Blue4(Blue, "Eccles - Manchester - Ashton Under Lyne", "1788", victoriaClosedUntil10amJune2026),
-    Blue5(Blue, "Eccles - Ashton Under Lyne", "3217", victoriaClosedUntil10amJune2026.plusDays(1)),
+//    Blue4(Blue, "Eccles - Manchester - Ashton Under Lyne", "1788", victoriaClosedUntil10amJune2026),
+//    Blue5(Blue, "Eccles - Ashton Under Lyne", "3217", victoriaClosedUntil10amJune2026.plusDays(1)),
     Blue6(Blue, "Eccles - Manchester - Ashton Under Lyne", "1788", victoriaClosedUntil10amJuly2026),
     Blue7(Blue, "Eccles - Ashton Under Lyne", "3217", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
@@ -47,36 +46,36 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Navy
     Navy3(Navy, "Victoria - Manchester Airport", "3219", cutoverDate),
-    Navy4(Navy, "Manchester Airport - Victoria", "3273", victoriaClosedUntil10amJune2026),
-    Navy5(Navy, "Victoria - Manchester Airport", "3219", victoriaClosedUntil10amJune2026.plusDays(1)),
+//    Navy4(Navy, "Manchester Airport - Victoria", "3273", victoriaClosedUntil10amJune2026),
+//    Navy5(Navy, "Victoria - Manchester Airport", "3219", victoriaClosedUntil10amJune2026.plusDays(1)),
     Navy6(Navy, "Manchester Airport - Victoria", "3273", victoriaClosedUntil10amJuly2026),
     Navy7(Navy, "Victoria - Manchester Airport", "3219", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Pink
     Pink3(Pink, "Rochdale - East Didsbury", "3220", cutoverDate),
-    Pink4(Pink, "East Didsbury - Rochdale", "3272", victoriaClosedUntil10amJune2026),
-    Pink5(Pink, "Rochdale - East Didsbury", "3220", victoriaClosedUntil10amJune2026.plusDays(1)),
+//    Pink4(Pink, "East Didsbury - Rochdale", "3272", victoriaClosedUntil10amJune2026),
+//    Pink5(Pink, "Rochdale - East Didsbury", "3220", victoriaClosedUntil10amJune2026.plusDays(1)),
     Pink6(Pink, "East Didsbury - Rochdale", "3272", victoriaClosedUntil10amJuly2026),
     Pink7(Pink, "Rochdale - East Didsbury", "3220", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Purple
     Purple3(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", cutoverDate),
-    Purple4(Purple, "Altrincham - Etihad Campus", "3275", victoriaClosedUntil10amJune2026),
-    Purple5(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", victoriaClosedUntil10amJune2026.plusDays(1)),
+//    Purple4(Purple, "Altrincham - Etihad Campus", "3275", victoriaClosedUntil10amJune2026),
+//    Purple5(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", victoriaClosedUntil10amJune2026.plusDays(1)),
     Purple6(Purple, "Altrincham - Etihad Campus", "3275", victoriaClosedUntil10amJuly2026),
     Purple7(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Red
     Red3(Red, "Deansgate Castlefield - The Trafford Centre", "3222", cutoverDate),
-    Red4(Red, "Trafford Centre - Crumpsall", "3274", victoriaClosedUntil10amJune2026),
-    Red5(Red, "Deansgate Castlefield - The Trafford Centre", "3222", victoriaClosedUntil10amJune2026.plusDays(1)),
+//    Red4(Red, "Trafford Centre - Crumpsall", "3274", victoriaClosedUntil10amJune2026),
+//    Red5(Red, "Deansgate Castlefield - The Trafford Centre", "3222", victoriaClosedUntil10amJune2026.plusDays(1)),
     Red6(Red, "Trafford Centre - Crumpsall", "3274", victoriaClosedUntil10amJuly2026),
     Red7(Red, "Deansgate Castlefield - The Trafford Centre", "3222", victoriaClosedUntil10amJuly2026.plusDays(1)),
 
     // Yellow
     Yellow3(Yellow, "Piccadilly - Bury", "3223", cutoverDate),
-    Yellow4(Yellow, "Piccadilly - Bury", "844", victoriaClosedUntil10amJune2026),
-    Yellow5(Yellow, "Piccadilly - Bury", "3223", victoriaClosedUntil10amJune2026.plusDays(1)),
+//    Yellow4(Yellow, "Piccadilly - Bury", "844", victoriaClosedUntil10amJune2026),
+//    Yellow5(Yellow, "Piccadilly - Bury", "3223", victoriaClosedUntil10amJune2026.plusDays(1)),
     Yellow6(Yellow, "Piccadilly - Bury", "844", victoriaClosedUntil10amJuly2026),
     Yellow7(Yellow, "Piccadilly - Bury", "3223", victoriaClosedUntil10amJuly2026.plusDays(1));
 

@@ -38,6 +38,7 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -131,9 +132,9 @@ class RouteCalculatorSubGraphMediaCityTest {
         txn.close();
     }
 
-    private static boolean avoidUnexpectedGapJune2026(TramDate date) {
-        return !date.equals(TramDate.of(2026, 6, 21));
-    }
+//    private static boolean avoidUnexpectedGapJune2026(TramDate date) {
+//        return !date.equals(TramDate.of(2026, 6, 21));
+//    }
 
     @Test
     void shouldHaveMediaCityToExchangeSquareSaturday() {
@@ -142,6 +143,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday);
     }
 
+    @DisabledUntilDate(year = 2026, month = 7, day = 5)
     @Test
     void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
@@ -162,7 +164,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdsAndNames<Station>>> failed = UpcomingDates.getUpcomingDates().
-                filter(RouteCalculatorSubGraphMediaCityTest::avoidUnexpectedGapJune2026).
+                //filter(RouteCalculatorSubGraphMediaCityTest::avoidUnexpectedGapJune2026).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         2, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -171,9 +173,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         assertTrue(failed.isEmpty(), failed.toString());
     }
-
-
-
+    
     @Test
     void reproduceInMemoryFailureInMem() {
         TramDate date = TestEnv.testDay();
@@ -192,12 +192,13 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
+    @DisabledUntilDate(year = 2026, month = 7, day = 5)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
         TramTime queryTime = TramTime.of(15, 30);
         List<Pair<TramDate, LocationIdsAndNames<Station>>> failed = UpcomingDates.getUpcomingDates().
-                filter(RouteCalculatorSubGraphMediaCityTest::avoidUnexpectedGapJune2026).
+                //filter(RouteCalculatorSubGraphMediaCityTest::avoidUnexpectedGapJune2026).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         1, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).

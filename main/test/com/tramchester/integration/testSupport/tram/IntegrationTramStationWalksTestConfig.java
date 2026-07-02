@@ -1,14 +1,14 @@
 package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.config.TemporaryStationsWalkIds;
-import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
+import com.tramchester.domain.StationClosures;
 
 import java.util.List;
 
 public class IntegrationTramStationWalksTestConfig extends IntegrationTramTestConfig {
 
-    public IntegrationTramStationWalksTestConfig(List<TemporaryStationsWalkIds> walks) {
-        super(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, walks, Caching.Disabled);
+    public IntegrationTramStationWalksTestConfig(List<TemporaryStationsWalkIds> walks, List<StationClosures> currentClosures) {
+        super(LiveData.Disabled, currentClosures, walks, Caching.Disabled);
     }
 
 }

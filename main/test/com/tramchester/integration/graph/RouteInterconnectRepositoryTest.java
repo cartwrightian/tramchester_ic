@@ -15,7 +15,9 @@ import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
@@ -27,9 +29,10 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.TraffordBarTramsFromVictoria2026;
+import com.tramchester.testSupport.testTags.TraffordCentreTramsFromVictoria2026;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -42,6 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -168,14 +172,14 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @TraffordBarTramsFromVictoria2026
+    @TraffordCentreTramsFromVictoria2026
     @Test
     void shouldCheckFor2Changes() {
 
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
         Route routeB = getRouteFor(TFGMRouteNames.Red);
 
-        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
+        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB), "Wrong connection depth");
 
         RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
 
@@ -236,14 +240,15 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @TraffordBarTramsFromVictoria2026
+    @TraffordCentreTramsFromVictoria2026
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
         Route routeB = getRouteFor(TFGMRouteNames.Red);
-        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+        RoutePair routePair = new RoutePair(routeA, routeB);
+        RouteIndexPair indexPair = routeIndex.getPairFor(routePair);
 
-        assertFalse(interchangeRepository.hasInterchangeFor(indexPair));
+        assertFalse(interchangeRepository.hasInterchangeFor(indexPair), "unexpected interchange for " + routePair);
 
         assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
 
@@ -279,26 +284,31 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @TraffordBarTramsFromVictoria2026
+    @TraffordCentreTramsFromVictoria2026
     @Test
     void shouldCheckFor2ChangesFiltered() {
+        // Victoria while Trafford center running from Victoria
+        IdSet<Station> expectedInterchanges = Stream.of(Cornbrook, MarketStreet).map(FakeStation::getId).collect(IdSet.idCollector());
+
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
         Route routeB = getRouteFor(TFGMRouteNames.Red);
-        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        RoutePair routePair = new RoutePair(routeA, routeB);
+        RouteIndexPair indexPair = routeIndex.getPairFor(routePair);
 
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
 
-        Function<InterchangeStation, Boolean> marketStreetOrCornbrook = interchangeStation ->
-                interchangeStation.getStationId().equals(Cornbrook.getId()) ||
-                interchangeStation.getStationId().equals(MarketStreet.getId());
+        Function<InterchangeStation, Boolean> expectedFilter =
+                interchangeStation -> expectedInterchanges.contains(interchangeStation.getStationId());
 
-        PathResults viaMarketStreetAndCornbook = repository.getInterchangesFor(indexPair, dateOverlaps, marketStreetOrCornbrook);
+        PathResults viaMarketStreetAndCornbrook = repository.getInterchangesFor(indexPair, dateOverlaps, expectedFilter);
 
-        assertTrue(viaMarketStreetAndCornbook.hasAny());
+        assertTrue(viaMarketStreetAndCornbrook.hasAny(), "On " + date + " did not find interchange for " + routePair
+                + " at " + expectedInterchanges);
 
-        assertInstanceOf(PathResults.HasPathResults.class, viaMarketStreetAndCornbook, "No path results");
+        assertInstanceOf(PathResults.HasPathResults.class, viaMarketStreetAndCornbrook, "No path results");
 
-        PathResults.HasPathResults results = (PathResults.HasPathResults) viaMarketStreetAndCornbook;
+        PathResults.HasPathResults results = (PathResults.HasPathResults) viaMarketStreetAndCornbrook;
         assertNotNull(results);
 
         Set<QueryPathsWithDepth.BothOf> parts = results.forTesting().

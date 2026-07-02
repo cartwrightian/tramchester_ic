@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
-import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -40,7 +39,6 @@ public class UpcomingDates {
     // upcoming early morning work at victoria
     private static final TimeRange victoriaClosed = TimeRange.of(TramTime.of(3,0),
             TramTime.of(10,0));
-    public static TramDate victoriaClosedUntil10amJune2026 = TramDate.of(2026,6,28);
     public static TramDate victoriaClosedUntil10amJuly2026 = TramDate.of(2026,7,5);
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
@@ -48,12 +46,12 @@ public class UpcomingDates {
         return hasClosure(stationId, date, TimeRange.AllDay());
     }
 
-    public static boolean hasClosure(final IdFor<Station> stationId, TramDate date, TimeRange timeRange) {
-        if (date.equals(victoriaClosedUntil10amJune2026) || date.equals(victoriaClosedUntil10amJuly2026)) {
+    public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
+        if (date.equals(victoriaClosedUntil10amJuly2026)) {
             if (victoriaClosed.anyOverlap(timeRange)) {
-                if (MarketStreet.matches(stationId) || Shudehill.matches(stationId) || Victoria.matches(stationId)) {
+                //if (MarketStreet.matches(stationId) || Shudehill.matches(stationId) || Victoria.matches(stationId)) {
                     return true;
-                }
+                //}
             }
         }
         return false;

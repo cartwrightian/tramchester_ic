@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
@@ -16,7 +17,7 @@ import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
+import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
 import com.tramchester.testSupport.DiagramCreator;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -53,10 +55,14 @@ class SubgraphSmallStationWalksTest {
 
         StationIdPair stationIdPair = new StationIdPair(Piccadilly.getId(), PiccadillyGardens.getId());
 
-        TemporaryStationsWalkIds temporaryStationsWalkA = new TemporaryStationsWalkConfigForTest(stationIdPair,
-                DateRange.of(when.minusWeeks(1), when.plusWeeks(1)));
+        DateRange dateRange = DateRange.of(when.minusWeeks(1), when.plusWeeks(1));
+//        TemporaryStationsWalkIds temporaryStationsWalkA = new TemporaryStationsWalkConfigForTest(stationIdPair,
+//                dateRange);
 
-        config = new SubgraphConfig(List.of(temporaryStationsWalkA));
+        List<StationClosures> currentClosures = List.of(new StationClosuresListForTest(PiccadillyGardens,
+                dateRange, true));
+
+        config = new SubgraphConfig(Collections.emptyList(), currentClosures);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -121,7 +127,6 @@ class SubgraphSmallStationWalksTest {
         });
     }
 
-    @Disabled("Tram is faster")
     @Test
     void shouldFindRouteUsingWalkPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -136,7 +141,6 @@ class SubgraphSmallStationWalksTest {
         });
     }
 
-    @Disabled("Tram is faster")
     @Test
     void shouldFindRouteUsingWalkPiccToPiccGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -159,8 +163,8 @@ class SubgraphSmallStationWalksTest {
     }
 
     private static class SubgraphConfig extends IntegrationTramStationWalksTestConfig {
-        public SubgraphConfig(List<TemporaryStationsWalkIds> temporaryWalks) {
-            super(temporaryWalks);
+        public SubgraphConfig(List<TemporaryStationsWalkIds> temporaryWalks, List<StationClosures> currentClosures) {
+            super(temporaryWalks, currentClosures);
         }
 
         @Override

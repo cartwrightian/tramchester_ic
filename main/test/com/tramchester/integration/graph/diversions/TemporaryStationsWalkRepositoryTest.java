@@ -10,6 +10,7 @@ import com.tramchester.domain.TemporaryStationWalk;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -50,7 +51,7 @@ public class TemporaryStationsWalkRepositoryTest {
 
         List<TemporaryStationsWalkIds> walks = List.of(temporaryStationsWalkA, temporaryStationsWalkB);
 
-        TramchesterConfig config = new IntegrationTramStationWalksTestConfig(walks);
+        TramchesterConfig config = new IntegrationTramStationWalksTestConfig(walks, IntegrationTestConfig.CurrentClosures);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

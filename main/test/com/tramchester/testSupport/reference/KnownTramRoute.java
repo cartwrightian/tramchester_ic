@@ -16,7 +16,7 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate cutoverDate = TramDate.of(2026,6,22);
+    public static final TramDate cutoverDate = TramDate.of(2026,7,1);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID = "";
@@ -80,7 +80,7 @@ public class KnownTramRoute {
             if (date.equals(TramDate.of(2026, 6, 21))) {
                 routes.add(find.apply(Green));
             }
-            if (date.equals(victoriaClosedUntil10amJune2026) || date.equals(victoriaClosedUntil10amJuly2026)) {
+            if (date.equals(victoriaClosedUntil10amJuly2026)) {
                 routes.add(find.apply(BusPicVic));
             }
         } else {
