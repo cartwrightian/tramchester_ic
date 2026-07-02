@@ -55,8 +55,8 @@ version = buildNumber
 
 ext {
     dropwizardVersion = '5.0.1'
-    jacksonVersion = '2.21.2'
-    awsSdkVersion = '2.42.40'
+    jacksonVersion = '2.22.0'
+    awsSdkVersion = '2.46.20'
 }
 
 // see also allure.properties file
@@ -83,12 +83,12 @@ dependencies {
     // failure to load the DynamicServiceLocator in glassfish
 
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
-            'commons-io:commons-io:2.21.0',
-            'commons-codec:commons-codec:1.21.0',
+            'commons-io:commons-io:2.22.0',
+            'commons-codec:commons-codec:1.22.0',
             'org.apache.commons:commons-collections4:4.5.0',
             'org.apache.commons:commons-compress:1.28.0',
             'org.apache.commons:commons-lang3:3.20.0',
-            'com.github.ben-manes.caffeine:caffeine:3.2.3'
+            'com.github.ben-manes.caffeine:caffeine:3.2.4'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion",
@@ -120,22 +120,22 @@ dependencies {
     // note multiple incompatible forks of geotools see repo specified above and
     // https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
     // gt-epsg-hsql: hsql backed slow, gt-epsg-wkt property file backed faster (well ought to be...)
-    implementation('org.geotools:gt-main:34.3', 'org.geotools:gt-epsg-wkt:34.3')
+    implementation('org.geotools:gt-main:35.0', 'org.geotools:gt-epsg-wkt:35.0')
 
     implementation('javax.measure:unit-api:2.2')
 
     implementation('org.roaringbitmap:RoaringBitmap:1.6.14')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
-    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3',
-            'org.junit.platform:junit-platform-launcher:6.0.3',
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.1.1',
+            'org.junit.platform:junit-platform-launcher:6.1.1',
             'org.easymock:easymock:5.6.0',
             'org.seleniumhq.selenium:selenium-java:4.45.0',
             // NOTE: v149 here corresponds to version of chrome and hence chrome driver
             'org.seleniumhq.selenium:selenium-devtools-v149:4.45.0',
             'org.hamcrest:hamcrest:3.0'
 
-    testImplementation("org.javassist:javassist:3.30.2-GA")
+    testImplementation("org.javassist:javassist:3.32.0-GA")
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.2'
 
     // cxf complains about missing conduit without this
@@ -143,7 +143,7 @@ dependencies {
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.3'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
-    implementation 'com.sun.xml.ws:jaxws-rt:4.0.4'
+    implementation 'com.sun.xml.ws:jaxws-rt:4.0.5'
 
     // allure test reports
     testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))

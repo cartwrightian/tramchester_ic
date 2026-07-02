@@ -173,7 +173,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         assertTrue(failed.isEmpty(), failed.toString());
     }
-    
+
     @Test
     void reproduceInMemoryFailureInMem() {
         TramDate date = TestEnv.testDay();
