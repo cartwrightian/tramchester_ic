@@ -46,7 +46,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
         } else {
             logger.info("Wrap immutable");
             final Graph immutableGraph = new ImmutableTransactionGraph(graph);
-            TransactionObserver observer = new TransactionObserver() {
+            final TransactionObserver observer = new TransactionObserver() {
                 @Override
                 public void onClose(GraphTransaction graphTransaction) {
                     logger.info("Close transaction " + graphTransaction.getTransactionId());

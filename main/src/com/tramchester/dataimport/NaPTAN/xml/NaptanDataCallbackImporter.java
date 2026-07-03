@@ -8,29 +8,22 @@ import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
-import com.tramchester.domain.DataSourceID;
-import org.apache.commons.io.FilenameUtils;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
-import static java.lang.String.format;
-
-public class NaptanDataCallbackImporter {
+public class NaptanDataCallbackImporter extends NaptanDataImporter {
     private static final Logger logger = LoggerFactory.getLogger(NaptanDataCallbackImporter.class);
 
-    private final RemoteDataAvailable remoteDataRefreshed;
-    private final boolean enabled;
     private final XmlMapper mapper;
 
     @Inject
     public NaptanDataCallbackImporter(RemoteDataAvailable remoteDataRefreshed, TramchesterConfig config,
                                       FetchDataFromUrl.Ready dataIsReady) {
-        this.remoteDataRefreshed = remoteDataRefreshed;
-        enabled = config.hasRemoteDataSourceConfig(DataSourceID.naptanxml);
+        super(remoteDataRefreshed, config, dataIsReady);
 
         mapper = XmlMapper.builder().
                 addModule(new BlackbirdModule()).
@@ -40,37 +33,14 @@ public class NaptanDataCallbackImporter {
                 build();
     }
 
-    public void loadData(ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> consumer) {
-        if (!enabled) {
-            logger.warn("Not enabled");
-            return;
-        }
+    @Override
+    void loadDataFromFile(Path filePath, ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> consumer) {
 
-        if (!remoteDataRefreshed.hasFileFor(DataSourceID.naptanxml)) {
-            final String message = "Missing source file for " + DataSourceID.naptanxml;
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
-
-        Path filePath = remoteDataRefreshed.fileFor(DataSourceID.naptanxml);
-        final String name = filePath.getFileName().toString();
-
-        if (name.toLowerCase().endsWith(".zip")) {
-            String newPath = FilenameUtils.removeExtension(filePath.toString());
-            logger.info(format("Zip was downloaded as %s, use unzipped file %s", filePath, newPath));
-            filePath = Path.of(newPath);
-        }
-
-        logger.info("Loading data from " + filePath.toAbsolutePath());
-        // naptan xml is UTF-8
         final ElementsFromXMLFile<NaptanStopData> dataLoader = new ElementsFromXMLFile<>(filePath,
                 StandardCharsets.UTF_8, mapper, consumer);
 
+        logger.info("Loading data from " + filePath.toAbsolutePath());
         dataLoader.load();
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 
 }

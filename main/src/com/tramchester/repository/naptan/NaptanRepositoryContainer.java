@@ -3,9 +3,10 @@ package com.tramchester.repository.naptan;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanDataImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -41,7 +42,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     private static final EnumSet<NaptanStopType> stopTypesForRail =
             EnumSet.copyOf(NaptanStopType.getTypesFor(Train));
 
-    private final NaptanDataCallbackImporter naptanDataImporter;
+    private final NaptanDataImporter naptanDataImporter;
     private final NPTGRepository nptgRepository;
     private final Geography geography;
     private final TramchesterConfig config;
@@ -50,12 +51,12 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     private final IdMap<NaptanRecord> stops;
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
 
-    private final EnumSet<NaptanStopType> requiredStopTypes;
+    private final ImmutableEnumSet<NaptanStopType> requiredStopTypes;
 
     private Map<IdFor<NPTGLocality>, ImmutableIdSet<NaptanRecord>> localities;
 
     @Inject
-    public NaptanRepositoryContainer(NaptanDataCallbackImporter naptanDataImporter, NPTGRepository nptgRepository,
+    public NaptanRepositoryContainer(NaptanDataImporter naptanDataImporter, NPTGRepository nptgRepository,
                                      Geography geography, TramchesterConfig config) {
         this.naptanDataImporter = naptanDataImporter;
         this.nptgRepository = nptgRepository;
@@ -64,7 +65,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         stops = new IdMap<>();
         tiplocToAtco = new HashMap<>();
         localities = Collections.emptyMap();
-        requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModes());
+        requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModesImmutable());
         hasTrain = config.getTransportModes().contains(Train);
     }
 
@@ -154,7 +155,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     }
 
-    private void addRecord(NaptanStopData stopData, NaptanRecord record) {
+    private void addRecord(final NaptanStopData stopData, final NaptanRecord record) {
         stops.add(record);
 
         if (stopData.hasRailInfo()) {
