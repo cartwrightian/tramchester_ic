@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
@@ -10,93 +11,108 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.ServiceRepository;
-import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 
-import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
+    public static final String SERVICE_A_ID = "serviceAId";
+    public static final String SERVICE_B_ID = "serviceBId";
+    public static final String ROUTE_A_ID = "routeAId";
+    public static final String ROUTE_B_ID = "routeBId";
     private TramDate date;
-    private ServiceRepository serviceRepository;
-    private RouteRepository routeRepository;
     private RunningRoutesAndServices runningRoutesAndServices;
     private Route routeA;
     private Route routeB;
     private Service serviceA;
     private Service serviceB;
+    private TramDate previousDate;
+    private TramDate nextDay;
+    private ImmutableEnumSet<TransportMode> modes;
+    private ServiceCalendar calendarA;
+    private ServiceCalendar calendarB;
+    private IdFor<Service> serviceAId;
+    private IdFor<Service> serviceBId;
+    private IdFor<Route> routeAId;
+    private IdFor<Route> routeBId;
 
     @BeforeEach
     void beforeEachTestRuns() {
         date = TramDate.of(2021, 12, 5);
-        serviceRepository = createMock(ServiceRepository.class);
-        routeRepository = createMock(RouteRepository.class);
+
+        modes = TransportMode.TramsOnly;
+
+        previousDate = date.minusDays(1);
+        nextDay = date.plusDays(1);
+
+        ServiceRepository serviceRepository = createMock(ServiceRepository.class);
+        RouteRepository routeRepository = createMock(RouteRepository.class);
 
         serviceA = createMock(Service.class);
         serviceB = createMock(Service.class);
-        EasyMock.expect(serviceA.getId()).andStubReturn(Service.createId("serviceAId"));
-        EasyMock.expect(serviceB.getId()).andStubReturn(Service.createId("serviceBId"));
+
+        serviceAId = Service.createId(SERVICE_A_ID);
+        serviceBId = Service.createId(SERVICE_B_ID);
+
+        EasyMock.expect(serviceA.getId()).andStubReturn(serviceAId);
+        EasyMock.expect(serviceB.getId()).andStubReturn(serviceBId);
+
+        calendarA = createMock(ServiceCalendar.class);
+        EasyMock.expect(serviceA.getCalendar()).andStubReturn(calendarA);
+
+        calendarB = createMock(ServiceCalendar.class);
+        EasyMock.expect(serviceB.getCalendar()).andStubReturn(calendarB);
+
+        routeA = createMock(Route.class);
+        routeB = createMock(Route.class);
+
+        routeAId = Route.createBasicRouteId(ROUTE_A_ID);
+        routeBId = Route.createBasicRouteId(ROUTE_B_ID);
+
+        EasyMock.expect(routeA.getId()).andStubReturn(routeAId);
+        EasyMock.expect(routeB.getId()).andStubReturn(routeBId);
+
+        EasyMock.expect(routeRepository.getRoutes(modes)).andReturn(new HashSet<>(Arrays.asList(routeA, routeB)));
+        EasyMock.expect(serviceRepository.getServices(modes)).andReturn(new HashSet<>(Arrays.asList(serviceA, serviceB)));
 
         runningRoutesAndServices = new RunningRoutesAndServices(serviceRepository, routeRepository);
-
-        routeA = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeAId"), "route name a");
-        routeB = TestEnv.getTramTestRoute(Route.createBasicRouteId("routeBId"), "route name b");
     }
 
     @Test
     void shouldHaveRunningForDate() {
 
-        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
+        setServiceCalendarExpectations(calendarA, false, true, false);
+        setServiceCalendarExpectations(calendarB, false, false, true);
 
-        EasyMock.expect(routeRepository.getRoutesRunningOn(date,modes)).andReturn(singleton(routeA));
-        EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(singleton(serviceA));
-
-        TramDate tomorrow = date.plusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(tomorrow,modes)).andReturn(singleton(routeB));
-        EasyMock.expect(serviceRepository.getServicesOnDate(tomorrow, modes)).andReturn(singleton(serviceB));
-
-        TramDate yesterday = date.minusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday,modes)).andReturn(Collections.emptySet());
-        EasyMock.expect(serviceRepository.getServicesOnDate(yesterday, modes)).andReturn(Collections.emptySet());
+        setRouteAvailableExpectations(routeA, false, true, false);
+        setRouteAvailableExpectations(routeB, false, false, false);
 
         replayAll();
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(date,modes);
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(date, modes);
         verifyAll();
 
         TramTime time = TramTime.of(10,45);
-        assertFalse(filter.isRouteRunning(Route.createBasicRouteId("routeBId"), false));
-        assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeAId"), false));
+        assertTrue(filter.isRouteRunning(routeAId, false));
+        assertFalse(filter.isRouteRunning(routeBId, false));
 
-        assertFalse(filter.isServiceRunningByDate(Service.createId("serviceBId"), time.isNextDay()));
-        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), time.isNextDay()));
+        assertTrue(filter.isServiceRunningByDate(serviceAId, time.isNextDay()));
+        assertFalse(filter.isServiceRunningByDate(serviceBId, time.isNextDay()));
     }
 
     @Test
     void shouldHaveRunningForTimeSameDay() {
 
-        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
+        setServiceCalendarExpectations(calendarA, false, true, false);
 
-        final IdFor<Service> serviceAId = Service.createId("serviceAId");
-        final IdFor<Service> serviceBId = Service.createId("serviceBId");
-
-        EasyMock.expect(routeRepository.getRoutesRunningOn(date,modes)).andReturn(new HashSet<>(Arrays.asList(routeA, routeB)));
-        EasyMock.expect(routeRepository.getRoutesRunningOn(date.plusDays(1), modes)).andReturn(Collections.emptySet());
-
-        EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(new HashSet<>(Arrays.asList(serviceA, serviceB)));
-        EasyMock.expect(serviceRepository.getServicesOnDate(date.plusDays(1), modes)).andReturn(Collections.emptySet());
-
-        TramDate yesterday = date.minusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday, modes)).andReturn(Collections.emptySet());
-        EasyMock.expect(serviceRepository.getServicesOnDate(yesterday, modes)).andReturn(Collections.emptySet());
+        setServiceCalendarExpectations(calendarB, false, true, false);
 
         // Service A begin: 9.30 end: 12:30
         EasyMock.expect(serviceA.getStartTime()).andStubReturn(TramTime.of(9,30));
@@ -105,6 +121,9 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         // Service B begin: 23.45 end: 1.15 , runs from today over midnight into next day
         EasyMock.expect(serviceB.getStartTime()).andStubReturn(TramTime.of(23,45));
         EasyMock.expect(serviceB.getFinishTime()).andStubReturn(TramTime.nextDay(1,15));
+
+        setRouteAvailableExpectations(routeA, false, false, false);
+        setRouteAvailableExpectations(routeB, false, false, false);
 
         replayAll();
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(date, modes);
@@ -125,20 +144,8 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
     @Test
     void shouldHaveRunningForTomorrow() {
-        final IdFor<Service> serviceAId = Service.createId("serviceAId");
-        final IdFor<Service> serviceBId = Service.createId("serviceBId");
-
-        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
-
-        EasyMock.expect(routeRepository.getRoutesRunningOn(date, modes)).andReturn(new HashSet<>(Arrays.asList(routeA, routeB)));
-        EasyMock.expect(routeRepository.getRoutesRunningOn(date.plusDays(1), modes)).andReturn(Collections.emptySet());
-
-        EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(singleton(serviceA));
-        EasyMock.expect(serviceRepository.getServicesOnDate(date.plusDays(1), modes)).andReturn(singleton(serviceB));
-
-        TramDate yesterday = date.minusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday, modes)).andReturn(Collections.emptySet());
-        EasyMock.expect(serviceRepository.getServicesOnDate(yesterday, modes)).andReturn(Collections.emptySet());
+        setServiceCalendarExpectations(calendarA, false, true, false);
+        setServiceCalendarExpectations(calendarB, false, false, true);
 
         // Service A begin: 9.30 end: 12:30, today
         EasyMock.expect(serviceA.getStartTime()).andStubReturn(TramTime.of(9,30));
@@ -147,6 +154,9 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
         // Service B begin: 00.30 end: 4.15, but on the following day
         EasyMock.expect(serviceB.getStartTime()).andStubReturn(TramTime.of(0,30));
         EasyMock.expect(serviceB.getFinishTime()).andStubReturn(TramTime.of(4,15));
+
+        setRouteAvailableExpectations(routeA, false, false, false);
+        setRouteAvailableExpectations(routeB, false, false, false);
 
         replayAll();
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(date, modes);
@@ -171,20 +181,11 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
 
     @Test
     void shouldHaveRunningForPreviousDay() {
-        final IdFor<Service> serviceAId = Service.createId("serviceAId");
+        setServiceCalendarExpectations(calendarA, true, false, false);
+        setServiceCalendarExpectations(calendarB, false, false, false);
 
-        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
-
-        EasyMock.expect(routeRepository.getRoutesRunningOn(date, modes)).andReturn(Collections.emptySet());
-        EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(Collections.emptySet());
-
-        TramDate tomorrow = this.date.plusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(tomorrow, modes)).andReturn(Collections.emptySet());
-        EasyMock.expect(serviceRepository.getServicesOnDate(tomorrow, modes)).andReturn(Collections.emptySet());
-
-        TramDate yesterday = date.minusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday, modes)).andReturn(singleton(routeA));
-        EasyMock.expect(serviceRepository.getServicesOnDate(yesterday, modes)).andReturn(singleton(serviceA));
+        setRouteAvailableExpectations(routeA, false, false, false);
+        setRouteAvailableExpectations(routeB, false, false, false);
 
         // Service A begin: 23.25 end: 00:30, starts on previous Day
         EasyMock.expect(serviceA.getStartTime()).andStubReturn(TramTime.of(23,25));
@@ -204,34 +205,39 @@ public class RunningRoutesAndServicesTest extends EasyMockSupport {
     @Test
     void shouldIncludeFollowingDayIfTramTimeIsNextDay() {
 
-        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
+        setServiceCalendarExpectations(calendarA, false, true, false);
+        setServiceCalendarExpectations(calendarB, false, false, true);
 
-        EasyMock.expect(routeRepository.getRoutesRunningOn(date, modes)).andReturn(singleton(routeA));
-        EasyMock.expect(serviceRepository.getServicesOnDate(date, modes)).andReturn(singleton(serviceA));
-
-        TramDate tomorrow = date.plusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(tomorrow, modes)).andReturn(singleton(routeB));
-        EasyMock.expect(serviceRepository.getServicesOnDate(tomorrow, modes)).andReturn(singleton(serviceB));
-
-        TramDate yesterday = date.minusDays(1);
-        EasyMock.expect(routeRepository.getRoutesRunningOn(yesterday, modes)).andReturn(Collections.emptySet());
-        EasyMock.expect(serviceRepository.getServicesOnDate(yesterday, modes)).andReturn(Collections.emptySet());
+        setRouteAvailableExpectations(routeA, false, true, false);
+        setRouteAvailableExpectations(routeB, false, false, true);
 
         replayAll();
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(date, modes);
         verifyAll();
 
         assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeAId"), false));
-        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), false));
+        assertTrue(filter.isServiceRunningByDate(serviceAId, false));
 
         assertFalse(filter.isRouteRunning(Route.createBasicRouteId("routeBId"), false));
-        assertFalse(filter.isServiceRunningByDate(Service.createId("serviceBId"), false));
+        assertFalse(filter.isServiceRunningByDate(serviceBId, false));
 
         assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeAId"), true));
-        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceAId"), true));
+        assertTrue(filter.isServiceRunningByDate(serviceAId, true));
 
         assertTrue(filter.isRouteRunning(Route.createBasicRouteId("routeBId"), true));
-        assertTrue(filter.isServiceRunningByDate(Service.createId("serviceBId"), true));
+        assertTrue(filter.isServiceRunningByDate(serviceBId, true));
+    }
+
+    private void setRouteAvailableExpectations(Route route, boolean yesterday, boolean today, boolean tomorrow) {
+        EasyMock.expect(route.isAvailableOn(previousDate)).andStubReturn(yesterday);
+        EasyMock.expect(route.isAvailableOn(date)).andStubReturn(today);
+        EasyMock.expect(route.isAvailableOn(nextDay)).andStubReturn(tomorrow);
+    }
+
+    private void setServiceCalendarExpectations(ServiceCalendar serviceCalendar, boolean yeserday, boolean today, boolean tomorrow) {
+        EasyMock.expect(serviceCalendar.operatesOn(date)).andStubReturn(today);
+        EasyMock.expect(serviceCalendar.operatesOn(nextDay)).andStubReturn(tomorrow);
+        EasyMock.expect(serviceCalendar.operatesOn(previousDate)).andStubReturn(yeserday);
     }
 
 }

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 @LazySingleton
 public class RunningRoutesAndServices {
@@ -32,60 +33,69 @@ public class RunningRoutesAndServices {
         this.routeRepository = routeRepository;
     }
 
-    public FilterForDate getFor(JourneyRequest journeyRequest) {
+    public FilterForDate getFor(final JourneyRequest journeyRequest) {
         return getFor(journeyRequest.getDate(), journeyRequest.getRequestedModes());
     }
 
     public FilterForDate getFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
-        final IdMap<Service> serviceIds = getServicesFor(date, modes);
-        final IdMap<Route> routeIds = getRoutesFor(date, modes);
+        final Set<Service> servicesForMode = serviceRepository.getServices(modes);
+        final Set<Route> routesForMode = routeRepository.getRoutes(modes);
+
+        final IdMap<Service> serviceIds = getServicesFor(date, servicesForMode);
+        final IdMap<Route> routeIds = getRoutesFor(date, routesForMode);
 
         final TramDate nextDay = date.plusDays(1);
-        final IdMap<Service> runningServicesNextDay = getServicesFor(nextDay, modes);
-        final IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay, modes);
+        final IdMap<Service> runningServicesNextDay = getServicesFor(nextDay, servicesForMode);
+        final IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay, routesForMode);
 
         final TramDate previousDay = date.minusDays(1);
-        final IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay, modes);
-        final IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay, modes);
+        final IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay, servicesForMode);
+        final IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay, routesForMode);
 
         return new FilterForDate(date, serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay,
                 previousDaySvcs, previousDayRoutes);
     }
 
-    private IdMap<Route> routesIntoNextDayFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
-        return intoNextDay(routeRepository.getRoutesRunningOn(date, modes));
+    private IdMap<Route> routesIntoNextDayFor(final TramDate date, final Set<Route> routes) {
+        final Stream<Route> onDate = routes.stream().filter(route -> route.isAvailableOn(date));
+        return intoNextDay(onDate);
     }
 
-    private IdMap<Service> servicesIntoNextDay(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
-        return intoNextDay(serviceRepository.getServicesOnDate(date, modes));
+    private IdMap<Service> servicesIntoNextDay(final TramDate date, final Set<Service> services) {
+        final Stream<Service> onDate = services.stream().filter(service -> service.getCalendar().operatesOn(date));
+        return intoNextDay(onDate);
     }
 
-    private <T extends HasId<T> & CoreDomain & CrossesDay> IdMap<T> intoNextDay(Set<T> items) {
-        return items.stream().
+    private <T extends HasId<T> & CoreDomain & CrossesDay> IdMap<T> intoNextDay(final Stream<T> items) {
+        return items.
                 filter(CrossesDay::intoNextDay).
                 collect(IdMap.collector());
     }
 
     @NotNull
-    private IdMap<Route> getRoutesFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
-        Set<Route> routes = routeRepository.getRoutesRunningOn(date, modes);
-        if (routes.isEmpty()) {
+    private IdMap<Route> getRoutesFor(final TramDate date, final Set<Route> routes) {
+        final IdMap<Route> onDate = routes.stream().
+                filter(route -> route.isAvailableOn(date)).
+                collect(IdMap.collector());
+        if (onDate.isEmpty()) {
             logger.warn("No running routes found on " + date);
         } else {
-            logger.info("Found " + routes.size() + " running routes for " + date);
+            logger.info("Found " + onDate.size() + " running routes for " + date);
         }
-        return new IdMap<>(routes);
+        return onDate;
     }
 
     @NotNull
-    private IdMap<Service> getServicesFor(final TramDate date, final ImmutableEnumSet<TransportMode> modes) {
-        final Set<Service> services = serviceRepository.getServicesOnDate(date, modes);
-        if (services.isEmpty()) {
+    private IdMap<Service> getServicesFor(final TramDate date, final Set<Service> services) {
+        final IdMap<Service> onDate = services.stream().
+                filter(service -> service.getCalendar().operatesOn(date)).
+                collect(IdMap.collector());
+        if (onDate.isEmpty()) {
             logger.warn("No running services found on " + date);
         } else {
-            logger.info("Found " + services.size() + " running services for " + date);
+            logger.info("Found " + onDate.size() + " running services for " + date);
         }
-        return new IdMap<>(services);
+        return onDate;
     }
 
 
