@@ -17,10 +17,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
 import java.util.EnumSet;
@@ -79,6 +76,32 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
+        TramDate when = TestEnv.testDay(); // probably going to fail during Christmas period?
+
+        // FIRST id a service that has trips into the following day
+        Set<Trip> tripsIntoNextDay = transportData.getTrips().stream().
+                filter(trip -> trip.serviceOperatesOn(when)).
+                filter(Trip::intoNextDay).
+                collect(Collectors.toSet());
+
+        assertFalse(tripsIntoNextDay.isEmpty(), "sanity check");
+
+        Set<Service> servicesIntoNextDay = tripsIntoNextDay.stream().map(Trip::getService).collect(Collectors.toSet());
+
+        // NOW ensure checking for a service that crosses into following day works as expected
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModesImmutable());
+
+        Set<Service> fromPreviousDay = servicesIntoNextDay.stream().
+                filter(service -> filter.isServiceRunningByTime(service.getId(), TramTime.of(0, 0), 25)).
+                collect(Collectors.toSet());
+
+        assertFalse(fromPreviousDay.isEmpty(), "no services from previous day from "
+                + HasId.asIds(servicesIntoNextDay));
+    }
+
+    @Disabled("unreliable, replaced")
+    @Test
+    void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDayOLD() {
 
         List<Route> intoNextDay = transportData.getRoutes().stream().
                 filter(CrossesDay::intoNextDay).

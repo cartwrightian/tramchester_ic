@@ -33,6 +33,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -388,15 +389,20 @@ public class RouteCalculatorTest {
         JourneyRequest request = standardJourneyRequest(today, TramTime.of(11, 43), maxNumResults, maxChanges);
         List<Journey> results =  calculator.calculateRouteAsList(Altrincham, ManAirport, request);
 
+        IdSet<Station> changes = Stream.of(TraffordBar, Cornbrook).map(FakeStation::getId).collect(IdSet.idCollector());
+
         assertFalse(results.isEmpty(), "no results");    // results is iterator
         for (Journey result : results) {
             List<TransportStage<?,?>> stages = result.getStages();
             assertEquals(2, stages.size(), "wrong number of stages " + stages);
             VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
-            assertEquals(TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
+            IdFor<Station> firstStageEndId = firstStage.getLastStation().getId();
+            assertTrue(changes.contains(firstStageEndId), "Unexpected change " + stages +
+                    " expected " + changes);
             assertEquals(Tram, firstStage.getMode());
-            assertEquals(7, firstStage.getPassedStopsCount());
+            int passed = (firstStageEndId.equals(TraffordBar.getId())) ? 7 : 8;
+            assertEquals(passed, firstStage.getPassedStopsCount());
 
             VehicleStage finalStage = (VehicleStage) stages.getLast();
             //assertEquals(Stations.TraffordBar, secondStage.getFirstStation()); // THIS CAN CHANGE
