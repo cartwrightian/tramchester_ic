@@ -2,7 +2,6 @@ package com.tramchester.repository.naptan;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
@@ -15,6 +14,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.nptg.NPTGRepository;
@@ -215,7 +215,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
     }
 
-    private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NaptanXMLData item) {
+    private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final HasGridPosition item) {
         final GridPosition gridPosition = item.getGridPosition();
         if (!gridPosition.isValid()) {
             return false;

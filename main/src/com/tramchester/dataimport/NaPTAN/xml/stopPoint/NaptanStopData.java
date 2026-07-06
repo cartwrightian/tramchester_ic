@@ -3,11 +3,11 @@ package com.tramchester.dataimport.NaPTAN.xml.stopPoint;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
-import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
 import java.util.Collections;
@@ -17,7 +17,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName("StopPoints")
 @JsonTypeName("StopPoint")
-public class NaptanStopData implements NaptanXMLData {
+public class NaptanStopData implements HasGridPosition {
 
     // Matches ID for TFGM gtfs data
     final private String atcoCode;

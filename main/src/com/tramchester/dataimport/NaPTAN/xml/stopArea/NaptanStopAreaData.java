@@ -2,15 +2,15 @@ package com.tramchester.dataimport.NaPTAN.xml.stopArea;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLLocation;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 import com.tramchester.repository.naptan.NaptanStopAreaType;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName("StopAreas")
 @JsonTypeName("StopArea")
-public class NaptanStopAreaData implements NaptanXMLData {
+public class NaptanStopAreaData implements HasGridPosition {
 
     private final String name;
     private final String stopAreaCode;
