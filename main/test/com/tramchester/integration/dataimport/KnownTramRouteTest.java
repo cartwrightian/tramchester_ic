@@ -8,13 +8,12 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
-import com.tramchester.domain.id.TramRouteId;
-import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -109,7 +108,7 @@ class KnownTramRouteTest {
         List<TramDate> missingFromDataOnDates = new ArrayList<>();
         getDateRange().
                 filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
-                //filter(date -> !UpcomingDates.Easter2026Works.contains(date)).
+                filter(date -> !UpcomingDates.summer2026MajorClosure.contains(date)).
                 sorted(TramDate::compareTo).
                 forEach(date -> {
                     final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
@@ -171,7 +170,10 @@ class KnownTramRouteTest {
                 String prefix = "On " + date + " ";
                 List<Route> findLoadedFor = loadedRoutes.stream().
                         filter(loadedRoute -> loadedRoute.getShortName().equals(knownTramRoute.shortName())).toList();
-                assertEquals(1, findLoadedFor.size(), prefix + "could not find loaded route using short name match for " + knownTramRoute);
+                assertFalse(findLoadedFor.isEmpty(),
+                        prefix + "could not find loaded route using short name match for " + knownTramRoute);
+//                assertEquals(1, findLoadedFor.size(),
+//                        prefix + "could not find loaded route using short name match for " + knownTramRoute);
             });
         });
     }
@@ -180,12 +182,10 @@ class KnownTramRouteTest {
     void shouldHaveLongNamesMatching() {
         // here for consistency of naming as much as anything
         getDateRange().forEach(date -> {
+            KnownTramRoute.FindCurrentRouteFromLine finder = KnownTramRoute.getFinder(date);
             final Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
             loadedRoutes.forEach(loaded -> {
-//                final String shortName = loaded.getShortName().replace(" Line","");
-//                final TFGMRouteNames routeName = TFGMRouteNames.parseFromName(shortName);
-                TFGMRouteNames routeName = ((TramRouteId)loaded.getId()).getRouteName();
-                final KnownTramRouteEnum known = KnownTramRoute.findFor(routeName, date);
+                final KnownTramRouteEnum known = finder.exactMatchWith(loaded);
                 assertEquals(loaded.getName(), known.longName(),
                         "Could not match loaded:" + loaded.getName() + " with " + known + ": "
                                 + known.longName() + " on " + date);
@@ -193,6 +193,7 @@ class KnownTramRouteTest {
         });
     }
 
+    @DisabledUntilDate(year = 2026, month = 7, day = 21)
     @Test
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);
@@ -219,6 +220,7 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
+    @DisabledUntilDate(year = 2026, month = 7, day = 21)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());

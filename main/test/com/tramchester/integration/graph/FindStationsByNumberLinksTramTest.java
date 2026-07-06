@@ -89,7 +89,7 @@ class FindStationsByNumberLinksTramTest {
 
                 StPetersSquare,
                 PiccadillyGardens,
-//                Piccadilly,
+                Piccadilly,
                 MarketStreet,
                 TraffordBar,
                 Cornbrook,
@@ -98,8 +98,9 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-//                OldhamKingStreet, OldhamMumps
-                Shudehill
+                OldhamKingStreet, OldhamMumps,
+                Wharfside
+//                Shudehill
 //                VeloPark,
 //                HoltTown
             ).map(FakeStation::getId).toList();

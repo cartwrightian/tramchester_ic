@@ -109,8 +109,8 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
 
-        // easter closures, bus links
-        assertEquals(3, list.size());
+        // summer closures, bus links
+        assertEquals(3+1, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -894,7 +894,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(18D, Math.ceil(percentage));
+        assertEquals(16D, Math.ceil(percentage));
     }
 
     @Test

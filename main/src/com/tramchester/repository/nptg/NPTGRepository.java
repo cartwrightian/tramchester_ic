@@ -80,19 +80,6 @@ public class NPTGRepository {
         final List<NPTGLocalityXMLData> inBoundsRecords = new ArrayList<>();
 
         dataLoader.loadData(new Receiver(config, inBoundsRecords::add));
-//        dataLoader.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
-//            @Override
-//            public void process(final NPTGLocalityXMLData element) {
-//                if (filterBy(bounds, initialMargin, element)) {
-//                    inBoundsRecords.add(element);
-//                }
-//            }
-//
-//            @Override
-//            public Class<NPTGLocalityXMLData> getElementType() {
-//                return NPTGLocalityXMLData.class;
-//            }
-//        });
 
         logger.info("Initially loaded " + inBoundsRecords.size() + " in bounds records");
 
@@ -156,31 +143,19 @@ public class NPTGRepository {
         return nptgDataMap.getValues();
     }
 
-    public static class Receiver implements ElementsFromXMLFile.XmlElementConsumer<NPTGLocalityXMLData> {
+    public static class Receiver extends ElementsFromXMLFile.XmlElementConsumer<NPTGLocalityXMLData> {
 
-        private final Consumer<NPTGLocalityXMLData> consumer;
         final MarginInMeters initialMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS*2);
         private final BoundingBox bounds;
 
         public Receiver(TramchesterConfig config, Consumer<NPTGLocalityXMLData> consumer) {
-            this.consumer = consumer;
+            super(NPTGLocalityXMLData.class, consumer);
             bounds = config.getBounds();
         }
 
         @Override
-        public void process(final NPTGLocalityXMLData element) {
-            if (withinBounds(element)) {
-                consumer.accept(element);
-            }
-        }
-
-        private boolean withinBounds(final HasGridPosition item) {
+        protected boolean shouldInclude(final NPTGLocalityXMLData item) {
             return filterBy(bounds, initialMargin, item);
-        }
-
-        @Override
-        public Class<NPTGLocalityXMLData> getElementType() {
-            return NPTGLocalityXMLData.class;
         }
     }
 }

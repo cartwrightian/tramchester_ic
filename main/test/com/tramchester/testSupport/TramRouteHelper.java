@@ -59,7 +59,7 @@ public class TramRouteHelper {
     }
 
     public Route getOneRoute(final TFGMRouteNames line, final TramDate date) {
-        TestRoute knownRoute = KnownTramRoute.findFor(line, date);
+        final TestRoute knownRoute = KnownTramRoute.findFor(line, date);
         return getOneRouteFor(knownRoute, date);
     }
 

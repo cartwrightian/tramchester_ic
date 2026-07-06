@@ -11,6 +11,11 @@ public enum TFGMRouteNames {
     BusFive("Metrolink Replacement Bus 5", true),
     BusPicVic("PIC-VIC Replacement Bus", true),
 
+    AltrinchamPiccadilly("Tram Replacement Bus ALT - PIC", true),
+    ChorltonPiccadilly("Tram Replacement Bus CHO - PIC", true),
+    TraffordCentrePiccadilly("Tram Replacement Bus TRC - PIC", true),
+    RochsdaleVictoria("Tram Replacement Bus RTC - VIC", true),
+
     Red("Red Line", false),
     Pink("Pink Line", false),
     Purple("Purple Line", false),

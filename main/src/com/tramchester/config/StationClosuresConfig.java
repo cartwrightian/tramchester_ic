@@ -89,7 +89,10 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     @JsonIgnore
     @Override
     public boolean hasDiversionsAroundClosure() {
-        return diversionsAroundClosure!=null;
+        if (diversionsAroundClosure!=null) {
+            return !diversionsAroundClosure.isEmpty();
+        }
+        return false;
     }
 
     @Override
@@ -103,7 +106,10 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     @JsonIgnore
     @Override
     public boolean hasDiversionsToFromClosure() {
-        return diversionsToFromClosure!=null;
+        if (diversionsToFromClosure!=null) {
+            return !diversionsToFromClosure.isEmpty();
+        }
+        return false;
     }
 
     @Override

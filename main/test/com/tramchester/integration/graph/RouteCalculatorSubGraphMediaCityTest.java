@@ -39,6 +39,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -157,12 +158,12 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(HarbourCity, Cornbrook, tramTime, testSunday);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdsAndNames<Station>>> failed = UpcomingDates.getUpcomingDates().
-                //filter(RouteCalculatorSubGraphMediaCityTest::avoidUnexpectedGapJune2026).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         2, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -190,6 +191,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 

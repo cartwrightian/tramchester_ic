@@ -29,6 +29,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.domain.reference.TransportMode.Ferry;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -253,6 +255,7 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
+    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -276,6 +279,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
+    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {

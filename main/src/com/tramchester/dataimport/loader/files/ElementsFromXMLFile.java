@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 public class ElementsFromXMLFile<T> {
     private static final Logger logger = LoggerFactory.getLogger(ElementsFromXMLFile.class);
@@ -89,10 +90,36 @@ public class ElementsFromXMLFile<T> {
         xmlElementConsumer.process(element);
     }
 
-    public interface XmlElementConsumer<T> {
-        void process(final T element);
+    public abstract static class XmlElementConsumer<T> {
+        private final Class<T> elementType;
+        private final Consumer<T> consumer;
+        private int skippedStop;
 
-        Class<T> getElementType();
+        protected XmlElementConsumer(Class<T> elementType, Consumer<T> consumer) {
+            this.elementType = elementType;
+            this.consumer = consumer;
+            skippedStop = 0;
+        }
+
+        protected void process(final T element) {
+            if (shouldInclude(element)) {
+                consumer.accept(element);
+            } else {
+                skippedStop++;
+            }
+        }
+
+        protected abstract boolean shouldInclude(final T item);
+
+        Class<T> getElementType() {
+            return elementType;
+        }
+
+        public void logSkipped(Logger logger) {
+            if (skippedStop>0) {
+                logger.info("Skipped " + skippedStop + " items of type " + elementType.getSimpleName());
+            }
+        }
     }
 
 }

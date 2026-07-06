@@ -27,6 +27,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -143,8 +144,7 @@ public class TripRepositoryTest {
         assertTrue(endTripNotInterchange.isEmpty(), "End trip not interchange: " + endTripNotInterchange);
     }
 
-    // Oldham Central and Picc Gardens missing from data 1/june -> 6/June (as of 20th May)
-    //@DisabledUntilDate(year = 2026, month = 5, day = 30)
+    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {

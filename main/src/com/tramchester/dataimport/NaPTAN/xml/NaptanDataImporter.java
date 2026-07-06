@@ -27,7 +27,7 @@ public abstract class NaptanDataImporter {
         this.enabled = config.hasRemoteDataSourceConfig(DataSourceID.naptanxml);
     }
 
-    public void loadData(final ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> consumer) {
+    public void loadData(final ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> receiver) {
         if (!enabled) {
             logger.warn("Not enabled");
             return;
@@ -50,7 +50,10 @@ public abstract class NaptanDataImporter {
 
         logger.info("Loading data from " + filePath.toAbsolutePath());
         // naptan xml is UTF-8
-        loadDataFromFile(filePath, consumer);
+        loadDataFromFile(filePath, receiver);
+
+        receiver.logSkipped(logger);
+
     }
 
     abstract void loadDataFromFile(Path filePath, ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> consumer);

@@ -106,7 +106,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         logger.info("Loaded " + tiplocToAtco.size() + " mappings for rail stations");
         logger.info("Loaded " + localities.size() + " localities");
 
-        receiver.logSkipped(logger);
     }
 
     private void populateLocalityMap() {
@@ -259,41 +258,24 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         return geography.createBoundaryFor(points);
     }
 
-    public static class Receiver implements ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> {
+    public static class Receiver extends ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> {
 
         private final BoundingBox bounds;
         private final MarginInMeters margin;
-        private final Consumer<NaptanStopData> consumer;
         private final ImmutableEnumSet<NaptanStopType> requiredStopTypes;
         private final boolean hasTrain;
 
-        int skippedStop;
-
         public Receiver(final TramchesterConfig config, final Consumer<NaptanStopData> consumer) {
+            super(NaptanStopData.class, consumer);
+
             bounds = config.getBounds();
             margin = config.getWalkingDistanceRange();
-            this.consumer = consumer;
-            skippedStop = 0;
 
             hasTrain = config.getTransportModes().contains(Train);
             requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModesImmutable());
         }
 
-        @Override
-        public void process(final NaptanStopData element) {
-            if (shouldInclude(element)) {
-                consumer.accept(element);
-            } else {
-                skippedStop++;
-            }
-        }
-
-        @Override
-        public Class<NaptanStopData> getElementType() {
-            return NaptanStopData.class;
-        }
-
-        private boolean shouldInclude(final NaptanStopData stopData) {
+        protected boolean shouldInclude(final NaptanStopData stopData) {
             if (!stopData.hasValidAtcoCode()) {
                 return false;
             }
@@ -332,10 +314,5 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             return bounds.within(margin, gridPosition);
         }
 
-        public void logSkipped(final Logger logger) {
-            if (skippedStop>0) {
-                logger.info("Skipped " + skippedStop + " stops");
-            }
-        }
     }
 }

@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ParserTestXMLHelper<T> {
 
@@ -31,17 +32,15 @@ public class ParserTestXMLHelper<T> {
 
     protected void before(Charset charset) {
         received = new ArrayList<>();
-        loader = new ElementsFromXMLFile<>(Paths.get("unused"), charset, mapper, new ElementsFromXMLFile.XmlElementConsumer<>() {
-            @Override
-            public void process(T element) {
-                received.add(element);
-            }
+        Consumer<T> consumer = item -> received.add(item);
+        loader = new ElementsFromXMLFile<>(Paths.get("unused"), charset, mapper,
+                new ElementsFromXMLFile.XmlElementConsumer<>(elementType, consumer) {
 
-            @Override
-            public Class<T> getElementType() {
-                return elementType;
-            }
-        });
+                    @Override
+                    protected boolean shouldInclude(T item) {
+                        return true;
+                    }
+                });
     }
 
     protected T parseFirstOnly(final String text) throws XMLStreamException, IOException {

@@ -87,12 +87,15 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook,
                 MarketStreet,
                 PiccadillyGardens,
+                Piccadilly,
                 StPetersSquare,
                 Broadway,
                 Victoria,
                 //VeloPark, HoltTown
-//                OldhamKingStreet, OldhamMumps
-                Shudehill
+                OldhamKingStreet,
+                OldhamMumps,
+                Wharfside
+//                Shudehill
         );
 
         Set<Station> expectedStations = expectedTramStations.

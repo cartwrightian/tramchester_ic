@@ -5,6 +5,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.integration.testSupport.TestGroupType;
+import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
@@ -12,6 +13,8 @@ import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -25,7 +28,9 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
+    public static final List<StationClosures> CurrentClosures =
+            Collections.singletonList(new StationClosuresListForTest(TramStations.Pomona, UpcomingDates.summer2026MajorClosure,
+                    true));
 
     /**
      * examples

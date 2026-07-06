@@ -23,6 +23,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
@@ -107,6 +108,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
+    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
