@@ -24,7 +24,7 @@ public class ElementsFromXMLFile<T> {
     private final XmlMapper mapper;
     private final XmlElementConsumer<T> xmlElementConsumer;
     private final WstxInputFactory factory;
-    private final String stopElementName;
+    private final String requiredElementName;
 
     private final JavaType elementJavaType;
 
@@ -37,7 +37,7 @@ public class ElementsFromXMLFile<T> {
         factory = new WstxInputFactory();
 
         final Class<T> elementType = xmlElementConsumer.getElementType();
-        stopElementName = getElementName(elementType);
+        requiredElementName = getElementName(elementType);
         elementJavaType = mapper.getTypeFactory().constructType(elementType);
 
     }
@@ -69,8 +69,8 @@ public class ElementsFromXMLFile<T> {
         while (streamReader.hasNext()) {
             if (streamReader.isStartElement()) {
                 final String localName = streamReader.getLocalName();
-                if (stopElementName.equals(localName)) {
-                    consumeStopElement(streamReader);
+                if (requiredElementName.equals(localName)) {
+                    consumeRequiredElement(streamReader);
                 } else {
                     streamReader.next();
                 }
@@ -84,7 +84,7 @@ public class ElementsFromXMLFile<T> {
 
     }
 
-    private void consumeStopElement(final XMLStreamReader in) throws IOException {
+    private void consumeRequiredElement(final XMLStreamReader in) throws IOException {
         final T element = mapper.readValue(in, elementJavaType);
         xmlElementConsumer.process(element);
     }

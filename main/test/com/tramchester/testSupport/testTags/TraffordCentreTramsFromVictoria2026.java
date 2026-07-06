@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(DisabledUntilDateCondition.class)
-@DisabledUntilDate(year =  2026, month = 7, day = 5)
+@DisabledUntilDate(year =  2026, month = 7, day = 31)
 public @interface TraffordCentreTramsFromVictoria2026 {
 
 }

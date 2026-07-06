@@ -26,7 +26,6 @@ import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.MissingTripsJune2026;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -206,7 +205,6 @@ public class TripRepositoryTest {
         assertTrue(missing.isEmpty(), missing.toString());
     }
 
-    @MissingTripsJune2026
     @Test
     void shouldHaveTripsForSundayMorningAtBroadway() {
         TramDate date = UpcomingDates.nextSunday();

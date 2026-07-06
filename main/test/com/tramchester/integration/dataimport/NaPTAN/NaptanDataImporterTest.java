@@ -2,9 +2,9 @@ package com.tramchester.integration.dataimport.NaPTAN;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
-import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
+import com.tramchester.dataimport.NaPTAN.xml.NaptanDataImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
+import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
@@ -39,7 +39,7 @@ class NaptanDataImporterTest {
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        NaptanDataCallbackImporter dataImporter = componentContainer.get(NaptanDataCallbackImporter.class);
+        NaptanDataImporter dataImporter = componentContainer.get(NaptanDataImporter.class);
 
         loadedStops = new ArrayList<>();
         dataImporter.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
@@ -64,7 +64,7 @@ class NaptanDataImporterTest {
     // was for initial diagnostics, likely changes too often
     @Test
     void shouldHaveLoadedSomeData() {
-        assertTrue(loadedStops.size() > 400000, "m");
+        assertTrue(loadedStops.size() > 400000, "not enough data " + loadedStops.size());
     }
 
     @Test

@@ -31,6 +31,7 @@ public class NaptanDataCallbackImporter extends NaptanDataImporter {
                 disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).
                 enable(DeserializationFeature.EAGER_DESERIALIZER_FETCH).
                 build();
+
     }
 
     @Override

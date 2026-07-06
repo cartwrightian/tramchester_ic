@@ -37,7 +37,6 @@ import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.MissingTripsJune2026;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -703,8 +702,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    // Trips are missing
-    @MissingTripsJune2026
     @Test
     void reproduceSundayToFromEcclesAndCornbrookWithNoChanges() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -714,8 +711,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
-    // Trips are missing
-    @MissingTripsJune2026
     @Test
     void reproduceIssueSundayToFromEcclesAndCornbrookWithOneChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
