@@ -4,11 +4,12 @@ package com.tramchester.dataimport.nptg.xml;
 import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName("NptgLocalities")
 @JsonTypeName("NptgLocality")
-public class NPTGLocalityXMLData  {
+public class NPTGLocalityXMLData implements HasGridPosition {
 
     private final NPTGDescriptor descriptor;
     private final String localityCode;

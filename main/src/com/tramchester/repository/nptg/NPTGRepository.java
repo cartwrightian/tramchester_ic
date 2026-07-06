@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.MarginInMeters;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 // National Public Transport Gazetteer
@@ -72,26 +74,25 @@ public class NPTGRepository {
 
     private void loadData(final BoundingBox bounds) {
 
-        final MarginInMeters initialMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS*2);
-
         final MarginInMeters loadMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS);
 
         // todo use the callback mechanism instead
         final List<NPTGLocalityXMLData> inBoundsRecords = new ArrayList<>();
 
-        dataLoader.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
-            @Override
-            public void process(final NPTGLocalityXMLData element) {
-                if (filterBy(bounds, initialMargin, element)) {
-                    inBoundsRecords.add(element);
-                }
-            }
-
-            @Override
-            public Class<NPTGLocalityXMLData> getElementType() {
-                return NPTGLocalityXMLData.class;
-            }
-        });
+        dataLoader.loadData(new Receiver(config, inBoundsRecords::add));
+//        dataLoader.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
+//            @Override
+//            public void process(final NPTGLocalityXMLData element) {
+//                if (filterBy(bounds, initialMargin, element)) {
+//                    inBoundsRecords.add(element);
+//                }
+//            }
+//
+//            @Override
+//            public Class<NPTGLocalityXMLData> getElementType() {
+//                return NPTGLocalityXMLData.class;
+//            }
+//        });
 
         logger.info("Initially loaded " + inBoundsRecords.size() + " in bounds records");
 
@@ -135,7 +136,7 @@ public class NPTGRepository {
         return result;
     }
 
-    private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NPTGLocalityXMLData item) {
+    private static boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final HasGridPosition item) {
         final GridPosition gridPosition = item.getGridPosition();
         if (!gridPosition.isValid()) {
             return false;
@@ -153,5 +154,33 @@ public class NPTGRepository {
 
     public Set<NPTGLocality> getAll() {
         return nptgDataMap.getValues();
+    }
+
+    public static class Receiver implements ElementsFromXMLFile.XmlElementConsumer<NPTGLocalityXMLData> {
+
+        private final Consumer<NPTGLocalityXMLData> consumer;
+        final MarginInMeters initialMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS*2);
+        private final BoundingBox bounds;
+
+        public Receiver(TramchesterConfig config, Consumer<NPTGLocalityXMLData> consumer) {
+            this.consumer = consumer;
+            bounds = config.getBounds();
+        }
+
+        @Override
+        public void process(final NPTGLocalityXMLData element) {
+            if (withinBounds(element)) {
+                consumer.accept(element);
+            }
+        }
+
+        private boolean withinBounds(final HasGridPosition item) {
+            return filterBy(bounds, initialMargin, item);
+        }
+
+        @Override
+        public Class<NPTGLocalityXMLData> getElementType() {
+            return NPTGLocalityXMLData.class;
+        }
     }
 }

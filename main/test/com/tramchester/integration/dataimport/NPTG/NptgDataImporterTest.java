@@ -2,7 +2,6 @@ package com.tramchester.integration.dataimport.NPTG;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.dataimport.nptg.NPTGXMLDataLoader;
 import com.tramchester.dataimport.nptg.xml.NPTGLocalityXMLData;
 import com.tramchester.domain.id.IdFor;
@@ -10,6 +9,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
 import org.junit.jupiter.api.AfterAll;
@@ -40,17 +40,7 @@ class NptgDataImporterTest {
         NPTGXMLDataLoader dataImporter = componentContainer.get(NPTGXMLDataLoader.class);
 
         loadedLocalities = new ArrayList<>();
-        dataImporter.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
-            @Override
-            public void process(NPTGLocalityXMLData element) {
-                loadedLocalities.add(element);
-            }
-
-            @Override
-            public Class<NPTGLocalityXMLData> getElementType() {
-                return NPTGLocalityXMLData.class;
-            }
-        });
+        dataImporter.loadData(new NPTGRepository.Receiver(testConfig, item -> loadedLocalities.add(item)));
     }
 
     @AfterAll

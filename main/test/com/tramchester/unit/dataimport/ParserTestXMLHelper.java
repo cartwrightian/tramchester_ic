@@ -31,7 +31,7 @@ public class ParserTestXMLHelper<T> {
 
     protected void before(Charset charset) {
         received = new ArrayList<>();
-        loader = new ElementsFromXMLFile<>(Paths.get("unused"), charset, mapper, new ElementsFromXMLFile.XmlElementConsumer<T>() {
+        loader = new ElementsFromXMLFile<>(Paths.get("unused"), charset, mapper, new ElementsFromXMLFile.XmlElementConsumer<>() {
             @Override
             public void process(T element) {
                 received.add(element);
@@ -44,16 +44,16 @@ public class ParserTestXMLHelper<T> {
         });
     }
 
-    protected T parseFirstOnly(String text) throws XMLStreamException, IOException {
-        StringReader reader = new StringReader(text);
+    protected T parseFirstOnly(final String text) throws XMLStreamException, IOException {
+        final StringReader reader = new StringReader(text);
         loader.load(reader);
 
-        return received.get(0);
+        return received.getFirst();
 
     }
 
-    protected List<T> parseAll(String text) throws XMLStreamException, IOException {
-        StringReader reader = new StringReader(text);
+    protected List<T> parseAll(final String text) throws XMLStreamException, IOException {
+        final StringReader reader = new StringReader(text);
         loader.load(reader);
         return received;
     }
