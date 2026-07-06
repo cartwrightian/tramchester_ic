@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,12 +47,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     private final NPTGRepository nptgRepository;
     private final Geography geography;
     private final TramchesterConfig config;
-    private final boolean hasTrain;
 
     private final IdMap<NaptanRecord> stops;
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
-
-    private final ImmutableEnumSet<NaptanStopType> requiredStopTypes;
 
     private Map<IdFor<NPTGLocality>, ImmutableIdSet<NaptanRecord>> localities;
 
@@ -65,8 +63,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         stops = new IdMap<>();
         tiplocToAtco = new HashMap<>();
         localities = Collections.emptyMap();
-        requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModesImmutable());
-        hasTrain = config.getTransportModes().contains(Train);
     }
 
     @PostConstruct
@@ -100,9 +96,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         logger.info("Loading data for " + bounds + " and range " + margin);
 
-        final Consumer consumer = new Consumer(bounds, margin);
+        final Receiver receiver = new Receiver(config, this::createRecordForStop);
 
-        naptanDataImporter.loadData(consumer);
+        naptanDataImporter.loadData(receiver);
 
         populateLocalityMap();
 
@@ -110,7 +106,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         logger.info("Loaded " + tiplocToAtco.size() + " mappings for rail stations");
         logger.info("Loaded " + localities.size() + " localities");
 
-        consumer.logSkipped(logger);
+        receiver.logSkipped(logger);
     }
 
     private void populateLocalityMap() {
@@ -118,44 +114,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         localities = stops.getValuesStream().collect(Collectors.groupingBy(NaptanRecord::getLocalityId, collector));
     }
 
-    private boolean consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin) {
-        if (!stopData.hasValidAtcoCode()) {
-            return false;
-        }
+    private void createRecordForStop(final NaptanStopData stopData) {
+        final NaptanRecord record = createRecord(stopData);
 
-        if (!"active".equals(stopData.getStatus())) {
-            return false;
-        }
-
-        final NaptanStopType stopType = stopData.getStopType();
-        if (stopType == NaptanStopType.unknown) {
-            logger.warn("Unknown stop type for " + stopData.getAtcoCode());
-            return false;
-        }
-
-        if (!requiredStopTypes.contains(stopType)) {
-            return false;
-        }
-
-        if (filterBy(bounds, margin, stopData)) {
-            final NaptanRecord record = createRecord(stopData);
-            addRecord(stopData, record);
-            return true;
-        }
-
-        if (hasTrain && stopTypesForRail.contains(stopType)) {
-            // when rail enabled we need rail records so can decode station IDs for route names etc.
-            // i.e. train from Manchester to London where we want to show final station name properly in the route
-            final NaptanRecord record = createRecord(stopData);
-            addRecord(stopData, record);
-            return true;
-        }
-
-        return false;
-
-    }
-
-    private void addRecord(final NaptanStopData stopData, final NaptanRecord record) {
         stops.add(record);
 
         if (stopData.hasRailInfo()) {
@@ -213,14 +174,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         } else {
             return parentLocalityName;
         }
-    }
-
-    private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final HasGridPosition item) {
-        final GridPosition gridPosition = item.getGridPosition();
-        if (!gridPosition.isValid()) {
-            return false;
-        }
-        return bounds.within(margin, gridPosition);
     }
 
     // TODO Check or diag on NaptanStopType
@@ -306,21 +259,31 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         return geography.createBoundaryFor(points);
     }
 
-    private class Consumer implements ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> {
+    public static class Receiver implements ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> {
 
         private final BoundingBox bounds;
         private final MarginInMeters margin;
+        private final Consumer<NaptanStopData> consumer;
+        private final ImmutableEnumSet<NaptanStopType> requiredStopTypes;
+        private final boolean hasTrain;
+
         int skippedStop;
 
-        private Consumer(final BoundingBox bounds, final MarginInMeters margin) {
-            this.bounds = bounds;
-            this.margin = margin;
+        public Receiver(final TramchesterConfig config, final Consumer<NaptanStopData> consumer) {
+            bounds = config.getBounds();
+            margin = config.getWalkingDistanceRange();
+            this.consumer = consumer;
             skippedStop = 0;
+
+            hasTrain = config.getTransportModes().contains(Train);
+            requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModesImmutable());
         }
 
         @Override
         public void process(final NaptanStopData element) {
-            if (!consumeStop(element, bounds, margin)) {
+            if (shouldInclude(element)) {
+                consumer.accept(element);
+            } else {
                 skippedStop++;
             }
         }
@@ -328,6 +291,45 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         @Override
         public Class<NaptanStopData> getElementType() {
             return NaptanStopData.class;
+        }
+
+        private boolean shouldInclude(final NaptanStopData stopData) {
+            if (!stopData.hasValidAtcoCode()) {
+                return false;
+            }
+
+            if (!"active".equals(stopData.getStatus())) {
+                return false;
+            }
+
+            final NaptanStopType stopType = stopData.getStopType();
+            if (stopType == NaptanStopType.unknown) {
+                logger.warn("Unknown stop type for " + stopData.getAtcoCode());
+                return false;
+            }
+
+            if (!requiredStopTypes.contains(stopType)) {
+                return false;
+            }
+
+            if (withinBounds(stopData)) {
+                return true;
+            }
+
+            if (hasTrain && stopTypesForRail.contains(stopType)) {
+                // when rail enabled we need rail records so can decode station IDs for route names etc.
+                // i.e. train from Manchester to London where we want to show final station name properly in the route
+                return true;
+            }
+            return false;
+        }
+
+        private boolean withinBounds(final HasGridPosition item) {
+            final GridPosition gridPosition = item.getGridPosition();
+            if (!gridPosition.isValid()) {
+                return false;
+            }
+            return bounds.within(margin, gridPosition);
         }
 
         public void logSkipped(final Logger logger) {

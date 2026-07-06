@@ -4,13 +4,14 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
-import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.repository.naptan.NaptanRepositoryContainer;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -18,10 +19,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.BuryInterchange;
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,17 +41,9 @@ class NaptanDataImporterTest {
         NaptanDataImporter dataImporter = componentContainer.get(NaptanDataImporter.class);
 
         loadedStops = new ArrayList<>();
-        dataImporter.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
-            @Override
-            public void process(NaptanStopData element) {
-                loadedStops.add(element);
-            }
+        dataImporter.loadData(new NaptanRepositoryContainer.Receiver(testConfig,
+                naptanStopData -> loadedStops.add(naptanStopData)));
 
-            @Override
-            public Class<NaptanStopData> getElementType() {
-                return NaptanStopData.class;
-            }
-        });
     }
 
     @AfterAll
@@ -64,7 +55,7 @@ class NaptanDataImporterTest {
     // was for initial diagnostics, likely changes too often
     @Test
     void shouldHaveLoadedSomeData() {
-        assertTrue(loadedStops.size() > 400000, "not enough data " + loadedStops.size());
+        assertTrue(loadedStops.size() > 39000, "not enough data " + loadedStops.size());
     }
 
     @Test
@@ -89,14 +80,40 @@ class NaptanDataImporterTest {
                 filter(stop -> stop.getAtcoCode().isValid()).
                 filter(stop -> stop.getAtcoCode().equals(id)).
                 findFirst();
-        assertFalse(foundKnown.isEmpty());
+
+        assertFalse(foundKnown.isEmpty(), "Did not find " + id );
 
         NaptanStopData known = foundKnown.get();
         assertEquals(NaptanStopType.tramMetroUndergroundAccess, known.getStopType());
     }
 
     @Test
-    void shouldContainOutofAreaStop() {
+    void shouldLoadKnownTrainStation() {
+
+        String id = RailStationIds.ManchesterPiccadilly.getRawId();
+
+        Set<NaptanStopData> railStops = loadedStops.stream().
+                filter(stop -> stop.getAtcoCode().isValid()).
+                filter(NaptanStopData::hasRailInfo).
+                collect(Collectors.toSet());
+
+        assertFalse(railStops.isEmpty(), "Rail stops not loaded?");
+
+        Set<String> idsForDiag = railStops.stream().
+                map(data -> data.getRailInfo().getTiploc()).collect(Collectors.toSet());
+
+        Optional<NaptanStopData> foundKnown = railStops.stream().
+                filter(stopId -> stopId.getRailInfo().getTiploc().equals(id)).
+                findFirst();
+
+        assertFalse(foundKnown.isEmpty(), "Did not find " + id + " within " + idsForDiag);
+
+        NaptanStopData known = foundKnown.get();
+        assertEquals(NaptanStopType.railAccess, known.getStopType());
+    }
+
+    @Test
+    void shouldNotContainOutOfAreaStop() {
         IdFor<NaptanRecord> id = NaptanRecord.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
 
         Optional<NaptanStopData> foundKnown = loadedStops.stream().
@@ -104,9 +121,7 @@ class NaptanDataImporterTest {
                 filter(stop -> stop.getAtcoCode().equals(id)).
                 findFirst();
 
-        assertFalse(foundKnown.isEmpty());
-        NaptanStopData known = foundKnown.get();
-        assertEquals(NaptanStopType.busCoachTrolleyStopOnStreet, known.getStopType());
+        assertTrue(foundKnown.isEmpty());
     }
 
 }

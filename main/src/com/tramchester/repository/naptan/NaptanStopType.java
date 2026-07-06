@@ -85,7 +85,7 @@ public enum NaptanStopType {
         return Arrays.stream(values()).filter(type -> type.validFor(mode)).collect(Collectors.toSet());
     }
 
-    private boolean validFor(TransportMode mode) {
+    private boolean validFor(final TransportMode mode) {
         return validModes.contains(mode);
     }
 
