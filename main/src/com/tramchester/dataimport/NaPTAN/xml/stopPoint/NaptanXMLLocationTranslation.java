@@ -15,11 +15,11 @@ public class NaptanXMLLocationTranslation {
     private final GridPosition gridPosition;
 
     @JsonCreator
-    public NaptanXMLLocationTranslation(@JsonProperty(value = "Easting", defaultValue = "0") Integer easting,
-                                        @JsonProperty(value = "Northing", defaultValue = "0") Integer northing,
-                                        @JsonProperty("Latitude") Double latitude,
+    public NaptanXMLLocationTranslation(@JsonProperty(value = "Easting", defaultValue = "0") int easting,
+                                        @JsonProperty(value = "Northing", defaultValue = "0") int northing,
+                                        @JsonProperty(value = "Latitude", defaultValue = "0") double latitude,
                                         @JsonProperty("GridType") String gridType,
-                                        @JsonProperty("Longitude") Double longitude) {
+                                        @JsonProperty(value = "Longitude", defaultValue = "0") double longitude) {
         gridPosition = createGridPosition(gridType, easting, northing);
         latLong = createGridPosition(latitude, longitude);
     }

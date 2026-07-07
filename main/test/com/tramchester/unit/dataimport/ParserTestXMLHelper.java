@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
+import software.amazon.awssdk.utils.StringInputStream;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -44,16 +44,16 @@ public class ParserTestXMLHelper<T> {
     }
 
     protected T parseFirstOnly(final String text) throws XMLStreamException, IOException {
-        final StringReader reader = new StringReader(text);
-        loader.load(reader);
+        StringInputStream stream = new StringInputStream(text);
+        loader.load(stream);
 
         return received.getFirst();
 
     }
 
     protected List<T> parseAll(final String text) throws XMLStreamException, IOException {
-        final StringReader reader = new StringReader(text);
-        loader.load(reader);
+        StringInputStream stream = new StringInputStream(text);
+        loader.load(stream);
         return received;
     }
 }

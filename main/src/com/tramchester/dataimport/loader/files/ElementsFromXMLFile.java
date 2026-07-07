@@ -3,16 +3,19 @@ package com.tramchester.dataimport.loader.files;
 import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -25,7 +28,7 @@ public class ElementsFromXMLFile<T> {
     private final XmlMapper mapper;
     private final XmlElementConsumer<T> xmlElementConsumer;
     private final String requiredElementName;
-    private final WstxInputFactory factory;
+    private final WstxInputFactory wstxInputFactory;
 
     private final JavaType elementJavaType;
 
@@ -35,7 +38,9 @@ public class ElementsFromXMLFile<T> {
         this.mapper = mapper;
         this.xmlElementConsumer = xmlElementConsumer;
 
-        factory = new WstxInputFactory();
+        wstxInputFactory = new WstxInputFactory();
+        // unclear if needed, but does no harm
+        wstxInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 
         final Class<T> elementType = xmlElementConsumer.getElementType();
         requiredElementName = getElementName(elementType);
@@ -49,11 +54,11 @@ public class ElementsFromXMLFile<T> {
 
     public void load() {
         try {
-            final Reader fileReader = new FileReader(filePath.toString(), charset);
-            final BufferedReader reader = new BufferedReader(fileReader);
+            final FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
+            final BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
             logger.info("Load xml data from " +filePath.toAbsolutePath() + " for " + elementJavaType);
-            load(reader);
-            reader.close();
+            load(bufferedInputStream);
+            bufferedInputStream.close();
         } catch (IOException | XMLStreamException e) {
             String msg = "Unable to load from file " + filePath;
             logger.error(msg, e);
@@ -61,16 +66,20 @@ public class ElementsFromXMLFile<T> {
         }
     }
 
-    public void load(final Reader in) throws XMLStreamException, IOException {
+    public void load(final InputStream inputStream) throws XMLStreamException, IOException {
+
+        final XMLStreamReader streamReader = wstxInputFactory.createXMLStreamReader(inputStream, charset.name());
+        final XmlFactory xmlFactory = mapper.getFactory();
 
         logger.info("Begin load");
-        final XMLStreamReader streamReader = factory.createXMLStreamReader(in);
 
         while (streamReader.hasNext()) {
             if (streamReader.isStartElement()) {
                 final String localName = streamReader.getLocalName();
                 if (requiredElementName.equals(localName)) {
-                    consumeRequiredElement(streamReader);
+                    // can't share parser, contains stream context - don't close parser, closes the streamReader
+                    final FromXmlParser parser = xmlFactory.createParser(streamReader);
+                    consumeRequiredElement(parser);
                 } else {
                     streamReader.next();
                 }
@@ -84,8 +93,8 @@ public class ElementsFromXMLFile<T> {
 
     }
 
-    private void consumeRequiredElement(final XMLStreamReader in) throws IOException {
-        final T element = mapper.readValue(in, elementJavaType);
+    private void consumeRequiredElement(final FromXmlParser parser) throws IOException {
+        final T element = mapper.readValue(parser, elementJavaType);
         xmlElementConsumer.process(element);
     }
 
