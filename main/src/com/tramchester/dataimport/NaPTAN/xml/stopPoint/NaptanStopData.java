@@ -22,12 +22,13 @@ public class NaptanStopData implements HasGridPosition {
     // Matches ID for TFGM gtfs data
     final private String atcoCode;
 
-    private final String status;
+//    private final String status;
     final private String naptanCode;
     final private NaptanXMLPlace place;
     final private NaptanXMLDescriptor descriptor;
     final private NaptanXMLStopClassification stopClassification;
     final private List<NaptanXMLStopAreaRef> stopAreas;
+    private final boolean isActive;
 
     @JsonCreator
     public NaptanStopData(@JsonProperty("AtcoCode") String atcoCode,
@@ -38,12 +39,14 @@ public class NaptanStopData implements HasGridPosition {
                           @JsonProperty("StopClassification") NaptanXMLStopClassification stopClassification,
                           @JacksonXmlProperty(localName = "StopAreas") List<NaptanXMLStopAreaRef> stopAreas) {
         this.atcoCode = atcoCode;
-        this.status = status;
+//        this.status = status;
         this.naptanCode = naptanCode;
         this.place = place;
         this.descriptor = descriptor;
         this.stopClassification = stopClassification;
         this.stopAreas = stopAreas;
+
+        isActive = "active".equals(status);
     }
 
     public IdFor<NaptanRecord> getAtcoCode() {
@@ -116,7 +119,7 @@ public class NaptanStopData implements HasGridPosition {
     public String toString() {
         return "NaptanStopData{" +
                 "atcoCode='" + atcoCode + '\'' +
-                ", status='" + status + '\'' +
+                ", isActive='" + isActive + '\'' +
                 ", naptanCode='" + naptanCode + '\'' +
                 ", place=" + place +
                 ", descriptor=" + descriptor +
@@ -129,8 +132,7 @@ public class NaptanStopData implements HasGridPosition {
         return "1".equals(place.getLocalityCentre());
     }
 
-    public String getStatus() {
-        return status;
+    public boolean isActive() {
+        return isActive;
     }
-
 }

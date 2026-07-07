@@ -281,8 +281,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                 return false;
             }
 
-            // now in XML filter below
-            if (!"active".equals(stopData.getStatus())) {
+            if (!stopData.isActive()) {
                 return false;
             }
 

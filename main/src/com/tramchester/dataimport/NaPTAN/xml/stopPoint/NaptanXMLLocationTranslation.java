@@ -11,11 +11,8 @@ import com.tramchester.geo.GridPosition;
 @JsonTypeName("Translation")
 public class NaptanXMLLocationTranslation {
 
-    private final String gridType;
-    final private int easting;
-    final private int northing;
-    final private double latitude;
-    private final double longitude;
+    private final LatLong latLong;
+    private final GridPosition gridPosition;
 
     @JsonCreator
     public NaptanXMLLocationTranslation(@JsonProperty(value = "Easting", defaultValue = "0") Integer easting,
@@ -23,14 +20,11 @@ public class NaptanXMLLocationTranslation {
                                         @JsonProperty("Latitude") Double latitude,
                                         @JsonProperty("GridType") String gridType,
                                         @JsonProperty("Longitude") Double longitude) {
-        this.easting = easting;
-        this.northing = northing;
-        this.latitude = latitude;
-        this.gridType = gridType;
-        this.longitude = longitude;
+        gridPosition = createGridPosition(gridType, easting, northing);
+        latLong = createGridPosition(latitude, longitude);
     }
 
-    public GridPosition getGridPosition() {
+    private GridPosition createGridPosition(final String gridType, final int easting, final int northing) {
         if (gridType==null || "UKOS".equals(gridType)) {
             if (easting==0 || northing==0) {
                 return GridPosition.Invalid;
@@ -40,7 +34,7 @@ public class NaptanXMLLocationTranslation {
         return GridPosition.Invalid;
     }
 
-    public LatLong getLatLong() {
+    private LatLong createGridPosition(final double latitude, final double longitude) {
         if (latitude==0 || longitude==0) {
             return LatLong.Invalid;
         }
@@ -50,11 +44,16 @@ public class NaptanXMLLocationTranslation {
     @Override
     public String toString() {
         return "NaptanXMLLocationTranslation{" +
-                "easting=" + easting +
-                ", northing=" + northing +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
+                "latLong=" + latLong +
+                ", gridPosition=" + gridPosition +
                 '}';
     }
 
+    public GridPosition getGridPosition() {
+        return gridPosition;
+    }
+
+    public LatLong getLatLong() {
+        return latLong;
+    }
 }

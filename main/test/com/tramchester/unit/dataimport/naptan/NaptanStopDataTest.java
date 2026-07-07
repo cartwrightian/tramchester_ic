@@ -59,7 +59,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         assertIdEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
         assertEquals("mantwgdp", data.getNaptanCode());
-        assertEquals("active", data.getStatus());
+        assertTrue(data.isActive());
         assertEquals("Westwood (Manchester Metrolink)", data.getCommonName());
         assertEquals("E0029527", data.getNptgLocality());
         assertEquals("", data.getSuburb());
@@ -162,7 +162,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         assertIdEquals("2800S16001B", data.getAtcoCode());
         assertEquals("mergjtpm", data.getNaptanCode());
-        assertEquals("inactive", data.getStatus());
+        assertFalse(data.isActive());
         assertEquals("St Helens Bus Station", data.getCommonName());
         assertEquals("E0057858", data.getNptgLocality());
         assertEquals("St Helens", data.getSuburb());
