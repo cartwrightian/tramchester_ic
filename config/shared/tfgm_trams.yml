@@ -9,7 +9,15 @@ gtfsSourceConfig:
     additionalInterchanges: []
     groupedStationModes: []
     addWalksForClosed: true
-    stationClosures: []
+    stationClosures:
+      - stations:
+          ids: [ "9400ZZMAPOM" ]
+        dateRange:
+          begin: 2026-07-13
+          end: 2026-08-02
+        fullyClosed: true
+        diversionsAroundClosure: [ ]
+        diversionsToFromClosure: [ ]
     temporaryStationsWalks: []
 #      - stations:
 #          first: 9400ZZMAPGD

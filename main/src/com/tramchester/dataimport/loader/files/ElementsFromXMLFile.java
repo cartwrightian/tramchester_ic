@@ -24,8 +24,8 @@ public class ElementsFromXMLFile<T> {
     private final Charset charset;
     private final XmlMapper mapper;
     private final XmlElementConsumer<T> xmlElementConsumer;
-    private final WstxInputFactory factory;
     private final String requiredElementName;
+    private final WstxInputFactory factory;
 
     private final JavaType elementJavaType;
 
@@ -40,7 +40,6 @@ public class ElementsFromXMLFile<T> {
         final Class<T> elementType = xmlElementConsumer.getElementType();
         requiredElementName = getElementName(elementType);
         elementJavaType = mapper.getTypeFactory().constructType(elementType);
-
     }
 
     private String getElementName(final Class<?> type) {
@@ -95,7 +94,7 @@ public class ElementsFromXMLFile<T> {
         private final Consumer<T> consumer;
         private int skippedStop;
 
-        protected XmlElementConsumer(Class<T> elementType, Consumer<T> consumer) {
+        protected XmlElementConsumer(final Class<T> elementType, final Consumer<T> consumer) {
             this.elementType = elementType;
             this.consumer = consumer;
             skippedStop = 0;

@@ -89,6 +89,10 @@ public enum NaptanStopType {
         return validModes.contains(mode);
     }
 
+    public String getCode() {
+        return code;
+    }
+
     private static class Constants {
         public static final ImmutableEnumSet<TransportMode> NotApplicable = ImmutableEnumSet.noneOf(TransportMode.class);
         public static final ImmutableEnumSet<TransportMode> Buses = ImmutableEnumSet.of(Bus, RailReplacementBus);

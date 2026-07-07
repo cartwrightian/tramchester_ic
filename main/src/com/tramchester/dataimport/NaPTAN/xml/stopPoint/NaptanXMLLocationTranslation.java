@@ -11,15 +11,15 @@ import com.tramchester.geo.GridPosition;
 @JsonTypeName("Translation")
 public class NaptanXMLLocationTranslation {
 
-    final private Integer easting;
-    final private Integer northing;
-    final private Double latitude;
     private final String gridType;
-    private final Double longitude;
+    final private int easting;
+    final private int northing;
+    final private double latitude;
+    private final double longitude;
 
     @JsonCreator
-    public NaptanXMLLocationTranslation(@JsonProperty("Easting") Integer easting,
-                                        @JsonProperty("Northing") Integer northing,
+    public NaptanXMLLocationTranslation(@JsonProperty(value = "Easting", defaultValue = "0") Integer easting,
+                                        @JsonProperty(value = "Northing", defaultValue = "0") Integer northing,
                                         @JsonProperty("Latitude") Double latitude,
                                         @JsonProperty("GridType") String gridType,
                                         @JsonProperty("Longitude") Double longitude) {

@@ -275,11 +275,13 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModesImmutable());
         }
 
+        @Override
         protected boolean shouldInclude(final NaptanStopData stopData) {
             if (!stopData.hasValidAtcoCode()) {
                 return false;
             }
 
+            // now in XML filter below
             if (!"active".equals(stopData.getStatus())) {
                 return false;
             }
