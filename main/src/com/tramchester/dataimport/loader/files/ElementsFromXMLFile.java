@@ -3,13 +3,13 @@ package com.tramchester.dataimport.loader.files;
 import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.BufferedInputStream;
@@ -39,8 +39,8 @@ public class ElementsFromXMLFile<T> {
         this.xmlElementConsumer = xmlElementConsumer;
 
         wstxInputFactory = new WstxInputFactory();
-        // unclear if needed, but does no harm
-        wstxInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        // in practice this seems to make little difference....
+        wstxInputFactory.configureForSpeed();
 
         final Class<T> elementType = xmlElementConsumer.getElementType();
         requiredElementName = getElementName(elementType);
@@ -53,10 +53,10 @@ public class ElementsFromXMLFile<T> {
     }
 
     public void load() {
+        logger.info("Load xml data from " +filePath.toAbsolutePath() + " for " + elementJavaType);
         try {
             final FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
             final BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-            logger.info("Load xml data from " +filePath.toAbsolutePath() + " for " + elementJavaType);
             load(bufferedInputStream);
             bufferedInputStream.close();
         } catch (IOException | XMLStreamException e) {
@@ -68,24 +68,16 @@ public class ElementsFromXMLFile<T> {
 
     public void load(final InputStream inputStream) throws XMLStreamException, IOException {
 
-        final XMLStreamReader streamReader = wstxInputFactory.createXMLStreamReader(inputStream, charset.name());
+        final XMLStreamReader xmlReader = wstxInputFactory.createXMLStreamReader(inputStream, charset.name());
         final XmlFactory xmlFactory = mapper.getFactory();
+        final ObjectReader reader = mapper.readerFor(elementJavaType);
 
         logger.info("Begin load");
 
-        while (streamReader.hasNext()) {
-            if (streamReader.isStartElement()) {
-                final String localName = streamReader.getLocalName();
-                if (requiredElementName.equals(localName)) {
-                    // can't share parser, contains stream context - don't close parser, closes the streamReader
-                    final FromXmlParser parser = xmlFactory.createParser(streamReader);
-                    consumeRequiredElement(parser);
-                } else {
-                    streamReader.next();
-                }
-            } else {
-                streamReader.next();
-            }
+        final XmlFilteredStreamReader streamReader = new XmlFilteredStreamReader(xmlReader, xmlFactory, requiredElementName);
+
+        while (streamReader.matches()) {
+            consumeRequiredElement(reader, streamReader.getParser());
         }
 
         streamReader.close();
@@ -93,8 +85,10 @@ public class ElementsFromXMLFile<T> {
 
     }
 
-    private void consumeRequiredElement(final FromXmlParser parser) throws IOException {
-        final T element = mapper.readValue(parser, elementJavaType);
+    private void consumeRequiredElement(final ObjectReader reader, final FromXmlParser parser) throws IOException {
+//        final TreeNode tree = reader.readTree(parser);
+//        final T element = reader.readValue(tree.traverse(mapper));
+        final T element = reader.readValue(parser);
         xmlElementConsumer.process(element);
     }
 

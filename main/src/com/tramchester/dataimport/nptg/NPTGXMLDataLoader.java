@@ -53,11 +53,12 @@ public class NPTGXMLDataLoader {
             throw new RuntimeException(message);
         }
 
-        Path filePath = remoteDataRefreshed.fileFor(DataSourceID.nptg);
+        final Path filePath = remoteDataRefreshed.fileFor(DataSourceID.nptg);
 
         logger.info("Loading data from " + filePath.toAbsolutePath());
 
-        ElementsFromXMLFile<NPTGLocalityXMLData> dataLoader = new ElementsFromXMLFile<>(filePath, StandardCharsets.UTF_8, mapper, consumer);
+        final ElementsFromXMLFile<NPTGLocalityXMLData> dataLoader =
+                new ElementsFromXMLFile<>(filePath, StandardCharsets.UTF_8, mapper, consumer);
 
         dataLoader.load();
     }
