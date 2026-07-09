@@ -60,11 +60,6 @@ public class StationClosuresConfig extends Configuration implements StationClosu
         return dateRangeConfig.isValid();
     }
 
-//    @Override
-//    public IdSet<Station> getStations() {
-//        return stations.getStations();
-//    }
-
     @Override
     public StationsConfig getStations() {
         return stations;
@@ -89,10 +84,11 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     @JsonIgnore
     @Override
     public boolean hasDiversionsAroundClosure() {
-        if (diversionsAroundClosure!=null) {
-            return !diversionsAroundClosure.isEmpty();
-        }
-        return false;
+        return diversionsAroundClosure!=null;
+//        if (diversionsAroundClosure!=null) {
+//            return !diversionsAroundClosure.isEmpty();
+//        }
+//        return false;
     }
 
     @Override
@@ -106,10 +102,11 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     @JsonIgnore
     @Override
     public boolean hasDiversionsToFromClosure() {
-        if (diversionsToFromClosure!=null) {
-            return !diversionsToFromClosure.isEmpty();
-        }
-        return false;
+        return diversionsToFromClosure!=null;
+//        if (diversionsToFromClosure!=null) {
+//            return !diversionsToFromClosure.isEmpty();
+//        }
+//        return false;
     }
 
     @Override

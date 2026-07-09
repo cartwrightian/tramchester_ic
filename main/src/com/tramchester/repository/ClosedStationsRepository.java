@@ -232,12 +232,12 @@ public class ClosedStationsRepository {
         private final Map<DataSourceID, IdSet<Station>> forDatasource;
         private final Map<IdFor<Station>, ClosedStation> closedStations;
         private final Map<IdFor<Station>, Set<Closure>> closuresForStation;
-        private final ClosedStationFactory closedStationFactory1;
-        private final GraphFilter graphFilter1;
+        private final ClosedStationFactory closedStationFactory;
+        private final GraphFilter graphFilter;
 
         public ClosedStationContainer(ClosedStationFactory closedStationFactory, GraphFilter graphFilter) {
-            closedStationFactory1 = closedStationFactory;
-            graphFilter1 = graphFilter;
+            this.closedStationFactory = closedStationFactory;
+            this.graphFilter = graphFilter;
             closuresForStation = new HashMap<>();
             closedStations = new HashMap<>();
             forDatasource = new HashMap<>();
@@ -253,7 +253,7 @@ public class ClosedStationsRepository {
             final IdFor<Station> stationId = station.getId();
             final DataSourceID dataSourceID = station.getDataSourceID();
 
-            final ClosedStation closedStation = closedStationFactory1.createClosedStation(closureConfig, stationId,
+            final ClosedStation closedStation = closedStationFactory.createClosedStation(closureConfig, stationId,
                     diversionStation -> shouldIncludeDiversion(diversionStation, closureConfig.getDateRange()));
             closedStations.put(stationId, closedStation);
             if (!forDatasource.containsKey(dataSourceID)) {
@@ -290,7 +290,7 @@ public class ClosedStationsRepository {
         }
 
         private boolean shouldIncludeDiversion(final Station diversionStation, final DateRange dateRange) {
-            if (graphFilter1.shouldInclude(diversionStation)) {
+            if (graphFilter.shouldInclude(diversionStation)) {
                 final IdFor<Station> stationId = diversionStation.getId();
                 if (closuresForStation.containsKey(stationId)) {
                     // diversion station also has closures, make sure not closed on same dates
@@ -368,20 +368,10 @@ public class ClosedStationsRepository {
             } else {
                 logger.warn("Did not find a closed station for " + stationId);
             }
-//        final Optional<ClosedStation> maybe = closedStations.stream().
-//                filter(closedStation -> closedStation.getDateTimeRange().contains(date)).
-//                filter(closedStation -> closedStation.getStationId().equals(station.getId())).
-//                filter(closedStation -> closedStation.getDateTimeRange().fullyContains(timeRange)).
-//                findFirst();
-//
-//        if (maybe.isEmpty()) {
+
             String msg = station.getId() + " is not closed on " + date;
             logger.error(msg);
             throw new RuntimeException(msg);
-//        }
-//
-//        return maybe.get();
-
         }
 
         public Set<ClosedStation> getAnyWithClosure(TramDate date) {

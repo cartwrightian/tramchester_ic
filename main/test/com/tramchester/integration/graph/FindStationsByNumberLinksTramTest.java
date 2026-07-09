@@ -99,11 +99,11 @@ class FindStationsByNumberLinksTramTest {
                 Broadway,
                 HarbourCity,
                 OldhamKingStreet, OldhamMumps,
-                Wharfside
-//                Shudehill
-//                VeloPark,
-//                HoltTown
-            ).map(FakeStation::getId).toList();
+                Wharfside,
+                Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
+
+
+        ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);
         ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);

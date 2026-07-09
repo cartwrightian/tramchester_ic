@@ -30,7 +30,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     public static final List<StationClosures> CurrentClosures =
             Collections.singletonList(new StationClosuresListForTest(TramStations.Pomona, UpcomingDates.summer2026MajorClosure,
-                    true));
+                    true, Collections.emptySet(), Collections.emptySet()));
 
     /**
      * examples

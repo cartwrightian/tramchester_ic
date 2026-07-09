@@ -228,16 +228,19 @@ public class JourneyPlannerResourceTest {
 
         // note: Cornbrook, StPetersSquare, Deansgate all valid but have same cost
 
-        Station deansgate = stationRepository.getStationById(Deansgate.getId());
-        Station cornbrook = stationRepository.getStationById(Cornbrook.getId());
-        Station piccadily = stationRepository.getStationById(Piccadilly.getId());
-        Station stPetersSquare = stationRepository.getStationById(StPetersSquare.getId());
+        Station deansgate = Deansgate.from(stationRepository);
+        Station cornbrook = Cornbrook.from(stationRepository);
+        Station piccadily = Piccadilly.from(stationRepository);
+        Station stPetersSquare = StPetersSquare.from(stationRepository);
+        // summer 2026
+        Station piccGardens = PiccadillyGardens.from(stationRepository);
 
         Set<Platform> platforms = new HashSet<>();
         platforms.addAll(deansgate.getPlatforms());
         platforms.addAll(cornbrook.getPlatforms());
         platforms.addAll(piccadily.getPlatforms());
         platforms.addAll(stPetersSquare.getPlatforms());
+        platforms.addAll(piccGardens.getPlatforms());
 
         Set<IdForDTO> platformIds = platforms.stream().map(IdForDTO::createFor).collect(Collectors.toSet());
 
@@ -282,7 +285,9 @@ public class JourneyPlannerResourceTest {
             assertTrue(expectedSecondStationNames.contains(secondStagePlatformStation.getName()),
                     "did not expect " + secondStagePlatformStation.getName());
 
-            assertTrue(platformIds.contains(secondStagePlatform.getId()), stategOnePlatform.getId() + " not in " + platformIds);
+            assertTrue(platformIds.contains(secondStagePlatform.getId()),
+                    secondStagePlatform.getId() +"("+secondStagePlatformStation+") not in "
+                            + platformIds + "\n for journey " + journey);
 
             List<ChangeStationRefWithPosition> changeStations = journey.getChangeStations();
 

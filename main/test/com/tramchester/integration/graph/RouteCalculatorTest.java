@@ -335,6 +335,23 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveBusForSummer2026AlttToPicc() {
+        TramDate date = UpcomingDates.summer2026MajorClosure.getStartDate().plusDays(1);
+
+        JourneyRequest journeyRequest = standardJourneyRequest(date, TramTime.of(10, 21),
+                1, 2);
+
+        List<Journey> results = calculator.calculateRouteAsList(Altrincham, Piccadilly, journeyRequest);
+
+        results.forEach(journey -> {
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(1, stages.size(), stages.toString());
+        });
+
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
     void shouldHaveLongJourneyAcross() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, Rochdale);

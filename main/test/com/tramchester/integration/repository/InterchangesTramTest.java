@@ -91,11 +91,12 @@ public class InterchangesTramTest {
                 StPetersSquare,
                 Broadway,
                 Victoria,
-                //VeloPark, HoltTown
                 OldhamKingStreet,
                 OldhamMumps,
-                Wharfside
-//                Shudehill
+                Wharfside,
+                // summer 2026 closures
+                Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
+
         );
 
         Set<Station> expectedStations = expectedTramStations.
@@ -117,7 +118,7 @@ public class InterchangesTramTest {
                 filter(station -> !interchangeRepository.isInterchange(station)).
                 collect(Collectors.toSet());
 
-        assertTrue(missing.isEmpty(), HasId.asIds(missing));
+        assertTrue(missing.isEmpty(), "Expected, but not an interchange? " + HasId.asIds(missing));
 
         Set<Station> unexpected = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStation).

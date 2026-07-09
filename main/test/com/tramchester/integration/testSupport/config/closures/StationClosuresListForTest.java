@@ -27,6 +27,7 @@ public class StationClosuresListForTest extends StationClosuresTestConfig {
         diversionsToFromClosure: [ ]
      **/
 
+    // no diversionsAround and diversionsToFrom means this will be autopopulated
     public StationClosuresListForTest(Collection<TramStations> stations, DateRange dateRange, boolean fullyClosed,
                                       Set<TramStations> diversionsAround, Set<TramStations> diversionsToFrom) {
         super(dateRange, fullyClosed, diversionsAround, diversionsToFrom);
@@ -38,9 +39,9 @@ public class StationClosuresListForTest extends StationClosuresTestConfig {
         this(Collections.singleton(tramStation), dateRange, fullyClosed, diversionsAround, diversionsToFrom);
     }
 
-    public StationClosuresListForTest(Collection<TramStations> stations, DateRange dateRange, boolean fullyClosed) {
-        this(stations, dateRange, fullyClosed, null, null);
-    }
+//    public StationClosuresListForTest(Collection<TramStations> stations, DateRange dateRange, boolean fullyClosed) {
+//        this(stations, dateRange, fullyClosed, null, null);
+//    }
 
     public StationClosuresListForTest(TramStations tramStation, DateRange dateRange, boolean fullyClosed) {
         this(Collections.singleton(tramStation), dateRange, fullyClosed, null, null);
