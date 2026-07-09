@@ -69,7 +69,13 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
         final String idText = routeData.getId();
 
         if (transportMode.equals(TransportMode.Tram)) {
-            final TFGMRouteNames routeName = TFGMRouteNames.parseFromSource(routeNameText);
+            final TFGMRouteNames routeName;
+            if (routeNameText.equals(TFGMRouteNames.ReplacementBus_WORKAROUND.getShortName())) {
+                // Workaround for replacement buses all having the same short name
+                routeName = TFGMRouteNames.parseFromSource(routeNameText+" "+longName.trim());
+            } else {
+                routeName = TFGMRouteNames.parseFromSource(routeNameText);
+            }
             final TramRouteId routeId = TramRouteId.create(routeName, idText);
             return new MutableRoute(routeId, longName, agency, transportMode);
         } else {

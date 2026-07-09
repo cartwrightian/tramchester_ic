@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
+import static com.tramchester.testSupport.UpcomingDates.summerClosureFirstSunday;
 import static com.tramchester.testSupport.reference.KnownTramRoute.cutoverDate;
 
 /*
@@ -26,29 +27,38 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement Buses, come and go
 
-    BusAltrinchamPiccadilly(AltrinchamPiccadilly, "Altrincham to Piccadilly Station", "3285", Constants.summer2026Closures),
-    BusPiccadillyAltrincham(AltrinchamPiccadilly, "Piccadilly Station - Altrincham", "3292", Constants.summer2026Closures),
-
-    BusVictoriaRochsdale(RochsdaleVictoria, "Victoria - Rochdale Town Centre", "3294", Constants.dayBeforeSummer2026Closures),
-    BusPiccadillyTraffordCentre(TraffordCentrePiccadilly, "Piccadilly Station - The Trafford Centre", "3291", Constants.summer2026Closures),
-
-    BusPiccadillyChorltonA(ChorltonPiccadilly, "Piccadilly Station - Chorlton", "3293", Constants.summer2026Closures),
-    BusPiccadillyChorltonB(ChorltonPiccadilly, "Piccadilly Station - Chorlton", "3288", Constants.summer2026Closures),
+//    BusAltrinchamPiccadilly(AltrinchamPiccadilly, "Altrincham to Piccadilly Station", "3285", Constants.summer2026Closures),
+//    BusPiccadillyAltrincham(PiccadillyAltrincham, "Piccadilly Station - Altrincham", "3292", Constants.summer2026Closures),
+//
+//    BusVictoriaRochsdale(VictoriaRochsdale, "Victoria - Rochdale Town Centre", "3294", Constants.dayBeforeSummer2026Closures),
+//
+//    BusPiccadillyTraffordCentreA(PiccadillyTraffordCentre, "Piccadilly Station - The Trafford Centre", "3291", Constants.summer2026Closures),
+//    BusPiccadillyTraffordCentreB(PiccadillyTraffordCentre, "Piccadilly Station - The Trafford Centre", "3299", Constants.summer2026Closures),
+//
+//    BusPiccadillyChorltonA(PiccadillyChorlton, "Piccadilly Station - Chorlton", "3293", Constants.summer2026Closures),
+//    BusPiccadillyChorltonB(PiccadillyChorlton, "Piccadilly Station - Chorlton", "3288", Constants.summer2026Closures),
+//
+//    BusEcclesPiccadillyA(EcclesPiccadilly, "Eccles - Piccadilly Station", "3289", Constants.summer2026Closures),
+//    BusEcclesPiccadillyB(EcclesPiccadilly, "Eccles - Piccadilly Station", "3310", Constants.summer2026Closures),
 
     // Blue
-    Blue3(Blue, "Eccles - Ashton Under Lyne", "3217", cutoverDate),
-    Blue8(Blue, "Eccles - Ashton Under Lyne", "3278", Constants.dayBeforeSummer2026Closures),
+    Blue1(Blue, "Eccles - Ashton Under Lyne", "3217", cutoverDate),
+    Blue2(Blue, "Eccles - Ashton Under Lyne", "3278", Constants.dayBeforeSummer2026Closures),
 
     // Green
     Green3(Green, "Bury - Manchester - Altrincham", "3218", cutoverDate),
 
     // Navy
-    Navy3(Navy, "Victoria - Manchester Airport", "3219", cutoverDate),
-    Navy8(Navy, "Victoria - Manchester Airport", "3280", Constants.dayBeforeSummer2026Closures),
+    Navy1(Navy, "Victoria - Manchester Airport", "3219", cutoverDate),
+    Navy2(Navy, "Victoria - Manchester Airport", "3280", Constants.dayBeforeSummer2026Closures),
+    Navy3(Navy, "Manchester Airport - Victoria", "3287", summerClosureFirstSunday),
+    Navy4(Navy, "Victoria - Manchester Airport", "3300", summerClosureFirstSunday.plusDays(1)),
 
     // Pink
-    Pink3(Pink, "Rochdale - East Didsbury", "3220", cutoverDate),
-    Pink8(Pink, "Rochdale - East Didsbury", "3281", Constants.dayBeforeSummer2026Closures),
+    Pink1(Pink, "Rochdale - East Didsbury", "3220", cutoverDate),
+    Pink2(Pink, "Rochdale - East Didsbury", "3281", Constants.dayBeforeSummer2026Closures),
+    Pink3(Pink, "East Didsbury - Rochdale" , "3286", summerClosureFirstSunday),
+    Pink4(Pink, "Rochdale - East Didsbury" , "3301", summerClosureFirstSunday.plusDays(1)),
 
     // Purple
     Purple3(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", cutoverDate),
@@ -59,8 +69,13 @@ public enum KnownTramRouteEnum implements TestRoute {
     Red8(Red, "Deansgate-Castlefield - The Trafford Centr", "3283", Constants.dayBeforeSummer2026Closures),
 
     // Yellow
-    Yellow3(Yellow, "Piccadilly - Bury", "3223", cutoverDate),
-    Yellow8(Yellow, "Piccadilly - Bury", "3284", Constants.dayBeforeSummer2026Closures);
+    Yellow1(Yellow, "Piccadilly - Bury", "3223", cutoverDate),
+    Yellow2(Yellow, "Piccadilly - Bury", "3284", Constants.dayBeforeSummer2026Closures),
+    Yellow3(Yellow, "Piccadilly - Bury", "844", summerClosureFirstSunday),
+    Yellow4(Yellow, "Piccadilly - Bury", "3302", summerClosureFirstSunday.plusDays(1)),
+
+    ;
+
 
     private final TFGMRouteNames line;
     private final String longName;

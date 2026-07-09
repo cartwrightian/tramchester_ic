@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -261,7 +262,8 @@ class KnownTramRouteTest {
 
     @NotNull
     private Stream<Route> getLoadedTramRoutes(final TramDate date) {
-        return routeRepository.getRoutesRunningOn(date, TransportMode.TramsOnly).stream();
+        return routeRepository.getRoutesRunningOn(date, TransportMode.TramsOnly).stream().
+                filter(route -> !((TramRouteId)route.getId()).getRouteName().isReplacementBus());
     }
 
 }

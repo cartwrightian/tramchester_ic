@@ -80,39 +80,21 @@ public class KnownTramRoute {
         FindCurrentRouteFromLine find = new FindCurrentRouteFromLine(date);
 
         final boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
-
-        if (sunday) {
-//            if (date.equals(victoriaClosedUntil10amJuly2026)) {
-//                routes.add(find.singleRoute(BusPicVic));
-//            }
-            if (summer2026MajorClosure.getStartDate().minusDays(1).equals(date)) {
-                routes.add(find.singleRoute(RochsdaleVictoria));
-            }
-
-            // is this a mistake?
-            if (date.equals(TramDate.of(2026, 7, 19))) {
-                routes.add(find.singleRoute(Blue));
-            }
-        }
-//        else {
-//            routes.add(find.apply(Green));
+//
+//        if (summer2026MajorClosure.getStartDate().minusDays(1).equals(date)) {
+//            routes.add(find.singleRoute(VictoriaRochsdale));
 //        }
 
         if (summer2026MajorClosure.contains(date)) {
-            // assuming this is a mistake in source data
-            if (sunday) {
-                routes.add(find.singleRoute(Purple));
-                routes.add(find.singleRoute(Red));
-                routes.add(find.singleRoute(RochsdaleVictoria));
-            } else {
-                routes.addAll(find.multipleRoutes(AltrinchamPiccadilly));
-                routes.addAll(find.multipleRoutes(ChorltonPiccadilly));
-                routes.add(find.singleRoute(TraffordCentrePiccadilly));
-            }
+
+            // not tracking buses
+
+
         } else {
             routes.add(find.singleRoute(Purple));
             routes.add(find.singleRoute(Red));
             routes.add(find.singleRoute(Blue));
+
             if (!sunday) {
                 routes.add(find.singleRoute(Green));
             }

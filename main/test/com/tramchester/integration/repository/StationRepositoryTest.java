@@ -287,7 +287,8 @@ public class StationRepositoryTest {
                 map(TramRouteId::getRouteName).
                 collect(Collectors.toSet());
 
-        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        // replacement bus
+        assertEquals(1+1, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(TFGMRouteNames.Blue));
 
         Set<TFGMRouteNames> pickUps = mediaCity.getPickupRoutes().stream().
@@ -295,7 +296,8 @@ public class StationRepositoryTest {
                 map(TramRouteId::getRouteName).
                 collect(Collectors.toSet());
 
-        assertEquals(1, pickUps.size(), pickUps.toString());
+        // replacement bus
+        assertEquals(1+1, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(TFGMRouteNames.Blue));
     }
 

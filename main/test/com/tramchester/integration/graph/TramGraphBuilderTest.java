@@ -107,10 +107,10 @@ class TramGraphBuilderTest {
         GraphNode cornbrookNode = txn.findNode(cornbrook);
         Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, Outgoing, LINKED);
 
-        List<GraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
+        List<GraphRelationship> list = outboundLinks.toList();
 
         // summer closures, bus links
-        assertEquals(3+1, list.size());
+        assertEquals(3+2, list.size(), "Wrong number of outbounds " + list);
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).

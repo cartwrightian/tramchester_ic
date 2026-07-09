@@ -38,6 +38,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -165,11 +166,13 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(15,0), 0);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
         checkRouteNextNDays(Altrincham, TraffordBar, TramTime.of(15,0), 0);
     }
 
+    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
@@ -324,6 +327,7 @@ public class RouteCalculatorTest {
                     " both (deansgate): " + servedByBothRoutes.size());
     }
 
+    @Summer2026Closures
     // over max wait, catch failure to accumulate journey times correctly
     @Test
     void shouldHaveSimpleButLongJoruneySameRoute() {
@@ -349,6 +353,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);

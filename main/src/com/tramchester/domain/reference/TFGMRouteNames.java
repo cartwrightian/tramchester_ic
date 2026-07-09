@@ -9,12 +9,19 @@ public enum TFGMRouteNames {
     BusThree("Metrolink Replacement Bus 3", true),
     BusFour("Metrolink Replacement Bus 4", true),
     BusFive("Metrolink Replacement Bus 5", true),
-    BusPicVic("PIC-VIC Replacement Bus", true),
 
-    AltrinchamPiccadilly("Tram Replacement Bus ALT - PIC", true),
+//    BusPicVic("PIC-VIC Replacement Bus", true),
+
+    // NOTE: Workaround, see TransportEntityFactoryForTFGM and inconsistency below (from source data)
+    ReplacementBus_WORKAROUND("Replacement Bus", true),
+
+    AltrinchamPiccadilly("Replacement Bus Altrincham to Piccadilly Station", true),
+    PiccadillyAltrincham("Replacement Bus Piccadilly Station - Altrincham", true),
     ChorltonPiccadilly("Tram Replacement Bus CHO - PIC", true),
-    TraffordCentrePiccadilly("Tram Replacement Bus TRC - PIC", true),
-    RochsdaleVictoria("Tram Replacement Bus RTC - VIC", true),
+    PiccadillyChorlton("Replacement Bus Piccadilly Station - Chorlton", true),
+    EcclesPiccadilly("Replacement Bus Eccles - Piccadilly Station", true),
+    PiccadillyTraffordCentre("Replacement Bus Piccadilly Station - The Trafford Centre", true),
+    VictoriaRochsdale("Replacement Bus Victoria - Rochdale Town Centre", true),
 
     Red("Red Line", false),
     Pink("Pink Line", false),
@@ -51,7 +58,7 @@ public enum TFGMRouteNames {
 
     public static TFGMRouteNames parseFromSource(final String text) {
         if (!routeNameMap.containsKey(text)) {
-            throw new RuntimeException("Missing from Enum: route name '" + text + "' not found in" + routeNameMap);
+            throw new RuntimeException("Missing from TFGMRouteNames: '" + text + "' not found in" + routeNameMap);
         }
         return routeNameMap.get(text);
     }

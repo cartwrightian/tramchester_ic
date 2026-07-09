@@ -39,6 +39,8 @@ public class UpcomingDates {
     public static DateRange summer2026MajorClosure = DateRange.of(TramDate.of(2026,7,13),
             TramDate.of(2026, 8,2));
 
+   public static TramDate summerClosureFirstSunday = TramDate.of(2026, 7, 19);
+
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         // Add closures to the TimeRange version
         return hasClosure(stationId, date, TimeRange.AllDay());

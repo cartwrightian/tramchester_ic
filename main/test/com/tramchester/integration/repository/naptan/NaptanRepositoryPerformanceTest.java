@@ -39,7 +39,7 @@ public class NaptanRepositoryPerformanceTest {
     void shouldRestartRepository() {
         respository.stop(); // will already be started
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             respository.start();
             respository.stop();
         }
