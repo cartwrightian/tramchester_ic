@@ -34,6 +34,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -102,10 +103,10 @@ public class TransportDataFromFilesTramTest {
         assertEquals(expectedPlatforms, transportData.getPlatforms(TransportMode.TramsOnly).size());
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedNumRoutes() {
         Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
-//                filter(route -> route.getTransportMode()==Tram).
                 map(Route::getName).collect(Collectors.toSet());
 
         assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
@@ -193,6 +194,7 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
+    @Summer2026Closures
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(OldTrafford.getId());

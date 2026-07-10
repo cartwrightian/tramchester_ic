@@ -186,10 +186,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             this.date = date;
         }
 
-//        public LocationIdPairSet<Station> createStationPairsForAll(final EnumSet<TransportMode> modes) {
-//            return createStationPairsForAll(ImmutableEnumSet.copyOf(modes));
-//        }
-
         public LocationIdPairSet<Station> createStationPairsForAll(final ImmutableEnumSet<TransportMode> modes) {
 
             final Set<Station> allStations = stationRepository.getStations(modes);

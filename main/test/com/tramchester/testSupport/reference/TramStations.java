@@ -45,6 +45,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
     MarketStreet("9400ZZMAMKT", "Market Street", pos(53.48192, -2.23883)),
     MediaCityUK("9400ZZMAMCU", "MediaCityUK", pos(53.47214, -2.29733)),
     StWerburghsRoad("9400ZZMASTW", "St Werburgh's Road", pos(53.4387, -2.26547)),
+    Firswood("9400ZZMAFIR", "Firswood", pos(53.45120398321,-2.27774841815)),
     Chorlton("9400ZZMACHO", "Chorlton", pos(53.44262, -2.27335) ),
     Shudehill("9400ZZMASHU", "Shudehill", pos(53.48524, -2.23918)),
     Monsall("9400ZZMAMON", "Monsall", pos(53.50111, -2.21061)),

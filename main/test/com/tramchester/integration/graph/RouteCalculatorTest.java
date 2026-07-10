@@ -285,6 +285,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    @Summer2026Closures
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -520,8 +521,44 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveHeatonParkToBurtonRoad() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(7, 30), maxNumResults, 1);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 3);
         assertGetAndCheckJourneys(journeyRequest, HeatonPark, BurtonRoad);
+    }
+
+    @Test
+    void shouldHaveHeatonParkToPiccadilly() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 0);
+        assertGetAndCheckJourneys(journeyRequest, HeatonPark, Piccadilly);
+    }
+
+    @Test
+    void shouldHavePiccadillyToBurtonRoad() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 1);
+        assertGetAndCheckJourneys(journeyRequest, Piccadilly, BurtonRoad);
+    }
+
+    @Test
+    void shouldHavePiccadillyToTraffordBar() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 0);
+        assertGetAndCheckJourneys(journeyRequest, Piccadilly, TraffordBar);
+    }
+
+    @Test
+    void shouldHaveTraffordBarToChorlton() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 0);
+        assertGetAndCheckJourneys(journeyRequest, TraffordBar, Chorlton);
+    }
+
+    @Test
+    void shouldHaveTraffordBarToBurtonRoad() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 1);
+        assertGetAndCheckJourneys(journeyRequest, TraffordBar, BurtonRoad);
+    }
+
+    @Test
+    void shouldHaveChorltonToBurtonRoad() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 0);
+        assertGetAndCheckJourneys(journeyRequest, Chorlton, BurtonRoad);
     }
 
     @Test
@@ -570,7 +607,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldProvideASpreadOfDepartureTimes() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 45),
-                3, 1);
+                3, 1+1+1);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);
 
@@ -684,6 +721,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
+    @Summer2026Closures
     @Test
     void reproduceIssueEdgePerTrip() {
 

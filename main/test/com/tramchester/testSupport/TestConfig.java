@@ -128,13 +128,12 @@ public abstract class TestConfig extends AppConfiguration {
         return 25;
     }
 
-    // see RouteCalculatorTest.shouldFindEndOfLinesToEndOfLines
-    // october 2024 closures 143 -> 155
+    // see RouteCalculatorKeyRoutesTest.shouldFindEndOfLinesToEndOfLines
     @Override
     public int getMaxJourneyDuration() {
-        return 155;
-//        return 143;
-//        return 127;
+        // summer 2026
+        return 3*60;
+        //return 155;
     }
 
     @Override

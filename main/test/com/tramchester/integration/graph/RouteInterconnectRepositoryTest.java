@@ -32,6 +32,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import com.tramchester.testSupport.testTags.TraffordCentreTramsFromVictoria2026;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -42,11 +43,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.MutableAgency.METL;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -101,6 +104,7 @@ public class RouteInterconnectRepositoryTest {
         modes = TransportMode.TramsOnly;
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -128,6 +132,7 @@ public class RouteInterconnectRepositoryTest {
         return routeHelper.getOneRoute(line, date);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -149,6 +154,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeNotOnDate() {
 
@@ -200,6 +206,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -210,6 +217,50 @@ public class RouteInterconnectRepositoryTest {
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
         int expectedChanges = ((config.hasRailConfig()) ? 8 : 5);
+
+        assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
+
+        // unrealistic as would be 0 in code, direct via one interchange
+        assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
+
+        Set<Pair<RoutePair, RoutePair>> results = repository.getBackTracksFor(1, indexPair);
+
+        // all pairs should have interchanges
+        Set<Pair<RouteIndexPair, RouteIndexPair>> noInterchanges = results.stream().
+                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
+                filter(pair -> !(interchangeRepository.hasInterchangeFor(pair.getLeft()) && interchangeRepository.hasInterchangeFor(pair.getRight()))).
+                collect(Collectors.toSet());
+
+        assertTrue(noInterchanges.isEmpty(), noInterchanges.toString());
+
+        Set<Route> wrongFirst = results.stream().map(pair -> pair.getLeft().first()).
+                filter(first -> !first.equals(routeA)).
+                collect(Collectors.toSet());
+
+        assertTrue(wrongFirst.isEmpty(), wrongFirst.toString());
+
+        Set<Route> wrongSecond = results.stream().map(pair -> pair.getRight().second()).
+                filter(second -> !second.equals(routeB)).
+                collect(Collectors.toSet());
+
+        assertTrue(wrongSecond.isEmpty(), wrongFirst.toString());
+
+    }
+
+    @Test
+    void shouldHaveExpectedBacktrackFor1ChangesSummer2026() {
+        Set<Route> buses = routeRepository.findRoutesByName(METL, "Altrincham to Piccadilly Station");
+        Optional<Route> search = buses.stream().filter(route -> route.isAvailableOn(date)).findFirst();
+        assertTrue(search.isPresent());
+
+        Route routeA = search.get();
+        Route routeB = getRouteFor(TFGMRouteNames.Navy);
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
+        Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
+
+        int expectedChanges = ((config.hasRailConfig()) ? 8-2 : 5-2);
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 
@@ -328,6 +379,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldReproIssueWithGreenLineRoute() {
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);

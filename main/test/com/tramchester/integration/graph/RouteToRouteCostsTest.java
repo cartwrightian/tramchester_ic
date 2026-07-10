@@ -3,13 +3,11 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationCollectionSingleton;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -20,13 +18,16 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,16 +35,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -87,6 +89,57 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
+    void shouldHaveResultsForAllStationsBelowMaxChanges() {
+        ClosedStationsRepository closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
+
+        final Set<Station> allStations = stationRepository.getStations(modes);
+
+        // pairs of stations to check
+        // What is going on with Harbour City??
+        Set<StationPair> pairs = allStations.stream().
+                flatMap(start -> allStations.stream().map(dest -> StationPair.of(start, dest))).
+                filter(pair -> !UpcomingDates.hasClosure(pair.getStationIds(), date)).
+                filter(pair -> open(closedStationsRepository, pair)).
+                filter(pair -> avoid(HarbourCity, pair)).
+                filter(pair -> !pair.areSame()).
+                collect(Collectors.toSet());
+
+        int duration = config.getMaxJourneyDuration();
+        long maxJourneys = 1;
+        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(10,45), false,
+            config.getMaxNumberChanges(), TramDuration.ofMinutes(duration), maxJourneys, TramsOnly);
+
+        Set<Integer> changes = new HashSet<>();
+        Set<StationPair> missing = new HashSet<>();
+        pairs.stream().forEach(pair -> {
+            int result = routesCostRepository.getNumberOfChanges(pair.getBegin(), pair.getEnd(), journeyRequest, timeRange);
+            if (Integer.MAX_VALUE == result) {
+                missing.add(pair);
+            } else {
+                changes.add(result);
+            }
+        });
+
+        assertTrue(missing.isEmpty(), missing.toString());
+
+        assertEquals(2, changes.size());
+        assertTrue(changes.contains(0));
+        assertTrue(changes.contains(1));
+
+    }
+
+    private boolean avoid(TramStations tramStation, StationPair pair) {
+        IdFor<Station> id = tramStation.getId();
+        return !id.equals(pair.getBegin().getId()) && !id.equals(pair.getEnd().getId());
+    }
+
+    private boolean open(ClosedStationsRepository closedStationsRepository, StationPair pair) {
+        return !closedStationsRepository.isClosed(pair.getBegin(), date) &&
+                !closedStationsRepository.isClosed(pair.getEnd(), date);
+    }
+
+
+    @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
         Set<Route> routes = routeRepository.getRoutes(modes).stream().
                 filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
@@ -98,8 +151,12 @@ public class RouteToRouteCostsTest {
         for (Route start : routes) {
             for (Route end : routes) {
                 if (!start.equals(end) && start.isDateOverlap(end)) {
-                    if (routesCostRepository.getPossibleMinChanges(start, end, date, timeRangeForOverlaps, modes)==Integer.MAX_VALUE) {
+                    int minChange = routesCostRepository.getPossibleMinChanges(start, end, date, timeRangeForOverlaps, modes);
+                    if (minChange ==Integer.MAX_VALUE) {
                         failed.add(new RoutePair(start, end));
+                    } else {
+                       assertTrue(config.getMaxNumberChanges()>=minChange, "Too many changes " + start.getId() +
+                               " and " + end.getId() + " on " + date);
                     }
                 }
             }
@@ -115,6 +172,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
+    @Summer2026Closures
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
@@ -127,6 +185,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
+    @Summer2026Closures
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(date);
@@ -140,9 +199,23 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
+    @Summer2026Closures
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
         Route routeA = routeHelper.getGreen(date);
+        Route routeB = routeHelper.getNavy(date);
+
+        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
+                "wrong for " + routeA.getId() + " " + routeB.getId());
+        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, timeRange, modes)),
+                "wrong for " + routeB.getId() + " " + routeA.getId());
+
+    }
+
+    @Test
+    void shouldComputeCostsSummer2026() {
+        Route routeA = routeHelper.requireByLongName(date,"Altrincham to Piccadilly Station");
+
         Route routeB = routeHelper.getNavy(date);
 
         assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
@@ -197,8 +270,8 @@ public class RouteToRouteCostsTest {
         int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),
                 Ashton.from(stationRepository), modes, date, timeRange);
 
-        assertEquals(0, possibleMin);
-
+        // summer 2026
+        assertEquals(0+1, possibleMin);
     }
 
     @Test
@@ -207,9 +280,11 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
-        assertEquals(0, getMinCost(result));
+        // summer 2026
+        assertEquals(0+1, getMinCost(result));
     }
 
+    @Summer2026Closures
     @Test
     void shouldSortAsExpected() {
 

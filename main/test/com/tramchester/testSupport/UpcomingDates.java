@@ -1,5 +1,6 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
@@ -36,8 +37,7 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange summer2026MajorClosure = DateRange.of(TramDate.of(2026,7,13),
-            TramDate.of(2026, 8,2));
+    public static DateRange summer2026MajorClosure = TramchesterConfig.getSummer2026Closures();
 
    public static TramDate summerClosureFirstSunday = TramDate.of(2026, 7, 19);
 

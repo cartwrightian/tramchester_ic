@@ -153,7 +153,7 @@ public class LowestCostSeenForTime implements ArrivalHandler {
 
     @Override
     public String toString() {
-        return "LowestCostSeenForQueryTime{" +
+        return "LowestCostSeenForTime{" +
                 "cost=" + lowestCostForQuery +
                 ", changes=" + lowestNumChangesForQuery +
                 ", arrivalCounts=" + arrivalCounts +

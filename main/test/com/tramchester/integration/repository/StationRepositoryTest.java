@@ -20,6 +20,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -29,6 +30,7 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +39,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
+import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,6 +77,7 @@ public class StationRepositoryTest {
         when = TestEnv.testDay();
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getGreen(when);
@@ -111,7 +116,7 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        assertEquals(3+1, lines.size(), lines.toString());
+        assertEquals(3-1, lines.size(), lines.toString());
 
     }
 
@@ -220,6 +225,7 @@ public class StationRepositoryTest {
         assertEquals(LocationType.Platform, platformOne.getLocationType());
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedPickupAndDropoffForCornbrook() {
         Station station = Cornbrook.from(stationRepository);
@@ -255,6 +261,39 @@ public class StationRepositoryTest {
         assertTrue(pickups.containsAll(dropOffs));
     }
 
+    @Test
+    void shouldHaveExpectedPickupAndDropoffForCornbrookSummer2026() {
+        Station station = Cornbrook.from(stationRepository);
+
+        assertTrue(station.hasDropoff());
+        assertTrue(station.hasPickup());
+
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+
+        IdSet<Route> expectedIds = routeRepository.getRoutesRunningOn(when, TramsOnly).
+                stream().filter(route -> route.getShortName().startsWith(ReplacementBus_WORKAROUND.getShortName())).
+                collect(IdSet.collector());
+
+        expectedIds.add(routeHelper.getOneRoute(Pink, when).getId());
+        expectedIds.add(routeHelper.getOneRoute(Navy, when).getId());
+
+        IdSet<Route> pickups = station.getPickupRoutes().stream().
+                filter(route -> route.isAvailableOn(when)).
+                collect(IdSet.collector());
+
+        ImmutableIdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
+
+        assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + "\n found " + pickups);
+
+        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
+                filter(route -> route.isAvailableOn(when)).
+                collect(IdSet.collector());
+
+        assertEquals(expectedIds.size(), dropOffs.size());
+        assertTrue(pickups.containsAll(dropOffs));
+    }
+
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedPickupAndDropoffForOneStation() {
         Station station = TraffordCentre.from(stationRepository);

@@ -13,12 +13,11 @@ import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import static com.tramchester.domain.MutableAgency.METL;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /***
  * Test helper only
@@ -140,4 +139,11 @@ public class TramRouteHelper {
     }
 
 
+    public Route requireByLongName(TramDate date, String longName) {
+        Set<Route> matches = routeRepository.findRoutesByName(METL, longName);
+        Optional<Route> search = matches.stream().filter(route -> route.isAvailableOn(date)).findFirst();
+        assertTrue(search.isPresent());
+
+        return search.get();
+    }
 }

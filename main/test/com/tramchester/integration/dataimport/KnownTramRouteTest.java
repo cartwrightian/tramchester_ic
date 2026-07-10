@@ -20,6 +20,7 @@ import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -155,6 +156,7 @@ class KnownTramRouteTest {
         });
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
         final Set<Route> loaded = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly);

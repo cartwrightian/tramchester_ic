@@ -27,7 +27,7 @@ import java.util.Optional;
 
 public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
-    public static final TramDuration MAX_INITIAL_WAIT = TramDuration.ofMinutes(13);
+    public static final TramDuration MAX_INITIAL_WAIT = TramDuration.ofMinutes(20);
 
     public enum LiveData {
         Enabled, Disabled, EnabledWithSNS

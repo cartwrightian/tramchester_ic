@@ -85,7 +85,11 @@ public class TripRepositoryTest {
 
         assertFalse(fromAlty.isEmpty());
 
-        TimeRange range = TimeRangePartial.of(TramTime.of(0,1), TramDuration.ZERO, TramDuration.ofMinutes(config.getMaxWait()));
+        assertFalse(when.isAfter(UpcomingDates.summer2026MajorClosure.getEndDate()), "Remove the plus 30");
+        TramDuration maxWait = TramDuration.ofMinutes(config.getMaxWait()).plusMinutes(30);
+
+        TimeRange range = TimeRangePartial.of(TramTime.of(0,1), TramDuration.ZERO,
+                maxWait);
         TimeRange nextRange = range.transposeToNextDay();
 
         Set<Trip> atTime = fromAlty.stream().
@@ -99,6 +103,7 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
+    @Summer2026Closures
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -114,7 +119,7 @@ public class TripRepositoryTest {
 
         assertFalse(routes.isEmpty());
         // summer 2026 changes
-        assertEquals(4, routes.size(), HasId.asIds(routes));
+        assertEquals(1, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
@@ -245,6 +250,7 @@ public class TripRepositoryTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Cornbrook);

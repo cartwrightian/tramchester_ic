@@ -16,6 +16,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,6 +74,7 @@ public class RouteCostMatrixTest {
         date = TestEnv.testDay();
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexWhereDirectInterchangePossible() {
         Route routeA = routeHelper.getGreen(date);
@@ -82,6 +84,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);
@@ -92,6 +95,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexForEcclesRouteOntoAltyRoute() {
         Route routeA = routeHelper.getBlue(date);
@@ -102,6 +106,49 @@ public class RouteCostMatrixTest {
     }
 
     @Test
+    void shouldHaveExpectedIndexWithReplacementBusesFromAlty() {
+        Route bus = routeHelper.requireByLongName(date, "Altrincham to Piccadilly Station");
+
+
+        int depthNavy = routeMatrix.getConnectionDepthFor(bus, routeHelper.getNavy(date));
+        assertEquals(1, depthNavy);
+
+        int depthPink = routeMatrix.getConnectionDepthFor(bus, routeHelper.getPink(date));
+        assertEquals(1, depthPink);
+
+    }
+
+    @Test
+    void shouldHaveExpectedIndexWithReplacementBusesFromChorlton() {
+        Route bus = routeHelper.requireByLongName(date, "Piccadilly Station - Chorlton");
+
+        int depthNavy = routeMatrix.getConnectionDepthFor(bus, routeHelper.getNavy(date));
+        assertEquals(1, depthNavy);
+
+        int depthPink = routeMatrix.getConnectionDepthFor(bus, routeHelper.getPink(date));
+        assertEquals(1, depthPink);
+    }
+
+    @Test
+    void shouldHaveExpectedIndexPinkNavyDuringClosure() {
+        Route routeA = routeHelper.getPink(date);
+        Route routeB = routeHelper.getNavy(date);
+
+        int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
+        assertEquals(1, depth);
+    }
+
+    @Test
+    void shouldHaveExpectedIndexPinkYellowDuringClosure() {
+        Route routeA = routeHelper.getPink(date);
+        Route routeB = routeHelper.getYellow(date);
+
+        int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
+        assertEquals(1, depth);
+    }
+
+    @Summer2026Closures
+    @Test
     void shouldHaveExpectedIndexForEcclesRouteFromAltyRoute() {
         Route routeA = routeHelper.getGreen(date);
         Route routeB = routeHelper.getNavy(date);
@@ -110,6 +157,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @Summer2026Closures
     @Test
     void shouldGetBitsSetIfAlreadySetForLowerDepth() {
         Route routeA = routeHelper.getRed(date);

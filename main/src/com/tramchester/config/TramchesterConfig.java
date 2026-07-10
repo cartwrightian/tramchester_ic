@@ -2,6 +2,8 @@ package com.tramchester.config;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -27,6 +29,11 @@ import static tech.units.indriya.unit.Units.METRE_PER_SECOND;
 import static tech.units.indriya.unit.Units.SECOND;
 
 public abstract class TramchesterConfig extends Configuration implements HasRemoteDataSourceConfig, HasGraphDBConfig {
+
+    public static DateRange getSummer2026Closures() {
+        return DateRange.of(TramDate.of(2026,7,13),
+                TramDate.of(2026, 8,2));
+    }
 
     public static final ZoneId TimeZoneId = ZoneId.of("Europe/London");
 
