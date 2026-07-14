@@ -22,6 +22,7 @@ import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,8 +112,8 @@ public class StopCallRepositoryTest {
                 count();
         assertEquals(results.size(), correctTimes);
 
-        // 15 min service -1
-        assertEquals(5-1, results.size(), results.toString());
+        // sumemr 2026
+        assertEquals(5+2, results.size(), results.toString());
     }
 
     @Test
@@ -186,6 +187,7 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
+    @Summer2026Closures
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
         //TramDate date = TramDate.of(2026,5,30);
@@ -224,6 +226,7 @@ public class StopCallRepositoryTest {
         assertEquals(VictoriaToSouthChadderton, stopsBetween);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedEcclesLinesClosures() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());

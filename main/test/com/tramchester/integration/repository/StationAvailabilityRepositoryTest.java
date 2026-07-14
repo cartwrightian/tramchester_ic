@@ -109,7 +109,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,2), TramTime.nextDay(0,49)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(4,57), TramTime.nextDay(1,4)), result);
     }
 
     @Test
@@ -217,6 +217,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result, "missing late night services");
     }
 
+    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldNotHaveLateNightServicesAtEndOfLine() {
@@ -307,6 +308,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
         TramDate date = TestEnv.testDay();

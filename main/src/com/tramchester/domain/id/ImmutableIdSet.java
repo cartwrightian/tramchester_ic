@@ -13,6 +13,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 public interface ImmutableIdSet<T extends CoreDomain> extends Iterable<IdFor<T>> {
+
     int size();
 
     boolean contains(IdFor<T> id);

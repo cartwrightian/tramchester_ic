@@ -218,18 +218,18 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void seenStation(IdFor<Station> stationId) {
+    public void recordStation(IdFor<Station> stationId) {
         // no-op
     }
 
     @Override
-    public void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
+    public void recordStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
         // no-op
     }
 
 
     @Override
-    public void seenRouteStation(GraphNode node) {
+    public void recordRouteStation(GraphNode node) {
         // no-op
     }
 
@@ -255,6 +255,12 @@ class MapStatesToStages implements JourneyStateUpdate {
     @Override
     public IdFor<Trip> getCurrentTrip() {
         return currentTrip;
+    }
+
+    @Override
+    public boolean alreadyPassed(IdFor<Station> stationId) {
+        // noop
+        return false;
     }
 
     public List<TransportStage<?, ?>> getStages() {

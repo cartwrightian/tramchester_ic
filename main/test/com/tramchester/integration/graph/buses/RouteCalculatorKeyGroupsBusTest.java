@@ -69,7 +69,7 @@ class RouteCalculatorKeyGroupsBusTest {
         LocationIdPairSet<StationLocalityGroup> pairs = createPairsFor(Arrays.asList(Altrincham, Stockport, ManchesterAirport));
         RouteCalculationCombinations.CombinationResults<StationLocalityGroup> results = combinations.getJourneysFor(pairs, journeyRequest);
 
-        List<RouteCalculationCombinations.JourneyOrNot<StationLocalityGroup>> failed = results.getFailed();
+        RouteCalculationCombinations.Failures<StationLocalityGroup> failed = results.getFailed();
 
         assertTrue(failed.isEmpty());
     }

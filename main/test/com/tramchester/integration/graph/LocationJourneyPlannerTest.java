@@ -187,16 +187,19 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> journeySet = planner.quickestRouteForLocation(nearAltrincham, ManAirport, request, 3);
+        // summer 2026
+        int numberStages = 3+1;
+
+        Set<Journey> journeySet = planner.quickestRouteForLocation(nearAltrincham, ManAirport, request, numberStages);
 
         List<String> possibleStarts = Arrays.asList(Altrincham.getName(), NavigationRoad.getName());
 
         assertFalse(journeySet.isEmpty(), "no journeys found for " + request);
 
         journeySet.forEach(journey -> {
-            assertEquals(3, journey.getStages().size());
+            assertEquals(numberStages, journey.getStages().size());
             List<ChangeLocation<?>> changes = journey.getChangeStations();
-            assertEquals(2, changes.size(), "wrong number of changes " + HasId.asIds(changes));
+            assertEquals(numberStages-1, changes.size(), "wrong number of changes " + HasId.asIds(changes));
             Set<String> names = changes.stream().map(changeLocation -> changeLocation.location().getName()).collect(Collectors.toSet());
             boolean hasExpectedStart = names.stream().anyMatch(possibleStarts::contains);
             assertTrue(hasExpectedStart, "Mismatch between " + names );
@@ -308,12 +311,15 @@ class LocationJourneyPlannerTest {
         assertTrue(stages.size() >= 2);
 
         int lastStageIndex = stages.size() - 1;
-        List<IdFor<Station>> nearStationIds = Arrays.asList(Shudehill.getId(), ExchangeSquare.getId());
+        // summer 2026, add Piccadilly
+        List<IdFor<Station>> nearStationIds = Arrays.asList(Shudehill.getId(), ExchangeSquare.getId(), Piccadilly.getId());
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex-1).getLastStation().getId()));
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
 
         List<ChangeLocation<?>> changeStations = lowestCostJourney.getChangeStations();
-        assertEquals(1, changeStations.size(),  " stations " + HasId.asIds(changeStations));
+
+        // summer 2026
+        assertEquals(1+1, changeStations.size(),  " stations " + HasId.asIds(changeStations));
 
         ChangeLocation<?> changeStation = changeStations.getFirst();
         assertTrue(nearStationIds.contains(changeStation.getId()), changeStation + " not in " + nearStationIds);

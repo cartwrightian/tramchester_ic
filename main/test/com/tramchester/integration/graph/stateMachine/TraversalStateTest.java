@@ -32,6 +32,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -90,6 +91,7 @@ public class TraversalStateTest extends EasyMockSupport {
         txn.close();
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveDestinationOutboundWhenAvailableOnTrip() {
 
@@ -135,6 +137,7 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveDestinationOutboundWhenAvailableEndTrip() {
 
@@ -176,6 +179,7 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
 

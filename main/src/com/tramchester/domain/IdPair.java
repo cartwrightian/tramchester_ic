@@ -31,8 +31,12 @@ public class IdPair<T extends CoreDomain> {
         return second;
     }
 
-    public boolean both(Function<IdFor<T>, Boolean> predicate) {
+    public boolean both(final Function<IdFor<T>, Boolean> predicate) {
         return predicate.apply(first) && predicate.apply(second);
+    }
+
+    public boolean either(final Function<IdFor<T>, Boolean> predicate) {
+        return predicate.apply(first) || predicate.apply(second);
     }
 
     @Override

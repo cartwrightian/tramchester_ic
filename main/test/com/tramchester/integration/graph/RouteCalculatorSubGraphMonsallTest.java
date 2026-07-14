@@ -18,6 +18,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 
 class RouteCalculatorSubGraphMonsallTest {
@@ -86,20 +88,21 @@ class RouteCalculatorSubGraphMonsallTest {
                 when, 1);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveEndToEnd() {
-        validateNumberOfStages(TramStations.EastDidsbury, TramStations.Rochdale, TramTime.of(8,0), when, 1);
+        validateNumberOfStages(EastDidsbury, Rochdale, TramTime.of(8,0), when, 1);
     }
 
     @Test
     void shouldHaveJourneysTerminationPointsToEndOfLine() {
         // many trams only run as far as Shaw
-        validateNumberOfStages(TramStations.ShawAndCrompton, TramStations.Rochdale, TramTime.of(8,0), when, 1);
+        validateNumberOfStages(ShawAndCrompton, Rochdale, TramTime.of(8,0), when, 1);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourney() {
-        validateNumberOfStages(TramStations.RochdaleRail, TramStations.Rochdale, TramTime.of(8,0), when, 1);
+        validateNumberOfStages(RochdaleRail, Rochdale, TramTime.of(8,0), when, 1);
     }
 
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, TramDate date, int numStages) {

@@ -52,4 +52,7 @@ public class LocationIdAndNamePair<T extends Location<T>> {
         return idPair.getEndLocationId();
     }
 
+    public boolean either(final Function<IdFor<T>, Boolean> predicate) {
+        return idPair.either(predicate);
+    }
 }

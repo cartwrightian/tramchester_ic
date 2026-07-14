@@ -6,19 +6,24 @@ gtfsSourceConfig:
     initialWaitMinutes: 13
     noServices: []
     markedInterchangesOnly: false
-    additionalInterchanges: []
+    additionalInterchanges: [ "9400ZZMAFIR", "9400ZZMACHO" ]
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures:
       - stations:
-          ids: [ "9400ZZMAPOM" ]
+          ids: [ "9400ZZMAPOM", "9400ZZMAHCY" ]
         dateRange:
           begin: 2026-07-13
           end: 2026-08-02
         fullyClosed: true
         diversionsAroundClosure: [ ]
         diversionsToFromClosure: [ ]
-    temporaryStationsWalks: []
+    temporaryStationsWalks:
+      - stations:
+          first: 9400ZZMAEXS
+          second: 9400ZZMAVIC
+        begin: 2026-07-13
+        end: 2026-08-02
 #      - stations:
 #          first: 9400ZZMAPGD
 #          second: 9400ZZMAMKT

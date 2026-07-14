@@ -47,6 +47,7 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         if (node.hasRelationship(txn, GraphDirection.Outgoing, DIVERSION)) {
             final Stream<GraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
                     filter(diversion -> diversion.validOn(queryDate)).
+                    filter(diversion -> !journeyStateUpdate.alreadyPassed(diversion.getEndStationId(txn))).
                     sorted(Comparator.comparing(GraphRelationship::getCost));
 
             // TODO ordering here?

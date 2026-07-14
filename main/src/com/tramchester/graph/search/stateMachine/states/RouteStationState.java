@@ -14,6 +14,6 @@ public abstract class RouteStationState extends TraversalState {
                                 JourneyStateUpdate journeyState,
                                 TramDuration costForLastEdge, TowardsRouteStation<?> builder, GraphNode graphNode) {
         super(parent, outbounds, costForLastEdge, builder.getDestination(), graphNode.getId());
-        journeyState.seenRouteStation(graphNode);
+        journeyState.recordRouteStation(graphNode);
     }
 }

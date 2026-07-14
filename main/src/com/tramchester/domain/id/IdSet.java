@@ -39,6 +39,10 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         this(set, true);
     }
 
+    public static <S extends CoreDomain> ImmutableIdSet<S> from(final Collection<IdFor<S>> items) {
+        return wrap(new HashSet<>(items));
+    }
+
     public static <W extends CoreDomain> ImmutableIdSet<W> wrap(final Set<IdFor<W>> set) {
         return new IdSet<>(set, false);
     }
@@ -85,6 +89,11 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
 
     public IdSet<T> addAll(final IdSet<T> other) {
         theSet.addAll(other.theSet);
+        return this;
+    }
+
+    public IdSet<T> addAll(final ImmutableIdSet<T> other) {
+        other.forEach(theSet::add);
         return this;
     }
 

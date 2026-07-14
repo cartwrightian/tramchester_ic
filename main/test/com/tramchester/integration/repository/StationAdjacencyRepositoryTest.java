@@ -60,7 +60,7 @@ class StationAdjacencyRepositoryTest {
     @Test
     void shouldGiveCorrectCostForAdjacencyAltyNavigationRoad() {
 
-        assertMinutesEquals(3, repository.getAdjacent(StationIdPair.of(Altrincham, NavigationRoad), date, timeRange));
+        assertMinutesEquals(7, repository.getAdjacent(StationIdPair.of(Altrincham, NavigationRoad), date, timeRange));
 
         assertTrue(repository.getAdjacent(StationIdPair.of(NavigationRoad, Cornbrook), date, timeRange).invalid());
     }
@@ -70,14 +70,14 @@ class StationAdjacencyRepositoryTest {
 
         StationIdPair stationPair = StationIdPair.of(Cornbrook, Deansgate);
         TramDuration duration = repository.getAdjacent(stationPair, date, timeRange);
-        assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
+        assertEquals(TramDuration.ofMinutes(8), duration.truncateToMinutes());
     }
 
     @Test
     void shouldGiveCorrectCostForAdjacencyDeansgateCornbrook() {
         StationIdPair stationPair = StationIdPair.of(Deansgate, Cornbrook);
         TramDuration duration = repository.getAdjacent(stationPair, date, timeRange);
-        assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
+        assertEquals(TramDuration.ofMinutes(8), duration.truncateToMinutes());
     }
 
     @Test

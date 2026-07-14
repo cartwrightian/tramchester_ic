@@ -213,7 +213,7 @@ class RouteCalculatorKeyRoutesTest {
     }
 
     private void validateFor(RouteCalculationCombinations.CombinationResults<Station> results) {
-        LocationIdsAndNames<Station> missingForDate = results.getMissing();
+        RouteCalculationCombinations.Failures<Station> missingForDate = results.getFailed();
         assertTrue(missingForDate.isEmpty(), missingForDate.toString());
     }
 

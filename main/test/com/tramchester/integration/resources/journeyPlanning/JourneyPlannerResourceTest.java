@@ -21,6 +21,7 @@ import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.*;
@@ -322,20 +323,28 @@ public class JourneyPlannerResourceTest {
     }
 
     @Test
-    void shouldFindRouteDeansgateToVictoria() {
+    void shouldFindRouteDeansgateToVictoriaMidDay() {
+        validateAtLeastOneJourney(Deansgate, Victoria, when, TramTime.of(12,41));
+    }
+
+    @Test
+    void shouldFindRouteDeansgateToVictoriaEndDay() {
         validateAtLeastOneJourney(Deansgate, Victoria, when, TramTime.of(23,41));
     }
 
+    @Summer2026Closures
     @Test
     void shouldFindEndOfDayTwoStageJourney() {
         validateAtLeastOneJourney(TraffordCentre, TraffordBar, when, TramTime.of(23,30));
     }
 
+    @Summer2026Closures
     @Test
     void shouldFindEndOfDayThreeStageJourney() {
         validateAtLeastOneJourney(Altrincham, ShawAndCrompton, when, TramTime.of(22,45));
     }
 
+    @Summer2026Closures
     @Test
     void shouldOnlyReturnFullJourneysForEndOfDaysJourney() {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Deansgate,

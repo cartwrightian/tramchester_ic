@@ -24,6 +24,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.reference.TramStations.Chorlton;
+import static com.tramchester.testSupport.reference.TramStations.Firswood;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigMismatchTest {
@@ -62,9 +64,12 @@ class ConfigMismatchTest {
         if (TramDate.of(LocalDate.now()).isAfter(UpcomingDates.summer2026MajorClosure.getEndDate())) {
             IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled);
             assertEquals(155, testConfig.getMaxJourneyDuration());
+            testConfig.getGtfsSourceConfig().forEach(config -> {
+                assertFalse(config.getAdditionalInterchanges().contains(Firswood.getId()));
+                assertFalse(config.getAdditionalInterchanges().contains(Chorlton.getId()));
+            });
         }
     }
-
 
     @Test
     void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {

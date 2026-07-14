@@ -20,18 +20,20 @@ public interface JourneyStateUpdate {
     void endWalk(GraphNode stationNode);
 
     void toNeighbour(GraphNode startNode, GraphNode endNode, TramDuration cost);
-    void seenStation(IdFor<Station> stationId);
+    void recordStation(IdFor<Station> stationId);
 
     void updateTotalCost(TramDuration total);
     void recordTime(TramTime time, TramDuration totalCost) throws TramchesterException;
 
-    void seenRouteStation(GraphNode node);
+    void recordRouteStation(GraphNode node);
 
-    void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId);
+    void recordStationGroup(IdFor<StationLocalityGroup> stationGroupId);
 
     void beginDiversion(final IdFor<Station> stationId);
     boolean onDiversion();
 
     boolean onTrip();
     IdFor<Trip> getCurrentTrip();
+
+    boolean alreadyPassed(IdFor<Station> stationId);
 }

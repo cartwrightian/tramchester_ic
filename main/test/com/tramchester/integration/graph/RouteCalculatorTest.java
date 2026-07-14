@@ -354,7 +354,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveLongJourneyAcross() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 1);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 2);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, Rochdale);
     }
 
@@ -404,6 +404,7 @@ public class RouteCalculatorTest {
         });
     }
 
+    @Summer2026Closures
     @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -433,6 +434,7 @@ public class RouteCalculatorTest {
         }
     }
 
+    @Summer2026Closures
     @Test
     void shouldHandleCrossingMidnightWithChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,30), maxNumResults, 1);
@@ -561,6 +563,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Chorlton, BurtonRoad);
     }
 
+    @Summer2026Closures
     @Test
     void shouldAltrinchamToShawAndCrompton() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,45), maxNumResults, 2);
@@ -583,13 +586,25 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Bury);
     }
 
+    @Summer2026Closures
     @Test
     void shouldReproIssueWithMediaCityTrams() {
 
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12, 0), maxNumResults, 1);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12, 0), maxNumResults, 2);
 
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, MediaCityUK);
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, MediaCityUK);
+    }
+
+    @Test
+    void shouldHaveExchangeSquareToDestinationsDuringSummer2026Closures() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12, 0), maxNumResults, 2);
+        assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, Victoria);
+        assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, Piccadilly);
+        assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, StPetersSquare);
+        assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, Cornbrook);
+        assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, Anchorage);
+
     }
 
     public static TramDuration costOfJourney(final Journey journey) {

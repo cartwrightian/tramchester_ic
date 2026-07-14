@@ -20,11 +20,13 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.UpcomingDates;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -103,12 +105,12 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         assertEquals(openPairs, results.size(), "Not enough results");
 
         // check all results present, collect failures into a list
-        final List<RouteCalculationCombinations.JourneyOrNot<T>> failed = results.getFailed();
+        final Failures<T> failed = results.getFailed();
 
         // TODO This should be in the tests, not here
         if (check) {
             assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
-                    journeyRequest, results.size(), stationIdPairs.size(), displayFailed(failed)));
+                    journeyRequest, results.size(), stationIdPairs.size(), failed.displayFailed()));
         }
 
         return results;
@@ -153,12 +155,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                     }
                 });
         return new CombinationResults<>(resultsStream);
-    }
-
-    public String displayFailed(final List<JourneyOrNot<T>> pairs) {
-        final StringBuilder stringBuilder = new StringBuilder();
-        pairs.forEach(pair -> stringBuilder.append("[").append(pair).append("] "));
-        return stringBuilder.toString();
     }
 
     public boolean betweenInterchanges(final Station start, final Station dest) {
@@ -340,11 +336,8 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return theResults.size();
         }
 
-        public List<JourneyOrNot<T>> getFailed() {
-            return theResults.stream().
-                    filter(RouteCalculationCombinations.JourneyOrNot::missing).
-                    sorted(Comparator.comparing(a -> a.getPair().getBeginId())).
-                    toList();
+        public Failures<T> getFailed() {
+            return new Failures<>(theResults.stream());
         }
 
         public LocationIdsAndNames<T> getMissing() {
@@ -361,6 +354,63 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                     toList();
         }
 
+    }
+
+    public static class Failures<T extends Location<T>> {
+        private final List<JourneyOrNot<T>> withoutMostFreq;
+        final List<JourneyOrNot<T>> missing;
+        final List<Pair<IdFor<T>, Integer>> stationSummary;
+
+        public Failures(final Stream<JourneyOrNot<T>> results) {
+            missing = results.
+                    filter(RouteCalculationCombinations.JourneyOrNot::missing).
+                    sorted(Comparator.comparing(a -> a.getPair().getBeginId())).
+                    toList();
+
+            final Map<IdFor<T>, Integer> unsorted = missing.stream().
+                    map(JourneyOrNot::getPair).
+                    flatMap(pair -> Stream.of(pair.getBeginId(), pair.getEndId())).
+                    collect(Collectors.toMap(id -> id, id -> 1, Integer::sum));
+
+            stationSummary = unsorted.entrySet().stream().
+                    sorted((a,b) -> Integer.compare(b.getValue(), a.getValue())).
+                    map(entry -> Pair.of(entry.getKey(), entry.getValue())).
+                    toList();
+
+            if (stationSummary.isEmpty()) {
+                withoutMostFreq = Collections.emptyList();
+            } else {
+                final IdFor<T> mostFreq = stationSummary.getFirst().getKey();
+
+                withoutMostFreq = missing.stream().
+                        filter(item -> !item.getPair().either(mostFreq::equals)).
+                        toList();
+            }
+
+        }
+
+        @Override
+        public String toString() {
+            return "Failures{" +
+                    "missing=" + missing +
+                    ",\n stationSummary=" + stationSummary +
+                    ",\n withoutMostFreq=" + withoutMostFreq +
+                    '}';
+        }
+
+        public long size() {
+            return missing.size();
+        }
+
+        public String displayFailed() {
+            final StringBuilder stringBuilder = new StringBuilder();
+            missing.forEach(pair -> stringBuilder.append("[").append(pair).append("] "));
+            return stringBuilder.toString();
+        }
+
+        public boolean isEmpty() {
+            return missing.isEmpty();
+        }
     }
 
     public interface ChecksOpen<T extends Location<T>> {

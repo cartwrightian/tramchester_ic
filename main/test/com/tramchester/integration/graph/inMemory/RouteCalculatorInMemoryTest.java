@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -29,8 +30,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class RouteCalculatorInMemoryTest {
-//    public static final Path GRAPH_FILENAME_OK = Path.of("RouteCalcInMemoryTest.json");
-//    public static final Path GRAPH_FILENAME_FAIL = Path.of("RouteCalcInMemoryTest_failed.json");
 
     private static ImmutableEnumSet<TransportMode> requestedModes;
     private static ComponentContainer componentContainer;
@@ -97,6 +96,7 @@ public class RouteCalculatorInMemoryTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldHandleCrossingMidnightWithChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,30), maxNumResults, 1);

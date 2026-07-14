@@ -70,7 +70,7 @@ public class GroupedStationState extends TraversalState {
                                 Towards<GroupedStationState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
         final IdFor<StationLocalityGroup> stationGroupdId = graphNode.getStationGroupId();
-        journeyStateUpdate.seenStationGroup(stationGroupdId);
+        journeyStateUpdate.recordStationGroup(stationGroupdId);
     }
 
     @Override

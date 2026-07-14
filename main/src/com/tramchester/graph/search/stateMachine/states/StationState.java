@@ -21,7 +21,7 @@ public abstract class StationState extends TraversalState implements NodeId {
         super(parent, outbounds, costForLastEdge, builderDestinationType, stationNode.getId());
         this.stationNode = stationNode;
         this.stationId = stationNode.getStationId();
-        journeyState.seenStation(stationNode.getStationId());
+        journeyState.recordStation(stationNode.getStationId());
     }
 
     public IdFor<Station> getStationId() {

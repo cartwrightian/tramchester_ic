@@ -35,6 +35,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private ImmutableTraversalState traversalState;
     private final IdSet<Trip> tripsDone;
     private IdFor<Trip> currentTrip;
+    private IdSet<Station> passedStations;
 
     public JourneyState(final TramTime queryTime, final TraversalState traversalState) {
         coreState = new CoreState(queryTime);
@@ -42,6 +43,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.traversalState = traversalState;
         journeyOffset = TramDuration.ZERO;
         tripsDone = new IdSet<>();
+        passedStations = new IdSet<>();
         currentTrip = Trip.InvalidId();
     }
 
@@ -57,6 +59,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
         this.tripsDone = IdSet.copy(previousState.tripsDone);
+        this.passedStations = IdSet.copy(previousState.passedStations);
         this.currentTrip = previousState.currentTrip;
         if (coreState.onBoard()) {
             this.boardingTime = previousState.boardingTime;
@@ -88,12 +91,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void seenRouteStation(final GraphNode node) {
-        coreState.seenRouteStation(node);
+    public void recordRouteStation(final GraphNode node) {
+        final IdFor<Station> stationsId = node.getStationId();
+        passedStations.add(stationsId);
+        coreState.seenRouteStation(stationsId);
     }
 
     @Override
-    public void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
+    public void recordStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
         coreState.seenStationGroup(stationGroupId);
     }
 
@@ -133,7 +138,12 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void seenStation(final IdFor<Station> stationId) {
+    public boolean alreadyPassed(final IdFor<Station> stationId) {
+        return passedStations.contains(stationId);
+    }
+
+    @Override
+    public void recordStation(final IdFor<Station> stationId) {
         coreState.seenStation(stationId);
     }
 
@@ -403,11 +413,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             if (numberOfBoardings==0) {
                 return 0;
             }
-            final int withoutDiversions =  numberOfBoardings-1; // initial boarding
-            if (withoutDiversions==0) {
+            final int withoutInitial =  numberOfBoardings-1; // initial boarding
+            if (withoutInitial==0) {
                 return 0;
             }
-            return Math.max(0, withoutDiversions-numberOfDiversionsTaken);
+            return Math.max(0, withoutInitial-numberOfDiversionsTaken);
         }
 
         @Override
@@ -455,8 +465,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             lastSeenStation = LocationId.wrap(stationId);
         }
 
-        public void seenRouteStation(final GraphNode node) {
-            lastSeenStation = LocationId.wrap(node.getStationId());
+        public void seenRouteStation(final IdFor<Station> stationId) {
+            lastSeenStation = LocationId.wrap(stationId);
         }
 
         public void seenStationGroup(final IdFor<StationLocalityGroup> stationGroupId) {
@@ -509,6 +519,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 firstBoardTime = boardingTime;
             }
         }
+
     }
 
 }

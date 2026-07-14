@@ -39,9 +39,9 @@ public class StationClosuresListForTest extends StationClosuresTestConfig {
         this(Collections.singleton(tramStation), dateRange, fullyClosed, diversionsAround, diversionsToFrom);
     }
 
-//    public StationClosuresListForTest(Collection<TramStations> stations, DateRange dateRange, boolean fullyClosed) {
-//        this(stations, dateRange, fullyClosed, null, null);
-//    }
+    public StationClosuresListForTest(Collection<TramStations> stations, DateRange dateRange, boolean fullyClosed) {
+        this(stations, dateRange, fullyClosed, null, null);
+    }
 
     public StationClosuresListForTest(TramStations tramStation, DateRange dateRange, boolean fullyClosed) {
         this(Collections.singleton(tramStation), dateRange, fullyClosed, null, null);

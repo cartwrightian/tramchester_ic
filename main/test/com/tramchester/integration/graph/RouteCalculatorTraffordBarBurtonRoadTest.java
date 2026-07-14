@@ -7,7 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -157,12 +157,9 @@ class RouteCalculatorTraffordBarBurtonRoadTest {
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
 
-            IdSet<Station> additionalInterchanges = AdditionalTramInterchanges.stations();
-            //additionalInterchanges.add(Firswood.getId());
-//            additionalInterchanges.add(Pomona.getId());
-//            additionalInterchanges.add(Deansgate.getId());
+            ImmutableIdSet<Station> additionalInterchanges = AdditionalTramInterchanges.stations();
 
-            final Set<TransportMode> groupStationModes = Collections.emptySet(); //Collections.singleton(TransportMode.Bus);
+            final Set<TransportMode> groupStationModes = Collections.emptySet();
 
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     Tram, additionalInterchanges, groupStationModes, IntegrationTramTestConfig.CurrentClosures,

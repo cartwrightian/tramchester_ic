@@ -10,6 +10,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +58,7 @@ class RouteMapperTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveWorkaroundForTraffordCentreRouteIdsTransposedInData() {
         Route fromTraffordCenter = tramRouteHelper.getRed(date);

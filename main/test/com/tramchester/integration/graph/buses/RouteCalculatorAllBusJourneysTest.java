@@ -19,8 +19,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
-import java.util.List;
-
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -73,10 +71,10 @@ class RouteCalculatorAllBusJourneysTest {
 
         RouteCalculationCombinations.CombinationResults<StationLocalityGroup> results = combinations.getJourneysFor(stationGroupPairs, journeyRequest);
 
-        List<RouteCalculationCombinations.JourneyOrNot<StationLocalityGroup>> failed = results.getFailed();
+        RouteCalculationCombinations.Failures<StationLocalityGroup> failed = results.getFailed();
 
         assertEquals(0L, failed.size(), String.format("For %s Failed some of %s (finished %s) combinations %s",
-                    journeyRequest, results.size(), stationGroupPairs.size(), combinations.displayFailed(failed)));
+                    journeyRequest, results.size(), stationGroupPairs.size(), failed.displayFailed()));
 
     }
 

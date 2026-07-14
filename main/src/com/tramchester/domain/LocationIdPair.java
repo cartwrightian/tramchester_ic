@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationId;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public class LocationIdPair<TYPE extends Location<TYPE>> {
 
@@ -44,6 +45,10 @@ public class LocationIdPair<TYPE extends Location<TYPE>> {
 
     public boolean same() {
         return pair.same();
+    }
+
+    public boolean either(final Function<IdFor<TYPE>, Boolean> predicate) {
+        return pair.either(predicate);
     }
 
     @Override

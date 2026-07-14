@@ -80,8 +80,9 @@ class RouteResourceTest {
         List<RouteDTO> routeDTOS = getRouteResponse(); // uses current date server side
         routeDTOS.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        Set<IdForDTO> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
-
+        Set<IdForDTO> namesFromDTO = routeDTOS.stream().
+                filter(routeDTO -> !routeDTO.getShortName().startsWith("Replacement Bus")).
+                map(RouteRefDTO::getId).collect(Collectors.toSet());
 
         Set<IdForDTO> mismatch = SetUtils.disjunction(namesFromDTO, expectedNames);
         assertTrue(mismatch.isEmpty(), mismatch.toString());

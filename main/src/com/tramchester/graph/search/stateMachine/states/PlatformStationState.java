@@ -10,6 +10,7 @@ import com.tramchester.graph.search.stateMachine.TowardsStation;
 
 import java.util.stream.Stream;
 
+import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 
 public class PlatformStationState extends StationState {
@@ -39,7 +40,7 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromWalking(final WalkingState walkingState, final GraphNode stationNode, final TramDuration cost,
                                                 final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final ImmutableEnumSet<TransportRelationshipTypes> fromWalking = ImmutableEnumSet.of(ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR);
-            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromWalking);
+            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, Outgoing, fromWalking);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
 
@@ -47,10 +48,8 @@ public class PlatformStationState extends StationState {
                                                  final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final ImmutableEnumSet<TransportRelationshipTypes> fromPlatform = ImmutableEnumSet.of(WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromPlatform);
+            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, Outgoing, fromPlatform);
             final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
-
-            //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
 
             return new PlatformStationState(platformState, filterExcludingNode(txn, relationships, platformState), cost,
                     stationNode, journeyState, this);
@@ -60,7 +59,7 @@ public class PlatformStationState extends StationState {
                                               final JourneyStateUpdate journeyState,
                                               final GraphTransaction txn) {
             final ImmutableEnumSet<TransportRelationshipTypes> fromStart = ImmutableEnumSet.of(WALKS_FROM_STATION, GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
-            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromStart);
+            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, Outgoing, fromStart);
             final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState, this);
@@ -71,8 +70,9 @@ public class PlatformStationState extends StationState {
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final ImmutableEnumSet<TransportRelationshipTypes> fromNeighbour = ImmutableEnumSet.of(ENTER_PLATFORM, GROUPED_TO_PARENT);
 
-            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromNeighbour);
+            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, Outgoing, fromNeighbour);
 
+            // TODO if on diversion already, don't follow another one
             final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
@@ -83,7 +83,7 @@ public class PlatformStationState extends StationState {
 
             final ImmutableEnumSet<TransportRelationshipTypes> fromGrouped = ImmutableEnumSet.of(ENTER_PLATFORM, GROUPED_TO_PARENT);
 
-            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, GraphDirection.Outgoing, fromGrouped);
+            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, Outgoing, fromGrouped);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
         }
 

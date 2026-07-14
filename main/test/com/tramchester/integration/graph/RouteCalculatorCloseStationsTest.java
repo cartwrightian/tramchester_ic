@@ -20,6 +20,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStation
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -95,6 +96,7 @@ class RouteCalculatorCloseStationsTest {
         assertFalse(result.isEmpty(), "no result for " + journeyRequest);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHandlePartialClosure() {
         // appears to be an issue with data more than 1 week out with missing routes for ExchangeSquare and other stations...

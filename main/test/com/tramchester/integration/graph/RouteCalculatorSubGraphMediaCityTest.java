@@ -57,6 +57,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Summer2026Closures
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
     private static SubgraphConfig config;
@@ -143,7 +144,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
@@ -159,7 +159,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(HarbourCity, Cornbrook, tramTime, testSunday);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -192,7 +191,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
@@ -264,7 +262,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    //@PiccGardensSummer2025
     @Test
     void shouldHaveExpectedRouteConnections() {
         Station salfordQuay = SalfordQuay.from(stationRepository);
@@ -376,10 +373,11 @@ class RouteCalculatorSubGraphMediaCityTest {
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
 
-            IdSet<Station> additionalInterchanges = AdditionalTramInterchanges.stations();
+            IdSet<Station> additionalInterchanges = new IdSet<>();
             additionalInterchanges.add(Cornbrook.getId());
             additionalInterchanges.add(Pomona.getId());
             additionalInterchanges.add(Deansgate.getId());
+            additionalInterchanges.addAll(AdditionalTramInterchanges.stations());
 
             final Set<TransportMode> groupStationModes = Collections.emptySet(); //Collections.singleton(TransportMode.Bus);
 

@@ -15,14 +15,14 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.List;
-
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -52,29 +52,31 @@ public class RouteCalculatorAllTramJourneysTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        modes = TransportMode.TramsOnly;
+        modes = TramsOnly;
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
+    @Summer2026Closures
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
 
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).
-                createStationPairsForAll(TransportMode.TramsOnly);
+                createStationPairsForAll(TramsOnly);
 
         final TramTime time = TramTime.of(8, 5);
 
-        JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(testConfig.getMaxNumberChanges());
+        JourneyRequest.MaxNumberOfChanges maxChanges =
+                JourneyRequest.MaxNumberOfChanges.of(testConfig.getMaxNumberChanges());
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 
-        List<RouteCalculationCombinations.JourneyOrNot<Station>> failed = results.getFailed();
+        RouteCalculationCombinations.Failures<Station> failed = results.getFailed();
 
         assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
-                    journeyRequest, results.size(), stationIdPairs.size(), combinations.displayFailed(failed)));
+                    journeyRequest, results.size(), stationIdPairs.size(), failed.displayFailed()));
 
     }
 

@@ -4,6 +4,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
@@ -20,6 +21,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import static com.tramchester.testSupport.reference.TramStations.*;
+
 public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final NaptanRemoteDataSourceTestConfig remoteNaptanXMLConfig;
@@ -28,9 +31,13 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
+
+    static List<TramStations> closedStations = List.of(Pomona, HarbourCity);
+
     public static final List<StationClosures> CurrentClosures =
-            Collections.singletonList(new StationClosuresListForTest(TramStations.Pomona, UpcomingDates.summer2026MajorClosure,
-                    true, Collections.emptySet(), Collections.emptySet()));
+            List.of(new StationClosuresListForTest(closedStations, UpcomingDates.summer2026MajorClosure,
+                    true, Collections.emptySet(), Collections.emptySet())
+            );
 
     /**
      * examples
@@ -52,11 +59,11 @@ public abstract class IntegrationTestConfig extends TestConfig {
      *         end: 2025-08-10
      */
 
-    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
-//    Arrays.asList(
-//            new TemporaryStationsWalkConfigForTest(StationIdPair.of(Shudehill, Victoria), shudehillMarketStreet2026),
-//            new TemporaryStationsWalkConfigForTest(StationIdPair.of(Piccadilly, MarketStreet), shudehillMarketStreet2026)
-//            );
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks =
+            List.of(
+                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(ExchangeSquare, Victoria), getSummer2026Closures())
+                    //new TemporaryStationsWalkConfigForTest(StationIdPair.of(Anchorage, HarbourCity), getSummer2026Closures())
+            );
 
     private final GraphDBTestConfig dbConfig;
 
@@ -97,6 +104,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     @Override
     public int getMaxNumberChanges() {
-        return 2;
+        // summer 2026
+        return 2+2;
     }
 }
