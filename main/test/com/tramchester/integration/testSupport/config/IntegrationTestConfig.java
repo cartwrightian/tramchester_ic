@@ -31,7 +31,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-
     static List<TramStations> closedStations = List.of(Pomona, HarbourCity);
 
     public static final List<StationClosures> CurrentClosures =

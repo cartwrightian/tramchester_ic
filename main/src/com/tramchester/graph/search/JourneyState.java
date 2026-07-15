@@ -35,7 +35,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private ImmutableTraversalState traversalState;
     private final IdSet<Trip> tripsDone;
     private IdFor<Trip> currentTrip;
-    private IdSet<Station> passedStations;
+    private final IdSet<Station> passedStations;
 
     public JourneyState(final TramTime queryTime, final TraversalState traversalState) {
         coreState = new CoreState(queryTime);
@@ -82,6 +82,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     public void recordTime(final TramTime boardingTime, final TramDuration currentCost) throws TramchesterException {
+        // visited a minute node
         if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");
         }
@@ -417,6 +418,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             if (withoutInitial==0) {
                 return 0;
             }
+            // diversions don't count against number of changes
             return Math.max(0, withoutInitial-numberOfDiversionsTaken);
         }
 
