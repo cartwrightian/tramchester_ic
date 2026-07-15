@@ -124,25 +124,25 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
     }
 
     @Override
-    public boolean isType(TransportRelationshipTypes transportRelationshipType) {
+    public boolean isType(final TransportRelationshipTypes transportRelationshipType) {
         return relationshipType.equals(transportRelationshipType);
     }
 
     @JsonIgnore
     @Override
-    public IdFor<Station> getEndStationId(GraphTransaction txn) {
+    public IdFor<Station> getEndStationId(final GraphTransaction txn) {
         return getEndNode(txn).getStationId();
     }
 
     @JsonIgnore
     @Override
-    public IdFor<Station> getStartStationId(GraphTransaction txn) {
+    public IdFor<Station> getStartStationId(final GraphTransaction txn) {
         return getStartNode(txn).getStationId();
     }
 
     @JsonIgnore
     @Override
-    public IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn) {
+    public IdFor<StationLocalityGroup> getStationGroupId(final GraphTransaction txn) {
         return getEndNode(txn).getStationGroupId();
     }
 

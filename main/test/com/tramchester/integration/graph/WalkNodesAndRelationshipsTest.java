@@ -93,7 +93,7 @@ public class WalkNodesAndRelationshipsTest {
 
         assertEquals(knownLocation.latLong(), node.getLatLong());
 
-        assertEquals(format("%s_%s", knownLocation.location().getLatLong(), journeyRequest.getUid().toString()), node.getWalkId());
+        assertEquals(format("%s_%s", knownLocation.location().getLatLong(), journeyRequest.getUid().toString()), node.getUniqueWalkId());
 
         walkNodesAndRelationships.delete();
 

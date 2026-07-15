@@ -124,8 +124,8 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     }
 
     @Override
-    public void setWalkId(final LatLong origin, final UUID uid) {
-        graphProps.setProperty(GraphPropertyKey.WALK_ID, origin.toString() + "_" + uid.toString());
+    public void setUniqueWalkId(final LatLong origin, final UUID uid) {
+        graphProps.setProperty(WALK_ID, origin.toString() + "_" + uid.toString());
         invalidateCache();
     }
 
@@ -238,7 +238,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @JsonIgnore
     @Override
-    public String getWalkId() {
+    public String getUniqueWalkId() {
         return getProperty(WALK_ID).toString();
     }
 

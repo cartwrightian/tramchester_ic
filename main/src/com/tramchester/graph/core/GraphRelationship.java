@@ -1,6 +1,5 @@
 package com.tramchester.graph.core;
 
-import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
@@ -24,72 +23,38 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
 
     GraphRelationshipId getId();
-
-    TramTime getTime();
-
-    int getHour();
-
-    TramDuration getCost();
-
     GraphNode getEndNode(final GraphTransaction txn);
-
     GraphNode getStartNode(GraphTransaction txn);
-
     GraphNodeId getStartNodeId(GraphTransaction txn);
-
     GraphNodeId getEndNodeId(GraphTransaction txn);
-
-    ImmutableEnumSet<TransportMode> getTransportModes() ;
-
-    TransportRelationshipTypes getType();
-
-    IdFor<Route> getRouteId();
-
-    IdFor<Service> getServiceId();
-
-    IdFor<Trip> getTripId();
-
-    boolean isType(TransportRelationshipTypes transportRelationshipType);
-
-    IdFor<RouteStation> getRouteStationId();
-
-    boolean validOn(TramDate tramDate);
-
-    IdFor<Station> getStationId();
 
     boolean hasProperty(GraphPropertyKey graphPropertyKey);
 
-    int getStopSeqNumber();
-
     IdFor<Station> getEndStationId(GraphTransaction txn);
-
     IdFor<Station> getStartStationId(GraphTransaction txn);
-
     IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn);
-
-    ImmutableIdSet<Trip> getTripIds();
-
-    DateRange getDateRange();
-
-    TimeRange getTimeRange();
-
-    DateTimeRange getDateTimeRange();
-
-    TramTime getStartTime();
-
-    TramTime getEndTime();
-
     LocationId<?> getLocationId(GraphTransaction txn);
 
+    TramTime getTime();
+    int getHour();
+    TramDuration getCost();
+    ImmutableEnumSet<TransportMode> getTransportModes() ;
+    TransportRelationshipTypes getType();
+    IdFor<Route> getRouteId();
+    IdFor<Service> getServiceId();
+    IdFor<Trip> getTripId();
+    IdFor<RouteStation> getRouteStationId();
+    IdFor<Station> getStationId();
+    int getStopSeqNumber();
+    ImmutableIdSet<Trip> getTripIds();
+    DateRange getDateRange();
+    TimeRange getTimeRange();
+    DateTimeRange getDateTimeRange();
+    TramTime getStartTime();
+    TramTime getEndTime();
+
+    boolean isType(TransportRelationshipTypes transportRelationshipType);
+    boolean validOn(TramDate tramDate);
     boolean hasTripIdInList(IdFor<Trip> tripId);
 
-    default IdFor<? extends CoreDomain> getStartDomainId(final GraphTransaction txn) {
-        final GraphNode node = getStartNode(txn);
-        return node.getCoreDomainId();
-    }
-
-    default IdFor<? extends CoreDomain> getEndDomainId(final GraphTransaction txn) {
-        final GraphNode node = txn.getNodeById(getEndNodeId(txn)); // getEndNode(txn);
-        return node.getCoreDomainId();
-    }
 }

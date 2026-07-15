@@ -103,7 +103,7 @@ public class WalkNodesAndRelationships {
     private MutableGraphNode createWalkingNode(final MutableGraphTransaction txn, final LatLong origin, final UUID uniqueId) {
         final MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
         startOfWalkNode.setLatLong(origin);
-        startOfWalkNode.setWalkId(origin, uniqueId);
+        startOfWalkNode.setUniqueWalkId(origin, uniqueId);
         logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

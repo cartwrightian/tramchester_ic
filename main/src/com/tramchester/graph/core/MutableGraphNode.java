@@ -52,7 +52,7 @@ public interface MutableGraphNode extends GraphNode {
 
     void setBounds(BoundingBox bounds);
 
-    void setWalkId(LatLong origin, UUID uid);
+    void setUniqueWalkId(LatLong origin, UUID uid);
 
     void setPlatformNumber(Platform platform);
 

@@ -286,12 +286,6 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         return getAllProperties(relationshipProperties);
     }
 
-//    @JsonIgnore
-//    public boolean isDayOffset() {
-//        // todo should this be checking if set instead?
-//        return (Boolean) relationship.getProperty(DAY_OFFSET.getText());
-//    }
-
     public boolean validOn(final TramDate tramDate) {
         final TramDate startDate = getStartDate();
         if (tramDate.isBefore(startDate)) {
@@ -325,7 +319,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @JsonIgnore
     @Override
-    public LocationId<?> getLocationId(GraphTransaction txn) {
+    public LocationId<?> getLocationId(final GraphTransaction txn) {
         final TransportRelationshipTypes transportRelationshipTypes = getType();
         if (HAS_STATION_ID.contains(transportRelationshipTypes)) {
             return LocationId.wrap(getStationId());
