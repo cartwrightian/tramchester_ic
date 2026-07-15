@@ -165,9 +165,6 @@ class RouteCalculatorKeyRoutesTest {
         RouteCalculationCombinations.CombinationResults<Station> results =
                 combinations.getJourneysFor(combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
 
-//        LocationIdsAndNames<Station> missingForDate = results.getMissing();
-//        assertTrue(missingForDate.isEmpty(), missingForDate.toString());
-
         List<Journey> found = results.getValidJourneys();
         //assertEquals(447, found.size());
         assertFalse(found.isEmpty());

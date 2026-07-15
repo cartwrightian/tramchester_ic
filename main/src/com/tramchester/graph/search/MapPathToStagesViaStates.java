@@ -3,7 +3,6 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -12,7 +11,6 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.stateMachine.NextStateNotFoundException;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
@@ -70,7 +68,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
-        final GraphNode startOfPath = path.getStartNode(txn); // txn.fromStart(path);
+        final GraphNode startOfPath = path.getStartNode(txn);
 
         final TraversalState initial = new NotStartedState(stateFactory, startOfPath.getId(), txn);
 

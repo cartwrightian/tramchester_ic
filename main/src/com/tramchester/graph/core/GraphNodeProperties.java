@@ -54,7 +54,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @Override
     public void setTime(final TramTime tramTime) {
-        //setTime(tramTime, graphProps);
         graphProps.setTime(tramTime);
         invalidateCache();
     }
@@ -236,7 +235,6 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
         final double lon = (double) getProperty(LONGITUDE, graphProps);
         return new LatLong(lat, lon);
     }
-
 
     @JsonIgnore
     @Override

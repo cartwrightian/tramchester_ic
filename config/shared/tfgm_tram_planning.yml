@@ -1,6 +1,6 @@
 calcTimeoutMillis: 3500
 maxWait: 25
-maxJourneyDuration: 180
+maxJourneyDuration: 183
 numberQueries: 3
 queryInterval: 10
 maxNumberResults: 5

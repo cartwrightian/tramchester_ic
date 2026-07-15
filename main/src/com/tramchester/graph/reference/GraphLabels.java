@@ -21,10 +21,6 @@ public class GraphLabels implements Iterable<GraphLabel> {
         this.theLabels = theLabels;
     }
 
-//    static GraphLabels from(final EnumSet<GraphLabel> labels) {
-//        return new GraphLabels(ImmutableEnumSet.copyOf(labels));
-//    }
-
     static GraphLabels from(final ImmutableEnumSet<GraphLabel> labels) {
         return new GraphLabels(labels);
     }
@@ -41,9 +37,9 @@ public class GraphLabels implements Iterable<GraphLabel> {
         return theLabels.contains(label);
     }
 
-    public EnumSet<GraphLabel> createEnumSet() {
-        return ImmutableEnumSet.createEnumSet(theLabels);
-    }
+//    public EnumSet<GraphLabel> createEnumSet() {
+//        return ImmutableEnumSet.createEnumSet(theLabels);
+//    }
 
     public Stream<GraphLabel> stream() {
         return theLabels.stream();

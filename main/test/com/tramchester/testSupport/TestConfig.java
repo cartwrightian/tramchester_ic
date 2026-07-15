@@ -132,7 +132,7 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public int getMaxJourneyDuration() {
         // summer 2026
-        return 3*60;
+        return (3*60)+3;
         //return 155;
     }
 

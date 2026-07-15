@@ -12,10 +12,11 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.tramchester.graph.GraphPropertyKey.ROUTE_STATION_ID;
+import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>> {
 
@@ -65,35 +66,101 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
         void removeProperty(final GraphPropertyKey graphPropertyKey);
 
-        void setTime(TramTime tramTime);
-
-        TramTime getTime();
-
-        TramDate getStartDate();
-
-        void addTripId(IdFor<Trip> tripId);
-
-        boolean hasTripIdInList(IdFor<Trip> tripId);
-
-        ImmutableIdSet<Trip> getTripIds();
-
-        void setCost(TramDuration cost);
-
-        TramDuration getCost();
-
-        void setTransportMode(TransportMode transportMode);
-
-        TransportMode getTransportMode();
-
-        void addTransportMode(TransportMode mode);
-
-        ImmutableEnumSet<TransportMode> getTransportModes();
-
         IMPL copy();
 
+        // supports optimization
         Set<GraphPropertyKey> getUnused();
 
-        int getHour();
+        default void addTripId(final IdFor<Trip> tripId) {
+
+            final TripIdSet existing = getTripIds();
+
+            final TripIdSet updated;
+            if (existing.isEmpty()) {
+                updated = TripIdSet.Factory.singleton(tripId);
+            } else {
+                updated = TripIdSet.Factory.copyThenAppend(existing, tripId);
+            }
+            setProperty(TRIP_ID_LIST, updated);
+        }
+
+        default boolean hasTripIdInList(final IdFor<Trip> tripId) {
+            return getTripIds().contains(tripId);
+        }
+
+        default TripIdSet getTripIds() {
+            if (hasProperty(TRIP_ID_LIST)) {
+                return (TripIdSet) getProperty(TRIP_ID_LIST);
+            } else {
+                return TripIdSet.emptySet();
+            }
+        }
+
+        default void setTime(final TramTime tramTime) {
+            setProperty(TIME, tramTime);
+            // to allow backwards compatible comparison with props in Neo4J
+            if (tramTime.isNextDay()) {
+                setProperty(DAY_OFFSET, tramTime.isNextDay());
+            }
+        }
+
+        default TramTime getTime() {
+            return (TramTime) getProperty(TIME);
+        }
+
+        default TramDate getStartDate() {
+            return (TramDate) getProperty(START_DATE);
+        }
+
+        default void setCost(TramDuration cost) {
+            setProperty(COST, cost);
+        }
+
+        default TramDuration getCost() {
+            if (hasProperty(COST)) {
+                return (TramDuration) getProperty(COST);
+            }
+            throw new RuntimeException("Cost is missing for " + this);
+        }
+
+        default void setTransportMode(final TransportMode transportMode) {
+            setProperty(TRANSPORT_MODE, transportMode);
+        }
+
+        default TransportMode getTransportMode() {
+            return (TransportMode) getProperty(TRANSPORT_MODE);
+        }
+
+        default void addTransportMode(final TransportMode mode) {
+            final EnumSet<TransportMode> current;
+            if (hasProperty(TRANSPORT_MODES)) {
+                current = (EnumSet<TransportMode>) getProperty(TRANSPORT_MODES);
+            } else {
+                current = EnumSet.noneOf(TransportMode.class);
+            }
+
+            final EnumSet<TransportMode> replacement = EnumSet.copyOf(current);
+            replacement.add(mode);
+
+            setProperty(TRANSPORT_MODES, replacement);
+        }
+
+        default ImmutableEnumSet<TransportMode> getTransportModes() {
+            if (hasProperty(TRANSPORT_MODES)) {
+                final EnumSet<TransportMode> theSet = (EnumSet<TransportMode>) getProperty(TRANSPORT_MODES);
+                return ImmutableEnumSet.copyOf(theSet);
+            } else {
+                return TransportMode.noneOf();
+                //return ImmutableEnumSet.noneOf(TransportMode.class);
+            }
+        }
+
+        default int getHour() {
+            if (hasProperty(HOUR)) {
+                return (int) getProperty(HOUR);
+            }
+            throw new RuntimeException("Hour is missing for " + this);
+        }
     }
 
 }

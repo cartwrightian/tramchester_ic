@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 
 public class TripIdSet implements ImmutableIdSet<Trip> {
 
+    private static final TripIdSet EMPTY = new TripIdSet(ImmutableSet.of());
+
     @JsonIgnore
     private final ImmutableSet<@NotNull String> graphIds;
 
@@ -25,6 +27,10 @@ public class TripIdSet implements ImmutableIdSet<Trip> {
     @JsonCreator
     public static TripIdSet deserialize(final @JsonProperty("ids") List<String> graphIds) {
         return Factory.deserialize(new HashSet<>(graphIds));
+    }
+
+    public static TripIdSet emptySet() {
+        return EMPTY;
     }
 
     ////////

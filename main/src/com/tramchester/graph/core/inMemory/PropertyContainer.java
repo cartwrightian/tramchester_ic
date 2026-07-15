@@ -1,23 +1,11 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.google.common.collect.ImmutableMap;
-import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.ImmutableIdSet;
-import com.tramchester.domain.id.TripIdSet;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
-import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramDuration;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphEntityProperties;
 
 import java.util.*;
-
-import static com.tramchester.graph.GraphPropertyKey.*;
 
 final class PropertyContainer implements GraphEntityProperties.GraphProps<PropertyContainer> {
 
@@ -94,122 +82,6 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
             final EnumSet<GraphPropertyKey> results = EnumSet.copyOf(props.keySet());
             results.removeAll(used);
             return results;
-        }
-    }
-
-    @Override
-    public void setTime(final TramTime tramTime) {
-        setProperty(TIME, tramTime);
-        // to allow backwards compatible comparison with props in Neo4J
-        if (tramTime.isNextDay()) {
-            setProperty(DAY_OFFSET, tramTime.isNextDay());
-        }
-    }
-
-    @Override
-    public TramTime getTime() {
-        return (TramTime) getProperty(TIME);
-    }
-
-    @Override
-    public TramDate getStartDate() {
-        return (TramDate) getProperty(START_DATE);
-    }
-
-    @Override
-    public void addTripId(final IdFor<Trip> tripId) {
-
-        final TripIdSet existing = getTripGraphIds();
-
-        final TripIdSet updated;
-        if (existing.isEmpty()) {
-            updated = TripIdSet.Factory.singleton(tripId);
-        } else {
-            updated = TripIdSet.Factory.copyThenAppend(existing,tripId);
-        }
-        setProperty(TRIP_ID_LIST, updated);
-    }
-
-    private TripIdSet getTripGraphIds() {
-        if (hasProperty(TRIP_ID_LIST)) {
-            return (TripIdSet) getProperty(TRIP_ID_LIST);
-        } else {
-            return TripIdSet.Factory.empty();
-        }
-    }
-
-    @Override
-    public boolean hasTripIdInList(final IdFor<Trip> tripId) {
-        if (hasProperty(TRIP_ID_LIST)) {
-            return getTripGraphIds().contains(tripId);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public ImmutableIdSet<Trip> getTripIds() {
-        if (hasProperty(TRIP_ID_LIST)) {
-            return getTripGraphIds();
-        } else {
-            return IdSet.emptySet();
-        }
-    }
-
-    @Override
-    public void setCost(TramDuration cost) {
-        setProperty(COST, cost);
-    }
-
-    @Override
-    public TramDuration getCost() {
-        if (hasProperty(COST)) {
-            return (TramDuration) getProperty(COST);
-        }
-        throw new RuntimeException("Cost is missing for " + this);
-    }
-
-    @Override
-    public int getHour() {
-        if (hasProperty(HOUR)) {
-            return (int) getProperty(HOUR);
-        }
-        throw new RuntimeException("Hour is missing for " + this);
-    }
-
-    @Override
-    public void setTransportMode(final TransportMode transportMode) {
-        setProperty(TRANSPORT_MODE, transportMode);
-    }
-
-    @Override
-    public TransportMode getTransportMode() {
-        return (TransportMode) getProperty(TRANSPORT_MODE);
-    }
-
-    @Override
-    public void addTransportMode(final TransportMode mode) {
-        final EnumSet<TransportMode> current;
-        if (hasProperty(TRANSPORT_MODES)) {
-            current = (EnumSet<TransportMode>) getProperty(TRANSPORT_MODES);
-        } else {
-            current = EnumSet.noneOf(TransportMode.class);
-        }
-
-        final EnumSet<TransportMode> replacement = EnumSet.copyOf(current);
-        replacement.add(mode);
-
-        setProperty(TRANSPORT_MODES, replacement);
-    }
-
-    @Override
-    public ImmutableEnumSet<TransportMode> getTransportModes() {
-        if (hasProperty(TRANSPORT_MODES)) {
-            final Set<TransportMode> theSet = (Set<TransportMode>) getProperty(TRANSPORT_MODES);
-            return ImmutableEnumSet.copyOf(theSet);
-        } else {
-            return TransportMode.noneOf();
-            //return ImmutableEnumSet.noneOf(TransportMode.class);
         }
     }
 

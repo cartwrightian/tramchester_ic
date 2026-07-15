@@ -98,7 +98,7 @@ maxNumberResults: 5
 maxNumberChanges: 4
 maxWalkingConnections: 3
 depthFirst: true
-maxJourneyDuration: 180
+maxJourneyDuration: 183
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer: 5

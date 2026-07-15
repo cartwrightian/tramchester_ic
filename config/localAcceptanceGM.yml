@@ -72,7 +72,7 @@ planningEnabled: true
 maxWait: 25
 maxNumberResults: 5
 maxNumberChanges: 4
-maxJourneyDuration:  180
+maxJourneyDuration:  183
 numberQueries: 3
 queryInterval: 10
 depthFirst: true

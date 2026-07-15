@@ -164,7 +164,7 @@ public class PreviousVisits implements ReportsCacheStats {
         private final T other;
         private final int hashCode;
 
-        public NodeIdKeyWith(GraphNodeId nodeId, T other) {
+        public NodeIdKeyWith(final GraphNodeId nodeId, final T other) {
             this.nodeId = nodeId;
             this.other = other;
             hashCode = Objects.hash(nodeId, other);
