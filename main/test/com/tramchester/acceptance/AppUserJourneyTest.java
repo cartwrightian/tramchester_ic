@@ -16,6 +16,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -267,6 +268,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
                 headSigns, 9);
     }
 
+    @Summer2026Closures
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldCheckLateNightJourney(ProvidesDriver providesDriver) throws IOException {
@@ -399,6 +401,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 
+    @Summer2026Closures
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
