@@ -35,46 +35,30 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphDirection direction, ImmutableEnumSet<TransportRelationshipTypes> types);
     Stream<GraphRelationship> getAllRelationships(GraphTransaction txn, GraphDirection direction);
 
-    String getUniqueWalkId();
-
-    Map<DataSourceID, String> getStoredVersions();
-
-    IdFor<RouteStation> getRouteStationId();
-
-    IdFor<Service> getServiceId();
-
-    IdFor<Trip> getTripId();
-
     boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
     Stream<GraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId);
 
+    String getUniqueWalkId();
+    Map<DataSourceID, String> getStoredVersions();
+    IdFor<RouteStation> getRouteStationId();
+    IdFor<Service> getServiceId();
+    IdFor<Trip> getTripId();
+
     IdFor<Platform> getPlatformId();
-
     IdFor<Station> getStationId();
-
     IdFor<Station> getTowardsStationId();
-
     IdFor<Route> getRouteId();
-
     IdFor<StationLocalityGroup> getStationGroupId();
-
     IdFor<NPTGLocality> getAreaId();
-
     BoundingBox getBounds();
 
     boolean hasTripId();
-
     boolean hasStationId();
 
     TramTime getTime();
-
     TramDate getStartDate();
-
     LatLong getLatLong();
-
     TransportMode getTransportMode();
-
     int getHour();
-
 
 }

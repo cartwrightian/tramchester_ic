@@ -20,7 +20,7 @@ public class GraphIdListInMem implements GraphIdList {
 
     @Override
     public void add(final GraphId id) {
-        InternalGraphId internalGraphId = (InternalGraphId) id;
+        final InternalGraphId internalGraphId = (InternalGraphId) id;
         ids.add(internalGraphId.getInternalId());
     }
 
