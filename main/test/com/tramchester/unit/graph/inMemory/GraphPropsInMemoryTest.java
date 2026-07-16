@@ -120,7 +120,7 @@ public class GraphPropsInMemoryTest {
     void shouldBeAbleToSetTramRouteStationId() {
         MutableGraphRelationship relationship = createRelationship();
 
-        TestRoute testRoute = KnownTramRoute.getGreen(TestEnv.testDay());
+        TestRoute testRoute = KnownTramRoute.getPink(TestEnv.testDay());
 
         IdFor<RouteStation> id = RouteStation.createId(RailStationIds.Stockport.getId(), testRoute.getId());
 

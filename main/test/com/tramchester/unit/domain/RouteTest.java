@@ -99,7 +99,7 @@ class RouteTest extends EasyMockSupport {
         TramDate startDate = TramDate.of(2020, 11, 5);
         TramDate endDate = TramDate.of(2020, 11, 25);
 
-        TestRoute testRoute = KnownTramRoute.getGreen(TestEnv.testDay());
+        TestRoute testRoute = KnownTramRoute.getPink(TestEnv.testDay());
 
         MutableRoute route = createRoute(testRoute.getId(), testRoute.shortName(), testRoute.shortName());
 

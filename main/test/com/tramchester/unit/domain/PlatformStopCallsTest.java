@@ -39,7 +39,7 @@ class PlatformStopCallsTest {
     @BeforeEach
     void beforeEachTestRuns() {
 
-        KnownTramRouteEnum route = KnownTramRoute.getGreen(TestEnv.testDay());
+        KnownTramRouteEnum route = KnownTramRoute.getPink(TestEnv.testDay());
 
         stationA = TramStations.Ashton;
 

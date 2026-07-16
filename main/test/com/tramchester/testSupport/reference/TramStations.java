@@ -92,9 +92,10 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Ashton,
             Rochdale,
             Bury,
-            TraffordCentre
-            //Piccadilly // summer 2025 closures
-            //MediaCityUK
+            TraffordCentre,
+            // summer 2026
+            ExchangeSquare
+
     ));
 
     public static Set<TramStations> getEndOfTheLine() {
@@ -175,7 +176,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
         }
 
         public FakeStationBuilder platform(final int platformNumber, TramDate date) {
-            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.getGreen(date));
+            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.getPink(date));
             return this;
         }
 

@@ -39,7 +39,7 @@ class TripTest {
         stationB = TramStations.Broadway;
         stationC = TramStations.Cornbrook;
 
-        route = KnownTramRoute.getGreen(TestEnv.testDay());
+        route = KnownTramRoute.getPink(TestEnv.testDay());
     }
 
     @Test

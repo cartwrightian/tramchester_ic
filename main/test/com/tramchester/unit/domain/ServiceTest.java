@@ -37,7 +37,7 @@ class ServiceTest {
     @BeforeEach
     void setUp() {
         TramDate when = TestEnv.testDay();
-        KnownTramRouteEnum route = KnownTramRoute.getGreen(when);
+        KnownTramRouteEnum route = KnownTramRoute.getPink(when);
         manAirport = ManAirport.fake(route);
         shudehill = Shudehill.fake(route);
     }

@@ -1,12 +1,12 @@
 package com.tramchester.graph.core.inMemory;
 
-import com.tramchester.graph.core.EntityList;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Optional;
 
 public class GraphPathInMemory implements GraphPath {
 
@@ -15,7 +15,7 @@ public class GraphPathInMemory implements GraphPath {
     private GraphRelationship lastAddedRelationship;
 
     public GraphPathInMemory() {
-        entityList = new SimpleEntityList();
+        entityList = EntityList.Simple.create();
     }
 
     private GraphPathInMemory(final GraphPathInMemory original) {
@@ -71,14 +71,14 @@ public class GraphPathInMemory implements GraphPath {
         return new Iterable<>() {
             @Override
             public @NotNull Iterator<GraphEntity<? extends GraphId>> iterator() {
-                return entityList.Stream().iterator();
+                return entityList.stream().iterator();
             }
         };
     }
 
     @Override
     public GraphNode getStartNode(final GraphTransaction txn) {
-        final Optional<GraphEntity<? extends GraphId>> found = entityList.Stream().
+        final Optional<GraphEntity<? extends GraphId>> found = entityList.stream().
                 filter(GraphEntity::isNode).
                 findFirst();
         if (found.isEmpty()) {
@@ -99,7 +99,7 @@ public class GraphPathInMemory implements GraphPath {
         return new Iterable<>() {
             @Override
             public @NotNull Iterator<GraphNode> iterator() {
-                return entityList.Stream().
+                return entityList.stream().
                         filter(GraphEntity::isNode).
                         map(item -> (GraphNode)item).
                         iterator();
@@ -146,7 +146,7 @@ public class GraphPathInMemory implements GraphPath {
     public TramDuration getTotalCost() {
         // todo accumulate cost as we go instead
 
-        final Optional<TramDuration> total = entityList.Stream().
+        final Optional<TramDuration> total = entityList.stream().
                 filter(GraphEntity::isRelationship).
                 map(item -> (GraphRelationship)item).
                 map(GraphRelationship::getCost).
@@ -163,70 +163,6 @@ public class GraphPathInMemory implements GraphPath {
         return entityList.getIds();
     }
 
-    private static class SimpleEntityList implements EntityList {
 
-        private final List<GraphEntity<? extends GraphId>> list;
-        private final GraphIdListInMem ids;
-
-        private SimpleEntityList() {
-            list = new ArrayList<>();
-            ids = new GraphIdListInMem();
-        }
-
-        private SimpleEntityList(final List<GraphEntity<? extends GraphId>> list, final GraphIdListInMem ids) {
-            this.list = list;
-            this.ids = ids;
-        }
-
-        @Override
-        public EntityList branchFrom() {
-            return new SimpleEntityList(new ArrayList<>(list), new GraphIdListInMem(ids));
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return list.isEmpty();
-        }
-
-        @Override
-        public void add(GraphEntity<? extends GraphId> graphEntity) {
-            list.add(graphEntity);
-            ids.add(graphEntity.getId());
-        }
-
-        @Override
-        public @NotNull Stream<GraphEntity<? extends GraphId>> Stream() {
-            return list.stream();
-        }
-
-        @Override
-        public int size() {
-            return list.size();
-        }
-
-        @Override
-        public GraphIdList getIds() {
-            return ids;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            SimpleEntityList that = (SimpleEntityList) o;
-            return Objects.equals(ids, that.ids);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(ids);
-        }
-
-        @Override
-        public String toString() {
-            return "SimpleEntityList{" +
-                    "list=" + list +
-                    '}';
-        }
-    }
 
 }

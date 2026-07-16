@@ -72,7 +72,7 @@ public class RouteStationIdTest {
 
     @Test
     void shouldRoundTripRouteStationIdTramRoute() throws JsonProcessingException {
-        validateRoundTrip(KnownTramRoute.getGreen(TestEnv.testDay()).getId());
+        validateRoundTrip(KnownTramRoute.getPink(TestEnv.testDay()).getId());
     }
 
     @Test

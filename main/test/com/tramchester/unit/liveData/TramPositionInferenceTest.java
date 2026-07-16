@@ -67,7 +67,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         date = TramDate.of(dateTime.toLocalDate());
         startTime = TramTime.ofHourMins(dateTime.toLocalTime());
 
-        tramRoute = KnownTramRoute.getGreen(date);
+        tramRoute = KnownTramRoute.getPink(date);
         begin = StPetersSquare.faker().dropOff(tramRoute).dropOffPlatform(1, tramRoute).build();
         end = Deansgate.faker().dropOff(tramRoute).dropOffPlatform(1, tramRoute).build();
 

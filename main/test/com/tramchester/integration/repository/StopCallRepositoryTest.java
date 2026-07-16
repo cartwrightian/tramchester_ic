@@ -116,6 +116,7 @@ public class StopCallRepositoryTest {
         assertEquals(5+2, results.size(), results.toString());
     }
 
+    @Summer2026Closures
     @Test
     void shouldGetCostsForAStopCall() {
         TramDate when = TestEnv.testDay();
