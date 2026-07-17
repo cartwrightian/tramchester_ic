@@ -223,7 +223,7 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(firstDepartureTime.isBefore(queryTimeDate), firstDepartureTime + " was not before " + queryTimeDate);
 
         TransportMode expectedMode = summer2026MajorClosure.contains(when) ? Bus : Tram;
-        
+
         List<SimpleStageDTO> stages = firstJourney.getStages();
         assertEquals(expectedMode, stages.getFirst().getMode());
         int lastStageIndex = numberOfStages - 1;

@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.Durations;
@@ -32,6 +33,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -263,7 +265,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Set<String> headSigns = new HashSet<>(Arrays.asList(Bury.getName(), Piccadilly.getName(),
                 "Bury via Market Street & Victoria", Crumpsal.getName(), Etihad.getName()));
         Set<TramTime> departTimes = Collections.singleton(firstResult.getDepartTime());
-        validateAStage(stage, departTimes, "Board Tram", Altrincham.getName(),
+        String expectedAction = summer2026MajorClosure.contains(TramDate.of(when)) ? "Board Bus" : "Board Tram";
+        validateAStage(stage, departTimes, expectedAction, Altrincham.getName(),
                 Collections.singletonList(1),
                 headSigns, 9);
     }

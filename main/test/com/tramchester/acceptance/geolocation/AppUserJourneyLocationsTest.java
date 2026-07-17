@@ -9,6 +9,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourneyFromMyLocation;
+import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
@@ -167,7 +169,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         }
 
         // select first journey - this seems to be inconsistent, not returning first displayed journey
-        TestResultSummaryRow firstResult = results.get(0);
+        TestResultSummaryRow firstResult = results.getFirst();
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);
@@ -188,7 +190,9 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         final TramTime secondStageDepartTime = secondStage.getDepartTime();
         assertTrue(secondStageDepartTime.isAfter(firstStageDepartTime));
-        assertEquals("Board Tram", secondStage.getAction(), "action wrong for " + stages);
+        String expectedAction = summer2026MajorClosure.contains(TramDate.of(when)) ? "Board Bus" : "Board Tram";
+
+        assertEquals(expectedAction, secondStage.getAction(), "action wrong for " + stages);
         assertEquals(station, secondStage.getActionStation(), "action stations wrong");
     }
 
