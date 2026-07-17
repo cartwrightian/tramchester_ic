@@ -34,16 +34,6 @@ public class JourneyDTO {
         // Deserialization
     }
 
-//    @Deprecated
-//    public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination,
-//                      List<SimpleStageDTO> stages,
-//                      LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
-//                      List<ChangeStationRefWithPosition> changeStations, TramTime queryTime,
-//                      List<LocationRefWithPosition> path, TramDate queryDate, int index) {
-//        this(begin, destination, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime,
-//                path, queryDate.toLocalDate(), index);
-//    }
-
     public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<ChangeStationRefWithPosition> changeStations, TramTime queryTime,

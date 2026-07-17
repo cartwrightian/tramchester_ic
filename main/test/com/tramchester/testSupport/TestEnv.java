@@ -84,6 +84,8 @@ public class TestEnv {
     // TODO is this accurate?
     public static TramTime EarliestTrainTime = TramTime.of(0,1);
 
+    public static final String AltToPicBusLongName = "Piccadilly Station - Altrincham";
+
     public static GraphDBType getDefaultDBTYpe() {
         return GraphDBType.InMemory;
     }

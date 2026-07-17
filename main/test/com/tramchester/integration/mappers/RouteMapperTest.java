@@ -54,7 +54,9 @@ class RouteMapperTest {
         List<Station> results = mapper.getStationsOn(fromAirportRoute, false, ManAirport.getId());
 
         assertEquals(ManAirport.getId(), results.getFirst().getId());
-        assertEquals(Victoria.getId(), results.getLast().getId());
+
+        // summer 2026
+        assertEquals(Firswood.getId(), results.getLast().getId());
 
     }
 

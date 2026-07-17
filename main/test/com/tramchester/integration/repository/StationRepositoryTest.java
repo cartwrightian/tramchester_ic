@@ -116,7 +116,7 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        assertEquals(3-1, lines.size(), lines.toString());
+        assertEquals(3-2, lines.size(), lines.toString());
 
     }
 
@@ -274,8 +274,8 @@ public class StationRepositoryTest {
                 stream().filter(route -> route.getShortName().startsWith(ReplacementBus_WORKAROUND.getShortName())).
                 collect(IdSet.collector());
 
-        expectedIds.add(routeHelper.getOneRoute(Pink, when).getId());
-        expectedIds.add(routeHelper.getOneRoute(Navy, when).getId());
+//        expectedIds.add(routeHelper.getOneRoute(Pink, when).getId());
+//        expectedIds.add(routeHelper.getOneRoute(Navy, when).getId());
 
         IdSet<Route> pickups = station.getPickupRoutes().stream().
                 filter(route -> route.isAvailableOn(when)).

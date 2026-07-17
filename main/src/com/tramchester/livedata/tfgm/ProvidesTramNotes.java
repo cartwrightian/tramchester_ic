@@ -33,8 +33,11 @@ public class ProvidesTramNotes implements ProvidesNotes {
     public static final String weekend = "At the weekend your journey may be affected by improvement works." + website;
     public static final String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
 
-    private static final DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
-            TramDate.of(2025, 3, 16));
+    public static final String summer2026 = "Due to works at Deansgate-Castlefield and Trafford bar some lines are closed" +
+            " please check <a href=\"https://tfgm.com/tram-improvement-works/deansgate-castlefield-and-trafford-bar-works\">TFGM</a> before travel.";
+
+    private static final DateRange Summer2026Range = DateRange.of(TramDate.of(2026,7,13),
+            TramDate.of(2026, 8, 2));
 
     public static  final String YorkStreetClosures2025 = """
             Between 1st and 16th March there are no trams between St Peters Square and Piccadilly Garden or Market Street,
@@ -112,8 +115,8 @@ public class ProvidesTramNotes implements ProvidesNotes {
         if (queryDate.isChristmasPeriod()) {
             notes.add(new Note(christmas, Christmas));
         }
-        if (YorkStreetWorks2025.contains(queryDate)) {
-            notes.add(new Note(YorkStreetClosures2025, Diversion));
+        if (Summer2026Range.contains(queryDate)) {
+            notes.add(new Note(summer2026, Diversion));
         }
         return notes;
     }

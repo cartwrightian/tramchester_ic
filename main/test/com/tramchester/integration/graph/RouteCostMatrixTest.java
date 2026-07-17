@@ -107,14 +107,13 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWithReplacementBusesFromAlty() {
-        Route bus = routeHelper.requireByLongName(date, "Altrincham to Piccadilly Station");
-
+        Route bus = routeHelper.requireByLongName(date, TestEnv.AltToPicBusLongName);
 
         int depthNavy = routeMatrix.getConnectionDepthFor(bus, routeHelper.getNavy(date));
-        assertEquals(1, depthNavy);
+        assertEquals(2, depthNavy);
 
         int depthPink = routeMatrix.getConnectionDepthFor(bus, routeHelper.getPink(date));
-        assertEquals(1, depthPink);
+        assertEquals(2, depthPink);
 
     }
 

@@ -300,17 +300,17 @@ public class RouteRepositoryTest {
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         // summer 2026 closures/buses
-        int throughRoutes = 5+3; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        int throughRoutes = 5+1; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 
         Route victoriaToAirport = tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when);
-        assertTrue(cornbrookPickups.contains(victoriaToAirport));
-        assertTrue(cornbrookDropofss.contains(victoriaToAirport));
+        assertFalse(cornbrookPickups.contains(victoriaToAirport));
+        assertFalse(cornbrookDropofss.contains(victoriaToAirport));
 
-        Route altToPicc = routeHelper.requireByLongName(date, "Altrincham to Piccadilly Station");
-        assertTrue(cornbrookPickups.contains(altToPicc));
-        assertTrue(cornbrookDropofss.contains(altToPicc));
+//        Route altToPicc = routeHelper.requireByLongName(date, "Altrincham to Piccadilly Station");
+//        assertTrue(cornbrookPickups.contains(altToPicc));
+//        assertTrue(cornbrookDropofss.contains(altToPicc));
 
         Route piccToAlty = routeHelper.requireByLongName(date, "Piccadilly Station - Altrincham");
         assertTrue(cornbrookPickups.contains(piccToAlty));

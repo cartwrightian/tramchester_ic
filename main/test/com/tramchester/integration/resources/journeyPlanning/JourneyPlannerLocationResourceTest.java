@@ -30,6 +30,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.Deansgate;
@@ -158,7 +161,8 @@ class JourneyPlannerLocationResourceTest {
 
             assertEquals(2, stages.size(), stages.toString());
             assertEquals(TransportMode.Walk, stages.get(0).getMode());
-            assertEquals(TransportMode.Tram, stages.get(1).getMode());
+            TransportMode expectedMode = summer2026MajorClosure.contains(when) ? Bus : Tram;
+            assertEquals(expectedMode, stages.get(1).getMode());
 
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
             assertEquals(1, changeStations.size());
@@ -183,7 +187,9 @@ class JourneyPlannerLocationResourceTest {
 
             boolean noTramChange = stages.size() == 2;
 
-            assertEquals(TransportMode.Tram, stages.getFirst().getMode());
+            TransportMode expectedMode = summer2026MajorClosure.contains(when) ? Bus : Tram;
+
+            assertEquals(expectedMode, stages.getFirst().getMode());
 
             SimpleStageDTO walkingStage = stages.getLast();
             assertEquals(TransportMode.Walk, walkingStage.getMode());
@@ -194,7 +200,7 @@ class JourneyPlannerLocationResourceTest {
             assertEquals(expectedNumChanges, changeStations.size());
 
             ChangeStationRefWithPosition changeStation = changeStations.getFirst();
-            assertEquals(TransportMode.Tram, changeStation.getFromMode());
+            assertEquals(Tram, changeStation.getFromMode());
         });
     }
 
@@ -216,8 +222,10 @@ class JourneyPlannerLocationResourceTest {
         LocalDateTime queryTimeDate = queryTime.toDate(when);
         assertTrue(firstDepartureTime.isBefore(queryTimeDate), firstDepartureTime + " was not before " + queryTimeDate);
 
+        TransportMode expectedMode = summer2026MajorClosure.contains(when) ? Bus : Tram;
+        
         List<SimpleStageDTO> stages = firstJourney.getStages();
-        assertEquals(TransportMode.Tram, stages.getFirst().getMode());
+        assertEquals(expectedMode, stages.getFirst().getMode());
         int lastStageIndex = numberOfStages - 1;
         assertEquals(TransportMode.Walk, stages.get(lastStageIndex).getMode());
    }

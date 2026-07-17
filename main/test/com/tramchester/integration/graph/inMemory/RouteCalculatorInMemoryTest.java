@@ -16,6 +16,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import static com.tramchester.integration.graph.RouteCalculatorTest.TXN_TIMEOUT;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 
 public class RouteCalculatorInMemoryTest {
@@ -77,6 +79,9 @@ public class RouteCalculatorInMemoryTest {
 
     @Test
     void shouldHaveJourneyFromExchangeSquareToMediaCity() {
+
+        assumeTrue(!UpcomingDates.hasClosure(ExchangeSquare.getId(), when));
+
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12, 0),
                 maxNumResults, 1);
 

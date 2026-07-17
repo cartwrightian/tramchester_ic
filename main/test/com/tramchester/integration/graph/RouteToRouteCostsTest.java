@@ -120,9 +120,9 @@ public class RouteToRouteCostsTest {
             }
         });
 
-        assertTrue(missing.isEmpty(), missing.toString());
+        assertTrue(missing.isEmpty(), "On " + date + " " + missing);
 
-        assertEquals(2, changes.size());
+        assertEquals(3, changes.size());
         assertTrue(changes.contains(0));
         assertTrue(changes.contains(1));
 
@@ -214,13 +214,13 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSummer2026() {
-        Route routeA = routeHelper.requireByLongName(date,"Altrincham to Piccadilly Station");
+        Route routeA = routeHelper.requireByLongName(date, TestEnv.AltToPicBusLongName);
 
         Route routeB = routeHelper.getNavy(date);
 
-        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
+        assertEquals(2, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, timeRange, modes)),
+        assertEquals(2, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, timeRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
 
     }
@@ -231,7 +231,7 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
-        assertEquals(1, getMinCost(result));
+        assertEquals(2, getMinCost(result));
     }
 
     private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -262,7 +262,7 @@ public class RouteToRouteCostsTest {
 
         int result = getPossibleMinChanges(mediaCity, ashton, modes, date, timeRange);
 
-        assertEquals(1, getMinCost(result));
+        assertEquals(2, getMinCost(result));
     }
 
     @Test

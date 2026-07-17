@@ -7,6 +7,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -47,7 +48,11 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
-
+        if (date.equals(TramDate.of(2026, 7,23))) {
+            if (TramStations.ExchangeSquare.matches(stationId)) {
+                return true;
+            }
+        }
         return false;
     }
 

@@ -28,6 +28,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.DeparturesResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
@@ -65,6 +66,7 @@ class DeparturesResourceTest {
     private Station stationWithNotes;
     private Station stationWithDepartures;
     private PlatformMessageSource platformMessageSource;
+    private LocalDateTime localDateTime;
 
     @BeforeAll
     public static void onceBeforeAll() {
@@ -108,6 +110,8 @@ class DeparturesResourceTest {
         searchForDueTrams.ifPresent(dueTram -> {
             stationWithDepartures = dueTram.getDisplayLocation();
         });
+
+        localDateTime = TestEnv.LocalNow();
     }
 
     @Test
@@ -172,7 +176,7 @@ class DeparturesResourceTest {
     void shouldGetDueTramsForStationWithinQuerytimeNow() {
         Station station = stationWithDepartures;
 
-        LocalTime now = TestEnv.LocalNow().toLocalTime();
+        LocalTime now = localDateTime.toLocalTime();
         DepartureListDTO result = getDeparturesForStation(station, now);
         SortedSet<DepartureDTO> departures = result.getDepartures();
         assertFalse(departures.isEmpty(), "no due trams at " + station);
@@ -182,7 +186,7 @@ class DeparturesResourceTest {
     @Test
     @LiveDataDueTramsTest
     void shouldGetDueTramsForStationWithQuerytimePast() {
-        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
+        LocalTime queryTime = localDateTime.toLocalTime().minusMinutes(120);
 
         DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
         SortedSet<DepartureDTO> departures = result.getDepartures();
@@ -193,13 +197,17 @@ class DeparturesResourceTest {
                 filter(note -> note.getNoteType() != Note.NoteType.Weekend).
                 toList();
 
-        assertTrue(notes.isEmpty(), "expected no notes in " + result);
+        if (UpcomingDates.summer2026MajorClosure.contains(TramDate.from(localDateTime))) {
+            assertEquals(1, notes.size());
+        } else {
+            assertTrue(notes.isEmpty(), "expected no notes in " + result);
+        }
     }
 
     @Test
     @LiveDataDueTramsTest
     void shouldGetDueTramsForStationWithQuerytimeFuture() {
-        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
+        LocalTime queryTime = localDateTime.toLocalTime().plusMinutes(120);
 
         DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
         SortedSet<DepartureDTO> departures = result.getDepartures();
@@ -211,14 +219,18 @@ class DeparturesResourceTest {
                 toList();
 
         assertTrue(departures.isEmpty());
-        assertTrue(notes.isEmpty(), "expected no notes in " + result);
+        if (UpcomingDates.summer2026MajorClosure.contains(TramDate.from(localDateTime))) {
+            assertEquals(1, notes.size());
+        } else {
+            assertTrue(notes.isEmpty(), "expected no notes in " + result);
+        }
     }
 
     @Test
     @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQuerytimeNow() {
         LatLong where = nearAltrinchamInterchange.latLong();
-        LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
+        LocalTime queryTime = localDateTime.toLocalTime();
 
         DepartureListDTO result = getDeparturesForLatlongTime(where, queryTime);
         assertFalse(result.isForJourney());
@@ -247,7 +259,7 @@ class DeparturesResourceTest {
     @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQuerytimeFuture() {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
-        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
+        LocalTime queryTime =localDateTime.toLocalTime().plusMinutes(120);
         //SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
 
         DepartureListDTO result = getDeparturesForLatlongTime(latLong, queryTime);
@@ -263,7 +275,7 @@ class DeparturesResourceTest {
     @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQuerytimePast() {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
-        LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
+        LocalTime queryTime =localDateTime.toLocalTime().minusMinutes(120);
 
         //SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
         DepartureListDTO result = getDeparturesForLatlongTime(latLong, queryTime);

@@ -12,6 +12,9 @@ import java.util.Set;
 
 public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, CoreDomain, CrossesDay {
 
+    String REPLACEMENT_BUS_PREFIX = "Replacement Bus";
+
+
     IdFor<Route> getId();
 
     String getName();

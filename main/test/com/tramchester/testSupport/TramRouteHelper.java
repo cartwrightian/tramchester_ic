@@ -142,7 +142,7 @@ public class TramRouteHelper {
     public Route requireByLongName(TramDate date, String longName) {
         Set<Route> matches = routeRepository.findRoutesByName(METL, longName);
         Optional<Route> search = matches.stream().filter(route -> route.isAvailableOn(date)).findFirst();
-        assertTrue(search.isPresent());
+        assertTrue(search.isPresent(), "Could not find '" + longName + "' on " + date);
 
         return search.get();
     }

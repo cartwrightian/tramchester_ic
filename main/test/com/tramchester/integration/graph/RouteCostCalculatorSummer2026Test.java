@@ -78,13 +78,13 @@ class RouteCostCalculatorSummer2026Test {
 
     @Test
     void shouldReproduceIssueFromAltyToCornbrook() throws InvalidDurationException {
-        assertEquals(TramDuration.ofHours(1), getAverageCostBetween(altrincham, Cornbrook.from(stationRepository)));
+        assertEquals(TramDuration.ofHours(1).plusMinutes(2), getAverageCostBetween(altrincham, Cornbrook.from(stationRepository)));
     }
 
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(57), getAverageCostBetween(mediaCity, Ashton.from(stationRepository)));
-        assertEquals(TramDuration.ofMinutes(56), getAverageCostBetween(Ashton.from(stationRepository), mediaCity));
+        assertEquals(TramDuration.ofHours(1).plusMinutes(6), getAverageCostBetween(mediaCity, Ashton.from(stationRepository)));
+        assertEquals(TramDuration.ofMinutes(65), getAverageCostBetween(Ashton.from(stationRepository), mediaCity));
     }
 
     @Test
@@ -93,14 +93,14 @@ class RouteCostCalculatorSummer2026Test {
 
         final Station bury = Bury.from(stationRepository);
 
-        assertEquals(TramDuration.ofHours(1).plusMinutes(35), getAverageCostBetween(bury, altrincham));
-        assertEquals(TramDuration.ofHours(1).plusMinutes(42), getAverageCostBetween(altrincham, bury));
+        assertEquals(TramDuration.ofHours(1).plusMinutes(57), getAverageCostBetween(bury, altrincham));
+        assertEquals(TramDuration.ofHours(2).plusMinutes(2), getAverageCostBetween(altrincham, bury));
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(59), getAverageCostBetween(mediaCity, airport));
-        assertEquals(TramDuration.ofMinutes(58), getAverageCostBetween(airport, mediaCity));
+        assertEquals(TramDuration.ofMinutes(63), getAverageCostBetween(mediaCity, airport));
+        assertEquals(TramDuration.ofMinutes(62), getAverageCostBetween(airport, mediaCity));
     }
 
     private TramDuration getAverageCostBetween(Station start, Station end) throws InvalidDurationException {

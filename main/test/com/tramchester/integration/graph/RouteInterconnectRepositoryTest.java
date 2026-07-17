@@ -249,18 +249,18 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedBacktrackFor1ChangesSummer2026() {
-        Set<Route> buses = routeRepository.findRoutesByName(METL, "Altrincham to Piccadilly Station");
+        Set<Route> buses = routeRepository.findRoutesByName(METL, "Piccadilly Station - Chorlton");
         Optional<Route> search = buses.stream().filter(route -> route.isAvailableOn(date)).findFirst();
         assertTrue(search.isPresent());
 
         Route routeA = search.get();
-        Route routeB = getRouteFor(TFGMRouteNames.Navy);
+        Route routeB = getRouteFor(TFGMRouteNames.Pink);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        int expectedChanges = ((config.hasRailConfig()) ? 8-2 : 5-2);
+        int expectedChanges = 2;
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 

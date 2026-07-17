@@ -13,6 +13,7 @@ import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
@@ -222,9 +223,9 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-//        if (UpcomingDates.YorkStreetWorks2025.contains(date)) {
-//            expected++;
-//        }
+        if (UpcomingDates.summer2026MajorClosure.contains(date)) {
+            expected++;
+        }
 
         assertEquals(expected, notes.size());
 

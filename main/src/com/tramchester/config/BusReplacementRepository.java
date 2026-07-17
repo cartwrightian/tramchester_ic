@@ -4,39 +4,60 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.repository.RouteRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.Set;
+
+import static com.tramchester.domain.Route.REPLACEMENT_BUS_PREFIX;
 
 @LazySingleton
 public class BusReplacementRepository {
     private static final Logger logger = LoggerFactory.getLogger(BusReplacementRepository.class);
 
-    private final IdSet<Route> replacementBusRoutes;
+    private final RouteRepository repository;
+    private IdSet<Route> replacements;
 
     @Inject
-    public BusReplacementRepository() {
-        replacementBusRoutes = new IdSet<>();
+    public BusReplacementRepository(RouteRepository repository) {
+        this.repository = repository;
     }
 
     @PostConstruct
     public void start() {
-        // TODO maybe into config at some point, but fine in code for now
-//        replacementBusRoutes.add(Route.createId("2749"));
-//        replacementBusRoutes.add(Route.createId("2757"));
-//        replacementBusRoutes.forEach(routeId -> {
-//            logger.info("Have bus replacement route " + routeId);
-//        });
-        logger.info("No replacement buses");
+        logger.info("started");
+        final Set<Route> tramRoutes = repository.getRoutes(TransportMode.TramsOnly);
+        replacements = tramRoutes.stream().
+                filter(route -> route.getShortName().startsWith(REPLACEMENT_BUS_PREFIX)).
+                collect(IdSet.collector());
+        if (replacements.isEmpty()) {
+            logger.info("No replacement buses");
+        } else {
+            logger.warn("Have " + replacements.size() + " replacement buses");
+        }
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stop");
+        replacements.clear();
     }
 
     public boolean hasReplacementBuses() {
-        return !replacementBusRoutes.isEmpty();
+        return !replacements.isEmpty();
     }
 
-    public boolean isReplacement(IdFor<Route> id) {
-        return replacementBusRoutes.contains(id);
+    public boolean isReplacement(final IdFor<Route> id) {
+        return replacements.contains(id);
     }
+
+    public int number() {
+        return replacements.size();
+    }
+
 }

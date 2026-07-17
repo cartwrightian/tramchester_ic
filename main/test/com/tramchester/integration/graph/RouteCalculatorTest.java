@@ -54,6 +54,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.getGreen;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getPurple;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 @ExtendWith(ConfigParameterResolver.class)
@@ -598,7 +599,10 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveExchangeSquareToDestinationsDuringSummer2026Closures() {
+        assumeTrue(!UpcomingDates.hasClosure(ExchangeSquare.getId(), when));
+
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(12, 0), maxNumResults, 2);
+
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, Victoria);
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, Piccadilly);
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, StPetersSquare);
