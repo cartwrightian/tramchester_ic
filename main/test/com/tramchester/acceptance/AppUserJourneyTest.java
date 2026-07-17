@@ -118,7 +118,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     @SmokeTest
-    void shouldHaveInitialValuesAndSetInputsSetCorrectly(ProvidesDriver providesDriver) throws IOException {
+    void shouldHaveInitialValuesAndSetInputsCorrectly(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
 
         validateCurrentTimeIsSelected(appPage);

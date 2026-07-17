@@ -72,7 +72,7 @@ public class AppPage extends Page {
     }
 
     @NotNull
-    private Actions moveToElement(WebElement webElement) {
+    private Actions moveToElement(final WebElement webElement) {
         // sigh
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", webElement);
         Actions actions = new Actions(driver);
@@ -364,14 +364,15 @@ public class AppPage extends Page {
         }
     }
 
-    private void okToModal(By locator, String buttonId) {
-        WebElement modelDialogue = driver.findElement(locator);
-        WebElement button = modelDialogue.findElement(By.id(buttonId));
+    private void okToModal(final By locator, final String buttonId) {
+        final WebElement modelDialogue = driver.findElement(locator);
+        final WebElement button = modelDialogue.findElement(By.id(buttonId));
         createWait().until(webDriver -> button.isDisplayed());
         createWait().until(webDriver -> button.isEnabled());
-        moveToElement(button).click().perform();
+        moveToElement(button).pause(Duration.ofMillis(200)).click().perform();
         if (modelDialogue.isDisplayed()) {
             //createWait().until(webDriver -> !modelDialogue.isEnabled());
+            moveToElement(button).click().perform();
             createWait().until(ExpectedConditions.invisibilityOf(modelDialogue));
         }
     }
