@@ -33,4 +33,6 @@ public interface NaptanRepository {
     boolean isEnabled();
 
     Stream<NaptanRecord> getAll();
+
+    long size();
 }

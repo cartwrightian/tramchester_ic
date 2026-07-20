@@ -131,7 +131,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         List<NaptanStopData> items = super.parseAll(text);
 
-        assertEquals(items.size(), 2);
+        assertEquals(2, items.size());
 
         NaptanStopData dataA = items.getFirst();
         assertNotNull(dataA);

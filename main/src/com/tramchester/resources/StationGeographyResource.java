@@ -125,7 +125,11 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
                 map(area -> new AreaBoundaryDTO(naptanRepository.getBoundaryFor(area.getId()), area))
                 .collect(Collectors.toList());
 
-        logger.info("Found " + allBoundaries.size() + " areas with boundaries");
+        if (allBoundaries.isEmpty()) {
+            logger.warn("Found no areas with boundaries");
+        } else {
+            logger.info("Found " + allBoundaries.size() + " areas with boundaries");
+        }
 
         return Response.ok(allBoundaries).build();
     }

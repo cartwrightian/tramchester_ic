@@ -3,13 +3,18 @@ package com.tramchester.geo;
 // Note: UK national grid
 // https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid#All-numeric_grid_references
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class GridPosition {
     private final int eastings;
     private final int northings;
 
-    public GridPosition(int eastings, int northings) {
+    @JsonCreator
+    public GridPosition(@JsonProperty("easting") int eastings, @JsonProperty("northings") int northings) {
         this.eastings = eastings;
         this.northings = northings;
     }
@@ -25,6 +30,7 @@ public class GridPosition {
         return northings;
     }
 
+    @JsonIgnore
     public boolean isValid() {
         return eastings>=0 && northings>=0;
     }

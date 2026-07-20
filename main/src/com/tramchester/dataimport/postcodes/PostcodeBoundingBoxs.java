@@ -10,12 +10,12 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -154,14 +154,14 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
         }
 
         @Override
-        public void cacheTo(HasDataSaver<PostcodeHintData> hasDataSaver) {
+        public void cacheTo(final HasDataSaver<PostcodeHintData> hasDataSaver) {
             Stream<PostcodeHintData> toCache = theMap.entrySet().stream().
                     map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue()));
             hasDataSaver.cacheStream(toCache);
         }
 
         @Override
-        public void loadFrom(Stream<PostcodeHintData> data) {
+        public void loadFrom(final Stream<PostcodeHintData> data) {
             logger.info("Loading bounds from cache");
             data.forEach(item -> theMap.put(item.getCode(),
                     new BoundingBox(item.getMinEasting(), item.getMinNorthing(), item.getMaxEasting(), item.getMaxNorthing())));

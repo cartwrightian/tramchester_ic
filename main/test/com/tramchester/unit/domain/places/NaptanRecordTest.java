@@ -5,6 +5,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.reference.KnownLocations;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,8 @@ public class NaptanRecordTest {
     @Test
     void shouldHaveExpectedValues() {
         NaptanRecord naptanRecord = new NaptanRecord(octoCode, localityId, "commonName", position, latLong, "suburb", "town",
-                NaptanStopType.busCoachTrolleyStopOnStreet, "street", "indicator", false);
+                NaptanStopType.busCoachTrolleyStopOnStreet, "street", "indicator", false,
+                RailStationIds.Macclesfield.getId());
 
         assertEquals(octoCode, naptanRecord.getId());
         assertEquals(localityId, naptanRecord.getLocalityId());
@@ -45,6 +47,7 @@ public class NaptanRecordTest {
         assertEquals("street", naptanRecord.getStreet());
         assertEquals("indicator", naptanRecord.getIndicator());
         assertFalse(naptanRecord.isLocalityCenter());
+        assertEquals(RailStationIds.Macclesfield.getId(), naptanRecord.getRailStationId());
 
         assertEquals("commonName (indicator street), suburb, town", naptanRecord.getDisplayName());
     }
@@ -53,7 +56,7 @@ public class NaptanRecordTest {
     void shouldHaveExpectedDisplayNameNoStreet() {
 
         NaptanRecord naptanRecord = new NaptanRecord(octoCode, localityId, "commonName", position, latLong, "suburb", "town",
-                NaptanStopType.busCoachTrolleyStopOnStreet, "", "indicator", false);
+                NaptanStopType.busCoachTrolleyStopOnStreet, "", "indicator", false, RailStationIds.Macclesfield.getId());
 
         assertEquals("commonName, suburb, town", naptanRecord.getDisplayName());
     }
@@ -62,7 +65,7 @@ public class NaptanRecordTest {
     void shouldHaveExpectedDisplayNameNoSuburb() {
 
         NaptanRecord naptanRecord = new NaptanRecord(octoCode, localityId, "commonName", position, latLong, "", "town",
-                NaptanStopType.busCoachTrolleyStopOnStreet, "street", "indicator", false);
+                NaptanStopType.busCoachTrolleyStopOnStreet, "street", "indicator", false, RailStationIds.Macclesfield.getId());
 
         assertEquals("commonName (indicator street), town", naptanRecord.getDisplayName());
     }
@@ -71,7 +74,7 @@ public class NaptanRecordTest {
     void shouldHaveExpectedNameBusStationBayNoStreet() {
 
         NaptanRecord naptanRecord = new NaptanRecord(octoCode, localityId, "commonName", position, latLong, "suburb", "town",
-                NaptanStopType.busCoachTrolleyStationBay, "", "indicator", false);
+                NaptanStopType.busCoachTrolleyStationBay, "", "indicator", false, RailStationIds.Macclesfield.getId());
 
         assertEquals("commonName (indicator), suburb, town", naptanRecord.getDisplayName());
 

@@ -11,12 +11,14 @@ import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.naptan.NaptanRepositoryContainer;
 import com.tramchester.repository.naptan.NaptanStopType;
+import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnownLocality;
@@ -51,6 +53,11 @@ class NaptanRepositoryTest {
     @BeforeEach
     void beforeEachTestRuns() {
         repository = componentContainer.get(NaptanRepositoryContainer.class);
+    }
+
+    @Test
+    void shouldHaveExpectedNumberOfRecords() {
+        assertEquals(39685, repository.size());
     }
 
     @Test
@@ -95,8 +102,30 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shoulContainTrainOutOfBounds() {
+    void shouldContainTrainOutOfBounds() {
         assertTrue(repository.containsTiploc(RailStationIds.LondonEuston.getId()));
+    }
+
+    @Disabled("Slow, was to repro an issue with disabled repo saving an empty cache file")
+    @Test
+    void shouldHaveBoundariesForAreas() {
+        NPTGRepository nptgRepository = componentContainer.get(NPTGRepository.class);
+        StationLocations stationLocations = componentContainer.get(StationLocations.class);
+
+        Set<NPTGLocality> areas = nptgRepository.getAll();
+        assertFalse(areas.isEmpty());
+
+        Set<NPTGLocality> areasWithStations = areas.stream().
+                filter(area -> stationLocations.hasStationsOrPlatformsIn(area.getId())).
+                collect(Collectors.toSet());
+        assertFalse(areasWithStations.isEmpty());
+
+
+        List<List<LatLong>> boundaries = areasWithStations.stream().
+                map(area -> repository.getBoundaryFor(area.getId()))
+                .toList();
+
+        assertEquals(areasWithStations.size(), boundaries.size());
     }
 
     @Test
