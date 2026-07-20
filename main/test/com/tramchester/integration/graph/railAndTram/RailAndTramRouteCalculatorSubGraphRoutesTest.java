@@ -23,6 +23,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@Summer2026Closures
 @GMTest
 public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static final Duration TXN_TIMEOUT = Duration.ofMinutes(5);
