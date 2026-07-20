@@ -6,7 +6,7 @@ import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.PostcodeHintData;
-import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.DataSourceID.postcode;
+
 @LazySingleton
 public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, PostcodeBoundingBoxs.PostcodeBounds> {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeBoundingBoxs.class);
@@ -35,9 +37,9 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
 
     @Inject
     public PostcodeBoundingBoxs(TramchesterConfig config, FileDataCache dataCache) {
-        super(dataCache, PostcodeHintData.class);
+        super(dataCache, PostcodeHintData.class, ImmutableEnumSet.of(postcode));
         postcodeBounds = new PostcodeBounds();
-        enabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
+        enabled = config.hasRemoteDataSourceConfig(postcode);
     }
 
     @PostConstruct
@@ -165,6 +167,11 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
             logger.info("Loading bounds from cache");
             data.forEach(item -> theMap.put(item.getCode(),
                     new BoundingBox(item.getMinEasting(), item.getMinNorthing(), item.getMaxEasting(), item.getMaxNorthing())));
+        }
+
+        @Override
+        public Class<PostcodeHintData> getDataType() {
+            return PostcodeHintData.class;
         }
 
         public void clear() {

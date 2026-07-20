@@ -30,6 +30,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.DataSourceID.naptanxml;
+import static com.tramchester.domain.DataSourceID.nptg;
+
 @LazySingleton
 public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairInterconnectsData, RouteInterconnectRepository.RouteInterconnects> {
     private static final Logger logger = LoggerFactory.getLogger(RouteInterconnectRepository.class);
@@ -50,7 +53,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
                                        InterchangeRepository interchangeRepository, RouteCostMatrix routeCostMatrix,
                                        RouteDateAndDayOverlap routeDateAndDayOverlap, DataCache dataCache, GraphFilterActive graphFilter,
                                        TramchesterConfig config) {
-        super(dataCache, RoutePairInterconnectsData.class);
+        super(dataCache, RoutePairInterconnectsData.class, ImmutableEnumSet.of(naptanxml, nptg));
         this.pairFactory = pairFactory;
         this.numRoutes = numberOfRoutes.numberOfRoutes();
         this.interchangeRepository = interchangeRepository;
@@ -349,6 +352,11 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
                 logger.error(msg, e);
                 throw new FileDataCache.CacheLoadException(msg);
             }
+        }
+
+        @Override
+        public Class<RoutePairInterconnectsData> getDataType() {
+            return RoutePairInterconnectsData.class;
         }
 
 

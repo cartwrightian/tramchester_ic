@@ -1,12 +1,12 @@
 package com.tramchester.caching;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.graph.filters.GraphFilterActive;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,21 +32,21 @@ public class FileDataCache implements DataCache {
 
     private final Path cacheFolder;
     private final RemoteDataAvailable remoteDataRefreshed;
-    private final TramchesterConfig config;
     private final LoaderSaverFactory loaderSaverFactory;
     private final boolean cachingDisabled;
     private final boolean graphFilterActive;
+    private final Map<Class<?>, ImmutableEnumSet<DataSourceID>> depsForType;
     private boolean ready;
 
     @Inject
     public FileDataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed, LoaderSaverFactory loaderSaverFactory,
                          GraphFilterActive graphFilterActive) {
-        this.config = config;
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
         this.loaderSaverFactory = loaderSaverFactory;
         this.cachingDisabled = config.getCachingDisabled();
         this.graphFilterActive = graphFilterActive.isActive();
+        depsForType = new HashMap<>();
     }
 
     @PostConstruct
@@ -64,7 +63,7 @@ public class FileDataCache implements DataCache {
         logger.info("Starting");
         ready = false;
 
-        File cacheDir = cacheFolder.toFile();
+        final File cacheDir = cacheFolder.toFile();
         if (cacheDir.exists() && cacheDir.isDirectory()) {
             logger.info("Cached folder exists at " + cacheFolder);
             ready = true;
@@ -78,33 +77,7 @@ public class FileDataCache implements DataCache {
             }
         }
 
-        clearCacheIfDataRefreshed();
-    }
-
-    private void clearCacheIfDataRefreshed() {
-        if (cachingDisabled) {
-            logger.warn("Not clearing cache, currently disabled");
-            return;
-        }
-        if (graphFilterActive) {
-            logger.warn("Graph filter is active, disabled");
-            return;
-        }
-
-        // TODO Currently clear cache if any data source has refreshed, in future maybe link to Ready dependency chain??
-
-        Set<DataSourceID> refreshedSources = config.getRemoteSources().stream().
-                map(RemoteDataSourceConfig::getName).
-                map(DataSourceID::findOrUnknown).
-                filter(remoteDataRefreshed::refreshed).collect(Collectors.toSet());
-
-        if (refreshedSources.isEmpty()) {
-            logger.info("Found no updated data sources");
-            return;
-        }
-
-        logger.warn("Some data sources (" + refreshedSources+ ") have refreshed, clearing cache " + cacheFolder);
-        clearFiles();
+        //clearCacheIfDataRefreshed();
     }
 
     @PreDestroy
@@ -117,7 +90,7 @@ public class FileDataCache implements DataCache {
         ready = false;
         logger.info("Stopping");
         try {
-            List<Path> filesInCacheDir = filesInCache();
+            final List<Path> filesInCacheDir = filesInCache();
             filesInCacheDir.forEach(file -> logger.info("Cache file: " + file));
         } catch (IOException e) {
             logger.error("Could not list files in " + cacheFolder);
@@ -127,7 +100,9 @@ public class FileDataCache implements DataCache {
 
     @NotNull
     private List<Path> filesInCache() throws IOException {
-        return Files.list(cacheFolder).filter(Files::isRegularFile).toList();
+        return Files.list(cacheFolder).
+                filter(Files::isRegularFile).
+                toList();
     }
 
     @Override
@@ -149,20 +124,58 @@ public class FileDataCache implements DataCache {
     }
 
     @Override
-    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> boolean has(T cachesData) {
+    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> boolean has(final T cachesData) {
         if (cachingDisabled || graphFilterActive) {
             return false;
         }
-        return Files.exists(getPathFor(cachesData));
+
+        if (Files.exists(getPathFor(cachesData))) {
+
+            final Class<CACHETYPE> typeOfData = cachesData.getDataType();
+            if (!depsForType.containsKey(typeOfData)) {
+                throw new RuntimeException("Not registered " + typeOfData + " missing from " + depsForType.keySet());
+            }
+
+            final ImmutableEnumSet<DataSourceID> deps = depsForType.get(typeOfData);
+
+            final Set<DataSourceID> outdated = deps.stream().filter(remoteDataRefreshed::refreshed).collect(Collectors.toSet());
+            if (outdated.isEmpty()) {
+                logger.info("Dependencies " + deps + " up to date for " + typeOfData.getSimpleName());
+                return true;
+            } else {
+                logger.warn("Outdated dependencies " + outdated + " for " + typeOfData.getSimpleName());
+                deleteFor(cachesData);
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    private <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void deleteFor(final T cachesData) {
+        final Path path = getPathFor(cachesData);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            String msg = format("Error while attempting to delete %s for %s", path.toAbsolutePath(), cachesData.getClass().getSimpleName());
+            logger.error(msg);
+            throw new RuntimeException(msg, e);
+        }
     }
 
     @Override
     @NotNull
-    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> Path getPathFor(T data) {
+    public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> Path getPathFor(final T cachesData) {
         guardCorrectState();
 
-        String filename = data.getFilename();
+        final String filename = cachesData.getFilename();
         return cacheFolder.resolve(filename).toAbsolutePath();
+    }
+
+    @Override
+    public <CACHETYPE extends CachableData> void register(final Class<CACHETYPE> itemType, final ImmutableEnumSet<DataSourceID> dependsOn) {
+        logger.info("Registering " + itemType.getSimpleName() + " with dependencies " + dependsOn);
+        depsForType.put(itemType, dependsOn);
     }
 
     public void clearFiles() {
@@ -178,8 +191,8 @@ public class FileDataCache implements DataCache {
 
         logger.warn("Clearing cache " + cacheFolder.toAbsolutePath());
         try {
-            List<Path> files = filesInCache();
-            for (Path file : files) {
+            final List<Path> files = filesInCache();
+            for (final Path file : files) {
                 if (Files.deleteIfExists(file)) {
                     logger.info("Removed " + file.toAbsolutePath());
                 }
@@ -196,12 +209,12 @@ public class FileDataCache implements DataCache {
         guardCorrectState();
 
         if (ready) {
-            Path cacheFile = getPathFor(cachesData);
+            final Path cacheFile = getPathFor(cachesData);
             logger.info("Loading " + cacheFile.toAbsolutePath()  + " to " + theClass.getSimpleName());
 
-            TransportDataFromFile<CACHETYPE> loader = loaderSaverFactory.getDataLoaderFor(theClass, cacheFile);
+            final TransportDataFromFile<CACHETYPE> loader = loaderSaverFactory.getDataLoaderFor(theClass, cacheFile);
 
-            Stream<CACHETYPE> data = loader.load();
+            final Stream<CACHETYPE> data = loader.load();
             try {
                 cachesData.loadFrom(data);
             }
@@ -238,5 +251,6 @@ public class FileDataCache implements DataCache {
         void cacheTo(HasDataSaver<T> saver);
         String getFilename();
         void loadFrom(Stream<T> stream) throws CacheLoadException;
+        Class<T> getDataType();
     }
 }

@@ -30,6 +30,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.DataSourceID.*;
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
@@ -54,7 +55,7 @@ public class NaptanRepositoryContainer  extends ComponentThatCaches<NaptanRecord
     @Inject
     public NaptanRepositoryContainer(NaptanDataImporter naptanDataImporter, NPTGRepository nptgRepository,
                                      Geography geography, TramchesterConfig config, FileDataCache dataCache) {
-        super(dataCache, NaptanRecord.class);
+        super(dataCache, NaptanRecord.class, ImmutableEnumSet.of(naptanxml, nptg));
         this.naptanDataImporter = naptanDataImporter;
         this.geography = geography;
         this.config = config;
@@ -261,6 +262,9 @@ public class NaptanRepositoryContainer  extends ComponentThatCaches<NaptanRecord
     }
 
     public static class CachingLoader implements FileDataCache.CachesData<NaptanRecord> {
+
+        // TODO currently FileDataCache clears all caches if any newer data is found from any data source
+
         private final boolean hasTrain;
         private IdMap<NaptanRecord> stops;
         private Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
@@ -303,6 +307,11 @@ public class NaptanRepositoryContainer  extends ComponentThatCaches<NaptanRecord
             tiplocToAtco = stops.getValuesStream().
                     filter(record -> record.getRailStationId().isValid()).
                     collect(Collectors.toMap(NaptanRecord::getRailStationId, NaptanRecord::getId));
+        }
+
+        @Override
+        public Class<NaptanRecord> getDataType() {
+            return NaptanRecord.class;
         }
 
         public void clear() {

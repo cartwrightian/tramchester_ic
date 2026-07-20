@@ -1,5 +1,7 @@
 package com.tramchester.caching;
 
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,13 +13,14 @@ public class ComponentThatCaches<DATA extends CachableData, CACHES extends FileD
     private final DataCache dataCache;
     private final Class<DATA> itemType;
 
-    public ComponentThatCaches(DataCache dataCache, Class<DATA> itemType) {
+    public ComponentThatCaches(DataCache dataCache, Class<DATA> itemType, ImmutableEnumSet<DataSourceID> dependsOn) {
         this.dataCache = dataCache;
         this.itemType = itemType;
+        dataCache.register(itemType, dependsOn);
     }
 
-    protected boolean cachePresent(final CACHES cachesDate) {
-        return dataCache.has(cachesDate);
+    protected boolean cachePresent(final CACHES cachesData) {
+        return dataCache.has(cachesData);
     }
 
     protected boolean loadFromCache(final CACHES cachesData) {

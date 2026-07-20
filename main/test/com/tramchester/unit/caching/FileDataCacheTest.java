@@ -10,8 +10,8 @@ import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.testSupport.TestConfig;
@@ -33,6 +33,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.DataSourceID.openRailData;
+import static com.tramchester.domain.DataSourceID.tfgm;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FileDataCacheTest extends EasyMockSupport  {
@@ -84,8 +86,8 @@ public class FileDataCacheTest extends EasyMockSupport  {
     @Test
     void shouldCacheRouteIndexDataToDisc() {
 
-        TestData<RouteIndexData> toSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME);
-        TestData<RouteIndexData> toLoad = new TestData<>(DATA_INDEX_FILENAME);
+        TestData<RouteIndexData> toSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME, RouteIndexData.class);
+        TestData<RouteIndexData> toLoad = new TestData<>(DATA_INDEX_FILENAME, RouteIndexData.class);
 
         validateCacheClassToDisk(toSave, toLoad, RouteIndexData.class, routeIndexTestItems);
     }
@@ -93,8 +95,8 @@ public class FileDataCacheTest extends EasyMockSupport  {
     @Test
     void shouldCachePostcodeHintsToDisk() {
 
-        TestData<PostcodeHintData> toSave = new TestData<>(postcodeHintItems, HINTS_FILENAME);
-        TestData<PostcodeHintData> toLoad = new TestData<>(HINTS_FILENAME);
+        TestData<PostcodeHintData> toSave = new TestData<>(postcodeHintItems, HINTS_FILENAME, PostcodeHintData.class);
+        TestData<PostcodeHintData> toLoad = new TestData<>(HINTS_FILENAME, PostcodeHintData.class);
 
         validateCacheClassToDisk(toSave, toLoad, PostcodeHintData.class, postcodeHintItems);
     }
@@ -108,8 +110,8 @@ public class FileDataCacheTest extends EasyMockSupport  {
         items.add(new CostsPerDegreeData(8,9, asShorts(1, 2, 3, 4)));
         items.add(new CostsPerDegreeData(11,12, asShorts(42,43)));
 
-        TestData<CostsPerDegreeData> toSave = new TestData<>(items, filename);
-        TestData<CostsPerDegreeData> toLoad = new TestData<>(filename);
+        TestData<CostsPerDegreeData> toSave = new TestData<>(items, filename, CostsPerDegreeData.class);
+        TestData<CostsPerDegreeData> toLoad = new TestData<>(filename, CostsPerDegreeData.class);
 
         validateCacheClassToDisk(toSave, toLoad, CostsPerDegreeData.class, items);
     }
@@ -123,8 +125,8 @@ public class FileDataCacheTest extends EasyMockSupport  {
     @Test
     void shouldCacheCRouteIndexDataToDiskStopAndReload() {
 
-        TestData<RouteIndexData> cacheableToSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME);
-        TestData<RouteIndexData> cacheableToLoad = new TestData<>(DATA_INDEX_FILENAME);
+        TestData<RouteIndexData> cacheableToSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME, RouteIndexData.class);
+        TestData<RouteIndexData> cacheableToLoad = new TestData<>(DATA_INDEX_FILENAME, RouteIndexData.class);
 
         validateCacheToDiskStopAndReload(cacheableToSave, cacheableToLoad, RouteIndexData.class, routeIndexTestItems);
     }
@@ -132,23 +134,51 @@ public class FileDataCacheTest extends EasyMockSupport  {
     @Test
     void shouldCachePostcodeHintsToDiskStopAndReloadCSV() {
 
-        TestData<PostcodeHintData> cacheableToSave = new TestData<>(postcodeHintItems, HINTS_FILENAME);
-        TestData<PostcodeHintData> cacheableToLoad = new TestData<>(HINTS_FILENAME);
+        TestData<PostcodeHintData> cacheableToSave = new TestData<>(postcodeHintItems, HINTS_FILENAME, PostcodeHintData.class);
+        TestData<PostcodeHintData> cacheableToLoad = new TestData<>(HINTS_FILENAME, PostcodeHintData.class);
 
         validateCacheToDiskStopAndReload(cacheableToSave, cacheableToLoad, PostcodeHintData.class, postcodeHintItems);
     }
 
     @Test
-    void shouldCacheRespectDataUpdated() {
+    void shouldCacheRespectDataUpdatedSingleDep() {
 
-        TestData<RouteIndexData> cacheableToSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME);
+        TestData<RouteIndexData> cacheableToSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME, RouteIndexData.class);
 
-        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andReturn(false);
-        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andReturn(true);
+        EasyMock.expect(remoteDataRefreshed.refreshed(tfgm)).andReturn(true);
 
         replayAll();
 
         dataCache.start();
+        dataCache.register(RouteIndexData.class, ImmutableEnumSet.of(tfgm));
+
+        assertFalse(dataCache.has(cacheableToSave));
+
+        dataCache.save(cacheableToSave, RouteIndexData.class);
+        dataCache.stop();
+
+        ////////////////
+
+        dataCache.start();
+
+        assertFalse(dataCache.has(cacheableToSave));
+
+        verifyAll();
+    }
+
+    @Test
+    void shouldCacheRespectDataUpdatedMultipleDeps() {
+
+        TestData<RouteIndexData> cacheableToSave = new TestData<>(routeIndexTestItems, DATA_INDEX_FILENAME, RouteIndexData.class);
+
+        EasyMock.expect(remoteDataRefreshed.refreshed(tfgm)).andReturn(false);
+        EasyMock.expect(remoteDataRefreshed.refreshed(openRailData)).andReturn(true);
+
+        replayAll();
+
+        dataCache.start();
+        dataCache.register(RouteIndexData.class, ImmutableEnumSet.of(tfgm, openRailData));
+
         assertFalse(dataCache.has(cacheableToSave));
 
         dataCache.save(cacheableToSave, RouteIndexData.class);
@@ -169,11 +199,12 @@ public class FileDataCacheTest extends EasyMockSupport  {
                                                                    List<T> items) {
         Path filePath = cacheFolder.resolve(cacheableToSave.getFilename());
 
-        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
+        EasyMock.expect(remoteDataRefreshed.refreshed(tfgm)).andStubReturn(false);
 
         replayAll();
 
         dataCache.start();
+        dataCache.register(theClass, ImmutableEnumSet.of(tfgm));
         assertFalse(dataCache.has(cacheableToSave));
 
         dataCache.save(cacheableToSave, theClass);
@@ -191,11 +222,12 @@ public class FileDataCacheTest extends EasyMockSupport  {
 
     private <T extends CachableData> void validateCacheToDiskStopAndReload(TestData<T> cacheableToSave, TestData<T> cacheableToLoad,
                                                                            Class<T> theClass, List<T> items) {
-        EasyMock.expect(remoteDataRefreshed.refreshed(DataSourceID.tfgm)).andStubReturn(false);
+        EasyMock.expect(remoteDataRefreshed.refreshed(tfgm)).andStubReturn(false);
 
         replayAll();
 
         dataCache.start();
+        dataCache.register(theClass, ImmutableEnumSet.of(tfgm));
         assertFalse(dataCache.has(cacheableToSave));
 
         dataCache.save(cacheableToSave, theClass);
@@ -220,14 +252,16 @@ public class FileDataCacheTest extends EasyMockSupport  {
 
         private final List<T> list;
         private final String filename;
+        private final Class<T> typeOfData;
 
-        private TestData(String filename) {
-            this(new ArrayList<>(), filename);
+        private TestData(String filename, Class<T> typeOfData) {
+            this(new ArrayList<>(), filename, typeOfData);
         }
 
-        public TestData(List<T> items, String filename) {
+        public TestData(List<T> items, String filename, Class<T> typeOfData) {
             this.list = items;
             this.filename = filename;
+            this.typeOfData = typeOfData;
         }
 
         @Override
@@ -249,6 +283,11 @@ public class FileDataCacheTest extends EasyMockSupport  {
         @Override
         public void loadFrom(Stream<T> stream) {
             stream.forEach(list::add);
+        }
+
+        @Override
+        public Class<T> getDataType() {
+            return typeOfData;
         }
 
         public List<T> getItems() {

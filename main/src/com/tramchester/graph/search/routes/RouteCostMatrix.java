@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.DataSourceID.naptanxml;
+import static com.tramchester.domain.DataSourceID.nptg;
 import static java.lang.String.format;
 
 /***
@@ -60,7 +62,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     public RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, DataCache dataCache,
                            GraphFilterActive graphFilter, RouteIndex routeIndex,
                            RouteDateAndDayOverlap routeDateAndDayOverlap) {
-        super(dataCache, CostsPerDegreeData.class); //caching setup
+        super(dataCache, CostsPerDegreeData.class, ImmutableEnumSet.of(naptanxml, nptg)); //caching setup
         this.interchangeRepository = interchangeRepository;
         this.graphFilter = graphFilter;
         this.routeIndex = routeIndex;
@@ -368,6 +370,11 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
                 setBits.forEach(bit -> bitset.set(routeIndex, bit));
             });
             logger.info("Loaded " + counter.get() + " items from cache");
+        }
+
+        @Override
+        public Class<CostsPerDegreeData> getDataType() {
+            return CostsPerDegreeData.class;
         }
 
 

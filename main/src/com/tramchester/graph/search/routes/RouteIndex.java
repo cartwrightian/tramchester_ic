@@ -8,6 +8,7 @@ import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.id.HasId;
@@ -25,6 +26,8 @@ import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.DataSourceID.openRailData;
+import static com.tramchester.domain.DataSourceID.tfgm;
 import static java.lang.String.format;
 
 /***
@@ -41,7 +44,7 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
 
     @Inject
     public RouteIndex(RouteRepository routeRepository, GraphFilterActive graphFilter, DataCache dataCache, RouteIndexPairFactory pairFactory) {
-        super(dataCache, RouteIndexData.class);
+        super(dataCache, RouteIndexData.class, ImmutableEnumSet.of(tfgm, openRailData));
         this.graphFilter = graphFilter;
         this.pairFactory = pairFactory;
 
@@ -177,6 +180,11 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
                 logger.error(msg);
                 throw new FileDataCache.CacheLoadException(msg);
             }
+        }
+
+        @Override
+        public Class<RouteIndexData> getDataType() {
+            return RouteIndexData.class;
         }
 
         public boolean hasIndexFor(final IdFor<Route> routeId) {
