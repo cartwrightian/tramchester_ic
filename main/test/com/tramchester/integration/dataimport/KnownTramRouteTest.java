@@ -70,6 +70,7 @@ class KnownTramRouteTest {
         assertFalse(getDateRange().collect(Collectors.toSet()).isEmpty());
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedRouteIdForBlue() {
         checkRouteIdFor(KnownTramRoute::getBlue, false);
@@ -80,6 +81,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getNavy, false);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedRouteIdForGreen() {
         checkRouteIdFor(KnownTramRoute::getGreen, true);
@@ -90,11 +92,13 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveExpectedRouteIdForRed() {
         checkRouteIdFor(KnownTramRoute::getRed, false);
@@ -147,7 +151,8 @@ class KnownTramRouteTest {
         getDateRange().forEach(date -> {
             IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
 
-            IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(TestRoute::getId).
+            IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().
+                    map(TestRoute::getId).
                     collect(IdSet.idCollector());
 
             ImmutableIdSet<Route> mismatch = IdSet.disjunction(loadedIds, knownTramOnDates);

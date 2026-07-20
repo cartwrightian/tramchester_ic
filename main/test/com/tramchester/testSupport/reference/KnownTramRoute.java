@@ -91,13 +91,13 @@ public class KnownTramRoute {
 
 
         } else {
-            routes.add(find.singleRoute(Purple));
-            routes.add(find.singleRoute(Red));
-            routes.add(find.singleRoute(Blue));
+//            routes.add(find.singleRoute(Purple));
+//            routes.add(find.singleRoute(Red));
+//            routes.add(find.singleRoute(Blue));
 
-            if (!sunday) {
-                routes.add(find.singleRoute(Green));
-            }
+//            if (!sunday) {
+//                routes.add(find.singleRoute(Green));
+//            }
         }
 
         routes.add(find.singleRoute(Yellow));

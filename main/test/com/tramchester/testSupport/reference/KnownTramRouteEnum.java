@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
 import static com.tramchester.testSupport.UpcomingDates.summerClosureFirstSunday;
-import static com.tramchester.testSupport.reference.KnownTramRoute.cutoverDate;
 
 /*
  * see also TramRouteHelper
@@ -26,41 +25,37 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.cutoverDate;
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Blue
-    //Blue1(Blue, "Eccles - Ashton Under Lyne", "3217", cutoverDate),
-    Blue2(Blue, "Eccles - Ashton Under Lyne", "3278", Constants.dayBeforeSummer2026Closures),
+    Blue2(Blue, "Eccles - Ashton Under Lyne", "3278", TramDate.of(2026,7,12)),
 
     // Green
-    Green1(Green, "Bury - Manchester - Altrincham", "", cutoverDate),
+    Green1(Green, "Bury - Manchester - Altrincham", "", summerClosureFirstSunday),
 
     // Navy
-    //Navy1(Navy, "Victoria - Manchester Airport", "3219", cutoverDate),
-    Navy2(Navy, "Victoria - Manchester Airport", "3280", Constants.dayBeforeSummer2026Closures),
-    Navy3(Navy, "Manchester Airport - Victoria", "3287", summerClosureFirstSunday),
     Navy4(Navy, "Victoria - Manchester Airport", "3300", summerClosureFirstSunday.plusDays(1)),
     Navy5(Navy, "Manchester Airport - Victoria", "3314", TramDate.of(2026,7,26)),
     Navy6(Navy, "Victoria - Manchester Airport", "3300", TramDate.of(2026,7,27)),
+    Navy7(Navy, "Manchester Airport - Victoria", "3314", Constants.summerClosures2026EndDate),
+    Navy8(Navy, "Victoria - Manchester Airport", "3300", Constants.summerClosures2026EndDate.plusDays(1)),
 
     // Pink
-    //Pink1(Pink, "Rochdale - East Didsbury", "3220", cutoverDate),
-    Pink2(Pink, "Rochdale - East Didsbury", "3281", Constants.dayBeforeSummer2026Closures),
-    Pink3(Pink, "East Didsbury - Rochdale" , "3286", summerClosureFirstSunday),
     Pink4(Pink, "Rochdale - East Didsbury" , "3301", summerClosureFirstSunday.plusDays(1)),
     Pink5(Pink, "East Didsbury - Rochdale" , "3311", TramDate.of(2026,7,26)),
     Pink6(Pink, "Rochdale - East Didsbury" , "3301", TramDate.of(2026,7,27)),
+    Pink7(Pink, "East Didsbury - Rochdale" , "3311", Constants.summerClosures2026EndDate),
+    Pink8(Pink, "Rochdale - East Didsbury" , "3301", Constants.summerClosures2026EndDate.plusDays(1)),
 
     // Purple
-    //Purple3(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", cutoverDate),
-    Purple8(Purple, "Etihad Campus - Piccadilly - Altrincham", "3282", Constants.dayBeforeSummer2026Closures),
+    Purple8(Purple, "Etihad Campus - Piccadilly - Altrincham", "3282", TramDate.of(2026,7,12)),
 
     // Red
-    Red8(Red, "Deansgate-Castlefield - The Trafford Centr", "3283", Constants.dayBeforeSummer2026Closures),
+    Red8(Red, "Deansgate-Castlefield - The Trafford Centr", "3283", TramDate.of(2026,7,12)),
 
     // Yellow
-    Yellow2(Yellow, "Piccadilly - Bury", "3284", Constants.dayBeforeSummer2026Closures),
-    Yellow3(Yellow, "Piccadilly - Bury", "844", summerClosureFirstSunday),
     Yellow4(Yellow, "Piccadilly - Bury", "3302", summerClosureFirstSunday.plusDays(1)),
     Yellow5(Yellow, "Piccadilly - Bury", "844", TramDate.of(2026,7,26)),
     Yellow6(Yellow, "Piccadilly - Bury", "3302", TramDate.of(2026,7,27)),
+    Yellow7(Yellow, "Piccadilly - Bury", "844", Constants.summerClosures2026EndDate),
+    Yellow8(Yellow, "Piccadilly - Bury", "3302", Constants.summerClosures2026EndDate.plusDays(1)),
 
     ;
 
@@ -133,6 +128,7 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     private static class Constants {
         public static final TramDate dayBeforeSummer2026Closures = summer2026MajorClosure.getStartDate().minusDays(1);
-        public static TramDate summer2026Closures = summer2026MajorClosure.getStartDate();
+        //public static TramDate summer2026Closures = summer2026MajorClosure.getStartDate();
+        public static TramDate summerClosures2026EndDate = summer2026MajorClosure.getEndDate();
     }
 }
