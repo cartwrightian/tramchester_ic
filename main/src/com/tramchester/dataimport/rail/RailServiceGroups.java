@@ -28,12 +28,14 @@ public class RailServiceGroups {
     private final ServiceGroups serviceGroups;
     private final Set<String> skippedSchedules; // services skipped due to train category etc.
     private final Set<String> unmatchedCancellations; // attempted to cancel but could not find
+    private final Set<String> unmatchedOverlay; // overlay encountered, but no existing service
 
     public RailServiceGroups(WriteableTransportData container) {
         this.container = container;
         skippedSchedules = new HashSet<>();
         serviceGroups = new ServiceGroups();
         unmatchedCancellations = new HashSet<>();
+        unmatchedOverlay = new HashSet<>();
     }
 
     public void applyCancellation(final BasicSchedule cancellationSchedule) {
@@ -42,7 +44,6 @@ public class RailServiceGroups {
         if (matchingServices.isEmpty()) {
             if (!skippedSchedules.contains(uniqueTrainId)) {
                 unmatchedCancellations.add(uniqueTrainId);
-                //logger.warn("Cancel: No existing records for " + uniqueTrainId);
             }
             return;
         }
@@ -50,8 +51,7 @@ public class RailServiceGroups {
         final Set<MutableService> cancellationApplies = filterByScheduleDates(cancellationSchedule, matchingServices);
 
         if (cancellationApplies.isEmpty()) {
-            logger.warn(format("Cancel: matched no services for %s, date range %s %s",
-                    uniqueTrainId, cancellationSchedule.getDateRange(), cancellationSchedule.getDaysOfWeek()));
+            unmatchedCancellations.add(uniqueTrainId);
             return;
         }
 
@@ -85,17 +85,27 @@ public class RailServiceGroups {
         final List<MutableService> existingServices = serviceGroups.servicesFor(uniqueTrainId);
 
         if (isOverlay) {
+            final boolean cancelled = unmatchedCancellations.contains(uniqueTrainId);
+
+            final Set<MutableService> matchedServices;
             if (existingServices.isEmpty()) {
-                logger.warn("Overlap: No existing services found for " + uniqueTrainId);
-            }
-            final Set<MutableService> impactedServices = filterByScheduleDates(schedule, existingServices);
-            if (impactedServices.isEmpty() && !existingServices.isEmpty()) {
-                logger.warn(format("Overlap: No existing services overlapped on date range (%s) for %s ",
-                        scheduleDateRange, uniqueTrainId));
+                if (!cancelled) {
+                    unmatchedOverlay.add(uniqueTrainId);
+                }
+                matchedServices = Collections.emptySet();
+            } else {
+                matchedServices = filterByScheduleDates(schedule, existingServices);
+                if (matchedServices.isEmpty() && !cancelled) {
+                    if (!unmatchedOverlay.contains(uniqueTrainId)) {
+                        logger.warn(format("Overlap: No existing services overlapped on date range (%s) for %s ",
+                                scheduleDateRange, uniqueTrainId));
+                        unmatchedOverlay.add(uniqueTrainId);
+                    }
+                }
             }
 
             // the new overlay
-            impactedServices.forEach(impactedService -> {
+            matchedServices.forEach(impactedService -> {
                 final IdFor<Service> impactedServiceId = impactedService.getId();
                 if (impactedServiceId.equals(serviceId)) {
                     // only happens if over dates exactly match existing service
@@ -163,14 +173,15 @@ public class RailServiceGroups {
         return Service.createId(text);
     }
 
-    public void reportUnmatchedCancellations() {
-        if (unmatchedCancellations.isEmpty()) {
-            return;
+    public void reportDiagnostics() {
+        if (!unmatchedCancellations.isEmpty()) {
+            logger.warn("The following " + unmatchedCancellations.size() +
+                    " cancellations records were unmatched. unique train ids:" + unmatchedCancellations);;
         }
-        StringBuilder ids = new StringBuilder();
-        unmatchedCancellations.forEach(item -> ids.append(" ").append(item));
-        logger.warn("The following " + unmatchedCancellations.size() +
-                " cancellations records were unmatched (unique train ids) " + ids);
+        if (!unmatchedOverlay.isEmpty()) {
+            logger.warn("Failed to finding existing services for " + unmatchedOverlay.size() + " overlays. unique train ids:" + unmatchedOverlay);
+        }
+
     }
 
     private static class ServiceGroups {

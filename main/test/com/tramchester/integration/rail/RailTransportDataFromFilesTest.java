@@ -87,8 +87,9 @@ public class RailTransportDataFromFilesTest {
         // should be 2??
         assertEquals(1, platforms.size());
 
-        assertEquals(PlatformId.createId(station,"UNK"), platforms.get(0).getId());
-        assertEquals("UNK", platforms.get(0).getPlatformNumber());
+        Platform first = platforms.getFirst();
+        assertEquals(PlatformId.createId(station,"UNK"), first.getId());
+        assertEquals("UNK", first.getPlatformNumber());
     }
 
     @Test

@@ -38,7 +38,7 @@ public class RailRouteIdBuilderTest {
         RailRouteCallingPoints railRouteA = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
         agencyCallingPoints.add(railRouteA);
 
-        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints.stream());
 
         assertEquals(1, results.size());
 
@@ -61,7 +61,7 @@ public class RailRouteIdBuilderTest {
         agencyCallingPoints.add(routeB);
         agencyCallingPoints.add(routeC);
 
-        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints.stream());
 
         assertEquals(2, results.size());
 
@@ -87,7 +87,7 @@ public class RailRouteIdBuilderTest {
         agencyCallingPoints.add(routeB);
         agencyCallingPoints.add(routeC);
 
-        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints.stream());
 
         assertEquals(3, results.size());
 
@@ -116,7 +116,7 @@ public class RailRouteIdBuilderTest {
         agencyCallingPoints.add(routeB);
         agencyCallingPoints.add(routeC);
 
-        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints);
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints.stream());
 
         assertEquals(3, results.size());
 

@@ -8,12 +8,13 @@ import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -42,14 +43,14 @@ public class RailRouteIDBuilder {
      * @return callings points mapped to RailRouteId
      */
     public Set<RailRouteIds.RailRouteCallingPointsWithRouteId> getRouteIdsFor(final IdFor<Agency> agencyId,
-                                                                              final List<RailRouteCallingPoints> railRoutes) {
+                                                                              final Stream<RailRouteCallingPoints> railRoutes) {
 
         // (begin,end) -> CallingPoints
         final Map<StationIdPair, Set<RailRouteCallingPoints>> routesGroupedByBeginEnd = new HashMap<>();
 
         // group by (begin, end) of the route as a whole
         railRoutes.forEach(route -> {
-            StationIdPair beginEnd = route.getBeginEnd();
+            final StationIdPair beginEnd = route.getBeginEnd();
             if (!routesGroupedByBeginEnd.containsKey(beginEnd)) {
                 routesGroupedByBeginEnd.put(beginEnd, new HashSet<>());
             }

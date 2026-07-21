@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ public class RailStationRecordsRepository {
     private final RailStationCRSRepository crsRepository;
     private final NaptanRepository naptanRepository;
     private final boolean enabled;
+    private final Set<String> missingCRSForTiplocInsert;
 
     @Inject
     public RailStationRecordsRepository(ProvidesRailStationRecords providesRailStationRecords, RailStationCRSRepository crsRepository,
@@ -57,6 +59,7 @@ public class RailStationRecordsRepository {
         tiplocToStation = new HashMap<>();
         tiplocToTiplocInsert = new HashMap<>();
         enabled = config.hasRailConfig();
+        missingCRSForTiplocInsert = new HashSet<>();
     }
 
     @PostConstruct
@@ -132,13 +135,16 @@ public class RailStationRecordsRepository {
             name = stationRecord.getName();
         }
 
+        // no naptan record for this station
         if (!grid.isValid()) {
             // not from naptan, try to get from rail data
             if (stationRecord.getEasting() == Integer.MIN_VALUE || stationRecord.getNorthing() == Integer.MIN_VALUE) {
                 grid = GridPosition.Invalid;
             } else {
                 grid = convertToOsGrid(stationRecord.getEasting(), stationRecord.getNorthing());
-                latLong = CoordinateTransforms.getLatLong(grid); // re-calc from rail grid
+                if (grid.isValid()) {
+                    latLong = CoordinateTransforms.getLatLong(grid); // re-calc from rail grid
+                }
             }
         }
 
@@ -152,8 +158,17 @@ public class RailStationRecordsRepository {
                 minChangeTime, isCentral);
     }
 
-    private GridPosition convertToOsGrid(final int easting, final int northing) {
-        return new GridPosition(easting * 100, northing * 100);
+    private GridPosition convertToOsGrid(final int origEasting, final int origNorthing) {
+        // might not be possible, for locations outside of UK mainland i.e. Belfast Harbour
+        final int eastings = origEasting * 100;
+        if (eastings>700000) {
+            return GridPosition.Invalid;
+        }
+        final int northings = origNorthing * 100;
+        if (northings>1300000) {
+            return GridPosition.Invalid;
+        }
+        return new GridPosition(eastings, northings);
     }
 
     private void addStation(final MutableStation mutableStation, final String tipLoc) {
@@ -198,6 +213,8 @@ public class RailStationRecordsRepository {
             crsRepository.putCRS(mutableStation, tiplocInsert.getCRS());
             addStation(mutableStation, tiplocCode);
             return true;
+        } else {
+            missingCRSForTiplocInsert.add(tiplocCode);
         }
 
         return false;
@@ -256,5 +273,9 @@ public class RailStationRecordsRepository {
             return;
         }
         tiplocToTiplocInsert.put(tiplocInsert.getTiplocCode(), tiplocInsert);
+    }
+
+    public boolean missingCRS(final String tiplocCode) {
+        return missingCRSForTiplocInsert.contains(tiplocCode);
     }
 }

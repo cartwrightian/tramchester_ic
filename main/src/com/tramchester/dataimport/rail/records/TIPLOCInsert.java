@@ -74,7 +74,7 @@ public class TIPLOCInsert implements RailTimetableRecord {
 
     /***
      * Do we have enough info to make this useful for travel etc
-     * @return
+     * @return true if we have a CRS
      */
     public boolean isUseful() {
         if (crs.isBlank()) {

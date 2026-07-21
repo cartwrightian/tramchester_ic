@@ -28,8 +28,10 @@ public class TIPLOCInsertTest {
 
     @Test
     void shouldHaveRecordTruncated() {
+        //                        TIVRGN21700567602FVIRGINIA WATER SIGNAL 221787022   0
         Line text = Line.of("TIBATRSH 24528866ABATTERSEA PIER STAFF HALT 87239   0");
         //                        01234567890123456789012345678901234567890123456789012
+        //                        0         1         2         3         4         5
         TIPLOCInsert result = TIPLOCInsert.parse(text, recordHelper);
 
         assertEquals("BATRSH", result.getTiplocCode());

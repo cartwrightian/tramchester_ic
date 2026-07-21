@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.DataSourceID.openRailData;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
@@ -55,7 +56,6 @@ public class RailTimetableMapper {
                 .appendValue(DAY_OF_MONTH, 2).toFormatter();
 
     private final RailServiceGroups railServiceGroups;
-    //private final RailStationRecordsRepository stationRecords;
 
     private enum State {
         SeenSchedule,
@@ -71,6 +71,9 @@ public class RailTimetableMapper {
     private State currentState;
     private boolean overlay;
     private RawService rawService;
+
+    private static final TramDuration oneHour = TramDuration.ofHours(1);
+
 
     public RailTimetableMapper(RailStationRecordsRepository stationRecords, WriteableTransportData container,
                                RailConfig config, GraphFilterActive filter, BoundingBox bounds, RailRouteIdRepository railRouteRepository) {
@@ -149,7 +152,7 @@ public class RailTimetableMapper {
     public void reportDiagnostics() {
         travelCombinations.forEach(pair -> logger.info(String.format("Rail loaded: Status: %s Category: %s",
                 pair.getLeft(), pair.getRight())));
-        railServiceGroups.reportUnmatchedCancellations();
+        railServiceGroups.reportDiagnostics();
         reportSkipped();
     }
 
@@ -307,7 +310,7 @@ public class RailTimetableMapper {
             // this is so routes that start and/or finish out-of-bounds are named correctly
             final RailRouteId routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
 
-            final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay, DataSourceID.openRailData);
+            final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay, openRailData);
             final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, allCalledAtStations);
 
             route.addService(service);
@@ -405,7 +408,7 @@ public class RailTimetableMapper {
                 final GTFSPickupDropoffType dropoff = doesDropOff ? Regular : None;
                 stopCall = createStopCall(trip, station, platform, stopSequence, arrivalTime, departureTime, pickup, dropoff);
 
-                if (Durations.greaterThan(TramTime.difference(arrivalTime, departureTime), TramDuration.ofHours(1))) {
+                if (Durations.greaterThan(TramTime.difference(arrivalTime, departureTime), oneHour)) {
                     // this definitely happens, so an info not a warning
                     logger.info("Delay of more than one hour for " + stopCall + " on trip " + trip.getId());
                 }
@@ -414,7 +417,6 @@ public class RailTimetableMapper {
             }
 
             trip.addStop(stopCall);
-
         }
 
         private TramTime getDayAdjusted(final TramTime arrivalTime, final TramTime originTime) {
@@ -489,7 +491,7 @@ public class RailTimetableMapper {
                 if (agencyName.equals(TrainOperatingCompanies.UNKNOWN.getCompanyName())) {
                     logger.warn("Unable to find name for agency " + atocCode);
                 }
-                mutableAgency = new MutableAgency(DataSourceID.openRailData, agencyId, agencyName);
+                mutableAgency = new MutableAgency(openRailData, agencyId, agencyName);
                 container.addAgency(mutableAgency);
             }
             return mutableAgency;
@@ -507,7 +509,7 @@ public class RailTimetableMapper {
             if (platformLookup.containsKey(platformId)) {
                 platform = platformLookup.get(platformId);
             } else {
-                platform = new MutablePlatform(platformId, originStation, originStation.getName(), DataSourceID.openRailData, platformNumber,
+                platform = new MutablePlatform(platformId, originStation, originStation.getName(), openRailData, platformNumber,
                         areaId, originStation.getLatLong(), originStation.getGridPosition(), originStation.isMarkedInterchange());
                 container.addPlatform(platform);
                 platformLookup.put(platformId, platform);
@@ -613,11 +615,13 @@ public class RailTimetableMapper {
                     if (rawService.basicScheduleRecord.getTrainCategory()!=TrainCategory.BusReplacement) {
                         Set<IntermediateLocation> missing = callingRecords.stream().
                                 filter(record -> !stationRecords.hasStationRecord(record)).
-                                //map(IntermediateLocation::getTiplocCode).
-                                        collect(Collectors.toSet());
-                        logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",
-                                intermediates.size(), callingRecords.size(), rawService.basicScheduleRecord,
-                                missing));
+                                filter(record -> !stationRecords.missingCRS(record.getTiplocCode())).
+                                collect(Collectors.toSet());
+                        if (!missing.isEmpty()) {
+                            logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",
+                                    intermediates.size(), callingRecords.size(), rawService.basicScheduleRecord,
+                                    missing));
+                        }
                     }
                 }
             }

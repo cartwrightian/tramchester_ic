@@ -89,7 +89,7 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
         logger.info("stopped");
     }
 
-    private void createRouteIdsFor(ProvidesRailTimetableRecords providesRailTimetableRecords, RailStationRecordsRepository stationRecordsRepository) {
+    private void createRouteIdsFor(final ProvidesRailTimetableRecords providesRailTimetableRecords, final RailStationRecordsRepository stationRecordsRepository) {
         final List<RailRouteCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.
                 loadCallingPoints(providesRailTimetableRecords, stationRecordsRepository);
         createRouteIdsFor(loadedCallingPoints);
@@ -101,20 +101,17 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
         logger.info("Create possible route ids for " + agencyCallingPoints.size() + " calling points combinations");
 
         // efficiency: group calling points by agency id
-        final Map<IdFor<Agency>, List<RailRouteCallingPoints>> callingPointsByAgency = new HashMap<>();
-
-        agencyCallingPoints.forEach(points -> {
-            final IdFor<Agency> agencyId = points.getAgencyId();
-            if (!callingPointsByAgency.containsKey(agencyId)) {
-                callingPointsByAgency.put(agencyId, new ArrayList<>());
-            }
-            callingPointsByAgency.get(agencyId).add(points);
-        });
+        final Map<IdFor<Agency>, List<RailRouteCallingPoints>> callingPointsByAgency = agencyCallingPoints.stream().
+                collect(Collectors.toMap(RailRouteCallingPoints::getAgencyId,
+                        points -> new ArrayList<>(Collections.singleton(points)), (a, b) -> {
+                            a.addAll(b);
+                            return a;
+                        }));
 
         final List<Integer> totals = new ArrayList<>();
 
         callingPointsByAgency.forEach((agencyId, callingPoints) -> {
-            final Set<RailRouteCallingPointsWithRouteId> results = railRouteIDBuilder.getRouteIdsFor(agencyId, callingPoints);
+            final Set<RailRouteCallingPointsWithRouteId> results = railRouteIDBuilder.getRouteIdsFor(agencyId, callingPoints.stream());
             routeIdsForAgency.put(agencyId, results);
             totals.add(results.size());
         });

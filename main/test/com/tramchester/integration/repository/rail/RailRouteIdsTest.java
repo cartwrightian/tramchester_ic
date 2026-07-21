@@ -211,7 +211,7 @@ public class RailRouteIdsTest {
                 toList();
 
         // was 36 under old ID scheme
-        assertEquals(6, routes.size(), routes.toString());
+        assertEquals(5, routes.size(), routes.toString());
     }
 
     @Test
@@ -239,13 +239,13 @@ public class RailRouteIdsTest {
                 collect(Collectors.toSet());
 
         final List<RailRouteCallingPoints> railCallingPoints = callingStationsForTPs.stream().
-                map(stations -> new RailRouteCallingPoints(agencyId, stations)).
-                collect(Collectors.toList());
+                map(stations -> new RailRouteCallingPoints(agencyId, stations)).toList();
 
         // now create id's afresh and check get same callingPoints and routeIds
 
         for (int i = 0; i < 100000; i++) {
-            final Set<RailRouteIds.RailRouteCallingPointsWithRouteId> rawIds = railRouteIDBuilder.getRouteIdsFor(agencyId, railCallingPoints);
+            final Set<RailRouteIds.RailRouteCallingPointsWithRouteId> rawIds =
+                    railRouteIDBuilder.getRouteIdsFor(agencyId, railCallingPoints.stream());
 
             final Map<IdFor<Route>, List<IdFor<Station>>> recreatedIds = new HashMap<>();
             rawIds.forEach(callingPoints -> recreatedIds.put(callingPoints.getRouteId(), callingPoints.getCallingPoints()));

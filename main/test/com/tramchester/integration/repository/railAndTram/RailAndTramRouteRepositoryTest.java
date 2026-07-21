@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 595;
+    public static final int ALL_GM_ROUTES = 597;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 

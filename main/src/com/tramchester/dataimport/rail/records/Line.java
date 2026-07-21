@@ -1,11 +1,11 @@
 package com.tramchester.dataimport.rail.records;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Line {
 
     final char[] chars;
+    private final int hashCode;
 
     public Line(final String text) {
         this(text.toCharArray());
@@ -13,6 +13,7 @@ public class Line {
 
     private Line(final char[] chars) {
         this.chars = chars;
+        hashCode = Arrays.hashCode(chars);
     }
 
     public static Line of(final String text) {
@@ -48,15 +49,23 @@ public class Line {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         if (object == null || getClass() != object.getClass()) return false;
-        Line line = (Line) object;
-        return Objects.deepEquals(chars, line.chars);
+        final Line line = (Line) object;
+        if (line.chars.length == chars.length) {
+            for (int i = 0; i < chars.length; i++) {
+                if (chars[i]!=line.chars[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(chars);
+        return hashCode;
     }
 
     @Override
