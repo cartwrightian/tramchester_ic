@@ -180,7 +180,6 @@ public class RailStationRecordsRepository {
 
     public boolean hasStationRecord(final RailLocationRecord record) {
         final String tiplocCode = record.getTiplocCode();
-//        boolean found = tiplocToStation.containsKey(tiplocCode);
         if (tiplocToStation.containsKey(tiplocCode)) {
             return true;
         }
@@ -188,10 +187,6 @@ public class RailStationRecordsRepository {
             return attemptAdd(tiplocToTiplocInsert.get(tiplocCode));
         }
         return false;
-//        if (!found) {
-//            missing.add(record.getTiplocCode());
-//        }
-//        return found;
     }
 
     private boolean attemptAdd(final TIPLOCInsert tiplocInsert) {

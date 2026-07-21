@@ -4,7 +4,6 @@ import com.tramchester.dataimport.rail.records.BasicScheduleExtraDetails;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.records.TIPLOCInsert;
-import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.Agency;
@@ -71,7 +70,10 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
     private void seenLocation(final RailTimetableRecord record) {
         final RailLocationRecord locationRecord = (RailLocationRecord) record;
-        if (LocationActivityCode.doesStop(((RailLocationRecord) record).getActivity())) {
+//        if (LocationActivityCode.doesStop(locationRecord.getActivity())) {
+//            locations.add(locationRecord);
+//        }
+        if (locationRecord.doesStop()) {
             locations.add(locationRecord);
         }
     }

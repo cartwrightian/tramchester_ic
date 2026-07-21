@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements ImmutableEnumSet<T> {
 
-    abstract EnumSet<T> getContained();
+    protected abstract EnumSet<T> getContainedUnsafe();
 
     static <C extends Enum<C>> ImmutableEnumSetImpl<C> createFrom(final EnumSet<C> source) {
         if (source.isEmpty()) {
@@ -35,7 +35,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
     }
 
     static <S extends Enum<S>> EnumSet<S> createEnumSet(final ImmutableEnumSetImpl<S> items) {
-        return EnumSet.copyOf(items.getContained());
+        return EnumSet.copyOf(items.getContainedUnsafe());
     }
 
     static <S extends Enum<S>> ImmutableEnumSet<S> join(final ImmutableEnumSetImpl<S> setA, final ImmutableEnumSetImpl<S> setB) {
@@ -45,8 +45,8 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         if (setB.isEmpty()) {
             return setA;
         }
-        final EnumSet<S> result = EnumSet.copyOf(setA.getContained());
-        result.addAll(setB.getContained());
+        final EnumSet<S> result = EnumSet.copyOf(setA.getContainedUnsafe());
+        result.addAll(setB.getContainedUnsafe());
         return createFrom(result);
     }
 
@@ -60,27 +60,27 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
             return false;
         }
         if (obj instanceof ImmutableEnumSetImpl<?> otherSet) {
-            return otherSet.getContained().equals(this.getContained());
+            return otherSet.getContainedUnsafe().equals(this.getContainedUnsafe());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return getContained().hashCode();
+        return getContainedUnsafe().hashCode();
     }
 
     static class None<T extends Enum<T>> extends ImmutableEnumSetImpl<T> {
 
-        private final Class<T> theClass;
+        private final EnumSet<T> noneOf;
 
         None(Class<T> theClass) {
-            this.theClass = theClass;
+            noneOf = EnumSet.noneOf(theClass);
         }
 
         @Override
-        EnumSet<T> getContained() {
-            return EnumSet.noneOf(theClass);
+        protected EnumSet<T> getContainedUnsafe() {
+            return noneOf;
         }
 
         @Override
@@ -151,9 +151,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
 
     static class One<T extends Enum<T>> extends ImmutableEnumSetImpl<T> {
         private final T item;
+        private EnumSet<T> oneOf;
 
         public One(T item) {
             this.item = item;
+            oneOf = null; // have to do this 'lazy' due to static inits elsewhere
         }
 
         @Override
@@ -162,8 +164,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         }
 
         @Override
-        EnumSet<T> getContained() {
-            return EnumSet.of(item);
+        public EnumSet<T> getContainedUnsafe() {
+            if (oneOf==null) {
+                oneOf = EnumSet.of(item);
+            }
+            return oneOf;
         }
 
         @Override
@@ -188,7 +193,6 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
             } else {
                 return Collections.emptySet();
             }
-            //return other.intersectionWith(this);
         }
 
         @Override
@@ -224,7 +228,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         @Override
         public ImmutableEnumSet<T> without(final Set<T> remove) {
             if (remove.contains(item)) {
-                final EnumSet<T> keepTypeInfo = EnumSet.of(item);
+                final EnumSet<T> keepTypeInfo = EnumSet.of(item); // workaround
                 keepTypeInfo.clear();
                 return new Many<>(keepTypeInfo);
             } else {
@@ -234,7 +238,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
 
         @Override
         public @NotNull Iterator<T> iterator() {
-            return EnumSet.of(item).iterator();
+            return Collections.singleton(item).iterator();
         }
 
         @Override
@@ -248,7 +252,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         private final EnumSet<T> contained;
 
         @Override
-        EnumSet<T> getContained() {
+        public EnumSet<T> getContainedUnsafe() {
             return contained;
         }
 
@@ -278,7 +282,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
 
         @Override
         public Sets.SetView<T> intersectionWith(final ImmutableEnumSet<T> other) {
-            return Sets.intersection(contained, ((ImmutableEnumSetImpl<T>)other).getContained());
+            return Sets.intersection(contained, ((ImmutableEnumSetImpl<T>)other).getContainedUnsafe());
         }
 
         @Override
@@ -300,7 +304,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
 
         @Override
         public boolean anyIntersectionWith(final ImmutableEnumSet<T> other) {
-            return anyIntersectionWith(((ImmutableEnumSetImpl<T>)other).getContained());
+            return anyIntersectionWith(((ImmutableEnumSetImpl<T>)other).getContainedUnsafe());
         }
 
         @Override

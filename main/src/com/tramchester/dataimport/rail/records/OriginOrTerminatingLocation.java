@@ -11,12 +11,15 @@ public abstract class OriginOrTerminatingLocation {
     private final TramTime publicTime;
     private final String platform;
     private final ImmutableEnumSet<LocationActivityCode> activity;
+    private final boolean doesStop;
 
-    protected OriginOrTerminatingLocation(String tiplocCode, TramTime publicTime, String platform, ImmutableEnumSet<LocationActivityCode> activity) {
+    protected OriginOrTerminatingLocation(final String tiplocCode, final TramTime publicTime, final String platform,
+                                          final ImmutableEnumSet<LocationActivityCode> activity) {
         this.tiplocCode = tiplocCode;
         this.publicTime = publicTime;
         this.platform = platform;
         this.activity = activity;
+        this.doesStop = LocationActivityCode.doesStop(activity); // performance
     }
 
     protected static <T extends OriginOrTerminatingLocation> T parse(final Line text, final Constructor<T> builder,
@@ -83,7 +86,7 @@ public abstract class OriginOrTerminatingLocation {
     }
 
     public boolean doesStop() {
-        return LocationActivityCode.doesStop(activity);
+        return doesStop;
     }
 
 

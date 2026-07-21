@@ -33,6 +33,7 @@ public class IntermediateLocation implements RailLocationRecord {
     private final String platform;
     private final TramTime scheduledArrival;
     private final TramTime scheduledDepart;
+    private final boolean doesStop;
     private final TramTime blankTime = TramTime.of(0,0); // 0000 is in some of the data records
 
     public IntermediateLocation(final String tiplocCode, final TramTime scheduledArrival, final TramTime scheduledDepart,
@@ -46,6 +47,7 @@ public class IntermediateLocation implements RailLocationRecord {
         this.platform = platform;
         this.passingTime = passingTime;
         this.activity = activity;
+        this.doesStop = LocationActivityCode.doesStop(activity); // performance
     }
 
     public static IntermediateLocation parse(final Line text, final RecordHelper recordHelper) {
@@ -179,6 +181,6 @@ public class IntermediateLocation implements RailLocationRecord {
 
     @Override
     public boolean doesStop() {
-        return LocationActivityCode.doesStop(activity);
+        return doesStop;
     }
 }
