@@ -22,7 +22,7 @@ public class KnownTramRoute {
     public static final TramDate cutoverDate = TramDate.of(2026,7,6);
 
     // missing from tfgm data
-    public static final String MISSING_ROUTE_ID = "";
+    public static final String MISSING_ROUTE_ID_PREFIX = "xxx";
 
     public static @NotNull KnownTramRouteEnum getYellow(TramDate date) {
         return getFinder(date).singleRoute(Yellow);
@@ -79,25 +79,12 @@ public class KnownTramRoute {
 
         FindCurrentRouteFromLine find = new FindCurrentRouteFromLine(date);
 
-        final boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
-//
-//        if (summer2026MajorClosure.getStartDate().minusDays(1).equals(date)) {
-//            routes.add(find.singleRoute(VictoriaRochsdale));
-//        }
-
         if (summer2026MajorClosure.contains(date)) {
 
             // not tracking buses
 
-
         } else {
-//            routes.add(find.singleRoute(Purple));
-//            routes.add(find.singleRoute(Red));
-//            routes.add(find.singleRoute(Blue));
 
-//            if (!sunday) {
-//                routes.add(find.singleRoute(Green));
-//            }
         }
 
         routes.add(find.singleRoute(Yellow));
@@ -139,7 +126,7 @@ public class KnownTramRoute {
 
             Set<KnownTramRouteEnum> matched = latest.getValue();
 
-            IdSet<Route> idCheck = matched.stream().map(item -> item.getId()).collect(IdSet.idCollector());
+            IdSet<Route> idCheck = matched.stream().map(KnownTramRouteEnum::getId).collect(IdSet.idCollector());
 
             if (idCheck.size()!=matched.size()) {
                 throw new RuntimeException("Matched for " + line + " on date " + date + " not unique ids "
@@ -179,11 +166,12 @@ public class KnownTramRoute {
             return latest;
         }
 
-        private @NonNull SortedMap<TramDate, Set<KnownTramRouteEnum>> getKnownByDate(TFGMRouteNames line) {
+        private @NonNull SortedMap<TramDate, Set<KnownTramRouteEnum>> getKnownByDate(final TFGMRouteNames line) {
+            boolean dateIsSunday = (date.getDayOfWeek() == DayOfWeek.SUNDAY);
             final List<KnownTramRouteEnum> dateOrdered = Arrays.stream(KnownTramRouteEnum.values()).
-                    filter(knownTramRoute -> knownTramRoute.line().equals(line)).
-                    filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
-                    //sorted(Comparator.comparing(KnownTramRouteEnum::getValidFrom)).
+                    filter(known -> known.line().equals(line)).
+                    filter(known -> !known.sundayOnly() || (dateIsSunday && date.equals(known.getValidFrom()))).
+                    filter(known -> date.isEqual(known.getValidFrom()) || date.isAfter(known.getValidFrom())).
                             toList();
             if (dateOrdered.isEmpty()) {
                 throw new RuntimeException("No match for " + line.getShortName() + " on " + date);

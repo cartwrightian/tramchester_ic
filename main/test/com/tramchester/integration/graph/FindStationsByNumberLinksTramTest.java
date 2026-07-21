@@ -87,20 +87,20 @@ class FindStationsByNumberLinksTramTest {
 
         List<IdFor<Station>> expectedList = Stream.of(
 
-                StPetersSquare,
+                //StPetersSquare,
                 PiccadillyGardens,
                 Piccadilly,
                 MarketStreet,
                 TraffordBar,
                 Cornbrook,
                 Victoria,
-                StWerburghsRoad,
-                Pomona,
-                Broadway,
-                HarbourCity,
-                OldhamKingStreet, OldhamMumps,
-                Wharfside,
-                Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
+                StWerburghsRoad
+                //Pomona,
+                //Broadway,
+                //HarbourCity
+                //OldhamKingStreet, OldhamMumps
+                //Wharfside
+                //Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
 
 
         ).map(FakeStation::getId).toList();

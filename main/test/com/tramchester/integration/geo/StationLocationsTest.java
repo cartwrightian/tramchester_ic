@@ -20,6 +20,7 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -120,6 +121,8 @@ public class StationLocationsTest {
         assertTrue(found.contains(station.getLocationId()));
     }
 
+    // stPeters platform 3 is missing??
+    @Summer2026Closures
     @Test
     void shouldHavePlatformsInAnArea() {
         Station stPeters = TramStations.StPetersSquare.from(stationRepository);

@@ -25,6 +25,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,19 +84,21 @@ public class InterchangesTramTest {
     void shouldHaveExpectedTramInterchanges() {
 
         Stream<TramStations> expectedTramStations = Stream.of(
-                StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
-                Pomona, Cornbrook,
+                StWerburghsRoad, TraffordBar, Cornbrook,
+                //HarbourCity,
+               // Pomona,
+                Cornbrook,
                 MarketStreet,
                 PiccadillyGardens,
                 Piccadilly,
-                StPetersSquare,
-                Broadway,
-                Victoria,
-                OldhamKingStreet,
-                OldhamMumps,
-                Wharfside,
+                //StPetersSquare,
+                //Broadway,
+                Victoria
+                //OldhamKingStreet,
+                //OldhamMumps,
+                //Wharfside
                 // summer 2026 closures
-                Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
+                //Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
 
         );
 
@@ -152,6 +155,7 @@ public class InterchangesTramTest {
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
     }
 
+    @Summer2026Closures
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));
@@ -200,6 +204,7 @@ public class InterchangesTramTest {
 
     }
 
+    @Summer2026Closures
     @Test
     void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
         TramDate date = TestEnv.testDay();

@@ -55,20 +55,20 @@ class FindLinkedStationsTest {
         assertEquals(TestEnv.NumberOfStationLinks, results.size());
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
-        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
+        assertFalse(results.contains(createLink(StPetersSquare, MarketStreet)));
         assertTrue(results.contains(createLink(StPetersSquare, Deansgate)));
 
+        // summer 2026
         assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
 
-        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare)));
+        assertFalse(results.contains(createLink(MarketStreet, StPetersSquare)));
         assertTrue(results.contains(createLink(Deansgate, StPetersSquare)));
 
-        // Spring 2025
         assertFalse(results.contains(createLink(StPetersSquare, Shudehill)));
         assertFalse(results.contains(createLink(Shudehill, StPetersSquare)));
 
-        assertTrue(results.contains(createLink(MediaCityUK, HarbourCity)));
-        assertTrue(results.contains(createLink(MediaCityUK, Broadway)));
+        assertFalse(results.contains(createLink(MediaCityUK, HarbourCity)));
+        assertFalse(results.contains(createLink(MediaCityUK, Broadway)));
 
     }
 

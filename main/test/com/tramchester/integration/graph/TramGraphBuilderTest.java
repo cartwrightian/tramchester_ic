@@ -109,15 +109,16 @@ class TramGraphBuilderTest {
         List<GraphRelationship> list = outboundLinks.toList();
 
         // summer closures, bus links
-        assertEquals(3+2, list.size(), "Wrong number of outbounds " + list);
+        assertEquals(3+1, list.size(), "Wrong number of outbounds " + list);
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
                 map(GraphNode::getStationId).collect(Collectors.toSet());
 
-        assertTrue(destinations.contains(TraffordBar.getId()));
-        assertTrue(destinations.contains(Pomona.getId()));
-        assertTrue(destinations.contains(Deansgate.getId()));
+        assertTrue(destinations.contains(TraffordBar.getId()), "missing from " + destinations);
+        assertTrue(destinations.contains(Deansgate.getId()), "missing from " + destinations);
+        // summer 2026
+        assertFalse(destinations.contains(Pomona.getId()), "missing from " + destinations);
     }
 
     @Test
@@ -905,7 +906,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(15D, Math.ceil(percentage));
+        assertEquals(14D, Math.ceil(percentage));
     }
 
     @Test

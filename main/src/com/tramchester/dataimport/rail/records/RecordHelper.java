@@ -40,7 +40,6 @@ public class RecordHelper {
      */
     public TramTime extractTime(final Line line, final int begin) {
         char[] timeText = line.subArray(begin, 4);
-        //return TramTime.parseBasicFormat(timeText);
         return timeCache.computeIfAbsent(Line.of(timeText), key -> TramTime.parseBasicFormat(timeText));
     }
 

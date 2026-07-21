@@ -319,7 +319,6 @@ public class StationRepositoryTest {
     void shouldHaveExpectedPickupAndDropOffsForMediaCity() {
         // seen issues here
         Station mediaCity = MediaCityUK.from(stationRepository);
-        //IdFor<Route> blueRouteId = getBlue(when).getId();
 
         Set<TFGMRouteNames> dropOffs = mediaCity.getDropoffRoutes().stream().
                 map(route -> (TramRouteId)route.getId()).
@@ -327,8 +326,9 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // replacement bus
-        assertEquals(1+1, dropOffs.size(), dropOffs.toString());
-        assertTrue(dropOffs.contains(TFGMRouteNames.Blue));
+        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        assertTrue(dropOffs.contains(EcclesPiccadilly), "Missing from " + dropOffs);
+        assertFalse(dropOffs.contains(TFGMRouteNames.Blue), "Missing from " + dropOffs);
 
         Set<TFGMRouteNames> pickUps = mediaCity.getPickupRoutes().stream().
                 map(route -> (TramRouteId)route.getId()).
@@ -336,8 +336,10 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // replacement bus
-        assertEquals(1+1, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(TFGMRouteNames.Blue));
+        assertEquals(1, pickUps.size(), pickUps.toString());
+        assertTrue(pickUps.contains(EcclesPiccadilly), "Missing from " + pickUps);
+        assertFalse(pickUps.contains(TFGMRouteNames.Blue), "Missing from " + pickUps);
+
     }
 
     @Test

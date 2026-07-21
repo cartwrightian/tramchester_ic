@@ -8,10 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
@@ -338,19 +335,24 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveBusForSummer2026AlttToPicc() {
-        TramDate date = UpcomingDates.summer2026MajorClosure.getStartDate().plusDays(1);
+        //TramDate date = UpcomingDates.summer2026MajorClosure.getStartDate().plusDays(1);
 
-        JourneyRequest journeyRequest = standardJourneyRequest(date, TramTime.of(10, 21),
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21),
                 1, 2);
 
         List<Journey> results = calculator.calculateRouteAsList(Altrincham, Piccadilly, journeyRequest);
+        assertFalse(results.isEmpty());
 
         results.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), stages.toString());
+            TransportStage<?, ?> stage = stages.getFirst();
+            Route route = stage.getRoute();
+            String shortName = route.getShortName();
+            assertEquals("Replacement Bus Piccadilly Station - Altrincham", shortName);
+            assertEquals("Piccadilly", stage.getHeadSign());
         });
 
-        assertFalse(results.isEmpty());
     }
 
     @Test

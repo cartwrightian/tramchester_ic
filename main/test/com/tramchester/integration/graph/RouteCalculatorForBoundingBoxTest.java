@@ -138,8 +138,7 @@ class RouteCalculatorForBoundingBoxTest {
                 filter(group -> !allClosed(group)).
                 toList();
 
-        // +2 summer 2026
-        assertEquals(1+2, missed.size(), missed.toString()); // when start and dest match
+        assertEquals(1, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertFalse(journey.getStages().isEmpty()); // catch case where starting point is dest

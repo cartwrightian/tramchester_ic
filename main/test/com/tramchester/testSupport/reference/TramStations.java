@@ -40,7 +40,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
     ExchangeSquare("9400ZZMAEXS", "Exchange Square", pos(53.48439, -2.2427)),
     Victoria("9400ZZMAVIC", "Victoria", pos(53.48787, -2.24187)),
     NavigationRoad("9400ZZMANAV", "Navigation Road", pos(53.39589, -2.34331)),
-    HarbourCity("9400ZZMAHCY", "Harbour City", pos(53.47401, -2.29156264773)),
+    HarbourCity("9400ZZMAHCY", "Harbour City", pos(53.47401, -2.28963594929)),
     StPetersSquare("9400ZZMASTP", "St Peter's Square", pos(53.47825, -2.24314)),
     MarketStreet("9400ZZMAMKT", "Market Street", pos(53.48192, -2.23883)),
     MediaCityUK("9400ZZMAMCU", "MediaCityUK", pos(53.47214, -2.29733)),
