@@ -1,5 +1,7 @@
 package com.tramchester.dataimport.rail;
 
+import com.tramchester.dataimport.rail.records.Line;
+
 import java.util.HashMap;
 
 public enum RailRecordType {
@@ -12,13 +14,14 @@ public enum RailRecordType {
     TerminatingLocation("LT"),
     Header("HD"),
     Association("AA"),
-    Skipped("SkippedForNow"),
     Trailer("ZZ"),
-    Unknown("UnknownCode");
+    //
+    Skipped("00"),
+    Unknown("99");
 
-    private final CharSequence code;
+    private final Line code;
 
-    private static final HashMap<CharSequence, RailRecordType> map = new HashMap<>();
+    private static final HashMap<Line, RailRecordType> map = new HashMap<>();
 
     static {
         for(final RailRecordType recordType : RailRecordType.values()) {
@@ -26,11 +29,11 @@ public enum RailRecordType {
         }
     }
 
-    RailRecordType(final CharSequence code) {
-        this.code = code;
+    RailRecordType(final String code) {
+        this.code = Line.of(code);
     }
 
-    public static RailRecordType parse(final CharSequence code) {
+    public static RailRecordType parse(final Line code) {
         if (map.containsKey(code)) {
             return map.get(code);
         }

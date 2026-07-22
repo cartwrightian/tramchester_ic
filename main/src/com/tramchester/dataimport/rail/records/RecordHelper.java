@@ -47,15 +47,6 @@ public class RecordHelper {
     public TramTime extractTime(final Line line, final int begin) {
         final byte[] bytes = line.subArray(begin, 4);
         return timeCache.find(bytes);
-//        final TimeCacheKey key = new TimeCacheKey(bytes);
-////        return timeCache.computeIfAbsent(key, z -> TramTime.parseBasicFormat(new String(bytes, StandardCharsets.US_ASCII).toCharArray()));
-//
-//        //String key = new String(bytes, StandardCharsets.US_ASCII);
-//        final TramTime tramTime = timeCache.get(key);
-//        if (tramTime==null) {
-//            throw new RuntimeException("Failed to find a time for '" + key + "'");
-//        }
-//        return tramTime;
     }
 
     public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final Line text, final int begin, final int end) {

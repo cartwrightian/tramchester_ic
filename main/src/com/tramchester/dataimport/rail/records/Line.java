@@ -2,19 +2,13 @@ package com.tramchester.dataimport.rail.records;
 
 import com.google.common.base.Ascii;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class Line {
 
     private static final Charset charset = StandardCharsets.US_ASCII;
-    private static final CharsetDecoder decoder = charset.newDecoder();
     final byte[] bytes;
-    //private final int hashCode;
 
     public Line(final String text) {
         this(text.getBytes(charset));
@@ -60,7 +54,7 @@ public class Line {
         if (object == null || getClass() != object.getClass()) return false;
         final Line other = (Line) object;
         if (other.bytes.length == bytes.length) {
-            for (int i = 0; i < bytes.length; i++) {
+            for (int i =0; i < bytes.length; i++) {
                 if (bytes[i]!=other.bytes[i]) {
                     return false;
                 }
@@ -103,11 +97,7 @@ public class Line {
         return bytes.length==0;
     }
 
-    public char[] getChars() {
-        try {
-            return decoder.decode(ByteBuffer.wrap(bytes)).array();
-        } catch (CharacterCodingException e) {
-            throw new RuntimeException("Could not decode " + Arrays.toString(bytes), e);
-        }
+    public Line subLine(final int begin, final int count) {
+        return new Line(subArray(begin, count));
     }
 }
