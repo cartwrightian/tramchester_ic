@@ -41,7 +41,9 @@ public class Line {
             count--;
         }
 
-        return new String(bytes, begin, previous, charset);
+        final byte[] dest = new byte[previous];
+        System.arraycopy(bytes, begin, dest, 0, previous); // performance
+        return new String(dest, charset);
     }
 
     public int length() {
