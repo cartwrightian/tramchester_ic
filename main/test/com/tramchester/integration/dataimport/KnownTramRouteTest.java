@@ -201,7 +201,7 @@ class KnownTramRouteTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 7, day = 21)
+    //@DisabledUntilDate(year = 2026, month = 7, day = 21)
     @Test
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);

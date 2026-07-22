@@ -114,27 +114,6 @@ public class TramTime implements Comparable<TramTime> {
         return factory.parse(text);
     }
 
-    /***
-     * Parse string with format HHMM i.e. 1145 0326 2355
-     * This format is used in the rail data
-     * @param text the char array to parse
-     * @return TramTime or TramTime.Invalid
-     */
-    public static TramTime parseBasicFormat(final char[] text) {
-        if (text.length!=4) {
-            throw new RuntimeException("Wrong length " + text.length + " for '" + new String(text) +"'");
-        }
-        final int hour = Factory.parseHour(text);
-        if (hour<0) {
-            return invalid();
-        }
-        final int minute = Factory.parseMinute(text);
-        if (minute<0) {
-            return invalid();
-        }
-        return TramTime.of(hour, minute);
-    }
-
     public static TramTime nextDay(final int hour, final int minute) {
         return factory.of(hour, minute, 1);
     }
@@ -541,21 +520,6 @@ public class TramTime implements Comparable<TramTime> {
             return (hourTenDigit*10) + hourUnitsDigit;
         }
 
-
-        /***
-         * Parse hours part of a 4 character array
-         * @param text HHMM i.e. 1145 1656
-         * @return hours part i.e. 11 16
-         */
-        private static int parseHour(final char[] text) {
-            final char firstDigit = text[0];
-            final char secondDigit = text[1];
-            final int hourTenDigit = Character.digit(firstDigit, 10);
-            final int hourUnitsDigit = Character.digit(secondDigit, 10);
-
-            return (hourTenDigit*10) + hourUnitsDigit;
-        }
-
         /***
          * Parse minutes part of a 4 character string
          * @param text HHMM i.e. 1145 1656
@@ -568,26 +532,6 @@ public class TramTime implements Comparable<TramTime> {
             }
             final char firstDigit = text.charAt(2+offset);
             final char secondDigit = text.charAt(3+offset);
-
-            if (firstDigit > '5') {
-                return -1;
-            }
-
-            final int minsTenDigit = Character.digit(firstDigit, 10);
-            final int minsUnitsDigit = Character.digit(secondDigit, 10);
-
-            return (minsTenDigit*10) + minsUnitsDigit;
-
-        }
-
-        /***
-         * Parse minutes part of a 4 character array
-         * @param text HHMM i.e. 1145 1656
-         * @return minutes part i.e. 45 56
-         */
-        private static int parseMinute(final char[] text) {
-            final char firstDigit = text[2];
-            final char secondDigit = text[3];
 
             if (firstDigit > '5') {
                 return -1;

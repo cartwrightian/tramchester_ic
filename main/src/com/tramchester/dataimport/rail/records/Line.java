@@ -1,27 +1,31 @@
 package com.tramchester.dataimport.rail.records;
 
+import com.google.common.base.Ascii;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Line {
 
-    final char[] chars;
-    private final int hashCode;
+    private static final Charset charset = StandardCharsets.US_ASCII;
+    private static final CharsetDecoder decoder = charset.newDecoder();
+    final byte[] bytes;
+    //private final int hashCode;
 
     public Line(final String text) {
-        this(text.toCharArray());
+        this(text.getBytes(charset));
     }
 
-    private Line(final char[] chars) {
-        this.chars = chars;
-        hashCode = Arrays.hashCode(chars);
+    private Line(final byte[] bytes) {
+        this.bytes = bytes;
     }
 
     public static Line of(final String text) {
         return new Line(text);
-    }
-
-    public static Line of(final char[] chars) {
-        return new Line(Arrays.copyOf(chars, chars.length));
     }
 
     public String extractToString(final int begin, final int end) {
@@ -29,7 +33,7 @@ public class Line {
 
         int previous = count+1;
         // assuming ascii
-        while (chars[begin+count]==32) {
+        while (bytes[begin+count]==Ascii.SP) {
             previous = count;
             if (count==0) {
                 return "";
@@ -37,24 +41,25 @@ public class Line {
             count--;
         }
 
-        return new String(chars, begin, previous);
+        return new String(bytes, begin, previous, charset);
     }
 
     public int length() {
-        return chars.length;
+        return bytes.length;
     }
 
-    public char charAt(int index) {
-        return chars[index];
+    public char charAt(final int index) {
+        // hacky
+        return (char) (bytes[index] & 0xFF);
     }
 
     @Override
     public boolean equals(final Object object) {
         if (object == null || getClass() != object.getClass()) return false;
-        final Line line = (Line) object;
-        if (line.chars.length == chars.length) {
-            for (int i = 0; i < chars.length; i++) {
-                if (chars[i]!=line.chars[i]) {
+        final Line other = (Line) object;
+        if (other.bytes.length == bytes.length) {
+            for (int i = 0; i < bytes.length; i++) {
+                if (bytes[i]!=other.bytes[i]) {
                     return false;
                 }
             }
@@ -65,31 +70,42 @@ public class Line {
 
     @Override
     public int hashCode() {
-        return hashCode;
+        int hash = 1;
+        for (int i = bytes.length - 1; i >= 0; i--)
+            hash = 31 * hash + (int)bytes[i];
+        return hash;
     }
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < chars.length; i++) {
+        final StringBuilder result = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
             if (i>0) {
                 result.append(", ");
             }
-            result.append(i).append(":'").append(chars[i]).append("'");
+            result.append(i).append(":'").append(bytes[i]).append("'");
         }
         return "Line{" +
-                "text='" + new String(chars) + "', " +
-                "chars=" + result +
+                "text='" + new String(bytes, charset) + "', " +
+                "bytes=" + result +
                 '}';
     }
 
-    public char[] subArray(final int begin, final int count) {
-        final char[] result = new char[count];
-        System.arraycopy(chars, begin, result, 0, count);
+    public byte[] subArray(final int begin, final int count) {
+        final byte[] result = new byte[count];
+        System.arraycopy(bytes, begin, result, 0, count);
         return result;
     }
 
     public boolean isEmpty() {
-        return chars.length==0;
+        return bytes.length==0;
+    }
+
+    public char[] getChars() {
+        try {
+            return decoder.decode(ByteBuffer.wrap(bytes)).array();
+        } catch (CharacterCodingException e) {
+            throw new RuntimeException("Could not decode " + Arrays.toString(bytes), e);
+        }
     }
 }

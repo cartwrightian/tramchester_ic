@@ -39,6 +39,17 @@ public class RecordHelperTest {
         assertEquals(TramTime.of(11,45), result);
         // cached
         assertEquals(TramTime.of(11,45),  recordHelper.extractTime(line, 4));
+
+        assertEquals(TramTime.of(0,0), recordHelper.extractTime(Line.of("xxxx0000yyyy"), 4));
+        assertEquals(TramTime.of(23,59), recordHelper.extractTime(Line.of("xxxx2359yyyy"), 4));
+    }
+
+    @Test
+    void shouldParseBlankTimeAsInvalid() {
+        Line line = Line.of("xxxx    yyyy");
+        TramTime result = recordHelper.extractTime(line, 4);
+
+        assertEquals(TramTime.invalid(), result);
     }
 
     @Test

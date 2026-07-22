@@ -147,6 +147,7 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
         public ImmutableEnumSet<LocationActivityCode> parse(final String text) {
             return cache.computeIfAbsent(text, z -> LocationActivityCode.parse(text));
         }
+
     }
 
 }

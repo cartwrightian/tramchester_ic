@@ -8,24 +8,30 @@ import com.tramchester.domain.time.TramTime;
 import jakarta.inject.Inject;
 
 import javax.annotation.PreDestroy;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 @LazySingleton
 public class RecordHelper {
 
-    private final ConcurrentMap<Line, TramTime> timeCache;
+    private final TimeCache timeCache;
     private final LocationActivityCode.Parser locationActivityCodeParser;
 
     @Inject
     public RecordHelper() {
-        timeCache = new ConcurrentHashMap<>();
+        timeCache = new TimeCache();
         locationActivityCodeParser = new LocationActivityCode.Parser();
+        populateTimeCache();
+    }
+
+    private void populateTimeCache() {
+
     }
 
     @PreDestroy
     void stop() {
-        timeCache.clear();
+//        timeCache.clear();
     }
 
     public TramDate extractTramDate(final Line text, final int begin, final int century) {
@@ -39,8 +45,17 @@ public class RecordHelper {
      * @return TramTime or TramTime.Invalid
      */
     public TramTime extractTime(final Line line, final int begin) {
-        char[] timeText = line.subArray(begin, 4);
-        return timeCache.computeIfAbsent(Line.of(timeText), key -> TramTime.parseBasicFormat(timeText));
+        final byte[] bytes = line.subArray(begin, 4);
+        return timeCache.find(bytes);
+//        final TimeCacheKey key = new TimeCacheKey(bytes);
+////        return timeCache.computeIfAbsent(key, z -> TramTime.parseBasicFormat(new String(bytes, StandardCharsets.US_ASCII).toCharArray()));
+//
+//        //String key = new String(bytes, StandardCharsets.US_ASCII);
+//        final TramTime tramTime = timeCache.get(key);
+//        if (tramTime==null) {
+//            throw new RuntimeException("Failed to find a time for '" + key + "'");
+//        }
+//        return tramTime;
     }
 
     public ImmutableEnumSet<LocationActivityCode> parseLocationActivityCode(final Line text, final int begin, final int end) {
@@ -51,5 +66,51 @@ public class RecordHelper {
     // Rail spec's index from one
     public String extractToString(final Line line, final int begin, final int end) {
         return line.extractToString(begin-1, end-1);
+    }
+
+    private static class TimeCache {
+        private final TramTime[] times;
+        private final byte OFFSET = "0".getBytes(US_ASCII)[0];
+
+        public TimeCache() {
+            final int size = 24 * 60;
+            times = new TramTime[size];
+            for (int hours = 0; hours < 24; hours++) {
+                for (int mins = 0; mins < 60; mins++) {
+                    final int index = (hours * 60) + mins;
+                    // make sure conversion to index from bytes works as expected
+                    final byte[] bytes = format("%02d%02d", hours, mins).getBytes(US_ASCII);
+                    final int checkKeyIsValid = indexFor(bytes);
+                    if (checkKeyIsValid!=index) {
+                        throw new RuntimeException(format("SanityCheck failed Mismatch on key %s and index %s", checkKeyIsValid, index));
+                    }
+                    times[index] = TramTime.of(hours, mins);
+                }
+            }
+        }
+
+        private int indexFor(final byte[] bytes) {
+            final int mins = 10*asInt(bytes[2]) + asInt(bytes[3]);
+            final int hours = 10*asInt(bytes[0]) + asInt(bytes[1]);
+            return (hours*60) + mins;
+        }
+
+        private int asInt(final byte b) {
+            return b - OFFSET;
+        }
+
+        public TramTime find(final byte[] bytes) {
+            if (isBlank(bytes)) {
+                return TramTime.invalid();
+            }
+
+            final int key = indexFor(bytes);
+            return times[key];
+        }
+
+        private boolean isBlank(byte[] a) {
+            return a[0]==32 && a[1]==32 && a[2]==32 && a[3]==32;
+        }
+
     }
 }

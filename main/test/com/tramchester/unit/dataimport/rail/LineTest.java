@@ -3,8 +3,9 @@ package com.tramchester.unit.dataimport.rail;
 import com.tramchester.dataimport.rail.records.Line;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LineTest {
 
@@ -60,9 +61,9 @@ public class LineTest {
     void shouldHaveSubArray() {
         Line line = Line.of("0123456789");
 
-        assertEquals("0123", new String(line.subArray(0,4)));
-        assertEquals("123", new String(line.subArray(1,3)));
-        assertEquals("7", new String(line.subArray(7,1)));
+        assertArrayEquals("0123".getBytes(StandardCharsets.US_ASCII), line.subArray(0,4));
+        assertArrayEquals("123".getBytes(StandardCharsets.US_ASCII), line.subArray(1,3));
+        assertArrayEquals("7".getBytes(StandardCharsets.US_ASCII), line.subArray(7,1));
 
     }
 }
