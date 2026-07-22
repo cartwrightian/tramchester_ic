@@ -10,7 +10,7 @@ public class Line {
     private static final Charset charset = StandardCharsets.US_ASCII;
     final byte[] bytes;
 
-    public Line(final String text) {
+    private Line(final String text) {
         this(text.getBytes(charset));
     }
 
@@ -23,16 +23,16 @@ public class Line {
     }
 
     public String extractToString(final int begin, final int end) {
-        int count = end-begin;
+        int length = end-begin;
 
-        int previous = count+1;
-        // assuming ascii
-        while (bytes[begin+count]==Ascii.SP) {
-            previous = count;
-            if (count==0) {
+        int previous = length+1;
+        // assuming Ascii
+        while (bytes[begin+length]==Ascii.SP) {
+            previous = length;
+            if (length==0) {
                 return "";
             }
-            count--;
+            length--;
         }
 
         final byte[] dest = new byte[previous];
@@ -87,9 +87,9 @@ public class Line {
                 '}';
     }
 
-    public byte[] subArray(final int begin, final int count) {
-        final byte[] result = new byte[count];
-        System.arraycopy(bytes, begin, result, 0, count);
+    public byte[] subArray(final int begin, final int length) {
+        final byte[] result = new byte[length];
+        System.arraycopy(bytes, begin, result, 0, length);
         return result;
     }
 
@@ -97,7 +97,7 @@ public class Line {
         return bytes.length==0;
     }
 
-    public Line subLine(final int begin, final int count) {
-        return new Line(subArray(begin, count));
+    public Line subLine(final int begin, final int length) {
+        return new Line(subArray(begin, length));
     }
 }

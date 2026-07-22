@@ -63,7 +63,7 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     public Stream<RailTimetableRecord> load(final Reader in) {
         logger.info("Loading lines");
         final BufferedReader bufferedReader = new BufferedReader(in);
-        return bufferedReader.lines().map(text -> processLine(new Line(text)));
+        return bufferedReader.lines().map(text -> processLine(Line.of(text)));
     }
 
     private RailTimetableRecord processLine(final Line line) {
@@ -98,7 +98,6 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     }
 
     private RailRecordType getRecordTypeFor(final Line line) {
-        //return RailRecordType.parse(line.extractToString(0,1));
         return RailRecordType.parse(line.subLine(0,2));
     }
 

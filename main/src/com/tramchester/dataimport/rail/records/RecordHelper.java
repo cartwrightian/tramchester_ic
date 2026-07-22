@@ -61,7 +61,6 @@ public class RecordHelper {
 
     private static class TimeCache {
         private final TramTime[] times;
-        private final byte OFFSET = "0".getBytes(US_ASCII)[0];
 
         public TimeCache() {
             final int size = 24 * 60;
@@ -81,13 +80,13 @@ public class RecordHelper {
         }
 
         private int indexFor(final byte[] bytes) {
-            final int mins = 10*asInt(bytes[2]) + asInt(bytes[3]);
-            final int hours = 10*asInt(bytes[0]) + asInt(bytes[1]);
+            final int hours = (10 * asNumber(bytes[0])) + asNumber(bytes[1]);
+            final int mins =  (10 * asNumber(bytes[2])) + asNumber(bytes[3]);
             return (hours*60) + mins;
         }
 
-        private int asInt(final byte b) {
-            return b - OFFSET;
+        private byte asNumber(final byte b) {
+            return (byte) (b & (byte)0x0F);
         }
 
         public TramTime find(final byte[] bytes) {

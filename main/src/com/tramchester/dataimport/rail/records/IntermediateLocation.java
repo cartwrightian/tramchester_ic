@@ -57,7 +57,7 @@ public class IntermediateLocation implements RailLocationRecord {
         final TramTime passingTime = recordHelper.extractTime(text, 20);
         final TramTime publicArrival = recordHelper.extractTime(text, 25);
         final TramTime publicDeparture = recordHelper.extractTime(text, 29);
-        final String platform = recordHelper.extractToString(text, 34, 36+1); //.trim();
+        final String platform = recordHelper.extractToString(text, 34, 36+1);
 
         final ImmutableEnumSet<LocationActivityCode> activity = recordHelper.parseLocationActivityCode(text,43,54);
 

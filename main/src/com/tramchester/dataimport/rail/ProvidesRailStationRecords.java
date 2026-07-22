@@ -87,7 +87,7 @@ public class ProvidesRailStationRecords {
         final BufferedReader bufferedReader = new BufferedReader(in);
         return bufferedReader.lines().
                 filter(text -> getRecordTypeFor(text).equals(RecordType.A)).
-                map(text -> createPhysicalStation(new Line(text)));
+                map(text -> createPhysicalStation(Line.of(text)));
     }
 
     private PhysicalStationRecord createPhysicalStation(final Line line) {

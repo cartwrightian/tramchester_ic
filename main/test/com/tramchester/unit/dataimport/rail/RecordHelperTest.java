@@ -58,7 +58,7 @@ public class RecordHelperTest {
 
         int century = 20;
 
-        Line line = new Line(text);
+        Line line = Line.of(text);
         TramDate result = recordHelper.extractTramDate(line, 4, century);
 
         assertEquals(TramDate.of(2022, 5, 13), result);

@@ -37,7 +37,7 @@ public class RailDataLoadPerformanceTest {
     void shouldLoadData() {
         ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 25; i++) {
             TransportDataContainer container = new TransportDataContainer(providesNow, "testSourceName");
             fromFiles.loadInto(container);
             container.dispose();

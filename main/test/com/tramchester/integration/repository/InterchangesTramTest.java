@@ -84,21 +84,17 @@ public class InterchangesTramTest {
     void shouldHaveExpectedTramInterchanges() {
 
         Stream<TramStations> expectedTramStations = Stream.of(
-                StWerburghsRoad, TraffordBar, Cornbrook,
-                //HarbourCity,
-               // Pomona,
+                TraffordBar, Cornbrook,
                 Cornbrook,
                 MarketStreet,
                 PiccadillyGardens,
                 Piccadilly,
-                //StPetersSquare,
-                //Broadway,
-                Victoria
-                //OldhamKingStreet,
-                //OldhamMumps,
-                //Wharfside
+                StPetersSquare,
+                Broadway,
+                Victoria,
                 // summer 2026 closures
-                //Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
+                Wharfside, Pomona, HarbourCity, StWerburghsRoad,
+                Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
 
         );
 

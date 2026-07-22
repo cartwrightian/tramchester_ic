@@ -326,9 +326,9 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // replacement bus
-        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        assertEquals(2, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(EcclesPiccadilly), "Missing from " + dropOffs);
-        assertFalse(dropOffs.contains(TFGMRouteNames.Blue), "Missing from " + dropOffs);
+        assertTrue(dropOffs.contains(TFGMRouteNames.Blue), "Missing from " + dropOffs);
 
         Set<TFGMRouteNames> pickUps = mediaCity.getPickupRoutes().stream().
                 map(route -> (TramRouteId)route.getId()).
@@ -336,9 +336,9 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // replacement bus
-        assertEquals(1, pickUps.size(), pickUps.toString());
+        assertEquals(2, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(EcclesPiccadilly), "Missing from " + pickUps);
-        assertFalse(pickUps.contains(TFGMRouteNames.Blue), "Missing from " + pickUps);
+        assertTrue(pickUps.contains(TFGMRouteNames.Blue), "Missing from " + pickUps);
 
     }
 

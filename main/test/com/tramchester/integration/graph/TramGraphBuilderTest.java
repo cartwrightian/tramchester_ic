@@ -60,7 +60,6 @@ class TramGraphBuilderTest {
     private StationRepository stationRepository;
     private ServiceRepository serviceRepository;
 
-   //private Route tramRouteEcclesAshton;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
     private ImmutableEnumSet<TransportRelationshipTypes> transportRelationshipTypes;
@@ -109,7 +108,7 @@ class TramGraphBuilderTest {
         List<GraphRelationship> list = outboundLinks.toList();
 
         // summer closures, bus links
-        assertEquals(3+1, list.size(), "Wrong number of outbounds " + list);
+        assertEquals(3+2, list.size(), "Wrong number of outbounds " + list);
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -117,8 +116,7 @@ class TramGraphBuilderTest {
 
         assertTrue(destinations.contains(TraffordBar.getId()), "missing from " + destinations);
         assertTrue(destinations.contains(Deansgate.getId()), "missing from " + destinations);
-        // summer 2026
-        assertFalse(destinations.contains(Pomona.getId()), "missing from " + destinations);
+        assertTrue(destinations.contains(Pomona.getId()), "missing from " + destinations);
     }
 
     @Test
@@ -906,7 +904,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(14D, Math.ceil(percentage));
+        assertEquals(16D, Math.ceil(percentage));
     }
 
     @Test

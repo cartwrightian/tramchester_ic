@@ -91,8 +91,8 @@ class StationGeographyResourceTest {
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens, linkType)));
         assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare, linkType)));
 
-        assertFalse(results.contains(createLink(StPetersSquare, MarketStreet, linkType)));
-        assertFalse(results.contains(createLink(MarketStreet, StPetersSquare, linkType)));
+        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet, linkType)));
+        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare, linkType)));
 
         assertTrue(results.contains(createLink(StPetersSquare, Deansgate, linkType)));
         assertTrue(results.contains(createLink(Deansgate, StPetersSquare, linkType)));

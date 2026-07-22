@@ -84,7 +84,10 @@ public class KnownTramRoute {
             // not tracking buses
 
         } else {
-
+            routes.add(find.singleRoute(Red));
+            routes.add(find.singleRoute(Blue));
+            routes.add(find.singleRoute(Purple));
+            routes.add(find.singleRoute(Green));
         }
 
         routes.add(find.singleRoute(Yellow));
