@@ -74,7 +74,7 @@ class RailAndTramGraphBuilderTest {
 
         List<GraphRelationship> list = outboundLinks.toList();
         // summer 2026
-        assertEquals(3+1, list.size(), list.toString());
+        assertEquals(3+2, list.size(), list.toString());
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -84,7 +84,7 @@ class RailAndTramGraphBuilderTest {
         assertTrue(destinations.contains(Deansgate.getId()), "missing from " + destinations);
 
         // summer 2026
-        assertFalse(destinations.contains(Pomona.getId()), "missing from " + destinations);
+        assertTrue(destinations.contains(Pomona.getId()), "missing from " + destinations);
 
     }
 

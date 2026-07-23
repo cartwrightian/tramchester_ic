@@ -1,9 +1,6 @@
 package com.tramchester.unit.rail;
 
-import com.tramchester.dataimport.rail.records.BasicSchedule;
-import com.tramchester.dataimport.rail.records.Line;
-import com.tramchester.dataimport.rail.records.RailRecordTransactionType;
-import com.tramchester.dataimport.rail.records.RecordHelper;
+import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;

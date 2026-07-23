@@ -17,7 +17,7 @@ public enum TrainCategory implements EnumMap.HasCodes {
     BusReplacement("BR"),
     BusService("BS"),
     Ship("SS"),
-    Unknown("unknown");
+    Unknown("99");
 
     private static final EnumMap<TrainCategory> codes = new EnumMap<>(TrainCategory.values());
 

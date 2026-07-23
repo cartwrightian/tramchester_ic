@@ -10,7 +10,7 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LineTest {
+public class AsciiLineTest {
 
     @Test
     void shouldTrimOnExtract() {
