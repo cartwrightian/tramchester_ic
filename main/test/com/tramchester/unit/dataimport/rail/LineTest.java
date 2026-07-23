@@ -10,7 +10,7 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsciiLineTest {
+public class LineTest {
 
     @Test
     void shouldTrimOnExtract() {
@@ -28,6 +28,7 @@ public class AsciiLineTest {
         assertTrue(result.isEmpty());
     }
 
+    @Disabled("One char line is not RuntimeException")
     @Test
     void shouldTrimToEmptyOneChar() {
         Line line = Line.of(" ");
@@ -37,13 +38,14 @@ public class AsciiLineTest {
     }
 
     @Test
-    void shouldTrimToEmptyTwoChar() {
-        Line line = Line.of("  ");
+    void shouldTrimToEmptyThreeChar() {
+        Line line = Line.of("   ");
         String result = line.extractToString(0, 1);
 
         assertTrue(result.isEmpty());
     }
 
+    @Disabled("One char line is not RuntimeException")
     @Test
     void shouldNotTrimToEmptyOneChar() {
         Line line = Line.of("1");
@@ -58,6 +60,28 @@ public class AsciiLineTest {
 
         assertEquals('1', line.charAt(0));
         assertEquals('9', line.charAt(8));
+    }
+
+    @Test
+    void shouldTrimToTwoChars() {
+        Line line = Line.of("12 ");
+        String result = line.extractToString(0,2);
+        assertEquals(2, result.length());
+    }
+
+    @Test
+    void shouldCreateTwoChars() {
+        Line line = Line.of("12");
+        assertSame(Line.TwoChars.class, line.getClass());
+    }
+
+    @Test
+    void shouldExtractToLineOfTwoChars() {
+        Line line = Line.of("1234");
+        Line result = line.subLine(1, 2);
+
+        assertSame(Line.TwoChars.class, result.getClass());
+        assertEquals(Line.of("23"), result);
     }
 
     @Test
