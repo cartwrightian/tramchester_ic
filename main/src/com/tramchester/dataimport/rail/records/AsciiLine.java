@@ -7,14 +7,14 @@ import java.nio.charset.StandardCharsets;
 
 public class AsciiLine implements Line {
 
-    private static final Charset charset = StandardCharsets.US_ASCII;
-    final byte[] bytes;
+    static final Charset charset = StandardCharsets.US_ASCII;
+    private final byte[] bytes;
 
     private AsciiLine(final String text) {
         this(text.getBytes(charset));
     }
 
-    private AsciiLine(final byte[] bytes) {
+    AsciiLine(final byte[] bytes) {
         this.bytes = bytes;
     }
 
@@ -104,6 +104,8 @@ public class AsciiLine implements Line {
 
     @Override
     public Line subLine(final int begin, final int length) {
-        return new AsciiLine(subArray(begin, length));
+        return Line.of(subArray(begin, length));
     }
+
+
 }
