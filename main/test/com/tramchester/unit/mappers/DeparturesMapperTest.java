@@ -1,18 +1,18 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.livedata.mappers.MapJourneyDTOToStations;
-import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
+import com.tramchester.mappers.MatchDeparturesToJourneyDestination;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -33,15 +33,15 @@ class DeparturesMapperTest extends EasyMockSupport {
     private Station displayLocation;
     private final Agency agency = TestEnv.MetAgency();
     private final TransportMode mode = TransportMode.Tram;
-    private MatchLiveTramToJourneyDestination matchLiveTramToJourneyDestination;
+    private MatchDeparturesToJourneyDestination matchLiveTramToJourneyDestination;
     private MapJourneyDTOToStations mapJourneyDTOToStations;
 
     @BeforeEach
     void beforeEachTestRuns() {
         lastUpdated = TestEnv.LocalNow();
-        matchLiveTramToJourneyDestination = createMock(MatchLiveTramToJourneyDestination.class);
+        matchLiveTramToJourneyDestination = createMock(MatchDeparturesToJourneyDestination.class);
         mapJourneyDTOToStations = createMock(MapJourneyDTOToStations.class);
-        mapper = new DeparturesMapper(matchLiveTramToJourneyDestination, mapJourneyDTOToStations);
+        mapper = new DeparturesMapper(matchLiveTramToJourneyDestination);
         displayLocation = Bury.fake();
     }
 
@@ -84,15 +84,13 @@ class DeparturesMapperTest extends EasyMockSupport {
 
         IdFor<Station> finalStation = PiccadillyGardens.getId();
         IdSet<Station> changeStations = IdSet.emptySet();
-        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, changeStations, finalStation)).andReturn(true);
+        DestinationAndCallingPoints destAndCalling = new DestinationAndCallingPoints(finalStation, changeStations);
 
-        List<JourneyDTO> journeys = new ArrayList<>();
 
-        EasyMock.expect(mapJourneyDTOToStations.getFinalStationId(journeys)).andReturn(finalStation);
-        EasyMock.expect(mapJourneyDTOToStations.getAllChangeStations(journeys)).andReturn(changeStations);
+        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, destAndCalling)).andReturn(true);
 
         replayAll();
-        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, lastUpdated, journeys);
+        Set<DepartureDTO> results = mapper.createDepDTOForJourneys(dueTrams, lastUpdated, destAndCalling);
         verifyAll();
 
         List<DepartureDTO> list = new LinkedList<>(results);
@@ -113,15 +111,13 @@ class DeparturesMapperTest extends EasyMockSupport {
         ImmutableIdSet<Station> changeStations = IdSet.singleton(Victoria.getId());
         IdFor<Station> finalStation = Bury.getId();
 
-        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, changeStations, finalStation)).andReturn(false);
+        DestinationAndCallingPoints destAndCalling = new DestinationAndCallingPoints(finalStation, changeStations);
 
-        List<JourneyDTO> journeys = new ArrayList<>();
 
-        EasyMock.expect(mapJourneyDTOToStations.getFinalStationId(journeys)).andReturn(finalStation);
-        EasyMock.expect(mapJourneyDTOToStations.getAllChangeStations(journeys)).andReturn(changeStations);
+        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, destAndCalling)).andReturn(false);
 
         replayAll();
-        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, lastUpdated, journeys);
+        Set<DepartureDTO> results = mapper.createDepDTOForJourneys(dueTrams, lastUpdated, destAndCalling);
         verifyAll();
 
         List<DepartureDTO> list = new LinkedList<>(results);

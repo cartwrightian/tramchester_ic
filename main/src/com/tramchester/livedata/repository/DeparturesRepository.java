@@ -2,6 +2,7 @@ package com.tramchester.livedata.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
@@ -53,19 +54,25 @@ public class DeparturesRepository {
     }
 
     public List<UpcomingDeparture> getDueForLocation(final Location<?> location, final LocalDate date, final TramTime time,
-                                                     final ImmutableEnumSet<TransportMode> modes) {
+                                                     final ImmutableEnumSet<TransportMode> modes, DestinationAndCallingPoints destinationAndCallingPoints) {
         logger.info(format("Get due %s services at %s for %s %s", modes, location.getId(), date, time));
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
-            case Station -> getStationDepartures((Station) location, modes);
-            case StationGroup -> getStationGroupDepartures((StationLocalityGroup) location, modes);
-            case MyLocation, Postcode -> getDeparturesNearTo(location, modes);
-            case Platform -> getPlatformDepartures((Platform) location, modes);
+            case Station -> getStationDepartures((Station) location, modes, destinationAndCallingPoints);
+            case StationGroup -> getStationGroupDepartures((StationLocalityGroup) location, modes, destinationAndCallingPoints);
+            case MyLocation, Postcode -> getDeparturesNearTo(location, modes, destinationAndCallingPoints);
+            case Platform -> getPlatformDepartures((Platform) location, modes, destinationAndCallingPoints);
         };
 
-        return departures.stream().
+        List<UpcomingDeparture> results = departures.stream().
                 filter(departure -> departure.getDate().equals(date)).
                 filter(departure -> isTimely(time, departure)).
                 collect(Collectors.toList());
+
+        if (results.isEmpty()) {
+            logger.warn("Departures list empty for " + location.getId() + " at " + time);
+        }
+
+        return results;
     }
 
     private boolean isTimely(final TramTime time, final UpcomingDeparture departure) {
@@ -83,19 +90,19 @@ public class DeparturesRepository {
         };
     }
 
-    private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final ImmutableEnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final ImmutableEnumSet<TransportMode> modes, DestinationAndCallingPoints destinationAndCallingPoints) {
         if (!platform.anyOverlapWith(modes)) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
             return Collections.emptyList();
         }
-        return tramDepartureRepository.forStation(platform.getStation()).
+        return tramDepartureRepository.forStation(platform.getStation(), destinationAndCallingPoints).
                 stream().
                 filter(UpcomingDeparture::hasPlatform).
                 filter(departure -> departure.getPlatform().equals(platform)).
                 toList();
     }
 
-    private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final ImmutableEnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final ImmutableEnumSet<TransportMode> modes, DestinationAndCallingPoints destinationAndCallingPoints) {
         final MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
@@ -103,42 +110,45 @@ public class DeparturesRepository {
                 margin, modes);
 
         return nearbyStations.stream().
-                flatMap(station -> getStationDepartures(station, modes).stream()).
+                flatMap(station -> getStationDepartures(station, modes, destinationAndCallingPoints).stream()).
                 distinct().
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final ImmutableEnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final ImmutableEnumSet<TransportMode> modes, DestinationAndCallingPoints destinationAndCallingPoints) {
         return stationGroup.getAllContained().stream().
                 filter(station -> station.anyOverlapWith(modes)).
-                flatMap(station -> getStationDepartures(station, modes).stream()).
+                flatMap(station -> getStationDepartures(station, modes, destinationAndCallingPoints).stream()).
                 distinct().collect(Collectors.toList());
 
     }
 
-    private List<UpcomingDeparture> getStationDepartures(final Station station, final ImmutableEnumSet<TransportMode> modes) {
-        Set<TransportMode> toFetch = station.getTransportModes().intersectionWith(modes);
+    private List<UpcomingDeparture> getStationDepartures(final Station station, final ImmutableEnumSet<TransportMode> modes,
+                                                         DestinationAndCallingPoints destinationAndCallingPoints) {
+        final Set<TransportMode> toFetch = station.getTransportModes().intersectionWith(modes);
 
         if (toFetch.isEmpty()) {
             logger.error(format("Station modes %s and filter modes %s do not overlap", station.getId(), modes));
         }
 
         return toFetch.stream().
-                flatMap(mode -> getDeparturesFor(mode, station)).
+                flatMap(mode -> getDeparturesFor(mode, station, destinationAndCallingPoints)).
                 collect(Collectors.toList());
     }
 
-    private Stream<UpcomingDeparture> getDeparturesFor(TransportMode mode, Station station) {
+    private Stream<UpcomingDeparture> getDeparturesFor(final TransportMode mode, final Station station, DestinationAndCallingPoints destinationAndCallingPoints) {
+        // TODO destinationAndCallingPoints
         switch (mode) {
             case Tram -> {
-                return tramDepartureRepository.forStation(station).stream();
+                return tramDepartureRepository.forStation(station, destinationAndCallingPoints).stream();
             }
             case Train -> {
-                return trainDeparturesRepository.forStation(station).stream();
+                return trainDeparturesRepository.forStation(station, destinationAndCallingPoints).stream();
             }
             default -> {
                 //logger.debug("TODO - live data for " + mode + " is not implemented yet");
                 return Stream.empty(); }
         }
     }
+
 }

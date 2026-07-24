@@ -1,6 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -19,6 +20,7 @@ import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -29,8 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TramDepartureRepositoryTest extends EasyMockSupport {
 
@@ -126,7 +127,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(2, departureRepository.upToDateEntries());
         assertEquals(2, departureRepository.getNumStationsWithData(lastUpdate));
 
-        List<UpcomingDeparture> results = departureRepository.forStation(station);
+        List<UpcomingDeparture> results = departureRepository.forStation(station, DestinationAndCallingPoints.None());
 
         assertEquals(1, results.size());
         UpcomingDeparture result = results.getFirst();
@@ -136,9 +137,15 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals("Single", result.getCarriages());
         assertEquals(destination.getId(), result.getDestinationId());
 
-        List<UpcomingDeparture> resultOther = departureRepository.forStation(otherStation);
+        List<UpcomingDeparture> resultOther = departureRepository.forStation(otherStation, DestinationAndCallingPoints.None());
         assertEquals(1, resultOther.size());
         assertEquals(destinationManAirport.getId(), resultOther.getFirst().getDestinationId());
+    }
+
+    @Disabled("WIP")
+    @Test
+    void shouldTryWithDestAndCallingPointsButNotYet() {
+        fail("TODO");
     }
 
     @Test
@@ -164,7 +171,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(1, departureRepository.getNumStationsWithTrams(lastUpdate));
 
 
-        List<UpcomingDeparture> allTramsForStation = departureRepository.forStation(station);
+        List<UpcomingDeparture> allTramsForStation = departureRepository.forStation(station, DestinationAndCallingPoints.None());
 
         List<UpcomingDeparture> allTramsForPlatform = allTramsForStation.stream().
                 filter(departure -> departure.getPlatform().equals(platform))
@@ -187,9 +194,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
         replayAll();
         departureRepository.seenUpdate(info);
-        List<UpcomingDeparture> dueTramsNow = departureRepository.forStation(station);
-        List<UpcomingDeparture> dueTramsEarlier = departureRepository.forStation(station);
-        List<UpcomingDeparture> dueTramsLater = departureRepository.forStation(station);
+        List<UpcomingDeparture> dueTramsNow = departureRepository.forStation(station, DestinationAndCallingPoints.None());
+        List<UpcomingDeparture> dueTramsEarlier = departureRepository.forStation(station, DestinationAndCallingPoints.None());
+        List<UpcomingDeparture> dueTramsLater = departureRepository.forStation(station, DestinationAndCallingPoints.None());
         verifyAll();
 
         assertEquals(1, dueTramsNow.size());

@@ -168,16 +168,17 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         TramDate date = TramDate.of(year, 12, 23);
         Note christmasNote = new Note(ProvidesTramNotes.christmas, Note.NoteType.Christmas);
 
-        Set<Station> stations = Collections.singleton(BusStations.KnutsfordStationStand3.fake());
+        Station busStation = BusStations.KnutsfordStationStand3.fake();
+        Set<Station> stations = Collections.singleton(busStation);
         TramTime queryTime = TramTime.of(11,24);
         TramDate afterChristmas = TramDate.of(year+1, 1, 3);
 
         for(int offset=0; offset<11; offset++) {
             TramDate queryDate = date.plusDays(offset);
-            EasyMock.expect(platformMessageSource.messagesFor(BusStations.KnutsfordStationStand3.fake(), queryDate, queryTime)).
+            EasyMock.expect(platformMessageSource.messagesFor(busStation, queryDate, queryTime)).
                     andStubReturn(Collections.emptyList());
         }
-        EasyMock.expect(platformMessageSource.messagesFor(BusStations.KnutsfordStationStand3.fake(), afterChristmas, queryTime)).
+        EasyMock.expect(platformMessageSource.messagesFor(busStation, afterChristmas, queryTime)).
                 andStubReturn(Collections.emptyList());
 
         replayAll();
@@ -188,7 +189,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         for(int offset=1; offset<11; offset++) {
             TramDate queryDate = date.plusDays(offset);
             result = getNotesForStations(stations, queryDate, queryTime);
-            assertTrue(result.isEmpty());
+            assertTrue(result.isEmpty(), "Not empty: " + result);
         }
 
         result = getNotesForStations(stations, afterChristmas, queryTime);

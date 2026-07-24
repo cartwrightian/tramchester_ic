@@ -2,12 +2,15 @@ package com.tramchester.livedata.openLdb;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.thalesgroup.rtti._2015_11_27.ldb.types.ArrayOfServiceLocations;
+import com.thalesgroup.rtti._2015_11_27.ldb.types.BaseStationBoard;
 import com.thalesgroup.rtti._2015_11_27.ldb.types.ServiceLocation;
 import com.thalesgroup.rtti._2017_10_01.ldb.types.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DestinationAndCallingPoints;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -29,7 +32,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,14 +68,13 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
     }
 
     @Override
-    public List<UpcomingDeparture> forStation(final Station station) {
-        if (!config.liveTfgmTramDataEnabled()) {
+    public List<UpcomingDeparture> forStation(final Station station, final DestinationAndCallingPoints destinationAndCallingPoints) {
+        if (!config.liveTrainDataEnabled()) {
             String message = "Live train data is not enabled";
             logger.error(message);
             throw new RuntimeException(message);
         }
-        logger.info("Get departures for " + station.getId());
-        return departuresCache.getOrUpdate(station, liveTrainDepartures::forStation);
+        return departuresCache.getOrUpdate(station, key -> liveTrainDepartures.forStation(key, destinationAndCallingPoints));
     }
 
     private static class LiveTrainDepartures implements UpcomingDeparturesSource {
@@ -86,26 +88,61 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             this.crsRepository = crsRepository;
         }
 
-        public List<UpcomingDeparture> forStation(final Station station) {
-            logger.debug("Get live departures for " + station.getId());
-            List<UpcomingDeparture> result = new ArrayList<>();
-            final Optional<StationBoard> maybeBoard = dataFetcher.getFor(station);
-            maybeBoard.ifPresent(board -> {
-                final LocalDateTime generated = getDate(board);
-                final ArrayOfServiceItems trainServices = board.getTrainServices();
-                if (trainServices==null) {
-                    logger.warn("train services are null for StationBoard, station: " + station.getId());
-                } else {
-                    result.addAll(trainServices.getService().stream().
-                            map(serviceItem -> mapToDeparture(serviceItem, station, generated)).
-                            toList());
-                }
-            });
+        public List<UpcomingDeparture> forStation(final Station station, final DestinationAndCallingPoints destinationAndCallingPoints) {
+            logger.debug("Get live departures at " + station.getId() + " and " + destinationAndCallingPoints);
+
+            final List<UpcomingDeparture> result;
+            if (destinationAndCallingPoints.isNone()) {
+                result = fetchAllDeparturesFrom(station);
+            } else {
+                result = fetchSpecificDeparturesFrom(station, destinationAndCallingPoints);
+            }
             logger.info("Got " + result.size() + " departures for " + station.getId());
             return result;
         }
 
-        private LocalDateTime getDate(final StationBoard board) {
+        private List<UpcomingDeparture> fetchSpecificDeparturesFrom(Station station, DestinationAndCallingPoints destinationAndCallingPoints) {
+            final Optional<DeparturesBoardWithDetails> maybeBoard = dataFetcher.getFor(station, destinationAndCallingPoints);
+
+            if (maybeBoard.isPresent()) {
+                DeparturesBoardWithDetails board = maybeBoard.get();
+                final LocalDateTime generated = getDate(board);
+                ArrayOfDepartureItemsWithCallingPoints departures = board.getDepartures();
+                if (departures == null) {
+                    logger.warn("specific departures are null for StationBoard, station: " + station.getId());
+                    return Collections.emptyList();
+                } else {
+                   return departures.getDestination().stream().
+                            filter(depatureItem -> depatureItem.getService()!=null).
+                            map(departureItem -> mapToDeparture(departureItem, station, generated)).
+                            toList();
+                }
+            }
+            logger.warn("No board for " + station.getId());
+            return Collections.emptyList();
+        }
+
+        private List<UpcomingDeparture> fetchAllDeparturesFrom(final Station station) {
+            final Optional<StationBoard> maybeBoard = dataFetcher.getFor(station);
+
+            if (maybeBoard.isPresent()) {
+                StationBoard board = maybeBoard.get();
+                final LocalDateTime generated = getDate(board);
+                final ArrayOfServiceItems trainServices = board.getTrainServices();
+                if (trainServices == null) {
+                    logger.warn("train services are null for StationBoard, station: " + station.getId());
+                    return Collections.emptyList();
+                }
+                return trainServices.getService().stream().
+                        map(serviceItem -> mapToDeparture(serviceItem, station, generated)).
+                        toList();
+            }
+            logger.warn("No board for " + station.getId());
+            return Collections.emptyList();
+
+        }
+
+        private LocalDateTime getDate(final BaseStationBoard board) {
             final XMLGregorianCalendar generated = board.getGeneratedAt();
 
             final LocalDate date = LocalDate.of(generated.getYear(), generated.getMonth(), generated.getDay());
@@ -114,7 +151,8 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             return LocalDateTime.of(date, time);
         }
 
-        private UpcomingDeparture mapToDeparture(final ServiceItem serviceItem, final Station displayLocation, final LocalDateTime generated) {
+        private UpcomingDeparture mapToDeparture(final ServiceItem serviceItem, final Station displayLocation,
+                                                 final LocalDateTime dateTime) {
 
             final String carridges = carridgesFrom(serviceItem.getFormation());
             final Agency agency = agencyFrom(serviceItem.getOperatorCode());
@@ -122,8 +160,45 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             final String status = getStatus(serviceItem);
             final TramTime when = getWhen(serviceItem);
 
-            return new UpcomingDeparture(generated.toLocalDate(), displayLocation,
+            return new UpcomingDeparture(dateTime.toLocalDate(), displayLocation,
                     destination, status, when, carridges, agency, TransportMode.Train);
+
+        }
+
+        private UpcomingDeparture mapToDeparture(DepartureItemWithCallingPoints departureItem,
+                                                 Station displayLocation, LocalDateTime dateTime) {
+            ServiceItemWithCallingPoints serviceItem = departureItem.getService();
+
+            final String carridges = carridgesFrom(serviceItem.getFormation());
+            final Agency agency = agencyFrom(serviceItem.getOperatorCode());
+            final Station destination = destinationFrom(serviceItem.getDestination());
+            final String status = getStatus(serviceItem);
+            final TramTime when = getWhen(serviceItem);
+
+            final ArrayOfArrayOfCallingPoints subsequent = serviceItem.getSubsequentCallingPoints();
+            List<ArrayOfCallingPoints> callingPointList = subsequent.getCallingPointList();
+
+            if (callingPointList.isEmpty()) {
+                logger.warn("No calling points for " + serviceItem);
+            }
+
+            final List<String> callingCRS = callingPointList.stream().
+                    flatMap(list -> list.getCallingPoint().stream()).
+                    map(CallingPoint::getCrs).toList();
+
+            IdSet<Station> callingIds = callingCRS.stream().
+                    filter(crsRepository::hasCRSCode).
+                    map(crsRepository::getStationFor).
+                    collect(IdSet.collector());
+
+            // this might be common issue?
+            if (callingIds.size()!=callingCRS.size()) {
+                List<String> missingIds = callingCRS.stream().filter(crs -> !crsRepository.hasCRSCode(crs)).toList();
+                logger.warn("Mismatch on calling points, could not find stationIds for " + missingIds);
+            }
+
+            return new UpcomingDeparture(dateTime.toLocalDate(), displayLocation,
+                    destination, status, when, carridges, agency, TransportMode.Train, callingIds);
 
         }
 

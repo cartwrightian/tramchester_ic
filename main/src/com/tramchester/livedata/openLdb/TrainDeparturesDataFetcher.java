@@ -3,14 +3,13 @@ package com.tramchester.livedata.openLdb;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.sun.xml.ws.client.ClientTransportException;
 import com.thalesgroup.rtti._2013_11_28.token.types.AccessToken;
-import com.thalesgroup.rtti._2017_10_01.ldb.GetBoardRequestParams;
-import com.thalesgroup.rtti._2017_10_01.ldb.LDBServiceSoap;
-import com.thalesgroup.rtti._2017_10_01.ldb.Ldb;
-import com.thalesgroup.rtti._2017_10_01.ldb.StationBoardResponseType;
+import com.thalesgroup.rtti._2017_10_01.ldb.*;
+import com.thalesgroup.rtti._2017_10_01.ldb.types.DeparturesBoardWithDetails;
 import com.thalesgroup.rtti._2017_10_01.ldb.types.StationBoard;
 import com.tramchester.config.OpenLdbConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -81,31 +81,19 @@ public class TrainDeparturesDataFetcher {
     }
 
     public Optional<StationBoard> getFor(final Station station) {
+
+        if (!guard(station)) {
+            return Optional.empty();
+        }
+
         final IdFor<Station> stationId = station.getId();
-
-        if (!enabled) {
-            logger.error("Attempt to invoke, but not enabled, did start up fail? Station:" + stationId);
-            return Optional.empty();
-        }
-        if (!started) {
-            // restart strategy needed?
-            logger.warn("Not started, unable to fetch live data from " + stationId);
-            return Optional.empty();
-        }
-
-        if (!station.getTransportModes().contains(TransportMode.Train)) {
-            logger.warn("Station is not a train station");
-            return Optional.empty();
-        }
-        if (!crsRepository.hasStation(stationId)) {
-            logger.error("Not CRS Code found for " + stationId);
-            return Optional.empty();
-        }
         final String crs = crsRepository.getCRSCodeFor(stationId);
         logger.info("Get train departures for " + stationId + " with CRS " + crs);
 
         final GetBoardRequestParams params = new GetBoardRequestParams();
         params.setCrs(crs);
+        params.setTimeOffset(0);
+        params.setTimeWindow(config.getMaxWait());
 
         try {
             final StationBoardResponseType departureBoard = soapService.getDepartureBoard(params, accessToken);
@@ -122,4 +110,75 @@ public class TrainDeparturesDataFetcher {
         }
 
     }
+
+    public Optional<DeparturesBoardWithDetails> getFor(final Station station, final DestinationAndCallingPoints destinationAndCallingPoints) {
+        if (!guard(station)) {
+            return Optional.empty();
+        }
+
+        final IdFor<Station> stationId = station.getId();
+        final String crs = crsRepository.getCRSCodeFor(stationId);
+        logger.info("Get train departures for " + stationId + " with CRS " + crs + " and " + destinationAndCallingPoints);
+
+        GetDeparturesRequestParams params = new GetDeparturesRequestParams();
+        params.setCrs(crs);
+        params.setTimeOffset(0);
+        params.setTimeWindow(config.getMaxWait());
+        params.setFilterList(createFilterListFor(destinationAndCallingPoints));
+
+        try {
+            DeparturesBoardWithDetailsResponseType departureBoard = soapService.getNextDeparturesWithDetails(params, accessToken);
+
+            DeparturesBoardWithDetails stationBoardResult = departureBoard.getDeparturesBoard();
+            logger.info(format("Got detailed departure board %s at %s for %s", stationBoardResult.getLocationName(),
+                    stationBoardResult.getGeneratedAt(), crs));
+
+            return Optional.of(stationBoardResult);
+        }
+        catch(ClientTransportException clientTransportException) {
+            logger.error("Unable to fetch live rail data", clientTransportException);
+            return Optional.empty();
+        }
+    }
+
+    private GetDeparturesRequestParams.FilterList createFilterListFor(final DestinationAndCallingPoints destinationAndCallingPoints) {
+        final GetDeparturesRequestParams.FilterList filterList = new GetDeparturesRequestParams.FilterList();
+
+        // docs say this is list to update
+        final List<String> stations = filterList.getCrs();
+
+        final String destCRS = crsRepository.getCRSCodeFor(destinationAndCallingPoints.destination());
+        stations.add(destCRS);
+
+        List<String> callingCRS = destinationAndCallingPoints.callingPoints().stream().map(crsRepository::getCRSCodeFor).toList();
+        stations.addAll(callingCRS);
+
+        return filterList;
+    }
+
+    private boolean guard(Station station) {
+        final IdFor<Station> stationId = station.getId();
+
+        if (!enabled) {
+            logger.error("Attempt to invoke, but not enabled, did start up fail? Station:" + stationId);
+            return false;
+        }
+        if (!started) {
+            // restart strategy needed?
+            logger.warn("Not started, unable to fetch live data from " + stationId);
+            return false;
+        }
+
+        if (!station.getTransportModes().contains(TransportMode.Train)) {
+            logger.warn("Station is not a train station");
+            return false;
+        }
+        if (!crsRepository.hasStation(stationId)) {
+            logger.error("Not CRS Code found for " + stationId);
+            return false;
+        }
+        return true;
+    }
+
+
 }

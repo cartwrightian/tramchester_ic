@@ -2,6 +2,7 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
@@ -105,7 +106,7 @@ class DeparturesResourceTest {
         UpcomingDeparturesSource dueTramsSource = dependencies.get(TramDepartureRepository.class);
 
         Optional<UpcomingDeparture> searchForDueTrams = stationRepository.getAllStationStream().
-                flatMap(station -> dueTramsSource.forStation(station).stream()).
+                flatMap(station -> dueTramsSource.forStation(station, DestinationAndCallingPoints.None()).stream()).
                 findAny();
         searchForDueTrams.ifPresent(dueTram -> {
             stationWithDepartures = dueTram.getDisplayLocation();

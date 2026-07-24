@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -125,7 +126,12 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     }
 
     @Override
-    public List<UpcomingDeparture> forStation(final Station station) {
+    public List<UpcomingDeparture> forStation(final Station station, final DestinationAndCallingPoints destinationAndCallingPoints) {
+
+        if (!destinationAndCallingPoints.isNone()) {
+            logger.warn("Dest and Calling points was populated " + destinationAndCallingPoints);
+        }
+
         final Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
                 flatMap(platform -> dueTramsForPlatform(platform.getId()).stream()).
                 collect(Collectors.toSet());
@@ -135,7 +141,8 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
             return Collections.emptyList();
         }
 
-        List<UpcomingDeparture> dueTrams = allTrams.stream().
+
+        final List<UpcomingDeparture> dueTrams = allTrams.stream().
                 filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
                 collect(Collectors.toList());
 

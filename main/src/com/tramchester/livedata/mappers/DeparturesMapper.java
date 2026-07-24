@@ -1,57 +1,56 @@
 package com.tramchester.livedata.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.ImmutableIdSet;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
+import com.tramchester.mappers.MatchDeparturesToJourneyDestination;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @LazySingleton
 public class DeparturesMapper {
+    private static final Logger logger = LoggerFactory.getLogger(DeparturesMapper.class);
+
+    // TODO Tram Specific
     public static final String DUE = "Due";
 
-    private final MatchLiveTramToJourneyDestination matchLiveTramToJourneyDestination;
-    private final MapJourneyDTOToStations mapJourneyDTOToStations;
+    private final MatchDeparturesToJourneyDestination matchLiveTramToJourneyDestination;
 
     @Inject
-    public DeparturesMapper(MatchLiveTramToJourneyDestination matchLiveTramToJourneyDestination, MapJourneyDTOToStations mapJourneyDTOToStations) {
+    public DeparturesMapper(MatchDeparturesToJourneyDestination matchLiveTramToJourneyDestination) {
         this.matchLiveTramToJourneyDestination = matchLiveTramToJourneyDestination;
-        this.mapJourneyDTOToStations = mapJourneyDTOToStations;
     }
 
-    public Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate, List<JourneyDTO> journeys) {
-        final ImmutableIdSet<Station> changeStations = mapJourneyDTOToStations.getAllChangeStations(journeys);
-        final IdFor<Station> finalStation = mapJourneyDTOToStations.getFinalStationId(journeys);
-        return mapToDTO(dueTrams, lastUpdate, changeStations, finalStation);
+    public SortedSet<DepartureDTO> createDepDTOForJourneys(final Collection<UpcomingDeparture> departures, final LocalDateTime lastUpdate,
+                                                           final DestinationAndCallingPoints destinationAndCallingPoints) {
+        logger.info(format("Checking departures matching %s", destinationAndCallingPoints));
+
+        return departures.stream().
+                map(departure -> createDepartureDTO(lastUpdate, departure, destinationAndCallingPoints)).
+                collect(Collectors.toCollection(TreeSet::new));
     }
 
-    private Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, final LocalDateTime lastUpdate, final ImmutableIdSet<Station> changeStations,
-                                      final IdFor<Station> finalStation) {
-        return dueTrams.stream().
-                    map(dueTram -> getDepartureDTO(lastUpdate, dueTram, changeStations, finalStation))
-                    .collect(Collectors.toSet());
+    private DepartureDTO createDepartureDTO(final LocalDateTime lastUpdate, final UpcomingDeparture departure,
+                                            final DestinationAndCallingPoints destinationAndCallingPoints) {
+        final boolean matchesJourney = matchLiveTramToJourneyDestination.matchesJourneyDestination(departure, destinationAndCallingPoints);
+
+        return new DepartureDTO(departure.getDisplayLocation(), departure, lastUpdate, matchesJourney);
     }
 
-    private DepartureDTO getDepartureDTO(LocalDateTime lastUpdate, UpcomingDeparture dueTram, ImmutableIdSet<Station> changeStations,
-                                      IdFor<Station> finalStation) {
-        boolean matchesJourney = matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, changeStations, finalStation);
-        return new DepartureDTO(dueTram.getDisplayLocation(), dueTram, lastUpdate, matchesJourney);
-    }
-
-    public Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> trams, LocalDateTime lastUpdate) {
-        return trams.stream().
-                map(dueTram -> new DepartureDTO(dueTram.getDisplayLocation(), dueTram, lastUpdate, false))
-                .collect(Collectors.toSet());
+    public SortedSet<DepartureDTO> mapToDTO(final Collection<UpcomingDeparture> departures, final LocalDateTime lastUpdate) {
+        return departures.stream().
+                map(departure -> new DepartureDTO(departure.getDisplayLocation(), departure, lastUpdate, false))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
 

@@ -2,6 +2,7 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
@@ -104,8 +105,10 @@ class DeparturesAfterJourneyResourceTest {
         UpcomingDeparturesSource dueTramsSource = dependencies.get(TramDepartureRepository.class);
 
         // station with most departures
+        // TODO should not be None??
+        DestinationAndCallingPoints destinationAndCallingPoints = DestinationAndCallingPoints.None();
         Optional<List<UpcomingDeparture>> findMostDepartures = stationRepository.getAllStationStream().
-                map(dueTramsSource::forStation).max(Comparator.comparingInt(List::size));
+                map(station -> dueTramsSource.forStation(station, destinationAndCallingPoints)).max(Comparator.comparingInt(List::size));
 
         // sort by last dep time, trying to avoid potential race condition, see note below
         findMostDepartures.ifPresent(upcomingDepartures -> {

@@ -1,6 +1,7 @@
 package com.tramchester.livedata.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -14,11 +15,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+
+// TODO rename
+
 @LazySingleton
 public class MapJourneyDTOToStations {
     private static final Logger logger = LoggerFactory.getLogger(MapJourneyDTOToStations.class);
 
-    public ImmutableIdSet<Station> getAllChangeStations(final List<JourneyDTO> journeys) {
+    public static ImmutableIdSet<Station> getAllChangeStations(final List<JourneyDTO> journeys) {
         // filter out walks here as causes issues with Nearest Station
         return journeys.stream().
                 flatMap(journeyDTO -> journeyDTO.getChangeStations().stream()).
@@ -27,11 +31,11 @@ public class MapJourneyDTOToStations {
                 map(id -> Station.createId(id.getActualId())).collect(IdSet.idCollector());
     }
 
-    public IdFor<Station> getFinalStationId(final List<JourneyDTO> journeyDTOS) {
+    public static IdFor<Station> getFinalStationId(final List<JourneyDTO> journeyDTOS) {
         // last station for each journey, right now expect all to be the same, but TODO
         IdSet<Station> unique = journeyDTOS.stream().
                 map(JourneyDTO::getPath).
-                map(this::lastStationIn).
+                map(MapJourneyDTOToStations::lastStationIn).
                 map(LocationRefDTO::getId).
                 map(Station::createId).
                 collect(IdSet.idCollector());
@@ -52,7 +56,7 @@ public class MapJourneyDTOToStations {
         return stations.getFirst();
     }
 
-    private LocationRefWithPosition lastStationIn(final List<LocationRefWithPosition> path) {
+    private static LocationRefWithPosition lastStationIn(final List<LocationRefWithPosition> path) {
         for (int i = path.size()-1; i >= 0; i--) {
             final LocationRefWithPosition location = path.get(i);
             if (location.getLocationType()==LocationType.Station) {
@@ -60,5 +64,11 @@ public class MapJourneyDTOToStations {
             }
         }
         throw new RuntimeException("Failed to find a stations in " + path);
+    }
+
+    public DestinationAndCallingPoints getDestAndCalling(final List<JourneyDTO> journeys) {
+        final ImmutableIdSet<Station> changeStations = MapJourneyDTOToStations.getAllChangeStations(journeys);
+        final IdFor<Station> finalStation = MapJourneyDTOToStations.getFinalStationId(journeys);
+        return new DestinationAndCallingPoints(finalStation, changeStations);
     }
 }

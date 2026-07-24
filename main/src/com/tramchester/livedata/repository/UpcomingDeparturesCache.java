@@ -49,7 +49,6 @@ public class UpcomingDeparturesCache  {
         }
 
         public List<UpcomingDeparture> getOrUpdate(Station station, CacheUpdateStrategy cacheUpdateStrategy) {
-            logger.info("get departures for " + station.getId());
             return cache.get(station, key -> cacheUpdateStrategy.updateFor(station));
         }
 

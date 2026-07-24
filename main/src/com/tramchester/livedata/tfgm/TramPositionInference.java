@@ -2,6 +2,7 @@ package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
@@ -129,7 +130,8 @@ public class TramPositionInference {
             return Collections.emptySet();
         }
 
-        final List<UpcomingDeparture> neighbourDepartures = departureRepository.forStation(neighbour);
+        DestinationAndCallingPoints destinationAndCallingPoints = DestinationAndCallingPoints.None();
+        final List<UpcomingDeparture> neighbourDepartures = departureRepository.forStation(neighbour, destinationAndCallingPoints);
 
         if (neighbourDepartures.isEmpty()) {
             logger.debug("No departures from neighbour " + neighbour.getId());

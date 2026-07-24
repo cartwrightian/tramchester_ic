@@ -2,6 +2,7 @@ package com.tramchester.integration.livedata;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -74,7 +75,7 @@ public class TramDeparturesRepositoryTest {
         Station station = null;
         List<UpcomingDeparture> found = Collections.emptyList();
         for(Station each : stationRepository.getStations()) {
-            found = departuresRepository.forStation(each);
+            found = departuresRepository.forStation(each, DestinationAndCallingPoints.None());
             if (!found.isEmpty()) {
                 station = each;
                 break;

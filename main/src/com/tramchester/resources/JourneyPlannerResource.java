@@ -117,10 +117,10 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                     collect(Collectors.toSet());
             final Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
             final int diff = journeyDTOS.size()-filtered.size();
-            if (diff!=0) {
-                logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
-            } else {
+            if (diff == 0) {
                 logger.info(format("No filtering, returning %s journeys", journeyDTOS.size()));
+            } else {
+                logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
             }
 
             // TODO likely this will only remain for the diag API, with streamed for the production one

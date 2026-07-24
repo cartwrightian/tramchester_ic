@@ -2,7 +2,9 @@ package com.tramchester.integration.mappers;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
@@ -13,7 +15,7 @@ import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
-import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
+import com.tramchester.mappers.MatchDeparturesToJourneyDestination;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -35,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MatchLiveTramToJourneyDestinationTest {
 
     private static GuiceContainerDependencies componentContainer;
-    private MatchLiveTramToJourneyDestination matchToJourneyDest;
+    private MatchDeparturesToJourneyDestination matchToJourneyDest;
     private StationRepository stationRepository;
     private LiveDataMarshaller liveDataMarshaller;
     private LiveDataFetcher fetcher;
@@ -51,7 +53,7 @@ public class MatchLiveTramToJourneyDestinationTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        matchToJourneyDest = componentContainer.get(MatchLiveTramToJourneyDestination.class);
+        matchToJourneyDest = componentContainer.get(MatchDeparturesToJourneyDestination.class);
         liveDataMarshaller = componentContainer.get(LiveDataMarshaller.class);
         departuresRepository = componentContainer.get(DeparturesRepository.class);
         fetcher = componentContainer.get(LiveDataFetcher.class);
@@ -68,9 +70,14 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         ImmutableIdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().
-                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure,
+                        createDestAndCalling(journeyDestination.getId(), journeyDestinations))).toList();
 
         assertFalse(trams.isEmpty());
+    }
+
+    private DestinationAndCallingPoints createDestAndCalling(IdFor<Station> dest, ImmutableIdSet<Station> calling) {
+        return new DestinationAndCallingPoints(dest,calling);
     }
 
     @Test
@@ -89,7 +96,8 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         List<UpcomingDeparture> matched = new ArrayList<>();
         all.forEach(tram -> {
-            if (matchToJourneyDest.matchesJourneyDestination(tram, journeyDestinations, journeyDestination.getId())) {
+            if (matchToJourneyDest.matchesJourneyDestination(tram,
+                    createDestAndCalling(journeyDestination.getId(), journeyDestinations))) {
                 matched.add(tram);
                 assertEquals(TramStations.Altrincham.getId(), tram.getDestinationId(), "departure was " + tram);
             }
@@ -111,7 +119,8 @@ public class MatchLiveTramToJourneyDestinationTest {
         IdSet<Station> changes = IdSet.emptySet();
 
         List<UpcomingDeparture> trams = all.stream().
-                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, changes, journeyDestination.getId())).toList();
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure,
+                        createDestAndCalling(journeyDestination.getId(), changes))).toList();
 
         assertFalse(trams.isEmpty());
 
@@ -141,7 +150,8 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         LocalDateTime now = TestEnv.LocalNow();
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
-        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, TransportMode.TramsOnly);
+        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, TransportMode.TramsOnly,
+                DestinationAndCallingPoints.None());
 
 
     }

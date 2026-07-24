@@ -61,4 +61,5 @@ public interface ImmutableIdSet<T extends CoreDomain> extends Iterable<IdFor<T>>
     default boolean containsNoneOf(final ImmutableIdSet<T> other) {
         return other.stream().noneMatch(this::contains);
     }
+
 }

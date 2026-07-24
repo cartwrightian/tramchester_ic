@@ -3,15 +3,9 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.GridPosition;
-import org.jetbrains.annotations.NotNull;
-
-import static com.tramchester.domain.reference.TransportMode.Bus;
+import com.tramchester.domain.reference.TransportMode;
 
 public enum BusStations implements FakeStation, HasId<Station> {
 
@@ -42,12 +36,6 @@ public enum BusStations implements FakeStation, HasId<Station> {
     StockportNewbridgeLane("1800SG15561", "Newbridge Lane (by Millgate), Stockport",
             new LatLong(53.41149, -2.15438));
 
-    // No longer in the data?
-//    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
-//            new LatLong(53.25831, -2.12502)),
-
-//    public static final EnumSet<NaptanStopType> NAPTAN_BUS = NaptanStopType.getTypesFor(EnumSet.of(Bus));
-
     private final String id;
     private final String name;
     private final LatLong latlong;
@@ -58,9 +46,6 @@ public enum BusStations implements FakeStation, HasId<Station> {
         this.latlong = latlong;
     }
 
-    /***
-     * use fake() instead
-     */
     @Deprecated
     public static Station of(BusStations enumValue) {
         return enumValue.fake();
@@ -83,7 +68,7 @@ public enum BusStations implements FakeStation, HasId<Station> {
 
     @Override
     public Station fake() {
-        return createMutable();
+        return faker().build();
     }
 
     @Override
@@ -91,14 +76,24 @@ public enum BusStations implements FakeStation, HasId<Station> {
         return new IdForDTO(id);
     }
 
-    @NotNull
-    private MutableStation createMutable() {
-        GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid,
-                DataSourceID.tfgm, false);
-        mutableStation.addMode(Bus);
-        return mutableStation;
+    @Override
+    public TransportMode getMode() {
+        return TransportMode.Bus;
     }
+
+    @Override
+    public DataSourceID getDatasourceId() {
+        return DataSourceID.tfgm;
+    }
+
+//    @NotNull
+//    private MutableStation createMutable() {
+//        GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+//        MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid,
+//                DataSourceID.tfgm, false);
+//        mutableStation.addMode(Bus);
+//        return mutableStation;
+//    }
 
 
 }

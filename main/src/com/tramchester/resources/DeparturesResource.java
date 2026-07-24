@@ -4,6 +4,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
@@ -20,6 +21,7 @@ import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.DepartureListDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
+import com.tramchester.livedata.mappers.MapJourneyDTOToStations;
 import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.repository.ProvidesNotes;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
@@ -55,18 +57,20 @@ public class DeparturesResource extends TransportResource implements APIResource
     private final DeparturesRepository departuresRepository;
     private final ProvidesNotes providesNotes;
     private final TramchesterConfig config;
+    private final MapJourneyDTOToStations mapJourneyDTOToStations;
 
     @Inject
     public DeparturesResource(LocationRepository locationRepository,
                               DeparturesMapper departuresMapper, DeparturesRepository departuresRepository,
                               ProvidesTramNotes providesNotes,
-                              ProvidesNow providesNow, TramchesterConfig config) {
+                              ProvidesNow providesNow, TramchesterConfig config, MapJourneyDTOToStations mapJourneyDTOToStations) {
         super(providesNow);
         this.locationRepository = locationRepository;
         this.departuresMapper = departuresMapper;
         this.departuresRepository = departuresRepository;
         this.providesNotes = providesNotes;
         this.config = config;
+        this.mapJourneyDTOToStations = mapJourneyDTOToStations;
         logger.info("created");
     }
 
@@ -79,6 +83,8 @@ public class DeparturesResource extends TransportResource implements APIResource
     @ApiResponse(content = @Content(schema = @Schema(implementation = DepartureListDTO.class)))
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getNearestDepartures(final DeparturesQueryDTO departuresQuery) {
+
+        // TODO Too much logic here, push down a layer
 
         if (departuresQuery.getLocationType()==null || departuresQuery.getLocationId()==null) {
             logger.error("Cannot process departure query: " + departuresQuery);
@@ -101,7 +107,6 @@ public class DeparturesResource extends TransportResource implements APIResource
             queryTime = providesNow.getNowHourMins();
         }
 
-
         final EnumSet<TransportMode> modesFromQuery = departuresQuery.getModes();
         final ImmutableEnumSet<TransportMode> modes;
         if (modesFromQuery.isEmpty()) {
@@ -111,35 +116,56 @@ public class DeparturesResource extends TransportResource implements APIResource
             modes = ImmutableEnumSet.copyOf(modesFromQuery);
         }
 
-        final List<UpcomingDeparture> dueTrams = departuresRepository.getDueForLocation(location, dateTime.toLocalDate(), queryTime, modes);
-        if (dueTrams.isEmpty()) {
-            logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
-        }
-
-        final SortedSet<DepartureDTO> departs;
-        departs = mapToDTOs(departuresQuery, dueTrams);
-
-        final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
-
-        final List<Note> notes = getNotes(notesFor, dueTrams, queryDate, queryTime, location);
-
-        return Response.ok(new DepartureListDTO(departs, notes, departuresQuery.hasJourneys())).build();
-    }
-
-    private @NotNull SortedSet<DepartureDTO> mapToDTOs(final DeparturesQueryDTO departuresQuery, final List<UpcomingDeparture> dueTrams) {
-
-        final LocalDateTime currentTime = providesNow.getDateTime();
-
         if (departuresQuery.hasJourneys()) {
-            final List<JourneyDTO> journeys = departuresQuery.getJourneys();
-            logger.info("Fetching due trams corresponding to supplied journey");
-            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, currentTime, journeys));
-        } else {
+            List<JourneyDTO> journeys = departuresQuery.getJourneys();
 
-            logger.info("Mapping due trams, not checking for tram destinations");
-            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, currentTime));
+            final DestinationAndCallingPoints destinationAndCallingPoints = mapJourneyDTOToStations.getDestAndCalling(journeys);
+
+            final List<UpcomingDeparture> depsForJourneys = departuresRepository.getDueForLocation(location,
+                    dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints);
+
+            final SortedSet<DepartureDTO> departureDTOs = departuresMapper.createDepDTOForJourneys(depsForJourneys,
+                    dateTime, destinationAndCallingPoints);
+
+            final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
+            final List<Note> notes = getNotes(notesFor, depsForJourneys, queryDate, queryTime, location);
+
+            return Response.ok(new DepartureListDTO(departureDTOs, notes, departuresQuery.hasJourneys())).build();
+
+        } else {
+            final DestinationAndCallingPoints destinationAndCallingPoints =
+                    DestinationAndCallingPoints.None();
+            final List<UpcomingDeparture> departuresForLocation = departuresRepository.getDueForLocation(location,
+                    dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints);
+
+            //final LocalDateTime currentTime = providesNow.getDateTime();
+            final SortedSet<DepartureDTO> departureDTOs = departuresMapper.mapToDTO(departuresForLocation, dateTime);
+
+            final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
+            final List<Note> notes = getNotes(notesFor, departuresForLocation, queryDate, queryTime, location);
+
+            return Response.ok(new DepartureListDTO(departureDTOs, notes, departuresQuery.hasJourneys())).build();
         }
+
     }
+
+//    private @NotNull SortedSet<DepartureDTO> createDeparturesDTOWhenJourney(final DeparturesQueryDTO departuresQuery,
+//                                                                            final List<UpcomingDeparture> departures) {
+//
+//        final LocalDateTime currentTime = providesNow.getDateTime();
+//
+//        final Set<DepartureDTO> departureDTOS;
+//        //if (departuresQuery.hasJourneys()) {
+//            final List<JourneyDTO> journeys = departuresQuery.getJourneys();
+//            logger.info("Filtering departures corresponding to supplied journeys " +journeys);
+//            departureDTOS = departuresMapper.createDepDTOForJourneys(departures, currentTime, journeys, destAndCalling);
+////        } else {
+////            logger.info("Unfiltered departures");
+////            departureDTOS = departuresMapper.mapToDTO(departures, currentTime);
+////        }
+//        // sorted
+//        return new TreeSet<>(departureDTOS);
+//    }
 
     @NotNull
     private List<Note> getNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams,

@@ -28,7 +28,7 @@ public class LineTest {
         assertTrue(result.isEmpty());
     }
 
-    @Disabled("One char line is not RuntimeException")
+    @Disabled("One char line is now RuntimeException")
     @Test
     void shouldTrimToEmptyOneChar() {
         Line line = Line.of(" ");
@@ -45,7 +45,7 @@ public class LineTest {
         assertTrue(result.isEmpty());
     }
 
-    @Disabled("One char line is not RuntimeException")
+    @Disabled("One char line is now RuntimeException")
     @Test
     void shouldNotTrimToEmptyOneChar() {
         Line line = Line.of("1");

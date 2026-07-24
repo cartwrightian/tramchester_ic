@@ -3,6 +3,8 @@ package com.tramchester.livedata.domain.liveUpdates;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -10,6 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class UpcomingDeparture {
@@ -23,11 +26,19 @@ public class UpcomingDeparture {
     private final Agency agency;
     private final TransportMode mode;
     private Platform platform;
+    private final ImmutableIdSet<Station> callingPoints;
 
     public static final Set<String> KNOWN_TRAM_STATUS = new HashSet<>(Arrays.asList("Due", "Arrived", "Departing"));
 
+    // TODO Should have Calling Points as List??
+
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, TramTime when,
                              String carriages, Agency agency, TransportMode mode) {
+        this(date, displayLocation, destination, status, when, carriages, agency, mode, IdSet.emptySet());
+    }
+
+    public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, TramTime when,
+                             String carriages, Agency agency, TransportMode mode, ImmutableIdSet<Station> callingPoints) {
         this.date = date;
         this.displayLocation = displayLocation;
         this.destination = destination;
@@ -36,6 +47,7 @@ public class UpcomingDeparture {
         this.agency = agency;
         this.mode = mode;
         this.when  = when;
+        this.callingPoints = callingPoints;
         platform = null;
     }
 
@@ -89,32 +101,19 @@ public class UpcomingDeparture {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         UpcomingDeparture that = (UpcomingDeparture) o;
-
-        if (!date.equals(that.date)) return false;
-        if (!carriages.equals(that.carriages)) return false;
-        if (!status.equals(that.status)) return false;
-        if (!displayLocation.equals(that.displayLocation)) return false;
-        if (!destination.equals(that.destination)) return false;
-        if (!when.equals(that.when)) return false;
-        if (!agency.equals(that.agency)) return false;
-        return mode == that.mode;
+        return Objects.equals(date, that.date) && Objects.equals(carriages, that.carriages)
+                && Objects.equals(status, that.status) && Objects.equals(displayLocation, that.displayLocation)
+                && Objects.equals(destination, that.destination) && Objects.equals(when, that.when)
+                && Objects.equals(agency, that.agency) && mode == that.mode
+                && Objects.equals(platform, that.platform)
+                && Objects.equals(callingPoints, that.callingPoints);
     }
 
     @Override
     public int hashCode() {
-        int result = date.hashCode();
-        result = 31 * result + carriages.hashCode();
-        result = 31 * result + status.hashCode();
-        result = 31 * result + displayLocation.hashCode();
-        result = 31 * result + destination.hashCode();
-        result = 31 * result + when.hashCode();
-        result = 31 * result + agency.hashCode();
-        result = 31 * result + mode.hashCode();
-        return result;
+        return Objects.hash(date, carriages, status, displayLocation, destination, when, agency, mode, platform, callingPoints);
     }
 
     @Override
@@ -128,6 +127,7 @@ public class UpcomingDeparture {
                 ", destination=" + destination.getId() +
                 ", agency=" + agency.getId() +
                 ", mode=" + mode +
+                ", callingPoints " + callingPoints +
                 ", platform=" + getStringFor() +
                 '}';
     }
@@ -140,4 +140,11 @@ public class UpcomingDeparture {
     }
 
 
+    public boolean hasCallingPoints() {
+        return !callingPoints.isEmpty();
+    }
+
+    public ImmutableIdSet<Station> getCallingPoints() {
+        return callingPoints;
+    }
 }

@@ -1,6 +1,7 @@
 package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
@@ -17,29 +18,38 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class MatchLiveTramToJourneyDestination {
-    private static final Logger logger = LoggerFactory.getLogger(MatchLiveTramToJourneyDestination.class);
+public class MatchDeparturesToJourneyDestination {
+    private static final Logger logger = LoggerFactory.getLogger(MatchDeparturesToJourneyDestination.class);
 
     private final StationRepository stationRepository;
     private final StopOrderChecker stopOrderChecker;
 
     @Inject
-    public MatchLiveTramToJourneyDestination(StationRepository stationRepository, StopOrderChecker stopOrderChecker) {
+    public MatchDeparturesToJourneyDestination(StationRepository stationRepository, StopOrderChecker stopOrderChecker) {
         this.stationRepository = stationRepository;
         this.stopOrderChecker = stopOrderChecker;
     }
 
-    public boolean matchesJourneyDestination(final UpcomingDeparture upcomingDeparture, final ImmutableIdSet<Station> origChangeStationsId,
-                                                    final IdFor<Station> journeyDestinationId) {
+    public boolean matchesJourneyDestination(UpcomingDeparture departure, DestinationAndCallingPoints destinationAndCallingPoints) {
+        if (destinationAndCallingPoints.isNone()) {
+            throw new RuntimeException("Called for None, with departure " + departure);
+        }
+        return matchesJourneyDestination(departure, destinationAndCallingPoints.destination(),
+                destinationAndCallingPoints.callingPoints());
+    }
+
+    private boolean matchesJourneyDestination(final UpcomingDeparture upcomingDeparture, final IdFor<Station> destId, final ImmutableIdSet<Station> changeIds) {
+        // transport mode here needs to include connecting stage....
         return switch (upcomingDeparture.getMode()) {
-            case Tram -> matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, origChangeStationsId, journeyDestinationId);
-            case Train, RailReplacementBus -> matchesJourneyDestinationForTrain(upcomingDeparture, origChangeStationsId, journeyDestinationId);
+            case Tram -> matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, changeIds, destId);
+            case Train, RailReplacementBus -> hasCallingPoints(upcomingDeparture);
             case Ferry, Subway, Bus, Ship -> false;
             case Walk, Connect, NotSet, Unknown -> throw new RuntimeException("Unexpected mode for an UpcomingDeparture " + upcomingDeparture);
         };
     }
 
-    public boolean matchesJourneyDestinationWhenAllWithinBounds(final UpcomingDeparture dueTram, final ImmutableIdSet<Station> origChangeStationIds,
+    public boolean matchesJourneyDestinationWhenAllWithinBounds(final UpcomingDeparture departure,
+                                                                final ImmutableIdSet<Station> origChangeStationIds,
                                                                 final IdFor<Station> destId) {
 
         // this should no longer happen...todo except for tests....?
@@ -51,23 +61,23 @@ public class MatchLiveTramToJourneyDestination {
             changeStationIds = origChangeStationIds;
         }
 
-        final IdFor<Station> dueDestinationId = dueTram.getDestinationId();
+        final IdFor<Station> dueDestinationId = departure.getDestinationId();
 
         if (destId.equals(dueDestinationId)) {
             // quick win, tram is going to our final destination
             return true;
         }
 
-        final Station displayLocation = dueTram.getDisplayLocation();
-        final TramDate date = TramDate.of(dueTram.getDate());
+        final Station displayLocation = departure.getDisplayLocation();
+        final TramDate date = TramDate.of(departure.getDate());
 
         // check for trams "towards" our destination
         final Station journeyDestination = stationRepository.getStationById(destId);
         final IdSet<Route> journeyDestinationDropOffs = journeyDestination.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        final Station dueTramFinalDestination = stationRepository.getStationById(dueTram.getDestinationId());
+        final Station finalDestination = stationRepository.getStationById(departure.getDestinationId());
 
-        if (anyRouteOverlap(dueTramFinalDestination, journeyDestinationDropOffs)) {
+        if (anyRouteOverlap(finalDestination, journeyDestinationDropOffs)) {
             final boolean callsAtDest = stopOrderChecker.check(date, displayLocation, destId, dueDestinationId) ||
                     stopOrderChecker.check(date, displayLocation, dueDestinationId, destId);
             if (callsAtDest) {
@@ -82,7 +92,7 @@ public class MatchLiveTramToJourneyDestination {
                 collect(Collectors.toSet());
 
         boolean callsAtChangeStation = changeStations.stream().
-                filter(callingStation -> anyRouteOverlap(dueTramFinalDestination, callingStation)).
+                filter(callingStation -> anyRouteOverlap(finalDestination, callingStation)).
                 anyMatch(callingStation -> stopOrderChecker.check(date, displayLocation, callingStation.getId(), dueDestinationId));
 
         if (callsAtChangeStation) {
@@ -90,15 +100,14 @@ public class MatchLiveTramToJourneyDestination {
         }
 
         boolean towardsChangeStation = changeStations.stream().
-                filter(callingStation -> anyRouteOverlap(dueTramFinalDestination, callingStation)).
+                filter(callingStation -> anyRouteOverlap(finalDestination, callingStation)).
                 anyMatch(callingStation -> stopOrderChecker.check(date, displayLocation, dueDestinationId, callingStation.getId()));
 
         if (towardsChangeStation) {
             return true;
         }
 
-        // todo into debug
-        logger.info("Did not match due tram " + dueTram + " with any of " + changeStationIds + " or " + destId);
+        logger.debug("Did not match due tram " + departure + " with any of " + changeStationIds + " or " + destId);
         return false;
 
     }
@@ -115,12 +124,14 @@ public class MatchLiveTramToJourneyDestination {
         return IdSet.anyOverlap(routesToCheck, dropOffs);
     }
 
-    private boolean matchesJourneyDestinationForTrain(final UpcomingDeparture upcomingDeparture,
-                                                      final ImmutableIdSet<Station> origChangeStationsId, final IdFor<Station> journeyDestinationId) {
-        if (stationRepository.hasStationId(upcomingDeparture.getDestinationId())) {
-            return matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, origChangeStationsId, journeyDestinationId);
+    private boolean hasCallingPoints(final UpcomingDeparture upcomingDeparture) {
+        // for train ASSUME we already filtered the departures
+        boolean hasCallingPoints = upcomingDeparture.hasCallingPoints();
+        if (!hasCallingPoints) {
+            logger.warn("No calling points!");
         }
-        // else TODO
-        return false;
+        return hasCallingPoints;
     }
+
+
 }

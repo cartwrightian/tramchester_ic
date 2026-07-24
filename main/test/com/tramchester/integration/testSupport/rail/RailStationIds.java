@@ -1,9 +1,11 @@
 package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.dataimport.rail.repository.CRSRepository;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.reference.FakeStation;
 
 
@@ -64,7 +66,7 @@ public enum RailStationIds implements HasId<Station>, FakeStation {
 
     @Override
     public LatLong getLatLong() {
-        throw new RuntimeException("Not implemented yet");
+        return LatLong.Invalid; // for now
     }
 
     @Override
@@ -73,8 +75,18 @@ public enum RailStationIds implements HasId<Station>, FakeStation {
     }
 
     @Override
+    public TransportMode getMode() {
+        return TransportMode.Train;
+    }
+
+    @Override
+    public DataSourceID getDatasourceId() {
+        return DataSourceID.openRailData;
+    }
+
+    @Override
     public Station fake() {
-        throw new RuntimeException("Not implemented yet");
+        return faker().build();
     }
 
     public boolean isGreaterManchester() {

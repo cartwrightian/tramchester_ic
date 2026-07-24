@@ -48,9 +48,9 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
-        if (date.equals(TramDate.of(2026, 7,23))) {
+        if (date.equals(TramDate.of(2026, 7,30))) {
             if (TramStations.ExchangeSquare.matches(stationId)) {
-                return true;
+                return true; // not on the tfgm site, but Sunday is....
             }
         }
         return false;
