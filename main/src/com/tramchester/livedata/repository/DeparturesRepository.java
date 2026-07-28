@@ -4,10 +4,10 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -54,11 +54,13 @@ public class DeparturesRepository {
     }
 
     public List<UpcomingDeparture> getDueForLocation(final Location<?> location, final LocalDate date, final TramTime time,
-                                                     final ImmutableEnumSet<TransportMode> modes, DestinationAndCallingPoints destinationAndCallingPoints) {
-        logger.info(format("Get due %s services at %s for %s %s", modes, location.getId(), date, time));
+                                                     final ImmutableEnumSet<TransportMode> modes,
+                                                     final DestinationAndCallingPoints destinationAndCallingPoints) {
+        logger.info(format("Get due %s services %s at %s for %s %s",
+                destinationAndCallingPoints, modes, location.getId(), date, time));
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes, destinationAndCallingPoints);
-            case StationGroup -> getStationGroupDepartures((StationLocalityGroup) location, modes, destinationAndCallingPoints);
+            case StationGroup -> getStationGroupDepartures((StationGroup) location, modes, destinationAndCallingPoints);
             case MyLocation, Postcode -> getDeparturesNearTo(location, modes, destinationAndCallingPoints);
             case Platform -> getPlatformDepartures((Platform) location, modes, destinationAndCallingPoints);
         };
@@ -115,7 +117,9 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final ImmutableEnumSet<TransportMode> modes, DestinationAndCallingPoints destinationAndCallingPoints) {
+    private List<UpcomingDeparture> getStationGroupDepartures(final StationGroup stationGroup,
+                                                              final ImmutableEnumSet<TransportMode> modes,
+                                                              final DestinationAndCallingPoints destinationAndCallingPoints) {
         return stationGroup.getAllContained().stream().
                 filter(station -> station.anyOverlapWith(modes)).
                 flatMap(station -> getStationDepartures(station, modes, destinationAndCallingPoints).stream()).
@@ -124,7 +128,7 @@ public class DeparturesRepository {
     }
 
     private List<UpcomingDeparture> getStationDepartures(final Station station, final ImmutableEnumSet<TransportMode> modes,
-                                                         DestinationAndCallingPoints destinationAndCallingPoints) {
+                                                         final DestinationAndCallingPoints destinationAndCallingPoints) {
         final Set<TransportMode> toFetch = station.getTransportModes().intersectionWith(modes);
 
         if (toFetch.isEmpty()) {
@@ -137,7 +141,6 @@ public class DeparturesRepository {
     }
 
     private Stream<UpcomingDeparture> getDeparturesFor(final TransportMode mode, final Station station, DestinationAndCallingPoints destinationAndCallingPoints) {
-        // TODO destinationAndCallingPoints
         switch (mode) {
             case Tram -> {
                 return tramDepartureRepository.forStation(station, destinationAndCallingPoints).stream();

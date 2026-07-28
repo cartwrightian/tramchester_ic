@@ -148,6 +148,12 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         fail("TODO");
     }
 
+    @Disabled("WIP")
+    @Test
+    void shouldCheckCorrectStationWhenLinkedOrWalkFirstStage() {
+        fail("TODO");
+    }
+
     @Test
     void shouldGetDepartureInformationForSingleStationDueTramOnly() {
         List<TramStationDepartureInfo> infos = new ArrayList<>();

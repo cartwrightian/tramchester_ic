@@ -129,7 +129,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     public List<UpcomingDeparture> forStation(final Station station, final DestinationAndCallingPoints destinationAndCallingPoints) {
 
         if (!destinationAndCallingPoints.isNone()) {
-            logger.warn("Dest and Calling points was populated " + destinationAndCallingPoints);
+            logger.warn("Dest and Calling points for " + station + " unexpected populated: " + destinationAndCallingPoints);
         }
 
         final Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
@@ -140,7 +140,6 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
             logger.debug("No trams found for " + station.getId());
             return Collections.emptyList();
         }
-
 
         final List<UpcomingDeparture> dueTrams = allTrams.stream().
                 filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).

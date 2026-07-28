@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
+import static com.tramchester.testSupport.UpcomingDates.summerBankHol2026;
 
 public class KnownTramRoute {
 
@@ -87,7 +88,15 @@ public class KnownTramRoute {
             routes.add(find.singleRoute(Red));
             routes.add(find.singleRoute(Blue));
             routes.add(find.singleRoute(Purple));
-            routes.add(find.singleRoute(Green));
+            if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
+                if (date.isBefore(TramDate.of(2026, 8, 9))) {
+                    routes.add(find.singleRoute(Green));
+                }
+            } else {
+                if (!date.equals(summerBankHol2026)) {
+                    routes.add(find.singleRoute(Green));
+                }
+            }
         }
 
         routes.add(find.singleRoute(Yellow));

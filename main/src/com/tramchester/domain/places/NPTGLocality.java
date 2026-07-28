@@ -8,6 +8,9 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 
 public class NPTGLocality implements CoreDomain, HasId<NPTGLocality> {
+
+
+
     private final IdFor<NPTGLocality> id;
     private final String localityName;
     private final String parentLocalityName;

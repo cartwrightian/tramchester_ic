@@ -1,9 +1,9 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -69,7 +69,7 @@ public class GroupedStationState extends TraversalState {
                                 Stream<GraphRelationship> relationships, TramDuration cost,
                                 Towards<GroupedStationState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
-        final IdFor<StationLocalityGroup> stationGroupdId = graphNode.getStationGroupId();
+        final IdFor<StationGroup> stationGroupdId = graphNode.getStationGroupId();
         journeyStateUpdate.recordStationGroup(stationGroupdId);
     }
 

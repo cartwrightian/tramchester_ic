@@ -1,10 +1,10 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -27,7 +27,7 @@ public interface JourneyStateUpdate {
 
     void recordRouteStation(GraphNode node);
 
-    void recordStationGroup(IdFor<StationLocalityGroup> stationGroupId);
+    void recordStationGroup(IdFor<StationGroup> stationGroupId);
 
     void beginDiversion(final IdFor<Station> stationId);
     boolean onDiversion();

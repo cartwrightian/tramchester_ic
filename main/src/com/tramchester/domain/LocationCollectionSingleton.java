@@ -40,7 +40,14 @@ public class LocationCollectionSingleton implements LocationCollection {
     }
 
     @Override
-    public boolean contains(LocationId<?> locationId) {
+    public boolean contains(final LocationId<?> locationId) {
         return theLocation.getLocationId().equals(locationId);
+    }
+
+    @Override
+    public String toString() {
+        return "LocationCollectionSingleton{" +
+                "theLocation=" + theLocation +
+                '}';
     }
 }

@@ -202,8 +202,8 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @JsonIgnore
     @Override
-    public IdFor<StationLocalityGroup> getStationGroupId() {
-        return getIdFor(StationLocalityGroup.class, graphProps);
+    public IdFor<StationGroup> getStationGroupId() {
+        return getIdFor(StationGroup.class, graphProps);
     }
 
     @JsonIgnore

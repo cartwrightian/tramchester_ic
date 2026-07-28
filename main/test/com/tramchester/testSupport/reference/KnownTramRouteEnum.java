@@ -38,7 +38,7 @@ public enum KnownTramRouteEnum implements TestRoute {
     Navy5(Navy, "Manchester Airport - Victoria", "3314", TramDate.of(2026,7,26), true),
     Navy7(Navy, "Manchester Airport - Victoria", "3287", Constants.summerClosures2026EndDate, true),
     Navy8(Navy, "Victoria - Manchester Airport", "3219", Constants.reopenSummer2026),
-    Navy9(Navy, "Manchester Airport - Victoria", "3219", TramDate.of(2026,8,9), true),
+    Navy9(Navy, "Victoria - Manchester Airport", "3219", TramDate.of(2026,8,9), true),
     Navy10(Navy, "Manchester Airport - Victoria", "3219", TramDate.of(2026,8,16), true),
 
     // Pink

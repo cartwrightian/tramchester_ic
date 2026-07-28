@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
@@ -89,7 +90,7 @@ public class StationLocalityGroupsGraphBuilderTest {
     @Test
     void shouldHaveSpecificGroupWithExpectedRelationships() {
         KnownLocality bollington = KnownLocality.Bollington;
-        IdFor<StationLocalityGroup> stationGroupId = bollington.getId();
+        IdFor<StationGroup> stationGroupId = bollington.getId();
 
         List<GraphNode> nodes = txn.findNodes(GraphLabel.GROUPED).
                 filter(node -> node.getAreaId().equals(bollington.getAreaId())).toList();

@@ -12,22 +12,26 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
+
 public class IntegrationTramTestConfigWithGroupsEnabled extends IntegrationTramTestConfigWithNaptan  {
-    private final TFGMGTFSSourceTestConfig overideTFGMTestConfig;
+    private final TFGMGTFSSourceTestConfig overrideTFGMTestConfig;
 
     public IntegrationTramTestConfigWithGroupsEnabled() {
-        super(EnumSet.of(TransportMode.Tram));
+        super(EnumSet.of(Tram));
 
-        final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Tram);
+        final Set<TransportMode> groupStationModes = Collections.singleton(Tram);
 
-        overideTFGMTestConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                TransportMode.Tram, AdditionalTramInterchanges.stations(), groupStationModes, CurrentClosures,
-                IntegrationTramTestConfig.MAX_INITIAL_WAIT, Collections.emptyList());
+        overrideTFGMTestConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
+                Tram, AdditionalTramInterchanges.stations(),
+                groupStationModes, CurrentClosures,
+                IntegrationTramTestConfig.MAX_INITIAL_WAIT,
+                Collections.emptyList());
     }
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        return Collections.singletonList(overideTFGMTestConfig);
+        return Collections.singletonList(overrideTFGMTestConfig);
     }
 
     @Override

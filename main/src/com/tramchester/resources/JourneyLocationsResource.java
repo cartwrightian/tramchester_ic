@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
@@ -162,7 +163,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
 
         if (mode==TransportMode.Bus) {
             // convert to localities
-            final ImmutableIdSet<StationLocalityGroup> localityIds = stations.stream().
+            final ImmutableIdSet<StationGroup> localityIds = stations.stream().
                     map(Location::getLocalityId).
                     map(StationLocalityGroup::createId).
                     filter(IdFor::isValid).

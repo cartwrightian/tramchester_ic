@@ -2,6 +2,7 @@ package com.tramchester.graph.core;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
@@ -12,7 +13,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
@@ -32,7 +32,7 @@ public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
 
     IdFor<Station> getEndStationId(GraphTransaction txn);
     IdFor<Station> getStartStationId(GraphTransaction txn);
-    IdFor<StationLocalityGroup> getStationGroupId(GraphTransaction txn);
+    IdFor<StationGroup> getStationGroupId(GraphTransaction txn);
     LocationId<?> getLocationId(GraphTransaction txn);
 
     TramTime getTime();

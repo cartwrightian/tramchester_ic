@@ -1,12 +1,12 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
@@ -99,7 +99,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void recordStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
+    public void recordStationGroup(final IdFor<StationGroup> stationGroupId) {
         coreState.seenStationGroup(stationGroupId);
     }
 
@@ -471,7 +471,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             lastSeenStation = LocationId.wrap(stationId);
         }
 
-        public void seenStationGroup(final IdFor<StationLocalityGroup> stationGroupId) {
+        public void seenStationGroup(final IdFor<StationGroup> stationGroupId) {
             lastSeenStation = LocationId.wrap(stationGroupId);
         }
 

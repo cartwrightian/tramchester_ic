@@ -1,10 +1,12 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 
 import jakarta.inject.Inject;
@@ -35,6 +37,10 @@ public class LocationRepository {
         };
     }
 
+    public Location<?> getLocation(final LocationRefDTO locationRefDTO) {
+        return getLocation(locationRefDTO.getLocationType(), locationRefDTO.getId());
+    }
+
     public Location<?> getLocation(final LocationType type, final IdForDTO idForDTO) {
         final String rawId = idForDTO.getActualId();
         return switch (type) {
@@ -60,9 +66,10 @@ public class LocationRepository {
         return stationRepository.getStationById(stationId);
     }
 
-    private Location<StationLocalityGroup> getGroupStation(final LocationId<?> location) {
-        final IdFor<StationLocalityGroup> localityGroupId = StringIdFor.convert(location.getId(), StationLocalityGroup.class);
+    private StationLocalityGroup getGroupStation(final LocationId<?> location) {
+        final IdFor<StationGroup> localityGroupId = StringIdFor.convert(location.getId(), StationGroup.class);
         return stationGroupsRepository.getStationGroup(localityGroupId);
     }
+
 
 }

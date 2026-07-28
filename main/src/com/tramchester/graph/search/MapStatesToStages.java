@@ -1,12 +1,12 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -223,7 +223,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void recordStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
+    public void recordStationGroup(IdFor<StationGroup> stationGroupId) {
         // no-op
     }
 

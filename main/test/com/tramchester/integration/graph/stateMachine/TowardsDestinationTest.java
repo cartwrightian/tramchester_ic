@@ -119,16 +119,16 @@ public class TowardsDestinationTest {
         LocationCollection destinations = LocationCollectionSingleton.of(stationGroup);
 
         GraphNode node = txn.findNode(station);
-
         assertNotNull(node);
 
-        List<GraphRelationship> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
+        List<GraphRelationship> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing,
+                TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
 
         assertFalse(towardsGroup.isEmpty());
 
         towardsGroup.forEach(relationship -> {
             LocationId<?> locationId = relationship.getLocationId(txn);
-            assertTrue(destinations.contains(locationId));
+            assertTrue(destinations.contains(locationId), "Did not find " + locationId + " in " + destinations);
         });
     }
 
@@ -181,16 +181,16 @@ public class TowardsDestinationTest {
         Station station = StPetersSquare.from(stationRepository);
 
         StationLocalityGroup stationGroup = getStationGroup(station);
+        assertTrue(stationGroup.isActive());
 
         GraphNode node = txn.findNode(station);
-
         assertNotNull(node);
 
-        TowardsDestination towardsDestination = new TowardsDestination((stationGroup));
+        TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
 
         IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromStation(txn, node);
 
-        assertFalse(towards.isEmpty());
+        assertFalse(towards.isEmpty(), "Empty for towards" + stationGroup + " from " + station.getId());
 
         Stream<GraphRelationship> results = towards.stream();
 
@@ -260,7 +260,7 @@ public class TowardsDestinationTest {
     }
 
     private StationLocalityGroup getStationGroup(Station station) {
-        IdFor<NPTGLocality> localityId = station.getLocalityId();
+        final IdFor<NPTGLocality> localityId = station.getLocalityId();
         return groupRepository.getStationGroupForArea(localityId);
     }
 }

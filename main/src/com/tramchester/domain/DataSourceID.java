@@ -14,6 +14,7 @@ public enum DataSourceID {
     naptanxml, // Naptan (stops) data in xml form, cross references nptg
     database, // pre-built graph db for use during deployment
     openRailData,
+    mixed,
     unknown;
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceID.class);

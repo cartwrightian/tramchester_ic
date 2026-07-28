@@ -3,6 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -100,7 +101,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
         final String logMessage = "Adding " + groupsForMode.size() + " station groups for " + mode;
 
-        final Map<IdFor<StationLocalityGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
+        final Map<IdFor<StationGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
 
         try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, logMessage)) {
             groupsForMode.stream().filter(graphFilter::shouldInclude).

@@ -5,10 +5,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -30,7 +30,7 @@ class RouteCalculatorAllBusJourneysTest {
     private static TramchesterConfig testConfig;
 
     private TramDate when;
-    private RouteCalculationCombinations<StationLocalityGroup> combinations;
+    private RouteCalculationCombinations<StationGroup> combinations;
     private ImmutableEnumSet<TransportMode> modes;
     private StationGroupsRepository stationGroupRepository;
 
@@ -50,7 +50,8 @@ class RouteCalculatorAllBusJourneysTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         modes = TransportMode.TramsOnly;
-        combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkGroupOpen(componentContainer));
+        combinations = new RouteCalculationCombinations<>(componentContainer,
+                RouteCalculationCombinations.checkGroupOpen(componentContainer));
         stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
     }
 
@@ -63,15 +64,15 @@ class RouteCalculatorAllBusJourneysTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
-        LocationIdPairSet<StationLocalityGroup> stationGroupPairs = stationGroupRepository.getStationGroupsFor(Bus).stream().
+        LocationIdPairSet<StationGroup> stationGroupPairs = stationGroupRepository.getStationGroupsFor(Bus).stream().
                 flatMap(groupA -> stationGroupRepository.getStationGroupsFor(Bus).stream().
                         map(groupB -> LocationIdPair.of(groupA, groupB))).
                 filter(pair -> !pair.same()).
                 collect(LocationIdPairSet.collector());
 
-        RouteCalculationCombinations.CombinationResults<StationLocalityGroup> results = combinations.getJourneysFor(stationGroupPairs, journeyRequest);
+        RouteCalculationCombinations.CombinationResults<StationGroup> results = combinations.getJourneysFor(stationGroupPairs, journeyRequest);
 
-        RouteCalculationCombinations.Failures<StationLocalityGroup> failed = results.getFailed();
+        RouteCalculationCombinations.Failures<StationGroup> failed = results.getFailed();
 
         assertEquals(0L, failed.size(), String.format("For %s Failed some of %s (finished %s) combinations %s",
                     journeyRequest, results.size(), stationGroupPairs.size(), failed.displayFailed()));

@@ -1,5 +1,6 @@
 package com.tramchester.testSupport.reference;
 
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -41,7 +42,7 @@ public enum KnownLocality {
         return NPTGLocality.createId(localityId);
     }
 
-    public IdFor<StationLocalityGroup> getId() {
+    public IdFor<StationGroup> getId() {
         return StationLocalityGroup.createId(localityId);
     }
 

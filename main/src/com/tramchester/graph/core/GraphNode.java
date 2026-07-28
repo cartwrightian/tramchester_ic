@@ -8,7 +8,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -48,7 +47,7 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     IdFor<Station> getStationId();
     IdFor<Station> getTowardsStationId();
     IdFor<Route> getRouteId();
-    IdFor<StationLocalityGroup> getStationGroupId();
+    IdFor<StationGroup> getStationGroupId();
     IdFor<NPTGLocality> getAreaId();
     BoundingBox getBounds();
 

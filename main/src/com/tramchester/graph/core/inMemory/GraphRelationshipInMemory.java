@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
@@ -142,7 +142,7 @@ public class GraphRelationshipInMemory extends GraphRelationshipProperties<Prope
 
     @JsonIgnore
     @Override
-    public IdFor<StationLocalityGroup> getStationGroupId(final GraphTransaction txn) {
+    public IdFor<StationGroup> getStationGroupId(final GraphTransaction txn) {
         return getEndNode(txn).getStationGroupId();
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
@@ -125,7 +126,7 @@ public class JourneyPlannerCookieTest {
 
         // cookie with ashton as
         RecentJourneys recentJourneys = new RecentJourneys();
-        IdFor<StationLocalityGroup> idForStockportLocality = StringIdFor.convert(KnownLocality.Stockport.getId(), StationLocalityGroup.class);
+        IdFor<StationGroup> idForStockportLocality = StringIdFor.convert(KnownLocality.Stockport.getId(), StationGroup.class);
         Timestamped stockportLocalityCookie = new Timestamped(LocationId.wrap(idForStockportLocality), now, LocationType.StationGroup);
         recentJourneys.setTimeStamps(Sets.newHashSet(stockportLocalityCookie));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));

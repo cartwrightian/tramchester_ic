@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.LocationType;
@@ -143,7 +144,7 @@ class JourneyLocationsResourceBusTest {
         List<LocationRefDTO> locationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(2,locationList.size());
-        IdSet<StationLocalityGroup> ids = locationList.stream().
+        IdSet<StationGroup> ids = locationList.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
                 map(StationLocalityGroup::createId).
@@ -171,7 +172,7 @@ class JourneyLocationsResourceBusTest {
 
         assertEquals(3, locationDTOs.size());
 
-        IdSet<StationLocalityGroup> ids = locationDTOs.stream().
+        IdSet<StationGroup> ids = locationDTOs.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
                 map(StationLocalityGroup::createId).
@@ -197,7 +198,7 @@ class JourneyLocationsResourceBusTest {
 
         assertEquals(3, locationDTOs.size());
 
-        IdSet<StationLocalityGroup> ids = locationDTOs.stream().
+        IdSet<StationGroup> ids = locationDTOs.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
                 map(StationLocalityGroup::createId).

@@ -1,10 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationIdPair;
-import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.collections.Running;
@@ -61,7 +58,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return (stationId, date) -> !( UpcomingDates.hasClosure(stationId, date) || closedStationRepository.isStationClosed(stationId, date) );
     }
 
-    public static ChecksOpen<StationLocalityGroup> checkGroupOpen(final ComponentContainer componentContainer) {
+    public static ChecksOpen<StationGroup> checkGroupOpen(final ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
         final StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         return (stationGroupId, date) ->

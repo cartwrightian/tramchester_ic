@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
@@ -44,7 +45,7 @@ public class StationGroupsRepository {
 
     //private final boolean enabled;
 
-    private final Map<IdFor<StationLocalityGroup>, StationLocalityGroup> stationGroups;
+    private final Map<IdFor<StationGroup>, StationLocalityGroup> stationGroups;
     private final Map<String, StationLocalityGroup> stationGroupsByName;
 
     @Inject
@@ -210,16 +211,16 @@ public class StationGroupsRepository {
         return new HashSet<>(stationGroups.values());
     }
 
-    public StationLocalityGroup getStationGroup(final IdFor<StationLocalityGroup> stationGroupId) {
+    public StationLocalityGroup getStationGroup(final IdFor<StationGroup> stationGroupId) {
         guardIsEnabled();
         return stationGroups.get(stationGroupId);
     }
 
     public StationLocalityGroup getStationGroupForArea(final IdFor<NPTGLocality> areaId) {
-        return getStationGroup(StationLocalityGroup.createId(areaId));
+        return getStationGroup(StationGroup.createId(areaId));
     }
 
-    public boolean hasGroup(final IdFor<StationLocalityGroup> id) {
+    public boolean hasGroup(final IdFor<StationGroup> id) {
         // no guard here as need to handle situation where Group is set in cookie but groups no longer enabled
         if (isEnabled()) {
             return stationGroups.containsKey(id);
@@ -230,7 +231,7 @@ public class StationGroupsRepository {
     }
 
     public boolean hasArea(final IdFor<NPTGLocality> areaId) {
-        return hasGroup(StationLocalityGroup.createId(areaId));
+        return hasGroup(StationGroup.createId(areaId));
     }
 
     public boolean isEnabled() {

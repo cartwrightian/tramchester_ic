@@ -1,14 +1,10 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationLocalityGroup;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,7 +86,7 @@ public enum GraphPropertyKey {
         if (klass.equals(NPTGLocality.class)) {
             return AREA_ID;
         }
-        if (klass.equals(StationLocalityGroup.class)) {
+        if (klass.equals(StationGroup.class)) {
             return STATION_GROUP_ID;
         }
         throw new RuntimeException("Missing key for type" + klass);

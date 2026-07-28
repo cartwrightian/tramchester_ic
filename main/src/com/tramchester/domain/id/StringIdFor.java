@@ -6,6 +6,7 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.serialization.StringIdForDeserializer;
 import com.tramchester.domain.id.serialization.StringIdForSerializer;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationLocalityGroup;
 
 import java.util.Objects;
 import java.util.Set;
@@ -36,6 +37,9 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         }
         if (text.isBlank()) {
             return invalid(domainType);
+        }
+        if (domainType.equals(StationLocalityGroup.class)) {
+            throw new RuntimeException("Use StationGroup");
         }
         return new StringIdFor<>(text, domainType);
     }
