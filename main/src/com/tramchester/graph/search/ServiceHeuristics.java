@@ -99,11 +99,6 @@ public class ServiceHeuristics {
             return reasons.recordReason(HeuristicsReasons.AlreadyDeparted(currentTime, howIGotHere));
         }
 
-        // TODO This feels problematic when we have Linked Stations
-//        if (!journeyConstraints.destinationsAvailable(nodeTime)) {
-//            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(currentTime, howIGotHere));
-//        }
-
         // Wait to get the service?
         final TimeRange window = TimeRangePartial.of(nodeTime, TramDuration.ofMinutes(maxWait), TramDuration.ZERO);
 
@@ -121,12 +116,6 @@ public class ServiceHeuristics {
 
         final int hourAtNode;
         hourAtNode = nextNode.getHour();
-
-        // todo check if valid, maybe the destination is open in the following hour for example
-//        if (!journeyConstraints.destinationsAvailable(hourRange)) {
-//            final TramTime nodeTime = TramTime.of(hourAtNode,0);
-//            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(nodeTime, howIGotHere));
-//        }
 
         final TimeRange travelTimes = TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
 

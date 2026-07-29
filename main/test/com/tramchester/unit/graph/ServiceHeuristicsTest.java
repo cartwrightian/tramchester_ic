@@ -431,46 +431,12 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime tramTime = TramTime.ofHourMins(nodeTime);
 
-//        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
         EasyMock.expect(node.getTime()).andReturn(tramTime);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
-        EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andReturn(true);
-
         replayAll();
         ServiceHeuristics serviceHeuristics = createServiceHeuristics(queryTime, maxChanges);
         HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
         assertTrue(serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
-                currentElapsed, tramTime, MAX_WAIT, serviceReason));
-        verifyAll();
-    }
-
-    @Test
-    void shouldCheckDestinationIsNotAvailableAtTime() {
-        TramTime queryTime = TramTime.of(14,50);
-
-        JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
-
-        LocalTime nodeTime = LocalTime.of(15, 5);
-        GraphNode node = createMock(GraphNode.class);
-
-        TramTime currentElapsed = queryTime.plusMinutes(9);
-
-        GraphNodeId graphNodeId = createMock(GraphNodeId.class);
-
-        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(graphNodeId); //.andStubReturn(GraphNodeIdNeo4J.TestOnly(42L));
-
-        TramTime tramTime = TramTime.ofHourMins(nodeTime);
-
-//        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
-        EasyMock.expect(node.getTime()).andReturn(tramTime);
-        EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
-        EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andReturn(false);
-
-        replayAll();
-        ServiceHeuristics serviceHeuristics = createServiceHeuristics(queryTime, maxChanges);
-        HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
-        assertFalse(serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
                 currentElapsed, tramTime, MAX_WAIT, serviceReason));
         verifyAll();
     }
@@ -490,9 +456,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime tramTime = nextDay ? TramTime.nextDay(nodeTime.getHour(), nodeTime.getMinute()) : TramTime.ofHourMins(nodeTime);
 
-//        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
         EasyMock.expect(node.getTime()).andReturn(tramTime);
-        EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andStubReturn(true);
 
         replayAll();
         HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);

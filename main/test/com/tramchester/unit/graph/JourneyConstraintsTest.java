@@ -9,7 +9,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyConstraints;
@@ -58,8 +57,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
         journeyConstraints = new JourneyConstraints(config, filterForDate,
-                closedStations, TransportMode.TramsOnly, lowestCostForDest, maxJourneyDuration,
-                TimeRangePartial.of(TramTime.of(8,0), TramTime.of(23,0)));
+                closedStations, TransportMode.TramsOnly, lowestCostForDest, maxJourneyDuration);
     }
 
     @Test
@@ -73,33 +71,33 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         assertSame(lowestCostForDest, journeyConstraints.getFewestChangesCalculator());
     }
 
-    @Test
-    void shouldHaveTimesDestinationsAvailable() {
-        // outside of range but not after range
-        assertTrue(journeyConstraints.destinationsAvailable(TramTime.of(7,15)));
-        // within range
-        assertTrue(journeyConstraints.destinationsAvailable(TramTime.of(8,15)));
+//    @Test
+//    void shouldHaveTimesDestinationsAvailable() {
+//        // outside of range but not after range
+//        assertTrue(journeyConstraints.destinationsAvailable(TramTime.of(7,15)));
+//        // within range
+//        assertTrue(journeyConstraints.destinationsAvailable(TramTime.of(8,15)));
+//
+//        // after range
+//        assertFalse(journeyConstraints.destinationsAvailable(TramTime.of(23,50)));
+//        assertFalse(journeyConstraints.destinationsAvailable(TramTime.nextDay(1,5)));
+//    }
 
-        // after range
-        assertFalse(journeyConstraints.destinationsAvailable(TramTime.of(23,50)));
-        assertFalse(journeyConstraints.destinationsAvailable(TramTime.nextDay(1,5)));
-    }
-
-    @Test
-    void shouldHaveTimesAvailableEarlyMorningFromPreviousDay() {
-        TimeRange timeRange = TimeRangePartial.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
-
-        JourneyConstraints constraints = new JourneyConstraints(config, filterForDate,
-                Collections.emptySet(), TransportMode.TramsOnly, lowestCostForDest, maxJourneyDuration,
-                timeRange);
-
-        assertTrue(constraints.destinationsAvailable(TramTime.of(16,15)));
-        assertTrue(constraints.destinationsAvailable(TramTime.nextDay(0,45)));
-        assertTrue(constraints.destinationsAvailable(TramTime.of(0,45))); // not next day
-
-        assertFalse(constraints.destinationsAvailable(TramTime.of(1,10)));
-        assertFalse(constraints.destinationsAvailable(TramTime.nextDay(1,10)));
-    }
+//    @Test
+//    void shouldHaveTimesAvailableEarlyMorningFromPreviousDay() {
+//        TimeRange timeRange = TimeRangePartial.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
+//
+//        JourneyConstraints constraints = new JourneyConstraints(config, filterForDate,
+//                Collections.emptySet(), TransportMode.TramsOnly, lowestCostForDest, maxJourneyDuration,
+//                timeRange);
+//
+//        assertTrue(constraints.destinationsAvailable(TramTime.of(16,15)));
+//        assertTrue(constraints.destinationsAvailable(TramTime.nextDay(0,45)));
+//        assertTrue(constraints.destinationsAvailable(TramTime.of(0,45))); // not next day
+//
+//        assertFalse(constraints.destinationsAvailable(TramTime.of(1,10)));
+//        assertFalse(constraints.destinationsAvailable(TramTime.nextDay(1,10)));
+//    }
 
     @Test
     void shouldCheckIfRouteRunning() {

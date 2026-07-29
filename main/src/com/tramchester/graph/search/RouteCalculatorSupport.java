@@ -230,9 +230,9 @@ public abstract class RouteCalculatorSupport {
                 journeyConstraints.getDestinationModes(), maxNumberJourneys);
     }
 
-    protected TimeRange getDestinationsAvailable(LocationCollection destinations, TramDate tramDate) {
-        return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
-    }
+//    protected TimeRange getDestinationsAvailable(LocationCollection destinations, TramDate tramDate) {
+//        return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
+//    }
 
     public static TramDuration getMaxInitialWaitFor(final List<? extends BoundingBoxWithStations> startingBoxes, final TramchesterConfig config) {
         final Optional<TramDuration> findMaxInitialWait = startingBoxes.stream().
@@ -277,9 +277,10 @@ public abstract class RouteCalculatorSupport {
 
         final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
-        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
+//        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
+
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
-                closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
+                closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration);
 
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
@@ -330,14 +331,12 @@ public abstract class RouteCalculatorSupport {
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
-        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
-
         final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routesAndServicesFilter,
-                closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
+                closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration);
 
         logger.info("Journey Constraints: " + journeyConstraints);
 

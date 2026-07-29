@@ -9,7 +9,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -31,7 +30,6 @@ public class JourneyConstraints {
     private static final Logger logger = LoggerFactory.getLogger(JourneyConstraints.class);
 
     private final RunningRoutesAndServices.FilterForDate routesAndServicesFilter;
-    private final TimeRange destinationsAvailable;
     private final TramchesterConfig config;
     private final int maxPathLength;
     private final IdSet<Station> closedStationsIds;
@@ -44,13 +42,11 @@ public class JourneyConstraints {
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               Set<ClosedStation> closedStations, ImmutableEnumSet<TransportMode> destinationModes,
-                              LowestCostsForDestRoutes lowestCostForDestinations, TramDuration maxJourneyDuration,
-                              TimeRange destinationsAvailable) {
+                              LowestCostsForDestRoutes lowestCostForDestinations, TramDuration maxJourneyDuration) {
         this.config = config;
         this.closedStations = closedStations;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.routesAndServicesFilter = routesAndServicesFilter;
-        this.destinationsAvailable = destinationsAvailable;
         this.maxPathLength = computeMaxPathLength();
 
         this.destinationModes = destinationModes;
@@ -86,10 +82,6 @@ public class JourneyConstraints {
     public int getMaxPathLength() {
         return maxPathLength;
     }
-
-//    public LocationCollection getDestinations() {
-//        return destinations;
-//    }
 
     public TramDuration getMaxJourneyDuration() {
         return maxJourneyDuration;
@@ -140,26 +132,26 @@ public class JourneyConstraints {
         return routesAndServicesFilter.isServiceRunningByTime(serviceId, time, maxWait);
     }
 
-    @Deprecated
-    public boolean destinationsAvailable(final TramTime time) {
-        if (destinationsAvailable.contains(time)) {
-            return true;
-        }
-        final TramTime end = destinationsAvailable.getEnd();
-        if (end.isNextDay()) {
-            final TramTime realEnd = destinationsAvailable.forFollowingDay().getEnd();
-            return !time.isAfter(realEnd);
-        } else {
-            if (time.isAfter(end)) {
-                return false;
-            }
-        }
-
-
-        // todo logic on earliest?
-
-        return true;
-    }
+//    @Deprecated
+//    public boolean destinationsAvailable(final TramTime time) {
+//        if (destinationsAvailable.contains(time)) {
+//            return true;
+//        }
+//        final TramTime end = destinationsAvailable.getEnd();
+//        if (end.isNextDay()) {
+//            final TramTime realEnd = destinationsAvailable.forFollowingDay().getEnd();
+//            return !time.isAfter(realEnd);
+//        } else {
+//            if (time.isAfter(end)) {
+//                return false;
+//            }
+//        }
+//
+//
+//        // todo logic on earliest?
+//
+//        return true;
+//    }
 
     public ImmutableEnumSet<TransportMode> getDestinationModes() {
         return destinationModes;

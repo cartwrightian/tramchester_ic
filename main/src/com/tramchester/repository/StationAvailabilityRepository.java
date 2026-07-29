@@ -9,7 +9,6 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -328,39 +326,4 @@ public class StationAvailabilityRepository {
         return dropoffsForLocations.get(location);
     }
 
-    public TimeRange getAvailableTimesFor(final LocationCollection destinations, final TramDate tramDate) {
-
-        final ImmutableEnumSet<TransportMode> modes = destinations.getModes();
-
-        Stream<ServedRoute> servedRouteStream = destinations.locationStream().
-                flatMap(locations -> expand(locations).locationStream()).
-                map(Location::getLocationId).
-                filter(dropoffsForLocations::containsKey).
-                map(dropoffsForLocations::get);
-
-        final Set<TimeRange> ranges = servedRouteStream.
-                flatMap(servedRoute -> servedRoute.getTimeRanges(tramDate, modes)).
-                collect(Collectors.toSet());
-
-        if (ranges.isEmpty()) {
-            // likely down to closed station(s)
-            logger.warn("Found no time range available for " + destinations + " (Closed stations?) Will use whole day");
-            return TimeRange.of(TramTime.of(0,1), TramTime.of(23,59));
-        } else {
-            // now create timerange
-            return TimeRange.coveringAllOf(ranges);
-        }
-
-    }
-
-    private LocationCollection expand(final Location<?> location) {
-        if (location.getLocationType()==LocationType.Station) {
-            return LocationCollectionSingleton.of(location);
-        }
-        if (location.getLocationType()==LocationType.StationGroup) {
-            final StationLocalityGroup group = (StationLocalityGroup) location;
-            return group.getAllContained();
-        }
-        throw new RuntimeException("Unsupported location type " + location.getId() + " " + location.getLocationType());
-    }
 }

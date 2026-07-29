@@ -196,7 +196,6 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private JourneyConstraints createJourneyConstraints(final LocationSet<Station> destinations, final JourneyRequest journeyRequest, TimeRange timeRange) {
         final TramDate date = journeyRequest.getDate();
 
-        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest,
                 timeRange);
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(journeyRequest);
@@ -206,7 +205,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         ImmutableEnumSet<TransportMode> destinationsModes = interchangeRepository.getInterchangeModes(destinations);
 
         return new JourneyConstraints(config, routeAndServicesFilter, closedStations,
-                destinationsModes, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);
+                destinationsModes, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration());
     }
 
 

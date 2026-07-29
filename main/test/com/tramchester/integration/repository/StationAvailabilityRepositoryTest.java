@@ -3,8 +3,6 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.LocationCollectionSingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
@@ -36,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.DayOfWeek;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -101,33 +98,6 @@ public class StationAvailabilityRepositoryTest {
     }
 
     @Test
-    void shouldGetAvailableTimeRangeForDate() {
-        Station stPeters = StPetersSquare.from(stationRepository);
-        LocationCollection destinations = LocationCollectionSingleton.of(stPeters);
-        TimeRange result = availabilityRepository.getAvailableTimesFor(destinations, when);
-
-        assertTrue(result.contains(TramTime.of(8,0)));
-        assertFalse(result.contains(TramTime.of(3,0)));
-
-        assertEquals(TimeRangePartial.of(TramTime.of(4,57), TramTime.nextDay(1,4)), result);
-    }
-
-    @Test
-    void shouldGetDifferentTimeRangesForDifferentDays() {
-        Station station = Altrincham.from(stationRepository);
-        LocationCollection destinations = LocationCollectionSingleton.of(station);
-
-        TramDate monday = TestEnv.nextMonday();
-        TramDate friday = monday.plusDays(4);
-        assertEquals(DayOfWeek.FRIDAY, friday.getDayOfWeek());
-
-        TimeRange mondayTimes = availabilityRepository.getAvailableTimesFor(destinations, monday);
-        TimeRange fridayTimes = availabilityRepository.getAvailableTimesFor(destinations, friday);
-
-        assertNotEquals(mondayTimes, fridayTimes);
-    }
-
-    @Test
     void shouldHaveExpectedServedRoutesForLocation() {
         Station station = Altrincham.from(stationRepository);
 
@@ -139,21 +109,6 @@ public class StationAvailabilityRepositoryTest {
         TimeRange timeRange = TimeRange.of(TramTime.of(0,25), TramTime.of(0,45));
         Set<Route> tooLate = dropOffs.getRoutes(monday, timeRange, modes);
         assertTrue(tooLate.isEmpty(), HasId.asIds(tooLate));
-    }
-
-    @Test
-    void shouldNotGetUnexpectedLateNightService() {
-        Station station = Altrincham.from(stationRepository);
-        LocationCollection destinations = LocationCollectionSingleton.of(station);
-
-        TramDate monday = TestEnv.nextMonday();
-
-        TimeRange mondayTimes = availabilityRepository.getAvailableTimesFor(destinations, monday);
-
-        //  late services from Alty run to Old Trafford
-        assertTrue(mondayTimes.contains(TramTime.of(23,55)), "Unexpected time range " + mondayTimes);
-        assertFalse(mondayTimes.contains(TramTime.of(0,30)), "Unexpected time range " + mondayTimes);
-
     }
 
     @Test
