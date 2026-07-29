@@ -117,7 +117,8 @@ public class JourneyQueryDTO  {
 
         int maxNumberResults = (dto.getMaxNumResults()==null) ? config.getMaxNumberResults() : dto.getMaxNumResults();
 
-        JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, JourneyRequest.MaxNumberOfChanges.of(maxChanges),
+        final JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy,
+                JourneyRequest.MaxNumberOfChanges.of(maxChanges),
                 maxJourneyDuration, maxNumberResults, modes);
 
         if (dto.diagnostics!=null) {

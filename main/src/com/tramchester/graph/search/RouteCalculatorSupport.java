@@ -195,9 +195,6 @@ public abstract class RouteCalculatorSupport {
 
     protected PreviousVisits createPreviousVisits(final JourneyRequest journeyRequest) {
         boolean cacheDisabled = journeyRequest.getCachingDisabled();
-//        if (!config.getInMemoryGraph()) {
-//            cacheDisabled = cacheDisabled || config.getDepthFirst();
-//        }
         if (cacheDisabled) {
             logger.warn("Caching is disabled");
         }
@@ -297,12 +294,16 @@ public abstract class RouteCalculatorSupport {
         final TramNetworkTraverserFactory traverserFactory = getTraverserFactory(destinations, destinationNodeIds);
 
         final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
-                flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
-                                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(), journeyRequest.getMaxNumberOfJourneys()))).
-                flatMap(pathRequest -> findShortestPath(txn.asImmutable(), createServiceReasons(journeyRequest, pathRequest), pathRequest,
-                        createPreviousVisits(journeyRequest), arrivalHandler, running, traverserFactory, towardsDestination)).
-                map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
+                flatMap(numChanges ->
+                        queryTimes.stream().map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
+                                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(),
+                                journeyRequest.getMaxNumberOfJourneys()))).
+                        flatMap(pathRequest -> findShortestPath(txn.asImmutable(),
+                                createServiceReasons(journeyRequest, pathRequest),
+                                pathRequest,
+                                createPreviousVisits(journeyRequest),
+                                arrivalHandler, running, traverserFactory, towardsDestination)).
+                        map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {

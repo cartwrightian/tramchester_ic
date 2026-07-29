@@ -5,19 +5,23 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.ArrivalHandler;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LowestCostSeenForTime implements ArrivalHandler {
+    private static final Logger logger = LoggerFactory.getLogger(LowestCostSeenForTime.class);
 
     private final ConcurrentMap<TramTime, TramDuration> lowestCostForQuery;
     private final ConcurrentMap<TramTime, Integer> lowestNumChangesForQuery;
     private final ConcurrentMap<TramTime, AtomicInteger> arrivalCounts;
+    private TramTime earliestEver;
     private TramDuration shortestEver;
     private int leastChangesEver;
-    private final int arrivalsLimit;
+    private final int arrivalsLimit; // for a specific time
 
     public LowestCostSeenForTime(int arrivalsLimit) {
         this.arrivalsLimit = arrivalsLimit;
@@ -25,6 +29,7 @@ public class LowestCostSeenForTime implements ArrivalHandler {
         lowestNumChangesForQuery = new ConcurrentHashMap<>();
         arrivalCounts = new ConcurrentHashMap<>();
         shortestEver = TramDuration.MAX_VALUE;
+        earliestEver = TramTime.invalid();
         leastChangesEver = Integer.MAX_VALUE;
     }
 
@@ -47,10 +52,17 @@ public class LowestCostSeenForTime implements ArrivalHandler {
     @Override
     public boolean overArrivalsLimit(final ImmutableJourneyState journeyState) {
         final TramTime time = timeFromState(journeyState);
+        final boolean result;
         if (arrivalCounts.containsKey(time)) {
-            return arrivalCounts.get(time).get() >= arrivalsLimit;
+            result = arrivalCounts.get(time).get() >= arrivalsLimit;
+        } else {
+            result = false;
         }
-        return false;
+        // TODO into debug, but why is this called so often?
+        if (result) {
+            logger.info("Seen " + time + " too many times before");
+        }
+        return result;
     }
 
     @Override
@@ -59,53 +71,64 @@ public class LowestCostSeenForTime implements ArrivalHandler {
         final TramDuration durationForState = journeyState.getTotalDurationSoFar();
         final TramTime time = timeFromState(journeyState);
 
+        final Outcome result;
         if (lowestCostForQuery.containsKey(time)) {
             final TramDuration lowestForQuery  = lowestCostForQuery.get(time);
             if (durationForState.lessThan(lowestForQuery)) {
-                return Outcome.Better;
+                result = Outcome.Better;
             } else if (durationForState.equals(lowestForQuery)) {
-                return Outcome.Same;
+                result = Outcome.Same;
             }  else {
-                return Outcome.Worse;
+                result = Outcome.Worse;
             }
+            logger.info("Check time, seen " + time + " before, result = " + result);
         } else {
             // never had an journey for this time
-            if (durationForState.lessThan(shortestEver)) {
-                return Outcome.Better;
+            if (time.isBefore(earliestEver)) {
+                result = Outcome.Better;
+            } else if (durationForState.lessThan(shortestEver)) {
+                result = Outcome.Better;
             } else if (durationForState.equals(shortestEver)) {
-                return Outcome.Better;
+                result = Outcome.Better;
             } else {
                 // todo check against lowest ever
                 //final TramDuration currentLowest = getLowestEverDuration();
-                return Outcome.Worse;
+                result = Outcome.Worse;
             }
+            logger.info("Check time, unique " + time + " seen, result = " + result);
         }
-
+        return result;
     }
 
     @Override
-    public Outcome checkChanges(ImmutableJourneyState journeyState, final int numberChanges) {
+    public Outcome checkChanges(final ImmutableJourneyState journeyState, final int numberChanges) {
 
         final TramTime time = timeFromState(journeyState);
 
+        final Outcome result;
         if (lowestNumChangesForQuery.containsKey(time)) {
             final int lowest = lowestNumChangesForQuery.get(time);
             if (numberChanges<lowest) {
-                return Outcome.Better;
+                result = Outcome.Better;
             } else if (numberChanges==lowest) {
-                return Outcome.Same;
+                result = Outcome.Same;
             } else {
-                return Outcome.Worse;
+                result = Outcome.Worse;
             }
+            logger.info("Check changes ("+numberChanges+"), seen " + time + " before, result = " + result);
+
         } else {
             if (numberChanges<leastChangesEver) {
-                return Outcome.Better;
+                result = Outcome.Better;
             } else if (numberChanges==leastChangesEver) {
-                return Outcome.Same;
+                result = Outcome.Same;
+            } else {
+                result = Outcome.Worse;
             }
-            return Outcome.Worse;
+            logger.info("Check changes ("+numberChanges+"), unique " + time + " seen, result = " + result);
         }
 
+        return result;
     }
 
     @Override
@@ -118,12 +141,11 @@ public class LowestCostSeenForTime implements ArrivalHandler {
             return Durations.greaterThan(totalCostSoFar, lowestCostSeen);
         } else {
             return false;
-            //return totalCostSoFar.moreThan(shortestEver);
         }
     }
 
     @Override
-    public boolean alreadyMoreChanges(ImmutableJourneyState journeyState, int numberChanges) {
+    public boolean alreadyMoreChanges(final ImmutableJourneyState journeyState, final int numberChanges) {
         final TramTime time = timeFromState(journeyState);
         if (lowestNumChangesForQuery.containsKey(time)) {
             return numberChanges>lowestNumChangesForQuery.get(time);
@@ -135,7 +157,6 @@ public class LowestCostSeenForTime implements ArrivalHandler {
 
     @Override
     public synchronized void setLowestCost(final ImmutableJourneyState journeyState) {
-
         final TramTime time = timeFromState(journeyState);
 
         int numberChanges = journeyState.getNumberChanges();
@@ -148,6 +169,9 @@ public class LowestCostSeenForTime implements ArrivalHandler {
         lowestCostForQuery.put(time, durationSoFar);
         if (durationSoFar.lessThan(shortestEver)) {
             shortestEver = durationSoFar;
+        }
+        if (time.isBefore(earliestEver)) {
+            earliestEver = time;
         }
     }
 

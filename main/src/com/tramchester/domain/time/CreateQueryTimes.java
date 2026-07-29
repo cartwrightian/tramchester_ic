@@ -42,6 +42,7 @@ public class CreateQueryTimes {
                 map(this::rangeFor).
                 toList();
 
+        // small optimisation on availability
         final List<TramTime> results;
         if (location.anyOverlapWith(modes)) {
             results = times.stream().
@@ -49,7 +50,9 @@ public class CreateQueryTimes {
                     map(TimeRange::getStart).
                     toList();
         } else {
-            logger.warn("No modes overlap between " + location.getId() + " " + location.getTransportModes() +
+            // warn -> info
+            // this can definitely happen for some legit queries
+            logger.info("No modes overlap between " + location.getId() + " " + location.getTransportModes() +
                 "requested  " + modes);
             results = times.stream().map(TimeRange::getStart).toList();
         }

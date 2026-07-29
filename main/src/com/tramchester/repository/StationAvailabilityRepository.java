@@ -185,7 +185,9 @@ public class StationAvailabilityRepository {
         final LocationId<?> locationId = location.getLocationId();
 
         if (!location.anyOverlapWith(requestedModes)) {
-            logger.warn(locationId + " no overlap between requested " + requestedModes + " and " + location.getTransportModes());
+            // warn -> info
+            // this can definitely happen, for example tram to rail with a connecting walk to rail
+            logger.debug(locationId + " no overlap between requested " + requestedModes + " and " + location.getTransportModes());
             return false;
         }
 

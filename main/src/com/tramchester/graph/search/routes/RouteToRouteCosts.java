@@ -256,10 +256,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // OR create fake routes?
 
         logger.info(format("Compute number of changes between %s (%s) and %s (%s) using modes '%s' on %s within %s",
-                startLocation.getId(), HasId.asIds(pickupRoutes), destLocation.getId(), HasId.asIds(dropoffRoutes),
+                startLocation.getId(), HasId.asIds(pickupRoutes) , destLocation.getId(), HasId.asIds(dropoffRoutes),
                 requestedModes, date, timeRange));
 
-        final StationAvailabilityFacade changeStationOperating = getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
+        final StationAvailabilityFacade changeStationOperating = getAvailabilityFacade(availabilityRepository, date,
+                timeRange, requestedModes);
 
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start location %s has no matching pick-up routes for %s %s %s",
@@ -272,7 +273,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return Integer.MAX_VALUE;
         }
 
-        return getNumberOfHops(pickupRoutes, dropoffRoutes, date, changeStationOperating, closureOffset, requestedModes);
+        final int numberOfHops = getNumberOfHops(pickupRoutes, dropoffRoutes, date, changeStationOperating, closureOffset, requestedModes);
+        logger.info(format("Computed %s changes between %s and %s using modes '%s' on %s within %s",
+                numberOfHops, startLocation.getId(), destLocation.getId(),
+                requestedModes, date, timeRange));
+        return numberOfHops;
     }
 
     private int getClosureOffset(final Location<?> start, final LocationSet<Station> destinations, final TramDate date) {

@@ -151,9 +151,9 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
         }
 
         @Override
-        public void loadFrom(Stream<RouteIndexData> stream) throws FileDataCache.CacheLoadException {
+        public void loadFrom(final Stream<RouteIndexData> stream) throws FileDataCache.CacheLoadException {
             logger.info("Loading from cache");
-            IdSet<Route> missingRouteIds = new IdSet<>();
+            final IdSet<Route> missingRouteIds = new IdSet<>();
             stream.forEach(item -> {
                 final IdFor<Route> routeId = item.getRouteId();
                 if (!routeRepository.hasRouteId(routeId)) {
@@ -165,7 +165,7 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
                 final short index = item.getIndex();
                 mapRouteIdToIndex.put(route, index);
                 mapIndexToRouteId.put(index, route);
-                logger.info(String.format("Loaded index %s for route %s", index, routeId));
+                logger.debug(String.format("Loaded index %s for route %s", index, routeId));
             });
             if (!missingRouteIds.isEmpty()) {
                 final String msg = format("The following routeIds present in index file but not the route repository (size %s) %s",
@@ -179,6 +179,8 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
                         " but repository has: " + numberOfRoutes;
                 logger.error(msg);
                 throw new FileDataCache.CacheLoadException(msg);
+            } else {
+                logger.info("Loaded " + mapIndexToRouteId.size() + " mappings");
             }
         }
 
