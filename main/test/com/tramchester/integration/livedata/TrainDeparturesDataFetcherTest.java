@@ -16,6 +16,7 @@ import com.tramchester.livedata.openLdb.TrainDeparturesDataFetcher;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainLiveDataTest;
 import com.tramchester.testSupport.testTags.TrainTest;
@@ -103,6 +104,44 @@ class TrainDeparturesDataFetcherTest {
                 filter(item -> item.getService()!=null).toList();
 
         assertFalse(dests.isEmpty(), "not dests for " + departures);
+
+        dests.forEach(dest -> {
+            // could be a range of destinations
+            //assertEquals("EUS", dest.getCrs());
+
+            ServiceItemWithCallingPoints service = dest.getService();
+            //assertTrue(match(destId, service.getCurrentDestinations()));
+            assertTrue(match(callingPoints, service.getSubsequentCallingPoints()));
+        });
+
+    }
+
+    @Test
+    void testShouldGetDeparturesForStationDestAndTramEndpoint() {
+
+        Station from = RailStationIds.ManchesterPiccadilly.from(stationRepository);
+
+        ImmutableIdSet<Station> callingPoints = Stream.of(RailStationIds.Stockport).
+                map(FakeStation::getId).collect(IdSet.idCollector());
+
+        IdFor<Station> destId = TramStations.Altrincham.getId();
+
+        DestinationAndCallingPoints destAndCalling = new DestinationAndCallingPoints(destId,
+                callingPoints);
+
+        Optional<DeparturesBoardWithDetails> maybeBoard = dataFetcher.getFor(from, destAndCalling);
+
+        assertTrue(maybeBoard.isPresent(), "no station board returned");
+
+        DeparturesBoardWithDetails board = maybeBoard.get();
+
+        assertEquals("MAN", board.getCrs());
+
+        ArrayOfDepartureItemsWithCallingPoints departures = board.getDepartures();
+        List<DepartureItemWithCallingPoints> dests = departures.getDestination().stream().
+                filter(item -> item.getService()!=null).toList();
+
+        assertFalse(dests.isEmpty(), "no dests for " + departures);
 
         dests.forEach(dest -> {
             // could be a range of destinations

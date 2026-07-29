@@ -112,9 +112,9 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         Station otherStation = Altrincham.fakeWithPlatform(1, TramDate.of(date));
         Platform otherPlatform = TestEnv.findOnlyPlatform(otherStation);
 
-                Station destinationManAirport = ManAirport.fake();
+        Station destinationManAirport = ManAirport.fake();
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, otherStation, destinationManAirport, "Due",
-                TramTime.ofHourMins(lastUpdate.toLocalTime()).plus(TramDuration.ofMinutes(12)), "Double", agency, mode);
+        TramTime.ofHourMins(lastUpdate.toLocalTime()).plus(TramDuration.ofMinutes(12)), "Double", agency, mode);
         addStationInfoWithDueTram(infos, lastUpdate, "displayXXX", otherPlatform,
                 "some message", otherStation, dueTramOther);
 
@@ -148,12 +148,6 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         fail("TODO");
     }
 
-    @Disabled("WIP")
-    @Test
-    void shouldCheckCorrectStationWhenLinkedOrWalkFirstStage() {
-        fail("TODO");
-    }
-
     @Test
     void shouldGetDepartureInformationForSingleStationDueTramOnly() {
         List<TramStationDepartureInfo> infos = new ArrayList<>();
@@ -175,7 +169,6 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         assertEquals(1, departureRepository.upToDateEntries());
         assertEquals(1, departureRepository.getNumStationsWithData(lastUpdate));
         assertEquals(1, departureRepository.getNumStationsWithTrams(lastUpdate));
-
 
         List<UpcomingDeparture> allTramsForStation = departureRepository.forStation(station, DestinationAndCallingPoints.None());
 

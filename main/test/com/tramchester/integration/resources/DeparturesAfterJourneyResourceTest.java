@@ -195,7 +195,6 @@ class DeparturesAfterJourneyResourceTest {
         assertTrue(towardsDestination.isPresent(), "no tram towards " + destinationForDueTramId + " from close to " + stationWithDepartures.getId());
     }
 
-
     private SortedSet<DepartureDTO> getDeparturesForStationAfterJourney(final Location<?> displayLocation, final IdFor<Station> destinationForDueTramId) {
         final DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(displayLocation.getLocationType(), IdForDTO.createFor(displayLocation));
 

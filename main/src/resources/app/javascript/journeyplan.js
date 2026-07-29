@@ -85,16 +85,27 @@ function queryLiveData(app, callingStations) {
 
     var modes;
     var startLocationType = getLocationType(app.startStop);
-    if (startLocationType==app.myLocation.locationType) {
-        modes = app.selectedModes;
+    const place = app.location;
+
+    // TODO This restricts query of live data to modes served by first station, which might not be what we want?
+    var locationType;
+    if (place != null) {
+        locationType = place.locationType;
+        if (startLocationType==locationType) {
+            modes = app.selectedModes;
+        } else {
+            modes = app.startStop.transportModes;
+        }
     } else {
-        modes = app.startStop.transportModes;
+        // if no location available use all selected modes
+        locationType = startLocationType;
+        modes = app.selectedModes; 
     }
 
+
     var startLocationId; 
-    const place = app.location;
     if (place != null) {
-        if (startLocationType == app.myLocation.locationType) { 
+        if (startLocationType == locationType) { 
             startLocationId = place.coords.latitude + ',' + place.coords.longitude
         } else {
             startLocationId = app.startStop.id;
@@ -106,7 +117,7 @@ function queryLiveData(app, callingStations) {
 
     // locations we should request notes for
     var getNotesFor = callingStations.slice();
-    if (startLocationType != app.myLocation.locationType) {
+    if (startLocationType != locationType) {
         getNotesFor.push(startLocationId);
     } // else API returns nearby Trams and Notes by default
 

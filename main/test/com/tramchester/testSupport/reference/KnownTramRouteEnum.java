@@ -19,6 +19,7 @@ import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
 import static com.tramchester.testSupport.UpcomingDates.summerClosureFirstSunday;
 import static com.tramchester.testSupport.reference.KnownTramRoute.MISSING_ROUTE_ID_PREFIX;
+import static com.tramchester.testSupport.reference.KnownTramRoute.cutoverDate;
 
 /*
  * see also TramRouteHelper
@@ -34,16 +35,14 @@ public enum KnownTramRouteEnum implements TestRoute {
     Green1(Green, "Bury - Manchester - Altrincham", "3218", Constants.reopenSummer2026),
 
     // Navy
-    Navy4(Navy, "Victoria - Manchester Airport", "3300", summerClosureFirstSunday.plusDays(1)),
-    Navy5(Navy, "Manchester Airport - Victoria", "3314", TramDate.of(2026,7,26), true),
+    Navy4(Navy, "Victoria - Manchester Airport", "3300", cutoverDate),
     Navy7(Navy, "Manchester Airport - Victoria", "3287", Constants.summerClosures2026EndDate, true),
     Navy8(Navy, "Victoria - Manchester Airport", "3219", Constants.reopenSummer2026),
     Navy9(Navy, "Victoria - Manchester Airport", "3219", TramDate.of(2026,8,9), true),
     Navy10(Navy, "Manchester Airport - Victoria", "3219", TramDate.of(2026,8,16), true),
 
     // Pink
-    Pink4(Pink, "Rochdale - East Didsbury" , "3301", summerClosureFirstSunday.plusDays(1)),
-    Pink5(Pink, "East Didsbury - Rochdale" , "3311", TramDate.of(2026,7,26), true),
+    Pink4(Pink, "Rochdale - East Didsbury" , "3301", cutoverDate),
     Pink7(Pink, "East Didsbury - Rochdale" , "3286", Constants.summerClosures2026EndDate, true),
     Pink8(Pink, "Rochdale - East Didsbury" , "3220", Constants.reopenSummer2026),
     Pink9(Pink, "Rochdale - East Didsbury" , "3220", TramDate.of(2026,8,9), true),
@@ -57,8 +56,7 @@ public enum KnownTramRouteEnum implements TestRoute {
     Red2(Red, "Deansgate Castlefield - The Trafford Centre", "3222", Constants.reopenSummer2026),
 
     // Yellow
-    Yellow4(Yellow, "Piccadilly - Bury", "3302", summerClosureFirstSunday.plusDays(1)),
-    Yellow5(Yellow, "Piccadilly - Bury", "844", TramDate.of(2026,7,26), true),
+    Yellow4(Yellow, "Piccadilly - Bury", "3302", cutoverDate),
     Yellow7(Yellow, "Piccadilly - Bury", "844", Constants.summerClosures2026EndDate, true),
     Yellow8(Yellow, "Piccadilly - Bury", "3223", Constants.reopenSummer2026),
     Yellow9(Yellow, "Piccadilly - Bury" , "3223", TramDate.of(2026,8,9), true),

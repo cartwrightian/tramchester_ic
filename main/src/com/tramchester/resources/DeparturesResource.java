@@ -123,7 +123,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             final DestinationAndCallingPoints destinationAndCallingPoints = mapJourneyDTOToStations.getDestAndCalling(journeys);
 
             // TODO If jounrney has connecting stage or walking stage at the start need to also get due for that location
-            StationGroup departures = mapJourneyDTOToStations.getDepartureLocations(journeys);
+            final StationGroup departures = mapJourneyDTOToStations.getDepartureLocations(journeys);
 
             final List<UpcomingDeparture> depsForJourneys = departuresRepository.getDueForLocation(departures,
                     dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints);

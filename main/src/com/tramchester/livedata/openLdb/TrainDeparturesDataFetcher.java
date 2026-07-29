@@ -2,6 +2,7 @@ package com.tramchester.livedata.openLdb;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.sun.xml.ws.client.ClientTransportException;
+import com.sun.xml.ws.fault.ServerSOAPFaultException;
 import com.thalesgroup.rtti._2013_11_28.token.types.AccessToken;
 import com.thalesgroup.rtti._2017_10_01.ldb.*;
 import com.thalesgroup.rtti._2017_10_01.ldb.types.DeparturesBoardWithDetails;
@@ -11,6 +12,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import jakarta.inject.Inject;
@@ -118,13 +120,19 @@ public class TrainDeparturesDataFetcher {
 
         final IdFor<Station> stationId = station.getId();
         final String crs = crsRepository.getCRSCodeFor(stationId);
-        logger.info("Get train departures for " + stationId + " with CRS " + crs + " and " + destinationAndCallingPoints);
+        logger.info("Get train departures for " + stationId + " with Station " + crs + " and " + destinationAndCallingPoints);
+
+        GetDeparturesRequestParams.FilterList filterList = createFilterListFor(destinationAndCallingPoints);
 
         GetDeparturesRequestParams params = new GetDeparturesRequestParams();
         params.setCrs(crs);
         params.setTimeOffset(0);
         params.setTimeWindow(config.getMaxWait());
-        params.setFilterList(createFilterListFor(destinationAndCallingPoints));
+
+        if (!filterList.getCrs().isEmpty()) {
+            logger.info("Filter list is CRS '" + filterList.getCrs() + "'");
+            params.setFilterList(filterList);
+        }
 
         try {
             DeparturesBoardWithDetailsResponseType departureBoard = soapService.getNextDeparturesWithDetails(params, accessToken);
@@ -135,8 +143,10 @@ public class TrainDeparturesDataFetcher {
 
             return Optional.of(stationBoardResult);
         }
-        catch(ClientTransportException clientTransportException) {
-            logger.error("Unable to fetch live rail data", clientTransportException);
+        catch(ClientTransportException | ServerSOAPFaultException clientTransportException) {
+            final String msg = format("Unable to fetch live rail data for %s and station CRs %s and filter list %s (for %s)",
+                    station.getId(), crs, filterList.getCrs(), destinationAndCallingPoints);
+            logger.error(msg, clientTransportException);
             return Optional.empty();
         }
     }
@@ -147,10 +157,26 @@ public class TrainDeparturesDataFetcher {
         // docs say this is list to update
         final List<String> stations = filterList.getCrs();
 
-        final String destCRS = crsRepository.getCRSCodeFor(destinationAndCallingPoints.destination());
-        stations.add(destCRS);
+        final IdFor<Station> destination = destinationAndCallingPoints.destination();
+        if (crsRepository.hasStation(destination)) {
+            final String destCRS = crsRepository.getCRSCodeFor(destination);
+            stations.add(destCRS);
+        } else {
+            logger.info("Destination does not have a CRS " + destination);
+        }
 
-        List<String> callingCRS = destinationAndCallingPoints.callingPoints().stream().map(crsRepository::getCRSCodeFor).toList();
+        ImmutableIdSet<Station> callingPoints = destinationAndCallingPoints.callingPoints();
+        List<IdFor<Station>> hasCRS = callingPoints.stream().
+                filter(crsRepository::hasStation).
+                toList();
+
+        if (hasCRS.size() != callingPoints.size()) {
+            logger.info(format("Did not find calling points for all of %s, only available for %s", callingPoints, hasCRS));
+        }
+
+        List<String> callingCRS = hasCRS.stream().
+                map(crsRepository::getCRSCodeFor).
+                toList();
         stations.addAll(callingCRS);
 
         return filterList;

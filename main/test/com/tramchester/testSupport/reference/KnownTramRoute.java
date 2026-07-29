@@ -20,7 +20,7 @@ import static com.tramchester.testSupport.UpcomingDates.summerBankHol2026;
 
 public class KnownTramRoute {
 
-    public static final TramDate cutoverDate = TramDate.of(2026,7,6);
+    public static final TramDate cutoverDate = TramDate.of(2026,7,29);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE_ID_PREFIX = "xxx";
