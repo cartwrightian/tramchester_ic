@@ -341,7 +341,7 @@ tasks.register('gm', JavaExec) {
     dependsOn 'webpack'
     mainClass = application.mainClass
     classpath = sourceSets.main.runtimeClasspath
-    maxHeapSize = "2g"
+    maxHeapSize = "4g"
     args 'server', 'config/gm.yml'
 }
 

@@ -40,7 +40,6 @@ public abstract class TramRouteEvaluator {
     protected final GraphTransaction txn;
     protected final boolean depthFirst;
     protected final Running running;
-    //protected final Set<GraphNodeId> seenTimeNode;
     protected final ImmutableEnumSet<GraphLabel> destinationLabels;
 
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final TramchesterConfig config,
@@ -63,7 +62,6 @@ public abstract class TramRouteEvaluator {
         this.txn = txn;
         this.depthFirst = config.getDepthFirst();
         this.running = running;
-        //this.seenTimeNode = new HashSet<>();
         this.destinationLabels = GraphLabel.forModes(destinationModes);
     }
 
@@ -201,14 +199,6 @@ public abstract class TramRouteEvaluator {
         // --> Minute
         // check time
         if (nodeLabels.contains(GraphLabel.MINUTE)) {
-            // TODO SPIKE!
-//            if (!depthFirst) {
-//                if (seenTimeNode.contains(nextNodeId)) {
-//                    return reasons.recordReason(HeuristicsReasons.AlreadySeenTime(howIGotHere, nextNodeId));
-//                } else {
-//                    seenTimeNode.add(nextNodeId);
-//                }
-//            }
 
             final HeuristicsReason serviceReasonTripCheck = serviceHeuristics.checkNotBeenOnTripBefore(howIGotHere, nextNode, journeyState, reasons);
             if (!serviceReasonTripCheck.isValid()) {

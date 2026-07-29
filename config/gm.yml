@@ -11,18 +11,6 @@ graphDBConfig:
 
 gtfsSourceConfig:
 %[shared/tfgm_trams.yml]
-#  - name: tfgm
-#    hasFeedInfo: false
-#    transportModes: [ tram ]
-#    transportModesWithPlatforms: [ Tram ]
-#    initialWaitMinutes: 13
-#    noServices: []
-#    markedInterchangesOnly: false
-#    additionalInterchanges: []
-#    groupedStationModes: []
-#    addWalksForClosed: true
-#    stationClosures: []
-#    temporaryStationsWalks: []
 rail:
   dataPath: data/openRailData
   modes: [ Train, RailReplacementBus ]

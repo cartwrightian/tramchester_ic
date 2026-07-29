@@ -140,6 +140,7 @@ public class JourneyConstraints {
         return routesAndServicesFilter.isServiceRunningByTime(serviceId, time, maxWait);
     }
 
+    @Deprecated
     public boolean destinationsAvailable(final TramTime time) {
         if (destinationsAvailable.contains(time)) {
             return true;

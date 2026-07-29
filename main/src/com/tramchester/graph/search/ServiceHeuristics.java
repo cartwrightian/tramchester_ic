@@ -99,9 +99,10 @@ public class ServiceHeuristics {
             return reasons.recordReason(HeuristicsReasons.AlreadyDeparted(currentTime, howIGotHere));
         }
 
-        if (!journeyConstraints.destinationsAvailable(nodeTime)) {
-            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(currentTime, howIGotHere));
-        }
+        // TODO This feels problematic when we have Linked Stations
+//        if (!journeyConstraints.destinationsAvailable(nodeTime)) {
+//            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(currentTime, howIGotHere));
+//        }
 
         // Wait to get the service?
         final TimeRange window = TimeRangePartial.of(nodeTime, TramDuration.ofMinutes(maxWait), TramDuration.ZERO);
