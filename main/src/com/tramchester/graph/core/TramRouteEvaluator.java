@@ -302,9 +302,8 @@ public abstract class TramRouteEvaluator {
 
         if (timingOutcome == ArrivalHandler.Outcome.Worse) {
             return reasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHere, totalCostSoFar, numberChanges));
-        }
-
-        // else Same on timings
+        } // else
+        // Same on timings, so look at Changes
 
         final ArrivalHandler.Outcome changesOutcome = bestResultSoFar.checkChanges(journeyState, numberChanges);
 

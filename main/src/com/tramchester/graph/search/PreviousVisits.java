@@ -38,7 +38,8 @@ public class PreviousVisits implements ReportsCacheStats {
 
     public PreviousVisits(boolean cachingDisabled, NumberOfNodesAndRelationshipsRepository countsNodes) {
         this.cachingDisabled = cachingDisabled;
-        timeNodePrevious = createCache(countsNodes.numberOf(GraphLabel.MINUTE));
+        long numberMinuteNodes = countsNodes.numberOf(GraphLabel.MINUTE);
+        timeNodePrevious = createCache(numberMinuteNodes);
         hourNodePrevious = createCache(countsNodes.numberOf(GraphLabel.HOUR));
         routeStationPrevious = createCache(countsNodes.numberOf(GraphLabel.ROUTE_STATION));
         servicePrevious = createCache(countsNodes.numberOf(GraphLabel.SERVICE));
@@ -108,31 +109,31 @@ public class PreviousVisits implements ReportsCacheStats {
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time and can only arrive at the "same time" as previous visits
-            final HeuristicsReason timeFound = timeNodePrevious.getIfPresent(nodeId);
-            if (timeFound != null) {
-                return timeFound;
+            final HeuristicsReason timeFoundReason = timeNodePrevious.getIfPresent(nodeId);
+            if (timeFoundReason != null) {
+                return timeFoundReason;
             }
         }
 
         if (labels.contains(GraphLabel.HOUR)) {
             // Can arrive at a hour nodes at different times, so need to include that in the key
-            final HeuristicsReason hourFound = hourNodePrevious.getIfPresent(new NodeIdKeyWith<>(nodeId, journeyState.getJourneyClock()));
-            if (hourFound != null) {
-                return hourFound;
+            final HeuristicsReason hourFoundReason = hourNodePrevious.getIfPresent(new NodeIdKeyWith<>(nodeId, journeyState.getJourneyClock()));
+            if (hourFoundReason != null) {
+                return hourFoundReason;
             }
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            final HeuristicsReason found = routeStationPrevious.getIfPresent(new NodeIdKeyWith<>(nodeId, journeyState.getJourneyClock()));
-            if (found != null) {
+            final HeuristicsReason routeStationReason = routeStationPrevious.getIfPresent(new NodeIdKeyWith<>(nodeId, journeyState.getJourneyClock()));
+            if (routeStationReason != null) {
                 return HeuristicsReasons.AlreadySeenRouteStation(howIGotHere);
             }
         }
 
         if (labels.contains(GraphLabel.SERVICE)) {
-            final HeuristicsReason found = servicePrevious.getIfPresent(nodeId);
-            if (found != null) {
-                return found;
+            final HeuristicsReason serviceReason = servicePrevious.getIfPresent(nodeId);
+            if (serviceReason != null) {
+                return serviceReason;
             }
         }
 

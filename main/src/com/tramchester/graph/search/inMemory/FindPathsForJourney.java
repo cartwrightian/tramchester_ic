@@ -42,7 +42,8 @@ public class FindPathsForJourney {
     private final long numberJourneys;
 
     public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
-                               final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory, long numberJourneys) {
+                               final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory,
+                               long numberJourneys) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();

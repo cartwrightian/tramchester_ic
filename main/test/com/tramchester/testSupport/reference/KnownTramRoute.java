@@ -85,9 +85,11 @@ public class KnownTramRoute {
             // not tracking buses
 
         } else {
-            routes.add(find.singleRoute(Red));
-            routes.add(find.singleRoute(Blue));
-            routes.add(find.singleRoute(Purple));
+            if (!date.equals(summerBankHol2026)) {
+                routes.add(find.singleRoute(Red));
+                routes.add(find.singleRoute(Blue));
+                routes.add(find.singleRoute(Purple));
+            }
             if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
                 if (date.isBefore(TramDate.of(2026, 8, 9))) {
                     routes.add(find.singleRoute(Green));
@@ -99,9 +101,11 @@ public class KnownTramRoute {
             }
         }
 
-        routes.add(find.singleRoute(Yellow));
-        routes.add(find.singleRoute(Navy));
-        routes.add(find.singleRoute(Pink));
+        if (!date.equals(summerBankHol2026)) {
+            routes.add(find.singleRoute(Yellow));
+            routes.add(find.singleRoute(Navy));
+            routes.add(find.singleRoute(Pink));
+        }
 
         return routes;
     }
@@ -179,10 +183,9 @@ public class KnownTramRoute {
         }
 
         private @NonNull SortedMap<TramDate, Set<KnownTramRouteEnum>> getKnownByDate(final TFGMRouteNames line) {
-            boolean dateIsSunday = (date.getDayOfWeek() == DayOfWeek.SUNDAY);
             final List<KnownTramRouteEnum> dateOrdered = Arrays.stream(KnownTramRouteEnum.values()).
                     filter(known -> known.line().equals(line)).
-                    filter(known -> !known.sundayOnly() || (dateIsSunday && date.equals(known.getValidFrom()))).
+                    filter(known -> checkSundays(date, known)).
                     filter(known -> date.isEqual(known.getValidFrom()) || date.isAfter(known.getValidFrom())).
                             toList();
             if (dateOrdered.isEmpty()) {
@@ -198,6 +201,18 @@ public class KnownTramRoute {
             sortedByDate.putAll(routesForDate);
 
             return sortedByDate;
+        }
+
+        private boolean checkSundays(final TramDate date, final KnownTramRouteEnum known) {
+            final boolean dateIsSunday = (date.getDayOfWeek() == DayOfWeek.SUNDAY);
+
+            return switch (known.sundayOnly()) {
+                case KnownTramRouteEnum.SundayOnly.no -> true;
+                case KnownTramRouteEnum.SundayOnly.yes -> dateIsSunday && date.equals(known.getValidFrom());
+                case KnownTramRouteEnum.SundayOnly.every ->
+                        dateIsSunday && (date.isEqual(known.getValidFrom()) || date.isAfter(known.getValidFrom()));
+            };
+
         }
 
         public KnownTramRouteEnum exactMatchWith(final Route expected) {

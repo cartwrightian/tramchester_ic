@@ -30,56 +30,61 @@ public enum KnownTramRouteEnum implements TestRoute {
     // Blue
     Blue1(Blue, "Eccles - Ashton Under Lyne", "xxx2", summerClosureFirstSunday),
     Blue2(Blue, "Eccles - Ashton Under Lyne", "3217", Constants.reopenSummer2026),
+    Blue3(Blue, "Eccles - Ashton-under-Lyne", "3322",TramDate.of(2026,8,9), SundayOnly.every),
 
     // Green
     Green1(Green, "Bury - Manchester - Altrincham", "3218", Constants.reopenSummer2026),
 
     // Navy
-    Navy4(Navy, "Victoria - Manchester Airport", "3300", cutoverDate),
-    Navy7(Navy, "Manchester Airport - Victoria", "3287", Constants.summerClosures2026EndDate, true),
-    Navy8(Navy, "Victoria - Manchester Airport", "3219", Constants.reopenSummer2026),
-    Navy9(Navy, "Victoria - Manchester Airport", "3219", TramDate.of(2026,8,9), true),
-    Navy10(Navy, "Manchester Airport - Victoria", "3219", TramDate.of(2026,8,16), true),
+    Navy1(Navy, "Victoria - Manchester Airport", "3300", cutoverDate),
+    Navy2(Navy, "Manchester Airport - Victoria", "3287", Constants.summerClosures2026EndDate, SundayOnly.yes),
+    Navy3(Navy, "Victoria - Manchester Airport", "3219", Constants.reopenSummer2026),
+    Navy4(Navy, "Manchester Airport - Victoria", "3315", TramDate.of(2026,8,9), SundayOnly.every),
 
     // Pink
-    Pink4(Pink, "Rochdale - East Didsbury" , "3301", cutoverDate),
-    Pink7(Pink, "East Didsbury - Rochdale" , "3286", Constants.summerClosures2026EndDate, true),
-    Pink8(Pink, "Rochdale - East Didsbury" , "3220", Constants.reopenSummer2026),
-    Pink9(Pink, "Rochdale - East Didsbury" , "3220", TramDate.of(2026,8,9), true),
-    Pink10(Pink, "Rochdale - East Didsbury" , "3220", TramDate.of(2026,8,16), true),
+    Pink1(Pink, "Rochdale - East Didsbury" , "3301", cutoverDate),
+    Pink2(Pink, "East Didsbury - Rochdale" , "3286", Constants.summerClosures2026EndDate, SundayOnly.yes),
+    Pink3(Pink, "Rochdale - East Didsbury" , "3220", Constants.reopenSummer2026),
+    Pink4(Pink, "East Didsbury - Rochdale" , "3312", TramDate.of(2026,8,9), SundayOnly.every),
 
     // Purple
-    Purple8(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", Constants.reopenSummer2026),
+    Purple1(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", Constants.reopenSummer2026),
+    Purple2(Purple, "Altrincham - Etihad Campus", "3324", TramDate.of(2026,8,9), SundayOnly.every),
 
     // Red
     Red1(Red, "Deansgate Castlefield - The Trafford Centre", "xxx1", summerClosureFirstSunday),
     Red2(Red, "Deansgate Castlefield - The Trafford Centre", "3222", Constants.reopenSummer2026),
+    Red3(Red, "Trafford Centre - Crumpsall", "3323", TramDate.of(2026,8,9), SundayOnly.every),
 
     // Yellow
-    Yellow4(Yellow, "Piccadilly - Bury", "3302", cutoverDate),
-    Yellow7(Yellow, "Piccadilly - Bury", "844", Constants.summerClosures2026EndDate, true),
-    Yellow8(Yellow, "Piccadilly - Bury", "3223", Constants.reopenSummer2026),
-    Yellow9(Yellow, "Piccadilly - Bury" , "3223", TramDate.of(2026,8,9), true),
-    Yellow10(Yellow, "Piccadilly - Bury" , "3223", TramDate.of(2026,8,16), true)
+    Yellow1(Yellow, "Piccadilly - Bury", "3302", cutoverDate),
+    Yellow2(Yellow, "Piccadilly - Bury", "844", Constants.summerClosures2026EndDate, SundayOnly.yes),
+    Yellow3(Yellow, "Piccadilly - Bury", "3223", Constants.reopenSummer2026),
+    Yellow4(Yellow, "Piccadilly - Bury" , "844", TramDate.of(2026,8,9), SundayOnly.every),
     ;
 
     private final TFGMRouteNames line;
     private final String longName;
     private final String id;
     private final TramDate validFrom;
-    private final boolean sundayOnly;
+    private final SundayOnly sundayOnly;
 
-    KnownTramRouteEnum(TFGMRouteNames line, String longName, String id, TramDate validFrom) {
-        this(line, longName, id, validFrom, false);
+    public enum SundayOnly {
+        yes, no, every
     }
 
-    KnownTramRouteEnum(TFGMRouteNames line, String longName, String id, TramDate validFrom, boolean sundayOnly) {
+
+    KnownTramRouteEnum(TFGMRouteNames line, String longName, String id, TramDate validFrom) {
+        this(line, longName, id, validFrom, SundayOnly.no);
+    }
+
+    KnownTramRouteEnum(TFGMRouteNames line, String longName, String id, TramDate validFrom, SundayOnly sundayOnly) {
         this.longName = longName;
         this.validFrom = validFrom;
         this.line = line;
         this.id = id;
-        if (sundayOnly && validFrom.getDayOfWeek()!= DayOfWeek.SUNDAY) {
-            throw new RuntimeException("Line " + line + " not a sunday " + validFrom);
+        if (sundayOnly!=SundayOnly.no && validFrom.getDayOfWeek()!= DayOfWeek.SUNDAY) {
+            throw new RuntimeException("Line " + line + " not a Sunday " + validFrom);
         }
         this.sundayOnly = sundayOnly;
     }
@@ -100,7 +105,7 @@ public enum KnownTramRouteEnum implements TestRoute {
         return TransportMode.Tram;
     }
 
-    public boolean sundayOnly() {
+    public SundayOnly sundayOnly() {
         return sundayOnly;
     }
 
