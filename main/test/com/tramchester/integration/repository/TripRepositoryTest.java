@@ -85,8 +85,7 @@ public class TripRepositoryTest {
 
         assertFalse(fromAlty.isEmpty());
 
-        assertFalse(when.isAfter(UpcomingDates.summer2026MajorClosure.getEndDate()), "Remove the plus 30");
-        TramDuration maxWait = TramDuration.ofMinutes(config.getMaxWait()).plusMinutes(30);
+        TramDuration maxWait = TramDuration.ofMinutes(config.getMaxWait()); //.plusMinutes(30);
 
         TimeRange range = TimeRangePartial.of(TramTime.of(0,1), TramDuration.ZERO,
                 maxWait);

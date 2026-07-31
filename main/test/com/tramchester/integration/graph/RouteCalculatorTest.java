@@ -334,8 +334,8 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveBusForSummer2026AlttToPicc() {
-        //TramDate date = UpcomingDates.summer2026MajorClosure.getStartDate().plusDays(1);
+    void shouldHaveBusForSummer2026AltyToPicc() {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21),
                 1, 2);

@@ -74,7 +74,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return mode;
     }
 
-    public VehicleStage setCost(TramDuration cost) {
+    public VehicleStage setCost(final TramDuration cost) {
         this.cost = cost;
         return this;
     }

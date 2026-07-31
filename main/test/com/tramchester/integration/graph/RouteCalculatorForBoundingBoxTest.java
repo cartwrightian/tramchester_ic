@@ -138,17 +138,12 @@ class RouteCalculatorForBoundingBoxTest {
                 filter(group -> !allClosed(group)).
                 toList();
 
-        assertEquals(3, missed.size(), missed.toString()); // when start and dest match
+        assertEquals(1, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertFalse(journey.getStages().isEmpty()); // catch case where starting point is dest
         } ));
     }
-
-//    private boolean isolatedSectionSummer2025(JourneysForBox group) {
-//        return group.getBox().getStations().stream().
-//                anyMatch(station -> UpcomingDates.WharfsideTraffordCentreStopsSummer2025.contains(station.getId()));
-//    }
 
     private boolean allClosed(JourneysForBox group) {
         return group.getBox().getStations().stream().

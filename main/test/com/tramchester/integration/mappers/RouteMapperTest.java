@@ -55,8 +55,7 @@ class RouteMapperTest {
 
         assertEquals(ManAirport.getId(), results.getFirst().getId());
 
-        // summer 2026
-        assertEquals(Firswood.getId(), results.getLast().getId());
+        assertEquals(Victoria.getId(), results.getLast().getId());
 
     }
 

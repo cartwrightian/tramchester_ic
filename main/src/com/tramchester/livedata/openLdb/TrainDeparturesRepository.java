@@ -74,7 +74,19 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             logger.error(message);
             throw new RuntimeException(message);
         }
-        return departuresCache.getOrUpdate(station, key -> liveTrainDepartures.forStation(key, destinationAndCallingPoints));
+        UpcomingDeparturesCache.CacheUpdateStrategy strategy = new UpcomingDeparturesCache.CacheUpdateStrategy() {
+            @Override
+            public List<UpcomingDeparture> fetchFor(final Station station) {
+                return liveTrainDepartures.forStation(station, destinationAndCallingPoints);
+            }
+
+            @Override
+            public boolean isDetailed() {
+                return !destinationAndCallingPoints.isNone();
+            }
+        };
+        return departuresCache.getOrUpdate(station, strategy);
+        //return departuresCache.getOrUpdate(station, key -> liveTrainDepartures.forStation(key, destinationAndCallingPoints));
     }
 
     private static class LiveTrainDepartures implements UpcomingDeparturesSource {
@@ -101,7 +113,7 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             return result;
         }
 
-        private List<UpcomingDeparture> fetchSpecificDeparturesFrom(Station station, DestinationAndCallingPoints destinationAndCallingPoints) {
+        private List<UpcomingDeparture> fetchSpecificDeparturesFrom(final Station station, final DestinationAndCallingPoints destinationAndCallingPoints) {
             final Optional<DeparturesBoardWithDetails> maybeBoard = dataFetcher.getFor(station, destinationAndCallingPoints);
 
             if (maybeBoard.isPresent()) {

@@ -47,6 +47,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -122,7 +123,7 @@ public class RouteToRouteCostsTest {
 
         assertTrue(missing.isEmpty(), "On " + date + " " + missing);
 
-        assertEquals(3, changes.size());
+        assertEquals(2, changes.size());
         assertTrue(changes.contains(0));
         assertTrue(changes.contains(1));
 
@@ -214,6 +215,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSummer2026() {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
+
         Route routeA = routeHelper.requireByLongName(date, TestEnv.AltToPicBusLongName);
 
         Route routeB = routeHelper.getNavy(date);
@@ -231,7 +234,7 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
-        assertEquals(2, getMinCost(result));
+        assertEquals(1, getMinCost(result));
     }
 
     private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -262,7 +265,7 @@ public class RouteToRouteCostsTest {
 
         int result = getPossibleMinChanges(mediaCity, ashton, modes, date, timeRange);
 
-        assertEquals(2, getMinCost(result));
+        assertEquals(1, getMinCost(result));
     }
 
     @Test
@@ -270,8 +273,7 @@ public class RouteToRouteCostsTest {
         int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),
                 Ashton.from(stationRepository), modes, date, timeRange);
 
-        // summer 2026
-        assertEquals(0+1, possibleMin);
+        assertEquals(0, possibleMin);
     }
 
     @Test
@@ -280,8 +282,7 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
-        // summer 2026
-        assertEquals(0+1, getMinCost(result));
+        assertEquals(0, getMinCost(result));
     }
 
     @Summer2026Closures

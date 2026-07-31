@@ -169,8 +169,8 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
 
     private boolean withinTime(final TramTime queryTime, final LocalTime updateTime) {
         final TramTime tramTime = TramTime.ofHourMins(updateTime);
-        final TramTime limitBefore = tramTime.minus(TIME_LIMIT_MINS); // TramTime.ofHourMins(updateTime.minus(TIME_LIMIT_MINS));
-        final TramTime limitAfter = tramTime.plus(TIME_LIMIT_MINS); // TramTime.ofHourMins(updateTime.plus(TIME_LIMIT_MINS));
+        final TramTime limitBefore = tramTime.minus(TIME_LIMIT_MINS);
+        final TramTime limitAfter = tramTime.plus(TIME_LIMIT_MINS);
         return queryTime.between(limitBefore, limitAfter);
     }
 

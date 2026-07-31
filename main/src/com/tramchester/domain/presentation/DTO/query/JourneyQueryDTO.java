@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
@@ -106,8 +107,10 @@ public class JourneyQueryDTO  {
         final TramDate date = dto.getTramDate();
         final LocalTime time = dto.getTime();
 
+        final TimeRange earlyHours = TimeRange.of(TramTime.of(0,0), TramTime.of(4,0));
+
         TramTime queryTime = TramTime.ofHourMins(time);
-        if (queryTime.between(TramTime.of(0,0), TramTime.of(4,0))) {
+        if (earlyHours.contains(queryTime)) {
             queryTime = TramTime.nextDay(queryTime);
         }
 

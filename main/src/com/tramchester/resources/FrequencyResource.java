@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StopCallsForGrid;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,15 +60,17 @@ public class FrequencyResource extends TransportResource implements APIResource 
         logger.info(format("Query for %s gridsize meters, date: '%s' start: '%s' end: '%s", gridSize,
                 dateRaw, startTimeRaw, endTimeRaw));
 
-        TramDate date = TramDate.parse(dateRaw);
-        TramTime startTime = parseTime(startTimeRaw);
-        TramTime endTime = parseTime(endTimeRaw);
+        final TramDate date = TramDate.parse(dateRaw);
+        final TramTime startTime = parseTime(startTimeRaw);
+        final TramTime endTime = parseTime(endTimeRaw);
 
-        Stream<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFrequencies(gridSize, date, startTime, endTime);
-        Stream<BoxWithFrequencyDTO> dtoStream = results.map(this::createDTO);
-        JsonStreamingOutput<BoxWithFrequencyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(dtoStream);
+        final TimeRange timeRange = TimeRange.of(startTime, endTime);
 
-        Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
+        final Stream<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFrequencies(gridSize, date, timeRange);
+        final Stream<BoxWithFrequencyDTO> dtoStream = results.map(this::createDTO);
+        final JsonStreamingOutput<BoxWithFrequencyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(dtoStream);
+
+        final Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
         return responseBuilder.build();
     }
 

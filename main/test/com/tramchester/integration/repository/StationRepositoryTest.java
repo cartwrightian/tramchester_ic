@@ -45,6 +45,7 @@ import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -116,7 +117,9 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        assertEquals(3-2, lines.size(), lines.toString());
+        assertEquals(4, lines.size(), lines.toString());
+
+        assertFalse(lines.contains(Red.getShortName()), "Got " + Red.getShortName() + " in " + lines);
 
     }
 
@@ -263,6 +266,8 @@ public class StationRepositoryTest {
 
     @Test
     void shouldHaveExpectedPickupAndDropoffForCornbrookSummer2026() {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
+
         Station station = Cornbrook.from(stationRepository);
 
         assertTrue(station.hasDropoff());

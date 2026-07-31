@@ -2,14 +2,20 @@ package com.tramchester.integration.graph.railAndTram;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
@@ -18,16 +24,19 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
+import static com.tramchester.integration.graph.railAndTram.RailAndTramRouteCalculatorTest.STOCKPORT_TRIP_ID;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -173,6 +182,64 @@ class RailAndTramGraphBuilderTest {
         ImmutableIdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
 
         assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
+    }
+
+    @Test
+    void shouldHaveExpectedCostForSpecificLinkStockportToNavigationRoad() {
+
+        TripRepository tripRepository = componentContainer.get(TripRepository.class);
+
+        Trip trip = tripRepository.getTripById(STOCKPORT_TRIP_ID);
+        IdFor<Service> serviceId = trip.getService().getId();
+
+        StopCalls stopCalls = trip.getStopCalls();
+        StopCall stockportStop = stopCalls.getStopFor(RailStationIds.Stockport.getId());
+        TramTime stockportArrivalTime = stockportStop.getArrivalTime();
+
+        Route route = trip.getRoute();
+
+        RouteStation routeStation = stationRepository.getRouteStation(RailStationIds.Stockport.from(stationRepository), route);
+
+        GraphNode routeStationNode = txn.findNode(routeStation);
+
+        Stream<GraphRelationship> toServices = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE);
+
+        Optional<GraphRelationship> maybeToService = toServices.filter(graphRelationship -> graphRelationship.getServiceId().equals(serviceId)).findFirst();
+        assertTrue(maybeToService.isPresent());
+
+        GraphRelationship toService = maybeToService.get();
+
+        GraphNode serviceNode = toService.getEndNode(txn);
+
+        Stream<GraphRelationship> toHours = serviceNode.getRelationships(txn, GraphDirection.Outgoing, TO_HOUR);
+        Optional<GraphRelationship> maybeToHour = toHours.filter(graphRelationship -> graphRelationship.getHour() == stockportArrivalTime.getHourOfDay()).findFirst();
+        assertTrue(maybeToHour.isPresent());
+
+        GraphRelationship toHour = maybeToHour.get();
+
+        GraphNode hourNode = toHour.getEndNode(txn);
+        Stream<GraphRelationship> toMinutes = hourNode.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
+        Optional<GraphRelationship> toMinuteMaybe = toMinutes.filter(graphRelationship -> graphRelationship.getEndNode(txn).getTripId().equals(trip.getId())).findFirst();
+        assertTrue(toMinuteMaybe.isPresent());
+
+        GraphRelationship toMinute = toMinuteMaybe.get();
+
+        GraphNode minuteNode = toMinute.getEndNode(txn);
+        assertEquals(trip.getId(), minuteNode.getTripId());
+
+        List<GraphRelationship> goesTos = minuteNode.getRelationships(txn, GraphDirection.Outgoing, TRAIN_GOES_TO).toList();
+
+        assertEquals(1, goesTos.size());
+        GraphRelationship goesTo = goesTos.getFirst();
+
+        StopCall navyRoad = stopCalls.getStopFor(RailStationIds.NavigationRaod.getId());
+
+        TramDuration expectedCost = TramTime.difference(stockportStop.getDepartureTime(), navyRoad.getArrivalTime());
+
+        assertEquals(trip.getId(), goesTo.getTripId());
+        assertEquals(navyRoad.getGetSequenceNumber(), goesTo.getStopSeqNumber(), "Wrong for stopcalls " + stopCalls);
+        assertEquals(expectedCost, goesTo.getCost());
+
     }
 
 }

@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
@@ -44,7 +45,7 @@ public class BusReplacementRepositoryTest {
         repository = componentContainer.get(BusReplacementRepository.class);
         routeHelper = new TramRouteHelper(componentContainer);
 
-        when = TestEnv.testDay();
+        when = UpcomingDates.summer2026MajorClosure.getEndDate();
     }
 
     @Test

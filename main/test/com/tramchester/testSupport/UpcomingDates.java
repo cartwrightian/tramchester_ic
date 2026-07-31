@@ -40,9 +40,13 @@ public class UpcomingDates {
 
     public static DateRange summer2026MajorClosure = TramchesterConfig.getSummer2026Closures();
 
-   public static TramDate summerClosureFirstSunday = TramDate.of(2026, 7, 19);
+    public static TramDate summerClosureFirstSunday = TramDate.of(2026, 7, 19);
 
-   public static TramDate summerBankHol2026 = TramDate.of(2026, 8, 31);
+    public static TramDate summerBankHol2026 = TramDate.of(2026, 8, 31);
+
+    public static TramDate sundaySept202Closure = TramDate.of(2026, 9,6);
+    public static TramDate sundaySept202ClosureNotPublished = TramDate.of(2026, 9,13);
+
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         // Add closures to the TimeRange version

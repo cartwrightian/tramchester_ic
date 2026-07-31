@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
@@ -43,6 +44,7 @@ import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class RouteCalculatorTraffordBarBurtonRoadTest {
     private static ComponentContainer componentContainer;
@@ -122,6 +124,7 @@ class RouteCalculatorTraffordBarBurtonRoadTest {
 
     @Test
     void shouldHaveTraffordBarToBurtonRoad() {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
 
         Set<String> ids = Stream.of(Chorlton, Firswood).
                 map(FakeStation::getId).
@@ -130,7 +133,7 @@ class RouteCalculatorTraffordBarBurtonRoadTest {
 
         List<Journey> results = validateAtLeastOneJourney(TraffordBar, BurtonRoad, TramTime.of(9, 0), when);
         results.forEach(journey -> {
-            assertEquals(2, journey.getStages().size());
+            assertEquals(1, journey.getStages().size());
 
             TransportStage<? extends Location<?>, ? extends Location<?>> stageOne = journey.getStages().getFirst();
             IdFor<?> stageOneLastStationId = stageOne.getLastStation().getId();

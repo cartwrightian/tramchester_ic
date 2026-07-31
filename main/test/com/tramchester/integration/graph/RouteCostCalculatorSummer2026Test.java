@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -72,23 +73,31 @@ class RouteCostCalculatorSummer2026Test {
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyNavRoad() throws InvalidDurationException {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
+
         assertEquals(TramDuration.ofMinutes(4), getAverageCostBetween(NavigationRoad.from(stationRepository), altrincham));
         assertMinutesEquals(8, getAverageCostBetween(altrincham, NavigationRoad.from(stationRepository)));
     }
 
     @Test
     void shouldReproduceIssueFromAltyToCornbrook() throws InvalidDurationException {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
+
         assertEquals(TramDuration.ofHours(1).plusMinutes(2), getAverageCostBetween(altrincham, Cornbrook.from(stationRepository)));
     }
 
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
+
         assertEquals(TramDuration.ofHours(1).plusMinutes(6), getAverageCostBetween(mediaCity, Ashton.from(stationRepository)));
         assertEquals(TramDuration.ofMinutes(65), getAverageCostBetween(Ashton.from(stationRepository), mediaCity));
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyBury() throws InvalidDurationException {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
+
         // changes regularly with timetable updates
 
         final Station bury = Bury.from(stationRepository);
@@ -99,6 +108,8 @@ class RouteCostCalculatorSummer2026Test {
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
+
         assertEquals(TramDuration.ofMinutes(63), getAverageCostBetween(mediaCity, airport));
         assertEquals(TramDuration.ofMinutes(62), getAverageCostBetween(airport, mediaCity));
     }

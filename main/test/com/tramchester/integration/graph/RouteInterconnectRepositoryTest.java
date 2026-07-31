@@ -33,7 +33,7 @@ import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import com.tramchester.testSupport.testTags.Summer2026Closures;
-import com.tramchester.testSupport.testTags.TraffordCentreTramsFromVictoria2026;
+import com.tramchester.testSupport.testTags.TraffordCentreTramsFromCrumpsal2026;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.MutableAgency.METL;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -178,7 +179,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @TraffordCentreTramsFromVictoria2026
+    @TraffordCentreTramsFromCrumpsal2026
     @Test
     void shouldCheckFor2Changes() {
 
@@ -249,6 +250,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedBacktrackFor1ChangesSummer2026() {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
+
         Set<Route> buses = routeRepository.findRoutesByName(METL, "Piccadilly Station - Chorlton");
         Optional<Route> search = buses.stream().filter(route -> route.isAvailableOn(date)).findFirst();
         assertTrue(search.isPresent());
@@ -291,7 +294,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @TraffordCentreTramsFromVictoria2026
+    @TraffordCentreTramsFromCrumpsal2026
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
@@ -335,7 +338,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @TraffordCentreTramsFromVictoria2026
+    @TraffordCentreTramsFromCrumpsal2026
     @Test
     void shouldCheckFor2ChangesFiltered() {
         // Victoria while Trafford center running from Victoria

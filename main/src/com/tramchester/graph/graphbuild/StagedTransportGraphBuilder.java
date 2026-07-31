@@ -557,19 +557,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final TramTime departureTime = beginStop.getDepartureTime();
 
         // time node -> end route station
-        final MutableGraphNode timeNode = timeNodes.get(StationTime.of(startStation, beginStop.getDepartureTime()));
+        final MutableGraphNode timeNode = timeNodes.get(StationTime.of(startStation, departureTime));
         final MutableGraphNode routeStationEnd = routeStationNodeCache.getRouteStation(tx, route, endStop.getStation().getId());
 
         final TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
 
         if (timeNode.hasRelationship(tx, Outgoing, transportRelationshipType)) {
-            throw new RuntimeException("Already has relationship from " + departureTime + " to " + startStation.getId());
+            throw new RuntimeException("Already has relationship from " + timeNode + " to " + startStation.getId());
         }
 
         final MutableGraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
 
         // properties on relationship
-        final TramDuration cost = TramTime.difference(endStop.getArrivalTime(), departureTime);
+        final TramDuration cost = TramTime.difference(departureTime, endStop.getArrivalTime());
         goesToRelationship.setCost(cost);
         goesToRelationship.set(trip);
         goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
@@ -611,11 +611,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final MutableGraphNode svcNode = serviceNodeCache.getServiceNode(tx, trip.getRoute().getId(), trip.getService(), startId, endId);
         final MutableGraphNode hourNode = hourNodeCache.getHourNode(tx, svcNode.getId(),
                 departureTime.getHourOfDay());
-        final MutableGraphRelationship fromPrevious = createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
-        //fromPrevious.setCost(TramDuration.ZERO);
-        // No longer used
-//        fromPrevious.setTime(departureTime);
-//        fromPrevious.set(trip);
+        createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
 
         return timeNode;
     }
@@ -628,10 +624,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (!hourNodeCache.hasHourNode(serviceNode.getId(), hour)) {
             final MutableGraphNode hourNode = createGraphNode(tx, GraphLabel.HOUR);
             hourNode.setHourProp(hour);
-//            if (!inMemory) {
-//                // neo4J impl uses Labels as a performance workaround
-//                hourNode.addLabel(tx, GraphLabel.getHourLabel(hour));
-//            }
             hourNodeCache.putHour(serviceNode.getId(), hour, hourNode);
 
             // service node -> time node

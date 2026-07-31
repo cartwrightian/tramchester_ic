@@ -8,6 +8,7 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -53,6 +54,8 @@ public class StopCallsForGridTest extends EasyMockSupport {
         TramTime begin = TramTime.of(11,30);
         TramTime end = TramTime.of(13,45);
 
+        TimeRange timeRange = TimeRange.of(begin,end);
+
         final Station station1 = TramStations.Altrincham.fake();
         final Station station2 = TramStations.Bury.fake();
         final Station station3 = TramStations.Anchorage.fake();
@@ -77,24 +80,24 @@ public class StopCallsForGridTest extends EasyMockSupport {
 
         final int gridSize = 2000;
         EasyMock.expect(stationLocations.getStationsInGrids(gridSize)).andReturn(boundingBoxes.stream());
-        EasyMock.expect(stopCallRepository.getStopCallsFor(station1, date, begin, end)).andReturn(station1Calls);
-        EasyMock.expect(stopCallRepository.getStopCallsFor(station2, date, begin, end)).andReturn(station2Calls);
-        EasyMock.expect(stopCallRepository.getStopCallsFor(station3, date, begin, end)).andReturn(station3Calls);
+        EasyMock.expect(stopCallRepository.getStopCallsFor(station1, date, timeRange)).andReturn(station1Calls);
+        EasyMock.expect(stopCallRepository.getStopCallsFor(station2, date, timeRange)).andReturn(station2Calls);
+        EasyMock.expect(stopCallRepository.getStopCallsFor(station3, date, timeRange)).andReturn(station3Calls);
 
         replayAll();
         Set<BoxWithServiceFrequency> results = stopCallsForGrid.
-                getServiceFrequencies(gridSize, date, begin, end).collect(Collectors.toSet());
+                getServiceFrequencies(gridSize, date, timeRange).collect(Collectors.toSet());
         verifyAll();
 
         assertEquals(2, results.size());
 
         List<BoxWithServiceFrequency> forBoxA = results.stream().filter(result -> result.overlapsWith(boxA)).toList();
         assertEquals(1, forBoxA.size());
-        assertEquals(3+3, forBoxA.get(0).getNumberOfStopcalls());
+        assertEquals(3+3, forBoxA.getFirst().getNumberOfStopcalls());
 
         List<BoxWithServiceFrequency> forBoxB = results.stream().filter(result -> result.overlapsWith(boxB)).toList();
         assertEquals(1, forBoxB.size());
-        assertEquals(10, forBoxB.get(0).getNumberOfStopcalls());
+        assertEquals(10, forBoxB.getFirst().getNumberOfStopcalls());
     }
 
     private Set<StopCall> createStopCalls(Station station, TramTime first, int intervalMins, int number) {

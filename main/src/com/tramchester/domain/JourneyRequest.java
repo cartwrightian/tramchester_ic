@@ -58,7 +58,8 @@ public class JourneyRequest {
         warnIfNoResults = true;
         diagnosticsReceived = new AtomicBoolean(false);
 
-        if (!TramchesterConfig.getSummer2026Closures().contains(date)) {
+        final TramDate end = TramchesterConfig.getSummer2026Closures().getEndDate().plusWeeks(1);
+        if (date.isAfter(end)) {
             final int limit = (requestedModes.size() == 1) ? 2 : 3;
             if (maxChanges.get() > limit) {
                 throw new RuntimeException("Finding out where it's too high, got " + maxChanges + " > " + limit + " " + requestedModes);

@@ -7,7 +7,7 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.repository.StopCallRepository;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
@@ -36,23 +36,23 @@ public class StopCallsForGrid {
         this.stopCallRepository = stopCallRepository;
     }
 
-    public Stream<BoxWithServiceFrequency> getServiceFrequencies(int gridSize, TramDate date, TramTime begin, TramTime end) {
-        logger.info(format("Get stopcalls for grid size %s on %s between %s and %s", gridSize, date, begin, end));
+    public Stream<BoxWithServiceFrequency> getServiceFrequencies(final int gridSize, final TramDate date, final TimeRange timeRange) {
+        logger.info(format("Get stopcalls for grid size %s on %s within %s", gridSize, date, timeRange));
 
         return stationLocations.getStationsInGrids(gridSize).
                 filter(BoundingBoxWithStations::hasStations).
-                map(box -> createFrequencyBox(date, begin, end, box));
+                map(box -> createFrequencyBox(date, timeRange, box));
     }
 
     @NotNull
-    private BoxWithServiceFrequency createFrequencyBox(final TramDate date, final TramTime begin, final TramTime end, final BoundingBoxWithStations box) {
+    private BoxWithServiceFrequency createFrequencyBox(final TramDate date, final TimeRange timeRange, final BoundingBoxWithStations box) {
         final Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
         final EnumSet<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
         box.getStations().stream().
                 filter(location -> location.getLocationType()==LocationType.Station).
                 //map(location -> (Station)location).
                 forEach(station -> {
-                    final Set<StopCall> calls = stopCallRepository.getStopCallsFor(station, date, begin, end);
+                    final Set<StopCall> calls = stopCallRepository.getStopCallsFor(station, date,timeRange);
                     if (!calls.isEmpty()) {
                         stationToNumberStopCalls.put(station, calls.size());
                         modes.addAll(calls.stream().map(StopCall::getTransportMode).collect(Collectors.toCollection(() ->EnumSet.noneOf(TransportMode.class))));

@@ -251,12 +251,13 @@ public class TramTime implements Comparable<TramTime> {
         return this.offsetDays>other.offsetDays;
     }
 
+    public boolean between(final TimeRange range) {
+        return range.contains(this);
+    }
+
     // inclusive
     public boolean between(final TramTime start, final TramTime end) {
-        if ((this.equals(start)) || isAfter(start)) {
-            return (this.equals(end) || isBefore(end));
-        }
-        return false;
+        return between(TimeRange.of(start, end));
     }
 
     public boolean isBefore(final TramTime other) {

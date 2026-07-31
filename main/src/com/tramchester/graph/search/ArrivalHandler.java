@@ -13,7 +13,7 @@ public interface ArrivalHandler {
     static ArrivalHandler get() {
         // TODO Define correct number here
         //return new LowestCostSeenForTime(5);
-        return new LowestCostSeenForTime(1);
+        return new LowestCostSeenForTime(2);
     }
 
     Outcome checkDuration(ImmutableJourneyState journeyState);

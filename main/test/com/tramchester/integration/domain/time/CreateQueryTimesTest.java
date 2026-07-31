@@ -120,8 +120,7 @@ public class CreateQueryTimesTest {
         List<TramTime> results = createQueryTimes.generate(queryTime, location, date, modes);
         assertFalse(results.isEmpty());
 
-        // summer 2026
-        assertEquals(1+2, results.size(), results.toString());
+        assertEquals(1, results.size(), results.toString());
         assertEquals(queryTime, results.getFirst());
     }
 

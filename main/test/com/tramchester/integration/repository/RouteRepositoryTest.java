@@ -36,6 +36,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -204,7 +205,7 @@ public class RouteRepositoryTest {
                 filter(RouteRepositoryTest::isReplacementBus).
                 collect(IdSet.collector());
 
-        assertEquals(6, running.size());
+        assertEquals(0, running.size());
 
     }
 
@@ -291,11 +292,14 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedRoutesAtCornbrookSummer2026() {
+        TramDate date = TestEnv.testDay();
+
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
+
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
 
         Station cornbrook = Cornbrook.from(stationRepository);
 
-        TramDate date = TestEnv.testDay();
 
         Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());

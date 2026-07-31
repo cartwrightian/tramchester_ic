@@ -14,8 +14,8 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
 import jakarta.inject.Inject;
@@ -104,14 +104,14 @@ public class StopCallRepository  {
     }
 
     // visualisation of frequency support
-    public Set<StopCall> getStopCallsFor(Station station, TramDate date, TramTime begin, TramTime end) {
+    public Set<StopCall> getStopCallsFor(final Station station, final TramDate date, final TimeRange timeRange) {
         final Set<Service> runningOnDate = serviceRepository.getServicesOnDate(date, station.getTransportModes());
         final Set<StopCall> callsForStation = stopCalls.get(station);
 
         return callsForStation.stream().
                 filter(stopCall -> stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular)).
                 filter(stopCall -> runningOnDate.contains(stopCall.getService())).
-                filter(stopCall -> stopCall.getArrivalTime().between(begin, end)).
+                filter(stopCall -> timeRange.contains(stopCall.getArrivalTime())).
                 collect(Collectors.toSet());
     }
 

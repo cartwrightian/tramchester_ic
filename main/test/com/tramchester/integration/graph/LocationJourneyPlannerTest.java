@@ -187,8 +187,7 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        // summer 2026
-        int numberStages = 3+1;
+        int numberStages = 3;
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(nearAltrincham, ManAirport, request, numberStages);
 
@@ -318,8 +317,7 @@ class LocationJourneyPlannerTest {
 
         List<ChangeLocation<?>> changeStations = lowestCostJourney.getChangeStations();
 
-        // summer 2026
-        assertEquals(1+1, changeStations.size(),  " stations " + HasId.asIds(changeStations));
+        assertEquals(1, changeStations.size(),  " stations " + HasId.asIds(changeStations));
 
         ChangeLocation<?> changeStation = changeStations.getFirst();
         assertTrue(nearStationIds.contains(changeStation.getId()), changeStation + " not in " + nearStationIds);

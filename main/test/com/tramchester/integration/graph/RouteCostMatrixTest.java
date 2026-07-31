@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -107,6 +108,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWithReplacementBusesFromAlty() {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
+
         Route bus = routeHelper.requireByLongName(date, TestEnv.AltToPicBusLongName);
 
         int depthNavy = routeMatrix.getConnectionDepthFor(bus, routeHelper.getNavy(date));
@@ -119,6 +122,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWithReplacementBusesFromChorlton() {
+        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
+
         Route bus = routeHelper.requireByLongName(date, "Piccadilly Station - Chorlton");
 
         int depthNavy = routeMatrix.getConnectionDepthFor(bus, routeHelper.getNavy(date));

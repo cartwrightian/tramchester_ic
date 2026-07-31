@@ -30,7 +30,7 @@ public interface TimeRange {
         return TimeRangePartial.of(start, end);
     }
 
-    static TimeRange coveringAllOf(Set<TimeRange> ranges) {
+    static TimeRange coveringAllOf(final Set<TimeRange> ranges) {
         if (ranges.isEmpty()) {
             throw new RuntimeException("No time ranges supplied");
         }

@@ -12,6 +12,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -90,17 +91,17 @@ public class StopCallRepositoryTest {
     void shouldGetStopCallsForAStation() {
         Set<Service> servicesForDate = serviceRepository.getServicesOnDate(when, config.getTransportModesImmutable());
 
-        final IdFor<Station> stationId = TramStations.ManAirport.getId();
-
-        Station station = stationRepository.getStationById(stationId);
+        Station airport = ManAirport.from(stationRepository);
 
         final TramTime begin = TramTime.of(9, 0);
         final TramTime end = TramTime.of(10, 0);
 
-        Set<StopCall> results = stopCallRepository.getStopCallsFor(station, when, begin, end);
+        TimeRange timeRange = TimeRange.of(begin,end);
+
+        Set<StopCall> results = stopCallRepository.getStopCallsFor(airport, when, timeRange);
         assertFalse(results.isEmpty());
 
-        results.forEach(stopCall -> assertEquals(stationId, stopCall.getStationId()));
+        results.forEach(stopCall -> assertEquals(airport.getId(), stopCall.getStationId()));
 
         boolean wrongService = results.stream().
                 filter(stopCall -> !servicesForDate.contains(stopCall.getService())).
@@ -112,8 +113,7 @@ public class StopCallRepositoryTest {
                 count();
         assertEquals(results.size(), correctTimes);
 
-        // sumemr 2026
-        assertEquals(5+2, results.size(), results.toString());
+        assertEquals(4, results.size(), "Wrong number for calls for period " + results.toString());
     }
 
     @Summer2026Closures

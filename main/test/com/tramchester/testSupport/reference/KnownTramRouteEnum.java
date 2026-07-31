@@ -16,8 +16,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.summer2026MajorClosure;
-import static com.tramchester.testSupport.UpcomingDates.summerClosureFirstSunday;
+import static com.tramchester.testSupport.UpcomingDates.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.MISSING_ROUTE_ID_PREFIX;
 import static com.tramchester.testSupport.reference.KnownTramRoute.cutoverDate;
 
@@ -31,6 +30,9 @@ public enum KnownTramRouteEnum implements TestRoute {
     Blue1(Blue, "Eccles - Ashton Under Lyne", "xxx2", summerClosureFirstSunday),
     Blue2(Blue, "Eccles - Ashton Under Lyne", "3217", Constants.reopenSummer2026),
     Blue3(Blue, "Eccles - Ashton-under-Lyne", "3322",TramDate.of(2026,8,9), SundayOnly.every),
+    Blue4(Blue, "Eccles - Ashton-under-Lyne", "3322", summerBankHol2026),
+    Blue5(Blue, "Eccles - Ashton Under Lyne", "3217", summerBankHol2026.plusDays(1)),
+
 
     // Green
     Green1(Green, "Bury - Manchester - Altrincham", "3218", Constants.reopenSummer2026),
@@ -40,27 +42,39 @@ public enum KnownTramRouteEnum implements TestRoute {
     Navy2(Navy, "Manchester Airport - Victoria", "3287", Constants.summerClosures2026EndDate, SundayOnly.yes),
     Navy3(Navy, "Victoria - Manchester Airport", "3219", Constants.reopenSummer2026),
     Navy4(Navy, "Manchester Airport - Victoria", "3315", TramDate.of(2026,8,9), SundayOnly.every),
+    Navy5(Navy, "Manchester Airport - Victoria", "3315", summerBankHol2026),
+    Navy6(Navy, "Victoria - Manchester Airport", "3219", summerBankHol2026.plusDays(1)),
 
     // Pink
     Pink1(Pink, "Rochdale - East Didsbury" , "3301", cutoverDate),
     Pink2(Pink, "East Didsbury - Rochdale" , "3286", Constants.summerClosures2026EndDate, SundayOnly.yes),
     Pink3(Pink, "Rochdale - East Didsbury" , "3220", Constants.reopenSummer2026),
     Pink4(Pink, "East Didsbury - Rochdale" , "3312", TramDate.of(2026,8,9), SundayOnly.every),
+    Pink5(Pink, "East Didsbury - Rochdale" , "3312", summerBankHol2026),
+    Pink6(Pink, "Rochdale - East Didsbury" , "3220", summerBankHol2026.plusDays(1)),
 
     // Purple
     Purple1(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", Constants.reopenSummer2026),
     Purple2(Purple, "Altrincham - Etihad Campus", "3324", TramDate.of(2026,8,9), SundayOnly.every),
+    Purple3(Purple, "Altrincham - Etihad Campus", "3324", summerBankHol2026),
+    Purple4(Purple, "Etihad Campus - Piccadilly - Altrincham", "3221", summerBankHol2026.plusDays(1)),
+
 
     // Red
     Red1(Red, "Deansgate Castlefield - The Trafford Centre", "xxx1", summerClosureFirstSunday),
     Red2(Red, "Deansgate Castlefield - The Trafford Centre", "3222", Constants.reopenSummer2026),
     Red3(Red, "Trafford Centre - Crumpsall", "3323", TramDate.of(2026,8,9), SundayOnly.every),
+    Red4(Red, "Deansgate Castlefield - The Trafford Centre", "3323", summerBankHol2026),
+    Red5(Red, "Deansgate Castlefield - The Trafford Centre", "3222", summerBankHol2026.plusDays(1)),
 
     // Yellow
     Yellow1(Yellow, "Piccadilly - Bury", "3302", cutoverDate),
     Yellow2(Yellow, "Piccadilly - Bury", "844", Constants.summerClosures2026EndDate, SundayOnly.yes),
     Yellow3(Yellow, "Piccadilly - Bury", "3223", Constants.reopenSummer2026),
     Yellow4(Yellow, "Piccadilly - Bury" , "844", TramDate.of(2026,8,9), SundayOnly.every),
+    Yellow5(Yellow, "Piccadilly - Bury" , "844", summerBankHol2026),
+    Yellow6(Yellow, "Piccadilly - Bury", "3223", summerBankHol2026.plusDays(1)),
+
     ;
 
     private final TFGMRouteNames line;
