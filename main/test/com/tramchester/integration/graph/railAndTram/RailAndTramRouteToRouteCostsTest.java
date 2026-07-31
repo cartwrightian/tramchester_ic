@@ -194,8 +194,7 @@ public class RailAndTramRouteToRouteCostsTest {
         Station eccles = TramStations.Eccles.from(stationRepository);
         int changes = getPossibleMinChanges(rochdale, eccles, TransportMode.TramsOnly, date, timeRange);
 
-        // summer 2026
-        assertEquals(1+1, changes);
+        assertEquals(1, changes);
     }
 
     @Test

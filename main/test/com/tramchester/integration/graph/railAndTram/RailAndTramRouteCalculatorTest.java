@@ -275,10 +275,12 @@ public class RailAndTramRouteCalculatorTest {
 
         // check duration matches the actual timetable data
         TramTime arrivalTime = altyStopcall.getArrivalTime();
-        TramDuration durationStockToAlty = TramTime.difference(stockportStop.getDepartureTime(), arrivalTime);
+        TramTime departureTime = stockportStop.getDepartureTime();
+        TramDuration durationStockToAlty = TramTime.difference(departureTime, arrivalTime);
 
-        assertEquals(arrivalTime, stockportJourney.getArrivalTime());
         assertEquals(durationStockToAlty, stageFromStockport.getDuration(), "Wrong duration for " + stageFromStockport);
+        assertEquals(arrivalTime, stockportJourney.getArrivalTime());
+
     }
 
     @Test
