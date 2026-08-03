@@ -81,7 +81,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
     }
 
-    public void recordTime(final TramTime boardingTime, final TramDuration currentCost) throws TramchesterException {
+    public void recordTimeAtMinuteNode(final TramTime boardingTime, final TramDuration currentCost) throws TramchesterException {
         // visited a minute node
         if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");
@@ -104,12 +104,17 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void beginWalk(final GraphNode beforeWalkNode, final boolean atStart, final TramDuration unused) {
+    public void beginWalk(GraphNode beforeWalkNode) {
         coreState.incrementWalkingConnections();
     }
 
     @Override
-    public void endWalk(final GraphNode stationNode) {
+    public void beginWalk(GraphNode beforeWalkNode, TramDuration cost) {
+        coreState.incrementWalkingConnections();
+    }
+
+    @Override
+    public void endWalk(final GraphNode stationNode, TramDuration cost) {
         // noop
     }
 
@@ -141,6 +146,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public boolean alreadyPassed(final IdFor<Station> stationId) {
         return passedStations.contains(stationId);
+    }
+
+    @Override
+    public void atDestination(TramDuration cost) {
+        // no-op
     }
 
     @Override

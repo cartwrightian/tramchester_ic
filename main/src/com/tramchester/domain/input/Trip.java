@@ -14,12 +14,14 @@ import com.tramchester.graph.GraphPropertyKey;
 
 public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, CoreDomain {
 
+    InvalidId<Trip> TRIP_INVALID_ID = new InvalidId<>(Trip.class);
+
     static IdFor<Trip> createId(final String text) {
         return StringIdFor.createId(text, Trip.class);
     }
 
     static IdFor<Trip> InvalidId() {
-        return new InvalidId<>(Trip.class);
+        return TRIP_INVALID_ID;
     }
 
     IdFor<Trip> getId();

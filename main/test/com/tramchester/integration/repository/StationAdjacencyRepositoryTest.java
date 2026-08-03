@@ -25,8 +25,7 @@ import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StationAdjacencyRepositoryTest {
     private static ComponentContainer componentContainer;
@@ -60,9 +59,10 @@ class StationAdjacencyRepositoryTest {
     @Test
     void shouldGiveCorrectCostForAdjacencyAltyNavigationRoad() {
 
-        assertMinutesEquals(7, repository.getAdjacent(StationIdPair.of(Altrincham, NavigationRoad), date, timeRange));
+        assertMinutesEquals(3, repository.getAdjacent(StationIdPair.of(Altrincham, NavigationRoad), date, timeRange));
 
-        assertTrue(repository.getAdjacent(StationIdPair.of(NavigationRoad, Cornbrook), date, timeRange).invalid());
+        TramDuration adjacent = repository.getAdjacent(StationIdPair.of(NavigationRoad, Cornbrook), date, timeRange);
+        assertFalse(adjacent.isValid());
     }
 
     @Test
@@ -70,14 +70,14 @@ class StationAdjacencyRepositoryTest {
 
         StationIdPair stationPair = StationIdPair.of(Cornbrook, Deansgate);
         TramDuration duration = repository.getAdjacent(stationPair, date, timeRange);
-        assertEquals(TramDuration.ofMinutes(8), duration.truncateToMinutes());
+        assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
     }
 
     @Test
     void shouldGiveCorrectCostForAdjacencyDeansgateCornbrook() {
         StationIdPair stationPair = StationIdPair.of(Deansgate, Cornbrook);
         TramDuration duration = repository.getAdjacent(stationPair, date, timeRange);
-        assertEquals(TramDuration.ofMinutes(8), duration.truncateToMinutes());
+        assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
     }
 
     @Test

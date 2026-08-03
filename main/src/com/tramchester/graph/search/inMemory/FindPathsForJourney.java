@@ -30,7 +30,8 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSI
 
 public class FindPathsForJourney {
 
-    public static final TramDuration NotVisitedDuration = TramDuration.MAX_VALUE;
+    @Deprecated
+    public static final TramDuration NotVisitedDuration = TramDuration.getMax();
 
     private static final Logger logger = LoggerFactory.getLogger(FindPathsForJourney.class);
 

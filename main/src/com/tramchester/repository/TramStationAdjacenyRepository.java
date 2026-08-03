@@ -63,7 +63,7 @@ public class TramStationAdjacenyRepository  {
 
         if (costs.isEmpty()) {
             logger.warn("Failed to find costs between " + stationPair + " for " + date + " and " + timeRange);
-            return TramDuration.Invalid;
+            return TramDuration.getInvalid();
         }
 
         final Set<TramDuration> unique = new HashSet<>(costs);

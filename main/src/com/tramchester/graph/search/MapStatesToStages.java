@@ -5,6 +5,8 @@ import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -15,6 +17,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.*;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
+import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -25,53 +28,65 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-class MapStatesToStages implements JourneyStateUpdate {
+import static java.lang.String.format;
+
+public class MapStatesToStages implements JourneyStateUpdate {
     private static final Logger logger = LoggerFactory.getLogger(MapStatesToStages.class);
+    private State state;
+    private TramTime lastVehicleArrivalTime;
+
+    private enum State {
+        NotStarted,
+        Boarded,
+        BoardedTimeRecorded,
+        OnTrip,
+        OnTripTimeRecorded,
+        WalkAtStart,
+        Walk,
+        Waiting,
+        WalkDuring,
+        Destination
+    }
 
     private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
     private final TripRepository tripRepository;
+    private final TramTime queryTime;
     private final List<TransportStage<?, ?>> stages;
 
-    private boolean onVehicle;
     private boolean onDiversion;
 
     private TramDuration totalCost; // total cost of entire journey
-    private TramTime actualTime; // updated each time pass minute node and know 'actual' time
+    private TramTime timeAtLastMinuteNode; // updated each time pass minute node and know 'actual' time
     private TramDuration costOffsetAtActual; // total cost at point got 'actual' time update
 
-    @Deprecated
-    private TramTime boardingTime;
-
-    @Deprecated
-    private TramTime beginWalkClock;
-
-    private IdFor<Station> walkStartStation;
-
-    private WalkFromStartPending walkFromStartPending;
+    private WalkPending walkingPending;
     private VehicleStagePending vehicleStagePending;
     private IdFor<Trip> currentTrip;
-
 
     public MapStatesToStages(StationRepository stationRepository, PlatformRepository platformRepository,
                              TripRepository tripRepository, TramTime queryTime) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.tripRepository = tripRepository;
+        this.queryTime = queryTime;
 
-        actualTime = queryTime;
+        timeAtLastMinuteNode = TramTime.invalid();
+        lastVehicleArrivalTime = TramTime.invalid();
+
         stages = new ArrayList<>();
-        onVehicle = false;
         totalCost = TramDuration.ZERO;
         costOffsetAtActual = TramDuration.ZERO;
         onDiversion = false;
         currentTrip = Trip.InvalidId();
+
+        state = State.NotStarted;
     }
 
     @Override
     public void board(final TransportMode transportMode, final GraphNode node, final boolean hasPlatform) {
-        onVehicle = true;
-        boardingTime = null;
+        stateTransition(List.of(State.NotStarted, State.Waiting), List.of(State.Boarded, State.Boarded));
+
         final IdFor<Station> actionStationId = node.getStationId();
 
         if (onDiversion) {
@@ -90,50 +105,73 @@ class MapStatesToStages implements JourneyStateUpdate {
         }
     }
 
-    @Override
-    public void recordTime(final TramTime time, final TramDuration totalCost) {
-        logger.debug("Record actual time " + time + " total cost:" + totalCost);
-        this.actualTime = time;
-        costOffsetAtActual = totalCost;
-        if (onVehicle && boardingTime == null) {
-            vehicleStagePending.setBoardingTime(actualTime);
-            boardingTime = time;
+    private State stateTransition(State allowed, State target) {
+        return stateTransition(List.of(allowed), List.of(target));
+    }
+
+    private State stateTransition(List<State> allowed, List<State> targets) {
+        if (allowed.size()!=targets.size()) {
+            throw new RuntimeException("Mismatch on allowed " + allowed + " and targets " + targets);
         }
-        if (walkFromStartPending != null) {
-            final WalkingToStationStage walkingToStationStage = walkFromStartPending.createStage(actualTime, totalCost);
+        if (!allowed.contains(state)) {
+            throw new RuntimeException("Wrong state " + state + " Expected " + allowed);
+        }
+        State previous = state;
+        int index = allowed.indexOf(state);
+        state = targets.get(index);
+        return previous;
+    }
+
+    @Override
+    public void recordTimeAtMinuteNode(final TramTime timeAtMinuteNode, final TramDuration totalCost) {
+        State previousState = stateTransition(List.of(State.Boarded, State.OnTrip, State.OnTripTimeRecorded),
+                List.of(State.BoardedTimeRecorded, State.OnTripTimeRecorded, State.OnTripTimeRecorded));
+
+        logger.debug("Record actual time " + timeAtMinuteNode + " total cost:" + totalCost);
+        this.timeAtLastMinuteNode = timeAtMinuteNode;
+        costOffsetAtActual = totalCost;
+
+        if (previousState==State.Boarded) {
+            vehicleStagePending.setBoardingTime(timeAtLastMinuteNode);
+        }
+
+        // Walking -> ???
+        if (walkingPending != null) {
+            WalkingStage<? extends Location<?>, ? extends Location<? extends Location<?>>> walkingToStationStage = walkingPending.createStage(timeAtMinuteNode);
             logger.info("Add " + walkingToStationStage);
             stages.add(walkingToStationStage);
-            walkFromStartPending = null;
+            walkingPending = null;
         }
     }
 
     @Override
     public void leave(final TransportMode mode, final TramDuration totalCost, final GraphNode routeStationNode) {
-        if (!onVehicle) {
-            throw new RuntimeException("Not on vehicle");
-        }
+        stateTransition(State.OnTripTimeRecorded,  State.Waiting);
+
         if (!currentTrip.isValid()) {
             throw new RuntimeException("Not on a trip");
         }
-        onVehicle = false;
 
         final VehicleStage vehicleStage = vehicleStagePending.createStage(routeStationNode, totalCost, currentTrip, mode);
         stages.add(vehicleStage);
+
+        logger.info(format("Leave: Query:%s Last Minute Seen:%s Total Cost: %s Stage Departure: %s",
+                queryTime, this.timeAtLastMinuteNode, totalCost, vehicleStage.getFirstDepartureTime()));
+
+        lastVehicleArrivalTime = vehicleStage.getExpectedArrivalTime();
+
         if (logger.isDebugEnabled()) {
             logger.debug("Added " + vehicleStage);
         }
         currentTrip = Trip.InvalidId();
-        reset();
     }
 
     protected void passStop(final GraphRelationship fromMinuteNodeRelationship) {
+        stateTransition(State.OnTripTimeRecorded, State.OnTripTimeRecorded);
         logger.debug("pass stop");
-        if (onVehicle) {
-            int stopSequenceNumber = fromMinuteNodeRelationship.getStopSeqNumber(); //GraphProps.getStopSequenceNumber(fromMinuteNodeRelationship);
-            vehicleStagePending.addStopSeqNumber(stopSequenceNumber);
-        } else {
-            logger.error("Passed stop but not on vehicle");
-        }
+        int stopSequenceNumber = fromMinuteNodeRelationship.getStopSeqNumber();
+        vehicleStagePending.addStopSeqNumber(stopSequenceNumber);
+
     }
 
     @Override
@@ -142,61 +180,90 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     private TramTime getActualClock() {
-        return actualTime.plusRounded(totalCost.minus(costOffsetAtActual));
+        if (timeAtLastMinuteNode.isValid()) {
+            return timeAtLastMinuteNode.plusRounded(totalCost.minus(costOffsetAtActual));
+        } else {
+            throw new RuntimeException("No valid time yet, state is " + state);
+        }
     }
 
     @Override
-    public void beginTrip(IdFor<Trip> newTripId) {
+    public void beginTrip(final IdFor<Trip> newTripId) {
+        stateTransition(State.BoardedTimeRecorded, State.OnTripTimeRecorded);
         logger.debug("Begin trip:" + newTripId);
         this.currentTrip = newTripId;
     }
 
     @Override
-    public void beginWalk(final GraphNode beforeWalkNode, final boolean atStart, final TramDuration cost) {
-        logger.debug("Walk cost " + cost);
-        if (atStart) {
-            final LatLong walkStartLocation = beforeWalkNode.getLatLong();
-            walkFromStartPending = new WalkFromStartPending(walkStartLocation);
-            walkStartStation = null;
-            beginWalkClock = getActualClock();
-            logger.info("Begin walk from start " + walkStartLocation + " at " + beginWalkClock) ;
+    public void beginWalk(final GraphNode beforeWalkNode) {
+        stateTransition(State.NotStarted, State.WalkAtStart);
+
+        //final TramDuration cost = TramDuration.Invalid;
+
+        final Location<?> walkStart;
+        if (beforeWalkNode.hasLabel(GraphLabel.STATION)) {
+            IdFor<Station> startId = beforeWalkNode.getStationId();
+            walkStart = stationRepository.getStationById(startId);
+        } else if (beforeWalkNode.hasLabel(GraphLabel.QUERY_NODE)) {
+            final LatLong latLong = beforeWalkNode.getLatLong();
+            walkStart = MyLocation.create(latLong);
         } else {
-            walkStartStation = beforeWalkNode.getStationId();
-            beginWalkClock = getActualClock().minusRounded(cost);
-            logger.info("Begin walk from station " + walkStartStation + " at " + beginWalkClock);
+            throw new RuntimeException("Not implemented for " + beforeWalkNode);
+        }
+
+        walkingPending = new WalkPending(walkStart, queryTime);
+    }
+
+    @Override
+    public void beginWalk(final GraphNode beforeWalkNode, final TramDuration previousCost) {
+        State previousState = stateTransition(List.of(State.Waiting, State.NotStarted),
+                List.of(State.WalkDuring, State.WalkAtStart));
+
+        final Location<?> walkStart;
+        if (beforeWalkNode.hasLabel(GraphLabel.STATION)) {
+            IdFor<Station> startId = beforeWalkNode.getStationId();
+            walkStart = stationRepository.getStationById(startId);
+        } else if (beforeWalkNode.hasLabel(GraphLabel.QUERY_NODE)) {
+            final LatLong latLong = beforeWalkNode.getLatLong();
+            walkStart = MyLocation.create(latLong);
+        } else {
+            throw new RuntimeException("Not implemented for " + beforeWalkNode);
+        }
+
+        if (previousState==State.Waiting) {
+            if (!lastVehicleArrivalTime.isValid()) {
+                throw new RuntimeException("No valid time to use for last vehicle arrival time");
+            }
+            walkingPending = new WalkPending(walkStart, previousCost, lastVehicleArrivalTime);
+            lastVehicleArrivalTime = TramTime.invalid();
+        } else {
+            walkingPending = new WalkPending(walkStart, queryTime);
         }
     }
 
     @Override
-    public void endWalk(final GraphNode endWalkNode) {
+    public void endWalk(final GraphNode endWalkNode, final TramDuration cost) {
+        State previousState = stateTransition(List.of(State.WalkAtStart, State.WalkDuring), List.of(State.Waiting, State.Waiting));
 
-        final TramDuration duration = TramTime.difference(beginWalkClock, getActualClock());
-
-        if (walkFromStartPending != null) {
-            boolean atStation = endWalkNode.hasStationId();
+        if (walkingPending != null) {
+            boolean atStation = endWalkNode.hasLabel(GraphLabel.STATION);
             if (atStation) {
                 final IdFor<Station> destinationStationId = endWalkNode.getStationId();
                 final Station destination = stationRepository.getStationById(destinationStationId);
-                walkFromStartPending.setDestinationAndDuration(totalCost, destination, duration);
+                walkingPending.setDestinationAndCost(destination, cost);
             }  else {
-                throw new RuntimeException("Ended walked at unexpected node " + endWalkNode.getAllProperties());
+                if (previousState==State.WalkAtStart) {
+                    final LatLong destLatLong = endWalkNode.getLatLong();
+                    walkingPending.setDestination(MyLocation.create(destLatLong));
+                } else {
+                    final LatLong destLatLong = endWalkNode.getLatLong();
+                    walkingPending.setDestinationAndCost(MyLocation.create(destLatLong), cost);
+                }
             }
         } else {
-            if (walkStartStation!=null) {
-                // walk from a station
-                final Station walkStation = stationRepository.getStationById(walkStartStation);
-                final LatLong walkEnd = endWalkNode.getLatLong();
-                final MyLocation destination = MyLocation.create(walkEnd);
-
-                logger.info("End walk from station to " + walkEnd + " duration " + duration);
-                final WalkingFromStationStage stage = new WalkingFromStationStage(walkStation, destination, duration, beginWalkClock);
-                stages.add(stage);
-            } else {
-                throw new RuntimeException("Unexpected end of walk not form a station");
-            }
+            throw new RuntimeException("Unexpected end of walk not form a station " +state);
         }
 
-        reset();
     }
 
     @Override
@@ -204,14 +271,15 @@ class MapStatesToStages implements JourneyStateUpdate {
         final IdFor<Station> startId = startNode.getStationId();
         final IdFor<Station> endId = endNode.getStationId();
 
-        if (walkFromStartPending!=null) {
-            String message = String.format("Skip connect stage as already on a walk, start %s end %s cost %s ",
+        if (walkingPending !=null) {
+            String message = format("Skip connect stage as already on a walk, start %s end %s cost %s ",
                     startId, endId, cost);
             logger.info(message);
         } else {
             final Station start = stationRepository.getStationById(startId);
             final Station end = stationRepository.getStationById(endId);
-            final ConnectingStage<Station, Station> connectingStage = new ConnectingStage<>(start, end, cost, getActualClock());
+            TramTime connectingStageBegin = (state==State.NotStarted) ? queryTime : getActualClock();
+            final ConnectingStage<Station, Station> connectingStage = new ConnectingStage<>(start, end, cost, connectingStageBegin);
             logger.info("Added connecting stage " + connectingStage);
             stages.add(connectingStage);
         }
@@ -263,56 +331,115 @@ class MapStatesToStages implements JourneyStateUpdate {
         return false;
     }
 
-    public List<TransportStage<?, ?>> getStages() {
-        if (walkFromStartPending != null) {
-            WalkingStage<?,?> walkingStage = walkFromStartPending.createStage(getActualClock(), totalCost);
+    @Override
+    public void atDestination(final TramDuration cost) {
+        stateTransition(List.of(State.Waiting, State.NotStarted), List.of(State.Destination, State.Destination));
+
+        if (walkingPending != null) {
+            WalkingStage<?,?> walkingStage = walkingPending.createStage(totalCost);
             logger.info("Add final pending walking stage " + walkingStage);
             stages.add(walkingStage);
         }
+    }
+
+
+    public List<TransportStage<?, ?>> getStages() {
+        stateTransition(State.Destination, State.Destination);
         return stages;
     }
 
-    private void reset() {
-        beginWalkClock = null;
-    }
+    private static class WalkPending {
 
-    private static class WalkFromStartPending {
+        private final Location<?> walkStart;
+        private boolean startTimePending;
+        private Location<?> walkDest;
 
-        private final LatLong walkStart;
-        private TramDuration totalCostAtDestination;
-        private Station destination;
         private TramDuration duration;
+        private TramTime startTime;
 
-        public WalkFromStartPending(LatLong walkStart) {
+        private WalkPending(Location<?> walkStart, TramDuration duration, TramTime startTime, boolean startTimePending) {
             this.walkStart = walkStart;
-        }
-
-        public void setDestinationAndDuration(TramDuration totalCost, Station destination, TramDuration duration) {
-            totalCostAtDestination = totalCost;
-            this.destination = destination;
             this.duration = duration;
+            this.startTime = startTime;
+            this.startTimePending = startTimePending;
         }
 
-        public WalkingToStationStage createStage(final TramTime actualTime, final TramDuration totalCostNow) {
-            final MyLocation walkStation = MyLocation.create(walkStart);
-            logger.info("End walk to station " + destination.getId() + " duration " + duration);
+        public WalkPending(Location<?> walkStart, TramDuration duration, TramTime startTime) {
+            this(walkStart, duration, startTime, false);
+        }
 
-            // offset for boarding cost
-            final TramDuration offset = totalCostNow.minus(totalCostAtDestination);
+        public WalkPending(Location<?> walkStart, TramTime startTime) {
+            this(walkStart, TramDuration.getInvalid(), startTime, true);
+        }
 
-            final TramTime walkStartTime = actualTime.minusRounded(duration.plus(offset));
-            return new WalkingToStationStage(walkStation, destination, duration, walkStartTime);
+        public void setDestination(final Location<?> destination) {
+            this.walkDest = destination;
+        }
+
+        public void setDestinationAndCost(Location<?> destination, TramDuration duration) {
+            this.walkDest = destination;
+            if (!this.duration.isValid()) {
+                this.duration = duration;
+            } else {
+                if (!duration.equals(TramDuration.ZERO)) {
+                    throw new RuntimeException("Already had a duration set " +
+                            this.duration + " but got " + duration + " when expecting ZERO");
+                }
+            }
+        }
+
+        public WalkingStage<?, ?> createStage(TramDuration actualCost) {
+            if (!duration.isValid()) {
+                duration = actualCost;
+            } else {
+                if (!actualCost.equals(duration)) {
+                    logger.warn(format("Mismatch on durations, had %s then got %s", duration, actualCost));
+                }
+            }
+            return createStage();
+        }
+
+        public WalkingStage<? extends Location<?>, ? extends Location<? extends Location<?>>> createStage(TramTime time) {
+            if (startTimePending) {
+                startTime = time.minusRounded(duration);
+                startTimePending = false;
+            }
+            return createStage();
+        }
+
+        public WalkingStage<? extends Location<?>, ? extends Location<? extends Location<?>>> createStage() {
+            logger.info(format("End walk from %s to %s %s %s", walkStart.getId(), walkDest.getId(), startTime, duration));
+
+            if (walkStart.getLocationType() == LocationType.Station) {
+
+                if (walkDest.getLocationType()==LocationType.MyLocation) {
+                    return new WalkingFromStationStage((Station) walkStart, (MyLocation) walkDest, duration, startTime);
+                }
+                else {
+                    throw new RuntimeException("Not implemented " + this);
+                }
+
+            } else { // start is a location
+
+                if (walkDest.getLocationType()==LocationType.Station) {
+                    return new WalkingToStationStage(walkStart, (Station) walkDest, duration, startTime);
+                } else {
+                    throw new RuntimeException("Not implemented for " + this);
+                }
+            }
+
         }
 
         @Override
         public String toString() {
             return "WalkFromStartPending{" +
-                    "walkStart=" + walkStart +
-                    ", totalCostAtDestination=" + totalCostAtDestination +
-                    ", destination=" + destination.getId() +
+                    "walkStart=" + walkStart.getId() +
+                    ", walkDest=" + walkDest.getId() +
                     ", duration=" + duration +
+                    ", startTime=" + startTime +
                     '}';
         }
+
     }
 
     private static class VehicleStagePending {

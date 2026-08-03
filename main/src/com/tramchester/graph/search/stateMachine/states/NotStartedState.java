@@ -30,7 +30,7 @@ public class NotStartedState extends TraversalState {
 
     @Override
     protected TraversalState toWalk(final WalkingState.Builder towardsWalk, final GraphNode node, final TramDuration cost, final JourneyStateUpdate journeyState) {
-        journeyState.beginWalk(node, true, cost);
+        journeyState.beginWalk(node);
         return towardsWalk.fromStart(this, node, cost, txn);
     }
 

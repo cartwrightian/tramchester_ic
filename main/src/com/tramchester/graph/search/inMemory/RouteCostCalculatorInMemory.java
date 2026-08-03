@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+/***
+ * Primarily to support arrival time calculations
+ */
+
 @LazySingleton
 public class RouteCostCalculatorInMemory implements RouteCostCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostCalculatorInMemory.class);
@@ -60,6 +64,7 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
 
     private TramDuration getCostBetween(final GraphTransaction txn, final Location<?> startLocation, final Location<?> endLocation,
                                     final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
+
         final GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
@@ -78,7 +83,8 @@ public class RouteCostCalculatorInMemory implements RouteCostCalculator {
                                         final TramDate date, final ImmutableEnumSet<TransportMode> modes) throws InvalidDurationException {
 
         final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date, modes).stream().
-                filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
+                filter(route -> modes.contains(route.getTransportMode())).
+                collect(Collectors.toSet());
 
         final ImmutableIdSet<Route> available = IdSet.from(routesRunningOn);
 

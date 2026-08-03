@@ -90,7 +90,7 @@ public class TramPositionInference {
         final TimeRange range= TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
 
         final TramDuration costBetweenPair = adjacenyRepository.getAdjacent(pair.getStationIds(), date, range);
-        if (costBetweenPair.invalid()) {
+        if (!costBetweenPair.isValid()) {
             logger.warn(format("Not adjacent %s", pair));
             return new TramPosition(pair, Collections.emptySet(), costBetweenPair);
         }

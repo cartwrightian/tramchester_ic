@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class StationAdjacencyRepositoryTest {
 
@@ -38,7 +38,8 @@ class StationAdjacencyRepositoryTest {
         assertMinutesEquals(11, getAdjacent(transportDataSource.getFirst(), transportDataSource.getSecond()));
         assertMinutesEquals(9, getAdjacent(transportDataSource.getSecond(), transportDataSource.getInterchange()));
 
-        assertTrue(getAdjacent(transportDataSource.getFirst(), transportDataSource.getInterchange()).invalid());
+        TramDuration adjacent = getAdjacent(transportDataSource.getFirst(), transportDataSource.getInterchange());
+        assertFalse(adjacent.isValid());
     }
 
     private TramDuration getAdjacent(Station first, Station second) {

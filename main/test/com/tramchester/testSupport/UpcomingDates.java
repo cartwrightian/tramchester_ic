@@ -40,11 +40,14 @@ public class UpcomingDates {
 
     public static DateRange summer2026MajorClosure = TramchesterConfig.getSummer2026Closures();
 
+    public static TramDate august2026Closure = TramDate.of(2026, 8, 9);
+    public static TramDate manchesterTownHall2026 = TramDate.of(2026, 8, 16);
+
     public static TramDate summerClosureFirstSunday = TramDate.of(2026, 7, 19);
 
     public static TramDate summerBankHol2026 = TramDate.of(2026, 8, 31);
 
-    public static TramDate sundaySept202Closure = TramDate.of(2026, 9,6);
+    public static TramDate sundaySept2026Closure = TramDate.of(2026, 9,6);
     public static TramDate sundaySept202ClosureNotPublished = TramDate.of(2026, 9,13);
 
 
@@ -58,6 +61,9 @@ public class UpcomingDates {
             if (TramStations.ExchangeSquare.matches(stationId)) {
                 return true; // not on the tfgm site, but Sunday is....
             }
+        }
+        if (date.equals(august2026Closure)) {
+            return true;
         }
         return false;
     }

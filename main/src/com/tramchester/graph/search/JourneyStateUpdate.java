@@ -16,14 +16,18 @@ public interface JourneyStateUpdate {
 
     void beginTrip(IdFor<Trip> newTripId);
 
-    void beginWalk(GraphNode beforeWalkNode, boolean atStart, TramDuration cost);
-    void endWalk(GraphNode stationNode);
+    //void beginWalk(GraphNode beforeWalkNode, boolean atStart, TramDuration cost);
+
+    void beginWalk(GraphNode beforeWalkNode);
+    void beginWalk(GraphNode beforeWalkNode, TramDuration cost);
+
+    void endWalk(GraphNode stationNode, TramDuration cost);
 
     void toNeighbour(GraphNode startNode, GraphNode endNode, TramDuration cost);
     void recordStation(IdFor<Station> stationId);
 
     void updateTotalCost(TramDuration total);
-    void recordTime(TramTime time, TramDuration totalCost) throws TramchesterException;
+    void recordTimeAtMinuteNode(TramTime time, TramDuration totalCost) throws TramchesterException;
 
     void recordRouteStation(GraphNode node);
 
@@ -36,4 +40,6 @@ public interface JourneyStateUpdate {
     IdFor<Trip> getCurrentTrip();
 
     boolean alreadyPassed(IdFor<Station> stationId);
+
+    void atDestination(TramDuration cost);
 }

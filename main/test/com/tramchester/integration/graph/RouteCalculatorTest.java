@@ -8,7 +8,10 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
@@ -35,7 +38,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -153,7 +155,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldHaveSimpleJourneyOnTestDay() {
         final TramTime originalQueryTime = TramTime.of(9, 0);
-        JourneyRequest journeyRequest = standardJourneyRequest(when, originalQueryTime, maxNumResults, 1);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, originalQueryTime, maxNumResults, 0);
 
         List<Journey> journeys = calculator.calculateRouteAsList(TraffordBar, Altrincham, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -164,13 +166,13 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(15,0), 0);
     }
 
-    @Summer2026Closures
+
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
         checkRouteNextNDays(Altrincham, TraffordBar, TramTime.of(15,0), 0);
     }
 
-    @Summer2026Closures
+
     @DataExpiryTest
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
@@ -274,7 +276,7 @@ public class RouteCalculatorTest {
             journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
-                    forEach(cost -> assertFalse(cost.isZero() || cost.invalid()));
+                    forEach(cost -> assertFalse(cost.isZero() || (!cost.isValid()) ) );
             TramDuration total = journey.getStages().stream().
                     map(raw -> (VehicleStage) raw).
                     map(VehicleStage::getCost).
@@ -283,7 +285,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @Summer2026Closures
+
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -326,7 +328,7 @@ public class RouteCalculatorTest {
                     " both (deansgate): " + servedByBothRoutes.size());
     }
 
-    @Summer2026Closures
+
     // over max wait, catch failure to accumulate journey times correctly
     @Test
     void shouldHaveSimpleButLongJoruneySameRoute() {
@@ -374,7 +376,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @Summer2026Closures
+
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);
@@ -407,12 +409,12 @@ public class RouteCalculatorTest {
         });
     }
 
-    @Summer2026Closures
+
     @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
-        JourneyRequest request = standardJourneyRequest(today, TramTime.of(11, 43), maxNumResults, maxChanges);
+        JourneyRequest request = standardJourneyRequest(today, TramTime.of(11, 43), maxNumResults, 1);
         List<Journey> results =  calculator.calculateRouteAsList(Altrincham, ManAirport, request);
 
         IdSet<Station> changes = Stream.of(TraffordBar, Cornbrook).map(FakeStation::getId).collect(IdSet.idCollector());
@@ -437,7 +439,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    @Summer2026Closures
+
     @Test
     void shouldHandleCrossingMidnightWithChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,30), maxNumResults, 1);
@@ -566,7 +568,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Chorlton, BurtonRoad);
     }
 
-    @Summer2026Closures
+
     @Test
     void shouldAltrinchamToShawAndCrompton() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,45), maxNumResults, 2);
@@ -589,7 +591,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Bury);
     }
 
-    @Summer2026Closures
+
     @Test
     void shouldReproIssueWithMediaCityTrams() {
 
@@ -742,7 +744,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
-    @Summer2026Closures
+
     @Test
     void reproduceIssueEdgePerTrip() {
 

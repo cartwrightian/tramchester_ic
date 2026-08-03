@@ -4,9 +4,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.integration.testSupport.TestGroupType;
-import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
@@ -14,14 +12,10 @@ import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-
-import static com.tramchester.testSupport.reference.TramStations.*;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -31,15 +25,19 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    static List<TramStations> closedStations = List.of(Pomona, HarbourCity);
-
-    public static final List<StationClosures> CurrentClosures =
-            List.of(new StationClosuresListForTest(closedStations, UpcomingDates.summer2026MajorClosure,
-                    true, Collections.emptySet(), Collections.emptySet())
-            );
+    public static final List<StationClosures> CurrentClosures =Collections.emptyList();
 
     /**
-     * examples
+     * EXAMPLE
+     *     static List<TramStations> closedStations = List.of(Pomona, HarbourCity);
+     *     List.of(new StationClosuresListForTest(closedStations, UpcomingDates.summer2026MajorClosure,
+     *             true, Collections.emptySet(), Collections.emptySet())
+     *     );
+     **/
+
+
+    /**
+     * EXAMPLE
      * closures
      *       - stations:
      *             ids: [ "9400ZZMAPGD" ]
@@ -58,11 +56,13 @@ public abstract class IntegrationTestConfig extends TestConfig {
      *         end: 2025-08-10
      */
 
-    public static final List<TemporaryStationsWalkIds> CurrentStationWalks =
-            List.of(
-                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(ExchangeSquare, Victoria), getSummer2026Closures())
-                    //new TemporaryStationsWalkConfigForTest(StationIdPair.of(Anchorage, HarbourCity), getSummer2026Closures())
-            );
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
+
+    // EXAMPLE
+//            List.of(
+//                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(ExchangeSquare, Victoria), getSummer2026Closures())
+//                    //new TemporaryStationsWalkConfigForTest(StationIdPair.of(Anchorage, HarbourCity), getSummer2026Closures())
+//            );
 
     private final GraphDBTestConfig dbConfig;
 
@@ -103,7 +103,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     @Override
     public int getMaxNumberChanges() {
-        // summer 2026
-        return 2+2;
+        return 2;
     }
 }

@@ -65,7 +65,7 @@ public class TimeRangePartial implements TimeRange {
 
 
     public boolean contains(final TramTime time) {
-        return !time.isBefore(begin) && !time.isAfter(end);
+        return (!time.isBefore(begin)) && (!time.isAfter(end));
     }
 
     @Override

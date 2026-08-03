@@ -379,7 +379,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             final MutableGraphNode startNode = routeBuilderCache.getRouteStation(tx, route, beginId);
             final MutableGraphNode endNode = routeBuilderCache.getRouteStation(tx, route, endId);
 
-            final StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, leg.getFirstStation(), leg.getSecondStation());
+            final StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route,
+                    leg.getFirstStation(), leg.getSecondStation());
 
             createOnRouteRelationship(startNode, endNode, route, costs, tx);
         });

@@ -38,6 +38,7 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.collections4.SetUtils;
@@ -56,6 +57,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @Summer2026Closures
 class RouteCalculatorSubGraphMediaCityTest {
@@ -154,11 +156,15 @@ class RouteCalculatorSubGraphMediaCityTest {
     void reproduceSundayToFromCornbrook() {
         TramDate testSunday = UpcomingDates.nextSunday();
 
+        assumeFalse(UpcomingDates.hasClosure(Cornbrook.getId(), testSunday));
+        assumeFalse(UpcomingDates.hasClosure(HarbourCity.getId(), testSunday));
+
         TramTime tramTime = TramTime.of(9, 30);
         validateAtLeastOneJourney(Cornbrook, HarbourCity, tramTime, testSunday);
         validateAtLeastOneJourney(HarbourCity, Cornbrook, tramTime, testSunday);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 17)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 

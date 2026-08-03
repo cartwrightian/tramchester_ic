@@ -25,9 +25,9 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -172,7 +172,6 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result, "missing late night services");
     }
 
-    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldNotHaveLateNightServicesAtEndOfLine() {
@@ -211,7 +210,6 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
-    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -235,7 +233,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @Summer2026Closures
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
@@ -263,7 +261,6 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
         TramDate date = TestEnv.testDay();

@@ -3,11 +3,17 @@ package com.tramchester.domain.transportStages;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
+
+import java.util.Collections;
+import java.util.List;
 
 public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST> {
     private final FROM start;
@@ -20,6 +26,9 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
         this.destination = destination;
         this.duration = duration;
         this.beginTime = beginTime;
+        if (!duration.isValid()) {
+            throw new RuntimeException("Invalid duration");
+        }
     }
 
     @Override
@@ -53,7 +62,17 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
 
     @Override
     public TramTime getExpectedArrivalTime() {
-        return beginTime.plus(getDuration());
+        return beginTime.plusRounded(duration);
+    }
+
+    @Override
+    public List<StopCall> getCallingPoints() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public IdFor<Trip> getTripId() {
+        return Trip.InvalidId();
     }
 
     @Override

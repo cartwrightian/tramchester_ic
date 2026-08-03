@@ -45,8 +45,8 @@ public class TramDurationTest {
         assertSame(TramDuration.ofMinutes(11), TramDuration.ofMinutes(11));
         assertSame(TramDuration.ofHours(42), TramDuration.ofHours(42));
         assertSame(TramDuration.ofSeconds(111), TramDuration.ofSeconds(111));
-        assertSame(TramDuration.Invalid, TramDuration.Invalid);
-
+        assertSame(TramDuration.getInvalid(), TramDuration.getInvalid());
+        assertSame(TramDuration.getMax(), TramDuration.getMax());
     }
 
     @Test

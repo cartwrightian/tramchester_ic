@@ -209,7 +209,7 @@ public class RailAndTramRouteCalculatorTest {
         TramTime time = TramTime.of(9,52);
         long maxNumberJourneys = 2; //config.getMaxNumberResults();
 
-        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(RailReplacementBus, Train);
+        ImmutableEnumSet<TransportMode> modes = TrainOnly;
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2, maxDurationFromConfig,
                 maxNumberJourneys, modes);
@@ -239,12 +239,12 @@ public class RailAndTramRouteCalculatorTest {
 
         assertEquals(directLast.getTripId(), changedLast.getTripId());
 
-        Journey stockportJourney = getStockportToAltrinchamJourney(modes); // see checkDwellTimeForTrainStation test below
+        Journey stockportJourney = getStockportTo(modes, RailStationIds.Altrincham); // see checkDwellTimeForTrainStation test below
         TransportStage<?, ?> stageFromStockport = stockportJourney.getStages().getFirst();
         assertEquals(stageFromStockport.getTripId(), changedLast.getTripId());
 
         // specific for the trip from Picc to Chester calling at Stockport, Nav Road and Alty
-        StopCall stockportStop = getStockportStopCallfrom(stockportJourney);
+        StopCall stockportStop = getStopCallFrom(stockportJourney, RailStationIds.Stockport);
         assertEquals(changedLast.getTripId(), stockportStop.getTrip().getId(), "sanity check on trip failed");
         // check departed at timetabled time
         assertEquals(stockportStop.getDepartureTime(), changedLast.getFirstDepartureTime());
@@ -263,18 +263,48 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveCorrectDurationAndArrivalTime() {
-        ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(RailReplacementBus, Train);
+    void shouldHaveCorrectDurationAndArrivalTimeStockportToAlty() {
 
-        Journey stockportJourney = getStockportToAltrinchamJourney(modes); // see checkDwellTimeForTrainStation test below
+        RailStationIds destination = RailStationIds.Altrincham;
+
+        Journey stockportJourney = getStockportTo(TrainOnly, destination); // see checkDwellTimeForTrainStation test below
         TransportStage<?, ?> stageFromStockport = stockportJourney.getStages().getFirst();
 
-        StopCall stockportStop = getStockportStopCallfrom(stockportJourney);
+        assertEquals(RailStationIds.Stockport.getId(), stageFromStockport.getFirstStation().getId());
+        assertEquals(destination.getId(), stageFromStockport.getLastStation().getId());
+
+        StopCall stockportStop = getStopCallFrom(stockportJourney, RailStationIds.Stockport);
         Trip trip = stockportStop.getTrip();
-        StopCall altyStopcall = trip.getStopCalls().getStopFor(RailStationIds.Altrincham.getId());
+
+        StopCall altyStopcall = trip.getStopCalls().getStopFor(destination.getId());
 
         // check duration matches the actual timetable data
         TramTime arrivalTime = altyStopcall.getArrivalTime();
+        TramTime departureTime = stockportStop.getDepartureTime();
+        TramDuration durationStockToAlty = TramTime.difference(departureTime, arrivalTime);
+
+        assertEquals(durationStockToAlty, stageFromStockport.getDuration(), "Wrong duration for " + stageFromStockport);
+        assertEquals(arrivalTime, stockportJourney.getArrivalTime());
+    }
+
+    @Test
+    void shouldHaveCorrectDurationAndArrivalTimeStockportToNavigationRoad() {
+
+        RailStationIds destination = RailStationIds.NavigationRaod;
+
+        Journey stockportJourney = getStockportTo(TrainOnly, destination); // see checkDwellTimeForTrainStation test below
+        TransportStage<?, ?> stageFromStockport = stockportJourney.getStages().getFirst();
+
+        assertEquals(RailStationIds.Stockport.getId(), stageFromStockport.getFirstStation().getId());
+        assertEquals(destination.getId(), stageFromStockport.getLastStation().getId());
+
+        StopCall stockportStop = getStopCallFrom(stockportJourney, RailStationIds.Stockport);
+        Trip trip = stockportStop.getTrip();
+
+        StopCall navigationStopCall = trip.getStopCalls().getStopFor(destination.getId());
+
+        // check duration matches the actual timetable data
+        TramTime arrivalTime = navigationStopCall.getArrivalTime();
         TramTime departureTime = stockportStop.getDepartureTime();
         TramDuration durationStockToAlty = TramTime.difference(departureTime, arrivalTime);
 
@@ -285,9 +315,9 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void checkDwellTimeForTrainStation() {
-        Journey stockportJourney = getStockportToAltrinchamJourney(ImmutableEnumSet.of(TransportMode.RailReplacementBus, TransportMode.Train));
+        Journey stockportJourney = getStockportTo(ImmutableEnumSet.of(TransportMode.RailReplacementBus, TransportMode.Train), RailStationIds.Altrincham);
 
-        StopCall stockportStop = getStockportStopCallfrom(stockportJourney);
+        StopCall stockportStop = getStopCallFrom(stockportJourney, RailStationIds.Stockport);
 
         assertNotEquals(stockportStop.getArrivalTime(), stockportStop.getDepartureTime());
 
@@ -296,26 +326,24 @@ public class RailAndTramRouteCalculatorTest {
 
         assertEquals(STOCKPORT_TRIP_ID, stockportStop.getTrip().getId());
 
-
-
     }
 
-    private StopCall getStockportStopCallfrom(final Journey fromStockport) {
-        TransportStage<?, ?> stageFromStockport = fromStockport.getStages().getFirst();
-        IdFor<Trip> tripId = stageFromStockport.getTripId();
+    private StopCall getStopCallFrom(final Journey journey, RailStationIds railStationIds) {
+        final TransportStage<?, ?> firstStage = journey.getStages().getFirst();
+        final IdFor<Trip> tripId = firstStage.getTripId();
 
-        Trip trip = tripRepository.getTripById(tripId);
+        final Trip trip = tripRepository.getTripById(tripId);
 
-        StopCalls calls = trip.getStopCalls();
+        final StopCalls calls = trip.getStopCalls();
 
-        return calls.getStopFor(RailStationIds.Stockport.getId());
+        return calls.getStopFor(railStationIds.getId());
     }
 
-    private Journey getStockportToAltrinchamJourney(ImmutableEnumSet<TransportMode> modes) {
+    private Journey getStockportTo(ImmutableEnumSet<TransportMode> modes, RailStationIds destination) {
         JourneyRequest journeyRequestFromStockport = new JourneyRequest(when, TramTime.of(10, 10), false, 0, maxDurationFromConfig,
                 1, modes);
 
-        List<Journey> journeysFromStockport = testFacade.calculateRouteAsList(RailStationIds.Stockport, RailStationIds.Altrincham, journeyRequestFromStockport);
+        List<Journey> journeysFromStockport = testFacade.calculateRouteAsList(RailStationIds.Stockport, destination, journeyRequestFromStockport);
         assertEquals(1, journeysFromStockport.size());
 
         return journeysFromStockport.getFirst();

@@ -22,18 +22,21 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.MutableAgency.METL;
 import static com.tramchester.domain.reference.TFGMRouteNames.ReplacementBus_WORKAROUND;
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getFor;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getNavy;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -77,7 +80,6 @@ public class RouteRepositoryTest {
         assertTrue(TransportMode.isTram(result));
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedRoutesAtDeansgate() {
 
@@ -115,7 +117,6 @@ public class RouteRepositoryTest {
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
-    @Summer2026Closures
     @Test
     void shouldNotHaveRedRouteServingShudehill() {
         Route red = routeHelper.getOneRoute(TFGMRouteNames.Red, when);
@@ -150,7 +151,6 @@ public class RouteRepositoryTest {
         assertEquals(toVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
         Route fromBuryToAltrincham = routeHelper.getOneRoute(TFGMRouteNames.Green, when);
@@ -165,7 +165,6 @@ public class RouteRepositoryTest {
         assertTrue(notEndOfLine.servesRoutePickup(fromBuryToAltrincham));
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedNumberOfTramRoutesRunning() {
         IdSet<Route> running = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
@@ -209,7 +208,6 @@ public class RouteRepositoryTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldOverlapAsExpected() {
 
@@ -233,7 +231,6 @@ public class RouteRepositoryTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
@@ -249,7 +246,6 @@ public class RouteRepositoryTest {
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
@@ -262,7 +258,7 @@ public class RouteRepositoryTest {
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         // summer 2026 closures/buses
-        int throughRoutes = 5+3; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        int throughRoutes = 5+1; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 

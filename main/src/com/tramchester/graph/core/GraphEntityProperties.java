@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
+import static java.lang.String.format;
 
 public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>> {
 
@@ -118,7 +119,12 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
         default TramDuration getCost() {
             if (hasProperty(COST)) {
-                return (TramDuration) getProperty(COST);
+                final Object property = getProperty(COST);
+                final TramDuration duration = (TramDuration) property;
+                if (duration.isValid()) {
+                    return duration;
+                }
+                throw new RuntimeException(format("Got invalid duration for property %s leading to %s", property, duration));
             }
             throw new RuntimeException("Cost is missing for " + this);
         }

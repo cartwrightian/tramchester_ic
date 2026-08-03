@@ -84,7 +84,7 @@ public class FastestRoutesForBoxes {
         }
 
         if (results.isEmpty()) {
-            return new BoundingBoxWithCost(box, TramDuration.Invalid, null);
+            return new BoundingBoxWithCost(box, TramDuration.getInvalid(), null);
         }
 
         final Journey result = results.getLowestCost();

@@ -17,9 +17,11 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -28,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
 @DataUpdateTest
-@Summer2026Closures
 class RouteCostCalculatorTest {
 
     private static ComponentContainer componentContainer;
@@ -103,6 +104,17 @@ class RouteCostCalculatorTest {
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
         assertEquals(TramDuration.ofMinutes(60), getAverageCostBetween(mediaCity, airport));
         assertEquals(TramDuration.ofMinutes(60), getAverageCostBetween(airport, mediaCity));
+    }
+
+    @Test
+    void shouldGetConsistentResults() throws InvalidDurationException {
+        Set<TramDuration> results = new HashSet<>();
+        for (int i = 0; i < 1000; i++) {
+            TramDuration result = getAverageCostBetween(mediaCity, airport);
+            results.add(result);
+        }
+
+        assertEquals(1, results.size(), "Got more than one result " + results);
     }
 
     private TramDuration getAverageCostBetween(Station start, Station end) throws InvalidDurationException {

@@ -343,6 +343,12 @@ public class TramTime implements Comparable<TramTime> {
      * @return the new time
      */
     public TramTime plusRounded(final TramDuration duration) {
+        if (!isValid()) {
+            throw new RuntimeException("Cannot act on an invalid time");
+        }
+        if (!duration.isValid()) {
+            throw new RuntimeException("Invalid duration for " + this);
+        }
         final double minutesExact = duration.toSeconds() / 60D;
         final long minutes = Math.round(minutesExact);
         return plusMinutes(minutes);

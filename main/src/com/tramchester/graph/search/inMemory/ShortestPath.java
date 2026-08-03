@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.tramchester.graph.search.inMemory.FindPathsForJourney.NotVisitedDuration;
+
 public class ShortestPath {
     private static final Logger logger = LoggerFactory.getLogger(ShortestPath.class);
 
@@ -37,7 +39,7 @@ public class ShortestPath {
                 map(GraphPath::getTotalCost).
                 min(TramDuration::compareTo);
 
-        return minimum.orElse(FindPathsForJourney.NotVisitedDuration);
+        return minimum.orElse(NotVisitedDuration);
 
     }
 
@@ -53,6 +55,7 @@ public class ShortestPath {
 
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
         final GraphPath pathToHere = incomingPath.duplicateWith(txn, currentNode);
+        boolean everVisited = searchState.everVisited(currentNodeId);
         final TramDuration currentCostToNode = searchState.getCurrentCost(currentNodeId);
 
         final Stream<GraphRelationship> outgoing = currentNode.getAllRelationships(txn, GraphDirection.Outgoing).
@@ -60,10 +63,11 @@ public class ShortestPath {
 
         outgoing.forEach(graphRelationship -> {
             final TramDuration relationshipCost = graphRelationship.getCost();
-            final GraphNodeId nextNodeId = graphRelationship.getEndNodeId(txn);
             final TramDuration updatedCost = relationshipCost.plus(currentCostToNode);
 
             final GraphPath continuePath = pathToHere.duplicateWith(txn, graphRelationship);
+
+            final GraphNodeId nextNodeId = graphRelationship.getEndNodeId(txn);
             if (searchState.hasSeen(nextNodeId)) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(nextNodeId);
                 if (updatedCost.compareTo(currentDurationForEnd) < 0) {
@@ -84,8 +88,9 @@ public class ShortestPath {
             currentCost = new HashMap<>();
             nodeQueue = new PriorityQueue<>();
 
-            currentCost.put(id, FindPathsForJourney.NotVisitedDuration);
-            nodeQueue.add(new NodeSearchState(id, FindPathsForJourney.NotVisitedDuration, initialPath));
+            // initial only (TODO rework use of NotVisitedDuration here)
+            currentCost.put(id, NotVisitedDuration);
+            nodeQueue.add(new NodeSearchState(id, NotVisitedDuration, initialPath));
         }
 
         public boolean hasNodes() {
@@ -100,7 +105,12 @@ public class ShortestPath {
             if (!currentCost.containsKey(nodeId)) {
                 throw new RuntimeException("Missing cost for " + nodeId);
             }
-            return currentCost.get(nodeId);
+            final TramDuration result = currentCost.get(nodeId);
+            if (result.equals(NotVisitedDuration)) {
+                // assume initial node
+                return TramDuration.ZERO;
+            }
+            return result;
         }
 
         public boolean hasSeen(final GraphNodeId nodeId) {
@@ -108,6 +118,9 @@ public class ShortestPath {
         }
 
         public void setNewCostFor(final GraphNodeId nodeId, final TramDuration duration, final GraphPath path) {
+            if (duration.equals(NotVisitedDuration)) {
+                throw new RuntimeException("Only valid for initial node");
+            }
             synchronized (nodeQueue) {
                 currentCost.put(nodeId, duration);
                 final NodeSearchState updatedState = new NodeSearchState(nodeId, duration, path);
@@ -117,13 +130,22 @@ public class ShortestPath {
         }
 
         public void add(final GraphNodeId nodeId, final TramDuration duration, final GraphPath path) {
+            if (duration.equals(NotVisitedDuration)) {
+                throw new RuntimeException("Only valid for initial node");
+            }
             synchronized (nodeQueue) {
                 currentCost.put(nodeId, duration);
                 final NodeSearchState nodeSearchState = new NodeSearchState(nodeId, duration, path);
                 nodeQueue.add(nodeSearchState);
             }
         }
+
+        public boolean everVisited(GraphNodeId nodeId) {
+            // TODO Rework handling here to remove clugde with TramDuration
+            return !currentCost.get(nodeId).equals(NotVisitedDuration);
+        }
     }
+
 
     private record NodeSearchState(GraphNodeId nodeId, TramDuration cost,
                                    GraphPath pathToHere) implements Comparable<NodeSearchState> {

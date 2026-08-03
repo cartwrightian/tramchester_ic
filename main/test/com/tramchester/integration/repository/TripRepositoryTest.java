@@ -27,7 +27,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +38,7 @@ import java.util.stream.Stream;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -102,7 +102,6 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
-    @Summer2026Closures
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -117,8 +116,8 @@ public class TripRepositoryTest {
         Set<Route> routes = trips.stream().map(Trip::getRoute).collect(Collectors.toSet());
 
         assertFalse(routes.isEmpty());
-        // summer 2026 changes
-        assertEquals(1, routes.size(), HasId.asIds(routes));
+
+        assertEquals(4, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
@@ -148,7 +147,6 @@ public class TripRepositoryTest {
         assertTrue(endTripNotInterchange.isEmpty(), "End trip not interchange: " + endTripNotInterchange);
     }
 
-    @Summer2026Closures
     @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {
@@ -209,10 +207,11 @@ public class TripRepositoryTest {
         assertTrue(missing.isEmpty(), missing.toString());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveTripsForSundayMorningAtBroadway() {
         TramDate date = UpcomingDates.nextSunday();
+
+        assumeFalse(UpcomingDates.august2026Closure.equals(date));
 
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
 
@@ -250,7 +249,6 @@ public class TripRepositoryTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Cornbrook);

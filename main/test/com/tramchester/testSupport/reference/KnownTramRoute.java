@@ -84,7 +84,7 @@ public class KnownTramRoute {
             // not tracking buses
 
         } else {
-            if (! (date.equals(sundaySept202Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
+            if (! (date.equals(sundaySept2026Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
                 routes.add(find.singleRoute(Red));
                 routes.add(find.singleRoute(Blue));
                 routes.add(find.singleRoute(Purple));
@@ -100,7 +100,7 @@ public class KnownTramRoute {
             }
         }
 
-        if (! (date.equals(sundaySept202Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
+        if (! (date.equals(sundaySept2026Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
             routes.add(find.singleRoute(Yellow));
             routes.add(find.singleRoute(Navy));
             routes.add(find.singleRoute(Pink));

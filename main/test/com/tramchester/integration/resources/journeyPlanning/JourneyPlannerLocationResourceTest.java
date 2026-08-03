@@ -355,7 +355,7 @@ class JourneyPlannerLocationResourceTest {
         journeys.forEach(journeyDTO -> {
             List<SimpleStageDTO> stages = journeyDTO.getStages();
             assertFalse(stages.isEmpty(), "no stages");
-            stages.forEach(stage -> assertTrue(stage.getDuration()>0, stage.toString()));
+            stages.forEach(stage -> assertTrue(stage.getDuration()>0, "Duration is not above 0" + stage));
         });
 
         return journeys;

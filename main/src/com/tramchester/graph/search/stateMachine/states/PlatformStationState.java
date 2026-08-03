@@ -110,7 +110,7 @@ public class PlatformStationState extends StationState {
 
     @Override
     protected TraversalState toWalk(final WalkingState.Builder towardsWalk, final GraphNode node, final TramDuration cost, final JourneyStateUpdate journeyState) {
-        journeyState.beginWalk(stationNode, false, cost);
+        journeyState.beginWalk(stationNode, cost);
         return towardsWalk.fromStation(this, node, cost, txn);
     }
 
@@ -144,6 +144,6 @@ public class PlatformStationState extends StationState {
     @Override
     protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node,
                                  final TramDuration cost, final JourneyStateUpdate journeyStateUpdate) {
-        towardsDestination.from(this, cost, node);
+        towardsDestination.from(this, cost, node, journeyStateUpdate);
     }
 }

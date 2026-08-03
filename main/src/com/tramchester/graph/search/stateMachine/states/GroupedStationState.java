@@ -93,7 +93,7 @@ public class GroupedStationState extends TraversalState {
 
     @Override
     protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, TramDuration cost, JourneyStateUpdate journeyStateUpdate) {
-        towardsDestination.from(this, cost, node);
+        towardsDestination.from(this, cost, node, journeyStateUpdate);
     }
 
     @Override

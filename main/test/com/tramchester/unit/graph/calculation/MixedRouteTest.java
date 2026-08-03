@@ -166,7 +166,7 @@ class MixedRouteTest {
         TramTime departTime = vehicleStage.getFirstDepartureTime();
         assertTrue(departTime.isAfter(queryTime));
 
-        assertFalse(vehicleStage.getDuration().invalid());
+        assertTrue(vehicleStage.getDuration().isValid());
         assertFalse(vehicleStage.getDuration().isZero());
     }
 

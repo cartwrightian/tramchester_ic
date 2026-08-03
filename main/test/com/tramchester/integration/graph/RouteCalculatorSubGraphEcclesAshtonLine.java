@@ -30,6 +30,7 @@ import java.util.List;
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @Summer2026Closures
 class RouteCalculatorSubGraphEcclesLineSundayTest {
@@ -57,6 +58,8 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
 
         tramRouteHelper = new TramRouteHelper(componentContainer);
 
+        assumeFalse(UpcomingDates.hasClosure(MediaCityUK.getId(), sunday));
+
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
@@ -72,6 +75,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         txn = database.beginTx();

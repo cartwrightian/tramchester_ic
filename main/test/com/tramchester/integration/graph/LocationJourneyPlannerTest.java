@@ -352,7 +352,7 @@ class LocationJourneyPlannerTest {
 
         Journey earliestJourney = sorted.getFirst();
         final TramTime actualDepartTime = earliestJourney.getDepartTime();
-        assertTrue(actualDepartTime.isAfter(queryTime), actualDepartTime.toString());
+        assertFalse(queryTime.isAfter(actualDepartTime), actualDepartTime + " was not after/equals " + queryTime);
 
         List<ChangeLocation<?>> changeStations = earliestJourney.getChangeStations();
         assertEquals(1, changeStations.size());
@@ -376,6 +376,23 @@ class LocationJourneyPlannerTest {
                 "problem with depart time " + actualDepartTime + " with earliest depart " + earliestDepart + " and first station "
                     +firstChange.location().getId());
 
+    }
+
+    @Test
+    void shouldHaveAltrinchamToNearAltrincham() {
+        //TramStations.Altrincham, nearAltrincham,
+        //                TramTime.of(22, 9), false);
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(9, 0),
+                false, 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
+        Set<Journey> results = planner.quickestRouteForLocation(Altrincham, nearAltrincham, request, 1);
+
+        results.forEach(journey-> {
+            TransportStage<?,?> rawStage = journey.getStages().getFirst();
+            assertEquals(TransportMode.Walk, rawStage.getMode());
+            assertEquals(nearAltrincham.latLong(), rawStage.getLastStation().getLatLong());
+            assertEquals(Altrincham.getId(), rawStage.getFirstStation().getId());
+            assertNotEquals(TramDuration.ZERO, rawStage.getDuration());
+        });
     }
 
     @Test

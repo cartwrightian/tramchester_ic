@@ -151,7 +151,7 @@ class TramRouteTest {
         assertEquals(TramTime.of(8,11), transportStage.getExpectedArrivalTime()); // +1 for dep cost
     }
 
-    private Stream<Journey> calculateRoute(GraphTransaction immutable, Station first, Station second, JourneyRequest journeyRequest) {
+    private Stream<Journey> calculateRoute(GraphTransaction immutable, Location<?> first, Location<?> second, JourneyRequest journeyRequest) {
         return calculator.calculateRouteAsList(first, second, journeyRequest).stream();
     }
 
@@ -200,8 +200,13 @@ class TramRouteTest {
             assertEquals(TransportMode.Walk, walk.getMode());
             TestEnv.assertMinutesRoundedEquals(walkCost, walk.getDuration());
             final int boardAndPlatformEntry =  1;
-            assertEquals(tramBoard.minusRounded(walkCost.plusMinutes(boardAndPlatformEntry)), walk.getFirstDepartureTime(), journey.toString());
-            assertEquals(tramBoard.minusMinutes(boardAndPlatformEntry), walk.getExpectedArrivalTime());
+
+            //TramDuration walkPlusBoard = walkCost.plusMinutes(boardAndPlatformEntry);
+
+            assertEquals(tramBoard.minusRounded(walkCost),
+                    walk.getFirstDepartureTime(), tramBoard + " minus " + walkCost + " = " + tramBoard.minusRounded(walkCost));
+
+            assertEquals(tramBoard, walk.getExpectedArrivalTime());
 
             assertEquals(midway, tram.getFirstStation());
             assertEquals(destination, tram.getLastStation());
@@ -294,10 +299,13 @@ class TramRouteTest {
             assertEquals(startSecondWalk, tram.getLastStation());
             assertEquals(startSecondWalk, walk2.getFirstStation());
 
-            assertTrue(tram.getFirstDepartureTime().isAfter(walk1.getExpectedArrivalTime()) ||
-                    tram.getFirstDepartureTime().equals(walk1.getExpectedArrivalTime()), "tram after walk 1");
-            assertTrue(tram.getExpectedArrivalTime().isBefore(walk2.getFirstDepartureTime()) ||
-                    tram.getExpectedArrivalTime().equals(walk2.getFirstDepartureTime()), "walk 2 affter tram");
+            TramTime walk1Arrival = walk1.getExpectedArrivalTime();
+            TramTime tramDeparture = tram.getFirstDepartureTime();
+            TramTime walk2Departure = walk2.getFirstDepartureTime();
+
+            assertTrue(tramDeparture.isAfter(walk1Arrival) || tramDeparture.equals(walk1Arrival), "tram after walk 1");
+            assertFalse(tram.getExpectedArrivalTime().isAfter(walk2Departure) ,
+                    "tram arrival time " + tram.getExpectedArrivalTime() + " is after " + walk2Departure);
 
             });
     }
@@ -373,6 +381,7 @@ class TramRouteTest {
         journeys.forEach(journey -> journey.getStages().
                 forEach(stage -> assertTrue(stage.hasBoardingPlatform(), "Missing boarding platform for " + stage)));
     }
+
 
     @Test
     void shouldTestSimpleJourneyIsNotPossible() {

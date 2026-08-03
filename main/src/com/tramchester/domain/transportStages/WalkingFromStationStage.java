@@ -1,16 +1,10 @@
 package com.tramchester.domain.transportStages;
 
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
-
-import java.util.Collections;
-import java.util.List;
 
 public class WalkingFromStationStage extends WalkingStage<Station, MyLocation> {
     public WalkingFromStationStage(Station start, MyLocation destination, TramDuration duration, TramTime beginTime) {
@@ -30,16 +24,6 @@ public class WalkingFromStationStage extends WalkingStage<Station, MyLocation> {
     @Override
     public Location<?> getActionStation() {
         return getFirstStation();
-    }
-
-    @Override
-    public List<StopCall> getCallingPoints() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public StringIdFor<Trip> getTripId() {
-        return StringIdFor.invalid(Trip.class);
     }
 
     @Override

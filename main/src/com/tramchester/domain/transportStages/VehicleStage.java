@@ -42,7 +42,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
         this.lastStation = lastStation;
 
         this.platform = null;
-        this.cost = TramDuration.Invalid;
+        this.cost = TramDuration.getInvalid();
     }
 
     public Station getFirstStation() {

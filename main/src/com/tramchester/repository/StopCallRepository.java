@@ -124,6 +124,7 @@ public class StopCallRepository  {
     private Costs calculateCosts(final Route route, final Station first, final Station second) {
         final boolean graphFilterActive = graphFilter.isActive();
         final List<TramDuration> allCosts = route.getTrips().stream().
+                filter(trip -> trip.callsAt(first.getId()) && trip.callsAt(second.getId())).
                 flatMap(trip -> trip.getStopCalls().getLegs(graphFilterActive).stream()).
                 filter(leg -> leg.getFirstStation().equals(first) && leg.getSecondStation().equals(second)).
                 map(StopCalls.StopLeg::getCost).
@@ -135,6 +136,9 @@ public class StopCallRepository  {
             logger.error(msg);
             throw new RuntimeException(msg);
         }
+
+        logger.info(String.format("For route %s between %s and %s got costs %s", route.getId(),
+                first.getId(), second.getId(), allCosts));
 
         return new Costs(allCosts, route.getId(), first.getId(), second.getId());
     }
