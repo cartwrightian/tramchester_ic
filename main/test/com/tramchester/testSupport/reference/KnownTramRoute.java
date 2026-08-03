@@ -79,26 +79,21 @@ public class KnownTramRoute {
 
         FindCurrentRouteFromLine find = new FindCurrentRouteFromLine(date);
 
-        if (summer2026MajorClosure.contains(date)) {
-
-            // not tracking buses
-
-        } else {
-            if (! (date.equals(sundaySept2026Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
-                routes.add(find.singleRoute(Red));
-                routes.add(find.singleRoute(Blue));
-                routes.add(find.singleRoute(Purple));
+        if (! (date.equals(sundaySept2026Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
+            routes.add(find.singleRoute(Red));
+            routes.add(find.singleRoute(Blue));
+            routes.add(find.singleRoute(Purple));
+        }
+        if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
+            if (date.isBefore(TramDate.of(2026, 8, 9))) {
+                routes.add(find.singleRoute(Green));
             }
-            if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
-                if (date.isBefore(TramDate.of(2026, 8, 9))) {
-                    routes.add(find.singleRoute(Green));
-                }
-            } else {
-                if (!date.equals(summerBankHol2026)) {
-                    routes.add(find.singleRoute(Green));
-                }
+        } else {
+            if (!date.equals(summerBankHol2026)) {
+                routes.add(find.singleRoute(Green));
             }
         }
+
 
         if (! (date.equals(sundaySept2026Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
             routes.add(find.singleRoute(Yellow));

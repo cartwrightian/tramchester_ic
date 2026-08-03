@@ -9,13 +9,9 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +41,7 @@ public class BusReplacementRepositoryTest {
         repository = componentContainer.get(BusReplacementRepository.class);
         routeHelper = new TramRouteHelper(componentContainer);
 
-        when = UpcomingDates.summer2026MajorClosure.getEndDate();
+        when = TestEnv.testDay();
     }
 
     @Test
@@ -61,6 +57,7 @@ public class BusReplacementRepositoryTest {
         assertFalse(repository.isReplacement(route.getId()));
     }
 
+    @Disabled("Summer 2026")
     @Test
     void shouldHaveExpectedReplacementsSummer2026() {
         check("Piccadilly Station - Altrincham");

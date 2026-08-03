@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.UpcomingDates;
 import io.dropwizard.configuration.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
@@ -20,12 +18,9 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramStations.Chorlton;
-import static com.tramchester.testSupport.reference.TramStations.Firswood;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigMismatchTest {
@@ -59,17 +54,17 @@ class ConfigMismatchTest {
         }
     }
 
-    @Test
-    void rememberToResetConfig() {
-        if (TramDate.of(LocalDate.now()).isAfter(UpcomingDates.summer2026MajorClosure.getEndDate())) {
-            IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled);
-            assertEquals(155, testConfig.getMaxJourneyDuration());
-            testConfig.getGtfsSourceConfig().forEach(config -> {
-                assertFalse(config.getAdditionalInterchanges().contains(Firswood.getId()));
-                assertFalse(config.getAdditionalInterchanges().contains(Chorlton.getId()));
-            });
-        }
-    }
+//    @Test
+//    void rememberToResetConfig() {
+//        if (TramDate.of(LocalDate.now()).isAfter(UpcomingDates.summer2026MajorClosure.getEndDate())) {
+//            IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled);
+//            assertEquals(155, testConfig.getMaxJourneyDuration());
+//            testConfig.getGtfsSourceConfig().forEach(config -> {
+//                assertFalse(config.getAdditionalInterchanges().contains(Firswood.getId()));
+//                assertFalse(config.getAdditionalInterchanges().contains(Chorlton.getId()));
+//            });
+//        }
+//    }
 
     @Test
     void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {

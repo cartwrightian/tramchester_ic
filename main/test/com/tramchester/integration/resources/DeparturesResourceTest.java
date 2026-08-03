@@ -29,7 +29,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.DeparturesResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
-import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
@@ -198,11 +197,7 @@ class DeparturesResourceTest {
                 filter(note -> note.getNoteType() != Note.NoteType.Weekend).
                 toList();
 
-        if (UpcomingDates.summer2026MajorClosure.contains(TramDate.from(localDateTime))) {
-            assertEquals(1, notes.size());
-        } else {
-            assertTrue(notes.isEmpty(), "expected no notes in " + result);
-        }
+        assertTrue(notes.isEmpty(), "expected no notes in " + result);
     }
 
     @Test
@@ -220,11 +215,7 @@ class DeparturesResourceTest {
                 toList();
 
         assertTrue(departures.isEmpty());
-        if (UpcomingDates.summer2026MajorClosure.contains(TramDate.from(localDateTime))) {
-            assertEquals(1, notes.size());
-        } else {
-            assertTrue(notes.isEmpty(), "expected no notes in " + result);
-        }
+        assertTrue(notes.isEmpty(), "expected no notes in " + result);
     }
 
     @Test
