@@ -80,7 +80,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
     @Override
     public String getName() {
-        return "new data for " + config.getName();
+        return "new data for " + config.getDataSourceId().name();
     }
 
     @Override

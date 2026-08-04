@@ -20,14 +20,12 @@ import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.String.format;
 
 @LazySingleton
-public class FetchDataFromUrl {
+public class FetchDataFromUrl implements RemoteDataAvailable {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
     private static final int MAX_REDIRECTS = 6;
@@ -44,7 +42,7 @@ public class FetchDataFromUrl {
     private final S3DownloadAndModTime s3Downloader;
 
     private final ProvidesNow providesLocalNow;
-    private final DownloadedRemotedDataRepository downloadedDataRepository;
+    private final RemoteDataAvailableRepository downloadedDataRepository;
     private final GetsFileModTime getsFileModTime;
     private final HeaderForDatasourceFactory headerFactory;
 
@@ -54,12 +52,11 @@ public class FetchDataFromUrl {
     @Inject
     public FetchDataFromUrl(HttpDownloadAndModTime httpDownloader, S3DownloadAndModTime s3Downloader,
                             TramchesterConfig config, ProvidesNow providesLocalNow,
-                            DownloadedRemotedDataRepository downloadedDataRepository,
                             GetsFileModTime getsFileModTime, HeaderForDatasourceFactory headerFactory) {
         this.httpDownloader = httpDownloader;
         this.s3Downloader = s3Downloader;
         this.providesLocalNow = providesLocalNow;
-        this.downloadedDataRepository = downloadedDataRepository;
+        this.downloadedDataRepository = new RemoteDataAvailableRepository();
         this.getsFileModTime = getsFileModTime;
         this.headerFactory = headerFactory;
 
@@ -73,14 +70,17 @@ public class FetchDataFromUrl {
         for (RemoteDataSourceConfig remoteSource : config.getRemoteSources()) {
             final ConfigReference<Boolean> skip = remoteSource.getSkip();
             if (skip.resolve(config)) {
-                logger.warn("Skipping load of " + remoteSource.getName());
+                logger.warn("Skipping load of " + remoteSource.getDataSourceId());
             } else {
-                logger.info("Adding " + remoteSource.getName());
+                logger.info("Adding " + remoteSource.getDataSourceId());
                 downloadConfigs.add(remoteSource);
             }
         }
 
         fetchData();
+
+        downloadedDataRepository.summary();
+
         logger.info("started");
     }
 
@@ -211,8 +211,11 @@ public class FetchDataFromUrl {
         final List<Pair<String, String>> headers;
         if (isS3) {
             headers = Collections.emptyList();
-        } else {
+        } else if (isValid(originalURL)) {
             headers = headerFactory.getFor(dataSourceId);
+        } else {
+            logger.warn("Cannot check for " + originalURL);
+            return RefreshStatus.UnableToCheck;
         }
 
         final URLStatus status = getUrlStatus(originalURL, isS3, localMod, sourceConfig, headers);
@@ -258,6 +261,11 @@ public class FetchDataFromUrl {
             return RefreshStatus.UnableToCheck;
         }
 
+    }
+
+    private boolean isValid(final URI uri) {
+        final String scheme = uri.getScheme();
+        return scheme.equals("http") || scheme.equals("https");
     }
 
     private URLStatus getUrlStatus(final URI originalURL, final boolean isS3, final ZonedDateTime localModTime,
@@ -362,6 +370,26 @@ public class FetchDataFromUrl {
         return getsFileModTime.getFor(destination);
     }
 
+    @Override
+    public boolean refreshed(DataSourceID dataSourceID) {
+        return downloadedDataRepository.refreshed(dataSourceID);
+    }
+
+    @Override
+    public boolean hasFileFor(DataSourceID dataSourceID) {
+        return downloadedDataRepository.hasFileFor(dataSourceID);
+    }
+
+    @Override
+    public Path fileFor(DataSourceID dataSourceID) {
+        return downloadedDataRepository.fileFor(dataSourceID);
+    }
+
+    @Override
+    public void resetRefreshed() {
+        downloadedDataRepository.resetRefreshed();
+    }
+
     public static class Ready {
         private Ready() {
 
@@ -424,11 +452,78 @@ public class FetchDataFromUrl {
     private record DestAndStatusCheckFile(Path destination, Path statusCheckFile) {
 
         @Override
-            public String toString() {
-                return "DestAndStatusCheckFile{" +
-                        "destination=" + destination +
-                        ", statusCheckFile=" + statusCheckFile +
-                        '}';
-            }
+        public String toString() {
+            return "DestAndStatusCheckFile{" +
+                    "destination=" + destination +
+                    ", statusCheckFile=" + statusCheckFile +
+                    '}';
         }
+    }
+
+    private static class RemoteDataAvailableRepository implements RemoteDataAvailable {
+
+        private final List<DataSourceID> refreshed;
+        private final Map<DataSourceID, Path> availableFiles;
+
+        @Inject
+        public RemoteDataAvailableRepository() {
+            refreshed = new ArrayList<>();
+            availableFiles = new HashMap<>();
+        }
+
+        @Override
+        public boolean refreshed(DataSourceID dataSourceID) {
+            return refreshed.contains(dataSourceID);
+        }
+
+        @Override
+        public boolean hasFileFor(final DataSourceID dataSourceID) {
+            return availableFiles.containsKey(dataSourceID);
+        }
+
+        @Override
+        public Path fileFor(final DataSourceID dataSourceID) {
+            if (!availableFiles.containsKey(dataSourceID)) {
+                final String msg = "No data was downloaded or was available for " + dataSourceID;
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            }
+            return availableFiles.get(dataSourceID);
+        }
+
+        @Override
+        public void resetRefreshed() {
+            logger.warn("Clear refreshed data " + refreshed);
+            refreshed.clear();
+        }
+
+        public void markRefreshed(final DataSourceID dataSourceId) {
+            if (refreshed.contains(dataSourceId)) {
+                logger.warn(dataSourceId + " already marked as refreshed");
+            }
+            if (!availableFiles.containsKey(dataSourceId)) {
+                String msg = "Cannot mark " + dataSourceId + " as refreshed, no file available";
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            }
+            refreshed.add(dataSourceId);
+        }
+
+        public void addFileFor(DataSourceID dataSourceId, Path path) {
+            if (availableFiles.containsKey(dataSourceId)) {
+                final String message = dataSourceId + " already present in available files";
+                logger.error(message);
+                throw new RuntimeException(message);
+            }
+            logger.info("Source " + dataSourceId.name() +  " added " + path.toAbsolutePath() );
+            availableFiles.put(dataSourceId, path);
+        }
+
+        public void summary() {
+            logger.info("Available Files:");
+            availableFiles.forEach((key, value) -> logger.info(String.format("Available %s: %s",
+                    key, value.toAbsolutePath())));
+            logger.info("Refreshed: " + refreshed);
+        }
+    }
 }

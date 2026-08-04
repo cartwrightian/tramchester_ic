@@ -7,7 +7,6 @@ import com.tramchester.config.ConfigReference;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.DownloadedRemotedDataRepository;
 import com.tramchester.deployment.UploadRemoteSourceData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestConfig;
@@ -49,13 +48,14 @@ class UploadRemoteSourceDataToS3Test {
 
     private final static String TEST_BUCKET_NAME = "tramchestertestlivedatabucket";
     private static DataSource dataSource;
-    private static DownloadedRemotedDataRepository downloadedRemoteData;
 
     @BeforeAll
     static void beforeAnyDone() {
 
         dataSource = new DataSource();
+
         TramchesterConfig configuration = new IntegrationTestBucketConfig(TEST_BUCKET_NAME, dataSource);
+
         componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -67,7 +67,6 @@ class UploadRemoteSourceDataToS3Test {
 
         uploadRemoteData = componentContainer.get(UploadRemoteSourceData.class);
 
-        downloadedRemoteData = componentContainer.get(DownloadedRemotedDataRepository.class);
     }
 
     @AfterAll
@@ -97,7 +96,8 @@ class UploadRemoteSourceDataToS3Test {
         Path sourceFilePath = dataSource.getDownloadPath().resolve(dataSource.getDownloadFilename());
         Files.deleteIfExists(sourceFilePath);
 
-        downloadedRemoteData.addFileFor(DataSourceID.tfgm, sourceFilePath);
+        // TODO No way to fake this now??
+        //downloadedRemoteData.addFileFor(DataSourceID.tfgm, sourceFilePath);
 
         final String testPrefix = "testing/testPrefix";
         final String key = testPrefix +"/"+ dataSource.getDownloadFilename();
@@ -190,7 +190,8 @@ class UploadRemoteSourceDataToS3Test {
 
         @Override
         public String getDataUrl() {
-            throw new RuntimeException("Should not be downloading, not expired");
+            return "fake://not.real";
+            //throw new RuntimeException("Should not be downloading, not expired");
         }
 
         @Override
@@ -214,8 +215,14 @@ class UploadRemoteSourceDataToS3Test {
         }
 
         @Override
+        public DataSourceID getDataSourceId() {
+            return DataSourceID.internal;
+        }
+
+        @Override
         public String getName() {
-            return "tfgm";
+            throw new RuntimeException("Not implemented");
+            //return "tfgm";
         }
 
         @Override

@@ -42,6 +42,8 @@ public class RemoteDataSourceConfigTest {
         Path expectedPath = Path.of("data", "tram");
 
         assertEquals(DataSourceID.tfgm, config.getDataSourceId());
+        assertEquals("tfgm", config.getName());
+
         assertEquals("https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip", config.getDataCheckUrl());
         assertEquals("s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip", config.getDataUrl());
         assertEquals(expectedPath, config.getDataPath());
@@ -51,7 +53,6 @@ public class RemoteDataSourceConfigTest {
         assertTrue( config.isMandatory());
         assertFalse( config.getSkipUpload());
         assertFalse(config.hasModCheckFilename());
-        assertEquals("tfgm", config.getName());
         assertNull(config.getModTimeCheckFilename());
     }
 

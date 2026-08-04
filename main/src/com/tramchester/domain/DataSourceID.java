@@ -7,14 +7,16 @@ import org.slf4j.LoggerFactory;
 import java.util.EnumSet;
 
 public enum DataSourceID {
-    internal, // for walks, MyLocation, etc
     tfgm, // transport for greater manchester
     nptg, // National Public Transport Gazetteer, locations data
     postcode,
-    naptanxml, // Naptan (stops) data in xml form, cross references nptg
-    database, // pre-built graph db for use during deployment
     openRailData,
-    mixed,
+    naptanxml, // Naptan (stops) data in xml form, cross references nptg
+
+    database, // pre-built graph db for use during deployment
+
+    internal, // for walks, MyLocation, etc
+    mixed, // for station groups or similar, where depend on more than one source
     unknown;
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceID.class);

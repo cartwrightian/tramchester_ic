@@ -71,7 +71,7 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
                 "dataCheckURL: '"+getDataCheckUrl()+"' " +
                 "dataURL: '"+getDataUrl()+"' " +
                 "downloadFilename: '"+getDownloadFilename()+"' " +
-                "name: '"+getName()+"' " +
+                //"name: '"+getName()+"' " +
                 "dataSourceId: '"+getDataSourceId()+"' " +
                 "dataPath: '"+getDataPath()+"' " +
                 "downloadPath: '"+getDownloadPath()+"' " +

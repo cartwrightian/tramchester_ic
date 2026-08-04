@@ -86,7 +86,7 @@ class ConfigMismatchTest {
             for(RemoteDataSourceConfig remoteSourceConfig : remoteSourceConfigs) {
                 final DataSourceID dataSourceID = DataSourceID.findOrUnknown(remoteSourceConfig.getName());
                 assertNotEquals(DataSourceID.unknown, dataSourceID,
-                        "Bad source id for " + remoteSourceConfig.getName() + " in " + config.toAbsolutePath());
+                        "Bad source id for " + remoteSourceConfig.getDataSourceId() + " in " + config.toAbsolutePath());
 
             }
         }
@@ -449,6 +449,7 @@ class ConfigMismatchTest {
 
         final RemoteDataSourceConfig testRemoteSource = getSourceFrom(remoteSources, dataSourceID);
         final RemoteDataSourceConfig remoteSource = getSourceFrom(testRemoteSources, dataSourceID);
+
         assertEquals(remoteSource.getName(), testRemoteSource.getName(), "name for " + dataSourceID);
         assertEquals(remoteSource.getDataCheckUrl(), testRemoteSource.getDataCheckUrl(), "check url for " + dataSourceID);
         assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl(),
