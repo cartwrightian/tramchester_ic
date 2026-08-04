@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
@@ -54,13 +55,19 @@ public class PostcodeBoundBoxRealDataTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        boundingBoxs = componentContainer.get(PostcodeBoundingBoxs.class);
         RemoteDataSourceConfig sourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
 
+        boundingBoxs = componentContainer.get(PostcodeBoundingBoxs.class);
+
         // force creation of hints file
-        PostcodeRepository repository = componentContainer.get(PostcodeRepository.class);
-        repository.start(); // creates bounds data
+        componentContainer.get(PostcodeRepository.class);
+        // should be started already
+        //repository.start(); // populates
+
         boundingBoxs.stop(); // saves the hints file
+
+        RemoteDataAvailable available = componentContainer.get(RemoteDataAvailable.class);
+        available.resetRefreshed();
         boundingBoxs.start(); // loads the file
 
         final Path file = Path.of("Data", "CSV", "m.csv");
@@ -69,8 +76,9 @@ public class PostcodeBoundBoxRealDataTest {
 
     @Test
     void shouldHaveHintsFile() {
-        Path hintsFile = config.getCacheFolder().resolve("postcode_hints.csv");
-        assertTrue(hintsFile.toFile().exists());
+        Path hintsFile = config.getCacheFolder().
+                resolve("postcode_hints.csv").toAbsolutePath();
+        assertTrue(hintsFile.toFile().exists(), "Did not find " + hintsFile + " in " + config.getCacheFolder().toAbsolutePath());
     }
 
     @PostcodeTest
@@ -78,7 +86,7 @@ public class PostcodeBoundBoxRealDataTest {
     void shouldCalcCorrectBoundsFromData() {
 
         final BoundingBox boundsFor = boundingBoxs.getBoundsFor(centralManchesterPostcodes);
-        assertNotNull(boundsFor);
+        assertNotNull(boundsFor, "Missing for " + centralManchesterPostcodes.toAbsolutePath());
 
         Set<PostcodeData> centralManchester = getPostcodeData(centralManchesterPostcodes);
 
@@ -100,7 +108,7 @@ public class PostcodeBoundBoxRealDataTest {
     void shouldHaveExpectedOverlaps() {
         Set<PostcodeData> centralManchester = getPostcodeData(centralManchesterPostcodes);
         final BoundingBox boundsFor = boundingBoxs.getBoundsFor(centralManchesterPostcodes);
-        assertNotNull(boundsFor);
+        assertNotNull(boundsFor, "No box for " + centralManchesterPostcodes.toAbsolutePath());
 
         Set<GridPosition> validGrids = centralManchester.stream().
                 map(PostcodeData::getGridPosition).
@@ -119,6 +127,8 @@ public class PostcodeBoundBoxRealDataTest {
         BoundingBox containsStations = stationLocations.getActiveStationBounds();
         final BoundingBox boundsForPostcodeFile = boundingBoxs.getBoundsFor(centralManchesterPostcodes);
 
+        assertNotNull(boundsForPostcodeFile);
+
         assertTrue(boundsForPostcodeFile.overlapsWith(containsStations),
                 boundsForPostcodeFile + " no overlap with " + containsStations);
         assertTrue(containsStations.overlapsWith(boundsForPostcodeFile),
@@ -133,10 +143,12 @@ public class PostcodeBoundBoxRealDataTest {
         // and can overlap
         Set<String> codes = boundingBoxs.getCodesFor(nearShudehill.grid(),
                 MarginInMeters.ofMeters(0));
+        assertFalse(codes.isEmpty(), "Found no postcodes for " + nearShudehill.grid());
         assertTrue(codes.contains("m"));
 
         Set<String> codesForAlty = boundingBoxs.getCodesFor(nearAltrincham.grid(),
                 MarginInMeters.ofMeters(0));
+        assertFalse(codes.isEmpty(), "Found no postcodes for " + nearAltrincham.grid());
         assertTrue(codesForAlty.contains("wa"));
 
     }

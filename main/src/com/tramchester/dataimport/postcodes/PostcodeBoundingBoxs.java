@@ -50,7 +50,11 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
         }
 
         hadCacheAtStart = super.loadFromCache(postcodeBounds);
+
         if (hadCacheAtStart) {
+            if (postcodeBounds.isEmpty()) {
+                logger.warn("Problem with load from cache " + postcodeBounds);
+            }
             logger.info("loaded from cache");
         } else {
             logger.info("No cached data, in record mode");
@@ -59,14 +63,21 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
 
     @PreDestroy
     public void stop() {
+        logger.info("stopping");
+
         if (!enabled) {
             logger.info("Postcode load disabled in config");
             return;
         }
 
-        logger.info("stopping");
         if (!hadCacheAtStart) {
+            logger.info("Save cache");
+            if (postcodeBounds.isEmpty()) {
+                throw new RuntimeException("Attempt to save empty cache");
+            }
             super.saveCacheIfNeeded(postcodeBounds);
+        } else {
+            logger.info("Not saving cache, had cache at start");
         }
         postcodeBounds.clear();
         logger.info("stopped");
@@ -78,13 +89,13 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
             return false;
         }
 
-        String code = convertPathToCode(sourceFilePath);
+        final String code = convertPathToCode(sourceFilePath);
 
         if (super.cachePresent(postcodeBounds)) {
             if (postcodeBounds.contains(code)) {
                 return postcodeBounds.get(code).contained(postcode.getGridPosition());
             }
-            logger.warn("Missing file when in playback mode: " + sourceFilePath);
+            logger.warn("Missing file when in playback mode: " + sourceFilePath.toAbsolutePath());
         } else {
             if (postcodeBounds.contains(code)) {
                 BoundingBox boundingBox = postcodeBounds.get(code);
@@ -157,6 +168,7 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
 
         @Override
         public void cacheTo(final HasDataSaver<PostcodeHintData> hasDataSaver) {
+            logger.info("Caching " + theMap.size() +" entries");
             Stream<PostcodeHintData> toCache = theMap.entrySet().stream().
                     map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue()));
             hasDataSaver.cacheStream(toCache);
@@ -192,6 +204,18 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
 
         public void put(String code, BoundingBox box) {
             theMap.put(code, box);
+        }
+
+        public boolean isEmpty() {
+            return theMap.isEmpty();
+        }
+
+        @Override
+        public String toString() {
+            return "PostcodeBounds{" +
+                    "theMap=" + theMap.size() +
+                    "filename=" + getFilename() +
+                    '}';
         }
     }
 }

@@ -2,10 +2,10 @@ package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceID;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +43,12 @@ public class DownloadedRemotedDataRepository implements RemoteDataAvailable {
             throw new RuntimeException(msg);
         }
         return availableFiles.get(dataSourceID);
+    }
+
+    @Override
+    public void resetRefreshed() {
+        logger.warn("Clear refreshed data " + refreshed);
+        refreshed.clear();
     }
 
     public void markRefreshed(final DataSourceID dataSourceId) {

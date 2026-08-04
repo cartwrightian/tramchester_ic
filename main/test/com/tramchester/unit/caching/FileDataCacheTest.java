@@ -59,7 +59,8 @@ public class FileDataCacheTest extends EasyMockSupport  {
 
         GraphFilterActive graphFilterActive = new GraphFilterActive(false);
 
-        dataCache = new FileDataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed, loaderSaverFactory, graphFilterActive);
+        dataCache = new FileDataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed, loaderSaverFactory,
+                graphFilterActive);
 
         dataCache.clearFiles();
 

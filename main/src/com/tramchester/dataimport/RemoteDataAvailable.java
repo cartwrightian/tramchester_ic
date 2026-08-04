@@ -10,4 +10,5 @@ public interface RemoteDataAvailable {
     boolean refreshed(DataSourceID dataSourceID);
     boolean hasFileFor(DataSourceID dataSourceID);
     Path fileFor(DataSourceID dataSourceID);
+    void resetRefreshed();
 }

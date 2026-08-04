@@ -57,6 +57,11 @@ class PostcodeBoundingBoxsTest {
             public Path fileFor(DataSourceID dataSourceID) {
                 throw new NotImplementedException();
             }
+
+            @Override
+            public void resetRefreshed() {
+                throw new NotImplementedException();
+            }
         };
 
         LoaderSaverFactory loaderSaverFactory =new LoaderSaverFactory();

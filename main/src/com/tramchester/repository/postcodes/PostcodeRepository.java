@@ -13,13 +13,13 @@ import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.mappers.Geography;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,7 +36,8 @@ public class PostcodeRepository {
     private final Map<String, IdMap<PostcodeLocation>> postcodesByArea; // Area Id -> PostcodeLocations
 
     @Inject
-    public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config, PostcodeBoundingBoxs boundingBoxs, Geography geography) {
+    public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config,
+                              PostcodeBoundingBoxs boundingBoxs, Geography geography) {
         this.importer = importer;
         this.config = config;
         this.boundingBoxs = boundingBoxs;

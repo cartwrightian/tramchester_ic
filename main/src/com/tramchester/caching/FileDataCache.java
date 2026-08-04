@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,7 +42,8 @@ public class FileDataCache implements DataCache {
     private boolean ready;
 
     @Inject
-    public FileDataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed, LoaderSaverFactory loaderSaverFactory,
+    public FileDataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed,
+                         LoaderSaverFactory loaderSaverFactory,
                          GraphFilterActive graphFilterActive) {
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
