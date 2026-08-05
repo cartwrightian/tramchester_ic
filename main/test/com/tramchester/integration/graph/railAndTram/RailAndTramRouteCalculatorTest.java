@@ -27,7 +27,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -103,7 +102,6 @@ public class RailAndTramRouteCalculatorTest {
         assertTrue(stationRepository.hasStationId(TramStations.Altrincham.getId()));
     }
 
-    @Summer2026Closures
     @Test
     void reproIssueRochdaleToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
@@ -115,7 +113,6 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveRochdaleToStPetersSquare() {
         TramTime time = TramTime.of(9,0);
@@ -377,7 +374,6 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExchangeSqToEccles() {
         TramTime time = TramTime.of(9,0);
@@ -664,7 +660,6 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveAltyToStPetersSquareViaTram() {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,

@@ -56,7 +56,7 @@ public class StationToStationConnection {
     @Override
     public String toString() {
         return "StationToStationConnection{" +
-                "pair=" + pair +
+                "pair=" + pair.getStationIds() +
                 ", linkingModes=" + linkingModes +
                 ", linkType=" + linkType +
                 ", distanceBetweenInMeters=" + distanceBetweenInMeters +

@@ -99,15 +99,13 @@ public class TramDuration implements Comparable<TramDuration> {
 
     @Override
     public String toString() {
-        if (this==factory.getMax()) {
-            return "TramDuration{duration=MAX}";
-        }
         if (!isValid()) {
             return "TramDuration{INVALID}";
         }
-        return "TramDuration{" +
-                "duration=" + duration +
-                '}';
+        if (this==factory.getMax()) {
+            return "TramDuration{MAX}";
+        }
+        return "TramDuration{" + duration + '}';
     }
 
     public TramDuration truncateToMinutes() {

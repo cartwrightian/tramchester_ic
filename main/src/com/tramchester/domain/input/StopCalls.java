@@ -99,7 +99,9 @@ public class StopCalls {
         if (findIndex.size()==1) {
             return orderedStopCalls.get(findIndex.getFirst());
         }
-        throw new RuntimeException("Unable for find stop call for interchange station " + interchangeStation.getStationId());
+        throw new RuntimeException("Unable for find stop call for interchange station " +
+                interchangeStation + " and " + parentTripId + " with " +
+                this.stationIndex);
 
     }
 

@@ -30,8 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.DataSourceID.naptanxml;
-import static com.tramchester.domain.DataSourceID.nptg;
+import static com.tramchester.domain.DataSourceID.*;
 
 @LazySingleton
 public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairInterconnectsData, RouteInterconnectRepository.RouteInterconnects> {
@@ -53,7 +52,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
                                        InterchangeRepository interchangeRepository, RouteCostMatrix routeCostMatrix,
                                        RouteDateAndDayOverlap routeDateAndDayOverlap, DataCache dataCache, GraphFilterActive graphFilter,
                                        TramchesterConfig config) {
-        super(dataCache, RoutePairInterconnectsData.class, ImmutableEnumSet.of(naptanxml, nptg));
+        super(dataCache, RoutePairInterconnectsData.class, ImmutableEnumSet.of(naptanxml, nptg, tfgm));
         this.pairFactory = pairFactory;
         this.numRoutes = numberOfRoutes.numberOfRoutes();
         this.interchangeRepository = interchangeRepository;
@@ -253,12 +252,13 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
             // did we find interchange?
             if (!interchangeRepository.hasInterchangeFor(indexPair)) {
                 final RoutePair routePair = routeIndex.getPairFor(indexPair);
-                final String msg = "Unable to find interchange for " + HasId.asIds(routePair);
+                final String msg = "Unable to find (outdated cache?) interchange for " + HasId.asIds(routePair);
                 logger.error(msg);
                 logger.warn("Full pair first:" + routePair.first() + " second: " + routePair.second());
                 if (!routePair.isDateOverlap()) {
                     logger.error("Further: No date overlap between " + HasId.asIds(routePair));
                 }
+                // NOTE: Can happen due to outdated cache
                 throw new RuntimeException(msg);
             }
 
