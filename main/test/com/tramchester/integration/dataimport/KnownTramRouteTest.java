@@ -19,7 +19,6 @@ import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,6 +32,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TFGMRouteNames.Navy;
+import static com.tramchester.testSupport.reference.KnownTramRouteEnum.Navy6;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -69,7 +70,6 @@ class KnownTramRouteTest {
         assertFalse(getDateRange().collect(Collectors.toSet()).isEmpty());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedRouteIdForBlue() {
         checkRouteIdFor(KnownTramRoute::getBlue, false);
@@ -80,7 +80,24 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getNavy, false);
     }
 
-    @Summer2026Closures
+    @Test
+    void shouldHaveExpectedRouteIdForNavyChangeOverSundayServices() {
+        TramDate switchOverDateSunday = TramDate.of(2026, 9, 6);
+        KnownTramRouteEnum result = KnownTramRoute.findFor(Navy, switchOverDateSunday);
+        assertEquals(Navy6, result);
+
+        Set<KnownTramRouteEnum> alLForDate = KnownTramRoute.getFor(switchOverDateSunday);
+        assertFalse(alLForDate.isEmpty(), "No routes for " + switchOverDateSunday);
+
+        List<KnownTramRouteEnum> navyRoutes = alLForDate.stream().
+                filter(knownRoute -> knownRoute.line() == Navy).toList();
+        assertFalse(navyRoutes.isEmpty(), "not found within " + alLForDate);
+
+        assertEquals(1, navyRoutes.size(), "Wrong size " + navyRoutes);
+
+        assertEquals(Navy6, navyRoutes.getFirst());
+    }
+
     @Test
     void shouldHaveExpectedRouteIdForGreen() {
         checkRouteIdFor(KnownTramRoute::getGreen, true);
@@ -91,13 +108,11 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedRouteIdForRed() {
         checkRouteIdFor(KnownTramRoute::getRed, false);
@@ -160,7 +175,6 @@ class KnownTramRouteTest {
         });
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
         final Set<Route> loaded = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly);
@@ -200,7 +214,6 @@ class KnownTramRouteTest {
         });
     }
 
-    //@DisabledUntilDate(year = 2026, month = 7, day = 21)
     @Test
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);

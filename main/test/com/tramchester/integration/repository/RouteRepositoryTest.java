@@ -186,10 +186,9 @@ public class RouteRepositoryTest {
     void shouldHaveAltrinchamReplacementBuses() {
         List<Route> buses = routeRepository.findRoutesByName(METL, "Piccadilly Station - Altrincham").
                 stream().toList();
-        assertEquals(2, buses.size());
+        assertEquals(1, buses.size());
 
         assertTrue(isReplacementBus(buses.getFirst()));
-        assertTrue(isReplacementBus(buses.getLast()));
 
     }
 

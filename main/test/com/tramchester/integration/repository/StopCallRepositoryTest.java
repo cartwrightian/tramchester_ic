@@ -23,12 +23,13 @@ import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -48,12 +49,18 @@ public class StopCallRepositoryTest {
 
     private static final IdFor<Station> freeHold = Station.createId("9400ZZMAFRE");
     private static final IdFor<Station> southChadderton = Station.createId("9400ZZMASCH");
+    public static final IdFor<Station> Derker = Station.createId("9400ZZMADER");
 
-    private static final List<IdFor<Station>> FreeholdToRochdaleStations = Arrays.asList(Station.createId("9400ZZMAFRE"),
-            Station.createId("9400ZZMAWWD"), OldhamKingStreet.getId(), OldhamCentral.getId(), OldhamMumps.getId(),
-            Station.createId("9400ZZMADER"), ShawAndCrompton.getId(), Station.createId("9400ZZMANHY"),
-            Station.createId("9400ZZMAMIL"), Station.createId("9400ZZMAKNY"), Station.createId("9400ZZMANBD"),
+    public static final List<IdFor<Station>> DerkerToRochdale = Arrays.asList(Station.createId("9400ZZMADER"),
+            ShawAndCrompton.getId(), Station.createId("9400ZZMANHY"), Station.createId("9400ZZMAMIL"),
+            Station.createId("9400ZZMAKNY"), Station.createId("9400ZZMANBD"),
             RochdaleRail.getId(), Rochdale.getId());
+
+    private static final List<IdFor<Station>> FreeholdToOldHamMumps = Arrays.asList(Station.createId("9400ZZMAFRE"),
+            Station.createId("9400ZZMAWWD"), OldhamKingStreet.getId(), OldhamCentral.getId(), OldhamMumps.getId());
+
+    private static final List<IdFor<Station>> FreeholdToRochdaleStations = Streams.concat(
+            FreeholdToOldHamMumps.stream(), DerkerToRochdale.stream()).toList();
 
     private static final List<IdFor<Station>> VictoriaToSouthChadderton = Arrays.asList(Victoria.getId(),
                 Monsall.getId(), Station.createId("9400ZZMACTP"), Station.createId("9400ZZMANEW"),
@@ -65,6 +72,14 @@ public class StopCallRepositoryTest {
     private static final List<IdFor<Station>> CrumpsalToBury = Arrays.asList(Crumpsal.getId(),
             Station.createId("9400ZZMABOW"), HeatonPark.getId(), Station.createId("9400ZZMAPWC"),
             Station.createId("9400ZZMABOB"), Whitefield.getId(), Station.createId("9400ZZMARAD"), Bury.getId());
+
+    public static @NonNull List<IdFor<Station>> getMonsallToOldhamCentral() {
+        List<IdFor<Station>> expected = new ArrayList<>(VictoriaToSouthChadderton);
+        expected.addAll(FreeholdToOldHamMumps);
+        expected.remove(Victoria.getId());
+        expected.remove(OldhamMumps.getId());
+        return expected;
+    }
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -116,7 +131,6 @@ public class StopCallRepositoryTest {
         assertEquals(4, results.size(), "Wrong number for calls for period " + results.toString());
     }
 
-    @Summer2026Closures
     @Test
     void shouldGetCostsForAStopCall() {
         TramDate when = TestEnv.testDay();
@@ -188,7 +202,6 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
-    @Summer2026Closures
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
         //TramDate date = TramDate.of(2026,5,30);
@@ -198,7 +211,7 @@ public class StopCallRepositoryTest {
     @Test
     void shouldDoublecheckStopsForClosuresCrumpsalToBury() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Crumpsal.getId(), Bury.getId(), when);
-        assertEquals(stopsBetween, CrumpsalToBury);
+        assertEquals(CrumpsalToBury, stopsBetween);
     }
 
     @Test
@@ -222,12 +235,26 @@ public class StopCallRepositoryTest {
     }
 
     @Test
+    void shouldHaveMonsallToOldhamCentral() {
+        List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Monsall.getId(), OldhamCentral.getId(), when);
+
+        List<IdFor<Station>> expected = getMonsallToOldhamCentral();
+
+        assertEquals(expected, stopsBetween);
+    }
+
+    @Test
     void shouldHaveVictoriaToSouthChadderton() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Victoria.getId(), southChadderton , when);
         assertEquals(VictoriaToSouthChadderton, stopsBetween);
     }
 
-    @Summer2026Closures
+    @Test
+    void shouldHaveDerkerToRochdale() {
+        List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Derker, Rochdale.getId(), when);
+        assertEquals(DerkerToRochdale, stopsBetween);
+    }
+
     @Test
     void shouldHaveExpectedEcclesLinesClosures() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());

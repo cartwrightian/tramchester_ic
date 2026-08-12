@@ -193,7 +193,7 @@ class RouteCalculatorTraffordBarBurtonRoadTest {
     private List<Journey> validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date) {
         JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
                 maxJourneyDuration, 1, TramsOnly);
-        journeyRequest.setDiag(false);
+        //journeyRequest.setDiag(false);
         List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
         assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", start, dest, date, time));
         return results;

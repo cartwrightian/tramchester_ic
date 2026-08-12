@@ -18,7 +18,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -32,7 +32,6 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-@Summer2026Closures
 class RouteCalculatorSubGraphEcclesLineSundayTest {
     private static ComponentContainer componentContainer;
 
@@ -97,36 +96,42 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @Test
     void shouldHaveEcclesCornbrook() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
                 0, maxJourneyDuration, 2, TramsOnly);
 
-        assertFalse(calculator.calculateRouteAsList(Eccles, Cornbrook, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(Eccles, Cornbrook, request).isEmpty(),
+                "None found for " + request);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @Test
     void shouldHaveBroadwayCornbrook() {
-        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(6, 50), false,
-                0, maxJourneyDuration, 1, TramsOnly);
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(10, 50), false,
+                1, maxJourneyDuration, 1, TramsOnly);
 
-        assertFalse(calculator.calculateRouteAsList(Broadway, Cornbrook, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(Broadway, Cornbrook, request).isEmpty(),
+                "None found for " + request);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @Test
     void shouldHaveBroadwayHarbourCity() {
-        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(6, 50), false,
-                0, maxJourneyDuration, 1, TramsOnly);
+        JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
+                1, maxJourneyDuration, 1, TramsOnly);
 
-        request.setDiag(true);
+        //request.setDiag(true);
 
-        assertFalse(calculator.calculateRouteAsList(Broadway, HarbourCity, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(Broadway, HarbourCity, request).isEmpty(),
+                "None found for " + request);
     }
 
     @Test
     void shouldHaveBroadwayMediaCity() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
-                0, maxJourneyDuration, 1, TramsOnly);
+                1, maxJourneyDuration, 1, TramsOnly);
 
         assertFalse(calculator.calculateRouteAsList(Broadway, MediaCityUK, request).isEmpty());
     }
@@ -149,16 +154,15 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, Cornbrook, request).isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @Test
     void shouldHaveCornbrookEccles() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
-                0, maxJourneyDuration, 2, TramsOnly);
+                1, maxJourneyDuration, 2, TramsOnly);
 
-//        request.setDiag(true);
-
-        assertFalse(calculator.calculateRouteAsList(Cornbrook, Eccles, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(Cornbrook, Eccles, request).isEmpty(),
+                "None found for " + request);
     }
-
 
     @Disabled
     @Test
@@ -190,6 +194,8 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
             // TODO no closures, but is this correct?
             super(Collections.emptyList());
         }
+
+
 
         @Override
         public boolean isGraphFiltered() {

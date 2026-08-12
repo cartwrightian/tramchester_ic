@@ -79,11 +79,17 @@ public class KnownTramRoute {
 
         FindCurrentRouteFromLine find = new FindCurrentRouteFromLine(date);
 
-        if (! (date.equals(sundaySept2026Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
+        // date.equals(sundaySept2026Closure) ||
+        if (! (date.equals(sundaySept202ClosureNotPublished) ||
+                date.equals(summerBankHol2026)) ) {
             routes.add(find.singleRoute(Red));
             routes.add(find.singleRoute(Blue));
             routes.add(find.singleRoute(Purple));
+            routes.add(find.singleRoute(Yellow));
+            routes.add(find.singleRoute(Navy));
+            routes.add(find.singleRoute(Pink));
         }
+
         if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
             if (date.isBefore(TramDate.of(2026, 8, 9))) {
                 routes.add(find.singleRoute(Green));
@@ -92,13 +98,6 @@ public class KnownTramRoute {
             if (!date.equals(summerBankHol2026)) {
                 routes.add(find.singleRoute(Green));
             }
-        }
-
-
-        if (! (date.equals(sundaySept2026Closure) || date.equals(sundaySept202ClosureNotPublished)) ) {
-            routes.add(find.singleRoute(Yellow));
-            routes.add(find.singleRoute(Navy));
-            routes.add(find.singleRoute(Pink));
         }
 
         return routes;
@@ -187,10 +186,10 @@ public class KnownTramRoute {
             }
 
             // see if we have more than one candidate for the date
-            Map<TramDate, Set<KnownTramRouteEnum>> routesForDate = dateOrdered.stream().collect(
+            final Map<TramDate, Set<KnownTramRouteEnum>> routesForDate = dateOrdered.stream().collect(
                     Collectors.toMap(KnownTramRouteEnum::getValidFrom, Collections::singleton, SetUtils::union));
 
-            SortedMap<TramDate, Set<KnownTramRouteEnum>> sortedByDate = new TreeMap<>(TramDate::compareTo);
+            final SortedMap<TramDate, Set<KnownTramRouteEnum>> sortedByDate = new TreeMap<>(TramDate::compareTo);
 
             sortedByDate.putAll(routesForDate);
 

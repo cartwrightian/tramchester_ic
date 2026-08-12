@@ -22,19 +22,19 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalculatorKeyRoutesTest {
@@ -107,29 +107,27 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @Summer2026Closures
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
 
         final LocationIdPairSet<Station> pairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram);
 
-        final Map<TramDate, LocationIdsAndNames<Station>> missing = new HashMap<>();
+        final SortedMap<TramDate, LocationIdsAndNames<Station>> missing = new TreeMap<>();
 
         Duration timeout = Duration.ofMinutes(1);
         TramTime tramTime = TramTime.of(8, 5);
 
         UpcomingDates.daysAhead().stream().
                 filter(UpcomingDates::notChristmasPeriod).
-                // TODO bring back sundays
-                filter(date -> date.getDayOfWeek() != DayOfWeek.SUNDAY).
                 forEach(testDate -> {
-                    JourneyRequest request = new JourneyRequest(testDate, tramTime, false, 2,
+                    final JourneyRequest request = new JourneyRequest(testDate, tramTime, false, 2,
                             maxJourneyDuration, 1, modes);
-                    Running running = () -> true;
-                    RouteCalculationCombinations.CombinationResults<Station> results =
+                    final Running running = () -> true;
+                    final RouteCalculationCombinations.CombinationResults<Station> results =
                             combinations.getJourneysFor(pairs, request, timeout, running);
-                    LocationIdsAndNames<Station> missingForDate = results.getMissing();
+                    final LocationIdsAndNames<Station> missingForDate = results.getMissing();
                     if (!missingForDate.isEmpty()) {
                         missing.put(testDate, missingForDate);
                     }

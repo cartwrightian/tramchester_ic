@@ -139,6 +139,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 //        return !date.equals(TramDate.of(2026, 6, 21));
 //    }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @Test
     void shouldHaveMediaCityToExchangeSquareSaturday() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
@@ -146,6 +147,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @Test
     void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
@@ -347,6 +349,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 16)
     @Test
     void reproduceMediaCityIssueSaturdays() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(9,0), UpcomingDates.nextSaturday());

@@ -75,7 +75,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         Station dest = TramStations.Piccadilly.fake();
         LocationCollection destinations = LocationCollectionSingleton.of(dest);
 
-        journeyRequest.setDiag(true);
+        //journeyRequest.setDiag(true);
 
         serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow, failedJourneyDiagnostics);
 
