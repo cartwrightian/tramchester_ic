@@ -9,6 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.*;
 import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.diagnostics.*;
@@ -200,6 +201,15 @@ public class ServiceHeuristics {
             return reasons.recordReason(HeuristicsReasons.StationNotReachable(howIGotHere, ReasonCode.TooManyInterchangesRequired));
         }
 
+        return valid(ReasonCode.Reachable, howIGotHere, reasons);
+    }
+
+
+    public HeuristicsReason backToStartNode(final GraphNodeId nodeId, final int pathLength, final GraphNodeId startNodeId,
+                                            final HowIGotHere howIGotHere, final ServiceReasons reasons) {
+        if (pathLength>1 && nodeId.equals(startNodeId)) {
+            return reasons.recordReason(HeuristicsReasons.ReturnedToStart(howIGotHere));
+        }
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 

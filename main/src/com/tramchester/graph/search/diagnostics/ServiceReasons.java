@@ -326,9 +326,15 @@ public class ServiceReasons {
         @Override
         public String toString() {
             return "EnumCounter{" +
-                    "counters=" + counters +
-                    ", theEnum=" + theEnum +
+                    "counters=" + aboveZero(counters) +
+                    ", theEnum=" + theEnum.getSimpleName() +
                     '}';
+        }
+
+        private Map<T, AtomicInteger> aboveZero(final EnumMap<T, AtomicInteger> counters) {
+            return counters.entrySet().stream().
+                    filter(entry -> entry.getValue().get()>0).
+                    collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
     }
 

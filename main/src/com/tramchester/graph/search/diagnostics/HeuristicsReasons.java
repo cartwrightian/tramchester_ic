@@ -103,9 +103,9 @@ public class HeuristicsReasons {
         return new HeuristicReasonWithAttribute<>(ReasonCode.AlreadyDeparted, path, tramTime, false, TramTime::toPattern);
     }
 
-    public static HeuristicsReason DestinationUnavailableAtTime(final TramTime tramTime, final HowIGotHere path) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.DestinationUnavailableAtTime, path, tramTime, false, TramTime::toPattern);
-    }
+//    public static HeuristicsReason DestinationUnavailableAtTime(final TramTime tramTime, final HowIGotHere path) {
+//        return new HeuristicReasonWithAttribute<>(ReasonCode.DestinationUnavailableAtTime, path, tramTime, false, TramTime::toPattern);
+//    }
 
     public static HeuristicsReason Cached(final HeuristicsReason contained, final HowIGotHere path) {
         return new CachedHeuristicReason(contained, path);

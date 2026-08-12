@@ -72,10 +72,10 @@ public class ServiceReasonsTest extends EasyMockSupport {
         JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
                 false, 2, TramDuration.ofHours(1), 1, TransportMode.TramsOnly);
 
+        journeyRequest.setDiag(true); // this is what is being tested
+
         Station dest = TramStations.Piccadilly.fake();
         LocationCollection destinations = LocationCollectionSingleton.of(dest);
-
-        //journeyRequest.setDiag(true);
 
         serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow, failedJourneyDiagnostics);
 
@@ -155,14 +155,14 @@ public class ServiceReasonsTest extends EasyMockSupport {
         serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
         serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
         serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
-        serviceReasons.recordReason(HeuristicsReasons.StationClosed(howIGotHereB, TramStations.Shudehill.getId()));
+        serviceReasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHereB, TramDuration.ofMinutes(400), 5));
 
         verifyAll();
 
         Map<ReasonCode, Integer> reasons = serviceReasons.getReasons();
 
         assertEquals(3, reasons.get(ReasonCode.TookTooLong));
-        assertEquals(1, reasons.get(ReasonCode.StationClosed));
+        assertEquals(1, reasons.get(ReasonCode.ArrivedLater));
 
         serviceReasons.logCounters();
 

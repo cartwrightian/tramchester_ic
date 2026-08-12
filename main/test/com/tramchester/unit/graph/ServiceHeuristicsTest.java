@@ -152,6 +152,27 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldCheckReturnedToStart() {
+        TramTime queryTime = TramTime.of(8,1);
+        JourneyRequest journeyRequest = getJourneyRequest(queryTime);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
+
+        ServiceHeuristics serviceHeuristics = createServiceHeuristics(queryTime, maxChanges);
+
+        GraphNodeId nodeIdA = TestNodeId.TestOnly(1);
+        assertTrue(serviceHeuristics.backToStartNode(nodeIdA, 0, nodeIdA, howIGotHere, reasons).isValid());
+        assertTrue(serviceHeuristics.backToStartNode(nodeIdA, 1, nodeIdA, howIGotHere, reasons).isValid());
+
+        HeuristicsReason samePathLong = serviceHeuristics.backToStartNode(nodeIdA, 2, nodeIdA, howIGotHere, reasons);
+        assertFalse(samePathLong.isValid());
+
+        GraphNodeId nodeIdB = TestNodeId.TestOnly(2);
+
+        HeuristicsReason diffNodes = serviceHeuristics.backToStartNode(nodeIdA, 2, nodeIdB, howIGotHere, reasons);
+        assertTrue(diffNodes.isValid());
+    }
+
+    @Test
     void shouldCheckNodeOpenStation() {
         TramTime queryTime = TramTime.of(8,1);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
@@ -642,6 +663,12 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         @Override
         public int getMaxWait() {
             return maxWait;
+        }
+    }
+
+    private record TestNodeId(long id) implements GraphNodeId {
+        public static GraphNodeId TestOnly(long id) {
+            return new TestNodeId(id);
         }
     }
 }

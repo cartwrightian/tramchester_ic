@@ -45,7 +45,8 @@ public abstract class TramRouteEvaluator {
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final TramchesterConfig config,
                               final GraphTransaction txn, final Set<GraphNodeId> destinationNodeIds,
                               final ServiceReasons reasons, final PreviousVisits previousVisits,
-                              final ArrivalHandler bestResultSoFar, final GraphNodeId startNodeId,
+                              final ArrivalHandler bestResultSoFar,
+                              final GraphNodeId startNodeId,
                               final ImmutableEnumSet<TransportMode> requestedModes, Running running,
                               final ImmutableEnumSet<TransportMode> destinationModes,
                               final TramDuration maxInitialWait) {
@@ -190,8 +191,10 @@ public abstract class TramRouteEvaluator {
         }
 
         // returned to the start?
-        if ((thePath.length() > 1) && nextNodeId.equals(startNodeId)) {
-            return reasons.recordReason(HeuristicsReasons.ReturnedToStart(howIGotHere));
+        final HeuristicsReason backToStartNode = serviceHeuristics.backToStartNode(nextNodeId, thePath.length(),
+                startNodeId, howIGotHere, reasons);
+        if (!backToStartNode.isValid()) {
+            return backToStartNode;
         }
 
         final TramTime visitingTime = journeyState.getJourneyClock();
