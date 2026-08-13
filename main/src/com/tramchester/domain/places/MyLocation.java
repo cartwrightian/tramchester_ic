@@ -82,7 +82,7 @@ public class MyLocation implements Location<MyLocation> {
 
     @Override
     public IdFor<NPTGLocality> getLocalityId() {
-        return StringIdFor.invalid(NPTGLocality.class);
+        return NPTGLocality.InvalidId();
     }
 
     @Override

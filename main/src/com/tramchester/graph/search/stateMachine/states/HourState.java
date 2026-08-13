@@ -71,7 +71,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
                                       final JourneyStateUpdate journeyState) {
         try {
             final TramTime time = minuteNode.getTime();
-            journeyState.recordTimeAtMinuteNode(time, getTotalDuration());
+            journeyState.recordDepartureTimeAtMinuteNode(time, getTotalDuration());
         } catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);
         }

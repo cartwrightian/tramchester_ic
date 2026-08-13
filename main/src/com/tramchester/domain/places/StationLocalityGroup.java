@@ -26,7 +26,7 @@ public class StationLocalityGroup extends StationGroup {
         if (parentId.isValid()) {
             this.parentId = createId(parentId);
         } else {
-            this.parentId = StringIdFor.invalid(StationGroup.class);
+            this.parentId = StationGroup.invalidId();
         }
     }
 

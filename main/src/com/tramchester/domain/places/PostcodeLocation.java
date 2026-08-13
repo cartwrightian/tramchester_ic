@@ -2,10 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.PostcodeLocationId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -82,7 +79,7 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
     @Override
     public IdFor<NPTGLocality> getLocalityId() {
         // note: if needed since know grid for locality and for postcode could associate
-        return StringIdFor.invalid(NPTGLocality.class);
+        return NPTGLocality.InvalidId();
     }
 
     @Override

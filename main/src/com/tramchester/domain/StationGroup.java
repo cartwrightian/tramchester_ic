@@ -3,6 +3,7 @@ package com.tramchester.domain;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -33,7 +34,9 @@ public class StationGroup implements Location<StationGroup> {
     public StationGroup(final LocationSet<Station> groupedStations, final String name, final LatLong latLong,
                         final IdFor<NPTGLocality> localityId) {
         this.localityId = localityId;
-        this.id = LocationId.wrap(createId(localityId));
+
+        final IdFor<StationGroup> groupId = createId(localityId);
+        this.id = LocationId.wrap(groupId);
 
         if (groupedStations.isEmpty()) {
             throw new RuntimeException("Attempt to create empty group for name: " +name);
@@ -46,7 +49,11 @@ public class StationGroup implements Location<StationGroup> {
 
     @NotNull
     public static IdFor<StationGroup> createId(final IdFor<NPTGLocality> localityId) {
-        return StringIdFor.convert(localityId, StationGroup.class);
+        if (localityId.isValid()) {
+            return StringIdFor.convert(localityId, StationGroup.class);
+        } else {
+            return invalidId();
+        }
     }
 
     private static DataSourceID computeDataSourceId(final LocationSet<Station> stations) {
@@ -55,6 +62,10 @@ public class StationGroup implements Location<StationGroup> {
             return DataSourceID.mixed;
         }
         return sourceIds.iterator().next();
+    }
+
+    protected static IdFor<StationGroup> invalidId() {
+        return new InvalidId<>(StationGroup.class);
     }
 
     @Override

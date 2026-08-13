@@ -185,6 +185,57 @@ class RailAndTramGraphBuilderTest {
     }
 
     @Test
+    void shouldHaveExpectedTimeAtMinuteNodeForAltrinchamDeparture() {
+        TripRepository tripRepository = componentContainer.get(TripRepository.class);
+
+        Trip trip = tripRepository.getTripById(STOCKPORT_TRIP_ID);
+        IdFor<Service> serviceId = trip.getService().getId();
+
+        StopCalls stopCalls = trip.getStopCalls();
+        StopCall navigationStopCall = stopCalls.getStopFor(RailStationIds.NavigationRaod.getId());
+        TramTime navigationArrivalTime = navigationStopCall.getArrivalTime();
+
+        Route route = trip.getRoute();
+
+        RouteStation routeStation = stationRepository.getRouteStation(RailStationIds.NavigationRaod.from(stationRepository),
+                route);
+
+        GraphNode routeStationNode = txn.findNode(routeStation);
+
+        Stream<GraphRelationship> toServices = routeStationNode.getRelationships(txn, GraphDirection.Outgoing, TO_SERVICE);
+
+        Optional<GraphRelationship> maybeToService = toServices.
+                filter(graphRelationship -> graphRelationship.getServiceId().equals(serviceId)).
+                findFirst();
+        assertTrue(maybeToService.isPresent());
+
+        GraphRelationship toService = maybeToService.get();
+
+        GraphNode serviceNode = toService.getEndNode(txn);
+
+        Stream<GraphRelationship> toHours = serviceNode.getRelationships(txn, GraphDirection.Outgoing, TO_HOUR);
+        Optional<GraphRelationship> maybeToHour = toHours.
+                filter(graphRelationship -> graphRelationship.getHour() == navigationArrivalTime.getHourOfDay()).
+                findFirst();
+        assertTrue(maybeToHour.isPresent());
+
+        GraphRelationship toHour = maybeToHour.get();
+        GraphNode hourNode = toHour.getEndNode(txn);
+
+        Stream<GraphRelationship> toMinutes = hourNode.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
+        Optional<GraphRelationship> toMinuteMaybe = toMinutes.
+                filter(graphRelationship -> graphRelationship.getEndNode(txn).getTripId().equals(trip.getId())).
+                findFirst();
+        assertTrue(toMinuteMaybe.isPresent());
+
+        GraphRelationship toMinute = toMinuteMaybe.get();
+        GraphNode minuteNode = toMinute.getEndNode(txn);
+
+        assertEquals(navigationStopCall.getDepartureTime(), minuteNode.getTime());
+
+    }
+
+    @Test
     void shouldHaveExpectedCostForSpecificLinkStockportToNavigationRoad() {
 
         TripRepository tripRepository = componentContainer.get(TripRepository.class);

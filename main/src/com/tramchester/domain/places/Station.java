@@ -4,6 +4,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -36,7 +37,7 @@ public interface Station extends Location<Station> {
     }
 
     static IdFor<Station> InvalidId() {
-        return StringIdFor.invalid(Station.class);
+        return new InvalidId<>(Station.class);
     }
 
 }

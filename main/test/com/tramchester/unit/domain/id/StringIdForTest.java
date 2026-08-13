@@ -60,7 +60,7 @@ public class StringIdForTest {
 
     @Test
     void shouldTestInvalid() {
-        IdFor<Station> id = StringIdFor.invalid(Station.class);
+        IdFor<Station> id = Station.InvalidId();
 
         assertEquals(Station.class, id.getDomainType());
         assertFalse(id.isValid());

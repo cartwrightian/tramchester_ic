@@ -81,7 +81,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
     }
 
-    public void recordTimeAtMinuteNode(final TramTime boardingTime, final TramDuration currentCost) throws TramchesterException {
+    public void recordDepartureTimeAtMinuteNode(final TramTime boardingTime, final TramDuration currentCost) throws TramchesterException {
         // visited a minute node
         if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");

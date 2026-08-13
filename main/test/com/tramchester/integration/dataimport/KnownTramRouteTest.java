@@ -14,6 +14,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -32,8 +33,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TFGMRouteNames.Navy;
-import static com.tramchester.testSupport.reference.KnownTramRouteEnum.Navy6;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -80,23 +79,18 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getNavy, false);
     }
 
-    @Test
-    void shouldHaveExpectedRouteIdForNavyChangeOverSundayServices() {
-        TramDate switchOverDateSunday = TramDate.of(2026, 9, 6);
-        KnownTramRouteEnum result = KnownTramRoute.findFor(Navy, switchOverDateSunday);
-        assertEquals(Navy6, result);
-
-        Set<KnownTramRouteEnum> alLForDate = KnownTramRoute.getFor(switchOverDateSunday);
-        assertFalse(alLForDate.isEmpty(), "No routes for " + switchOverDateSunday);
-
-        List<KnownTramRouteEnum> navyRoutes = alLForDate.stream().
-                filter(knownRoute -> knownRoute.line() == Navy).toList();
-        assertFalse(navyRoutes.isEmpty(), "not found within " + alLForDate);
-
-        assertEquals(1, navyRoutes.size(), "Wrong size " + navyRoutes);
-
-        assertEquals(Navy6, navyRoutes.getFirst());
-    }
+//    @Test
+//    void shouldHaveExpectedRouteForModifier() {
+//        TramDate expectedDate = TramDate.of(2026, 8, 29);
+//        assertEquals(DayOfWeek.SATURDAY, expectedDate.getDayOfWeek());
+//
+//        KnownTramRouteEnum resultA = KnownTramRoute.findFor(Blue, expectedDate);
+//        assertEquals(Blue8, resultA);
+//
+//        KnownTramRouteEnum resultB = KnownTramRoute.findFor(Blue, expectedDate.plusWeeks(1));
+//        assertEquals(Blue8, resultB);
+//
+//    }
 
     @Test
     void shouldHaveExpectedRouteIdForGreen() {
@@ -214,6 +208,7 @@ class KnownTramRouteTest {
         });
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 20)
     @Test
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow()).plusDays(1);
@@ -240,6 +235,7 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 20)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());

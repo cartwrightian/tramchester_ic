@@ -89,7 +89,8 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         EasyMock.expect(adjacencyRepository.getAdjacent(pair.getStationIds(), date, timeRange)).
                 andReturn(TramDuration.ofMinutes(costBetweenStations));
 
-        EasyMock.expect(departuresRepository.forStation(pair.getEnd(), DestinationAndCallingPoints.None())).andReturn(Collections.singletonList(departureFromEnd));
+        EasyMock.expect(departuresRepository.forStation(pair.getEnd(), DestinationAndCallingPoints.None())).
+                andReturn(Collections.singletonList(departureFromEnd));
 
         TimeRange cutoffTimeRange = TimeRange.of(startTime, startTime.plusMinutes(costBetweenStations));
         EasyMock.expect(routeReachable.getRoutesFromStartToNeighbour(pair, date, cutoffTimeRange, TransportMode.TramsOnly)).

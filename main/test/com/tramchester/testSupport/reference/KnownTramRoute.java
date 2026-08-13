@@ -15,7 +15,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.testSupport.UpcomingDates.*;
+import static com.tramchester.testSupport.UpcomingDates.summerBankHol2026;
+import static com.tramchester.testSupport.UpcomingDates.sundaySept202ClosureNotPublished;
 
 public class KnownTramRoute {
 
@@ -80,8 +81,7 @@ public class KnownTramRoute {
         FindCurrentRouteFromLine find = new FindCurrentRouteFromLine(date);
 
         // date.equals(sundaySept2026Closure) ||
-        if (! (date.equals(sundaySept202ClosureNotPublished) ||
-                date.equals(summerBankHol2026)) ) {
+        if (! (date.equals(sundaySept202ClosureNotPublished) || date.equals(summerBankHol2026)) ) {
             routes.add(find.singleRoute(Red));
             routes.add(find.singleRoute(Blue));
             routes.add(find.singleRoute(Purple));
@@ -176,9 +176,69 @@ public class KnownTramRoute {
         }
 
         private @NonNull SortedMap<TramDate, Set<KnownTramRouteEnum>> getKnownByDate(final TFGMRouteNames line) {
+
+            // remove known routes not applicable for current date
+            final List<KnownTramRouteEnum> possibleForDate = Arrays.stream(KnownTramRouteEnum.values()).
+                    filter(known -> known.line().equals(line)).
+                    filter(known -> !date.isBefore(known.getValidFrom())).
+                    sorted(Comparator.comparing(KnownTramRouteEnum::getValidFrom)).
+                    toList();
+
+            DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+            final List<KnownTramRouteEnum> modifiersApplied;
+            if (dayOfWeek==DayOfWeek.SATURDAY || dayOfWeek==DayOfWeek.SUNDAY) {
+                final EnumSet<KnownTramRouteEnum.DaysMod> applicableMods = applicableMods(dayOfWeek);
+                final List<KnownTramRouteEnum> possibleForDateWithMods = possibleForDate.stream().
+                        filter(known -> applicableMods.contains(known.modifiers())).
+                        filter(known -> dateMatchRequired(known, date)).
+                        toList();
+                if (possibleForDateWithMods.isEmpty()) {
+                    modifiersApplied = possibleForDate;
+                } else {
+                    modifiersApplied = possibleForDateWithMods;
+                }
+            } else {
+                modifiersApplied = possibleForDate.stream().
+                        filter(known -> known.modifiers()== KnownTramRouteEnum.DaysMod.none).
+                        toList();
+            }
+
+            final Map<TramDate, Set<KnownTramRouteEnum>> routesForDate = modifiersApplied.stream().collect(
+                    Collectors.toMap(KnownTramRouteEnum::getValidFrom, Collections::singleton, SetUtils::union));
+
+            final SortedMap<TramDate, Set<KnownTramRouteEnum>> sortedByDate = new TreeMap<>(TramDate::compareTo);
+            sortedByDate.putAll(routesForDate);
+            return sortedByDate;
+        }
+
+        private boolean dateMatchRequired(KnownTramRouteEnum known, TramDate date) {
+            KnownTramRouteEnum.DaysMod mods = known.modifiers();
+            if (mods==KnownTramRouteEnum.DaysMod.saturdayOnly || mods ==KnownTramRouteEnum.DaysMod.sundayOnly) {
+                // specific to one date - TODO change to TodayOny?
+                return date.equals(known.getValidFrom());
+            }
+            return true;
+        }
+
+        private static @NonNull EnumSet<KnownTramRouteEnum.DaysMod> applicableMods(DayOfWeek dayOfWeek) {
+            final EnumSet<KnownTramRouteEnum.DaysMod> applicableMods = EnumSet.noneOf(KnownTramRouteEnum.DaysMod.class);
+            if (dayOfWeek ==DayOfWeek.SATURDAY) {
+                applicableMods.add(KnownTramRouteEnum.DaysMod.everySaturday);
+                applicableMods.add(KnownTramRouteEnum.DaysMod.saturdayOnly);
+            }
+            if (dayOfWeek ==DayOfWeek.SUNDAY) {
+                applicableMods.add(KnownTramRouteEnum.DaysMod.everySunday);
+                applicableMods.add(KnownTramRouteEnum.DaysMod.sundayOnly);
+            }
+            return applicableMods;
+        }
+
+        private @NonNull SortedMap<TramDate, Set<KnownTramRouteEnum>> getKnownByDateOLD(final TFGMRouteNames line) {
+
             final List<KnownTramRouteEnum> dateOrdered = Arrays.stream(KnownTramRouteEnum.values()).
                     filter(known -> known.line().equals(line)).
-                    filter(known -> checkSundays(date, known)).
+                    filter(known -> checkModifiers(date, known)).
                     filter(known -> date.isEqual(known.getValidFrom()) || date.isAfter(known.getValidFrom())).
                             toList();
             if (dateOrdered.isEmpty()) {
@@ -196,14 +256,18 @@ public class KnownTramRoute {
             return sortedByDate;
         }
 
-        private boolean checkSundays(final TramDate date, final KnownTramRouteEnum known) {
-            final boolean dateIsSunday = (date.getDayOfWeek() == DayOfWeek.SUNDAY);
+        private boolean checkModifiers(final TramDate date, final KnownTramRouteEnum known) {
+            final boolean isSaturday = (date.getDayOfWeek() == DayOfWeek.SATURDAY);
+            final boolean isSunday = (date.getDayOfWeek() == DayOfWeek.SUNDAY);
+            final boolean matches = date.equals(known.getValidFrom());
+            final boolean after = date.isAfter(known.getValidFrom());
 
-            return switch (known.sundayOnly()) {
-                case KnownTramRouteEnum.SundayOnly.no -> true;
-                case KnownTramRouteEnum.SundayOnly.yes -> dateIsSunday && date.equals(known.getValidFrom());
-                case KnownTramRouteEnum.SundayOnly.every ->
-                        dateIsSunday && (date.isEqual(known.getValidFrom()) || date.isAfter(known.getValidFrom()));
+            return switch (known.modifiers()) {
+                case none -> matches || after;
+                case sundayOnly -> isSunday && matches;
+                case saturdayOnly -> isSaturday && matches;
+                case everySunday -> isSunday && (matches || after);
+                case everySaturday -> isSaturday && (matches || after);
             };
 
         }

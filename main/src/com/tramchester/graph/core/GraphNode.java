@@ -54,6 +54,10 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     boolean hasTripId();
     boolean hasStationId();
 
+    /***
+     * For MINUTE node this is *always* departure time for the outgoing vehicle
+     * @return tram time at the node (time vehicle passes)
+     */
     TramTime getTime();
     TramDate getStartDate();
     LatLong getLatLong();

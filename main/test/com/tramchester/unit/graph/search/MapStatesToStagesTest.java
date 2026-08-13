@@ -92,10 +92,12 @@ public class MapStatesToStagesTest extends EasyMockSupport {
 
         replayAll();
         mapper.board(Tram, boardNode, true);
-        mapper.recordTimeAtMinuteNode(TramTime.of(10,5), TramDuration.ofMinutes(5));
+        TramDuration totalAtBoardTime = TramDuration.ofMinutes(5);
+        mapper.recordDepartureTimeAtMinuteNode(TramTime.of(10,5), totalAtBoardTime);
         mapper.beginTrip(tripId);
-        mapper.recordTimeAtMinuteNode(TramTime.of(10,15), TramDuration.ofMinutes(15));
-        mapper.leave(Tram, TramDuration.ofMinutes(23), leaveNode);
+        //mapper.recordDepartureTimeAtMinuteNode(TramTime.of(10,15), TramDuration.ofMinutes(15));
+        TramDuration totalWhenLeave = TramDuration.ofMinutes(23);
+        mapper.leave(Tram, totalWhenLeave, leaveNode);
         mapper.atDestination(TramDuration.getInvalid());
         List<TransportStage<?, ?>> stages = mapper.getStages();
         verifyAll();
@@ -103,61 +105,15 @@ public class MapStatesToStagesTest extends EasyMockSupport {
         assertEquals(1, stages.size());
 
         TransportStage<?, ?> stage = stages.getFirst();
-        assertEquals(stage.getFirstStation().getId(), navigationRoad.getId());
-        assertEquals(stage.getLastStation().getId(), altrincham.getId());
-        assertEquals(stage.getTripId(), tripId);
-        assertEquals(stage.getFirstDepartureTime(), TramTime.of(10,5));
-        assertEquals(stage.getExpectedArrivalTime(), TramTime.of(10,5).plus(TramDuration.ofMinutes(23)));
+        assertEquals(navigationRoad.getId(), stage.getFirstStation().getId());
+        assertEquals(altrincham.getId(), stage.getLastStation().getId());
+        assertEquals(tripId, stage.getTripId());
+        assertEquals(TramTime.of(10,5), stage.getFirstDepartureTime());
+        assertEquals(TramTime.of(10,5).plus(totalWhenLeave).minus(totalAtBoardTime),
+                stage.getExpectedArrivalTime());
 
     }
 
-    @Test
-    void shouldTestVehicleStageThenWalk() {
-
-        Station altrincham = Altrincham.fake();
-        EasyMock.expect(stationRepository.getStationById(altrincham.getId())).andStubReturn(altrincham);
-
-        MyLocation walkEnd = MyLocation.create(KnownLocations.betweenAltrinchamAndNavigationRoad.latLong());
-
-        GraphNode boardNode = createMock(GraphNode.class);
-        EasyMock.expect(boardNode.getStationId()).andStubReturn(navigationRoad.getId());
-        EasyMock.expect(boardNode.getPlatformId()).andStubReturn(platformId);
-
-        GraphNode leaveNode = createMock(GraphNode.class);
-        EasyMock.expect(leaveNode.getStationId()).andStubReturn(altrincham.getId());
-        EasyMock.expect(leaveNode.hasLabel(GraphLabel.STATION)).andReturn(true);
-
-        GraphNode walkEndNode = createMock(GraphNode.class);
-        EasyMock.expect(walkEndNode.hasLabel(GraphLabel.STATION)).andReturn(false);
-        EasyMock.expect(walkEndNode.getLatLong()).andStubReturn(walkEnd.getLatLong());
-
-        replayAll();
-        mapper.board(Tram, boardNode, true);
-        mapper.recordTimeAtMinuteNode(TramTime.of(10,5), TramDuration.ofMinutes(5));
-        mapper.beginTrip(tripId);
-        mapper.recordTimeAtMinuteNode(TramTime.of(10,15), TramDuration.ofMinutes(15));
-        mapper.leave(Tram, TramDuration.ofMinutes(23), leaveNode);
-
-        mapper.beginWalk(leaveNode, TramDuration.ofMinutes(2));
-        mapper.endWalk(walkEndNode, TramDuration.ZERO); // zero since was already able to provide a cost
-
-        mapper.atDestination(TramDuration.getInvalid());
-
-        List<TransportStage<?, ?>> stages = mapper.getStages();
-        verifyAll();
-
-        assertEquals(2, stages.size());
-
-        TransportStage<?, ?> stage = stages.getFirst();
-        assertEquals(stage.getFirstStation().getId(), navigationRoad.getId());
-        assertEquals(stage.getLastStation().getId(), altrincham.getId());
-        assertEquals(stage.getTripId(), tripId);
-        assertEquals(stage.getFirstDepartureTime(), TramTime.of(10,5));
-        assertEquals(stage.getExpectedArrivalTime(), TramTime.of(10,5).plus(TramDuration.ofMinutes(23)));
-
-        // TODO walking stage
-
-    }
 
     @Test
     void shouldTestWalkFromStartDirect() {

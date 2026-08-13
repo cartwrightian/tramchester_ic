@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(TramAppTestExtension.class)
 public class DataVersionResourceTest {
 
-    public static final String version = "2026-08-12T02:45:46Z";
+    public static final String version = "2026-08-13T08:13:06Z";
 
     @TramApp
     private static IntegrationAppExtension appExtension = new IntegrationAppExtension(

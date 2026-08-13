@@ -117,7 +117,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return domainType;
     }
 
-    public static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid(final Class<CLASS> domainType) {
+    private static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid(final Class<CLASS> domainType) {
         return new StringIdFor<>(domainType);
     }
 

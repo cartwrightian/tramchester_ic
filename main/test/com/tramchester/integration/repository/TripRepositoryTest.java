@@ -10,6 +10,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TFGMRouteNames;
@@ -205,6 +206,49 @@ public class TripRepositoryTest {
                         }));
 
         assertTrue(missing.isEmpty(), missing.toString());
+    }
+
+    @Test
+    void shouldHaveCorrectTimeForStopLegs() {
+        Set<Trip> trips = tripRepository.getTripsCallingAt(NavigationRoad.from(stationRepository), when);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(9,30), TramTime.of(10,0));
+
+        // min here to give some consistency, can vary between 2 and 3 mins
+        Optional<Trip> findTrip = trips.stream().
+                filter(trip -> trip.callsAt(Timperley.getId())).
+                filter(trip -> trip.isAfter(Timperley.getId(), NavigationRoad.getId())).
+                filter(trip -> timeRange.contains(trip.departTime())).
+                min(Comparator.comparing(Trip::arrivalTime));
+
+        assertFalse(findTrip.isEmpty());
+
+        Trip tripTimpToNavi = findTrip.get();
+
+        StopCalls stopCalls = tripTimpToNavi.getStopCalls();
+
+        StopCall timpStop = stopCalls.getStopFor(Timperley.getId());
+        StopCall naviStop = stopCalls.getStopFor(NavigationRoad.getId());
+
+        assertEquals(timpStop.getGetSequenceNumber()+1, naviStop.getGetSequenceNumber());
+
+        assertTrue(timpStop.getDepartureTime().isBefore(naviStop.getArrivalTime()));
+
+        List<StopCalls.StopLeg> legs = stopCalls.getLegs(false);
+
+        List<StopCalls.StopLeg> callingLegs = legs.stream().
+                filter(leg -> leg.getFirstStation().equals(Timperley.from(stationRepository))).
+                filter(leg -> leg.getSecondStation().equals(NavigationRoad.from(stationRepository))).
+                toList();
+
+        assertEquals(1, callingLegs.size());
+
+        StopCalls.StopLeg leg = callingLegs.getFirst();
+
+        assertEquals(timpStop.getDepartureTime(), leg.getDepartureTime());
+
+        assertEquals(TramDuration.ofMinutes(3), leg.getCost());
+
     }
 
     @DisabledUntilDate(year = 2026, month = 8, day = 17)

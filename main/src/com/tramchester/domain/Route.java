@@ -14,6 +14,9 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
 
     String REPLACEMENT_BUS_PREFIX = "Replacement Bus";
 
+    static IdFor<Route> InvalidId() {
+        return new InvalidId<>(Route.class);
+    }
 
     IdFor<Route> getId();
 

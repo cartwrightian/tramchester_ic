@@ -26,7 +26,7 @@ public class RouteStationId implements IdFor<RouteStation> {
     }
 
     public static RouteStationId invalid() {
-        return createId(StringIdFor.invalid(Route.class), StringIdFor.invalid(Station.class));
+        return createId(Route.InvalidId(), Station.InvalidId());
     }
 
     public static RouteStationId parse(final String text) {

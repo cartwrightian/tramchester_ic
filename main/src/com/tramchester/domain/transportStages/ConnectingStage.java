@@ -3,7 +3,7 @@ package com.tramchester.domain.transportStages;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -94,8 +94,8 @@ public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>>
     }
 
     @Override
-    public StringIdFor<Trip> getTripId() {
-        return StringIdFor.invalid(Trip.class);
+    public IdFor<Trip> getTripId() {
+        return Trip.InvalidId();
     }
 
     @Override

@@ -25,6 +25,7 @@ public enum GraphPropertyKey {
 
     COST("cost"),
     HOUR("hour"),
+    // TODO Need to split time into Departure Time and Arrival Time to avoid ambiguity
     TIME("time"),
     DAY_OFFSET("day_offset"),
     TOWARDS_STATION_ID("towards_id"),

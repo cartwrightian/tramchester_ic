@@ -4,6 +4,7 @@ import com.tramchester.dataimport.nptg.xml.NPTGLocalityXMLData;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 
@@ -41,7 +42,7 @@ public class NPTGLocality implements CoreDomain, HasId<NPTGLocality> {
     }
 
     public static IdFor<NPTGLocality> InvalidId() {
-        return StringIdFor.invalid(NPTGLocality.class);
+        return new InvalidId<>(NPTGLocality.class);
     }
 
     public IdFor<NPTGLocality> getId() {
