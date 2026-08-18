@@ -70,7 +70,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
         if (transportMode.equals(TransportMode.Tram)) {
             final TFGMRouteNames routeName;
-            if (routeNameText.equals(TFGMRouteNames.ReplacementBus_WORKAROUND.getShortName())) {
+            if (routeNameText.equals(TFGMRouteNames.Constants.REPLACEMENT_BUS_PREFIX)) {
                 // Workaround for replacement buses all having the same short name
                 routeName = TFGMRouteNames.parseFromSource(routeNameText+" "+longName.trim());
             } else {
@@ -279,7 +279,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
         // NOTE: this data issue has been reported to TFGM
         if (isMetrolink && routeType!=GTFSTransportationType.tram) {
-            if (shortName.equals(TFGMRouteNames.EXT2_IS_A_BUS)) {
+            if (shortName.equals(TFGMRouteNames.Constants.EXT2_IS_A_BUS)) {
                 logger.warn("Ignoring route with metrolink agency but not a tram " + routeData);
                 return routeType;
             } else {
@@ -290,8 +290,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
         }
 
         // else if not caught about
-        if (shortName.equals(TFGMRouteNames.EXT2_IS_A_BUS)) {
-            throw new RuntimeException(TFGMRouteNames.EXT2_IS_A_BUS+" seen as a tram route?");
+        if (shortName.equals(TFGMRouteNames.Constants.EXT2_IS_A_BUS)) {
+            throw new RuntimeException(TFGMRouteNames.Constants.EXT2_IS_A_BUS+" seen as a tram route?");
         }
 
         // NOTE: this data issue has been reported to TFGM

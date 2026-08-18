@@ -89,7 +89,7 @@ public interface FakeStation extends HasId<Station> {
         }
 
         public FakeStationBuilder platform(final int platformNumber, TramDate date) {
-            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.getPink(date));
+            fakeDropOffPlatforms.put(platformNumber, KnownTramRouteEnum.PinkRoute);
             return this;
         }
 

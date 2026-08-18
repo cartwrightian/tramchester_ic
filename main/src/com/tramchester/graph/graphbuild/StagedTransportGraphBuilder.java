@@ -253,9 +253,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
             if (includeBothStops(leg)) {
-                final StopCall first = leg.getFirst();
-                final StopCall second = leg.getSecond();
-                createRelationshipTimeNodeToRouteStation(tx, route, trip, first, second, routeBuilderCache, timeNodes);
+                createRelationshipTimeNodeToRouteStation(tx, route, trip,leg, routeBuilderCache, timeNodes);
             }
         });
     }
@@ -551,15 +549,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
 
     private void createRelationshipTimeNodeToRouteStation(final MutableGraphTransaction tx, final Route route, final Trip trip,
-                                                          final StopCall beginStop, final StopCall endStop,
+                                                          final StopCalls.StopLeg leg,
                                                           final RouteStationNodeCache routeStationNodeCache,
                                                           final Map<StationTime, MutableGraphNode> timeNodes) {
-        final Station startStation = beginStop.getStation();
-        final TramTime departureTime = beginStop.getDepartureTime();
+        final Station startStation = leg.getFirstStation();
+        final TramTime departureTime = leg.getDepartureTime();
 
         // time node -> end route station
         final MutableGraphNode timeNode = timeNodes.get(StationTime.of(startStation, departureTime));
-        final MutableGraphNode routeStationEnd = routeStationNodeCache.getRouteStation(tx, route, endStop.getStation().getId());
+        final MutableGraphNode routeStationEnd = routeStationNodeCache.getRouteStation(tx, route, leg.getSecondStation().getId());
 
         final TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
 
@@ -570,10 +568,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final MutableGraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
 
         // properties on relationship
-        final TramDuration cost = TramTime.difference(departureTime, endStop.getArrivalTime());
-        goesToRelationship.setCost(cost);
+        goesToRelationship.setCost(leg.getCost());
         goesToRelationship.set(trip);
-        goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
+        goesToRelationship.setStopSeqNum(leg.getEndStopSeqNumber());
     }
 
     private Map<StationTime, MutableGraphNode> createMinuteNodes(final MutableGraphTransaction tx, final Trip trip,

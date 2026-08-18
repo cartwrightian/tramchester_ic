@@ -6,16 +6,17 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownBusRoute;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 import static com.tramchester.domain.MutableAgency.METL;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,7 +28,7 @@ public class TramRouteHelper {
     private Map<TestRoute, Set<Route>> knownRouteToRoutes;
     private final RouteRepository routeRepository;
 
-    private TramRouteHelper(RouteRepository routeRepository) {
+    public TramRouteHelper(RouteRepository routeRepository) {
         this.routeRepository = routeRepository;
         createMap();
     }
@@ -58,19 +59,18 @@ public class TramRouteHelper {
     }
 
     public Route getOneRoute(final TFGMRouteNames line, final TramDate date) {
-        final TestRoute knownRoute = KnownTramRoute.findFor(line, date);
-        return getOneRouteFor(knownRoute, date);
+        return getOneRouteFor(line, date);
     }
 
-    private Route getOneRouteFor(final TestRoute knownRoute, final TramDate date) {
-        guard(knownRoute);
-        final Set<Route> routes = knownRouteToRoutes.get(knownRoute);
-        final List<Route> result = routes.stream().filter(route -> route.isAvailableOn(date)).toList();
+    private Route getOneRouteFor(final TFGMRouteNames line, final TramDate date) {
+        List<Route> result = routeRepository.getRoutesRunningOn(date, TramsOnly).stream().
+                filter(route -> ((TramRouteId) route.getId()).getRouteName() == line).
+                toList();
         if (result.size()>1) {
-            throw new RuntimeException(format("Found two many routes %s matching date %s and known route %s", HasId.asIds(result), date, knownRoute));
+            throw new RuntimeException(format("Found two many routes %s matching date %s and known route %s", HasId.asIds(result), date, line));
         }
         if (result.isEmpty()) {
-            throw new RuntimeException(format("Found no routes matching date %s and known route %s", date, knownRoute));
+            throw new RuntimeException(format("Found no routes matching date %s and known route %s", date, line));
         }
         return result.getFirst();
     }
@@ -87,6 +87,7 @@ public class TramRouteHelper {
         return result.getFirst();
     }
 
+    @Deprecated
     public IdSet<Route> getId(final TestRoute knownRoute) {
         guard(knownRoute);
         return knownRouteToRoutes.get(knownRoute).stream().collect(IdSet.collector());
@@ -99,16 +100,11 @@ public class TramRouteHelper {
         }
     }
 
-    /***
-     * Use version that passes KnownTramLine
-     * @param knownTramRoute
-     * @param when
-     * @return
-     */
-    @Deprecated
-    public Route getOneRoute(@NotNull TestRoute knownTramRoute, TramDate when) {
-        return getOneRouteFor(knownTramRoute, when);
-    }
+
+//    @Deprecated
+//    public Route getOneRoute(@NotNull TestRoute knownTramRoute, TramDate when) {
+//        return getOneRouteFor(knownTramRoute, when);
+//    }
 
     public Route getRed(TramDate date) {
         return getOneRoute(TFGMRouteNames.Red, date);

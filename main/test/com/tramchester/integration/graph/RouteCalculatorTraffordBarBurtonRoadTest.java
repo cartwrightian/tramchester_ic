@@ -3,15 +3,12 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -26,7 +23,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
@@ -36,15 +32,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RouteCalculatorTraffordBarBurtonRoadTest {
     private static ComponentContainer componentContainer;
@@ -119,30 +113,6 @@ class RouteCalculatorTraffordBarBurtonRoadTest {
         List<Journey> results = validateAtLeastOneJourney(TraffordBar, Chorlton, TramTime.of(9, 0), when);
         results.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
-        });
-    }
-
-    @Test
-    void shouldHaveTraffordBarToBurtonRoad() {
-        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
-
-        Set<String> ids = Stream.of(Chorlton, Firswood).
-                map(FakeStation::getId).
-                map(IdFor::getGraphId).
-                collect(Collectors.toSet());
-
-        List<Journey> results = validateAtLeastOneJourney(TraffordBar, BurtonRoad, TramTime.of(9, 0), when);
-        results.forEach(journey -> {
-            assertEquals(1, journey.getStages().size());
-
-            TransportStage<? extends Location<?>, ? extends Location<?>> stageOne = journey.getStages().getFirst();
-            IdFor<?> stageOneLastStationId = stageOne.getLastStation().getId();
-            assertTrue(ids.contains(stageOneLastStationId.getGraphId()), "Wrong id " + stageOneLastStationId);
-
-            TransportStage<?, ?> stageTwo = journey.getStages().getLast();
-            IdFor<?> stageTwoFirstStationId = stageTwo.getFirstStation().getId();
-            assertTrue(ids.contains(stageTwoFirstStationId.getGraphId()), "Wrong id " + stageTwoFirstStationId);
-
         });
     }
 

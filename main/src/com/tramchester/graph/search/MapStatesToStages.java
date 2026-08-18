@@ -82,6 +82,23 @@ public class MapStatesToStages implements JourneyStateUpdate {
         state = State.NotStarted;
     }
 
+    private State stateTransition(State allowed, State target) {
+        return stateTransition(List.of(allowed), List.of(target));
+    }
+
+    private State stateTransition(final List<State> allowed, final List<State> targets) {
+        if (allowed.size()!=targets.size()) {
+            throw new RuntimeException("Mismatch on allowed " + allowed + " and targets " + targets);
+        }
+        if (!allowed.contains(state)) {
+            throw new RuntimeException("Wrong state " + state + " Expected " + allowed);
+        }
+        State previous = state;
+        int index = allowed.indexOf(state);
+        state = targets.get(index);
+        return previous;
+    }
+
     @Override
     public void board(final TransportMode transportMode, final GraphNode node, final boolean hasPlatform) {
         stateTransition(List.of(State.NotStarted, State.Waiting, State.ToNeighbour),
@@ -103,22 +120,6 @@ public class MapStatesToStages implements JourneyStateUpdate {
                 actionStationId, boardingPlatformId);
     }
 
-    private State stateTransition(State allowed, State target) {
-        return stateTransition(List.of(allowed), List.of(target));
-    }
-
-    private State stateTransition(List<State> allowed, List<State> targets) {
-        if (allowed.size()!=targets.size()) {
-            throw new RuntimeException("Mismatch on allowed " + allowed + " and targets " + targets);
-        }
-        if (!allowed.contains(state)) {
-            throw new RuntimeException("Wrong state " + state + " Expected " + allowed);
-        }
-        State previous = state;
-        int index = allowed.indexOf(state);
-        state = targets.get(index);
-        return previous;
-    }
 
     @Override
     public void recordDepartureTimeAtMinuteNode(final TramTime departureTime, final TramDuration totalCost) {

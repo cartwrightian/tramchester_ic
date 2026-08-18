@@ -8,7 +8,6 @@ import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,14 +39,9 @@ class TramRouteHelperTest {
 
     @Test
     void shouldCheckBusRoutes() {
-        assertTrue(TFGMRouteNames.BusOne.isReplacementBus());
-        assertTrue(TFGMRouteNames.BusTwo.isReplacementBus());
-        assertTrue(TFGMRouteNames.BusThree.isReplacementBus());
-        assertTrue(TFGMRouteNames.BusFour.isReplacementBus());
-        assertTrue(TFGMRouteNames.BusFive.isReplacementBus());
+        assertTrue(TFGMRouteNames.RochdaleOldham.isReplacementBus());
     }
 
-    @Summer2026Closures
     @Test
     void shouldFindAllKnownRoutes() {
 

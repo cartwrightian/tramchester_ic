@@ -291,5 +291,9 @@ public class StopCalls {
         public StationIdPair getStations() {
             return StationIdPair.of(first.station.getId(), second.station.getId());
         }
+
+        public int getEndStopSeqNumber() {
+            return second.getGetSequenceNumber();
+        }
     }
 }

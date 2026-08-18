@@ -20,7 +20,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,13 +73,12 @@ public class RoutePairToInterchangeRepositoryTest {
         repository = componentContainer.get(RoutePairToInterchangeRepository.class);
     }
 
-    @Summer2026Closures
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
-        Route toTraffordCentre = routeHelper.getRed(date);
-        Route toAirport = routeHelper.getNavy(date);
+        Route pink = routeHelper.getPink(date);
+        Route yellow = routeHelper.getYellow(date);
 
-        RoutePair routePair = RoutePair.of(toTraffordCentre, toAirport);
+        RoutePair routePair = RoutePair.of(pink, yellow);
 
         assertTrue(repository.hasAnyInterchangesFor(routePair));
 
@@ -89,19 +87,14 @@ public class RoutePairToInterchangeRepositoryTest {
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
         if (config.hasRailConfig()) {
-            assertEquals(2+4+1, stationIds.size(), stationIds.toString());
-            assertTrue(stationIds.contains(Deansgate.getId()));
-            assertTrue(stationIds.contains(RailStationIds.ManchesterDeansgate.getId()));
+            assertEquals(1, stationIds.size(), stationIds.toString());
         } else {
-            // summer 2026
-            assertEquals(1+3, stationIds.size(), stationIds.toString());
+            assertEquals(1, stationIds.size(), stationIds.toString());
         }
 
-        assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
-        //assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
+        assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
     }
 
-    @Summer2026Closures
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
         Route blueLine = routeHelper.getBlue(date);

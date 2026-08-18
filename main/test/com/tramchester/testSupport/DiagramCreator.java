@@ -142,7 +142,7 @@ public class DiagramCreator {
                                boolean topLevel, GraphTransaction txn) {
         getRelationships(targetNode, GraphDirection.Incoming, topLevel, txn).forEach(towards -> {
 
-            GraphNode startNode = towards.getStartNode(txn);
+            final GraphNode startNode = towards.getStartNode(txn);
             addNode(builder, startNode);
 
             // startNode -> targetNode
@@ -159,11 +159,11 @@ public class DiagramCreator {
 
     private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<GraphNodeId> seen,
                                 Set<GraphRelationshipId> relationshipSeen, boolean topLevel, GraphTransaction txn) {
-        Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
+        final Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
 
         getRelationships(startNode, GraphDirection.Outgoing, topLevel, txn).forEach(awayFrom -> {
 
-            GraphNode rawEndNode = awayFrom.getEndNode(txn);
+            final GraphNode rawEndNode = awayFrom.getEndNode(txn);
 
             addNode(builder, startNode);
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
@@ -184,7 +184,7 @@ public class DiagramCreator {
     private void addEdge(DiagramBuild builder, GraphRelationship edge, String startNodeId, String endNodeId,
                          Set<GraphRelationshipId> relationshipSeen) {
 
-        TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
+        final TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
 
         if (relationshipSeen.contains(edge.getId())) {
             return;
@@ -195,11 +195,11 @@ public class DiagramCreator {
             addLine(builder, format("\"%s\"->\"%s\" [color=\"%s\"];\n", startNodeId, endNodeId,
                     getColorFor(relationshipType)));
         } else if (relationshipType== LINKED) {
-            ImmutableEnumSet<TransportMode> modes = edge.getTransportModes();
+            final ImmutableEnumSet<TransportMode> modes = edge.getTransportModes();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes,
                     getColorFor(relationshipType)));
         } else {
-            String shortForm = createShortForm(relationshipType, edge);
+            final String shortForm = createShortForm(relationshipType, edge);
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, shortForm,
                     getColorFor(relationshipType)));
         }
@@ -269,16 +269,16 @@ public class DiagramCreator {
         }
         if (node.hasLabel(ROUTE_STATION)) {
 
-            String stationId = node.getStationId().getGraphId();
-            TransportMode mode = node.getTransportMode();
-            String routeId = node.getRouteId().getGraphId();
+            final String stationId = node.getStationId().getGraphId();
+            final TransportMode mode = node.getTransportMode();
+            final String routeId = node.getRouteId().getGraphId();
             return format("%s\n%s\n%s", routeId, stationId, mode.name());
         }
         if (node.hasLabel(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
-            IdFor<NPTGLocality> areaId = node.getAreaId();
+            final IdFor<NPTGLocality> areaId = node.getAreaId();
             if (nptgRepository.hasLocality(areaId)) {
-                NPTGLocality area = nptgRepository.get(areaId);
+                final NPTGLocality area = nptgRepository.get(areaId);
                 return format("%s %s\n%s", area.getLocalityName(), area.getParentLocalityName(), areaId.getGraphId());
             } else {
                 return format("unknown locality %s\n%s", areaId, areaId.getGraphId());
@@ -286,8 +286,8 @@ public class DiagramCreator {
         }
         if (node.hasLabel(STATION)) {
             //return getStationIdFrom(node.getNode());
-            IdFor<Station> stationId = node.getStationId();
-            Station station = stationRepository.getStationById(stationId);
+            final IdFor<Station> stationId = node.getStationId();
+            final Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s", station.getName(), stationId.getGraphId());
         }
         if (node.hasLabel(SERVICE)) {
@@ -298,12 +298,12 @@ public class DiagramCreator {
         }
         if (node.hasLabel(MINUTE)) {
             final TramTime time = node.getTime();
-            String days = time.isNextDay() ? "+1" : "";
+            final String days = time.isNextDay() ? "+1" : "";
             return format("%s:%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days);
         }
         if (node.hasLabel(GROUPED)) {
-            IdFor<Station> stationId = node.getStationId();
-            Station station = stationRepository.getStationById(stationId);
+            final IdFor<Station> stationId = node.getStationId();
+            final Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s\n%s", station.getName(), station.getLocalityId(), stationId.getGraphId());
         }
 
@@ -317,12 +317,12 @@ public class DiagramCreator {
     private String createShortForm(TransportRelationshipTypes relationshipType, GraphRelationship edge) {
         String text = "";
         if (hasCost(relationshipType)) {
-            TramDuration cost = edge.getCost();
+            final TramDuration cost = edge.getCost();
             if (!cost.isZero()) {
                 text = "(" + edge.getCost() + ")";
             }
         }
-        ImmutableIdSet<Trip> tripIds = edge.getTripIds();
+        final ImmutableIdSet<Trip> tripIds = edge.getTripIds();
         if (!tripIds.isEmpty()) {
             if (!text.isEmpty()) {
                 text = text + System.lineSeparator();
@@ -333,7 +333,7 @@ public class DiagramCreator {
                 text = text + edge.getTripId();
             }
         }
-        return getNameFor(relationshipType) + text;
+        return getNameFor(relationshipType) + " " + text;
     }
 
     @NotNull

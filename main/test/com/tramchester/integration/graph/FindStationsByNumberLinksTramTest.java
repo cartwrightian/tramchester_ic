@@ -98,8 +98,9 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                Wharfside,
-                Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
+                OldhamMumps
+                //Wharfside
+                //Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
 
 
         ).map(FakeStation::getId).toList();

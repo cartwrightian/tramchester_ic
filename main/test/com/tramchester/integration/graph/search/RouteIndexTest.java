@@ -19,7 +19,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.*;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,14 +99,21 @@ public class RouteIndexTest extends EasyMockSupport {
     @Test
     void shouldHaveIndexForAllKnownRoutes() {
 
-        int length = KnownTramRoute.getFor(date).size(); //KnownTramRoute.values().length;
-        for (int i = 0; i < length; i++) {
-            Route route = routeHelper.getPink(date);
-            short index = routeIndex.indexFor(route.getId()); // throws on error
+        Set<Route> allRoutes = routeRepository.getRoutes();
 
+        allRoutes.forEach(route -> {
+            short index = routeIndex.indexFor(route.getId()); // throws on error
             Route result = routeIndex.getRouteFor(index);
             assertEquals(route.getId(), result.getId());
-        }
+        });
+
+//        for (int i = 0; i < length; i++) {
+//            Route route = routeHelper.getPink(date);
+//            short index = routeIndex.indexFor(route.getId()); // throws on error
+//
+//            Route result = routeIndex.getRouteFor(index);
+//            assertEquals(route.getId(), result.getId());
+//        }
     }
 
     @Test

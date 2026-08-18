@@ -36,7 +36,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -107,8 +106,7 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> list = outboundLinks.toList();
 
-        // summer closures, bus links
-        assertEquals(3+2, list.size(), "Wrong number of outbounds " + list);
+        assertEquals(3, list.size(), "Wrong number of outbounds " + list);
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -251,7 +249,6 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(Timperley.getId()));
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -287,7 +284,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveCorrectOutboundsServiceAndTripAtCornbrook() {
 
@@ -317,7 +313,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -587,7 +582,6 @@ class TramGraphBuilderTest {
         });
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -645,7 +639,6 @@ class TramGraphBuilderTest {
         });
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveEndOfTripAtEndOfLineStation() {
         Station bury = Bury.from(stationRepository);
@@ -689,7 +682,6 @@ class TramGraphBuilderTest {
         });
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveCorrectRelationshipsForServicesAtCornbrook() {
 
@@ -763,7 +755,6 @@ class TramGraphBuilderTest {
         return outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveSameOutboundTripIdsForNeighbouringRouteStationWhenSameRouteAndSvc() {
         // outbound from manchester Timperley then Brooklands (not navigation road since some services "turn around" at timperley)
@@ -846,7 +837,6 @@ class TramGraphBuilderTest {
                 collect(IdSet.collector());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
@@ -861,7 +851,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
@@ -873,7 +862,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldCheckOutboundSvcRelationships() {
 

@@ -21,8 +21,9 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.RochdaleLineClosure2026;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -134,7 +135,9 @@ public class StopCallRepositoryTest {
     @Test
     void shouldGetCostsForAStopCall() {
         TramDate when = TestEnv.testDay();
-        Route route = routeRepository.getRouteById(KnownTramRoute.getGreen(when).getId());
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
+
+        Route route = tramRouteHelper.getGreen(when); // routeRepository.getRouteById(KnownTramRoute.getGreen(when).getId());
         assertNotNull(route);
 
         Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());
@@ -214,6 +217,7 @@ public class StopCallRepositoryTest {
         assertEquals(CrumpsalToBury, stopsBetween);
     }
 
+    @RochdaleLineClosure2026
     @Test
     void shouldHaveExpectedOrdering() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(freeHold, Rochdale.getId(), when);
@@ -222,12 +226,14 @@ public class StopCallRepositoryTest {
         assertEquals(Rochdale.getId(), stopsBetween.getLast());
     }
 
+    @RochdaleLineClosure2026
     @Test
     void shouldHaveExpectedFreeHoldToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(freeHold, Rochdale.getId(), when);
         assertEquals(FreeholdToRochdaleStations, stopsBetween);
     }
 
+    @RochdaleLineClosure2026
     @Test
     void shouldHaveVictoriaToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Victoria.getId(), Rochdale.getId(), when);
@@ -249,12 +255,14 @@ public class StopCallRepositoryTest {
         assertEquals(VictoriaToSouthChadderton, stopsBetween);
     }
 
+    @RochdaleLineClosure2026
     @Test
     void shouldHaveDerkerToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Derker, Rochdale.getId(), when);
         assertEquals(DerkerToRochdale, stopsBetween);
     }
 
+    @RochdaleLineClosure2026
     @Test
     void shouldHaveExpectedEcclesLinesClosures() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());

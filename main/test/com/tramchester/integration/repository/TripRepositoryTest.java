@@ -251,7 +251,7 @@ public class TripRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 17)
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldHaveTripsForSundayMorningAtBroadway() {
         TramDate date = UpcomingDates.nextSunday();

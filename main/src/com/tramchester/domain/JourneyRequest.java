@@ -1,6 +1,5 @@
 package com.tramchester.domain;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
@@ -58,12 +57,9 @@ public class JourneyRequest {
         warnIfNoResults = true;
         diagnosticsReceived = new AtomicBoolean(false);
 
-        final TramDate end = TramchesterConfig.getSummer2026Closures().getEndDate().plusWeeks(1);
-        if (date.isAfter(end)) {
-            final int limit = (requestedModes.size() == 1) ? 2 : 3;
-            if (maxChanges.get() > limit) {
-                throw new RuntimeException("Finding out where it's too high, got " + maxChanges + " > " + limit + " " + requestedModes);
-            }
+        final int limit = (requestedModes.size() == 1) ? 2 : 3;
+        if (maxChanges.get() > limit) {
+            throw new RuntimeException("Finding out where it's too high, got " + maxChanges + " > " + limit + " " + requestedModes);
         }
 
     }

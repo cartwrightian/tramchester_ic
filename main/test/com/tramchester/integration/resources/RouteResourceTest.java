@@ -17,8 +17,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
-import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TestRoute;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -36,7 +35,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.ManAirport;
+import static com.tramchester.testSupport.reference.TramStations.Victoria;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(TramAppTestExtension.class)
@@ -48,6 +48,7 @@ class RouteResourceTest {
     private static APIClientFactory factory;
 
     private RouteRepository routeRepository;
+    private TramRouteHelper helper;
 
     @BeforeAll
     public static void onceBeforeAll() {
@@ -58,6 +59,7 @@ class RouteResourceTest {
     void onceBeforeEachTestRuns() {
         App app =  appExtension.getApplication();
         routeRepository = app.getDependencies().get(RouteRepository.class);
+        helper = new TramRouteHelper(routeRepository);
     }
 
     @AfterAll
@@ -72,19 +74,21 @@ class RouteResourceTest {
         // today since API always returns routes for today
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
-        Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
-                map(TestRoute::dtoId).
+        Set<Route> expectRoutes = routeRepository.getRoutesRunningOn(today, TransportMode.TramsOnly);
+        Set<IdForDTO> expectedNames = expectRoutes.stream().
+                map(route -> IdForDTO.createFor(route.getId())).
                 collect(Collectors.toSet());
 
         List<RouteDTO> routeDTOS = getRouteResponse(); // uses current date server side
         routeDTOS.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
         Set<IdForDTO> namesFromDTO = routeDTOS.stream().
-                filter(routeDTO -> !routeDTO.getShortName().startsWith("Replacement Bus")).
+                //filter(routeDTO -> !routeDTO.getShortName().startsWith("Replacement Bus")).
                 map(RouteRefDTO::getId).collect(Collectors.toSet());
 
         Set<IdForDTO> mismatch = SetUtils.disjunction(namesFromDTO, expectedNames);
-        assertTrue(mismatch.isEmpty(), mismatch.toString());
+        assertTrue(mismatch.isEmpty(), mismatch + " between expected " + expectedNames + " and " +
+                namesFromDTO);
 
     }
 
@@ -98,7 +102,9 @@ class RouteResourceTest {
         // has to be today since route ids change over time
         TramDate date = TramDate.of(LocalDate.now());
 
-        IdForDTO expectedRouteId = KnownTramRoute.getNavy(date).dtoId();
+        Route navy = helper.getNavy(date);
+
+        IdForDTO expectedRouteId = IdForDTO.createFor(navy.getId());
 
         Optional<RouteDTO> airRoutes = routes.stream().
                 filter(routeDTO -> routeDTO.getId().equals(expectedRouteId)).

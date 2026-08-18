@@ -16,7 +16,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +64,6 @@ public class StationsWithDiversionsRepositoryTest {
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveDiversionAtVictoria() {
         // NOTE: if integration test config changes for closures need to cleanGraph

@@ -4,24 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TFGMRouteNames {
-    BusOne("Metrolink Replacement Bus 1", true),
-    BusTwo("Metrolink Replacement Bus 2", true),
-    BusThree("Metrolink Replacement Bus 3", true),
-    BusFour("Metrolink Replacement Bus 4", true),
-    BusFive("Metrolink Replacement Bus 5", true),
 
-//    BusPicVic("PIC-VIC Replacement Bus", true),
-
-    // NOTE: Workaround, see TransportEntityFactoryForTFGM and inconsistency below (from source data)
-    ReplacementBus_WORKAROUND("Replacement Bus", true),
-
-    AltrinchamPiccadilly("Replacement Bus Altrincham to Piccadilly Station", true),
-    PiccadillyAltrincham("Replacement Bus Piccadilly Station - Altrincham", true),
-    ChorltonPiccadilly("Tram Replacement Bus CHO - PIC", true),
-    PiccadillyChorlton("Replacement Bus Piccadilly Station - Chorlton", true),
-    EcclesPiccadilly("Replacement Bus Eccles - Piccadilly Station", true),
-    PiccadillyTraffordCentre("Replacement Bus Piccadilly Station - The Trafford Centre", true),
-    VictoriaRochsdale("Replacement Bus Victoria - Rochdale Town Centre", true),
+    RochdaleOldham("Replacement Bus Rochhdale - Oldham", true),
 
     Red("Red Line", false),
     Pink("Pink Line", false),
@@ -37,7 +21,7 @@ public enum TFGMRouteNames {
 
     // this pops up in the data as a metrolink route, but is the circular bus within the city centre
     // exception will be thrown in TransportEntityFactoryForTFGM if it ever appears as a tram route
-    public static final String EXT2_IS_A_BUS = "EXT2";
+
 
     private final static Map<String, TFGMRouteNames> routeNameMap;
 
@@ -76,5 +60,10 @@ public enum TFGMRouteNames {
     // remember - TramRouteId contains TFGMRouteNames
     public String getShortName() {
         return shortName;
+    }
+
+    public static class Constants {
+        public static final String REPLACEMENT_BUS_PREFIX = "Replacement Bus";
+        public static final String EXT2_IS_A_BUS = "EXT2";
     }
 }

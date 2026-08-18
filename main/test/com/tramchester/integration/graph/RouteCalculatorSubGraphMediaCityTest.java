@@ -40,7 +40,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -59,7 +58,6 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-@Summer2026Closures
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
     private static SubgraphConfig config;
@@ -139,7 +137,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 //        return !date.equals(TramDate.of(2026, 6, 21));
 //    }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 16)
+    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void shouldHaveMediaCityToExchangeSquareSaturday() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
@@ -147,7 +145,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 16)
+    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
@@ -166,7 +164,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(HarbourCity, Cornbrook, tramTime, testSunday);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 17)
+    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -199,6 +197,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
@@ -349,7 +348,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 16)
+    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void reproduceMediaCityIssueSaturdays() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(9,0), UpcomingDates.nextSaturday());

@@ -20,17 +20,16 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownLocality;
-import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
+import com.tramchester.testSupport.testTags.RochdaleLineClosure2026;
+import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,11 +40,8 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -78,7 +74,6 @@ public class StationRepositoryTest {
         when = TestEnv.testDay();
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getGreen(when);
@@ -107,6 +102,7 @@ public class StationRepositoryTest {
         assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
+    @RochdaleLineClosure2026
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -228,7 +224,6 @@ public class StationRepositoryTest {
         assertEquals(LocationType.Platform, platformOne.getLocationType());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedPickupAndDropoffForCornbrook() {
         Station station = Cornbrook.from(stationRepository);
@@ -236,72 +231,44 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-        List<TestRoute> expected =
+        Set<TFGMRouteNames> expected = new HashSet<>(
                 Arrays.asList(
-                        getGreen(when),
-                        getBlue(when),
-                        getNavy(when),
-                        getRed(when),
-                        getPurple(when),
-                        getPink(when));
+                        Green,
+                        Blue,
+                        Navy,
+                        Red,
+                        Purple,
+                        Pink));
 
-        IdSet<Route> expectedIds = expected.stream().
-                map(TestRoute::getId).
-                collect(IdSet.idCollector());
+//        IdSet<Route> expectedIds = expected.stream().
+//                map(TestRoute::getId).
+//                collect(IdSet.idCollector());
 
-        IdSet<Route> pickups = station.getPickupRoutes().stream().
-            filter(route -> route.isAvailableOn(when)).
-            collect(IdSet.collector());
+        Set<TFGMRouteNames> pickups = station.getPickupRoutes().stream().
+                filter(route -> route.isAvailableOn(when)).
+                map(Route::getId).
+                map(routeId -> ((TramRouteId) routeId).getRouteName()).
+                collect(Collectors.toSet());
 
-        ImmutableIdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
+        Set<TFGMRouteNames> mismatch = SetUtils.disjunction(expected, pickups);
 
-        assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + "\n found " + pickups);
+        assertEquals(Collections.emptySet(), mismatch, "expected " + expected + "\n found " + pickups);
 
-        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
-            filter(route -> route.isAvailableOn(when)).
-            collect(IdSet.collector());
-        assertEquals(expectedIds.size(), dropOffs.size());
+        Set<TFGMRouteNames> dropOffs = station.getDropoffRoutes().stream().
+                filter(route -> route.isAvailableOn(when)).
+                map(Route::getId).
+                map(routeId -> ((TramRouteId) routeId).getRouteName()).
+                collect(Collectors.toSet());
+
+        assertEquals(expected.size(), dropOffs.size());
         assertTrue(pickups.containsAll(dropOffs));
     }
 
-    @Test
-    void shouldHaveExpectedPickupAndDropoffForCornbrookSummer2026() {
-        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(when));
-
-        Station station = Cornbrook.from(stationRepository);
-
-        assertTrue(station.hasDropoff());
-        assertTrue(station.hasPickup());
-
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-
-        IdSet<Route> expectedIds = routeRepository.getRoutesRunningOn(when, TramsOnly).
-                stream().filter(route -> route.getShortName().startsWith(ReplacementBus_WORKAROUND.getShortName())).
-                collect(IdSet.collector());
-
-//        expectedIds.add(routeHelper.getOneRoute(Pink, when).getId());
-//        expectedIds.add(routeHelper.getOneRoute(Navy, when).getId());
-
-        IdSet<Route> pickups = station.getPickupRoutes().stream().
-                filter(route -> route.isAvailableOn(when)).
-                collect(IdSet.collector());
-
-        ImmutableIdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
-
-        assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + "\n found " + pickups);
-
-        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
-                filter(route -> route.isAvailableOn(when)).
-                collect(IdSet.collector());
-
-        assertEquals(expectedIds.size(), dropOffs.size());
-        assertTrue(pickups.containsAll(dropOffs));
-    }
-
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedPickupAndDropoffForOneStation() {
         Station station = TraffordCentre.from(stationRepository);
+
+        Route red = routeHelper.getRed(when);
 
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
@@ -310,16 +277,17 @@ public class StationRepositoryTest {
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
         assertEquals(1, pickups.size());
-        assertTrue(pickups.contains(getRed(when).getId()), pickups.toString());
+        assertTrue(pickups.contains(red.getId()), pickups.toString());
 
         ImmutableIdSet<Route> dropOffs = station.getDropoffRoutes().stream().
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
             
         assertEquals(1, dropOffs.size());
-        assertTrue(pickups.contains(getRed(when).getId()));
+        assertTrue(pickups.contains(red.getId()));
     }
 
+    @Disabled("no longer needed")
     @Test
     void shouldHaveExpectedPickupAndDropOffsForMediaCity() {
         // seen issues here
@@ -331,8 +299,8 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // replacement bus
-        assertEquals(2, dropOffs.size(), dropOffs.toString());
-        assertTrue(dropOffs.contains(EcclesPiccadilly), "Missing from " + dropOffs);
+        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        //assertTrue(dropOffs.contains(EcclesPiccadilly), "Missing from " + dropOffs);
         assertTrue(dropOffs.contains(TFGMRouteNames.Blue), "Missing from " + dropOffs);
 
         Set<TFGMRouteNames> pickUps = mediaCity.getPickupRoutes().stream().
@@ -341,8 +309,8 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // replacement bus
-        assertEquals(2, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(EcclesPiccadilly), "Missing from " + pickUps);
+        assertEquals(1, pickUps.size(), pickUps.toString());
+        //assertTrue(pickUps.contains(EcclesPiccadilly), "Missing from " + pickUps);
         assertTrue(pickUps.contains(TFGMRouteNames.Blue), "Missing from " + pickUps);
 
     }

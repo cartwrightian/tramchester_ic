@@ -121,7 +121,8 @@ public class GraphSerializationTest {
         IdFor<Trip> tripB = Trip.createId("tripB");
 
         TramDuration cost = TramDuration.ofSeconds(65);
-        IdFor<RouteStation> routeStationId = RouteStationId.createId(KnownTramRoute.getBlue(when).getId(), Bury.getId());
+        IdFor<Route> routeId = KnownTramRoute.getBlue(when).getId();
+        IdFor<RouteStation> routeStationId = RouteStationId.createId(routeId, Bury.getId());
         TramTime tramTime = TramTime.of(11, 42);
 
         relationship.setTime(tramTime);

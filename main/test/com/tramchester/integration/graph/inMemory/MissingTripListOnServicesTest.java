@@ -2,6 +2,7 @@ package com.tramchester.integration.graph.inMemory;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.RouteStation;
@@ -16,13 +17,13 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.KnownTramRouteEnum;
+import com.tramchester.testSupport.TramRouteHelper;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TFGMRouteNames.Yellow;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_SERVICE;
 import static com.tramchester.testSupport.reference.TramStations.VeloPark;
@@ -55,7 +56,9 @@ public class MissingTripListOnServicesTest {
     void onceBeforeEachTest() {
         TramDate when = TestEnv.testDay();
 
-        KnownTramRouteEnum route = KnownTramRoute.getYellow(when);
+        TramRouteHelper helper = new TramRouteHelper(componentContainer);
+
+        Route route = helper.getOneRoute(Yellow, when); // KnownTramRoute.getYellow(when);
 
         routeStationId = RouteStationId.createId(route.getId(), VeloPark.getId());
 

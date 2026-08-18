@@ -6,7 +6,7 @@ gtfsSourceConfig:
     initialWaitMinutes: 13
     noServices: []
     markedInterchangesOnly: false
-    additionalInterchanges: [ ]
+    additionalInterchanges: [ 9400ZZMAMCU ]
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures: []

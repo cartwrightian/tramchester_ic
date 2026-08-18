@@ -144,10 +144,10 @@ public class MatchDeparturesToJourneyDestinationTest extends EasyMockSupport {
     @Test
     void shouldFindDueTramWhenChangeStationAvailableRouteChanges() {
 
-        KnownTramRouteEnum routeA = getPink(when);
+        KnownTramRouteEnum routeA = KnownTramRouteEnum.PinkRoute; // getPink(when);
         Station begin = StPetersSquare.fake(routeA);
-        Station change = Cornbrook.faker().dropOff(routeA).dropOff(getRed(when)).build();
-        Station destination = TraffordCentre.fake(getRed(when));
+        Station change = Cornbrook.faker().dropOff(routeA).dropOff(KnownTramRouteEnum.RedRoute).build();
+        Station destination = TraffordCentre.fake(KnownTramRouteEnum.RedRoute);
         Station tramDestination = Altrincham.fake(routeA);
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
@@ -169,8 +169,8 @@ public class MatchDeparturesToJourneyDestinationTest extends EasyMockSupport {
     @Test
     void shouldFindDueTramWhenChangeStationDoesNotMatchRoute() {
 
-        KnownTramRouteEnum routeA = getPink(when);
-        KnownTramRouteEnum routeB = getRed(when);
+        KnownTramRouteEnum routeA = KnownTramRouteEnum.PinkRoute; //getPink(when);
+        KnownTramRouteEnum routeB = KnownTramRouteEnum.RedRoute; //getRed(when);
 
         Station begin = StPetersSquare.fake(routeA);
         Station change = Cornbrook.fake(routeB); // removed alty route so no match
@@ -195,8 +195,8 @@ public class MatchDeparturesToJourneyDestinationTest extends EasyMockSupport {
     @Test
     void shouldFindDueTramWhenChangeStationMatchRouteButWrongDirection() {
 
-        KnownTramRouteEnum routeA = getPink(when);
-        KnownTramRouteEnum routeB = getRed(when);
+        KnownTramRouteEnum routeA = KnownTramRouteEnum.PinkRoute; //getPink(when);
+        KnownTramRouteEnum routeB = KnownTramRouteEnum.RedRoute; //getRed(when);
 
         Station begin = StPetersSquare.fake(routeA);
         Station change = Cornbrook.faker().dropOff(routeB).dropOff(routeA).build();

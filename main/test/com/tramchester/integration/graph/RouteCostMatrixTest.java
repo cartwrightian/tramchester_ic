@@ -16,7 +16,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
@@ -75,7 +73,6 @@ public class RouteCostMatrixTest {
         date = TestEnv.testDay();
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexWhereDirectInterchangePossible() {
         Route routeA = routeHelper.getGreen(date);
@@ -85,7 +82,6 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);
@@ -96,7 +92,6 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexForEcclesRouteOntoAltyRoute() {
         Route routeA = routeHelper.getBlue(date);
@@ -104,33 +99,6 @@ public class RouteCostMatrixTest {
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
-    }
-
-    @Test
-    void shouldHaveExpectedIndexWithReplacementBusesFromAlty() {
-        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
-
-        Route bus = routeHelper.requireByLongName(date, TestEnv.AltToPicBusLongName);
-
-        int depthNavy = routeMatrix.getConnectionDepthFor(bus, routeHelper.getNavy(date));
-        assertEquals(2, depthNavy);
-
-        int depthPink = routeMatrix.getConnectionDepthFor(bus, routeHelper.getPink(date));
-        assertEquals(2, depthPink);
-
-    }
-
-    @Test
-    void shouldHaveExpectedIndexWithReplacementBusesFromChorlton() {
-        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
-
-        Route bus = routeHelper.requireByLongName(date, "Piccadilly Station - Chorlton");
-
-        int depthNavy = routeMatrix.getConnectionDepthFor(bus, routeHelper.getNavy(date));
-        assertEquals(1, depthNavy);
-
-        int depthPink = routeMatrix.getConnectionDepthFor(bus, routeHelper.getPink(date));
-        assertEquals(1, depthPink);
     }
 
     @Test
@@ -151,7 +119,6 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexForEcclesRouteFromAltyRoute() {
         Route routeA = routeHelper.getGreen(date);
@@ -161,7 +128,6 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @Summer2026Closures
     @Test
     void shouldGetBitsSetIfAlreadySetForLowerDepth() {
         Route routeA = routeHelper.getRed(date);

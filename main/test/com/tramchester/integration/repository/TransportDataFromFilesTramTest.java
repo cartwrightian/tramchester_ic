@@ -28,13 +28,12 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,10 +44,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
+import static com.tramchester.domain.reference.TFGMRouteNames.Navy;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.KnownTramRoute.getNavy;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -103,13 +102,12 @@ public class TransportDataFromFilesTramTest {
         assertEquals(expectedPlatforms, transportData.getPlatforms(TransportMode.TramsOnly).size());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedNumRoutes() {
         Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
                 map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
+        assertEquals(TFGMRouteNames.values().length, uniqueNames.size(), uniqueNames.toString());
 
     }
 
@@ -164,13 +162,15 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(1, routeStationPairs.size(), routeStationPairs.toString());
 
-        IdSet<Route> routeIds =
+        Set<TFGMRouteNames> routeIds =
                 routeStations.stream().
                         map(RouteStation::getRoute).
-                        collect(IdSet.collector());
+                        map(Route::getId).
+                        map(id -> ((TramRouteId)id).getRouteName()).
+                        collect(Collectors.toSet());
 
         // Picc gardens 2024
-        assertTrue(routeIds.contains(getNavy(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(Navy), routeIds.toString());
     }
 
     @Test
@@ -194,7 +194,6 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
-    @Summer2026Closures
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(OldTrafford.getId());
@@ -265,6 +264,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @DataExpiryTest
     @Test
     void shouldHaveTramServicesAvailableNDaysAhead() {

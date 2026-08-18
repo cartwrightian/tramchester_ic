@@ -38,7 +38,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -220,7 +219,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertTrue(nearby.contains(ExchangeSquare.from(stationRepository)));
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveJourneyFromPiccGardensToPiccadilly() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -271,7 +269,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
-    @Summer2026Closures
     @Test
     void shouldFindRouteWhenFromStationWithDiversionToOtherDiversionStation() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

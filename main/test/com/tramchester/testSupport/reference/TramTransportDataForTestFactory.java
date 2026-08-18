@@ -33,7 +33,6 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.domain.time.TramTime.ofHourMins;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.INTERCHANGE;
 import static java.lang.String.format;
 
@@ -92,10 +91,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         final MutableAgency agency =  new MutableAgency(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
 
-        final MutableRoute routeA = createTramRoute(getRed(routeDate));
-        final MutableRoute routeB = createTramRoute(getPink(routeDate));
-        final MutableRoute routeC = createTramRoute(getBlue(routeDate));
-        final MutableRoute routeD = createTramRoute(getNavy(routeDate));
+        final MutableRoute routeA = KnownTramRoute.getRed();
+        final MutableRoute routeB = KnownTramRoute.getPink();
+        final MutableRoute routeC = KnownTramRoute.getBlue();
+        final MutableRoute routeD = KnownTramRoute.getNavy();
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);
@@ -362,11 +361,13 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         }
 
         public Route getRouteA() {
-            return getRouteById(getRed(routeDate).getId());
+            return KnownTramRoute.getRed();
+            //return getRouteById(getRed(routeDate).getId());
         }
 
         public Route getRouteB() {
-            return getRouteById(getPink(routeDate).getId());
+            return KnownTramRoute.getPink();
+            //return getRouteById(getPink(routeDate).getId());
         }
 
     }

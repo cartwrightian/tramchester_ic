@@ -16,9 +16,8 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
+import com.tramchester.testSupport.testTags.RochdaleLineClosure2026;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -29,6 +28,7 @@ import java.util.List;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 
+@RochdaleLineClosure2026
 class RouteCalculatorSubGraphMonsallTest {
     private static ComponentContainer componentContainer;
     private static SubgraphConfig config;
@@ -53,7 +53,8 @@ class RouteCalculatorSubGraphMonsallTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.getPink(when)));
+        //graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.getPink(when)));
+        graphFilter.addRoute(tramRouteHelper.getPink(when).getId());
     }
 
     @AfterAll
@@ -88,7 +89,6 @@ class RouteCalculatorSubGraphMonsallTest {
                 when, 1);
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveEndToEnd() {
         validateNumberOfStages(EastDidsbury, Rochdale, TramTime.of(8,0), when, 1);

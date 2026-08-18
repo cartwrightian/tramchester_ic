@@ -35,7 +35,7 @@ public class BusReplacementRepositoryTest extends EasyMockSupport {
     void shouldHaveSomeReplacementBuses() {
         IdFor<Route> routeIdA = TramRouteId.create(TFGMRouteNames.Pink, "idA");
         Route routeA = createRoute(routeIdA, "short name A", "A Tram Route");
-        IdFor<Route> routeIdB = TramRouteId.create(TFGMRouteNames.ChorltonPiccadilly, "idB");
+        IdFor<Route> routeIdB = TramRouteId.create(TFGMRouteNames.RochdaleOldham, "idB");
         Route routeB = createRoute(routeIdB, "Replacement Bus short name B", "Replacement Bus From X to Y");
 
         Set<Route> routes = Set.of(routeA, routeB);

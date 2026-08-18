@@ -17,7 +17,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -161,7 +160,6 @@ public class RunningRoutesAndServicesTest {
                 route.isAvailableOn(date.plusDays(2)));
     }
 
-    @Summer2026Closures
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
         TramDate when = UpcomingDates.testDay().plusDays(1);

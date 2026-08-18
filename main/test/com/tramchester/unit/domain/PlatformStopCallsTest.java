@@ -10,7 +10,6 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +38,7 @@ class PlatformStopCallsTest {
     @BeforeEach
     void beforeEachTestRuns() {
 
-        KnownTramRouteEnum route = KnownTramRoute.getPink(TestEnv.testDay());
+        KnownTramRouteEnum route =KnownTramRouteEnum.PinkRoute; // KnownTramRoute.getPink(TestEnv.testDay());
 
         stationA = TramStations.Ashton;
 
@@ -129,7 +128,7 @@ class PlatformStopCallsTest {
 
         assertEquals(2, legs.size());
 
-        StopCalls.StopLeg firstLeg = legs.get(0);
+        StopCalls.StopLeg firstLeg = legs.getFirst();
         assertEquals(stopC, firstLeg.getFirst());
         assertEquals(stopB, firstLeg.getSecond());
         assertMinutesEquals(2, firstLeg.getCost());
@@ -157,7 +156,7 @@ class PlatformStopCallsTest {
 
         assertEquals(3, legs.size());
 
-        StopCalls.StopLeg firstLeg = legs.get(0);
+        StopCalls.StopLeg firstLeg = legs.getFirst();
         assertEquals(stopC, firstLeg.getFirst());
         assertEquals(stopB, firstLeg.getSecond());
         assertMinutesEquals(2, firstLeg.getCost());

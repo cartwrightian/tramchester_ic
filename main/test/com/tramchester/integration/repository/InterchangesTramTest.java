@@ -22,10 +22,8 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -88,14 +86,15 @@ public class InterchangesTramTest {
                 Cornbrook,
                 MarketStreet,
                 PiccadillyGardens,
-                //Piccadilly,
                 StPetersSquare,
                 Broadway,
                 Victoria,
-                // summer 2026 closures
-                Wharfside, Pomona, HarbourCity, StWerburghsRoad,
-                Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
-
+                Pomona,
+                HarbourCity,
+                StWerburghsRoad,
+                OldhamMumps,
+                MediaCityUK
+                //Piccadilly
         );
 
         Set<Station> expectedStations = expectedTramStations.
@@ -151,7 +150,6 @@ public class InterchangesTramTest {
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));
@@ -200,7 +198,6 @@ public class InterchangesTramTest {
 
     }
 
-    @Summer2026Closures
     @Test
     void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
         TramDate date = TestEnv.testDay();
@@ -214,7 +211,9 @@ public class InterchangesTramTest {
 
         IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertTrue(dropOffs.contains(KnownTramRoute.getRed(date).getId()), dropOffs.toString());
+        Route red = tramRouteHelper.getRed(date);
+
+        assertTrue(dropOffs.contains(red.getId()), dropOffs.toString());
     }
 
     @Test

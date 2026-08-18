@@ -17,15 +17,18 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
-import org.junit.jupiter.api.*;
+import com.tramchester.testSupport.TramRouteHelper;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteReachableTramTest {
     private static ComponentContainer componentContainer;
@@ -51,7 +54,6 @@ class RouteReachableTramTest {
         reachable = componentContainer.get(RouteReachable.class);
     }
 
-    @Summer2026Closures
     @Test
     void shouldTestGetRoutesFromStartToNeighbour() {
 
@@ -66,8 +68,12 @@ class RouteReachableTramTest {
 
         assertEquals(2, routeIds.size(), routeIds.toString());
 
-        assertTrue(routeIds.contains(KnownTramRoute.getGreen(when).getId()), routeIds.toString());
-        assertTrue(routeIds.contains(KnownTramRoute.getPurple(when).getId()), routeIds.toString());
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
+        Route purple = tramRouteHelper.getPurple(when);
+        Route green = tramRouteHelper.getGreen(when);
+
+        assertTrue(routeIds.contains(green.getId()), routeIds.toString());
+        assertTrue(routeIds.contains(purple.getId()), routeIds.toString());
     }
 
 

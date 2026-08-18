@@ -10,15 +10,12 @@ import com.tramchester.integration.repository.StopCallRepositoryTest;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
 import static com.tramchester.integration.repository.StopCallRepositoryTest.DerkerToRochdale;
-import static com.tramchester.integration.repository.StopCallRepositoryTest.VictoriaToRochdaleStations;
 
 public class UpcomingDates {
 
@@ -40,19 +37,17 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange manchesterTownHall2026 = DateRange.of(TramDate.of(2026, 8, 15),
-            TramDate.of(2026, 8, 16));
+//    public static DateRange rochdaleLinePhase1 = DateRange.of(TramDate.of(2026, 8, 15),
+//            TramDate.of(2026, 8, 16));
 
-    public static DateRange rochdaleLine2026A = DateRange.of(TramDate.of(2026, 8, 15),
-            TramDate.of(2026, 8, 16));
-    public static DateRange rochdaleLine2026B = DateRange.of(TramDate.of(2026, 8, 17),
-            TramDate.of(2026, 8, 28));
+    // TODO official end date is 28th August
+    public static DateRange rochdaleLinePhase2 = DateRange.of(TramDate.of(2026, 8, 17),
+            TramDate.of(2026, 9, 1));
+
     public static DateRange rochdaleLine2026Unpublished = DateRange.of(TramDate.of(2026, 8, 22),
             TramDate.of(2026, 8, 23));
 
     public static TramDate summerBankHol2026 = TramDate.of(2026, 8, 31);
-
-    public static TramDate sundaySept202ClosureNotPublished = TramDate.of(2026, 9,13);
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         // Add closures to the TimeRange version
@@ -60,25 +55,7 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
-        if (date.equals(TramDate.of(2026, 7,30))) {
-            if (TramStations.ExchangeSquare.matches(stationId)) {
-                return true; // not on the tfgm site, but Sunday is....
-            }
-        }
-        if (manchesterTownHall2026.contains(date)) {
-            if (TramStations.ExchangeSquare.matches(stationId)) {
-                return true;
-            }
-        }
-        if (rochdaleLine2026A.contains(date)) {
-            if (TramStations.ExchangeSquare.matches(stationId)) {
-                return true;
-            }
-            if (VictoriaToRochdaleStations.contains(stationId)) {
-                return true;
-            }
-        }
-        if (rochdaleLine2026B.contains(date)) {
+        if (rochdaleLinePhase2.contains(date)) {
             if (DerkerToRochdale.contains(stationId) || TramStations.OldhamMumps.matches(stationId)) {
                 return true;
             }
@@ -91,9 +68,10 @@ public class UpcomingDates {
                 return true;
             }
         }
-//        if (date.equals(august2026Closure)) {
-//            return true;
-//        }
+        // TODO Not seeing info on web site about closures, but routes are missing this date (as of 17/8)
+        if (summerBankHol2026.equals(date)) {
+            return true;
+        }
         return false;
     }
 
@@ -158,16 +136,6 @@ public class UpcomingDates {
             result = result.plusWeeks(1);
         }
         return result;
-    }
-
-    public static boolean isChristmasDay(TramDate date) {
-        LocalDate localDate = date.toLocalDate();
-        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth() == 25;
-    }
-
-    public static boolean isBoxingDay(TramDate date) {
-        LocalDate localDate = date.toLocalDate();
-        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth() == 26;
     }
 
     public static boolean hasClosure(LocationIdPair<Station> pair, TramDate date) {

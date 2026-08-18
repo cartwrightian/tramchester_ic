@@ -4,14 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.TramBusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -66,7 +64,7 @@ public class TransportDataFromFilesNeighboursTest {
 
     @Test
     void shouldHaveTGFMBusPlusTramAgencies() {
-        assertEquals(TGFM_BUS_AGENCIES + 1, agencyRepository.getAgencies().size());
+        assertEquals(TGFM_BUS_AGENCIES + 2, agencyRepository.getAgencies().size());
     }
 
     @Test
@@ -94,11 +92,11 @@ public class TransportDataFromFilesNeighboursTest {
     @Test
     void shouldHaveExpectedNumbersForTram() {
 
-        TramDate when = TestEnv.testDay();
+        //TramDate when = TestEnv.testDay();
 
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         long tramRoutes = getTramRoutes(routeRepository).count();
-        assertEquals(KnownTramRoute.numberOn(when), tramRoutes);
+        assertEquals(TestEnv.NumberOfRoutes, tramRoutes);
 
         final Set<Station> stationsForMode = stationRepository.getStationsServing(Tram);
         long tram = stationsForMode.size();

@@ -1,10 +1,7 @@
 package com.tramchester.graph.core.inMemory.persist;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -81,7 +78,15 @@ public class GraphPersistence {
         Stream<GraphRelationshipInMemory> relationships = relationshipsLoader.load();
         Stream<GraphNodeInMemory> nodes = nodesLoader.load();
 
-        return GraphCore.createFrom(graphIdFactory, graphLabelsFactory, nodes, relationships);
+        try {
+            return GraphCore.createFrom(graphIdFactory, graphLabelsFactory, nodes, relationships);
+        }
+        catch (RuntimeJsonMappingException exception) {
+            String msg = String.format("Failed to load from nodes:%s relationships:%s",
+                nodesFile.toAbsolutePath(), relationshipsFile.toAbsolutePath());
+            logger.error(msg, exception);
+            throw new RuntimeException(msg);
+        }
     }
 
     public boolean filesExistIn(final Path dbPath) {

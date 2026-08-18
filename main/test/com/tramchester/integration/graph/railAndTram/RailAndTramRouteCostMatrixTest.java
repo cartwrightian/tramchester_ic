@@ -23,7 +23,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import com.tramchester.testSupport.testTags.Summer2026Closures;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -150,7 +149,6 @@ public class RailAndTramRouteCostMatrixTest {
         assertTrue(incorrect.isEmpty(), incorrect.toString());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexWhereDirectTramInterchangePossible() {
         Route routeA = routeHelper.getGreen(date);
@@ -184,7 +182,6 @@ public class RailAndTramRouteCostMatrixTest {
         assertNotEquals(0, oneChange.get());
     }
 
-    @Summer2026Closures
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);

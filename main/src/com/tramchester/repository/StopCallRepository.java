@@ -137,8 +137,8 @@ public class StopCallRepository  {
             throw new RuntimeException(msg);
         }
 
-        logger.info(String.format("For route %s between %s and %s got costs %s", route.getId(),
-                first.getId(), second.getId(), allCosts));
+        logger.info(String.format("For route %s between %s and %s got %s costs unique: %s", route.getId(),
+                first.getId(), second.getId(), allCosts.size(), new HashSet<>(allCosts)));
 
         return new Costs(allCosts, route.getId(), first.getId(), second.getId());
     }
