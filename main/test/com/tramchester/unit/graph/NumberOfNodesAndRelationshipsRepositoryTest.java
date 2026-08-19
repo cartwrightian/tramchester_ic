@@ -100,5 +100,7 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
 
         assertEquals(7, repository.numberOf(TransportRelationshipTypes.TO_HOUR), "TO_HOUR");
         assertEquals(8, repository.numberOf(TransportRelationshipTypes.TO_MINUTE), "TO_MINUTE");
+        assertEquals(8, repository.numberOf(TransportRelationshipTypes.TO_MINUTE_ON_TRIP), "TO_MINUTE_ON_TRIP");
+
     }
 }

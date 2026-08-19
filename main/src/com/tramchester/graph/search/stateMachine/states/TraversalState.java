@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramDuration;
@@ -117,7 +116,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 return toMinute(traversalStateFactory.getTowardsMinute(stateType), node, cost, journeyStateUpdate);
             }
             case HourState -> {
-                return toHour(traversalStateFactory.getTowardsHour(stateType), node, cost);
+                return toHour(traversalStateFactory.getTowardsHour(stateType), node, cost, journeyStateUpdate);
             }
             case GroupedStationState -> {
                 return toGrouped(traversalStateFactory.getTowardsGroup(stateType), journeyStateUpdate, node, cost, journeyStateUpdate);

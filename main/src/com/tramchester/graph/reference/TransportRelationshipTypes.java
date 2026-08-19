@@ -26,7 +26,8 @@ public enum TransportRelationshipTypes {
     LEAVE_PLATFORM,
     TO_SERVICE,
     TO_HOUR,
-    TO_MINUTE,
+    TO_MINUTE,  // not on trip, so boarding the train, no dwell time
+    TO_MINUTE_ON_TRIP, // allows accounting for dwell time i.e. pause between station arrival and departure
 
     // between grouped stations to/from contained stations
     GROUPED_TO_PARENT,
@@ -55,10 +56,11 @@ public enum TransportRelationshipTypes {
 
     public static final ImmutableEnumSet<TransportRelationshipTypes> NoneOf = ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);
 
-    private static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE, LINKED);
+    // removed TO_MINUTE
+    private static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR, TO_SERVICE, LINKED);
 
     private static final EnumSet<TransportRelationshipTypes> HasTripId = EnumSet.of(TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO,
-            FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE);
+            FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE, TO_MINUTE_ON_TRIP);
 
     private static final EnumSet<TransportRelationshipTypes> GoesTo = EnumSet.of(TRAM_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO,
             TRAIN_GOES_TO, SUBWAY_GOES_TO);

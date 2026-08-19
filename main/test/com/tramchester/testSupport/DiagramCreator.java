@@ -346,7 +346,8 @@ public class DiagramCreator {
             case BOARD -> "B";
             case TO_SERVICE -> "Svc";
             case TO_HOUR -> "H";
-            case TO_MINUTE -> "T";
+            case TO_MINUTE -> "TOMIN";
+            case TO_MINUTE_ON_TRIP -> "ONTRIP";
             case ON_ROUTE -> "R";
             case INTERCHANGE_BOARD -> "IB";
             case INTERCHANGE_DEPART -> "ID";

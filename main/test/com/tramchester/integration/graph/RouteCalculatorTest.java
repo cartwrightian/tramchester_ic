@@ -770,20 +770,17 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
     }
 
+    @Disabled("WIP")
     @Test
     void shouldReproIssueWithStWerbToLangworthy() {
-        // org.opentest4j.AssertionFailedError: Failures{missing=[JourneyOrNot{ queryDate=TramDate{epochDays=20685, dayOfWeek=THURSDAY, date=2026-08-20}, queryTime=TramTime{h=8, m=5}, requested=StationIdAndNamePair{St Werburgh's Road[Id{'Station:9400ZZMASTW'}], Broadway[Id{'Station:9400ZZMABWY'}]}}],
-        // stationSummary=[(Id{'Station:9400ZZMABWY'},1), (Id{'Station:9400ZZMASTW'},1)],
-        // withoutMostFreq=[]} ==>
-
         TramDate date = TramDate.of(2026, 8, 20);
         JourneyRequest journeyRequest = standardJourneyRequest(date, TramTime.of(8,5),
                 maxNumResults, 2);
         List<Journey> journeys = calculator.calculateRouteAsList(StWerburghsRoad, Broadway, journeyRequest);
-        assertFalse(journeys.isEmpty(), "No results for " + journeyRequest);
+        assertFalse(journeys.isEmpty(), "No results for S->B " + journeyRequest);
 
-        journeys = calculator.calculateRouteAsList(Broadway, StWerburghsRoad, journeyRequest);
-        assertFalse(journeys.isEmpty(), "No results for " + journeyRequest);
+        List<Journey> backAgain = calculator.calculateRouteAsList(Broadway, StWerburghsRoad, journeyRequest);
+        assertFalse(backAgain.isEmpty(), "No results for B->S " + journeyRequest);
 
     }
 

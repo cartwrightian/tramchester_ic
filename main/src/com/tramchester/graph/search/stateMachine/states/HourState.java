@@ -9,6 +9,7 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -17,6 +18,7 @@ import java.util.Comparator;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_MINUTE;
+import static com.tramchester.graph.reference.TransportRelationshipTypes.TO_MINUTE_ON_TRIP;
 
 public class HourState extends TraversalState implements HasTowardsStationId {
 
@@ -30,8 +32,9 @@ public class HourState extends TraversalState implements HasTowardsStationId {
         }
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final TramDuration cost,
-                                     final IdFor<Station> towardsStationId, final GraphTransaction txn) {
-            final Stream<GraphRelationship> relationships = getMinuteRelationships(node, txn);
+                                     final IdFor<Station> towardsStationId, final GraphTransaction txn,
+                                     final JourneyStateUpdate journeyState) {
+            final Stream<GraphRelationship> relationships = getMinuteRelationships(node, journeyState, txn);
             return new HourState(serviceState, relationships, node, towardsStationId, cost, this);
         }
 
@@ -45,8 +48,12 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             return TraversalStateType.HourState;
         }
 
-        private Stream<GraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
-            Stream<GraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
+        private Stream<GraphRelationship> getMinuteRelationships(final GraphNode node, JourneyStateUpdate journeyState, final
+        GraphTransaction txn) {
+
+            final TransportRelationshipTypes relationshipType = journeyState.onTrip() ? TO_MINUTE_ON_TRIP : TO_MINUTE;
+
+            Stream<GraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, relationshipType);
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
                 // the order here, unlike for HOURS

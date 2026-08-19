@@ -915,7 +915,10 @@ class TramGraphBuilderTest {
         assertNotEquals(0, txn.numberOf(TRAM_GOES_TO));
         assertNotEquals(0, txn.numberOf(TO_SERVICE));
         assertNotEquals(0, txn.numberOf(TO_MINUTE));
+        assertNotEquals(0, txn.numberOf(TO_MINUTE_ON_TRIP));
         assertNotEquals(0, txn.numberOf(TO_HOUR));
+
+        assertEquals(txn.numberOf(TO_MINUTE), txn.numberOf(TO_MINUTE_ON_TRIP));
     }
 
 

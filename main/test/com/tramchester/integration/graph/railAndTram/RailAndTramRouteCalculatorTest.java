@@ -230,8 +230,8 @@ public class RailAndTramRouteCalculatorTest {
         List<TransportStage<?, ?>> directStages = direct.getStages();
         List<TransportStage<?, ?>> changedStages = changed.getStages();
 
-        assertEquals(2, directStages.size());
-        assertEquals(3, changedStages.size());
+        assertEquals(2, directStages.size(), directStages.toString());
+        assertEquals(3, changedStages.size(), changedStages.toString());
 
         TransportStage<?, ?> directLast = directStages.getLast();
         assertEquals(directLast.getFirstStation().getId(), RailStationIds.ManchesterPiccadilly.getId());
@@ -547,7 +547,7 @@ public class RailAndTramRouteCalculatorTest {
 
         TransportStage<?, ?> stage = stages.getLast();
         assertEquals(Train, stage.getMode(), "wrong second stage for " + stages);
-        assertEquals(TramDuration.ofMinutes(16), stage.getDuration());
+        assertEquals(TramDuration.ofMinutes(17), stage.getDuration());
     }
 
     @Test

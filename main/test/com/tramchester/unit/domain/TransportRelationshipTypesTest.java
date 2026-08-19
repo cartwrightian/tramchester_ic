@@ -22,12 +22,13 @@ class TransportRelationshipTypesTest {
 
     @Test
     void shouldRememberToUpdateTestsBelowIfNewTypesAdd() {
-        assertEquals(26, all.size(),"New types, update the tests?");
+        assertEquals(27, all.size(),"New types, update the tests?");
     }
 
     @Test
     void shouldHaveCorrectTypesWithTripId()  {
         List<TransportRelationshipTypes> expectedTripId = Arrays.asList(TransportRelationshipTypes.TO_MINUTE,
+                TransportRelationshipTypes.TO_MINUTE_ON_TRIP,
                 TransportRelationshipTypes.BUS_GOES_TO,
                 TransportRelationshipTypes.TRAM_GOES_TO,
                 TransportRelationshipTypes.TRAIN_GOES_TO,
@@ -44,7 +45,8 @@ class TransportRelationshipTypesTest {
     @Test
     void shouldHaveCorrectTypesWithCost()  {
         List<TransportRelationshipTypes> expectedNoCost = Arrays.asList(
-                TransportRelationshipTypes.TO_MINUTE,
+//                TransportRelationshipTypes.TO_MINUTE,
+//                TransportRelationshipTypes.TO_MINUTE_ON_TRIP,
                 TransportRelationshipTypes.TO_HOUR,
                 TransportRelationshipTypes.TO_SERVICE,
                 TransportRelationshipTypes.LINKED);

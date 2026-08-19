@@ -50,7 +50,7 @@ public abstract class EmptyTraversalState {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected HourState toHour(HourState.Builder towardsHour, GraphNode node, TramDuration cost) {
+    protected HourState toHour(HourState.Builder towardsHour, GraphNode node, TramDuration cost, JourneyStateUpdate journeyStateUpdate) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

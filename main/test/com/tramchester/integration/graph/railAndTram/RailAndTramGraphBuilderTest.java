@@ -229,8 +229,9 @@ class RailAndTramGraphBuilderTest {
         assertTrue(toMinuteMaybe.isPresent());
 
         GraphRelationship toMinute = toMinuteMaybe.get();
-        GraphNode minuteNode = toMinute.getEndNode(txn);
+        assertEquals(TramDuration.ZERO, toMinute.getCost());
 
+        GraphNode minuteNode = toMinute.getEndNode(txn);
         assertEquals(navigationStopCall.getDepartureTime(), minuteNode.getTime());
 
     }
@@ -269,11 +270,14 @@ class RailAndTramGraphBuilderTest {
         GraphRelationship toHour = maybeToHour.get();
 
         GraphNode hourNode = toHour.getEndNode(txn);
-        Stream<GraphRelationship> toMinutes = hourNode.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE);
-        Optional<GraphRelationship> toMinuteMaybe = toMinutes.filter(graphRelationship -> graphRelationship.getEndNode(txn).getTripId().equals(trip.getId())).findFirst();
+        Stream<GraphRelationship> toMinutes = hourNode.getRelationships(txn, GraphDirection.Outgoing, TO_MINUTE_ON_TRIP);
+        Optional<GraphRelationship> toMinuteMaybe = toMinutes.
+                filter(graphRelationship -> graphRelationship.getEndNode(txn).getTripId().
+                        equals(trip.getId())).findFirst();
         assertTrue(toMinuteMaybe.isPresent());
 
         GraphRelationship toMinute = toMinuteMaybe.get();
+        assertEquals(stockportStop.getDwellTime(), toMinute.getCost());
 
         GraphNode minuteNode = toMinute.getEndNode(txn);
         assertEquals(trip.getId(), minuteNode.getTripId());

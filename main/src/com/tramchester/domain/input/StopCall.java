@@ -51,6 +51,10 @@ public abstract class StopCall {
         return arrivalTime.plus(dwellTime);
     }
 
+    public TramDuration getDwellTime() {
+        return dwellTime;
+    }
+
     public Station getStation() {
         return station;
     }
@@ -143,5 +147,6 @@ public abstract class StopCall {
 
         return true;
     }
+
 
 }

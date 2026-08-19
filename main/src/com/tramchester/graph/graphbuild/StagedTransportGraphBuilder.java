@@ -610,7 +610,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 startId, endId);
         final MutableGraphNode hourNode = hourNodeCache.getHourNode(tx, svcNode.getId(),
                 departureTime.getHourOfDay());
-        createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
+
+        // just departed, so no need to account for dwell time
+        MutableGraphRelationship not_on_trip = createRelationship(tx, hourNode, timeNode, TO_MINUTE);
+        not_on_trip.setCost(TramDuration.ZERO);
+
+        // on a vehicle, so might pause/dwell at a station, capture that cost here
+        MutableGraphRelationship onTrip = createRelationship(tx, hourNode, timeNode, TO_MINUTE_ON_TRIP);
+        onTrip.setCost(leg.getFirst().getDwellTime());
 
         return timeNode;
     }
