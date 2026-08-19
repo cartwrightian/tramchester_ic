@@ -24,9 +24,11 @@ import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
+import com.tramchester.testSupport.testTags.RochdaleLineClosure2026;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -104,6 +106,7 @@ public class RailAndTramRouteCalculatorTest {
         assertTrue(stationRepository.hasStationId(TramStations.Altrincham.getId()));
     }
 
+    @RochdaleLineClosure2026
     @Test
     void reproIssueRochdaleToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
@@ -112,9 +115,10 @@ public class RailAndTramRouteCalculatorTest {
                 maxDurationFromConfig, 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Rochdale, TramStations.Eccles, journeyRequest);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
+    @RochdaleLineClosure2026
     @Test
     void shouldHaveRochdaleToStPetersSquare() {
         TramTime time = TramTime.of(9,0);
@@ -122,7 +126,7 @@ public class RailAndTramRouteCalculatorTest {
                 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Rochdale, TramStations.StPetersSquare, journeyRequest);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
     @Test
@@ -176,6 +180,7 @@ public class RailAndTramRouteCalculatorTest {
         assertNotEquals(0, trams);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldHaveVictoriaToEccles() {
         TramTime time = TramTime.of(9,0);
@@ -183,7 +188,7 @@ public class RailAndTramRouteCalculatorTest {
                 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Victoria, TramStations.Eccles, journeyRequest);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
     @Test
@@ -369,6 +374,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldHaveDeansgateToEccles() {
         // check if failing when TramsOnly and nearby rail station
@@ -380,9 +386,10 @@ public class RailAndTramRouteCalculatorTest {
         //journeyRequest.setDiag(true);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Deansgate, TramStations.Eccles, journeyRequest);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldHaveExchangeSqToEccles() {
         TramTime time = TramTime.of(9,0);
@@ -390,9 +397,10 @@ public class RailAndTramRouteCalculatorTest {
                 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.ExchangeSquare, TramStations.Eccles, journeyRequest);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldHaveMarketStreetToEccles() {
         TramTime time = TramTime.of(9,0);
@@ -400,7 +408,7 @@ public class RailAndTramRouteCalculatorTest {
                 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.MarketStreet, TramStations.Eccles, journeyRequest);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
     @Test

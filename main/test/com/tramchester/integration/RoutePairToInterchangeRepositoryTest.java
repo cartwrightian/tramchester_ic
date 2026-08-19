@@ -86,13 +86,16 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
+        assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
+
         if (config.hasRailConfig()) {
-            assertEquals(1, stationIds.size(), stationIds.toString());
+            assertEquals(2, stationIds.size(), stationIds.toString());
+            assertTrue(stationIds.contains(RailStationIds.ManchesterVictoria.getId()), stationIds.toString());
+
         } else {
             assertEquals(1, stationIds.size(), stationIds.toString());
         }
 
-        assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
     }
 
     @Test

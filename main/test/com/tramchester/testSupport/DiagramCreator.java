@@ -196,7 +196,8 @@ public class DiagramCreator {
                     getColorFor(relationshipType)));
         } else if (relationshipType== LINKED) {
             final ImmutableEnumSet<TransportMode> modes = edge.getTransportModes();
-            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes,
+            String label = getNameFor(relationshipType) + ":" + modes;
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, label,
                     getColorFor(relationshipType)));
         } else {
             final String shortForm = createShortForm(relationshipType, edge);

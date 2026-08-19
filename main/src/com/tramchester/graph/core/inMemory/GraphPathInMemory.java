@@ -34,10 +34,10 @@ public class GraphPathInMemory implements GraphPath {
 
     @Override
     public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphNode currentNode) {
-        return duplicate().addNode(txn, currentNode);
+        return duplicate().addNode(currentNode);
     }
 
-    private GraphPathInMemory addNode(final GraphTransaction txn, final GraphNode node) {
+    private GraphPathInMemory addNode(final GraphNode node) {
         synchronized (entityList) {
             lastAddedNode = node;
             entityList.add(node);
@@ -145,6 +145,8 @@ public class GraphPathInMemory implements GraphPath {
     @Override
     public TramDuration getTotalCost() {
         // todo accumulate cost as we go instead
+
+        // todo can't do this because we need to know if on trip? i.e. for dwell time
 
         final Optional<TramDuration> total = entityList.stream().
                 filter(GraphEntity::isRelationship).
