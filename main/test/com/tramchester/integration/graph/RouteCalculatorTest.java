@@ -381,7 +381,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 20)
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);
@@ -770,12 +770,13 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldReproIssueWithStWerbToLangworthy() {
         TramDate date = TramDate.of(2026, 8, 20);
+
         JourneyRequest journeyRequest = standardJourneyRequest(date, TramTime.of(8,5),
                 maxNumResults, 2);
+
         List<Journey> journeys = calculator.calculateRouteAsList(StWerburghsRoad, Broadway, journeyRequest);
         assertFalse(journeys.isEmpty(), "No results for S->B " + journeyRequest);
 

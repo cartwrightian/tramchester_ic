@@ -96,7 +96,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 20)
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).interchangeToEndRoutes(Tram)
@@ -116,7 +116,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 20)
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
@@ -150,7 +150,7 @@ class RouteCalculatorKeyRoutesTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 20)
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesInNDays() {
