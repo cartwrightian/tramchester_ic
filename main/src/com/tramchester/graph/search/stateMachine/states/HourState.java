@@ -48,12 +48,12 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             return TraversalStateType.HourState;
         }
 
-        private Stream<GraphRelationship> getMinuteRelationships(final GraphNode node, JourneyStateUpdate journeyState, final
-        GraphTransaction txn) {
+        private Stream<GraphRelationship> getMinuteRelationships(final GraphNode node, JourneyStateUpdate journeyState,
+                                                                 final GraphTransaction txn) {
 
             final TransportRelationshipTypes relationshipType = journeyState.onTrip() ? TO_MINUTE_ON_TRIP : TO_MINUTE;
 
-            Stream<GraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, relationshipType);
+            final Stream<GraphRelationship> unsorted = node.getRelationships(txn, GraphDirection.Outgoing, relationshipType);
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
                 // the order here, unlike for HOURS

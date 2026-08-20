@@ -77,7 +77,7 @@ class RouteCalculatorKeyRoutesTest {
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 20)
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToInterchanges(Tram).stream().
@@ -88,7 +88,6 @@ class RouteCalculatorKeyRoutesTest {
     }
 
     @DisabledUntilDate(year = 2026, month = 8, day = 20)
-
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram);

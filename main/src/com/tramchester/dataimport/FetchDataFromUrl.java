@@ -72,7 +72,8 @@ public class FetchDataFromUrl implements RemoteDataAvailable {
             if (skip.resolve(config)) {
                 logger.warn("Skipping load of " + remoteSource.getDataSourceId());
             } else {
-                logger.info("Adding " + remoteSource.getDataSourceId());
+                logger.info(String.format("Adding source: %s uri: %s check uri: %s", remoteSource.getDataSourceId(),
+                        remoteSource.getDataUrl(), remoteSource.getDataCheckUrl()));
                 downloadConfigs.add(remoteSource);
             }
         }
@@ -114,8 +115,8 @@ public class FetchDataFromUrl implements RemoteDataAvailable {
             try {
                 refreshStatus = refreshDataIfNewerAvailable(sourceConfig, destAndStatusCheckFile);
             }
-            catch (IOException | InterruptedException exception) {
-                logger.warn(prefix + "Unable to check status or refresh data for config: " + sourceConfig, exception);
+            catch (IOException | IllegalArgumentException | InterruptedException exception) {
+                logger.error(prefix + "Unable to check status or refresh data for config: " + sourceConfig, exception);
                 refreshStatus = RefreshStatus.UnableToCheck;
             }
 
@@ -133,7 +134,7 @@ public class FetchDataFromUrl implements RemoteDataAvailable {
         });
     }
 
-    private RefreshStatus refreshDataIfNewerAvailable(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailable(final DownloadedConfig sourceConfig, final DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
 
         logger.info("Refresh data if newer is available for " + dataSourceId);

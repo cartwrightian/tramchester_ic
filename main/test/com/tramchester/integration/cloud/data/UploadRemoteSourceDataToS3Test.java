@@ -48,11 +48,15 @@ class UploadRemoteSourceDataToS3Test {
 
     private final static String TEST_BUCKET_NAME = "tramchestertestlivedatabucket";
     private static DataSource dataSource;
+    private static Path sourceFilePath;
 
     @BeforeAll
-    static void beforeAnyDone() {
+    static void beforeAnyDone() throws IOException {
 
         dataSource = new DataSource();
+
+        sourceFilePath = dataSource.getDownloadPath().resolve(dataSource.getDownloadFilename());
+        Files.deleteIfExists(sourceFilePath);
 
         TramchesterConfig configuration = new IntegrationTestBucketConfig(TEST_BUCKET_NAME, dataSource);
 
@@ -70,12 +74,14 @@ class UploadRemoteSourceDataToS3Test {
     }
 
     @AfterAll
-    static void afterAllDone() {
+    static void afterAllDone() throws IOException {
         componentContainer.close();
 
         s3TestSupport.deleteBucket();
         s3Waiter.close();
         s3.close();
+
+        Files.deleteIfExists(sourceFilePath);
     }
 
     @BeforeEach
@@ -92,9 +98,6 @@ class UploadRemoteSourceDataToS3Test {
     void shouldUploadOkIfBucketExist() throws IOException {
 
         // Can't check actual remote URL, so make sure the files is not "expired" by creating a new file
-
-        Path sourceFilePath = dataSource.getDownloadPath().resolve(dataSource.getDownloadFilename());
-        Files.deleteIfExists(sourceFilePath);
 
         // TODO No way to fake this now??
         //downloadedRemoteData.addFileFor(DataSourceID.tfgm, sourceFilePath);
@@ -191,7 +194,6 @@ class UploadRemoteSourceDataToS3Test {
         @Override
         public String getDataUrl() {
             return "fake://not.real";
-            //throw new RuntimeException("Should not be downloading, not expired");
         }
 
         @Override
