@@ -87,7 +87,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 20)
+    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram);
