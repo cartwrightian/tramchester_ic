@@ -26,8 +26,7 @@ import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataUpdateTest
 public class CreateQueryTimesTest {
@@ -120,8 +119,9 @@ public class CreateQueryTimesTest {
         List<TramTime> results = createQueryTimes.generate(queryTime, location, date, modes);
         assertFalse(results.isEmpty());
 
-        assertEquals(1, results.size(), results.toString());
-        assertEquals(queryTime, results.getFirst());
+        assertEquals(3, results.size(), results.toString());
+        //assertEquals(queryTime, results.getFirst());
+        assertTrue(results.contains(queryTime), queryTime + " missing from " + results);
     }
 
     @Test

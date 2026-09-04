@@ -28,4 +28,9 @@ public class UpcomingDatesTest {
         assertTrue(UpcomingDates.notChristmasPeriod(testDay));
     }
 
+    @Test
+    void shouldTestIfStillNeeded() {
+        assertTrue(UpcomingDates.MediaCityToImperialWarMus.contains(TestEnv.testDay()));
+    }
+
 }

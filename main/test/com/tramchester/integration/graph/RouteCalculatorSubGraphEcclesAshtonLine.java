@@ -18,6 +18,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+@DisabledUntilDate(year = 2026, month = 9, day = 7)
 class RouteCalculatorSubGraphEcclesLineSundayTest {
     private static ComponentContainer componentContainer;
 

@@ -25,6 +25,7 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
@@ -176,10 +177,10 @@ public class StationAvailabilityRepositoryTest {
     void shouldNotHaveLateNightServicesAtEndOfLine() {
         Station altrincham = Altrincham.from(stationRepository);
 
-        TimeRange timeRange = TimeRange.of(TramTime.nextDay(0,40), TramTime.nextDay(0,45));
+        TimeRange timeRange = TimeRange.of(TramTime.nextDay(1,30), TramTime.nextDay(2,15));
         boolean result = availabilityRepository.isAvailable(altrincham, when, timeRange, modes);
 
-        assertFalse(result, "unexpected late night services");
+        assertFalse(result, "unexpected late night services " + " for"  + timeRange);
     }
 
     @DataExpiryTest
@@ -209,6 +210,7 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 20)
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -232,6 +234,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 20)
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {

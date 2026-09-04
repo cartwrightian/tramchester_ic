@@ -287,9 +287,10 @@ public class StationRepositoryTest {
         assertTrue(pickups.contains(red.getId()));
     }
 
-    @Disabled("no longer needed")
     @Test
     void shouldHaveExpectedPickupAndDropOffsForMediaCity() {
+
+        //TramDate date = TramDate.of(2026, 8, 22);
         // seen issues here
         Station mediaCity = MediaCityUK.from(stationRepository);
 
@@ -298,20 +299,28 @@ public class StationRepositoryTest {
                 map(TramRouteId::getRouteName).
                 collect(Collectors.toSet());
 
-        // replacement bus
-        assertEquals(1, dropOffs.size(), dropOffs.toString());
-        //assertTrue(dropOffs.contains(EcclesPiccadilly), "Missing from " + dropOffs);
+        // 1->2 closures
+        assertEquals(2, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(TFGMRouteNames.Blue), "Missing from " + dropOffs);
+
+        Set<Route> availableDropoffs = mediaCity.getDropoffRoutes().stream().
+                filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
+
+        assertFalse(availableDropoffs.isEmpty());
 
         Set<TFGMRouteNames> pickUps = mediaCity.getPickupRoutes().stream().
                 map(route -> (TramRouteId)route.getId()).
                 map(TramRouteId::getRouteName).
                 collect(Collectors.toSet());
 
-        // replacement bus
-        assertEquals(1, pickUps.size(), pickUps.toString());
-        //assertTrue(pickUps.contains(EcclesPiccadilly), "Missing from " + pickUps);
+        // 1->2 closures
+        assertEquals(2, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(TFGMRouteNames.Blue), "Missing from " + pickUps);
+
+        Set<Route> availablePickups = mediaCity.getPickupRoutes().stream().
+                filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
+
+        assertFalse(availablePickups.isEmpty());
 
     }
 

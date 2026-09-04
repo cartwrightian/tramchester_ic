@@ -381,7 +381,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @RochdaleLineClosure2026
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);
@@ -600,7 +600,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Bury);
     }
 
-
     @Test
     void shouldReproIssueWithMediaCityTrams() {
 
@@ -638,19 +637,22 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldProvideASpreadOfDepartureTimes() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 45),
-                2, 1);
+        // plus weeks(1) due to closures
+        JourneyRequest journeyRequest = standardJourneyRequest(when.plusWeeks(1), TramTime.of(14, 50),
+                3, 2);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);
 
-        assertTrue(journeys.size()>1, "not enough results " +journeys);
+        assertFalse(journeys.isEmpty(), "NO results for " + journeyRequest);
+        assertTrue(journeys.size()>1, "not enough results for " + journeyRequest + " got " + journeys);
 
         Set<TramTime> uniqueDepartureTimes = journeys.stream().
                 map(Journey::getDepartTime).
                 collect(Collectors.toSet());
 
         assertFalse(uniqueDepartureTimes.isEmpty());
-        assertNotEquals(1, uniqueDepartureTimes.size(), "Only got one time for " + journeys);
+        assertNotEquals(1, uniqueDepartureTimes.size(), "Only got " + uniqueDepartureTimes +
+                " times for " + journeyRequest + "\njourneys " + journeys);
     }
 
     @Test
@@ -772,9 +774,9 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproIssueWithStWerbToLangworthy() {
-        TramDate date = TramDate.of(2026, 8, 20);
+        //TramDate date = TramDate.of(2026, 8, 20);
 
-        JourneyRequest journeyRequest = standardJourneyRequest(date, TramTime.of(8,5),
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(8,5),
                 maxNumResults, 2);
 
         List<Journey> journeys = calculator.calculateRouteAsList(StWerburghsRoad, Broadway, journeyRequest);
@@ -792,7 +794,6 @@ public class RouteCalculatorTest {
         assertTrue(missingTimes.isEmpty(), missingTimes.toString());
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldReproIssueWithStPetersToBeyondEcclesAt8AMReplacementBuses() {
         List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,2, 21);
@@ -811,7 +812,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void reproduceSundayToFromEcclesAndCornbrookWithNoChanges() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -821,6 +822,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void reproduceIssueSundayToFromEcclesAndCornbrookWithOneChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -830,8 +832,9 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
-    void shouldHaveTraffordCentreWharfsideDuringSummer2025() {
+    void shouldHaveTraffordCentreWharfsideDuringSummer2026OnSunday() {
         // this section is 'isolated' during august 2025
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30),
                 maxNumResults, 1);

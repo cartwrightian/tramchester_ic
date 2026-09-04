@@ -28,12 +28,12 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,10 +104,17 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveExpectedNumRoutes() {
-        Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
-                map(Route::getName).collect(Collectors.toSet());
+        Set<String> found = transportData.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
+                map(Route::getShortName).
+                collect(Collectors.toSet());
 
-        assertEquals(TFGMRouteNames.values().length, uniqueNames.size(), uniqueNames.toString());
+        Set<String> expected = Arrays.stream(TFGMRouteNames.values()).
+                filter(routeName -> !routeName.isReplacementBus()).
+                map(TFGMRouteNames::getShortName).collect(Collectors.toSet());
+
+        Set<String> mismatch = SetUtils.disjunction(found, expected);
+
+        assertTrue(mismatch.isEmpty(), "Mismatch " + mismatch + " between expected " + expected + " and " + found);
 
     }
 
@@ -264,7 +271,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @DataExpiryTest
     @Test
     void shouldHaveTramServicesAvailableNDaysAhead() {
@@ -442,7 +448,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1397, maximumNumberOfTrips);
+        assertEquals(1426, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

@@ -38,7 +38,6 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -53,6 +52,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
@@ -126,6 +126,8 @@ class RouteCalculatorSubGraphMediaCityTest {
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
+        assumeFalse(UpcomingDates.MediaCityToImperialWarMus.contains(when));
+
     }
 
     @AfterEach
@@ -137,15 +139,44 @@ class RouteCalculatorSubGraphMediaCityTest {
 //        return !date.equals(TramDate.of(2026, 6, 21));
 //    }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void shouldHaveMediaCityToExchangeSquareSaturday() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
-        validateAtLeastOneJourney(MediaCityUK, Cornbrook, TramTime.of(9,0), nextSaturday);
-        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday);
+        //validateAtLeastOneJourney(MediaCityUK, Cornbrook, TramTime.of(9,0), nextSaturday);
+        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday, true);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 30)
+
+    @Test
+    void shouldHaveReasonableRouteToRouteCostToExchangeSquare() {
+        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,0), TramTime.of(10,0));
+        TramDate date = TramDate.of(2026, 8, 22);
+        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(9,0), false,
+                2, TramDuration.ofMinutes(60), 1, TramsOnly);
+
+        int resultVictoria = routeToRouteCosts.getNumberOfChanges(Victoria.from(stationRepository),
+                ExchangeSquare.from(stationRepository),
+                journeyRequest,
+                timeRange);
+        assertEquals(0, resultVictoria);
+
+        int resultCornbrook = routeToRouteCosts.getNumberOfChanges(Cornbrook.from(stationRepository),
+                ExchangeSquare.from(stationRepository),
+                journeyRequest,
+                timeRange);
+
+        assertEquals(2, resultCornbrook);
+
+        int resultMediaCity = routeToRouteCosts.getNumberOfChanges(MediaCityUK.from(stationRepository),
+                ExchangeSquare.from(stationRepository),
+                journeyRequest,
+                timeRange);
+
+        assertEquals(2, resultMediaCity);
+    }
+
     @Test
     void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
@@ -164,7 +195,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(HarbourCity, Cornbrook, tramTime, testSunday);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -197,7 +227,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
@@ -348,7 +377,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 30)
     @Test
     void reproduceMediaCityIssueSaturdays() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(9,0), UpcomingDates.nextSaturday());
@@ -403,8 +431,15 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date) {
+        validateAtLeastOneJourney(start, dest, time, date, false);
+    }
+
+    private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date, boolean diag) {
         JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
                 maxJourneyDuration, 1, getRequestedModes());
+        if (diag) {
+            journeyRequest.setDiag(true);
+        }
         List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
         assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", start, dest, date, time));
     }

@@ -54,7 +54,7 @@ class RegistersStatesTest {
 
         Set<RegistersStates.FromTo> transitions = factory.getTransitions();
 
-        Path filePath = Path.of("stateTransitions.dot");
+        Path filePath = Path.of("diagrams","stateTransitions.dot");
         OutputStream fileStream = new FileOutputStream(filePath.toFile());
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);
         PrintStream printStream = new PrintStream(bufferedOutputStream);

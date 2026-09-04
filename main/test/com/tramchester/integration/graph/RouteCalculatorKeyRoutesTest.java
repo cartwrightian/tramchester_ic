@@ -77,7 +77,6 @@ class RouteCalculatorKeyRoutesTest {
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToInterchanges(Tram).stream().
@@ -87,7 +86,6 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram);
@@ -95,7 +93,6 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).interchangeToEndRoutes(Tram)
@@ -105,7 +102,6 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 20)
     @Test
     void shouldFindInterchangesToInterchanges() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).interchangeToInterchange(Tram).stream().
@@ -115,7 +111,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
@@ -124,13 +120,15 @@ class RouteCalculatorKeyRoutesTest {
         final SortedMap<TramDate, LocationIdsAndNames<Station>> missing = new TreeMap<>();
 
         Duration timeout = Duration.ofMinutes(1);
-        TramTime tramTime = TramTime.of(8, 5);
+        TramTime tramTime = TramTime.of(14, 5);
 
         UpcomingDates.daysAhead().stream().
                 filter(UpcomingDates::notChristmasPeriod).
                 forEach(testDate -> {
                     final LocationIdPairSet<Station> pairs = combinations.getCreatePairs(testDate).
-                            endOfRoutesToEndOfRoutes(Tram);
+                            endOfRoutesToEndOfRoutes(Tram).stream().
+                            filter(pair -> !UpcomingDates.hasClosure(pair, when)).
+                            collect(LocationIdPairSet.collector());;
 
                     if (!pairs.isEmpty()) {
                         final JourneyRequest request = new JourneyRequest(testDate, tramTime, false, 2,
@@ -149,7 +147,7 @@ class RouteCalculatorKeyRoutesTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesInNDays() {

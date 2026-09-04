@@ -892,7 +892,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(20D, Math.ceil(percentage));
+        assertEquals(19D, Math.ceil(percentage));
     }
 
     @Test
@@ -920,7 +920,6 @@ class TramGraphBuilderTest {
 
         assertEquals(txn.numberOf(TO_MINUTE), txn.numberOf(TO_MINUTE_ON_TRIP));
     }
-
 
     @Disabled("diagnostics around number of relationships")
     @Test

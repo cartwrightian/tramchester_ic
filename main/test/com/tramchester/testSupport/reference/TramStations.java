@@ -68,6 +68,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
     Rochdale("9400ZZMARIN", "Rochdale Town Centre", pos(53.61736, -2.15509)),
     Crumpsal("9400ZZMACRU", "Crumpsall", pos(53.51716010436,-2.24104993052)),
     SaleWaterPark("9400ZZMASWP", "Sale Water Park", pos(53.428243,-2.290767)),
+    Westwood("9400ZZMAWWD", "Westwood", pos(53.54239674552,-2.12578358419)),
     ShawAndCrompton("9400ZZMASHA", "Shaw and Crompton", pos(53.5763, -2.08963));
 
     private final String rawId;

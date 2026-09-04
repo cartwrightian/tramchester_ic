@@ -98,7 +98,8 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                OldhamMumps
+                OldhamMumps,
+                Westwood
                 //Wharfside
                 //Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
 

@@ -6,8 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.integration.repository.StopCallRepositoryTest;
-import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.domain.time.TramTime;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
@@ -15,7 +14,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
-import static com.tramchester.integration.repository.StopCallRepositoryTest.DerkerToRochdale;
+import static com.tramchester.integration.repository.StopCallRepositoryTest.CrumpsalToBury;
+import static com.tramchester.integration.repository.StopCallRepositoryTest.FreeholdToRochdaleStations;
+import static com.tramchester.testSupport.reference.TramStations.MarketStreet;
+import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 
 public class UpcomingDates {
 
@@ -37,40 +39,44 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-//    public static DateRange rochdaleLinePhase1 = DateRange.of(TramDate.of(2026, 8, 15),
-//            TramDate.of(2026, 8, 16));
+    public static TramDate RochdaleLinePhase3 = TramDate.of(2026, 9, 5);
+    public static TramDate DeansgateTraffordBarSept6 = TramDate.of(2026, 9, 6);
+    public static DateRange BuryLineSept12 = DateRange.of(TramDate.of(2026, 9, 12),
+            TramDate.of(2026, 9, 13));
 
-    // TODO official end date is 28th August
-    public static DateRange rochdaleLinePhase2 = DateRange.of(TramDate.of(2026, 8, 17),
-            TramDate.of(2026, 9, 1));
+    public static TramDate BuryLineSept19Undoc = TramDate.of(2026, 9, 19);
 
-    public static DateRange rochdaleLine2026Unpublished = DateRange.of(TramDate.of(2026, 8, 22),
-            TramDate.of(2026, 8, 23));
+    public static DateRange MarketStreetAndShudehillSept = DateRange.of(TramDate.of(2026, 9, 21),
+            TramDate.of(2026, 9, 26));
 
-    public static TramDate summerBankHol2026 = TramDate.of(2026, 8, 31);
+    // ongoing? Used to add walk Media City to Imperial Was Museum
+    public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 1),
+            TramDate.of(2026, 10, 15));
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
-        // Add closures to the TimeRange version
+        // Add all closures to the TimeRange version
         return hasClosure(stationId, date, TimeRange.AllDay());
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
-        if (rochdaleLinePhase2.contains(date)) {
-            if (DerkerToRochdale.contains(stationId) || TramStations.OldhamMumps.matches(stationId)) {
+        if (RochdaleLinePhase3.equals(date)) {
+            if (FreeholdToRochdaleStations.contains(stationId)) {
                 return true;
             }
         }
-        if (rochdaleLine2026Unpublished.contains(date)) {
-            if (StopCallRepositoryTest.getMonsallToOldhamCentral().contains(stationId)) {
-                return true;
-            }
-            if (TramStations.ExchangeSquare.matches(stationId)) {
+        if (DeansgateTraffordBarSept6.equals(date)) {
+            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(12,0));
+            return closure.anyOverlap(timeRange);
+        }
+        if (BuryLineSept12.contains(date) || BuryLineSept19Undoc.equals(date)) {
+            if (CrumpsalToBury.contains(stationId)) {
                 return true;
             }
         }
-        // TODO Not seeing info on web site about closures, but routes are missing this date (as of 17/8)
-        if (summerBankHol2026.equals(date)) {
-            return true;
+        if (MarketStreetAndShudehillSept.contains(date)) {
+            if (MarketStreet.matches(stationId) || Shudehill.matches(stationId)) {
+                return true;
+            }
         }
         return false;
     }

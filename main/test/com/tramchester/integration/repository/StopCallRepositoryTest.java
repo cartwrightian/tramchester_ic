@@ -16,7 +16,6 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
@@ -45,7 +44,6 @@ public class StopCallRepositoryTest {
     private StopCallRepository stopCallRepository;
     private StationRepository stationRepository;
     private ServiceRepository serviceRepository;
-    private RouteRepository routeRepository;
     private TramDate when;
 
     private static final IdFor<Station> freeHold = Station.createId("9400ZZMAFRE");
@@ -60,7 +58,7 @@ public class StopCallRepositoryTest {
     private static final List<IdFor<Station>> FreeholdToOldHamMumps = Arrays.asList(Station.createId("9400ZZMAFRE"),
             Station.createId("9400ZZMAWWD"), OldhamKingStreet.getId(), OldhamCentral.getId(), OldhamMumps.getId());
 
-    private static final List<IdFor<Station>> FreeholdToRochdaleStations = Streams.concat(
+    public static final List<IdFor<Station>> FreeholdToRochdaleStations = Streams.concat(
             FreeholdToOldHamMumps.stream(), DerkerToRochdale.stream()).toList();
 
     private static final List<IdFor<Station>> VictoriaToSouthChadderton = Arrays.asList(Victoria.getId(),
@@ -70,7 +68,7 @@ public class StopCallRepositoryTest {
     public static final List<IdFor<Station>> VictoriaToRochdaleStations =
             Streams.concat(VictoriaToSouthChadderton.stream(), FreeholdToRochdaleStations.stream()).toList();
 
-    private static final List<IdFor<Station>> CrumpsalToBury = Arrays.asList(Crumpsal.getId(),
+    public static final List<IdFor<Station>> CrumpsalToBury = Arrays.asList(Crumpsal.getId(),
             Station.createId("9400ZZMABOW"), HeatonPark.getId(), Station.createId("9400ZZMAPWC"),
             Station.createId("9400ZZMABOB"), Whitefield.getId(), Station.createId("9400ZZMARAD"), Bury.getId());
 
@@ -99,7 +97,6 @@ public class StopCallRepositoryTest {
         stopCallRepository = componentContainer.get(StopCallRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         serviceRepository = componentContainer.get(ServiceRepository.class);
-        routeRepository = componentContainer.get(RouteRepository.class);
         when = TestEnv.testDay();
     }
 

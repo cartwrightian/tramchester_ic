@@ -422,14 +422,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         /***
          * find the least number of "hops" between routes to reach a destination route
-         * @param startingRoute current position
+         * @param currentRoute current position
          * @return min number of hops needed to reach one of the destination routes
          */
         @Override
-        public int getFewestChanges(final Route startingRoute) {
-            final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
+        public int getFewestChanges(final Route currentRoute) {
+            final short indexOfStart = routeToRouteCosts.index.indexFor(currentRoute.getId());
 
-            return cache.computeIfAbsent(indexOfStart, unused -> getFewestChangesUncached(indexOfStart, startingRoute));
+            return cache.computeIfAbsent(indexOfStart, unused -> getFewestChangesUncached(indexOfStart, currentRoute));
         }
 
 
@@ -482,22 +482,22 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      */
     static class StationAvailabilityFacade implements ReportsCacheStats {
         private final TramDate date;
-        private final TimeRange time;
+        private final TimeRange timeRange;
         private final ImmutableEnumSet<TransportMode> modes;
         private final StationAvailabilityRepository availabilityRepository;
 
         private final Cache<IdFor<Station>, Boolean> cache;
 
         private StationAvailabilityFacade(final StationAvailabilityRepository availabilityRepository, final TramDate date,
-                                          final TimeRange time, final ImmutableEnumSet<TransportMode> modes) {
+                                          final TimeRange timeRange, final ImmutableEnumSet<TransportMode> modes) {
             this.availabilityRepository = availabilityRepository;
             this.date = date;
-            this.time = time;
+            this.timeRange = timeRange;
             this.modes = modes;
 
             final long size = availabilityRepository.size();
             if (DEBUG_ENABLED) {
-                logger.debug("Created cache of size " + size + " for " + date + " " + time + " " + modes);
+                logger.debug("Created cache of size " + size + " for " + date + " " + timeRange + " " + modes);
             }
             cache = Caffeine.newBuilder().
                     //maximumSize(size).
@@ -509,7 +509,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public String toString() {
             return "StationAvailabilityFacade{" +
                     "date=" + date +
-                    ", time=" + time +
+                    ", time=" + timeRange +
                     ", modes=" + modes +
                     '}';
         }
@@ -520,7 +520,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         private boolean uncached(final Station station) {
-            return availabilityRepository.isAvailable(station, date, time, modes);
+            return availabilityRepository.isAvailable(station, date, timeRange, modes);
         }
 
         @Override

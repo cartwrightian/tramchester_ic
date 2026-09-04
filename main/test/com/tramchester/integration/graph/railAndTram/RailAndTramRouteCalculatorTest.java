@@ -180,7 +180,7 @@ public class RailAndTramRouteCalculatorTest {
         assertNotEquals(0, trams);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void shouldHaveVictoriaToEccles() {
         TramTime time = TramTime.of(9,0);
@@ -374,7 +374,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void shouldHaveDeansgateToEccles() {
         // check if failing when TramsOnly and nearby rail station
@@ -389,7 +389,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void shouldHaveExchangeSqToEccles() {
         TramTime time = TramTime.of(9,0);
@@ -400,7 +400,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty(), "No journeys for " + journeyRequest);
     }
 
-    @DisabledUntilDate(year = 2026, month = 8, day = 22)
+    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void shouldHaveMarketStreetToEccles() {
         TramTime time = TramTime.of(9,0);

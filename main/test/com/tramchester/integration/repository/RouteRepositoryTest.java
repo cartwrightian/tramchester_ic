@@ -164,7 +164,8 @@ public class RouteRepositoryTest {
                 filter(route -> route.getTransportMode()==Tram).
                 collect(IdSet.collector());
 
-        assertEquals(8, running.size());
+        // closures summer 2026
+        assertEquals(8-1, running.size());
 
     }
 
@@ -179,7 +180,7 @@ public class RouteRepositoryTest {
                 filter(RouteRepositoryTest::isReplacementBus).
                 collect(IdSet.collector());
 
-        assertEquals(1, running.size());
+        assertEquals(0, running.size());
 
     }
 

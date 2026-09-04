@@ -93,7 +93,8 @@ public class InterchangesTramTest {
                 HarbourCity,
                 StWerburghsRoad,
                 OldhamMumps,
-                MediaCityUK
+                MediaCityUK,
+                Westwood
                 //Piccadilly
         );
 

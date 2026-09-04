@@ -5,12 +5,12 @@ import java.util.Objects;
 public class CachedHeuristicReason extends HeuristicReasonWithValidity {
     private final HeuristicsReason wasCached;
 
-    public CachedHeuristicReason(HeuristicsReason wasCached, HowIGotHere howIGotHere) {
+    public CachedHeuristicReason(final HeuristicsReason wasCached, final HowIGotHere howIGotHere) {
         super(getReasonCodeForCached(wasCached.getReasonCode()), howIGotHere, wasCached.isValid());
         this.wasCached = wasCached;
     }
 
-    public CachedHeuristicReason(HeuristicsReason reason) {
+    public CachedHeuristicReason(final HeuristicsReason reason) {
         this(reason, reason.getHowIGotHere());
     }
 
