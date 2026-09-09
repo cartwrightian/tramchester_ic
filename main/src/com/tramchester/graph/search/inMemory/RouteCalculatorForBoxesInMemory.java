@@ -23,8 +23,15 @@ import java.util.Set;
 public class RouteCalculatorForBoxesInMemory extends RouteCalculatorForBoxes {
 
     @Inject
-    public RouteCalculatorForBoxesInMemory(TramchesterConfig config, TransportData transportData, GraphDatabase graphDatabaseService, PathToStages pathToStages, ProvidesNow providesNow, MapPathToLocations mapPathToLocations, BetweenRoutesCostRepository routeToRouteCosts, ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService, RouteCostCalculator routeCostCalculator, StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository, CacheMetrics cacheMetrics, CreateQueryTimes createQueryTimes) {
-        super(config, transportData, graphDatabaseService, pathToStages, providesNow, mapPathToLocations, routeToRouteCosts, closedStationsRepository, runningRoutesAndService, routeCostCalculator, stationAvailabilityRepository, failedJourneyDiagnostics, countsNodes, interchangeRepository, cacheMetrics, createQueryTimes);
+    public RouteCalculatorForBoxesInMemory(TramchesterConfig config, TransportData transportData, GraphDatabase graphDatabaseService,
+                                           PathToStages pathToStages, ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
+                                           BetweenRoutesCostRepository routeToRouteCosts, ClosedStationsRepository closedStationsRepository,
+                                           RunningRoutesAndServices runningRoutesAndService, RouteCostCalculator routeCostCalculator,
+                                           CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes,
+                                           InterchangeRepository interchangeRepository, CacheMetrics cacheMetrics, CreateQueryTimes createQueryTimes) {
+        super(config, transportData, graphDatabaseService, pathToStages, providesNow, mapPathToLocations, routeToRouteCosts,
+                closedStationsRepository, runningRoutesAndService, routeCostCalculator,
+                failedJourneyDiagnostics, countsNodes, interchangeRepository, cacheMetrics, createQueryTimes);
     }
 
     @Override

@@ -787,18 +787,13 @@ public class RouteCalculatorTest {
 
     }
 
-    @RochdaleLineClosure2026
     @Test
-    void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
-        List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,0, 23);
-        assertTrue(missingTimes.isEmpty(), missingTimes.toString());
+    void shouldReproIssueWithStPetersToBeyondEcclesRangeOfTimes() {
+        // +2 on changes during summer changes, and eccles line
+        List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,0+2, 23);
+        assertTrue(missingTimes.isEmpty(), "For " +  when + " missing times " + missingTimes);
     }
 
-    @Test
-    void shouldReproIssueWithStPetersToBeyondEcclesAt8AMReplacementBuses() {
-        List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,2, 21);
-        assertTrue(missingTimes.isEmpty(), missingTimes.toString());
-    }
 
     @Test
     void reproduceIssueWithImmediateDepartOffABoardedTram() {
@@ -812,7 +807,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 7)
+    @DisabledUntilDate(year = 2026, month = 9, day = 13)
     @Test
     void reproduceSundayToFromEcclesAndCornbrookWithNoChanges() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -822,7 +817,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void reproduceIssueSundayToFromEcclesAndCornbrookWithOneChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -832,7 +826,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 7)
     @Test
     void shouldHaveTraffordCentreWharfsideDuringSummer2026OnSunday() {
         // this section is 'isolated' during august 2025

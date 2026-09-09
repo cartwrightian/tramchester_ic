@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
 import static com.tramchester.integration.repository.StopCallRepositoryTest.CrumpsalToBury;
-import static com.tramchester.integration.repository.StopCallRepositoryTest.FreeholdToRochdaleStations;
 import static com.tramchester.testSupport.reference.TramStations.MarketStreet;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 
@@ -39,8 +38,8 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static TramDate RochdaleLinePhase3 = TramDate.of(2026, 9, 5);
-    public static TramDate DeansgateTraffordBarSept6 = TramDate.of(2026, 9, 6);
+//    public static TramDate RochdaleLinePhase3 = TramDate.of(2026, 9, 5);
+//    public static TramDate DeansgateTraffordBarSept6 = TramDate.of(2026, 9, 6);
     public static DateRange BuryLineSept12 = DateRange.of(TramDate.of(2026, 9, 12),
             TramDate.of(2026, 9, 13));
 
@@ -53,28 +52,36 @@ public class UpcomingDates {
     public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 1),
             TramDate.of(2026, 10, 15));
 
+    public static TramDate victoriaLineEarlyMorning = TramDate.of(2026, 9, 20);
+
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         // Add all closures to the TimeRange version
         return hasClosure(stationId, date, TimeRange.AllDay());
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
-        if (RochdaleLinePhase3.equals(date)) {
-            if (FreeholdToRochdaleStations.contains(stationId)) {
-                return true;
-            }
-        }
-        if (DeansgateTraffordBarSept6.equals(date)) {
-            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(12,0));
-            return closure.anyOverlap(timeRange);
-        }
-        if (BuryLineSept12.contains(date) || BuryLineSept19Undoc.equals(date)) {
+//        if (RochdaleLinePhase3.equals(date)) {
+//            if (FreeholdToRochdaleStations.contains(stationId)) {
+//                return true;
+//            }
+//        }
+//        if (DeansgateTraffordBarSept6.equals(date)) {
+//            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(12,0));
+//            return closure.anyOverlap(timeRange);
+//        }
+        if (BuryLineSept12.contains(date)) { // || BuryLineSept19Undoc.equals(date)) {
             if (CrumpsalToBury.contains(stationId)) {
                 return true;
             }
         }
         if (MarketStreetAndShudehillSept.contains(date)) {
             if (MarketStreet.matches(stationId) || Shudehill.matches(stationId)) {
+                return true;
+            }
+        }
+        if (victoriaLineEarlyMorning.equals(date)) {
+            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(10,0));
+            if (closure.anyOverlap(timeRange)) {
                 return true;
             }
         }

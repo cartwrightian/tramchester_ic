@@ -58,7 +58,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // summer 2026
-    public static final int NumberOfStationLinks = 204;
+    public static final int NumberOfStationLinks = 204+2;
 
     public static final int NumberOfRoutes = 40;
 

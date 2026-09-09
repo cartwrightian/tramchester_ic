@@ -52,7 +52,6 @@ public abstract class RouteCalculatorSupport {
     private final StationRepository stationRepository;
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final CreateJourneyDiagnostics failedJourneyDiagnostics;
-    private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
     private final NumberOfNodesAndRelationshipsRepository countsNodes;
 
@@ -61,7 +60,7 @@ public abstract class RouteCalculatorSupport {
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config,
                                      BetweenRoutesCostRepository routeToRouteCosts,
-                                     CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository,
+                                     CreateJourneyDiagnostics failedJourneyDiagnostics,
                                      NumberOfNodesAndRelationshipsRepository countsNodes, ClosedStationsRepository closedStationsRepository,
                                      CacheMetrics cacheMetrics, InterchangeRepository interchangeRepository, CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
         this.pathToStages = pathToStages;
@@ -71,7 +70,6 @@ public abstract class RouteCalculatorSupport {
         this.stationRepository = stationRepository;
         this.routeToRouteCosts = routeToRouteCosts;
         this.failedJourneyDiagnostics = failedJourneyDiagnostics;
-        this.stationAvailabilityRepository = stationAvailabilityRepository;
         this.fullLogging = this instanceof RouteCalculatorForBoxes;
         this.countsNodes = countsNodes;
         this.config = config;
@@ -156,11 +154,20 @@ public abstract class RouteCalculatorSupport {
                                     final TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
                                     final GraphTransaction txn) {
 
+        final int maxChanges = journeyRequest.getMaxChanges().get();
+
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, towardsDestination, txn, fullLogging);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
 
+        long nonWalking = stages.stream().filter(stage -> stage.getMode() != TransportMode.Walk).count();
+
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
+        } else {
+            if (nonWalking>maxChanges) {
+                logger.error(format("Too many non-walking stages (%s), max was %s", stages.size(), maxChanges));
+                logger.error(stages.toString());
+            }
         }
 
         final TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);

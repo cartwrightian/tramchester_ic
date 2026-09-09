@@ -426,6 +426,22 @@ class LocationJourneyPlannerTest {
         assertTrue(stations.contains(StPetersSquare.getId()));
     }
 
+    @Test
+    void shouldReproIssueWithTwoManyStages() {
+        // no longer happening after a graph rebuild, but leave test here to catch if it reoccurs
+
+        final JourneyRequest request = new JourneyRequest(when, TramTime.of(20, 9),
+                false, 2, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
+
+        // 4 here, want limit applied by the JourneyRequest
+        Set<Journey> results = planner.quickestRouteForLocation(Deansgate, nearAltrincham, request, 4);
+
+        // 3 here since 2 changes, plus the walk
+        Set<Journey> tooMany = results.stream().filter(journey -> journey.getStages().size() > 3).collect(Collectors.toSet());
+
+        assertTrue(tooMany.isEmpty(), "For " + request + " got " + tooMany);
+    }
+
     @NotNull
     private List<Journey> sortByCost(Set<Journey> journeySet) {
         List<Journey> journeyList = new LinkedList<>(journeySet);

@@ -10,6 +10,8 @@ public enum TFGMRouteNames {
     PiccadillyAltrincham("Replacement Bus Piccadilly - Altrincham", true),
     VictoriaPiccadilly("Replacement Bus Victoria - Piccadilly", true),
 
+    ReplacementBus("Replacement bus", true),
+
     Red("Red Line", false),
     Pink("Pink Line", false),
     Purple("Purple Line", false),

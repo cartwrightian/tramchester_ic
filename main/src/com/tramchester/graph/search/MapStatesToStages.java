@@ -82,7 +82,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
         state = State.NotStarted;
     }
 
-    private State stateTransition(State allowed, State target) {
+    private State stateTransition(final State allowed, final State target) {
         return stateTransition(List.of(allowed), List.of(target));
     }
 

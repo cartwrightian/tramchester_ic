@@ -54,13 +54,13 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    PathToStages pathToStages, ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ClosedStationsRepository closedStationsRepository,
                                    RunningRoutesAndServices runningRoutesAndService, @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
+                                   CreateJourneyDiagnostics failedJourneyDiagnostics,
                                    NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository,
                                    CacheMetrics cacheMetrics, CreateQueryTimes createQueryTimes) {
         super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, routeToRouteCosts, failedJourneyDiagnostics,
-                stationAvailabilityRepository, countsNodes, closedStationsRepository, cacheMetrics,
+                countsNodes, closedStationsRepository, cacheMetrics,
                 interchangeRepository, createQueryTimes, runningRoutesAndService);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;

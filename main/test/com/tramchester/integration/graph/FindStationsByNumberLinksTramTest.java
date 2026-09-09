@@ -99,10 +99,8 @@ class FindStationsByNumberLinksTramTest {
                 Broadway,
                 HarbourCity,
                 OldhamMumps,
-                Westwood
-                //Wharfside
-                //Anchorage, MediaCityUK, SalfordQuay, ExchangeQuay
-
+                Westwood,
+                Shudehill
 
         ).map(FakeStation::getId).toList();
 

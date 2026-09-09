@@ -24,11 +24,11 @@ public class RouteCalculatorInMemory extends RouteCalculatorSupport implements T
     public RouteCalculatorInMemory(PathToStages pathToStages, GraphDatabase graphDatabaseService, ProvidesNow providesNow,
                                    MapPathToLocations mapPathToLocations, StationRepository stationRepository, TramchesterConfig config,
                                    BetweenRoutesCostRepository routeToRouteCosts, CreateJourneyDiagnostics failedJourneyDiagnostics,
-                                   StationAvailabilityRepository stationAvailabilityRepository, NumberOfNodesAndRelationshipsRepository countsNodes,
+                                   NumberOfNodesAndRelationshipsRepository countsNodes,
                                    ClosedStationsRepository closedStationsRepository, CacheMetrics cacheMetrics, InterchangeRepository interchangeRepository,
                                    CreateQueryTimes createQueryTimes, RunningRoutesAndServices runningRoutesAndServices) {
         super(pathToStages, graphDatabaseService, providesNow, mapPathToLocations, stationRepository, config, routeToRouteCosts,
-                failedJourneyDiagnostics, stationAvailabilityRepository, countsNodes, closedStationsRepository,
+                failedJourneyDiagnostics, countsNodes, closedStationsRepository,
                 cacheMetrics, interchangeRepository, createQueryTimes, runningRoutesAndServices);
     }
 

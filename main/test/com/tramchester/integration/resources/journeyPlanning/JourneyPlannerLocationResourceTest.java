@@ -180,7 +180,7 @@ class JourneyPlannerLocationResourceTest {
 
             List<SimpleStageDTO> stages = journeyDTO.getStages();
 
-            assertTrue(stages.size()<=3, "too many stages " + stages);
+            assertTrue(stages.size()<=3, "too many stages " + stages.size() + " " + stages);
 
             boolean noTramChange = stages.size() == 2;
 

@@ -94,7 +94,8 @@ public class InterchangesTramTest {
                 StWerburghsRoad,
                 OldhamMumps,
                 MediaCityUK,
-                Westwood
+                Westwood,
+                Shudehill
                 //Piccadilly
         );
 

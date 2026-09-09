@@ -56,7 +56,7 @@ public class RouteCalculatorAllTramJourneysTest {
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 7)
+    @DisabledUntilDate(year = 2026, month = 9, day = 13)
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
 
