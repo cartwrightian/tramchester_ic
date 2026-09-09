@@ -11,8 +11,7 @@
 	"ami":{ "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>", "Default" : "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64" },
 	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" },
 	"bucketName":{"Type":"String", "Default":"tramchesternewdist"},
-	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInitAWSLinux.txt"},
-	"bootstrapWebScript":{"Type":"String", "Default":"setupTramWebServerAWSLinux.sh"},
+	"bootstrapWebScript":{"Type":"String", "Default":"setupWebServer.sh"},
 	"keypairname": { "Type" : "String" , "Default" : "tramchester_new" },
 	"TFGMAPIKEY": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
 	"instanceProfile":{"Type":"String", "Default":"tramchester_ec2_role"} },
@@ -22,13 +21,7 @@
 			"UAT":{ "keyName":"tramchester2", "webSize":"t4g.small" },
 			"ProdGreen":{ "keyName":"tramchester2", "webSize":"t4g.small" },
 			"ProdBlue":{ "keyName":"tramchester2", "webSize":"t4g.small" }
-			},
-		"ipMap" : {
-			"Dev" : { "PublicIP" : "" },
-			"UAT" : { "PublicIP" : "" },
-			"ProdGreen" : { "PublicIP" : "eipalloc-1ee56375" },
-			"ProdBlue" : { "PublicIP" : "eipalloc-0ab76661" }
-		}
+			}
 	},
 	"Resources": {
 		"webDoneWaitHandle": {
@@ -55,11 +48,18 @@
 					"Fn::Base64": {
 						"Fn::Join": [
 							"", [
-								"#include", "\n", {"Ref": "baseUrl"}, "/", {"Ref": "bucketName"}, "/dist/",
-								{"Ref": "build"}, "/", {"Ref": "bootstrapCloudInit"}, "\n", {"Ref": "baseUrl"}, "/",
-								{"Ref": "bucketName"}, "/dist/", {"Ref": "build"}, "/", {"Ref": "bootstrapWebScript"},
-								"\n", "# WAITURL=", {"Ref": "webDoneWaitHandle"}, "\n", "# ENV=", {"Ref": "env"}, "\n",
-								"# BUILD=", {"Ref": "build"}, "\n", "# BUCKET=", {"Ref": "bucketName"}, "\n",
+								"#!/bin/bash\n",
+								"yum install -y aws-cli\n",
+								"yum install -y java-21-amazon-corretto-devel\n",
+								"yum install -y jq\n",
+								"yum install -y amazon-cloudwatch-agent\n",
+								"aws s3 cp s3://", {"Ref": "bucketName"}, "/dist/", {"Ref": "build"}, "/", {"Ref": "bootstrapWebScript"},
+									" ~ec2-user/", {"Ref": "bootstrapWebScript"}, "\n",
+								"bash ~ec2-user/",{"Ref": "bootstrapWebScript"}, "\n",
+								"# WAITURL=", {"Ref": "webDoneWaitHandle"}, "\n",
+								"# ENV=", {"Ref": "env"}, "\n",
+								"# BUILD=", {"Ref": "build"}, "\n",
+								"# BUCKET=", {"Ref": "bucketName"}, "\n",
 								"# TFGMAPIKEY=", {"Ref": "TFGMAPIKEY"}, "\n"
 							]
 						]
@@ -87,11 +87,12 @@
 				]
 			}
 		},
-		"MainEIPAssociation": {
-			"Type": "AWS::EC2::EIPAssociation", "DependsOn":"TramWebServer",
+		"ElasticIP": {
+			"Type": "AWS::EC2::EIP",
 			"Properties": {
-				"AllocationId": {"Fn::FindInMap": ["ipMap", {"Ref": "env"}, "PublicIP"]},
-				"InstanceId": {"Ref": "TramWebServer"}
+				"InstanceId": {
+					"Ref": "TramWebServer"
+				}
 			}
 		}
 	}

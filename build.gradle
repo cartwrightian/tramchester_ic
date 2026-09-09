@@ -693,6 +693,7 @@ tasks.register('copyIntoUploadDir', Copy) {
     from 'build/distributions/tramchester-' + buildNumber + '.zip'
     from 'deploy/setupTramWebServerAWSLinux.sh'
     from 'deploy/cloudInitAWSLinux.txt'
+    from 'deploy/setupWebServer.sh'
     into 'build/distributions/uploadDir'
 }
 
