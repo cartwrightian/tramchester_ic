@@ -1,0 +1,47 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09", "Description": "public subnet routing", "Parameters": {
+  "env": {"Type": "String"}, "vpc": {"Type": "String"}, "mainSubnet": {"Type": "String", "Description": "::mainSubnet"},
+  "zoneBSubnet": {"Type": "String", "Description": "::zoneBSubnet"},
+  "internetGateway": {"Type": "String", "Description": "::internetGateway"}},
+  "Resources": {
+    "mainRouteTable": {
+      "Type": "AWS::EC2::RouteTable", "Properties": {
+        "VpcId": {
+          "Ref": "vpc"
+        }, "Tags": [
+          {
+            "Key": "Name", "Value": {"Fn::Join": ["_", [{"Ref": "env"}, "mainRouteTable"]]}
+          }
+        ]
+      }
+    }, "publicRouteDefault": {
+      "Type": "AWS::EC2::Route", "Properties": {
+        "RouteTableId": {
+          "Ref": "mainRouteTable"
+        }, "DestinationCidrBlock": "0.0.0.0/0", "GatewayId": {
+          "Ref": "internetGateway"
+        }
+      }
+    }, "mainAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation", "Properties": {
+        "SubnetId": {
+          "Ref": "mainSubnet"
+        }, "RouteTableId": {
+          "Ref": "mainRouteTable"
+        }
+      }
+    }, "zoneBAssoc": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation", "Properties": {
+        "SubnetId": {
+          "Ref": "zoneBSubnet"
+        }, "RouteTableId": {
+          "Ref": "mainRouteTable"
+        }
+      }
+    }
+  }
+}
+
+
+
+

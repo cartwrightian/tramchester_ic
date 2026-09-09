@@ -156,7 +156,7 @@ jobs:
       - run:
           name: deployProd
           environment:
-            ENV: ProdBlue
+            ENV: ProdGreen
             AWS_REGION: eu-west-1
           command: |
             echo release number is $RELEASE_NUMBER

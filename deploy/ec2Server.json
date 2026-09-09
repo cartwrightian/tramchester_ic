@@ -1,0 +1,98 @@
+{
+	"AWSTemplateFormatVersion":"2010-09-09",
+		"Description":"Simplified single EC2 instance version of servers",
+	"Parameters":{
+	"env":{ "Type":"String" },
+	"vpc":{ "Type":"String" },
+	"build":{ "Type":"String" },
+	"mainSubnet":{ "Type":"String", "Description":"::mainSubnet" },
+	"instancesSecurityGroup":{ "Type":"String", "Description":"::instancesSecurityGroup" },
+	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" },
+	"ami":{ "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>", "Default" : "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64" },
+	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" },
+	"bucketName":{"Type":"String", "Default":"tramchesternewdist"},
+	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInitAWSLinux.txt"},
+	"bootstrapWebScript":{"Type":"String", "Default":"setupTramWebServerAWSLinux.sh"},
+	"keypairname": { "Type" : "String" , "Default" : "tramchester_new" },
+	"TFGMAPIKEY": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
+	"instanceProfile":{"Type":"String", "Default":"tramchester_ec2_role"} },
+	"Mappings":{
+		"environMap":{
+			"Dev":{ "keyName":"tramchester2", "webSize":"t4g.small" },
+			"UAT":{ "keyName":"tramchester2", "webSize":"t4g.small" },
+			"ProdGreen":{ "keyName":"tramchester2", "webSize":"t4g.small" },
+			"ProdBlue":{ "keyName":"tramchester2", "webSize":"t4g.small" }
+			},
+		"ipMap" : {
+			"Dev" : { "PublicIP" : "" },
+			"UAT" : { "PublicIP" : "" },
+			"ProdGreen" : { "PublicIP" : "eipalloc-1ee56375" },
+			"ProdBlue" : { "PublicIP" : "eipalloc-0ab76661" }
+		}
+	},
+	"Resources": {
+		"webDoneWaitHandle": {
+			"Type": "AWS::CloudFormation::WaitConditionHandle", "Properties": {}
+		}, "waitForWebServerCallBack": {
+			"Type": "AWS::CloudFormation::WaitCondition", "DependsOn": "TramWebServer", "Properties": {
+				"Handle": {
+					"Ref": "webDoneWaitHandle"
+				}, "Timeout": "1200", "Count": "1"
+			}
+		}, "TramWebServer": {
+			"Type": "AWS::EC2::Instance", "Properties": {
+				"KeyName": {"Ref": "keypairname"}, "InstanceType": {
+					"Fn::FindInMap": [
+						"environMap", {
+							"Ref": "env"
+						}, "webSize"
+					]
+				}, "ImageId": {
+					"Ref": "ami"
+				}, "IamInstanceProfile": {
+					"Ref": "instanceProfile"
+				}, "UserData": {
+					"Fn::Base64": {
+						"Fn::Join": [
+							"", [
+								"#include", "\n", {"Ref": "baseUrl"}, "/", {"Ref": "bucketName"}, "/dist/",
+								{"Ref": "build"}, "/", {"Ref": "bootstrapCloudInit"}, "\n", {"Ref": "baseUrl"}, "/",
+								{"Ref": "bucketName"}, "/dist/", {"Ref": "build"}, "/", {"Ref": "bootstrapWebScript"},
+								"\n", "# WAITURL=", {"Ref": "webDoneWaitHandle"}, "\n", "# ENV=", {"Ref": "env"}, "\n",
+								"# BUILD=", {"Ref": "build"}, "\n", "# BUCKET=", {"Ref": "bucketName"}, "\n",
+								"# TFGMAPIKEY=", {"Ref": "TFGMAPIKEY"}, "\n"
+							]
+						]
+					}
+				},
+				"SubnetId":{
+					"Ref":"mainSubnet"
+				},
+				"SecurityGroupIds":[
+					{
+						"Ref":"instancesSecurityGroup"
+					}
+				],
+				"Tags": [
+					{
+						"Key": "Name", "Value": {
+						"Fn::Join": [
+							"_", [
+								{"Ref": "env"}, {"Ref": "webServerName"}, {"Ref": "build"}
+							]
+						]
+					}
+					}, {"Key": "CFN_ASSIST_TYPE", "Value": "web"}, {"Key": "ENV", "Value": {"Ref": "env"}},
+					{"Key": "BUILD", "Value": {"Ref": "build"}}
+				]
+			}
+		},
+		"MainEIPAssociation": {
+			"Type": "AWS::EC2::EIPAssociation", "DependsOn":"TramWebServer",
+			"Properties": {
+				"AllocationId": {"Fn::FindInMap": ["ipMap", {"Ref": "env"}, "PublicIP"]},
+				"InstanceId": {"Ref": "TramWebServer"}
+			}
+		}
+	}
+}

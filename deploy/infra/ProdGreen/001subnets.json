@@ -1,0 +1,34 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: set up subnets",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" },
+			"zoneB" : { "Type" : "String" , "Description" : "::CFN_ZONE_B" }
+		},
+		"Resources" : {
+            "mainSubnet" : {
+              "Type" : "AWS::EC2::Subnet",
+              "Properties" : {
+                "AvailabilityZone" : { "Ref" : "zoneA" },
+                "CidrBlock" : "10.0.0.32/28",
+                "VpcId" : { "Ref" : "vpc" },
+			    "Tags": [
+				  { "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "mainSubnet" ] ] } }
+			    ]
+              }
+            },
+			"zoneBSubnet" : {
+				"Type" : "AWS::EC2::Subnet",
+				"Properties" : {
+					"AvailabilityZone" : { "Ref" : "zoneB" },
+					"CidrBlock" : "10.0.0.64/28",
+					"VpcId" : { "Ref" : "vpc" },
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "zoneBSubnet" ] ] } }
+					]
+				}
+			}
+		}
+}

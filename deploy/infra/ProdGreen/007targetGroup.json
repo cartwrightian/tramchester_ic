@@ -1,0 +1,32 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: target group",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" }
+		},
+		"Resources" : {
+			"TargetGroup": {
+				"Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+				"Properties": {
+					"HealthCheckEnabled" : "true",
+					"HealthCheckIntervalSeconds" : "30",
+					"HealthCheckPath" : "/",
+					"HealthCheckPort" : "8080",
+					"HealthCheckProtocol" : "HTTP",
+					"HealthCheckTimeoutSeconds" : "5",
+					"HealthyThresholdCount" : "5",
+					"UnhealthyThresholdCount": "2",
+					"Name": { "Fn::Join" : ["-", [ { "Ref": "env" } , "tramchester-TG" ] ] },
+					"Port" : "8080",
+					"Protocol": "HTTP",
+					"TargetType" : "instance",
+					"VpcId" : { "Ref":  "vpc"}
+				}
+			}
+		},
+		"Outputs" : {
+			"TargetGroupArn" : { "Value" : { "Fn::GetAtt" : [ "TargetGroup", "TargetGroupArn" ] }, "Description":"::CFN_TAG" }
+		}
+
+}

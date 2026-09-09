@@ -720,7 +720,7 @@ tasks.register('deploy') {
     dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
-            Templates(target: 'deploy/servers.json')
+            Templates(target: 'deploy/ec2Server.json')
         }
     }
 }
@@ -729,7 +729,7 @@ tasks.register('undeploy') {
     dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
-            Delete(target: 'deploy/servers.json')
+            Delete(target: 'deploy/ec2Server.json')
         }
     }
 }
@@ -747,7 +747,7 @@ tasks.register('tidy') {
     dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
-            TidyStacks(target: 'deploy/servers.json', typeTag: 'web')
+            TidyStacks(target: 'deploy/ec2Server.json', typeTag: 'web')
         }
     }
 }
