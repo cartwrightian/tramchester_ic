@@ -2,6 +2,7 @@
 
 target=tramchester-"$RELEASE_NUMBER"
 logger -s Start ./$target/bin/tramchester for "$PLACE" and $target
+logger -s JAVA_OPTS = "$JAVA_OPTS"
 
 configFile=local.yml
 

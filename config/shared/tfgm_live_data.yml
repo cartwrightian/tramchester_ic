@@ -1,5 +1,5 @@
 tfgmTramliveData:
-  dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdBlue"}
+  dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdGreen"}
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
   s3Bucket: ""
   s3Prefix: ${PLACE:- "test"}
