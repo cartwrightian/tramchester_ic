@@ -24,6 +24,8 @@ export BUILD=$(grep BUILD "$userText" | cut -d = -f 2-)
 export BUCKET=$(grep BUCKET "$userText" | cut -d = -f 2-)
 export TFGMAPIKEY=$(grep TFGMAPIKEY "$userText" | cut -d = -f 2-)
 
+rm -f $userText
+
 export ARTIFACTSURL=$S3URL/$BUCKET/dist/$BUILD
 
 if [ "$BUILD" == '' ]; then
