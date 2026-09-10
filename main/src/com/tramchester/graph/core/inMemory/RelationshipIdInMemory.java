@@ -8,14 +8,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class RelationshipIdInMemory extends InternalGraphId implements GraphRelationshipId, Comparable<RelationshipIdInMemory>  {
     private final int id;
-    //private final int hash;
 
     @JsonCreator
     public RelationshipIdInMemory(@JsonProperty("id") int id) {
         this.id = id;
         // assume
         // Integer.hashCode(id) == id
-        //this.hash = Integer.hashCode(id);
     }
 
     @JsonGetter("id")

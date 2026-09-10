@@ -381,7 +381,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @RochdaleLineClosure2026
+    @DisabledUntilDate(year = 2026, month = 9, day = 13)
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);

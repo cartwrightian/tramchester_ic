@@ -171,11 +171,13 @@ public class GraphCore implements Graph {
         synchronized (nodesAndEdges) {
             final int id = idFactory.getNextNodeId();
             final NodeIdInMemory idInMemory;
-            if (diagnostics) {
-                idInMemory = new NodeIdInMemory(id, labels);
-            } else {
-                idInMemory = new NodeIdInMemory(id);
-            }
+//            if (diagnostics) {
+//                idInMemory = new NodeIdInMemory(id, labels);
+//            } else {
+//                idInMemory = new NodeIdInMemory(id);
+//            }
+            idInMemory = new NodeIdInMemory(id);
+
             final GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(idInMemory, labels, diagnostics);
             return insertNode(graphNodeInMemory, labels);
         }

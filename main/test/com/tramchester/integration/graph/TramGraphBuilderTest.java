@@ -7,9 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.ImmutableIdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -753,6 +751,36 @@ class TramGraphBuilderTest {
         List<GraphRelationship> outboundsFromRouteStation = getRouteStationRelationships(routeStation, Outgoing, transportRelationshipTypes);
 
         return outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
+    }
+
+    @Test
+    void shouldHaveExpectedAndConsistentInboundRelationshipsForRouteStations() {
+        // seeing issues with very large number of inbound relationships
+
+        Set<RouteStation> allRouteStations = stationRepository.getRouteStations();
+
+        Optional<List<GraphRelationship>> findLargest = allRouteStations.stream().
+                sorted(Comparator.comparing(RouteStation::getId)). // for deterministic when some have same length
+                map(routeStation -> getRouteStationRelationships(routeStation, Incoming, ImmutableEnumSet.of(TRAM_GOES_TO))).
+                max(Comparator.comparingInt(List::size)).stream().findFirst();
+        assertTrue(findLargest.isPresent());
+
+        List<GraphRelationship> largest = findLargest.get();
+
+        assertEquals(612, largest.size());
+
+        RouteStationId routeStationId = (RouteStationId) largest.getFirst().getEndNode(txn).getRouteStationId();
+
+        assertEquals(MarketStreet.getId(), routeStationId.getStationId());
+        assertEquals(TFGMRouteNames.Yellow, ((TramRouteId)routeStationId.getRouteId()).getRouteName());
+
+        IdSet<Trip> incomingTimes = largest.stream().
+                map(rel -> rel.getStartNode(txn)).
+                map(GraphNode::getTripId).
+                collect(IdSet.idCollector());
+
+        assertEquals(largest.size(), incomingTimes.size());
+
     }
 
     @Test

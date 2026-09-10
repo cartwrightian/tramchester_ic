@@ -1,6 +1,6 @@
 {
 	"AWSTemplateFormatVersion":"2010-09-09",
-		"Description":"NOTE: Make sure vpc S3 endpoint ID is added to S3 permissions (and policy) on the Bucket itself",
+		"Description":"Deprecated",
 	"Parameters":{
 	"env":{ "Type":"String" }, 
 	"vpc":{ "Type":"String" }, 

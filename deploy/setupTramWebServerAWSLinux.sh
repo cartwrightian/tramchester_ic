@@ -1,5 +1,7 @@
 #!/bin/bash
 
+##### DEPRECATED DEPRECATED DEPRECATED DEPRECATED DEPRECATED
+
 # AWS LINUX VERSION #################
 
 logger -s Begin setup of tramchester server
