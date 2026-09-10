@@ -411,7 +411,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
 
-        final List<String> expectedChanges = Arrays.asList(TraffordBar.getName(), Cornbrook.getName());
+        // add St Peters during closures
+        final List<String> expectedChanges = Arrays.asList(TraffordBar.getName(), Cornbrook.getName(),
+                StPetersSquare.getName());
 
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
         TramTime previousArrivalTime = planTime; // sorted by arrival time
