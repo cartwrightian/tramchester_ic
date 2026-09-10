@@ -132,7 +132,7 @@ dependencies {
             'org.easymock:easymock:5.7.0',
             'org.seleniumhq.selenium:selenium-java:4.48.0',
             // NOTE: v149 here corresponds to version of chrome and hence chrome driver
-            'org.seleniumhq.selenium:selenium-devtools-v149:4.45.0',
+            'org.seleniumhq.selenium:selenium-devtools-v149:4.47.0',
             'org.hamcrest:hamcrest:3.0'
 
     testImplementation("org.javassist:javassist:3.33.0-GA")
