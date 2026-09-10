@@ -637,8 +637,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldProvideASpreadOfDepartureTimes() {
-        // plus weeks(1) due to closures
-        JourneyRequest journeyRequest = standardJourneyRequest(when.plusWeeks(1), TramTime.of(14, 50),
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(14, 50),
                 3, 2);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);

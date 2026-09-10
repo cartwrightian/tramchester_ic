@@ -24,7 +24,8 @@ public class UserJourneyTest {
         if (driverFactory!=null) {
             throw new RuntimeException("Factory already created");
         }
-        final Duration timeout = TestEnv.isCircleci() ? Duration.ofSeconds(15) : Duration.ofSeconds(5);
+        // things can be very slow on CI
+        final Duration timeout = TestEnv.isCircleci() ? Duration.ofSeconds(20) : Duration.ofSeconds(5);
         driverFactory = new DriverFactory(location, timeout);
     }
 

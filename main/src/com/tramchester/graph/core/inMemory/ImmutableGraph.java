@@ -1,6 +1,8 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -12,7 +14,9 @@ import java.util.stream.Stream;
 
 public interface ImmutableGraph {
     Stream<GraphNode> findNodesImmutable(GraphLabel graphLabel);
-    Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value);
+    Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String text);
+    Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, IdFor<? extends CoreDomain> id);
+
     GraphNode getNodeImmutable(NodeIdInMemory nodeId);
 
     Stream<GraphRelationship> findRelationships(TransportRelationshipTypes type);

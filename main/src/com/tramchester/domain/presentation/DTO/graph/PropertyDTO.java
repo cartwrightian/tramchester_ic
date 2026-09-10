@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.id.serialization.PropertyDTODeserializer;
 import com.tramchester.domain.id.serialization.PropertyDTOSerializer;
@@ -46,7 +47,13 @@ public class PropertyDTO {
 
     // called direct by getters on the Node and Relationship implementations
     public static PropertyDTO fromMapEntry(final Map.Entry<GraphPropertyKey, Object> entry) {
-        return new PropertyDTO(entry.getKey().getText(), entry.getValue());
+        final GraphPropertyKey propertyKey = entry.getKey();
+        if (propertyKey.isDomainId()) {
+            final IdFor<?> id = (IdFor<?>) entry.getValue();
+            return new PropertyDTO(propertyKey.getText(), id.getGraphId());
+        } else {
+            return new PropertyDTO(propertyKey.getText(), entry.getValue());
+        }
     }
 
     @JsonProperty("key")
@@ -96,7 +103,7 @@ public class PropertyDTO {
 
         private final Object value;
 
-        public PropertyDTOValue(Object value) {
+        public PropertyDTOValue(final Object value) {
             this.value = value;
         }
 

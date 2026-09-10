@@ -60,7 +60,6 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
         return dirtyCount.get()>0;
     }
 
-
     public void setClean() {
         dirtyCount.set(0);
     }

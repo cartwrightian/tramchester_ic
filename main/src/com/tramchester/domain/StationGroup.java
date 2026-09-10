@@ -21,7 +21,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class StationGroup implements Location<StationGroup> {
+public class StationGroup implements Location<StationGroup>, GraphProperty, HasGraphLabel {
     private final LocationSet<Station> groupedStations;
 
     private final LatLong latLong;
@@ -29,7 +29,6 @@ public class StationGroup implements Location<StationGroup> {
     private final String name;
     private final IdFor<NPTGLocality> localityId;
     private final LocationId<StationGroup> id;
-
 
     public StationGroup(final LocationSet<Station> groupedStations, final String name, final LatLong latLong,
                         final IdFor<NPTGLocality> localityId) {

@@ -1,6 +1,7 @@
 package com.tramchester.graph.core.inMemory;
 
 import com.google.common.collect.ImmutableMap;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphEntityProperties;
@@ -22,7 +23,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
 
     public PropertyContainer(final List<PropertyDTO> properties) {
         this(false);
-        properties.forEach(prop -> setProperty(GraphPropertyKey.parse(prop.getKey()), prop.getContainedValue()));
+        properties.forEach(prop -> setPropertyFromDTO(GraphPropertyKey.parse(prop.getKey()), prop.getContainedValue()));
     }
 
     private PropertyContainer(final HashMap<GraphPropertyKey, Object> props, final boolean diagnostics) {
@@ -34,6 +35,15 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
     @Override
     public PropertyContainer copy() {
         return new PropertyContainer(new HashMap<>(props), diagnostics);
+    }
+
+    private void setPropertyFromDTO(GraphPropertyKey key, Object serializedForm) {
+        if (key.isDomainId()) {
+            final IdFor<?> id = IdFor.parse(key, serializedForm.toString());
+            setProperty(key, id);
+        } else {
+            setProperty(key, serializedForm);
+        }
     }
 
     @Override

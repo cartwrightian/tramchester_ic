@@ -1,6 +1,8 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -304,9 +306,17 @@ public class MutableTransactionGraph implements Graph {
     }
 
     @Override
-    public Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, String value) {
+    public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final String value) {
         final List<GraphNode> local = localGraph.findNodesImmutable(label, key, value).toList();
         final Stream<GraphNode> fromParent = parent.findNodesImmutable(label, key, value).
+                filter(node -> !local.contains(node));
+        return Stream.concat(local.stream(), fromParent);
+    }
+
+    @Override
+    public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final IdFor<? extends CoreDomain> id) {
+        final List<GraphNode> local = localGraph.findNodesImmutable(label, key, id).toList();
+        final Stream<GraphNode> fromParent = parent.findNodesImmutable(label, key, id).
                 filter(node -> !local.contains(node));
         return Stream.concat(local.stream(), fromParent);
     }

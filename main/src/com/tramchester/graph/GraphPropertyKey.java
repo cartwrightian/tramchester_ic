@@ -1,10 +1,9 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +21,8 @@ public enum GraphPropertyKey {
     TRANSPORT_MODES("transport_modes"),
     AREA_ID("area_id"),
     STATION_GROUP_ID("stationgroup_id"),
+
+    // NOT Naptan yet
 
     COST("cost"),
     HOUR("hour"),
@@ -69,7 +70,13 @@ public enum GraphPropertyKey {
         if (klass.equals(Station.class)) {
             return STATION_ID;
         }
+        if (klass.equals(MutableStation.class)) {
+            return STATION_ID;
+        }
         if (klass.equals(Platform.class)) {
+            return PLATFORM_ID;
+        }
+        if (klass.equals(MutablePlatform.class)) {
             return PLATFORM_ID;
         }
         if (klass.equals(RouteStation.class)) {
@@ -78,10 +85,22 @@ public enum GraphPropertyKey {
         if (klass.equals(Trip.class)) {
             return TRIP_ID;
         }
+        if (klass.equals(MutableTrip.class)) {
+            return TRIP_ID;
+        }
         if (klass.equals(Route.class)) {
             return ROUTE_ID;
         }
+        if (klass.equals(MutableRoute.class)) {
+            return ROUTE_ID;
+        }
+        if (klass.equals(MutableRailRoute.class)) {
+            return ROUTE_ID;
+        }
         if (klass.equals(Service.class)) {
+            return SERVICE_ID;
+        }
+        if (klass.equals(MutableService.class)) {
             return SERVICE_ID;
         }
         if (klass.equals(NPTGLocality.class)) {
@@ -89,6 +108,12 @@ public enum GraphPropertyKey {
         }
         if (klass.equals(StationGroup.class)) {
             return STATION_GROUP_ID;
+        }
+        if (klass.equals(StationLocalityGroup.class)) {
+            return STATION_GROUP_ID;
+        }
+        if (klass.equals(MyLocation.class)) {
+            return WALK_ID;
         }
         throw new RuntimeException("Missing key for type" + klass);
     }
@@ -101,4 +126,15 @@ public enum GraphPropertyKey {
         return text;
     }
 
+    public boolean isDomainId() {
+        return isId(this);
+    }
+
+    private static boolean isId(GraphPropertyKey graphPropertyKey) {
+        return switch (graphPropertyKey) {
+            case SERVICE_ID, PLATFORM_ID, STATION_ID, ROUTE_STATION_ID, ROUTE_ID, TRIP_ID,
+                 AREA_ID, STATION_GROUP_ID, WALK_ID -> true;
+            default -> false;
+        };
+    }
 }

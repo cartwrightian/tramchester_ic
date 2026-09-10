@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -165,6 +166,11 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     }
 
     @Override
+    public boolean hasAnyMatching(GraphLabel label, GraphPropertyKey key, IdFor<? extends CoreDomain> id) {
+        return graph.findNodesImmutable(label, key, id).findAny().isPresent();
+    }
+
+    @Override
     public boolean hasAnyMatching(GraphLabel graphLabel) {
         return graph.findNodesImmutable(graphLabel).findAny().isPresent();
     }
@@ -172,7 +178,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     @Override
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(final ITEM item) {
         final List<GraphNode> found = graph.
-                findNodesImmutable(item.getNodeLabel(), item.getProp(), item.getId().getGraphId()).toList();
+                findNodesImmutable(item.getNodeLabel(), item.getProp(), item.getId()).toList();
         if (found.isEmpty()) {
             logger.info("Did not match " + item);
             return null;
@@ -189,7 +195,7 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
         final GraphLabel label = item.getNodeLabel();
         final GraphPropertyKey propertyKey = item.getProp();
-        final String itemId = item.getId().getGraphId();
+        final IdFor<TYPE> itemId = item.getId(); //.getGraphId();
         final List<GraphNodeInMemory> found = graph.findNodesMutable(label).
                 filter(node -> node.hasProperty(propertyKey)).
                 filter(node -> node.getProperty(propertyKey).equals(itemId)).

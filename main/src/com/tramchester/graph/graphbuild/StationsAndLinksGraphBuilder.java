@@ -7,7 +7,6 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.collections.ImmutableEnumSetImpl;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
@@ -284,7 +283,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private MutableGraphNode createRouteStationNode(final MutableGraphTransaction tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
 
-        final boolean hasAlready = tx.hasAnyMatching(ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID, routeStation.getId().getGraphId());
+        final boolean hasAlready = tx.hasAnyMatching(ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID, routeStation.getId());
 
         if (hasAlready) {
             final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();

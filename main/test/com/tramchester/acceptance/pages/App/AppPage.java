@@ -15,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
@@ -249,14 +250,25 @@ public class AppPage extends Page {
         return getEnabledStopNames(elements, "stop");
     }
 
-    private List<String> getEnabledStopNames(WebElement groupElement, final String className) {
+    private List<String> getEnabledStopNames(final WebElement groupElement, final String className) {
         final By childLocator = By.className(className);
         createWait().until(ExpectedConditions.presenceOfNestedElementLocatedBy(groupElement, childLocator));
-        final List<WebElement> stopElements = groupElement.findElements(childLocator);
-        return stopElements.stream().
-                filter(WebElement::isEnabled).
-                map(WebElement::getText).
-                map(String::trim).toList();
+
+        List<String> result = Collections.emptyList();
+        int failures = 0;
+        while (failures < 2) {
+            try {
+                final List<WebElement> stopElements = groupElement.findElements(childLocator);
+                result = stopElements.stream().
+                        filter(WebElement::isEnabled).
+                        map(WebElement::getText).
+                        map(String::trim).toList();
+                break;
+            } catch (StaleElementReferenceException exception) {
+                failures++;
+            }
+        }
+        return result;
     }
 
     public boolean noResults() {

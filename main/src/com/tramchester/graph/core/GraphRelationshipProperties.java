@@ -89,7 +89,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     @Override
     public void setRouteStationId(final IdFor<RouteStation> routeStationId) {
-        relationshipProperties.setProperty(ROUTE_STATION_ID, routeStationId.getGraphId());
+        relationshipProperties.setProperty(ROUTE_STATION_ID, routeStationId);
         invalidateCache();
     }
 

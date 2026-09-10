@@ -1,6 +1,8 @@
 package com.tramchester.graph.core.inMemory;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
@@ -107,6 +109,11 @@ public class ImmutableTransactionGraph implements Graph {
     }
 
     @Override
+    public Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, IdFor<? extends CoreDomain> id) {
+        return cache.findNodesImmutable(label, key, id);
+    }
+
+    @Override
     public Stream<GraphNode> allNodes() {
         return cache.allNodes();
     }
@@ -180,6 +187,11 @@ public class ImmutableTransactionGraph implements Graph {
         @Override
         public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final String value) {
             return underlying.findNodesImmutable(label, key, value);
+        }
+
+        @Override
+        public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final IdFor<? extends CoreDomain> id) {
+            return underlying.findNodesImmutable(label, key, id);
         }
 
         @Override

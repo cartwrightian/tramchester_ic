@@ -4,9 +4,11 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.RouteStationId;
+import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -22,28 +24,36 @@ import static java.lang.String.format;
 public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>> {
 
     protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(final C domainItem, final E entity) {
-        entity.setProperty(domainItem.getProp(), domainItem.getId().getGraphId());
+        entity.setProperty(domainItem.getProp(), domainItem.getId());
     }
 
     protected <C extends CoreDomain> IdFor<C> getIdFor(final Class<C> klass, final E entity) {
         final GraphPropertyKey key = GraphPropertyKey.getFor(klass);
 
-            final String value = entity.getProperty(key).toString();
-            if (RouteStation.class.equals(klass)) {
-                return getIdForRouteStation(value);
-            } else {
-                return StringIdFor.createId(value, klass);
-            }
+        try {
+            return (IdFor<C>) entity.getProperty(key);
+        }
+        catch (ClassCastException e) {
+            throw new RuntimeException("Unable for get ID for class " + klass.getSimpleName() + " from " + entity, e);
+        }
+
+//            final String value = entity.getProperty(key).toString();
+//            if (RouteStation.class.equals(klass)) {
+//                return getIdForRouteStation(value);
+//            } else {
+//                return StringIdFor.createId(value, klass);
+//            }
     }
 
-    @SuppressWarnings("unchecked")
-    private static <C extends CoreDomain> IdFor<C> getIdForRouteStation(final String value) {
-        return (IdFor<C>) RouteStationId.parse(value);
-    }
+//    @SuppressWarnings("unchecked")
+//    private static <C extends CoreDomain> IdFor<C> getIdForRouteStation(final String value) {
+//        return (IdFor<C>) RouteStationId.parse(value);
+//    }
 
     protected RouteStationId getRouteStationId(final E entity) {
-        final String value = entity.getProperty(ROUTE_STATION_ID).toString();
-        return RouteStationId.parse(value);
+        return (RouteStationId) entity.getProperty(ROUTE_STATION_ID);
+//        final String value = entity.getProperty(ROUTE_STATION_ID).toString();
+//        return RouteStationId.parse(value);
     }
 
     // public to support testing

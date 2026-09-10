@@ -2,7 +2,9 @@ package com.tramchester.graph.core.inMemory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -430,10 +432,18 @@ public class GraphCore implements Graph {
     }
 
     @Override
-    public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final String value) {
+    public Stream<GraphNode> findNodesImmutable(final GraphLabel label, final GraphPropertyKey key, final String text) {
         return findNodesMutable(label).
                 filter(node -> node.hasProperty(key)).
-                filter(node -> node.getProperty(key).equals(value)).
+                filter(node -> node.getProperty(key).equals(text)).
+                map(item -> item);
+    }
+
+    @Override
+    public Stream<GraphNode> findNodesImmutable(GraphLabel label, GraphPropertyKey key, IdFor<? extends CoreDomain> id) {
+        return findNodesMutable(label).
+                filter(node -> node.hasProperty(key)).
+                filter(node -> node.getProperty(key).equals(id)).
                 map(item -> item);
     }
 

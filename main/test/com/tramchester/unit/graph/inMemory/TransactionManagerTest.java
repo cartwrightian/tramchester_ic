@@ -257,10 +257,10 @@ public class TransactionManagerTest extends EasyMockSupport {
             MutableGraphNode findMutable = txn.findNodeMutable(station);
             assertEquals(id, findMutable.getId());
 
-            assertTrue(txn.hasAnyMatching(station.getNodeLabel(), station.getProp(), station.getId().getGraphId()));
+            assertTrue(txn.hasAnyMatching(station.getNodeLabel(), station.getProp(), station.getId()));
 
             assertFalse(txn.hasAnyMatching(ROUTE_STATION, station.getProp(), station.getId().getGraphId()));
-            assertFalse(txn.hasAnyMatching(station.getNodeLabel(), GraphPropertyKey.ROUTE_STATION_ID, station.getId().getGraphId()));
+            assertFalse(txn.hasAnyMatching(station.getNodeLabel(), GraphPropertyKey.ROUTE_STATION_ID, station.getId()));
             assertFalse(txn.hasAnyMatching(station.getNodeLabel(), station.getProp(), "wrongId"));
 
             nodeA.delete(txn);
