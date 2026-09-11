@@ -119,8 +119,7 @@ public class CreateQueryTimesTest {
         List<TramTime> results = createQueryTimes.generate(queryTime, location, date, modes);
         assertFalse(results.isEmpty());
 
-        assertEquals(3, results.size(), results.toString());
-        //assertEquals(queryTime, results.getFirst());
+        assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(queryTime), queryTime + " missing from " + results);
     }
 

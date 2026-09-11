@@ -12,6 +12,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.ServedRoute;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -38,6 +39,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Ferry;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
@@ -270,25 +272,28 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
-        Route yellowInbound = tramRouteHelper.getYellow(when);
-        Route blueInbound = tramRouteHelper.getBlue(when);
-        Route greenOutbound = tramRouteHelper.getGreen(when);
-
-        // summer 2026
-        assertEquals(5+1, dropOffs.size());
-        assertTrue(dropOffs.contains(yellowInbound));
-        assertTrue(dropOffs.contains(blueInbound), HasId.asIds(dropOffs) + " is missing " + blueInbound.getId());
-
-        assertTrue(dropOffs.contains(greenOutbound));
+        assertEquals(5, dropOffs.size());
+        checkContains(dropOffs, Red);
+        checkContains(dropOffs, Blue);
+        checkContains(dropOffs, Green);
+        checkContains(dropOffs, Pink);
+        checkContains(dropOffs, Navy);
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
         // summer 2026
-        assertEquals(5+1, pickups.size());
-        assertTrue(pickups.contains(yellowInbound));
-        assertTrue(pickups.contains(blueInbound));
-        assertTrue(pickups.contains(greenOutbound));
+        assertEquals(5, pickups.size());
+        checkContains(pickups, Red);
+        checkContains(pickups, Blue);
+        checkContains(pickups, Green);
+        checkContains(pickups, Pink);
+        checkContains(pickups, Navy);
 
+    }
+
+    void checkContains(Set<Route> routes, TFGMRouteNames routeName) {
+        Route route = tramRouteHelper.getOneRoute(routeName, when);
+        assertTrue(routes.contains(route), "Missing " + route.getId() + " from " + HasId.asIds(routes));
     }
 
 }

@@ -86,8 +86,8 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(56), getAverageCostBetween(mediaCity, Ashton.from(stationRepository)));
-        assertEquals(TramDuration.ofMinutes(54), getAverageCostBetween(Ashton.from(stationRepository), mediaCity));
+        assertEquals(TramDuration.ofMinutes(61), getAverageCostBetween(mediaCity, Ashton.from(stationRepository)));
+        assertEquals(TramDuration.ofMinutes(58), getAverageCostBetween(Ashton.from(stationRepository), mediaCity));
     }
 
     @Test

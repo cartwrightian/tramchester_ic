@@ -126,7 +126,7 @@ public class StopCallRepositoryTest {
                 count();
         assertEquals(results.size(), correctTimes);
 
-        assertEquals(4, results.size(), "Wrong number for calls for period " + results.toString());
+        assertEquals(5, results.size(), "Wrong number for calls for period " + results);
     }
 
     @Test
@@ -252,18 +252,18 @@ public class StopCallRepositoryTest {
         assertEquals(VictoriaToSouthChadderton, stopsBetween);
     }
 
-    @RochdaleLineClosure2026
     @Test
     void shouldHaveDerkerToRochdale() {
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Derker, Rochdale.getId(), when);
         assertEquals(DerkerToRochdale, stopsBetween);
     }
 
-    @RochdaleLineClosure2026
     @Test
     void shouldHaveExpectedEcclesLinesClosures() {
-        List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(), Eccles.getId(), when, MediaCityUK.getId());
-        assertEquals(12, stopsBetween.size());
+        // no longer calling media city
+        List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(),
+                Eccles.getId(), when, HarbourCity.getId());
+        assertEquals(11, stopsBetween.size());
 
         ImmutableIdSet<Station> unique = new IdSet<>(stopsBetween);
         assertEquals(unique.size(), stopsBetween.size());

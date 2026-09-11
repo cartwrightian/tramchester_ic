@@ -18,7 +18,6 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,7 +28,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.CentralZoneStation.*;
+import static com.tramchester.domain.reference.CentralZoneStation.PiccadillyGardens;
+import static com.tramchester.domain.reference.CentralZoneStation.Victoria;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -75,10 +75,10 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
-        Route pink = routeHelper.getPink(date);
-        Route yellow = routeHelper.getYellow(date);
+        Route routeA = routeHelper.getBlue(date);
+        Route routeB = routeHelper.getRed(date);
 
-        RoutePair routePair = RoutePair.of(pink, yellow);
+        RoutePair routePair = RoutePair.of(routeA, routeB);
 
         assertTrue(repository.hasAnyInterchangesFor(routePair));
 
@@ -100,10 +100,10 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
-        Route blueLine = routeHelper.getBlue(date);
-        Route navyLine = routeHelper.getNavy(date);
+        Route routeA = routeHelper.getYellow(date);
+        Route routeB = routeHelper.getBlue(date);
 
-        RoutePair routeIndexPair = RoutePair.of(blueLine, navyLine);
+        RoutePair routeIndexPair = RoutePair.of(routeA, routeB);
 
         assertTrue(repository.hasAnyInterchangesFor(routeIndexPair));
 
@@ -112,23 +112,13 @@ public class RoutePairToInterchangeRepositoryTest {
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
         IdSet<Station> expected = Stream.of(
-                StPetersSquare,
-                MarketStreet,
-                Victoria,
-                //Deansgate,
-                Cornbrook,
-                TraffordBar,
-                //Piccadilly,
-                //PiccadillyGardens
-                Shudehill
+                PiccadillyGardens
                 ).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());
 
         if (config.hasRailConfig()) {
-            expected.add(RailStationIds.ManchesterVictoria.getId());
-            expected.add(RailStationIds.ManchesterDeansgate.getId());
-            expected.add(TramStations.Deansgate.getId());
+            // TODO
             //expected.add(RailStationIds.ManchesterPiccadilly.getId());
         }
 

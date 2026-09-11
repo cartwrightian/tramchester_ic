@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -118,13 +119,13 @@ public class TripRepositoryTest {
 
         assertFalse(routes.isEmpty());
 
-        assertEquals(4, routes.size(), HasId.asIds(routes));
+        assertEquals(3, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when)));
 
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
+        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
         assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
 
         assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
@@ -296,16 +297,17 @@ public class TripRepositoryTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Cornbrook);
 
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
-        Route blueRoute = tramRouteHelper.getBlue(when);
+        assertFalse(allTrips.isEmpty(), "Sanity check failed");
 
-        Set<Trip> toMediaCity = allTrips.stream().
-                filter(trip -> trip.callsAt(Cornbrook.getId())).
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
+
+        Set<Trip> callsMediaCity = allTrips.stream().
                 filter(trip -> trip.callsAt(TramStations.MediaCityUK.getId())).
-                filter(trip -> blueRoute.equals(trip.getRoute())).
                 collect(Collectors.toSet());
 
-        Set<Service> services = toMediaCity.stream().
+        assertFalse(callsMediaCity.isEmpty(),"No trips for mediacity");
+
+        Set<Service> services = callsMediaCity.stream().
                 map(Trip::getService).collect(Collectors.toSet());
 
         TramDate nextTuesday = TestEnv.testDay();
@@ -318,12 +320,19 @@ public class TripRepositoryTest {
 
         TramTime time = TramTime.of(12, 0);
 
-        long onTimeTrips = toMediaCity.stream().
+        long onTimeTrips = callsMediaCity.stream().
                 filter(trip -> trip.departTime().isBefore(time)).
                 filter(trip -> trip.arrivalTime().isAfter(time)).
                 count();
 
         assertTrue(onTimeTrips>0);
+
+        Set<TFGMRouteNames> routeNames = callsMediaCity.stream().
+                map(Trip::getRoute).
+                map(routeId -> ((TramRouteId) routeId.getId()).getRouteName()).
+                collect(Collectors.toSet());
+
+        assertTrue(routeNames.contains(TFGMRouteNames.Blue), "Unexpected routes " + routeNames);
 
     }
 

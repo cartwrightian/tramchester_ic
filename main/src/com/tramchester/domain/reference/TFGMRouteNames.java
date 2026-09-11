@@ -12,6 +12,8 @@ public enum TFGMRouteNames {
 
     ReplacementBus("Replacement bus", true),
 
+    // NOTE: As of Sept 14th: Yellow going to Eccles, not Blue
+
     Red("Red Line", false),
     Pink("Pink Line", false),
     Purple("Purple Line", false),

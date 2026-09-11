@@ -405,7 +405,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         TramTime planTime = TramTime.of(10,0);
+
         desiredJourney(appPage, Altrincham, ManAirport, when, planTime, false);
+
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 

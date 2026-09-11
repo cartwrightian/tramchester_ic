@@ -28,7 +28,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.RochdaleLineClosure2026;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -102,7 +101,6 @@ public class StationRepositoryTest {
         assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
-    @RochdaleLineClosure2026
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -113,7 +111,7 @@ public class StationRepositoryTest {
                 map(Route::getShortName).
                 collect(Collectors.toSet());
 
-        assertEquals(4, lines.size(), lines.toString());
+        assertEquals(3, lines.size(), lines.toString());
 
         assertFalse(lines.contains(Red.getShortName()), "Got " + Red.getShortName() + " in " + lines);
 
@@ -240,14 +238,14 @@ public class StationRepositoryTest {
                         Purple,
                         Pink));
 
-//        IdSet<Route> expectedIds = expected.stream().
-//                map(TestRoute::getId).
-//                collect(IdSet.idCollector());
+        // closures and changes, summer 2026
+        expected.add(Yellow);
 
         Set<TFGMRouteNames> pickups = station.getPickupRoutes().stream().
-                filter(route -> route.isAvailableOn(when)).
+                //filter(route -> route.isAvailableOn(when)).
                 map(Route::getId).
                 map(routeId -> ((TramRouteId) routeId).getRouteName()).
+                filter(routeName -> !routeName.isReplacementBus()).
                 collect(Collectors.toSet());
 
         Set<TFGMRouteNames> mismatch = SetUtils.disjunction(expected, pickups);
@@ -255,9 +253,10 @@ public class StationRepositoryTest {
         assertEquals(Collections.emptySet(), mismatch, "expected " + expected + "\n found " + pickups);
 
         Set<TFGMRouteNames> dropOffs = station.getDropoffRoutes().stream().
-                filter(route -> route.isAvailableOn(when)).
+                //filter(route -> route.isAvailableOn(when)).
                 map(Route::getId).
                 map(routeId -> ((TramRouteId) routeId).getRouteName()).
+                filter(routeName -> !routeName.isReplacementBus()).
                 collect(Collectors.toSet());
 
         assertEquals(expected.size(), dropOffs.size());

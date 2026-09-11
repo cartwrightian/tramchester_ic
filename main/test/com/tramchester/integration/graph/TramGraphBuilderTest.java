@@ -35,12 +35,14 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -252,11 +254,10 @@ class TramGraphBuilderTest {
 
         Station mediaCityUK = MediaCityUK.from(stationRepository);
 
-        Route tramRouteEcclesAshton = tramRouteHelper.getBlue(when);
+        Route tramRoutePiccEccles = tramRouteHelper.getYellow(when);
 
-        RouteStation routeStationMediaCityA = stationRepository.getRouteStation(mediaCityUK, tramRouteEcclesAshton);
+        RouteStation routeStationMediaCityA = getRouteStationWithCheck(mediaCityUK, tramRoutePiccEccles);
 
-        assertNotNull(routeStationMediaCityA);
         List<GraphRelationship> outboundsFromRouteStation = getRouteStationRelationships(routeStationMediaCityA, Outgoing, transportRelationshipTypes);
 
         IdSet<Service> graphSvcsFromRouteStations = outboundsFromRouteStation.stream().
@@ -270,7 +271,7 @@ class TramGraphBuilderTest {
 
         // check number of outbound services matches services in transport data files
         IdSet<Service> fileSvcIds = getTripsFor(transportData.getTrips(), mediaCityUK).stream().
-                filter(trip -> trip.getRoute().equals(tramRouteEcclesAshton)).
+                filter(trip -> trip.getRoute().equals(tramRoutePiccEccles)).
                 filter(trip -> when.isBefore(trip.getService().getCalendar().getDateRange().getEndDate())).
                 map(trip -> trip.getService().getId()).
                 collect(IdSet.idCollector());
@@ -746,7 +747,7 @@ class TramGraphBuilderTest {
 
     @NotNull
     private List<GraphRelationship> getOutboundsServicesForRouteStation(final Station station, final Route route) {
-        RouteStation routeStation = stationRepository.getRouteStation(station, route);
+        RouteStation routeStation = getRouteStationWithCheck(station, route);
 
         List<GraphRelationship> outboundsFromRouteStation = getRouteStationRelationships(routeStation, Outgoing, transportRelationshipTypes);
 
@@ -793,8 +794,8 @@ class TramGraphBuilderTest {
 
         assertTrue(buryToAlty.isAvailableOn(when), "No route on " + when);
 
-        RouteStation routeStationA = stationRepository.getRouteStation(stationA, buryToAlty);
-        RouteStation routeStationB = stationRepository.getRouteStation(stationB, buryToAlty);
+        RouteStation routeStationA = getRouteStationWithCheck(stationA, buryToAlty);
+        RouteStation routeStationB = getRouteStationWithCheck(stationB, buryToAlty);
 
         ImmutableEnumSet<TransportRelationshipTypes> relationshipTypes = ImmutableEnumSet.of(TO_SERVICE);
 
@@ -872,8 +873,9 @@ class TramGraphBuilderTest {
 
         Route tramRouteAltBury = tramRouteHelper.getGreen(when);
 
-        RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(cornbrook, tramRouteAltBury);
-        List<GraphRelationship> outboundsA = getRouteStationRelationships(routeStationCornbrookAltyPiccRoute, Outgoing, transportRelationshipTypes);
+        RouteStation routeStationCornbrookAltyPiccRoute = getRouteStationWithCheck(cornbrook, tramRouteAltBury);
+        List<GraphRelationship> outboundsA = getRouteStationRelationships(routeStationCornbrookAltyPiccRoute,
+                Outgoing, transportRelationshipTypes);
 
         assertTrue(outboundsA.size()>1, "have at least one outbound");
 
@@ -882,24 +884,25 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
-        checkInboundConsistency(MediaCityUK, TFGMRouteNames.Blue);
+        checkInboundConsistency(MediaCityUK, Yellow);
 
-        checkInboundConsistency(HarbourCity, TFGMRouteNames.Blue);
+        checkInboundConsistency(HarbourCity, Yellow);
 
-        checkInboundConsistency(Broadway, TFGMRouteNames.Blue);
+        checkInboundConsistency(Broadway, Yellow);
 
     }
 
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
-        checkOutboundConsistency(StPetersSquare, TFGMRouteNames.Green);
+        checkOutboundConsistency(StPetersSquare, Green);
 
-        checkOutboundConsistency(Cornbrook, TFGMRouteNames.Green);
+        checkOutboundConsistency(Cornbrook, Green);
 
-        checkOutboundConsistency(MediaCityUK, TFGMRouteNames.Blue);
+        // duplicate, sep tests for mediacity
+        //checkOutboundConsistency(MediaCityUK, Blue);
 
-        checkOutboundConsistency(HarbourCity, TFGMRouteNames.Blue);
+        checkOutboundConsistency(HarbourCity, Yellow);
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
@@ -979,9 +982,7 @@ class TramGraphBuilderTest {
     }
 
     private void checkOutboundConsistency(Station station, Route route) {
-        RouteStation routeStation = stationRepository.getRouteStation(station, route);
-
-        assertNotNull(routeStation, "Could not find route stations for " + station.getId() + " " + route.getId());
+        RouteStation routeStation = getRouteStationWithCheck(station, route);
 
         List<GraphRelationship> routeStationOutbounds = getRouteStationRelationships(routeStation, Outgoing,
                 ImmutableEnumSet.allOf(TransportRelationshipTypes.class));
@@ -1027,6 +1028,14 @@ class TramGraphBuilderTest {
         assertNotEquals(0, fromStation);
     }
 
+    private @NonNull RouteStation getRouteStationWithCheck(Station station, Route route) {
+        assertTrue(route.isAvailableOn(when), route.getId() + "Not available on " + when);
+
+        RouteStation routeStation = stationRepository.getRouteStation(station, route);
+        assertNotNull(routeStation, "Could not find route stations for " + station.getId() + " " + route.getId());
+        return routeStation;
+    }
+
     @SuppressWarnings("SameParameterValue")
     private void checkInboundConsistency(TramStations tramStation, TFGMRouteNames knownRoute) {
         Route route = tramRouteHelper.getOneRoute(knownRoute, when);
@@ -1037,7 +1046,9 @@ class TramGraphBuilderTest {
 
     private void checkInboundConsistency(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
-        assertNotNull(routeStation, "Could not find a route for " + station.getId() + " and  " + route.getId());
+        assertNotNull(routeStation,
+                "On" + when + " could not find a route station for " + station.getId() + " and  " + route.getId());
+
         List<GraphRelationship> inbounds = getRouteStationRelationships(routeStation, GraphDirection.Incoming, transportRelationshipTypes);
 
         List<GraphRelationship> graphTramsIntoStation = inbounds.stream().

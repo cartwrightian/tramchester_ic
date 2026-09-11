@@ -58,19 +58,16 @@ public class TramRouteHelper {
         return knownRouteToRoutes.get(knownRoute);
     }
 
-    public Route getOneRoute(final TFGMRouteNames line, final TramDate date) {
-        return getOneRouteFor(line, date);
-    }
-
-    private Route getOneRouteFor(final TFGMRouteNames line, final TramDate date) {
+    public Route getOneRoute(final TFGMRouteNames routeName, final TramDate date) {
         List<Route> result = routeRepository.getRoutesRunningOn(date, TramsOnly).stream().
-                filter(route -> ((TramRouteId) route.getId()).getRouteName() == line).
+                filter(route -> ((TramRouteId) route.getId()).getRouteName() == routeName).
                 toList();
+
         if (result.size()>1) {
-            throw new RuntimeException(format("Found two many routes %s matching date %s and known route %s", HasId.asIds(result), date, line));
+            throw new RuntimeException(format("Found two many routes %s matching date %s and known route %s", HasId.asIds(result), date, routeName));
         }
         if (result.isEmpty()) {
-            throw new RuntimeException(format("Found no routes matching date %s and known route %s", date, line));
+            throw new RuntimeException(format("Found no routes matching date %s and known route %s", date, routeName));
         }
         return result.getFirst();
     }
