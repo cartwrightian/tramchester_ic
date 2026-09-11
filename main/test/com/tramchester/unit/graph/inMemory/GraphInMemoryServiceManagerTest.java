@@ -87,7 +87,8 @@ public class GraphInMemoryServiceManagerTest extends EasyMockSupport {
         EasyMock.expect(graphPersistence.filesExistIn(realPath)).andReturn(true);
         GraphCore graphCore = new GraphCore(graphIdFactory, graphLabelsFactory,false);
         EasyMock.expect(graphPersistence.loadDBFrom(realPath, graphIdFactory, graphLabelsFactory)).andReturn(graphCore);
-
+        graphPersistence.removeFiles(realPath);
+        EasyMock.expectLastCall();
         EasyMock.expect(storedVersions.upToDate(EasyMock.eq(dataSourceRepository), EasyMock.anyObject(GraphTransaction.class))).andReturn(false);
 
         replayAll();

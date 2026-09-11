@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 @LazySingleton
 public class GraphPersistence {
     public static final Path RELATIONSHIPS_FILENAME = Path.of("graph_relationships.json");
@@ -82,7 +84,7 @@ public class GraphPersistence {
             return GraphCore.createFrom(graphIdFactory, graphLabelsFactory, nodes, relationships);
         }
         catch (RuntimeJsonMappingException exception) {
-            String msg = String.format("Failed to load from nodes:%s relationships:%s",
+            String msg = format("Failed to load from nodes:%s relationships:%s",
                 nodesFile.toAbsolutePath(), relationshipsFile.toAbsolutePath());
             logger.error(msg, exception);
             throw new RuntimeException(msg);
@@ -118,13 +120,24 @@ public class GraphPersistence {
 
         final GraphCore core = serviceManager.getGraphCore();
 
+        final Path relationshipsFile = graphPath.resolve(RELATIONSHIPS_FILENAME);
+        final Path nodesFile = graphPath.resolve(NODES_FILENAME);
         final ZonedDateTime dbTimestamp = getTimestampFor(core);
-        final ZonedDateTime dirModTime = getsFileModTimeModTime.getFor(graphPath);
-        if (!dbTimestamp.isAfter(dirModTime)) {
-            logger.info("No need to save DB, already up to date for timestamp " +dbTimestamp);
-            return false;
+
+        if (Files.exists(relationshipsFile) && Files.exists(nodesFile)) {
+            logger.info("Files present, check if skip save");
+
+            final ZonedDateTime dirModTime = getsFileModTimeModTime.getFor(graphPath);
+            if (!dbTimestamp.isAfter(dirModTime)) {
+                // warning as always want to know if save failed
+                logger.error("No need to save DB, already up to date, DB timestamp " + dbTimestamp +
+                        " after file mod " + dirModTime + " file " + graphPath.toAbsolutePath());
+                return false;
+            } else {
+                logger.info("Need to save db:" + dbTimestamp + " folder:" + dirModTime);
+            }
         } else {
-            logger.info("Need to save db:" + dbTimestamp + " folder:" + dirModTime);
+            logger.info("File(s) not present, need to save");
         }
 
         final NodesAndEdges nodesAndEdges = core.getNodesAndEdges();
@@ -136,7 +149,6 @@ public class GraphPersistence {
 
         logger.info("Save graph to dir " + graphPath.toAbsolutePath());
 
-        final Path relationshipsFile = graphPath.resolve(RELATIONSHIPS_FILENAME);
         logger.info("Saving relationships to " + relationshipsFile.toAbsolutePath());
         try (final FileWriter output = new FileWriter(relationshipsFile.toFile())) {
             nodesAndEdges.saveRelationships(mapper, output);
@@ -148,7 +160,6 @@ public class GraphPersistence {
             return false;
         }
 
-        final Path nodesFile = graphPath.resolve(NODES_FILENAME);
         logger.info("Saving nodes to " + nodesFile.toAbsolutePath());
         try (final FileWriter output = new FileWriter(nodesFile.toFile())) {
             nodesAndEdges.saveNodes(mapper, output);
@@ -171,6 +182,28 @@ public class GraphPersistence {
         final GraphNode versionNode = GraphDatabaseMetaInfo.getSingleVersionNode(query);
 
         return GraphDatabaseMetaInfo.getTimestampFor(versionNode);
+    }
+
+//    public void correctFileModTime(final GraphCore graphCore, Path folder) {
+//        final ZonedDateTime fromDB = getTimestampFor(graphCore);
+//        logger.warn(format("Correcting file mod time for DB path %s to match DB time of %s",folder, fromDB));
+//        getsFileModTimeModTime.update(folder, fromDB);
+//    }
+
+    public void removeFiles(final Path graphPath) {
+        logger.warn("Deleting out of date files for " + graphPath.toAbsolutePath());
+        final Path nodesFile = graphPath.resolve(NODES_FILENAME);
+        final Path relationshipFile = graphPath.resolve(RELATIONSHIPS_FILENAME);
+
+        try {
+            Files.deleteIfExists(nodesFile);
+            Files.deleteIfExists(relationshipFile);
+        }
+        catch (IOException ioException) {
+            throw new RuntimeException("Cannot clean up files, manual intervention needed for "
+                    + nodesFile + " and/or " + relationshipFile, ioException);
+        }
+        logger.warn("Deleted " + nodesFile.toAbsolutePath() + " and " + relationshipFile.toAbsolutePath());
     }
 
     private static class GraphLabelsDeserializer extends JsonDeserializer<GraphLabels> {

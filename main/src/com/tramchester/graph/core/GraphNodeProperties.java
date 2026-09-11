@@ -45,6 +45,7 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     protected abstract void invalidateCache();
 
+    @JsonIgnore
     @Override
     public Map<DataSourceID, String> getStoredVersions() {
         return DataSourceID.InDatabase().stream().

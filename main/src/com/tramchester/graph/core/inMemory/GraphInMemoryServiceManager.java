@@ -79,8 +79,9 @@ public class GraphInMemoryServiceManager {
                 createEmptyDB = !storedVersions.upToDate(dataSourceRepository, transaction);
             }
             if (createEmptyDB) {
-                logger.warn("DB loaded, out of date " + dbFolderPath.toAbsolutePath());
+                logger.error("DB loaded, out of date " + dbFolderPath.toAbsolutePath());
                 transactionManager.stop();
+                //graphPersistence.correctFileModTime(graphCore, dbFolderPath);
                 graphCore.stop();
             } else {
                 logger.info("DB loaded, up to date " + dbFolderPath.toAbsolutePath());
@@ -92,6 +93,9 @@ public class GraphInMemoryServiceManager {
 
         if (createEmptyDB) {
             logger.warn("Creating clean DB");
+            if (filesExist) {
+                graphPersistence.removeFiles(dbFolderPath);
+            }
             loadedFromDisc = false;
             graphCore = new GraphCore(idFactory, graphLabelsFactory,false);
             graphCore.start();
@@ -108,7 +112,7 @@ public class GraphInMemoryServiceManager {
         } else {
             if (saveGraph) {
                 logger.info("Saved DB to " + dbFolderPath.toAbsolutePath());
-                boolean result = graphPersistence.save(dbFolderPath, this);
+                final boolean result = graphPersistence.save(dbFolderPath, this);
                 if (result) {
                     logger.info("Saved DB at " + dbFolderPath.toAbsolutePath());
                 } else {

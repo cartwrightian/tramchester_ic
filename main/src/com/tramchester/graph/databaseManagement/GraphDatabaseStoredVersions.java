@@ -43,7 +43,7 @@ public class GraphDatabaseStoredVersions {
         }
 
         if (!databaseMetaInfo.hasVersionInfo(transaction)) {
-            logger.warn("Missing VERSION node, cannot check versions");
+            logger.error("Missing VERSION node, cannot check versions");
             return false;
         }
 
@@ -64,18 +64,18 @@ public class GraphDatabaseStoredVersions {
                                                                            final Map<DataSourceID, String> versionsFromDB) {
         final Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
         dataSourceInfo.forEach(sourceInfo -> {
-            DataSourceID sourceID = sourceInfo.getID();
+            final DataSourceID sourceID = sourceInfo.getID();
             //String name = sourceName.name();
             logger.info("Checking version for " + sourceID);
 
             if (versionsFromDB.containsKey(sourceID)) {
-                String graphValue = versionsFromDB.get(sourceID);
-                boolean matches = sourceInfo.getVersion().equals(graphValue);
+                final String graphValue = versionsFromDB.get(sourceID);
+                final boolean matches = sourceInfo.getVersion().equals(graphValue);
                 upToDate.put(sourceInfo, matches);
                 if (matches) {
                     logger.info("Got correct VERSION node value for " + sourceInfo);
                 } else {
-                    logger.warn(format("Mismatch on graph VERSION, got graph:'%s' datasource: '%s' for sourceinfo: %s",
+                    logger.error(format("Mismatch on graph VERSION, got graph:'%s' datasource: '%s' for sourceinfo: %s",
                             graphValue, sourceInfo.getVersion(), sourceInfo));
                 }
             } else {

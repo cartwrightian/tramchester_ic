@@ -61,7 +61,9 @@ public class LowestCostSeenForTime implements ArrivalHandler {
         }
         // TODO into debug, but why is this called so often?
         if (result) {
-            logger.info("Seen " + earliestBoard + " too many times before");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Seen " + earliestBoard + " too many times before");
+            }
         }
         return result;
     }
