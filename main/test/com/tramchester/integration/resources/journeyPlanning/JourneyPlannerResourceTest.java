@@ -279,6 +279,7 @@ public class JourneyPlannerResourceTest {
                     Deansgate.getName(),
                     Piccadilly.getName(),
                     PiccadillyGardens.getName(),
+                    MarketStreet.getName(),
                     StPetersSquare.getName());
 
             // multiple possible places to change depending on timetable etc
@@ -294,7 +295,8 @@ public class JourneyPlannerResourceTest {
 
             assertEquals(1, changeStations.size());
             ChangeStationRefWithPosition changeStation = changeStations.getFirst();
-            assertTrue(expectedSecondStationNames.contains(changeStation.getName()), "did not expect " + changeStation.getName());
+            assertTrue(expectedSecondStationNames.contains(changeStation.getName()), "did not expect change station " + changeStation.getName());
+
             assertEquals(TransportMode.Tram, changeStation.getFromMode());
 
         });
