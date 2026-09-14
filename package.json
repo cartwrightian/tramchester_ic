@@ -30,7 +30,7 @@
     "serialize-javascript": "^7.1.1",
     "vue": "^3.5.42",
     "vue-cookies": "^1.8.6",
-    "vuetify": "^4.2.0"
+    "vuetify": "^4.2.1"
   },
   "devDependencies": {
     "@mdi/font": "^7.4.47",
