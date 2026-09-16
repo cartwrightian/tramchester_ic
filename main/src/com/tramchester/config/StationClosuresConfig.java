@@ -111,13 +111,7 @@ public class StationClosuresConfig extends Configuration implements StationClosu
 
     @Override
     public String toString() {
-        return "StationClosuresConfig{" +
-                "stationsText=" + stations +
-                ", dateRangeConfig=" + dateRangeConfig +
-                ", fullyClosed=" + fullyClosed +
-                ", diversionsAroundClosure=" + diversionsAroundClosure +
-                ", diversionsToFromClosure=" + diversionsToFromClosure +
-                '}';
+        return asString();
     }
 
     @Override

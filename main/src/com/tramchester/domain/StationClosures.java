@@ -30,6 +30,16 @@ public interface StationClosures {
 
     ImmutableIdSet<Station> getDiversionsToFromClosure();
 
+    default String asString() {
+        return "StationClosuresConfig{" +
+                "stations=" + getStations() +
+                ", dateRangeConfig=" + getDateRange() +
+                ", fullyClosed=" + isFullyClosed() +
+                ", diversionsAroundClosure=" + getDiversionsAroundClosure() +
+                ", diversionsToFromClosure=" + getDiversionsToFromClosure() +
+                '}';
+    }
+
     @Deprecated
     static boolean areEqual(StationClosures a, Object other) {
         if (!StationClosures.class.isAssignableFrom(other.getClass())) {
@@ -39,9 +49,6 @@ public interface StationClosures {
         boolean requiredFieldsSame = a.getStations().equals(b.getStations()) &&
                 (a.isFullyClosed()==b.isFullyClosed()) &&
                 (a.getDateRange().equals(b.getDateRange()));
-//                (a.hasTimeRange()==b.hasTimeRange()) &&
-//                (a.hasDiversionsAroundClosure() == b.hasDiversionsAroundClosure()) &&
-//                (a.hasDiversionsToFromClosure() == b.hasDiversionsToFromClosure()));
         if (!requiredFieldsSame) {
             return false;
         }

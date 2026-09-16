@@ -2,7 +2,6 @@ package com.tramchester.integration.testSupport.config.closures;
 
 import com.tramchester.config.StationListConfig;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.util.Collection;
@@ -39,9 +38,9 @@ public class StationClosuresListForTest extends StationClosuresTestConfig {
         this(Collections.singleton(tramStation), dateRange, fullyClosed, diversionsAround, diversionsToFrom);
     }
 
-    public StationClosuresListForTest(Collection<TramStations> stations, DateRange dateRange, boolean fullyClosed) {
-        this(stations, dateRange, fullyClosed, null, null);
-    }
+//    public StationClosuresListForTest(Collection<TramStations> stations, DateRange dateRange, boolean fullyClosed) {
+//        this(stations, dateRange, fullyClosed, null, null);
+//    }
 
     public StationClosuresListForTest(TramStations tramStation, DateRange dateRange, boolean fullyClosed) {
         this(Collections.singleton(tramStation), dateRange, fullyClosed, null, null);
@@ -55,10 +54,7 @@ public class StationClosuresListForTest extends StationClosuresTestConfig {
 
     @Override
     public String toString() {
-        return "StationClosuresConfigForTest{" +
-                "stations=" + HasId.asIds(stations) +
-                super.toString() +
-                '}';
+        return asString();
     }
 
 }

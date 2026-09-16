@@ -19,7 +19,9 @@ import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.testSupport.UpcomingDates.MediaCityToImperialWarMus;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -32,19 +34,19 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-//    public static final List<StationClosures> CurrentClosures =Collections.emptyList();
+//    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
     static List<TramStations> marketStreetAndShudehill = List.of(Shudehill, MarketStreet);
+
     static List<TramStations> piccGardens = List.of(PiccadillyGardens);
+    private static final Set<TramStations> piccGardensDiversionsAround = new HashSet<>(List.of(StPetersSquare, MarketStreet, Piccadilly));
 
     public static final List<StationClosures> CurrentClosures = List.of(
             new StationClosuresListForTest(marketStreetAndShudehill, UpcomingDates.MarketStreetAndShudehillSept,
             true, Collections.emptySet(), Collections.emptySet()),
             new StationClosuresListForTest(piccGardens, UpcomingDates.PiccGardensAutumn2026,
-                    true, Collections.emptySet(), Collections.emptySet())
+                    true, piccGardensDiversionsAround, Collections.emptySet())
     );
-
-
 
     /**
      * EXAMPLE

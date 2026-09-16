@@ -73,12 +73,13 @@ public abstract class StationClosuresTestConfig implements StationClosures  {
 
     @Override
     public String toString() {
-        return "StationClosuresTestConfig{" +
-                "dateRange=" + dateRange +
-                ", fullyClosed=" + fullyClosed +
-                ", diversionsAround=" + diversionsAround +
-                ", diversionsToFrom=" + diversionsToFrom +
-                ", timeRange=" + timeRange +
-                '}';
+        return asString();
+//        return "StationClosuresTestConfig{" +
+//                "dateRange=" + dateRange +
+//                ", fullyClosed=" + fullyClosed +
+//                ", diversionsAround=" + diversionsAround +
+//                ", diversionsToFrom=" + diversionsToFrom +
+//                ", timeRange=" + timeRange +
+//                '}';
     }
 }

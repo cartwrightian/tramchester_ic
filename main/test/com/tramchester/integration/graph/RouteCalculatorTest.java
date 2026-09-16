@@ -28,7 +28,6 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -356,10 +355,19 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 17)
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
         checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);
+    }
+
+    @Test
+    void shouldCheckWithUpcomingPiccGardensClosure() {
+        TramDate date = UpcomingDates.PiccGardensAutumn2026.getStartDate();
+        JourneyRequest request = standardJourneyRequest(date, TramTime.of(11, 45), 3,
+                2);
+        List<Journey> results = calculator.calculateRouteAsList(Victoria, Ashton, request);
+
+        assertFalse(results.isEmpty(), "No journeys for " + request);
     }
 
     @Test
@@ -390,7 +398,6 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 17)
     @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -840,7 +847,10 @@ public class RouteCalculatorTest {
 
     @NotNull
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
-        return new JourneyRequest(date, time, false, maxNumberChanges, maxJourneyDuration, maxNumberJourneys, requestedModes);
+        boolean assertOnChange = !UpcomingDates.PiccGardensAutumn2026.contains(date);
+        return new JourneyRequest(date, time, false, new JourneyRequest.MaxNumberOfChanges(maxNumberChanges),
+                maxJourneyDuration, maxNumberJourneys,
+                requestedModes, assertOnChange);
     }
 
     private void checkRouteNextNDays(final TramStations start, final TramStations dest, final TramTime time, int maxNumberChanges) {

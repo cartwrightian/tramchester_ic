@@ -11,7 +11,7 @@ gtfsSourceConfig:
     addWalksForClosed: true
     stationClosures:
       - stations:
-          ids: [ "9400ZZMASHU", "9400ZZMAMKT" ]
+          ids: [ 9400ZZMASHU, 9400ZZMAMKT ]
         dateRange:
           begin: 2026-09-21
           end: 2026-09-26
@@ -24,7 +24,7 @@ gtfsSourceConfig:
           begin: 2026-09-27
           end: 2026-10-03
         fullyClosed: true
-        diversionsAroundClosure: [ ]
+        diversionsAroundClosure: [ 9400ZZMASTP, 9400ZZMAPIC, 9400ZZMAMKT ]
         diversionsToFromClosure: [ ]
     temporaryStationsWalks:
     - stations:
@@ -43,8 +43,8 @@ remoteSources:
   - name: database
 #    skip:
 #      config: inMemoryGraph
-    dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-    dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
+    dataURL: ${DB_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip}
+    dataCheckURL: ${DB_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip}
     dataPath: databases
     downloadPath: databases
     filename: database.zip
