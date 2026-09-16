@@ -111,7 +111,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 16)
+    @DisabledUntilDate(year = 2026, month = 9, day = 17)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {

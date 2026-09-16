@@ -28,8 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.CentralZoneStation.PiccadillyGardens;
-import static com.tramchester.domain.reference.CentralZoneStation.Victoria;
+import static com.tramchester.domain.reference.CentralZoneStation.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -111,9 +110,7 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        IdSet<Station> expected = Stream.of(
-                PiccadillyGardens
-                ).
+        IdSet<Station> expected = Stream.of(PiccadillyGardens, Piccadilly).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());
 

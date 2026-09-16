@@ -229,23 +229,20 @@ public class JourneyPlannerResourceTest {
 
         // note: Cornbrook, StPetersSquare, Deansgate all valid but have same cost
 
-        Station deansgate = Deansgate.from(stationRepository);
-        Station cornbrook = Cornbrook.from(stationRepository);
-        Station piccadily = Piccadilly.from(stationRepository);
-        Station stPetersSquare = StPetersSquare.from(stationRepository);
-        // summer 2026
-        Station piccGardens = PiccadillyGardens.from(stationRepository);
+        List<TramStations> possibleChangeStations = List.of(Deansgate, Cornbrook, Piccadilly,
+                StPetersSquare, MarketStreet, PiccadillyGardens);
 
-        Set<Platform> platforms = new HashSet<>();
-        platforms.addAll(deansgate.getPlatforms());
-        platforms.addAll(cornbrook.getPlatforms());
-        platforms.addAll(piccadily.getPlatforms());
-        platforms.addAll(stPetersSquare.getPlatforms());
-        platforms.addAll(piccGardens.getPlatforms());
+        List<String> expectedSecondStationNames = possibleChangeStations.stream().map(TramStations::getName).toList();
+
+        Set<Platform> platforms = possibleChangeStations.stream().
+                map(station -> station.from(stationRepository)).
+                flatMap(station -> station.getPlatforms().stream()).
+                collect(Collectors.toSet());
 
         Set<IdForDTO> platformIds = platforms.stream().map(IdForDTO::createFor).collect(Collectors.toSet());
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(17, 45), Altrincham, Ashton, false, 1);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(17, 45),
+                Altrincham, Ashton, false, 1);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 
@@ -273,14 +270,6 @@ public class JourneyPlannerResourceTest {
             // seems can be 1 through 4
             String platformNumber = secondStagePlatform.getPlatformNumber();
             assertTrue("1234".contains(platformNumber), "unexpected platform number, got " + platformNumber);
-
-            List<String> expectedSecondStationNames = Arrays.asList(
-                    Cornbrook.getName(),
-                    Deansgate.getName(),
-                    Piccadilly.getName(),
-                    PiccadillyGardens.getName(),
-                    MarketStreet.getName(),
-                    StPetersSquare.getName());
 
             // multiple possible places to change depending on timetable etc
             LocationRefDTO secondStagePlatformStation = secondStagePlatform.getStation();
