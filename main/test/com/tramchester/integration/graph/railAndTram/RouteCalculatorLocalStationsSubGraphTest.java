@@ -9,8 +9,8 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.RouteStation;
@@ -29,6 +29,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
@@ -37,7 +38,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -52,13 +52,13 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
     private TramDate when;
 
-    private static final List<IdFor<Station>> stationIds = Stream.of(
+    private static final IdSet<Station> stationIds = FakeStation.IdSetOf(
             TramStations.Altrincham,
             TramStations.NavigationRoad,
             TramStations.Timperley,
             RailStationIds.Altrincham,
             RailStationIds.NavigationRaod,
-            RailStationIds.Stockport).map(HasId::getId).toList();
+            RailStationIds.Stockport);
 
     private GraphTransaction txn;
     private StationRepository stationRepository;

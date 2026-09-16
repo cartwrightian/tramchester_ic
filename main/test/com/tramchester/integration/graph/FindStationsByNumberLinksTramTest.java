@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
@@ -21,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -85,7 +83,7 @@ class FindStationsByNumberLinksTramTest {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
-        List<IdFor<Station>> expectedList = Stream.of(
+        IdSet<Station> expected = FakeStation.IdSetOf(
                 PiccadillyGardens,
                 //Piccadilly,
                 MarketStreet,
@@ -98,13 +96,12 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                OldhamMumps,
-                Westwood,
+//                OldhamMumps,
+//                Westwood,
                 Shudehill
 
-        ).map(FakeStation::getId).toList();
+        );
 
-        IdSet<Station> expected = new IdSet<>(expectedList);
         ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);
 
         assertTrue(diff.isEmpty(), "Different: " + diff + "\nbetween expected:\n" + expected + " \nfound:" + found);

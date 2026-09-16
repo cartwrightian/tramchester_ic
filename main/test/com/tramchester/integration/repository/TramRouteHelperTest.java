@@ -39,7 +39,7 @@ class TramRouteHelperTest {
 
     @Test
     void shouldCheckBusRoutes() {
-        assertTrue(TFGMRouteNames.RochdaleOldham.isReplacementBus());
+        assertTrue(TFGMRouteNames.ReplacementBus.isReplacementBus());
     }
 
     @Test

@@ -7,7 +7,6 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -27,10 +26,7 @@ import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
@@ -44,6 +40,7 @@ import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -61,7 +58,7 @@ public class RouteToRouteCostsTest {
     private RouteRepository routeRepository;
     private StationRepository stationRepository;
     private final ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
-    private TramDate date;
+    private TramDate when;
     private TimeRange timeRange;
 
     @BeforeAll
@@ -84,7 +81,7 @@ public class RouteToRouteCostsTest {
         routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(componentContainer);
 
-        date = TestEnv.testDay();
+        when = TestEnv.testDay();
         timeRange = TimeRangePartial.of(TramTime.of(7,45), TramTime.of(22,45));
     }
 
@@ -98,15 +95,15 @@ public class RouteToRouteCostsTest {
         // What is going on with Harbour City??
         Set<StationPair> pairs = allStations.stream().
                 flatMap(start -> allStations.stream().map(dest -> StationPair.of(start, dest))).
-                filter(pair -> !UpcomingDates.hasClosure(pair.getStationIds(), date)).
+                filter(pair -> !UpcomingDates.hasClosure(pair.getStationIds(), when)).
                 filter(pair -> open(closedStationsRepository, pair)).
-                filter(pair -> avoid(HarbourCity, pair)).
+                //filter(pair -> avoid(HarbourCity, pair)).
                 filter(pair -> !pair.areSame()).
                 collect(Collectors.toSet());
 
         int duration = config.getMaxJourneyDuration();
         long maxJourneys = 1;
-        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(10,45), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(10,45), false,
             config.getMaxNumberChanges(), TramDuration.ofMinutes(duration), maxJourneys, TramsOnly);
 
         Set<Integer> changes = new HashSet<>();
@@ -120,7 +117,7 @@ public class RouteToRouteCostsTest {
             }
         });
 
-        assertTrue(missing.isEmpty(), "On " + date + " " + missing);
+        assertTrue(missing.isEmpty(), "On " + when + " " + missing);
 
         assertEquals(2, changes.size());
         assertTrue(changes.contains(0));
@@ -128,21 +125,15 @@ public class RouteToRouteCostsTest {
 
     }
 
-    private boolean avoid(TramStations tramStation, StationPair pair) {
-        IdFor<Station> id = tramStation.getId();
-        return !id.equals(pair.getBegin().getId()) && !id.equals(pair.getEnd().getId());
-    }
-
     private boolean open(ClosedStationsRepository closedStationsRepository, StationPair pair) {
-        return !closedStationsRepository.isClosed(pair.getBegin(), date) &&
-                !closedStationsRepository.isClosed(pair.getEnd(), date);
+        return !closedStationsRepository.isClosed(pair.getBegin(), when) &&
+                !closedStationsRepository.isClosed(pair.getEnd(), when);
     }
-
 
     @Test
     void shouldHaveFullyConnectedForTramsWhereDatesOverlaps() {
         Set<Route> routes = routeRepository.getRoutes(modes).stream().
-                filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+                filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
 
         TimeRange timeRangeForOverlaps = TimeRangePartial.of(TramTime.of(8, 45), TramTime.of(16, 45));
 
@@ -151,60 +142,60 @@ public class RouteToRouteCostsTest {
         for (Route start : routes) {
             for (Route end : routes) {
                 if (!start.equals(end) && start.isDateOverlap(end)) {
-                    int minChange = routesCostRepository.getPossibleMinChanges(start, end, date, timeRangeForOverlaps, modes);
+                    int minChange = routesCostRepository.getPossibleMinChanges(start, end, when, timeRangeForOverlaps, modes);
                     if (minChange ==Integer.MAX_VALUE) {
                         failed.add(new RoutePair(start, end));
                     } else {
                        assertTrue(config.getMaxNumberChanges()>=minChange, "Too many changes " + start.getId() +
-                               " and " + end.getId() + " on " + date);
+                               " and " + end.getId() + " on " + when);
                     }
                 }
             }
         }
 
-        assertTrue(failed.isEmpty(), "on date " + date + failed);
+        assertTrue(failed.isEmpty(), "on date " + when + failed);
     }
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.getNavy(date);
+        Route routeA = routeHelper.getNavy(when);
 
-        assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
+        assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, when, timeRange, modes)));
     }
 
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
-        Route routeA = routeHelper.getRed(date);
-        Route routeB = routeHelper.getYellow(date);
+        Route routeA = routeHelper.getRed(when);
+        Route routeB = routeHelper.getYellow(when);
 
         // -1 since Trafford Centre route currently starting at Victoria
-        assertEquals(2-1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
+        assertEquals(2-1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, when, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(2-1, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, timeRange, modes)),
+        assertEquals(2-1, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, when, timeRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
-        Route routeA = routeHelper.getRed(date);
-        Route routeB = routeHelper.getPurple(date);
+        Route routeA = routeHelper.getRed(when);
+        Route routeB = routeHelper.getPurple(when);
 
-        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
+        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, when, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
 
         TimeRange outOfRange = TimeRangePartial.of(TramTime.of(3,35), TramTime.of(3,45));
-        assertEquals(Integer.MAX_VALUE, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, outOfRange, modes)),
+        assertEquals(Integer.MAX_VALUE, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, when, outOfRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
-        Route routeA = routeHelper.getGreen(date);
-        Route routeB = routeHelper.getNavy(date);
+        Route routeA = routeHelper.getGreen(when);
+        Route routeB = routeHelper.getNavy(when);
 
-        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
+        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, when, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, date, timeRange, modes)),
+        assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeB, routeA, when, timeRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
 
     }
@@ -213,7 +204,7 @@ public class RouteToRouteCostsTest {
     void shouldFindLowestHopCountForTwoStations() {
         Station start = TramStations.Altrincham.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        int result = getPossibleMinChanges(start, end, modes, date, timeRange);
+        int result = getPossibleMinChanges(start, end, modes, when, timeRange);
 
         assertEquals(1, getMinCost(result));
     }
@@ -233,7 +224,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        int result = getPossibleMinChanges(start, end, RailOnly, date, timeRange);
+        int result = getPossibleMinChanges(start, end, RailOnly, when, timeRange);
 
         assertEquals(Integer.MAX_VALUE, getMinCost(result));
 
@@ -244,7 +235,7 @@ public class RouteToRouteCostsTest {
         Station mediaCity = MediaCityUK.from(stationRepository);
         Station ashton = ManAirport.from(stationRepository);
 
-        int result = getPossibleMinChanges(mediaCity, ashton, modes, date, timeRange);
+        int result = getPossibleMinChanges(mediaCity, ashton, modes, when, timeRange);
 
         assertEquals(1, getMinCost(result));
     }
@@ -252,7 +243,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldFindMediaCityToAshtonReproIssueWithCommutedChangesFindingNoResults() {
         int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),
-                Ashton.from(stationRepository), modes, date, timeRange);
+                Ashton.from(stationRepository), modes, when, timeRange);
 
         assertEquals(1, possibleMin);
     }
@@ -261,21 +252,47 @@ public class RouteToRouteCostsTest {
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        int result = getPossibleMinChanges(start, end, modes, date, timeRange);
+        int result = getPossibleMinChanges(start, end, modes, when, timeRange);
 
         assertEquals(0, getMinCost(result));
+    }
+
+    @Disabled("Picc garden walks needed")
+    @Test
+    void shouldReproIssueWithNoRoutesBetweenStPetersAndAshton() {
+        //TramDate date = TramDate.of(2026, 9, 19);
+        Station stPeters = StPetersSquare.from(stationRepository);
+
+        UpcomingDates.daysAhead().forEach(date -> {
+            // varies by date
+
+            assertReasonableConnectionsBetween(date, stPeters, Piccadilly);
+            assertReasonableConnectionsBetween(date, stPeters, PiccadillyGardens);
+            assertReasonableConnectionsBetween(date, stPeters, NewIslington);
+            assertReasonableConnectionsBetween(date, stPeters, Etihad);
+            assertReasonableConnectionsBetween(date, PiccadillyGardens.from(stationRepository), Ashton);
+            assertReasonableConnectionsBetween(date, stPeters, Etihad);
+            assertReasonableConnectionsBetween(date, stPeters, Ashton);
+        });
+
+    }
+
+    private void assertReasonableConnectionsBetween(TramDate date, Station start, TramStations end) {
+        int possibleMinChanges = getPossibleMinChanges(start, end.from(stationRepository), modes, date, timeRange);
+        assertTrue(possibleMinChanges <= 1, format("Too many changes (%s) found between %s and %s on %s",
+                possibleMinChanges, start.getId(), end.getId(), date));
     }
 
     @Test
     void shouldSortAsExpected() {
 
-        Route routeA = routeHelper.getRed(date);
-        Route routeB = routeHelper.getNavy(date);
-        Route routeC = routeHelper.getYellow(date);
+        Route routeA = routeHelper.getRed(when);
+        Route routeB = routeHelper.getNavy(when);
+        Route routeC = routeHelper.getYellow(when);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
 
-        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalculatorFor(LocationCollectionSingleton.of(destination), date, timeRange, modes);
+        LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalculatorFor(LocationCollectionSingleton.of(destination), when, timeRange, modes);
         Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
         List<Route> results = sorts.sortByDestinations(toSort).toList();
 
@@ -298,7 +315,7 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
+        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, when, timeRange);
 
         assertEquals(0, getMinCost(changes), changes);
     }
@@ -312,9 +329,9 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = Cornbrook.from(stationRepository);
 
-        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
+        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, when, timeRange);
 
-        assertEquals(0, getMinCost(changes), "On " + date + " " + changes);
+        assertEquals(0, getMinCost(changes), "On " + when + " " + changes);
     }
 
     @Test
@@ -326,9 +343,9 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
+        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, when, timeRange);
 
-        assertEquals(0, getMinCost(changes), "On " + date+ " " + changes);
+        assertEquals(0, getMinCost(changes), "On " + when + " " + changes);
     }
 
     private int getMinCost(int placeHolder) {

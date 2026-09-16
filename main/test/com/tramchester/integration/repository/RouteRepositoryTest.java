@@ -8,6 +8,7 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -18,20 +19,21 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -194,18 +196,62 @@ public class RouteRepositoryTest {
 
         Set<RoutePair> noOverlap = new HashSet<>();
 
-        for (TFGMRouteNames knownRouteA : knownTram) {
-            for (TFGMRouteNames knownRouteB : knownTram) {
-                Route routeA = routeHelper.getOneRoute(knownRouteA, when);
-                Route routeB = routeHelper.getOneRoute(knownRouteB, when);
-                if (!routeA.isDateOverlap(routeB)) {
-                    noOverlap.add(RoutePair.of(routeA, routeB));
+        UpcomingDates.daysAhead().forEach(date -> {
+
+            for (TFGMRouteNames routeNameA : knownTram) {
+                for (TFGMRouteNames routeNameB : knownTram) {
+                    Optional<Route> maybeRouteA = maybeRouteForDate(date, routeNameA);
+                    Optional<Route> maybeRouteB = maybeRouteForDate(date, routeNameB);
+                    if (maybeRouteA.isPresent() && maybeRouteB.isPresent()) {
+                        final Route routeA = maybeRouteA.get();
+                        final Route routeB = maybeRouteB.get();
+                        if (!routeA.isDateOverlap(routeB)) {
+                            noOverlap.add(RoutePair.of(routeA, routeB));
+                        }
+                    }
                 }
             }
-        }
 
-        assertTrue(noOverlap.isEmpty(), noOverlap.toString());
+            assertTrue(noOverlap.isEmpty(), "On " + date + " " + noOverlap);
+        });
 
+    }
+
+    @Test
+    void shouldReproduceIssueWithRoutesThatHaveNoOverlap() {
+        UpcomingDates.daysAhead().forEach(date -> {
+            Route route = routeHelper.getOneRoute(Blue, date);
+            assertTrue(route.isDateOverlap(route), date + " failed for route " + route);
+        } );
+
+    }
+
+    @Test
+    void shouldOverlapWithSelf() {
+
+        Set<TFGMRouteNames> knownTram = Arrays.stream(TFGMRouteNames.values()).
+                filter(route -> !route.isReplacementBus()).
+                collect(Collectors.toSet());
+
+        UpcomingDates.daysAhead().forEach(date -> {
+            Set<Route> noOverlap = new HashSet<>();
+            for (TFGMRouteNames name : knownTram) {
+                Optional<Route> maybeRoute = maybeRouteForDate(date, name);
+                if (maybeRoute.isPresent()) {
+                    Route route = maybeRoute.get();
+                    if (!route.isDateOverlap(route)) {
+                        noOverlap.add(route);
+                    }
+                }
+            }
+            assertTrue(noOverlap.isEmpty(), date + " problem with self overlap for " + HasId.asIds(noOverlap));
+        });
+    }
+
+    Optional<Route> maybeRouteForDate(TramDate date, TFGMRouteNames routeName) {
+        return routeRepository.getRoutesRunningOn(date, TramsOnly).stream().
+                filter(route -> ((TramRouteId) route.getId()).getRouteName() == routeName).
+                findFirst();
     }
 
     @Test
@@ -213,7 +259,7 @@ public class RouteRepositoryTest {
 
         TramDate date =  when;
 
-        Route routeA = routeHelper.getOneRoute(TFGMRouteNames.Yellow, date);
+        Route routeA = routeHelper.getOneRoute(Yellow, date);
         Route routeB = routeHelper.getOneRoute(Green, date);
 
         assertTrue(routeA.isAvailableOn(date));
@@ -221,6 +267,49 @@ public class RouteRepositoryTest {
 
         assertTrue(routeA.isDateOverlap(routeB), "no overlap for " + routeA + " and " + routeB);
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);
+    }
+
+    @Test
+    void shouldReproduceIssuesStPetersSquareSept2026() {
+
+        TramDate problemDate = TramDate.of(2026, 9, 19);
+//        assertHaveOverlap(problemDate, StPetersSquare, PiccadillyGardens);
+        assertHaveOverlap(problemDate, StPetersSquare, Piccadilly);
+//        assertHaveOverlap(problemDate, StPetersSquare, NewIslington);
+//        assertHaveOverlap(problemDate, StPetersSquare, HoltTown);
+        assertHaveOverlap(problemDate, StPetersSquare, Etihad);
+
+//        assertHaveOverlap(problemDate, Piccadilly, Etihad);
+//        assertHaveOverlap(problemDate, Piccadilly, VeloPark);
+        assertHaveOverlap(problemDate, Piccadilly, Ashton);
+
+//        assertHaveOverlap(problemDate, NewIslington, Ashton);
+        assertHaveOverlap(problemDate, Etihad, Ashton);
+//        assertHaveOverlap(problemDate, VeloPark, Ashton);
+
+        //assertHaveOverlap(problemDate, StPetersSquare, VeloPark);
+//        assertHaveOverlap(problemDate, StPetersSquare, Ashton);
+
+    }
+
+    private void assertHaveOverlap(TramDate problemDate, TramStations start, TramStations end) {
+        Set<Route> overlapRoutesFor = getOverlapRoutesFor(problemDate, start, end);
+        assertFalse(overlapRoutesFor.isEmpty(), "no overlap between " + start + " and " + end);
+    }
+
+    private Set<Route> getOverlapRoutesFor(TramDate problemDate, TramStations startStart, TramStations endStation) {
+        Station start = startStart.from(stationRepository);
+        Station end = endStation.from(stationRepository);
+
+        Set<Route> rawPickups = start.getPickupRoutes();
+        Set<Route> pickupAvailable = rawPickups.stream().filter(route -> route.isAvailableOn(problemDate)).collect(Collectors.toSet());
+        assertFalse(pickupAvailable.isEmpty());
+
+        Set<Route> rawDropoffs = end.getDropoffRoutes();
+        Set<Route> dropoffAvailable = rawDropoffs.stream().filter(route -> route.isAvailableOn(problemDate)).collect(Collectors.toSet());
+        assertFalse(dropoffAvailable.isEmpty());
+
+        return SetUtils.intersection(pickupAvailable, dropoffAvailable);
     }
 
     @Test

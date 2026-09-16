@@ -29,7 +29,7 @@ public interface JourneyStateUpdate {
     void updateTotalCost(TramDuration total);
     void recordDepartureTimeAtMinuteNode(TramTime time, TramDuration totalCost) throws TramchesterException;
 
-    void recordRouteStation(GraphNode node);
+    void recordRouteStation(GraphNode node, boolean endOfTrip);
 
     void recordStationGroup(IdFor<StationGroup> stationGroupId);
 

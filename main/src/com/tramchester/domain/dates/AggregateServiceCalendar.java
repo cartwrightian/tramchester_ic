@@ -39,16 +39,16 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         });
     }
 
-    private MutableDaysBitmap createDaysBitset(DateRange dateRange) {
-        long earliest = dateRange.getStartDate().toEpochDay();
-        long latest = dateRange.getEndDate().toEpochDay();
+    private MutableDaysBitmap createDaysBitset(final DateRange dateRange) {
+        final long earliest = dateRange.getStartDate().toEpochDay();
+        //final long latest = dateRange.getEndDate().toEpochDay();
 
-        int size = Math.toIntExact(Math.subtractExact(latest, earliest));
+        final int size = Math.toIntExact(dateRange.numberOfDays());
 
         return new MutableDaysBitmap(earliest, size);
     }
 
-    private void setDaysFor(ServiceCalendar calendar) {
+    private void setDaysFor(final ServiceCalendar calendar) {
         days.insert(calendar.getDaysBitmap());
     }
 
@@ -86,7 +86,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     @Override
-    public boolean anyDateOverlaps(ServiceCalendar other) {
+    public boolean anyDateOverlaps(final ServiceCalendar other) {
         return this.days.anyOverlap(other.getDaysBitmap());
     }
 

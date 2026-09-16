@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,8 +82,7 @@ class TrainDeparturesDataFetcherTest {
 
         Station from = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
-        ImmutableIdSet<Station> callingPoints = Stream.of(RailStationIds.Stockport, RailStationIds.StokeOnTrent).
-                map(FakeStation::getId).collect(IdSet.idCollector());
+        IdSet<Station> callingPoints = FakeStation.IdSetOf(RailStationIds.Stockport, RailStationIds.StokeOnTrent);
 
         IdFor<Station> destId = RailStationIds.LondonEuston.getId();
 
@@ -121,8 +119,7 @@ class TrainDeparturesDataFetcherTest {
 
         Station from = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
-        ImmutableIdSet<Station> callingPoints = Stream.of(RailStationIds.Stockport).
-                map(FakeStation::getId).collect(IdSet.idCollector());
+        IdSet<Station> callingPoints = FakeStation.IdSetOf(RailStationIds.Stockport);
 
         IdFor<Station> destId = TramStations.Altrincham.getId();
 

@@ -141,15 +141,16 @@ public class Interchanges implements InterchangeRepository {
     private void populateInterchangesFor(final TransportMode mode, final int linkThreshhold) {
 
         logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
-        final ImmutableIdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
+        final ImmutableIdSet<Station> rawIds = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
 
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
-        Set<Station> foundViaLinks = foundIdsViaLinks.stream().
+        Set<Station> foundViaLinks = rawIds.stream().
                 map(stationRepository::getStationById).
                  filter(station -> !station.isMarkedInterchange()).
                 filter(station -> !config.onlyMarkedInterchange(station)).
                 collect(Collectors.toSet());
-        logger.info(format("Added %s interchanges for %s and link threshold %s", foundViaLinks.size(), mode, linkThreshhold));
+        logger.info(format("Added %s interchanges for %s and link threshold %s interchanges %s", foundViaLinks.size(), mode, linkThreshhold,
+                HasId.asIds(foundViaLinks)));
         addStations(foundViaLinks, InterchangeType.NumberOfLinks);
     }
 
@@ -168,8 +169,16 @@ public class Interchanges implements InterchangeRepository {
         interchanges.putAll(toAdd);
     }
 
-    private void addStationToInterchanges(final Station station, final InterchangeType type) {
-        interchanges.put(station.getId(), new SimpleInterchangeStation(station, type));
+    private boolean addStationToInterchanges(final Station station, final InterchangeType type) {
+        final IdFor<Station> stationId = station.getId();
+        if (interchanges.containsKey(stationId)) {
+            logger.error("Already contained " + stationId + " " + interchanges.get(stationId));
+            return false;
+        }
+
+        interchanges.put(stationId, new SimpleInterchangeStation(station, type));
+        return true;
+
     }
 
     public static int getLinkThreshhold(final TransportMode mode) {
@@ -228,8 +237,9 @@ public class Interchanges implements InterchangeRepository {
         long countBefore = interchanges.size();
         stations.forEach(station -> enabledModes.forEach(enabledMode -> {
             if (station.servesMode(enabledMode)) {
-                addStationToInterchanges(station, type);
-                logger.info("Added interchange " + station.getId() + " for mode " + enabledMode);
+                if (addStationToInterchanges(station, type)) {
+                    logger.info("Added interchange " + station.getId() + " for mode " + enabledMode);
+                }
             }
         }));
         if (countBefore == interchanges.size()) {
@@ -239,12 +249,23 @@ public class Interchanges implements InterchangeRepository {
 
     private void addMultiModeStations() {
         // NOTE: by default the train data set contains mixed mode due to replacement buses, bus links, subways etc
-        Set<Station> multimodeStations = stationRepository.getActiveStationStream().
+        final Set<Station> multimodeStations = stationRepository.getActiveStationStream().
                 filter(station -> station.getTransportModes().size() > 1).
                 collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");
-        multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> addStationToInterchanges(station,
-                InterchangeType.Multimodal)));
+
+        final IdSet<Station> couldNotAdd = multimodeStations.stream().
+                filter(station -> !addStationToInterchanges(station, InterchangeType.Multimodal)).
+                collect(IdSet.collector());
+
+        //        multimodeStations.forEach(station -> station.getTransportModes().forEach(x -> addStationToInterchanges(station,
+//                InterchangeType.Multimodal)));
+
+        if (!couldNotAdd.isEmpty()) {
+            logger.error("Failed to add multimode interchanes " + couldNotAdd);
+        }
+
+
     }
 
     @Override

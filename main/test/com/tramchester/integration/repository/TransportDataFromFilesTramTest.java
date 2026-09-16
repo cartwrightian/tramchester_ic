@@ -98,7 +98,7 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TransportMode.TramsOnly).size());
 
-        int expectedPlatforms = 201;
+        int expectedPlatforms = 201-2;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TransportMode.TramsOnly).size());
     }
 

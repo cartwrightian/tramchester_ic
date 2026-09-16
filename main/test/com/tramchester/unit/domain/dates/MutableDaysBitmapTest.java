@@ -96,6 +96,24 @@ public class MutableDaysBitmapTest {
     }
 
     @Test
+    void shouldBehaveCorrectlyForSingleDay() {
+        long epochDay = when.toEpochDay();
+
+        //int size = Math.toIntExact(Math.subtractExact(epochDay, epochDay));
+        MutableDaysBitmap oneDayBitmapA = new MutableDaysBitmap(epochDay, 1);
+        assertFalse(oneDayBitmapA.isSet(when));
+
+        MutableDaysBitmap oneDayBitmapB = new MutableDaysBitmap(epochDay, 1);
+        oneDayBitmapB.set(when);
+
+        assertTrue(oneDayBitmapB.isSet(when));
+
+        oneDayBitmapA.insert(oneDayBitmapB);
+        assertTrue(oneDayBitmapA.isSet(when));
+
+    }
+
+    @Test
     void shouldGiveExpectedResultsWhenMatchingDateAndSize() {
         MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
         MutableDaysBitmap second = new MutableDaysBitmap(epochDay, 14);

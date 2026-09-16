@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.dates.TramDate.of;
-import static com.tramchester.integration.repository.StopCallRepositoryTest.CrumpsalToBury;
-import static com.tramchester.testSupport.reference.TramStations.MarketStreet;
-import static com.tramchester.testSupport.reference.TramStations.Shudehill;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -38,15 +36,14 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-//    public static TramDate RochdaleLinePhase3 = TramDate.of(2026, 9, 5);
-//    public static TramDate DeansgateTraffordBarSept6 = TramDate.of(2026, 9, 6);
-    public static DateRange BuryLineSept12 = DateRange.of(TramDate.of(2026, 9, 12),
-            TramDate.of(2026, 9, 13));
-
-    public static TramDate BuryLineSept19Undoc = TramDate.of(2026, 9, 19);
+//    public static DateRange BuryLineSept12 = DateRange.of(TramDate.of(2026, 9, 12),
+//            TramDate.of(2026, 9, 13));
 
     public static DateRange MarketStreetAndShudehillSept = DateRange.of(TramDate.of(2026, 9, 21),
             TramDate.of(2026, 9, 26));
+
+    public static DateRange PiccGardensAutumn2026 = DateRange.of(TramDate.of(2026, 9, 27),
+            TramDate.of(2026, 10, 3));
 
     // ongoing? Used to add walk Media City to Imperial Was Museum
     public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 1),
@@ -60,20 +57,7 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
-//        if (RochdaleLinePhase3.equals(date)) {
-//            if (FreeholdToRochdaleStations.contains(stationId)) {
-//                return true;
-//            }
-//        }
-//        if (DeansgateTraffordBarSept6.equals(date)) {
-//            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(12,0));
-//            return closure.anyOverlap(timeRange);
-//        }
-        if (BuryLineSept12.contains(date)) { // || BuryLineSept19Undoc.equals(date)) {
-            if (CrumpsalToBury.contains(stationId)) {
-                return true;
-            }
-        }
+
         if (MarketStreetAndShudehillSept.contains(date)) {
             if (MarketStreet.matches(stationId) || Shudehill.matches(stationId)) {
                 return true;
@@ -82,6 +66,11 @@ public class UpcomingDates {
         if (victoriaLineEarlyMorning.equals(date)) {
             TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(10,0));
             if (closure.anyOverlap(timeRange)) {
+                return true;
+            }
+        }
+        if (PiccGardensAutumn2026.contains(date)) {
+            if (PiccadillyGardens.matches(stationId)) {
                 return true;
             }
         }

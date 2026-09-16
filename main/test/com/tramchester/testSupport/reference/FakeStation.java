@@ -5,10 +5,7 @@ import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
@@ -19,10 +16,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.StationRepository;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public interface FakeStation extends HasId<Station> {
@@ -140,5 +134,9 @@ public interface FakeStation extends HasId<Station> {
                                   GridPosition gridPosition, DataSourceID dataSourceID, boolean isCentral) {
             super(id, localityId, stationName, latLong, gridPosition, dataSourceID, isCentral);
         }
+    }
+
+    static IdSet<Station> IdSetOf(FakeStation... fakeStations) {
+        return Arrays.stream(fakeStations).map(FakeStation::getId).collect(IdSet.idCollector());
     }
 }

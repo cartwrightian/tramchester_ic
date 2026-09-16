@@ -13,15 +13,22 @@ public class MutableDaysBitmap implements DaysBitmap {
     private final BitSet days;
     private final int size;
 
-    public MutableDaysBitmap(long beginningEpochDay, int size) {
+    public MutableDaysBitmap(final long beginningEpochDay, final int size) {
         this.beginningDay = beginningEpochDay;
         this.days = new BitSet(size);
         this.size = size;
+        if (size==0) {
+            throw new RuntimeException("Cannot set to zero size");
+        }
     }
 
+    /***
+     * Set true matching days for entire date range of the bitmap
+     * @param operatingDays weekdays to set true
+     */
     public void setDaysOfWeek(final EnumSet<DayOfWeek> operatingDays) {
         for (int i = 0; i < size; i++) {
-            TramDate date = TramDate.of(beginningDay + i);
+            final TramDate date = TramDate.of(beginningDay + i);
             if (operatingDays.contains(date.getDayOfWeek())) {
                 days.set(i);
             }

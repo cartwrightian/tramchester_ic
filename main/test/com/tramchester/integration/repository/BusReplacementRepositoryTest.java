@@ -46,9 +46,10 @@ public class BusReplacementRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfReplacementBuses() {
-        assertTrue(repository.hasReplacementBuses());
+        // none, as of 16th Sept
+        assertFalse(repository.hasReplacementBuses(), "buses running");
 
-        assertEquals(2, repository.number());
+        assertEquals(0, repository.number());
     }
 
     @Test

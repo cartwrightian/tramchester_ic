@@ -8,8 +8,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -22,6 +21,7 @@ import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchest
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
@@ -29,9 +29,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -45,11 +44,11 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
-    private static final List<IdFor<Station>> stations = Stream.of(Victoria, ExchangeSquare, StPetersSquare,
+    private static final IdSet<Station> stations = FakeStation.IdSetOf(Victoria, ExchangeSquare, StPetersSquare,
             Deansgate, Cornbrook, Pomona, ExchangeQuay, SalfordQuay, Anchorage, HarbourCity,
             MediaCityUK, Broadway, Langworthy, Weaste, Ladywell, Eccles,
             RailStationIds.ManchesterVictoria,
-            RailStationIds.ManchesterOxfordRoad).map(HasId::getId).toList();
+            RailStationIds.ManchesterOxfordRoad); //.map(HasId::getId).toList();
 
     private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
@@ -74,7 +73,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
         graphFilter.addAgency(TrainOperatingCompanies.NT.getAgencyId());
         graphFilter.addAgency(MutableAgency.METL);
         // GM train stations
-        transportData.getStations(RailOnly).forEach(station -> graphFilter.addStation(station.getId()));
+        transportData.getStations(TrainOnly).forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterEach

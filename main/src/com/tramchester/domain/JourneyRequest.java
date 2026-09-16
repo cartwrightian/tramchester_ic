@@ -34,11 +34,20 @@ public class JourneyRequest {
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
                           TramDuration maxJourneyDuration, long maxNumberOfJourneys, ImmutableEnumSet<TransportMode> requestedModes) {
         this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys,
-                requestedModes);
+                requestedModes, true);
     }
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,
-                          TramDuration maxJourneyDuration, long maxNumberOfJourneys, ImmutableEnumSet<TransportMode> requestedModes) {
+                   TramDuration maxJourneyDuration, long maxNumberOfJourneys,
+                   ImmutableEnumSet<TransportMode> requestedModes)
+    {
+        this(date, originalQueryTime, arriveBy, maxChanges, maxJourneyDuration,
+                maxNumberOfJourneys, requestedModes,true);
+    }
+
+    public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,
+                          TramDuration maxJourneyDuration, long maxNumberOfJourneys,
+                          ImmutableEnumSet<TransportMode> requestedModes, boolean assertOnNumChanges) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
@@ -57,16 +66,19 @@ public class JourneyRequest {
         warnIfNoResults = true;
         diagnosticsReceived = new AtomicBoolean(false);
 
-        final int limit = (requestedModes.size() == 1) ? 2 : 3;
-        if (maxChanges.get() > limit) {
-            throw new RuntimeException("Finding out where it's too high, got " + maxChanges + " > " + limit + " " + requestedModes);
+        if (assertOnNumChanges) {
+            final int limit = (requestedModes.size() == 1) ? 2 : 3;
+            if (maxChanges.get() > limit) {
+                throw new RuntimeException("Finding out where it's too high, got " + maxChanges + " > " + limit + " " + requestedModes);
+            }
         }
 
     }
 
     public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {
         this(originalRequest.date, computedDepartTime, originalRequest.arriveBy, originalRequest.maxChanges,
-                originalRequest.maxJourneyDuration, originalRequest.maxNumberOfJourneys, originalRequest.requestedModes);
+                originalRequest.maxJourneyDuration, originalRequest.maxNumberOfJourneys,
+                originalRequest.requestedModes, false);
         diagRequested = originalRequest.diagRequested;
         warnIfNoResults = originalRequest.warnIfNoResults;
     }

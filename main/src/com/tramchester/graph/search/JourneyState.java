@@ -35,7 +35,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private ImmutableTraversalState traversalState;
     private final IdSet<Trip> tripsDone;
     private IdFor<Trip> currentTrip;
-    private final IdSet<Station> passedStations;
+    private final List<IdFor<Station>> passedStations;
+    private final IdSet<Station> duplicatedPasses;
 
     public JourneyState(final TramTime queryTime, final TraversalState traversalState) {
         coreState = new CoreState(queryTime);
@@ -43,7 +44,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.traversalState = traversalState;
         journeyOffset = TramDuration.ZERO;
         tripsDone = new IdSet<>();
-        passedStations = new IdSet<>();
+        passedStations = new ArrayList<>();
+        duplicatedPasses = new IdSet<>();
         currentTrip = Trip.InvalidId();
     }
 
@@ -59,7 +61,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
         this.tripsDone = IdSet.copy(previousState.tripsDone);
-        this.passedStations = IdSet.copy(previousState.passedStations);
+        this.passedStations = new ArrayList<>(previousState.passedStations);
+        this.duplicatedPasses = IdSet.copy(previousState.duplicatedPasses);
         this.currentTrip = previousState.currentTrip;
         if (coreState.onBoard()) {
             this.boardingTime = previousState.boardingTime;
@@ -92,15 +95,35 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void recordRouteStation(final GraphNode node) {
-        final IdFor<Station> stationsId = node.getStationId();
-        passedStations.add(stationsId);
-        coreState.seenRouteStation(stationsId);
+    public void recordRouteStation(final GraphNode node, final boolean justBoarded) {
+        final IdFor<Station> stationId = node.getStationId();
+        final boolean alreadyPassed = passedStations.contains(stationId);
+        if (justBoarded) {
+            if (passedStations.isEmpty()) {
+                passedStations.add(stationId);
+            }
+            // else NOT an error since might have walking connection or similar
+            // i.e. media city to imperial war museum
+        } else {
+            if (alreadyPassed) {
+                // TODO only warn if appropriate i.e. this is never an issue for trains
+//                logger.warn("Passed station again " + stationId);
+                duplicatedPasses.add(stationId);
+            }
+            passedStations.add(stationId);
+        }
+
+        coreState.recordSeenRouteStation(stationId);
+    }
+
+    @Override
+    public boolean duplicatedBoardingSeen() {
+        return coreState.duplicatedBoardingSeen();
     }
 
     @Override
     public void recordStationGroup(final IdFor<StationGroup> stationGroupId) {
-        coreState.seenStationGroup(stationGroupId);
+        coreState.recordSeenStationGroup(stationGroupId);
     }
 
     @Override
@@ -143,6 +166,13 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return currentTrip;
     }
 
+    /***
+     * Use to check don't add a diversion back to a station already seen
+     * DONT USE for checking for a return to a station during normal routing as this will not work
+     * due to the update happening *before* this method is called
+     * @param stationId the id of the station to check for
+     * @return we have seen the station already
+     */
     @Override
     public boolean alreadyPassed(final IdFor<Station> stationId) {
         return passedStations.contains(stationId);
@@ -155,7 +185,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
     @Override
     public void recordStation(final IdFor<Station> stationId) {
-        coreState.seenStation(stationId);
+        coreState.recordSeenStation(stationId);
     }
 
     @Override
@@ -278,13 +308,19 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public boolean duplicatedBoardingSeen() {
-        return coreState.duplicatedBoardingSeen();
-    }
-
-    @Override
     public boolean justBoarded() {
         return traversalState.getStateType() == TraversalStateType.JustBoardedState;
+    }
+
+    /***
+     * Did we pass this station more than once?
+     * For trains this isn't an issue, for tfgm trams indicated a inefficient routing
+     * @param stationId id of station to check
+     * @return true, if we passed this station more than once
+     */
+    @Override
+    public boolean hasDuplicatedPass(final IdFor<Station> stationId) {
+        return duplicatedPasses.contains(stationId);
     }
 
     @Override
@@ -473,15 +509,17 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             return currentMode==mode;
         }
 
-        public void seenStation(final IdFor<Station> stationId) {
+        // only during borad/depart
+        public void recordSeenStation(final IdFor<Station> stationId) {
             lastSeenStation = LocationId.wrap(stationId);
         }
 
-        public void seenRouteStation(final IdFor<Station> stationId) {
+        // for every route station on route
+        public void recordSeenRouteStation(final IdFor<Station> stationId) {
             lastSeenStation = LocationId.wrap(stationId);
         }
 
-        public void seenStationGroup(final IdFor<StationGroup> stationGroupId) {
+        public void recordSeenStationGroup(final IdFor<StationGroup> stationGroupId) {
             lastSeenStation = LocationId.wrap(stationGroupId);
         }
 

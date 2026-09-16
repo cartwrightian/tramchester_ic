@@ -118,7 +118,7 @@ public class JourneyConstraints {
                 '}';
     }
 
-    public boolean isUnavailable(final Route route, final TramTime visitTime) {
+    public boolean isUnavailableTimeAndDate(final Route route, final TramTime visitTime) {
         return !routesAndServicesFilter.isRouteRunning(route.getId(), visitTime.isNextDay());
     }
 

@@ -250,7 +250,8 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
                 resultForForRoute.or(otherRoutesConnections);
             });
 
-            final RouteDateAndDayOverlap.RouteOverlaps dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
+            // only those routes whose dates overlap
+            final RouteDateAndDayOverlap.RouteOverlaps dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);
             resultForForRoute.and(dateOverlapMask.getBitSet());
 
             final SimpleImmutableBitmap allExistingConnectionsForRoute = getExistingBitSetsForRoute(route, currentDegree);
@@ -339,10 +340,10 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
                 for (int depth = 0; depth < MAX_DEPTH; depth++) {
                     final IndexedBitSet bitSet = bitSets[depth];
                     for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
-                        SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex);
+                        final SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex);
                         if (bitmapForRow.cardinality() > 0) {
                             final List<Short> bitsSetForRow = bitmapForRow.getBitIndexes().collect(Collectors.toList());
-                            CostsPerDegreeData item = new CostsPerDegreeData(depth, routeIndex, bitsSetForRow);
+                            final CostsPerDegreeData item = new CostsPerDegreeData(depth, routeIndex, bitsSetForRow);
                             saver.write(item);
                         }
                     }

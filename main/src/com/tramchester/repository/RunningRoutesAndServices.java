@@ -132,7 +132,7 @@ public class RunningRoutesAndServices {
             }
         }
 
-        public boolean isRouteRunning(IdFor<Route> routeId, boolean nextDay) {
+        public boolean isRouteRunning(final IdFor<Route> routeId, final boolean nextDay) {
             if (routesToday.hasId(routeId)) {
                 return true;
             }

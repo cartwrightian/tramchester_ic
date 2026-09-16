@@ -61,7 +61,7 @@ public class JustBoardedState extends RouteStationState {
 
     private JustBoardedState(final ImmutableTraversalState traversalState, final Stream<GraphRelationship> outbounds,
                              JourneyStateUpdate journeyState, final TramDuration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
-        super(traversalState, outbounds, journeyState, cost, builder, graphNode);
+        super(traversalState, outbounds, journeyState, cost, builder, graphNode, true);
     }
 
     @Override

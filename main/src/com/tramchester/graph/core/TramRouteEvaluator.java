@@ -246,6 +246,13 @@ public abstract class TramRouteEvaluator {
                 return forMode;
             }
 
+            // WIP SPIKE
+            // TODO only check for appropiate modes and agencies
+//            if (journeyState.hasDuplicatedPass(nextNode.getStationId())) {
+//                // TODO different reason
+//                return HeuristicsReasons.AlreadySeenRouteStation(howIGotHere);
+//            }
+
             final HeuristicsReason stationOpen = serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons);
             if (!stationOpen.isValid()) {
                 // NOTE: might still reach the closed station via a walk, which is not via the RouteStation
@@ -259,7 +266,7 @@ public abstract class TramRouteEvaluator {
                 return modesMatch;
             }
 
-            if (depthFirst) {
+            //if (depthFirst) {
                 // too slow for breadth first on larger graphs
                 final HeuristicsReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
                         howIGotHere, reasons, visitingTime);
@@ -272,7 +279,7 @@ public abstract class TramRouteEvaluator {
                 if (!serviceReason.isValid()) {
                     return serviceReason;
                 }
-            }
+            //}
 
         }
 

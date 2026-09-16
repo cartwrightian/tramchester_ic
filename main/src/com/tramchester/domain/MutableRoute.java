@@ -117,7 +117,7 @@ public class MutableRoute implements Route {
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
                 ", trips=" +  trips.size() +
-                ", serviceDateCache=" + routeCalendar +
+                ", routeCalendar=" + routeCalendar +
                 ", intoNextDay=" + intoNextDay() +
                 '}';
     }
@@ -187,12 +187,6 @@ public class MutableRoute implements Route {
             loaded = false;
         }
 
-        public boolean isAvailableOn(final TramDate date) {
-            loadFromParent();
-
-            return serviceCalendar.operatesOn(date);
-        }
-
         private void loadFromParent() {
             if (loaded) {
                 return;
@@ -206,6 +200,12 @@ public class MutableRoute implements Route {
                 serviceCalendar = new AggregateServiceCalendar(calendars);
             }
             loaded = true;
+        }
+
+        public boolean isAvailableOn(final TramDate date) {
+            loadFromParent();
+
+            return serviceCalendar.operatesOn(date);
         }
 
         public DateRange getDateRange() {
@@ -222,6 +222,7 @@ public class MutableRoute implements Route {
 
         @Override
         public String toString() {
+            loadFromParent();
             return "RouteCalendar{" +
                     "parent=" + owningRoute.getId() +
                     ", serviceCalendar=" + serviceCalendar +

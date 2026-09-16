@@ -122,7 +122,7 @@ public class JourneyQueryDTO  {
 
         final JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy,
                 JourneyRequest.MaxNumberOfChanges.of(maxChanges),
-                maxJourneyDuration, maxNumberResults, modes);
+                maxJourneyDuration, maxNumberResults, modes, false);
 
         if (dto.diagnostics!=null) {
             journeyRequest.setDiag(dto.diagnostics);

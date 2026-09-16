@@ -107,7 +107,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         EasyMock.expect(filterForDate.isRouteRunning(route.getId(), false)).andReturn(true);
 
         replayAll();
-        boolean result = journeyConstraints.isUnavailable(route, time);
+        boolean result = journeyConstraints.isUnavailableTimeAndDate(route, time);
         verifyAll();
 
         assertFalse(result);

@@ -5,7 +5,10 @@ import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -292,7 +295,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
 
 
     @Override
-    public void recordRouteStation(GraphNode node) {
+    public void recordRouteStation(GraphNode node, boolean justBoarded) {
         // no-op
     }
 

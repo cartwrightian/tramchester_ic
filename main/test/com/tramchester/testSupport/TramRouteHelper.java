@@ -59,7 +59,7 @@ public class TramRouteHelper {
     }
 
     public Route getOneRoute(final TFGMRouteNames routeName, final TramDate date) {
-        List<Route> result = routeRepository.getRoutesRunningOn(date, TramsOnly).stream().
+        final List<Route> result = routeRepository.getRoutesRunningOn(date, TramsOnly).stream().
                 filter(route -> ((TramRouteId) route.getId()).getRouteName() == routeName).
                 toList();
 
@@ -97,11 +97,6 @@ public class TramRouteHelper {
         }
     }
 
-
-//    @Deprecated
-//    public Route getOneRoute(@NotNull TestRoute knownTramRoute, TramDate when) {
-//        return getOneRouteFor(knownTramRoute, when);
-//    }
 
     public Route getRed(TramDate date) {
         return getOneRoute(TFGMRouteNames.Red, date);

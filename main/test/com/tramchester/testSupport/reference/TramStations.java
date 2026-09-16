@@ -4,7 +4,6 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -12,7 +11,6 @@ import com.tramchester.domain.reference.TransportMode;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public enum TramStations implements FakeStation, HasId<Station> {
 
@@ -88,7 +86,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Ashton,
             Rochdale,
             Bury,
-            TraffordCentre
+            TraffordCentre,
+            MediaCityUK
             // summer 2026
             //ExchangeSquare
 
@@ -109,10 +108,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
 
     private static LatLong pos(final double lat, final double lon) {
         return new LatLong(lat, lon);
-    }
-
-    public static ImmutableIdSet<Station> ids(TramStations... values) {
-        return Stream.of(values).map(FakeStation::getId).collect(IdSet.idCollector());
     }
 
     @Override

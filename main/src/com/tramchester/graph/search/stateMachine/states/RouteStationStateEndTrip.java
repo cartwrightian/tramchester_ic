@@ -57,7 +57,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                      final Stream<GraphRelationship> routeStationOutbound, final TramDuration cost,
                                      final TransportMode mode, final GraphNode routeStationNode,
                                      final TowardsRouteStation<RouteStationStateEndTrip> builder) {
-        super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode);
+        super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode, false);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
     }

@@ -429,7 +429,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
             assertTrue(arriveTime.isAfter(departTime));
             assertTrue(arriveTime.isAfter(previousArrivalTime) || arriveTime.equals(previousArrivalTime));
             //assertEquals(TraffordBar.getName(), result.getChanges());
-            assertTrue(expectedChanges.contains(result.getChanges()), result.getChanges() + " not within " + expectedChanges);
+
+            assertTrue(expectedChanges.contains(result.getChanges()), "'" +result.getChanges() + "' not within " + expectedChanges);
             previousArrivalTime = arriveTime;
         }
 

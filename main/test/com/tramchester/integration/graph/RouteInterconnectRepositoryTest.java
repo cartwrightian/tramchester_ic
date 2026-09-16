@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -334,7 +333,7 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldCheckFor2ChangesFiltered() {
         // Victoria while Trafford center running from Victoria
-        IdSet<Station> expectedInterchanges = Stream.of(Cornbrook, MarketStreet).map(FakeStation::getId).collect(IdSet.idCollector());
+        IdSet<Station> expectedInterchanges = FakeStation.IdSetOf(Cornbrook, MarketStreet);
 
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
         Route routeB = getRouteFor(TFGMRouteNames.Red);

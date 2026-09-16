@@ -186,7 +186,7 @@ public class ServiceHeuristics {
 
         final Route currentRoute = routeStation.getRoute();
 
-        if (journeyConstraints.isUnavailable(currentRoute, currentElapsed)) {
+        if (journeyConstraints.isUnavailableTimeAndDate(currentRoute, currentElapsed)) {
             return reasons.recordReason(HeuristicsReasons.RouteNotToday(howIGotHere, currentRoute.getId()));
         }
 

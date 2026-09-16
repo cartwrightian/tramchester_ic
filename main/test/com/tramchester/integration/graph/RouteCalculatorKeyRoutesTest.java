@@ -111,11 +111,10 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 13)
+    @DisabledUntilDate(year = 2026, month = 9, day = 16)
     @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
-
 
         final SortedMap<TramDate, LocationIdsAndNames<Station>> missing = new TreeMap<>();
 

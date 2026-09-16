@@ -361,7 +361,7 @@ public abstract class RouteCalculatorSupport {
 
         TramNetworkTraverserFactory traverserFactory = getTraverserFactory(destinations, destinationNodeIds);
 
-        final Stream<Journey> results = findShortestPath(txn, serviceReasons, singlePathRequest,
+        final Stream<Journey> results = findShortestPath(txn.asImmutable(), serviceReasons, singlePathRequest,
                         createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 

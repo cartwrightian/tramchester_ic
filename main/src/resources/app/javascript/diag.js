@@ -6,13 +6,13 @@ import { createApp, ref } from 'vue'
 var L = require('leaflet');
 import 'leaflet-arrowheads'
 
-require('file-loader?name=[name].[ext]!../diag.html');
-
 import 'vuetify/styles'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import { createVuetify } from 'vuetify'
 
+require('file-loader?name=[name].[ext]!../diag.html');
+
+import { createVuetify } from 'vuetify'
 const vuetify = createVuetify({components, directives})
 
 import '@mdi/font/css/materialdesignicons.css'

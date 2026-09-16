@@ -70,7 +70,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private RouteStationStateOnTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships,
                                     final TramDuration cost, final GraphNode routeStationNode, final IdFor<Trip> tripId, final TransportMode transportMode,
                                     final TowardsRouteStation<RouteStationStateOnTrip> builder) {
-        super(parent, relationships, journeyState, cost, builder, routeStationNode);
+        super(parent, relationships, journeyState, cost, builder, routeStationNode, false);
         this.routeStationNode = routeStationNode;
         this.tripId = tripId;
         this.transportMode = transportMode;

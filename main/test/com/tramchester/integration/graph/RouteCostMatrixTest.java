@@ -8,22 +8,25 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.SimpleImmutableBitmap;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -149,6 +152,56 @@ public class RouteCostMatrixTest {
 
         SimpleImmutableBitmap rowAtDepthThree = routeMatrix.getExistingBitSetsForRoute(indexPair.first(), 3);
         assertTrue(rowAtDepthThree.get(indexPair.second()));
+
+    }
+
+    @Test
+    void shouldReproduceIssueWithStPetersToAshton() {
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+
+        Station stPeters = TramStations.StPetersSquare.from(stationRepository);
+        Set<Route> pickups = stPeters.getPickupRoutes();
+
+        Station ashton = TramStations.Ashton.from(stationRepository);
+        Set<Route> dropoffs = ashton.getDropoffRoutes();
+
+        Set<RoutePair> allPairs = pickups.stream().
+                flatMap(pickup -> dropoffs.stream().map(dropoff -> RoutePair.of(pickup, dropoff))).
+                filter(routePair -> !routePair.areSame()).
+                collect(Collectors.toSet());
+
+        // when dates just need to overlap no issues....
+        allPairs.forEach(routePair -> {
+            if (routePair.isDateOverlap()) {
+                final RouteIndexPair indexPair = routeIndex.getPairFor(routePair);
+                List<Integer> degrees = routeMatrix.getAllDegrees(indexPair);
+                assertFalse(degrees.isEmpty(), "No degrees between " + HasId.asIds(routePair));
+            }
+        });
+
+        TramDate problemDate = TramDate.of(2026, 9, 19);
+
+        Set<RoutePair> pairsForDate = allPairs.stream().
+                filter(pair -> pair.bothAvailableOn(problemDate)).
+                collect(Collectors.toSet());
+
+        assertFalse(pairsForDate.isEmpty(), "no pairs for " + problemDate);
+
+        // for specific date find no links
+        Set<RoutePair> missing = new HashSet<>();
+        pairsForDate.forEach(routePair -> {
+            final RouteIndexPair indexPair = routeIndex.getPairFor(routePair);
+            List<Integer> degrees = routeMatrix.getAllDegrees(indexPair);
+            if (degrees.isEmpty()) {
+                missing.add(routePair);
+            }
+        });
+
+        Set<RoutePair> remaining = new HashSet<>(pairsForDate);
+        remaining.removeAll(missing);
+
+        assertTrue(missing.isEmpty(), "No degrees between " + HasId.asIds(missing)
+                + "\n out of " + pairsForDate + "\n leaving " + remaining);
 
     }
 

@@ -42,6 +42,11 @@ public class GraphPersistence {
     private final GetsFileModTime getsFileModTimeModTime;
     private final ProvidesLocalNow providesLocalNow;
 
+    public enum SaveStatus {
+        Saved, Error, NotNeeded
+    }
+
+
     @Inject
     public GraphPersistence(final GetsFileModTime getsFileModTimeModTime, final ProvidesLocalNow providesLocalNow,
                             final GraphLabelsFactory graphLabelsFactory) {
@@ -96,7 +101,7 @@ public class GraphPersistence {
     }
 
     // pass in GraphInMemoryServiceManager to avoid circular dependencies at create time
-    public boolean save(final Path graphPath, final GraphInMemoryServiceManager serviceManager) {
+    public SaveStatus save(final Path graphPath, final GraphInMemoryServiceManager serviceManager) {
         if (!Files.exists(graphPath)) {
             try {
                 logger.info("Create folder " + graphPath);
@@ -107,13 +112,13 @@ public class GraphPersistence {
                 getsFileModTimeModTime.update(graphPath, modTime);
             } catch (IOException e) {
                 logger.error("Could not create dir " + graphPath.toAbsolutePath(), e);
-                return false;
+                return SaveStatus.Error;
             }
         }
 
         if (!Files.isDirectory(graphPath)) {
             logger.error("Is not a dir: " + graphPath.toAbsolutePath());
-            return false;
+            return SaveStatus.Error;
         } else {
             logger.info("Found folder " + graphPath.toAbsolutePath());
         }
@@ -132,7 +137,7 @@ public class GraphPersistence {
                 // warning as always want to know if save failed
                 logger.error("No need to save DB, already up to date, DB timestamp " + dbTimestamp +
                         " after file mod " + dirModTime + " file " + graphPath.toAbsolutePath());
-                return false;
+                return SaveStatus.NotNeeded;
             } else {
                 logger.info("Need to save db:" + dbTimestamp + " folder:" + dirModTime);
             }
@@ -144,7 +149,7 @@ public class GraphPersistence {
 
         if (nodesAndEdges.getNodes().isEmpty() || nodesAndEdges.getRelationships().isEmpty()) {
             logger.error("Empty graph?? " + nodesAndEdges);
-            return false;
+            return SaveStatus.Error;
         }
 
         logger.info("Save graph to dir " + graphPath.toAbsolutePath());
@@ -157,7 +162,7 @@ public class GraphPersistence {
         } catch (IOException e) {
             logger.error("Unable to save relationships to " + relationshipsFile.toAbsolutePath(), e);
             // assume caller tidies up?
-            return false;
+            return SaveStatus.Error;
         }
 
         logger.info("Saving nodes to " + nodesFile.toAbsolutePath());
@@ -167,14 +172,14 @@ public class GraphPersistence {
             output.flush();
         } catch (IOException e) {
             logger.error("Unable to save nodes to " + nodesFile.toAbsolutePath(), e);
-            return false;
+            return SaveStatus.Error;
         }
 
         getsFileModTimeModTime.update(graphPath, dbTimestamp);
 
         logger.info("Saved Graph at " + graphPath.toAbsolutePath());
 
-        return true;
+        return SaveStatus.Saved;
     }
 
     private ZonedDateTime getTimestampFor(final GraphCore core) {

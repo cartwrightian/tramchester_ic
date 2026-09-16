@@ -368,6 +368,35 @@ public class AggregateServiceCalendarTest {
     }
 
     @Test
+    void shouldRespectHaveOverlapsSingleDayOnly() {
+        final TramDate startDate = TramDate.of(2026, 9, 19);
+        final TramDate endDate = TramDate.of(2026, 9, 19);
+
+        DayOfWeek dayOfWeek = startDate.getDayOfWeek();
+        DateRange dateRange = DateRange.of(startDate, endDate);
+
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, EnumSet.of(dayOfWeek));
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, EnumSet.of(dayOfWeek));
+
+        assertFalse(calendarA.operatesNoDays());
+        assertTrue(calendarA.operatesOn(startDate));
+
+        assertTrue(calendarA.anyDateOverlaps(calendarB));
+        assertTrue(calendarB.anyDateOverlaps(calendarA));
+
+        AggregateServiceCalendar aggregateServiceCalendarA = new AggregateServiceCalendar(Collections.singleton(calendarA));
+        assertFalse(aggregateServiceCalendarA.operatesNoDays());
+        assertTrue(aggregateServiceCalendarA.operatesOn(startDate));
+
+        AggregateServiceCalendar aggregateServiceCalendarB = new AggregateServiceCalendar(Collections.singleton(calendarB));
+        assertFalse(aggregateServiceCalendarB.operatesNoDays());
+        assertTrue(aggregateServiceCalendarB.operatesOn(startDate));
+
+        assertTrue(aggregateServiceCalendarA.anyDateOverlaps(aggregateServiceCalendarB));
+        assertTrue(aggregateServiceCalendarB.anyDateOverlaps(aggregateServiceCalendarA));
+    }
+
+    @Test
     void shouldRespectDateRangesOnServicesInclusionOverridesExclusion() {
         final TramDate startDateA = TramDate.of(2020, 11, 5);
         final TramDate endDateA = TramDate.of(2020, 11, 25);

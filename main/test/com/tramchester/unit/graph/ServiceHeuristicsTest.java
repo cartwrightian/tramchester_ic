@@ -577,15 +577,15 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         // 1
-        EasyMock.expect(journeyConstraints.isUnavailable(route, visitTime)).andReturn(false);
+        EasyMock.expect(journeyConstraints.isUnavailableTimeAndDate(route, visitTime)).andReturn(false);
         EasyMock.expect(fewestHopsForRoutes.getFewestChanges(route)).andReturn(1);
 
         // 2
-        EasyMock.expect(journeyConstraints.isUnavailable(route, visitTime)).andReturn(false);
+        EasyMock.expect(journeyConstraints.isUnavailableTimeAndDate(route, visitTime)).andReturn(false);
         EasyMock.expect(fewestHopsForRoutes.getFewestChanges(route)).andReturn(2);
 
         // 3
-        EasyMock.expect(journeyConstraints.isUnavailable(route, visitTime)).andReturn(true);
+        EasyMock.expect(journeyConstraints.isUnavailableTimeAndDate(route, visitTime)).andReturn(true);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = createServiceHeuristics(queryTime, 2);

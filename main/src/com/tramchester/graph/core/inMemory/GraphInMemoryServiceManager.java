@@ -112,11 +112,11 @@ public class GraphInMemoryServiceManager {
         } else {
             if (saveGraph) {
                 logger.info("Saved DB to " + dbFolderPath.toAbsolutePath());
-                final boolean result = graphPersistence.save(dbFolderPath, this);
-                if (result) {
-                    logger.info("Saved DB at " + dbFolderPath.toAbsolutePath());
-                } else {
-                    logger.error("Failed to save DB, check logs");
+                final GraphPersistence.SaveStatus result = graphPersistence.save(dbFolderPath, this);
+                switch (result) {
+                    case Saved -> logger.info("Saved DB at " + dbFolderPath.toAbsolutePath());
+                    case NotNeeded -> logger.info("Save not needed");
+                    case Error -> logger.error("Failed to save DB, check logs");
                 }
             } else {
                 logger.info("Save not requested");

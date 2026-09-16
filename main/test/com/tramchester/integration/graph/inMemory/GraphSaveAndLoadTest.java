@@ -92,8 +92,9 @@ public class GraphSaveAndLoadTest {
     void shouldSerialiseToFileWithoutError() {
         GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
 
-        boolean result = graphPersistence.save(GRAPH_PATH, serviceManager);
-        assertTrue(result);
+        GraphPersistence.SaveStatus result = graphPersistence.save(GRAPH_PATH, serviceManager);
+        assertEquals(GraphPersistence.SaveStatus.NotNeeded, result);
+
         assertTrue(Files.exists(relationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
@@ -129,8 +130,9 @@ public class GraphSaveAndLoadTest {
         GraphIdFactory idFactory = componentContainer.get(GraphIdFactory.class);
         GraphLabelsFactory graphLabelsFactory = componentContainer.get(GraphLabelsFactory.class);
 
-        boolean savedOk = graphPersistence.save(GRAPH_PATH, serviceManager);
-        assertTrue(savedOk);
+        GraphPersistence.SaveStatus savedOk = graphPersistence.save(GRAPH_PATH, serviceManager);
+        assertEquals(GraphPersistence.SaveStatus.NotNeeded, savedOk);
+
         assertTrue(Files.exists(relationshipsFilename));
         assertTrue(Files.exists(nodesFilename));
 
@@ -156,8 +158,8 @@ public class GraphSaveAndLoadTest {
     @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelations() {
 
-        boolean savedOk = graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
-        assertTrue(savedOk);
+        GraphPersistence.SaveStatus savedOk = graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
+        assertEquals(GraphPersistence.SaveStatus.NotNeeded, savedOk);
 
         @NotNull GraphInMemoryServiceManager serviceManager = CreateGraphDatabaseInMemory(componentContainer);
         DataSourceRepository dataSourceRepository = componentContainer.get(DataSourceRepository.class);
@@ -184,8 +186,8 @@ public class GraphSaveAndLoadTest {
 
     @Test
     void shouldLoadConsistently() {
-        boolean savedOk = graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
-        assertTrue(savedOk);
+        GraphPersistence.SaveStatus savedOk = graphPersistence.save(GRAPH_PATH, componentContainer.get(GraphInMemoryServiceManager.class));
+        assertEquals(GraphPersistence.SaveStatus.NotNeeded, savedOk);
 
         GraphInMemoryServiceManager serviceManager = componentContainer.get(GraphInMemoryServiceManager.class);
         GraphCore graphA = serviceManager.getGraphCore();

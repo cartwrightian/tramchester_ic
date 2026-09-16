@@ -109,10 +109,10 @@ public class GraphPersistenceTest extends EasyMockSupport {
         EasyMock.expect(graphCode.getNodesAndEdges()).andReturn(nodesAndEdges);
 
         replayAll();
-        boolean saved = graphPersistence.save(GRAPH_PATH, serviceManager);
+        GraphPersistence.SaveStatus saved = graphPersistence.save(GRAPH_PATH, serviceManager);
         verifyAll();
 
-        assertTrue(saved);
+        assertEquals(GraphPersistence.SaveStatus.Saved, saved);
         assertTrue(Files.exists(nodesFilename),"missing nodes");
         assertTrue(Files.exists(relationshipsFilename), "missing relationships");
 
@@ -137,12 +137,12 @@ public class GraphPersistenceTest extends EasyMockSupport {
         EasyMock.expect(graphCode.getNodesAndEdges()).andReturn(nodesAndEdges);
 
         replayAll();
-        boolean firstSave = graphPersistence.save(GRAPH_PATH, serviceManager);
-        boolean secondSave = graphPersistence.save(GRAPH_PATH, serviceManager);
+        GraphPersistence.SaveStatus firstSave = graphPersistence.save(GRAPH_PATH, serviceManager);
+        GraphPersistence.SaveStatus secondSave = graphPersistence.save(GRAPH_PATH, serviceManager);
         verifyAll();
 
-        assertTrue(firstSave);
-        assertFalse(secondSave);
+        assertEquals(GraphPersistence.SaveStatus.Saved, firstSave);
+        assertEquals(GraphPersistence.SaveStatus.NotNeeded, secondSave);
 
     }
 
@@ -163,14 +163,13 @@ public class GraphPersistenceTest extends EasyMockSupport {
         ZonedDateTime outOfDate = ZonedDateTime.of(date.toLocalDate().minusMonths(1), time.asLocalTime(), TramchesterConfig.TimeZoneId);
 
         replayAll();
-        boolean firstSave = graphPersistence.save(GRAPH_PATH, serviceManager);
+        GraphPersistence.SaveStatus firstSave = graphPersistence.save(GRAPH_PATH, serviceManager);
         Files.setLastModifiedTime(GRAPH_PATH, FileTime.from(outOfDate.toInstant()));
-        boolean secondSave = graphPersistence.save(GRAPH_PATH, serviceManager);
+        GraphPersistence.SaveStatus secondSave = graphPersistence.save(GRAPH_PATH, serviceManager);
         verifyAll();
 
-        assertTrue(firstSave);
-        assertTrue(secondSave);
-
+        assertEquals(GraphPersistence.SaveStatus.Saved, firstSave);
+        assertEquals(GraphPersistence.SaveStatus.Saved, secondSave);
     }
 
     @Test

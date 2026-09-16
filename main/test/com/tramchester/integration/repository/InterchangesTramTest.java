@@ -82,21 +82,24 @@ public class InterchangesTramTest {
     void shouldHaveExpectedTramInterchanges() {
 
         Stream<TramStations> expectedTramStations = Stream.of(
-                TraffordBar, Cornbrook,
+                TraffordBar,
                 Cornbrook,
+                StPetersSquare,
                 MarketStreet,
                 PiccadillyGardens,
-                StPetersSquare,
-                Broadway,
+
+                Piccadilly,
+                Etihad,
+
                 Victoria,
+                Shudehill,
+
                 Pomona,
+                Broadway,
                 HarbourCity,
-                StWerburghsRoad,
-                OldhamMumps,
                 MediaCityUK,
-                Westwood,
-                Shudehill
-                //Piccadilly
+
+                StWerburghsRoad
         );
 
         Set<Station> expectedStations = expectedTramStations.
