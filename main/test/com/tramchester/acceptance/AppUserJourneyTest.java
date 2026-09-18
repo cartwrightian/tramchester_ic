@@ -463,7 +463,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         List<TramTime> validTimes = Arrays.asList(TramTime.of(10, 29),
                 TramTime.of(10,27),
-                TramTime.of(10,23));
+                TramTime.of(10,23), TramTime.of(10,39));
 
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),
