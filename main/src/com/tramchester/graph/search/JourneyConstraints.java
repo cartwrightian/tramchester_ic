@@ -36,7 +36,7 @@ public class JourneyConstraints {
     private final Set<ClosedStation> closedStations;
     private final TramDuration maxJourneyDuration;
     private final int maxWalkingConnections;
-    private final int maxNumberWalkingConnections;
+    //private final int maxNumberWalkingConnections;
     private final LowestCostsForDestRoutes lowestCostForDestinations;
     private final ImmutableEnumSet<TransportMode> destinationModes; // must account for interchange
 
@@ -53,7 +53,7 @@ public class JourneyConstraints {
         this.maxJourneyDuration = maxJourneyDuration;
         this.maxWalkingConnections = config.getMaxWalkingConnections();
 
-        this.maxNumberWalkingConnections = config.getMaxWalkingConnections();
+        //this.maxNumberWalkingConnections = config.getMaxWalkingConnections();
 
         this.closedStationsIds = closedStations.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
@@ -108,13 +108,12 @@ public class JourneyConstraints {
     @Override
     public String toString() {
         return "JourneyConstraints{" +
-                "runningServices=" + routesAndServicesFilter +
-                ", maxPathLength=" + maxPathLength +
-                //", endStations=" + destinations +
-                ", closedStations=" + closedStationsIds +
+                "maxPathLength=" + maxPathLength +
+                ", closedStationsIds=" + closedStationsIds +
+                //", closedStations=" + closedStations +
                 ", maxJourneyDuration=" + maxJourneyDuration +
                 ", maxWalkingConnections=" + maxWalkingConnections +
-                ", maxNeighbourConnections=" + maxNumberWalkingConnections +
+                ", destinationModes=" + destinationModes +
                 '}';
     }
 
@@ -131,27 +130,6 @@ public class JourneyConstraints {
     public boolean isRunningAtTime(final IdFor<Service> serviceId, final TramTime time, final int maxWait) {
         return routesAndServicesFilter.isServiceRunningByTime(serviceId, time, maxWait);
     }
-
-//    @Deprecated
-//    public boolean destinationsAvailable(final TramTime time) {
-//        if (destinationsAvailable.contains(time)) {
-//            return true;
-//        }
-//        final TramTime end = destinationsAvailable.getEnd();
-//        if (end.isNextDay()) {
-//            final TramTime realEnd = destinationsAvailable.forFollowingDay().getEnd();
-//            return !time.isAfter(realEnd);
-//        } else {
-//            if (time.isAfter(end)) {
-//                return false;
-//            }
-//        }
-//
-//
-//        // todo logic on earliest?
-//
-//        return true;
-//    }
 
     public ImmutableEnumSet<TransportMode> getDestinationModes() {
         return destinationModes;

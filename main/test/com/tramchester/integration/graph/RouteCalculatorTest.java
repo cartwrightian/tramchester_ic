@@ -546,6 +546,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Piccadilly, BurtonRoad);
     }
 
+
     @Test
     void shouldHavePiccadillyToTraffordBar() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 1);

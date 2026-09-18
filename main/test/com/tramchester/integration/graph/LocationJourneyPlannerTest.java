@@ -289,6 +289,28 @@ class LocationJourneyPlannerTest {
         });
     }
 
+
+    @Disabled("does not show the issue")
+    @Test
+    void reproduceIssueWithTooManyStageWalkAtEnd() {
+
+        final TramTime queryTime = TramTime.of(20, 9);
+
+        final JourneyRequest request = new JourneyRequest(when, queryTime, false, maxChanges,
+                maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
+
+        while (true) {
+
+            Set<Journey> journeys = planner.quickestRouteForLocation(Deansgate, nearAltrincham, request, 4);
+
+            //Set<JourneyDTO> journeys = validateJourneyToLocation(Deansgate, nearAltrincham, queryTime, false);
+            journeys.forEach(journey -> {
+                List<TransportStage<?,?>> stages = journey.getStages();
+                assertFalse(stages.size()>3, "too many stages " + stages);
+            });
+        }
+    }
+
     @Test
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);

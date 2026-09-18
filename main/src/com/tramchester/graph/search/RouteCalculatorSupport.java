@@ -154,7 +154,7 @@ public abstract class RouteCalculatorSupport {
                                     final TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
                                     final GraphTransaction txn) {
 
-        final int maxChanges = journeyRequest.getMaxChanges().get();
+        final int maxStages = journeyRequest.getMaxChanges().get() + 1;
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, towardsDestination, txn, fullLogging);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
@@ -164,8 +164,8 @@ public abstract class RouteCalculatorSupport {
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
         } else {
-            if (nonWalking>maxChanges) {
-                logger.error(format("Too many non-walking stages (%s), max was %s", stages.size(), maxChanges));
+            if (nonWalking>maxStages) {
+                logger.error(format("Too many non-walking stages (%s), max stages was %s", stages.size(), maxStages));
                 logger.error(stages.toString());
             }
         }

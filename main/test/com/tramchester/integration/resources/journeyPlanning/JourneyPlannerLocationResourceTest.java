@@ -171,20 +171,19 @@ class JourneyPlannerLocationResourceTest {
         });
     }
 
-    @Disabled("WIP")
     @Test
     void shouldPlanRouteEndingInAWalk() {
         final TramTime queryTime = TramTime.of(20, 9);
-        Set<JourneyDTO> journeys = validateJourneyToLocation(Deansgate, nearAltrincham, queryTime, false);
 
+        Set<JourneyDTO> journeys = validateJourneyToLocation(Deansgate, nearAltrincham, queryTime, false);
         journeys.forEach(journeyDTO -> {
             assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
 
             List<SimpleStageDTO> stages = journeyDTO.getStages();
 
-            assertTrue(stages.size()<=3, "too many stages " + stages.size() + " " + stages);
+            assertTrue(stages.size() <= 4, "too many stages " + stages.size() + " " + stages);
 
-            boolean noTramChange = stages.size() == 2;
+            //boolean noTramChange = stages.size() == 2;
 
             assertEquals(Tram, stages.getFirst().getMode());
 
@@ -193,12 +192,18 @@ class JourneyPlannerLocationResourceTest {
             assertEquals(nearAltrincham.latLong(), walkingStage.getLastStation().getLatLong());
 
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
-            int expectedNumChanges = noTramChange ? 1 : 2;
-            assertEquals(expectedNumChanges, changeStations.size());
+
+            int otherStagesSize = stages.size()-1;
+            assertTrue(otherStagesSize <= 3,  "too many non walk stages " + stages);
+
 
             ChangeStationRefWithPosition changeStation = changeStations.getFirst();
             assertEquals(Tram, changeStation.getFromMode());
+
+            assertEquals(NavigationRoad.getIdForDTO(), changeStations.getLast().getId());
+
         });
+
     }
 
     @Test

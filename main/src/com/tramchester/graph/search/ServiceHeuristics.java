@@ -44,8 +44,20 @@ public class ServiceHeuristics {
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
         penultimateChange = currentChangesLimit>1 ? currentChangesLimit-1 : currentChangesLimit;
         this.diagnostics = diagnostics;
+        logger.info(toString());
     }
-    
+
+    @Override
+    public String toString() {
+        return "ServiceHeuristics{" +
+                "journeyConstraints=" + journeyConstraints +
+                ", actualQueryTime=" + actualQueryTime +
+                ", currentChangesLimit=" + currentChangesLimit +
+                ", penultimateChange=" + penultimateChange +
+                ", diagnostics=" + diagnostics +
+                '}';
+    }
+
     public HeuristicsReason checkServiceDateAndTime(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons,
                                                     final TramTime visitTime, final int maxWait) {
         reasons.incrementTotalChecked();
@@ -165,7 +177,8 @@ public class ServiceHeuristics {
         // TODO potential optimisation where only one mode is configured, in which case this check does nothing
         if (currentNumberOfChanges==penultimateChange) {
             if (!nodeLabels.anyIntersectionWith(destinationLabels)) {
-                return reasons.recordReason(HeuristicsReasons.StationNotReachable(howIGotHere, ReasonCode.TransportModeWrong));
+                return reasons.recordReason(HeuristicsReasons.StationNotReachable(howIGotHere,
+                        ReasonCode.TransportModeWrong));
             }
         }
         return valid(ReasonCode.NumChangesOK, howIGotHere, reasons);
