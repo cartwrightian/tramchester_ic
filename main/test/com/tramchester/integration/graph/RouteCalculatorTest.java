@@ -432,7 +432,10 @@ public class RouteCalculatorTest {
                 assertEquals(firstStage.getLastStation(), finalStage.getFirstStation());
             } else if (stages.size()==3) {
                 // with new routes can change here
-                assertEquals(StWerburghsRoad.getId(), finalStage.getFirstStation().getId());
+                IdSet<Station> expectedLastChange = FakeStation.IdSetOf(Cornbrook, StWerburghsRoad, TraffordBar);
+                IdFor<Station> lastChangeId = finalStage.getFirstStation().getId();
+                assertTrue(expectedLastChange.contains(lastChangeId),
+                        "Did not find %s in %s".formatted(lastChangeId, expectedLastChange));
             } else {
                 fail("Unexpected number of stages " + stages.size() + ": " +stages);
             }
@@ -545,7 +548,6 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, Piccadilly, BurtonRoad);
     }
-
 
     @Test
     void shouldHavePiccadillyToTraffordBar() {

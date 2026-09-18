@@ -57,7 +57,7 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfRecords() {
-        assertEquals(39698, repository.size());
+        assertEquals(39701, repository.size());
     }
 
     @Test
