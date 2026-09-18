@@ -25,6 +25,7 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -82,13 +83,13 @@ public class StationRepositoryTest {
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
         // summer 2026
-        int expectedNumStations = 26-1;
+        int expectedNumStations = 26-2;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
-        assertTrue(dropOffs.contains(Shudehill.getId()));
+        assertFalse(dropOffs.contains(Shudehill.getId()));
 
         assertTrue(dropOffs.contains(Bury.getId()));
 
@@ -97,10 +98,11 @@ public class StationRepositoryTest {
         assertEquals(expectedNumStations, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
-        assertTrue(pickUps.contains(Shudehill.getId()));
+        assertFalse(pickUps.contains(Shudehill.getId()));
         assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 

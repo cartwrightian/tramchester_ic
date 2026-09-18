@@ -144,13 +144,13 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
 
     @Override
     public void setAreaId(final IdFor<NPTGLocality> localityId) {
-        graphProps.setProperty(AREA_ID, localityId.getGraphId());
+        graphProps.setProperty(AREA_ID, localityId);
         invalidateCache();
     }
 
     @Override
     public void setTowards(final IdFor<Station> stationId) {
-        graphProps.setProperty(TOWARDS_STATION_ID, stationId.getGraphId());
+        graphProps.setProperty(TOWARDS_STATION_ID, stationId);
         invalidateCache();
     }
 
@@ -265,11 +265,16 @@ public abstract class GraphNodeProperties<T extends GraphEntityProperties.GraphP
     @JsonIgnore
     @Override
     public IdFor<Station> getTowardsStationId() {
-        String text = (String) graphProps.getProperty(TOWARDS_STATION_ID);
-        if (text==null) {
+        if (graphProps.hasProperty(TOWARDS_STATION_ID)) {
+            return (IdFor<Station>) graphProps.getProperty(TOWARDS_STATION_ID);
+        } else {
             return Station.InvalidId();
         }
-        return Station.createId(text);
+//        String text = (String) graphProps.getProperty(TOWARDS_STATION_ID);
+//        if (text==null) {
+//            return Station.InvalidId();
+//        }
+//        return Station.createId(text);
     }
 
     @JsonIgnore

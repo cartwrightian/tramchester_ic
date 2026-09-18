@@ -20,6 +20,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.RochdaleLineClosure2026;
 import com.tramchester.testSupport.testTags.TramApp;
@@ -211,6 +212,7 @@ public class JourneyPlannerResourceTest {
         assertTrue(plan.getJourneys().isEmpty());
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 

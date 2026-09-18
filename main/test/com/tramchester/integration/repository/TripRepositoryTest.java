@@ -25,6 +25,7 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -103,6 +104,7 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -253,41 +255,43 @@ public class TripRepositoryTest {
 
     @Test
     void shouldHaveTripsForSundayMorningAtBroadway() {
+        //TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
+
+        /***
+         * NOTE: Timetable
+         * None direct on Sunday from Broadway to Harbour City, so check if MediaCity trips
+         */
+
         TramDate date = UpcomingDates.nextSunday();
 
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
+        IdFor<Station> sundayCallingPoint = MediaCityUK.getId();
 
-        TimeRange timeRange = TimeRange.of(TramTime.of(9,30), TramTime.of(15,0));
-
-        Route blueRoute = tramRouteHelper.getBlue(date);
-
-        final Set<Trip> allTrips = tripRepository.getTrips();
-
-        Set<Trip> tripsToHarbourCity = allTrips.stream().
+        Set<Trip> allTrips = tripRepository.getTrips().stream().
                 filter(trip -> trip.serviceOperatesOn(date)).
-                filter(trip -> blueRoute.equals(trip.getRoute())).
+                //filter(trip -> ecclesRoute.equals(trip.getRoute())).
                 filter(trip -> trip.callsAt(Broadway.getId())).
-                filter(trip -> trip.callsAt(HarbourCity.getId())).
+                filter(trip -> trip.callsAt(sundayCallingPoint)).
                 collect(Collectors.toSet());
 
-        assertFalse(tripsToHarbourCity.isEmpty());
+        assertFalse(allTrips.isEmpty());
 
-        Set<Service> servicesForDiag = tripsToHarbourCity.stream().map(Trip::getService).collect(Collectors.toSet());
+        Set<Service> servicesForDiag = allTrips.stream().map(Trip::getService).collect(Collectors.toSet());
 
-        Set<TramTime> arrivalTimesFor = tripsToHarbourCity.stream().map(Trip::getStopCalls).
-                map(stopCalls -> stopCalls.getStopFor(Broadway.getId())).
+        Set<TramTime> arrivalTimesFor = allTrips.stream().map(Trip::getStopCalls).
+                map(stopCalls -> stopCalls.getStopFor(sundayCallingPoint)).
                 map(StopCall::getArrivalTime).
                 collect(Collectors.toSet());
 
         assertFalse(arrivalTimesFor.isEmpty());
 
+        TimeRange timeRange = TimeRange.of(TramTime.of(9,30), TramTime.of(15,0));
         Set<TramTime> duringPeriod = arrivalTimesFor.stream().
                 filter(timeRange::contains).
                 collect(Collectors.toSet());
 
         assertFalse(duringPeriod.isEmpty(), "On " + date + " no times from " + arrivalTimesFor +
                 " match time range " + timeRange + "\n services were " + HasId.asIds(servicesForDiag) +
-                "\n trips were " + HasId.asIds(tripsToHarbourCity));
+                "\n trips were " + HasId.asIds(allTrips));
 
     }
 

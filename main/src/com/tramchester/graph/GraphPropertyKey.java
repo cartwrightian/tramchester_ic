@@ -133,7 +133,7 @@ public enum GraphPropertyKey {
     private static boolean isId(GraphPropertyKey graphPropertyKey) {
         return switch (graphPropertyKey) {
             case SERVICE_ID, PLATFORM_ID, STATION_ID, ROUTE_STATION_ID, ROUTE_ID, TRIP_ID,
-                 AREA_ID, STATION_GROUP_ID, WALK_ID -> true;
+                 AREA_ID, STATION_GROUP_ID, WALK_ID, TOWARDS_STATION_ID -> true;
             default -> false;
         };
     }

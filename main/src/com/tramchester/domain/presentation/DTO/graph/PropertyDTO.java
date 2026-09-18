@@ -49,8 +49,13 @@ public class PropertyDTO {
     public static PropertyDTO fromMapEntry(final Map.Entry<GraphPropertyKey, Object> entry) {
         final GraphPropertyKey propertyKey = entry.getKey();
         if (propertyKey.isDomainId()) {
-            final IdFor<?> id = (IdFor<?>) entry.getValue();
-            return new PropertyDTO(propertyKey.getText(), id.getGraphId());
+            try {
+                final IdFor<?> id = (IdFor<?>) entry.getValue();
+                return new PropertyDTO(propertyKey.getText(), id.getGraphId());
+            }
+            catch (ClassCastException classCastException) {
+                throw new RuntimeException("Cold not convert %s from %s to an IdFor".formatted(entry.getValue(), entry.toString()));
+            }
         } else {
             return new PropertyDTO(propertyKey.getText(), entry.getValue());
         }

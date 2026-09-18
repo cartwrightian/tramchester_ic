@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -126,6 +127,30 @@ public class GraphPropsTest {
         assertEquals("998", results.get(DataSourceID.openRailData));
 
     }
+
+
+    @Test
+    void shouldSetGroupId() {
+        MutableGraphNode node = txn.createNode(GraphLabel.GROUPED);
+
+        IdFor<NPTGLocality> localityId = NPTGLocality.createId("someId");
+        node.setAreaId(localityId);
+
+        IdFor<NPTGLocality> result = node.getAreaId();
+        assertEquals(localityId, result);
+    }
+
+    @Test
+    void shouldSetTowardsStationId() {
+        MutableGraphNode node = txn.createNode(GraphLabel.GROUPED);
+
+        IdFor<Station> stationId = TramStations.Altrincham.getId();
+        node.setTowards(stationId);
+
+        IdFor<Station> result = node.getTowardsStationId();
+        assertEquals(stationId, result);
+    }
+
 
     @Test
     void shouldBeAbleToSetRailRouteStationId() {

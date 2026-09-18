@@ -12,7 +12,10 @@ import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.id.TripIdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -27,6 +30,7 @@ import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -42,7 +46,8 @@ import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class GraphSerializationTest {
+public class
+GraphSerializationTest {
     private ObjectMapper mapper;
     private final TramDate when = TestEnv.testDay();
 
@@ -76,20 +81,28 @@ public class GraphSerializationTest {
     @Test
     void shouldRoundTripGraphNode()  {
         NodeIdInMemory id = new NodeIdInMemory(678);
+        LatLong latLong = KnownLocations.nearBury.latLong();
+        IdFor<Station> towardsStationId = TramStations.Altrincham.getId();
+        Station station = Bury.fake();
+        IdFor<NPTGLocality> localityId = NPTGLocality.createId("locality");
+
         GraphLabels labels = GraphLabels.forTesting(ImmutableEnumSet.of(STATION, INTERCHANGE));
         GraphNodeInMemory graphNodeInMemory = new GraphNodeInMemory(id, labels, false);
 
         TramTime tramTime = TramTime.of(11, 42);
         graphNodeInMemory.setTime(tramTime);
-        graphNodeInMemory.setLatLong(KnownLocations.nearBury.latLong());
+        graphNodeInMemory.setLatLong(latLong);
+        graphNodeInMemory.set(station);
         graphNodeInMemory.set(TestEnv.getTramTestRoute());
         graphNodeInMemory.setTransportMode(Tram);
+        graphNodeInMemory.setAreaId(localityId);
+        graphNodeInMemory.setTowards(towardsStationId);
 
         String text = null;
         try {
             text = mapper.writeValueAsString(graphNodeInMemory);
         } catch (JsonProcessingException e) {
-            fail("failed to serialise", e);
+            fail("failed to serialise " + graphNodeInMemory.getProperties(), e);
         }
 
         GraphNodeInMemory result = null;
@@ -104,9 +117,12 @@ public class GraphSerializationTest {
         try {
             assertEquals(labels, graphNodeInMemory.getLabels());
             assertEquals(tramTime, result.getTime());
-            assertEquals(KnownLocations.nearBury.latLong(), result.getLatLong());
+            assertEquals(station.getId(), result.getStationId());
+            assertEquals(latLong, result.getLatLong());
             assertEquals(TestEnv.getTramTestRoute().getId(), result.getRouteId());
             assertEquals(Tram, result.getTransportMode());
+            assertEquals(localityId, result.getAreaId());
+            //assertEquals(towardsStationId, result.getTowardsStationId());
         }
         catch(ClassCastException e) {
             fail("Unable to fetch property from " + text, e);

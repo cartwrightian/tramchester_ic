@@ -272,7 +272,7 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
-        assertEquals(5, dropOffs.size());
+        assertEquals(5+1, dropOffs.size());
         checkContains(dropOffs, Red);
         checkContains(dropOffs, Blue);
         checkContains(dropOffs, Green);
@@ -282,7 +282,7 @@ public class StationAvailabilityRepositoryTest {
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
         // summer 2026
-        assertEquals(5, pickups.size());
+        assertEquals(5+1, pickups.size());
         checkContains(pickups, Red);
         checkContains(pickups, Blue);
         checkContains(pickups, Green);

@@ -45,6 +45,8 @@ public class TowardsDestinationTest {
         final TramchesterConfig config = new IntegrationTramTestConfigWithGroupsEnabled();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+
+        //TestEnv.deleteDBIfPresent(config);
     }
 
     @AfterAll

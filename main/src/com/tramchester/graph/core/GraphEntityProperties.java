@@ -36,24 +36,12 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
         catch (ClassCastException e) {
             throw new RuntimeException("Unable for get ID for class " + klass.getSimpleName() + " from " + entity, e);
         }
-
-//            final String value = entity.getProperty(key).toString();
-//            if (RouteStation.class.equals(klass)) {
-//                return getIdForRouteStation(value);
-//            } else {
-//                return StringIdFor.createId(value, klass);
-//            }
     }
 
-//    @SuppressWarnings("unchecked")
-//    private static <C extends CoreDomain> IdFor<C> getIdForRouteStation(final String value) {
-//        return (IdFor<C>) RouteStationId.parse(value);
-//    }
 
     protected RouteStationId getRouteStationId(final E entity) {
         return (RouteStationId) entity.getProperty(ROUTE_STATION_ID);
-//        final String value = entity.getProperty(ROUTE_STATION_ID).toString();
-//        return RouteStationId.parse(value);
+
     }
 
     // public to support testing

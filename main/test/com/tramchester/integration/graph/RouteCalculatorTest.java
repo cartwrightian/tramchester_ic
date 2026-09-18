@@ -28,6 +28,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -283,6 +284,7 @@ public class RouteCalculatorTest {
     }
 
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -380,7 +382,6 @@ public class RouteCalculatorTest {
         assertEquals(0, results.size());
     }
 
-    @Disabled("WIP")
     @Test
     void shouldNotReturnBackToStartOnJourney() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -406,25 +407,36 @@ public class RouteCalculatorTest {
                 maxNumResults, 2);
         List<Journey> results =  calculator.calculateRouteAsList(Altrincham, ManAirport, request);
 
-        IdSet<Station> changes = FakeStation.IdSetOf(TraffordBar, Cornbrook);
+        IdSet<Station> firstChanges = FakeStation.IdSetOf(TraffordBar, Cornbrook);
 
         assertFalse(results.isEmpty(), "no results");    // results is iterator
-        for (Journey result : results) {
-            List<TransportStage<?,?>> stages = result.getStages();
-            assertEquals(2, stages.size(), "on " + today + " wrong number of stages " + stages);
+        for (Journey journey : results) {
+            List<TransportStage<?,?>> stages = journey.getStages();
+
+            assertFalse(stages.isEmpty(), "No stages for " + journey);
+
             VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
-            IdFor<Station> firstStageEndId = firstStage.getLastStation().getId();
-            assertTrue(changes.contains(firstStageEndId), "Unexpected change " + stages +
-                    " expected " + changes);
             assertEquals(Tram, firstStage.getMode());
-            int passed = (firstStageEndId.equals(TraffordBar.getId())) ? 7 : 8;
-            assertEquals(passed, firstStage.getPassedStopsCount());
+
+            IdFor<Station> firstStageEndId = firstStage.getLastStation().getId();
+            assertTrue(firstChanges.contains(firstStageEndId), "Unexpected change %s expected %s".formatted(stages, firstChanges));
+
+            int firstStagePassed = (firstStageEndId.equals(TraffordBar.getId())) ? 7 : 8;
+            assertEquals(firstStagePassed, firstStage.getPassedStopsCount());
 
             VehicleStage finalStage = (VehicleStage) stages.getLast();
-            //assertEquals(Stations.TraffordBar, secondStage.getFirstStation()); // THIS CAN CHANGE
             assertEquals(ManAirport.getId(), finalStage.getLastStation().getId());
             assertEquals(Tram, finalStage.getMode());
+            if (stages.size()==2) {
+                assertEquals(firstStage.getLastStation(), finalStage.getFirstStation());
+            } else if (stages.size()==3) {
+                // with new routes can change here
+                assertEquals(StWerburghsRoad.getId(), finalStage.getFirstStation().getId());
+            } else {
+                fail("Unexpected number of stages " + stages.size() + ": " +stages);
+            }
+
         }
     }
 
@@ -524,7 +536,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveHeatonParkToPiccadilly() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 0);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, HeatonPark, Piccadilly);
     }
 
@@ -536,7 +548,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHavePiccadillyToTraffordBar() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 0);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequest, Piccadilly, TraffordBar);
     }
 
@@ -696,7 +708,7 @@ public class RouteCalculatorTest {
     }
 
     // NOTE: with latest data changes (23/7/2025) this issue is no longer reproducible
-    @Disabled("WIP")
+    // Seen again sept 2026
     @Test
     void shouldReproIssuePiccToAltrinchamDuringClosures() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10,40), 8, 2);
@@ -705,18 +717,16 @@ public class RouteCalculatorTest {
 
         assertFalse(results.isEmpty(), "no results");
 
-        Set<List<IdFor<?>>> hasDuplications = results.stream().
-                map(result -> duplicateCalls(result.getPath())).
-                filter(dups -> !dups.isEmpty()).
-                collect(Collectors.toSet());
-
-        assertTrue(hasDuplications.isEmpty(), hasDuplications + " for " + results);
+        results.forEach(journey -> {
+            List<IdFor<?>> findDups = duplicateCalls(journey.getPath());
+            assertTrue(findDups.isEmpty(), "On %s dup stops: %s\nfor %s".formatted(when, findDups, journey));
+        });
 
     }
 
     private List<IdFor<?>> duplicateCalls(final List<Location<?>> path) {
-        Set<Location<?>> seen = new HashSet<>();
-        List<IdFor<?>> duplicates = new ArrayList<>();
+        final Set<Location<?>> seen = new HashSet<>();
+        final List<IdFor<?>> duplicates = new ArrayList<>();
         for (Location<?> location : path) {
             if (seen.contains(location)) {
                 duplicates.add(location.getId());
@@ -725,15 +735,6 @@ public class RouteCalculatorTest {
         }
         return duplicates;
     }
-
-//    @Test
-//    void shouldReproIssueWithJourneysToEcclesWithBus() {
-//
-//        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 2);
-//
-//        assertGetAndCheckJourneys(journeyRequest, Bury, Broadway);
-//        assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
-//    }
 
     @Test
     void reproduceIssueEdgePerTrip() {

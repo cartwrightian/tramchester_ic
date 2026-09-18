@@ -32,7 +32,7 @@ public interface IdFor<T extends CoreDomain> extends Comparable<IdFor<T>> {
             return RouteStationId.parse(text);
         }
         return switch (key) {
-            case STATION_ID -> Station.createId(text);
+            case STATION_ID, TOWARDS_STATION_ID -> Station.createId(text);
             case SERVICE_ID -> Service.createId(text);
             case PLATFORM_ID -> StringIdFor.createId(text, Platform.class);
             case TRIP_ID -> Trip.createId(text);

@@ -195,6 +195,24 @@ public class GraphPropsInMemoryTest {
     }
 
     @Test
+    void shouldCheckDateValidity() {
+
+        TramDate date = TramDate.of(2026, 9, 1);
+
+        MutableGraphRelationship relationship = createRelationship();
+        relationship.setStartDate(date.minusWeeks(2));
+        relationship.setEndDate(date.minusWeeks(1));
+
+        assertFalse(relationship.validOn(date));
+
+        relationship.setStartDate(date.minusWeeks(2));
+        relationship.setEndDate(date.plusWeeks(2));
+
+        assertTrue(relationship.validOn(date));
+
+    }
+
+    @Test
     void shouldSetTimeRange() {
         MutableGraphRelationship relationship = createRelationship();
 

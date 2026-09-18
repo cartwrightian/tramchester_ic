@@ -13,7 +13,6 @@ import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.reference.GraphLabels;
-import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
@@ -222,12 +221,16 @@ public class FindPathsForJourney {
 
     private Stream<GraphRelationship> expand(final JourneyState currentState, final GraphNode currentNode) {
 
-        if (currentNode.getId().equals(startNode.getId())) {
-            return startNode.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.forPlanning());
-        } else {
-            final ImmutableTraversalState currentTraversalState = currentState.getTraversalState();
-            return currentTraversalState.getOutbounds();
-        }
+        final ImmutableTraversalState currentTraversalState = currentState.getTraversalState();
+        return currentTraversalState.getOutbounds();
+
+        // Cannot just expand start node, as some relationships must be filtered i.e. valid diversions
+//        if (currentNode.getId().equals(startNode.getId())) {
+//            return startNode.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.forPlanning());
+//        } else {
+//            final ImmutableTraversalState currentTraversalState = currentState.getTraversalState();
+//            return currentTraversalState.getOutbounds();
+//        }
     }
 
 

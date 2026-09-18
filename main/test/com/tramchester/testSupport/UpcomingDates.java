@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.integration.repository.StopCallRepositoryTest;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
@@ -36,8 +37,6 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-//    public static DateRange BuryLineSept12 = DateRange.of(TramDate.of(2026, 9, 12),
-//            TramDate.of(2026, 9, 13));
 
     public static DateRange MarketStreetAndShudehillSept = DateRange.of(TramDate.of(2026, 9, 21),
             TramDate.of(2026, 9, 26));
@@ -50,6 +49,9 @@ public class UpcomingDates {
             TramDate.of(2026, 10, 15));
 
     public static TramDate victoriaLineEarlyMorning = TramDate.of(2026, 9, 20);
+
+    public static TramDate rochdaleBeginOctober2026 = TramDate.of(2026, 10, 3);
+    public static TimeRange rochdaleBeginOctoberTimeRange2026 = TimeRange.of(TramTime.of(4,0), TramTime.of(14,0));
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date) {
         // Add all closures to the TimeRange version
@@ -72,6 +74,11 @@ public class UpcomingDates {
         if (PiccGardensAutumn2026.contains(date)) {
             if (PiccadillyGardens.matches(stationId)) {
                 return true;
+            }
+        }
+        if (rochdaleBeginOctober2026.equals(date)) {
+            if (StopCallRepositoryTest.FreeholdToRochdaleStations.contains(stationId)) {
+                return rochdaleBeginOctoberTimeRange2026.anyOverlap(timeRange);
             }
         }
         return false;

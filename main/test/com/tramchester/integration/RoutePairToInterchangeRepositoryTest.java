@@ -11,13 +11,13 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.CentralZoneStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RoutePairToInterchangeRepository;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,9 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.CentralZoneStation.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -92,7 +91,7 @@ public class RoutePairToInterchangeRepositoryTest {
             assertTrue(stationIds.contains(RailStationIds.ManchesterVictoria.getId()), stationIds.toString());
 
         } else {
-            assertEquals(1, stationIds.size(), stationIds.toString());
+            assertEquals(1+3, stationIds.size(), stationIds.toString());
         }
 
     }
@@ -109,10 +108,13 @@ public class RoutePairToInterchangeRepositoryTest {
         Set<InterchangeStation> interchanges = repository.getInterchanges(routeIndexPair, modes);
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
+//
+//        IdSet<Station> expected = Stream.of(PiccadillyGardens, Piccadilly).
+//                map(TramStations::getId).
+//                collect(IdSet.idCollector());
 
-        IdSet<Station> expected = Stream.of(PiccadillyGardens, Piccadilly).
-                map(CentralZoneStation::getId).
-                collect(IdSet.idCollector());
+        // closures
+        IdSet<Station> expected = FakeStation.IdSetOf(Cornbrook, StPetersSquare, TraffordBar);
 
         if (config.hasRailConfig()) {
             // TODO

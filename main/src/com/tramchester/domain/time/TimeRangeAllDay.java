@@ -26,7 +26,7 @@ public class TimeRangeAllDay implements TimeRange {
 
     @Override
     public TimeRange transposeToNextDay() {
-        throw new RuntimeException("not implemented");
+        return this;
     }
 
     @JsonIgnore

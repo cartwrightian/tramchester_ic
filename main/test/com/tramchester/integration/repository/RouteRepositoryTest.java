@@ -219,12 +219,13 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldReproduceIssueWithRoutesThatHaveNoOverlap() {
+        // overlap blue route have appeared, cannot use Blue here
         UpcomingDates.daysAhead().forEach(date -> {
-            Route route = routeHelper.getOneRoute(Blue, date);
+            Route route = routeHelper.getOneRoute(Red, date);
             assertTrue(route.isDateOverlap(route), date + " failed for route " + route);
         } );
-
     }
+
 
     @Test
     void shouldOverlapWithSelf() {

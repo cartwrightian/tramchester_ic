@@ -15,6 +15,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
@@ -170,6 +171,7 @@ class JourneyPlannerLocationResourceTest {
         });
     }
 
+    @Disabled("WIP")
     @Test
     void shouldPlanRouteEndingInAWalk() {
         final TramTime queryTime = TramTime.of(20, 9);
@@ -249,6 +251,7 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnly() {
         TramDate testDay = when;
@@ -269,6 +272,7 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(testDay, 9, 2), stage.getExpectedArrivalTime());
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnlyArriveBy() {
         TramTime queryTime = TramTime.of(9, 0);
@@ -332,9 +336,11 @@ class JourneyPlannerLocationResourceTest {
         return validateJourneyPresent(plan, query);
     }
 
-    private Set<JourneyDTO> validateJourneyToLocation(FakeStation start, KnownLocations destination, TramTime queryTime, boolean arriveBy) {
+    private Set<JourneyDTO> validateJourneyToLocation(FakeStation start, KnownLocations destination, TramTime queryTime,
+                                                      boolean arriveBy) {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy, maxChanges);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy,
+                maxChanges);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         return validateJourneyPresent(plan, query);

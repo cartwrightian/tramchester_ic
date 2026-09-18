@@ -7,7 +7,9 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.TramRouteId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -17,13 +19,14 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramRouteHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
@@ -68,12 +71,11 @@ class RouteReachableTramTest {
 
         assertEquals(2, routeIds.size(), routeIds.toString());
 
-        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
-        Route purple = tramRouteHelper.getPurple(when);
-        Route green = tramRouteHelper.getGreen(when);
+        Set<TFGMRouteNames> routeNames = routeIds.stream().map(routeId -> (TramRouteId) routeId).
+                map(TramRouteId::getRouteName).collect(Collectors.toSet());
 
-        assertTrue(routeIds.contains(green.getId()), routeIds.toString());
-        assertTrue(routeIds.contains(purple.getId()), routeIds.toString());
+        assertTrue(routeNames.contains(TFGMRouteNames.Green), "Did not find in " + routeNames);
+        assertTrue(routeNames.contains(TFGMRouteNames.Blue), "Did not find in " + routeNames);
     }
 
 

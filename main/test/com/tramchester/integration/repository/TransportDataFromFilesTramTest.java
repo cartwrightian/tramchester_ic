@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.TFGMRouteNames.Navy;
+import static com.tramchester.domain.reference.TFGMRouteNames.Purple;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
@@ -109,8 +110,11 @@ public class TransportDataFromFilesTramTest {
                 collect(Collectors.toSet());
 
         Set<String> expected = Arrays.stream(TFGMRouteNames.values()).
-                filter(routeName -> !routeName.isReplacementBus()).
+                //filter(routeName -> !routeName.isReplacementBus()).
                 map(TFGMRouteNames::getShortName).collect(Collectors.toSet());
+
+        // closures autumn 2026
+        expected.remove(Purple.getShortName());
 
         Set<String> mismatch = SetUtils.disjunction(found, expected);
 
@@ -213,8 +217,10 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(2, lines.size(), lines.toString());
 
-        assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()));
-        assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()));
+        String diag = "Missing from " + lines + " on " + when;
+        assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()), diag);
+        // autumn 2026
+        assertTrue(lines.contains(TFGMRouteNames.Blue.getShortName()), diag);
 
     }
 

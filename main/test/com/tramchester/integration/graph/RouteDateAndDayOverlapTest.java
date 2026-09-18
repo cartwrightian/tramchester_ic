@@ -7,7 +7,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.reference.TFGMRouteNames;
-import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteDateAndDayOverlap;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
@@ -36,11 +35,8 @@ public class RouteDateAndDayOverlapTest {
 
     private RouteDateAndDayOverlap overlap;
     private TramRouteHelper routeHelper;
-    private TramDate date;
-    private RouteCostMatrix routeMatrix;
     private RouteIndex routeIndex;
     private RouteRepository routeRepository;
-    private TramchesterConfig config;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {
@@ -64,21 +60,21 @@ public class RouteDateAndDayOverlapTest {
     void beforeEachTestRuns() {
         routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(componentContainer);
-        routeMatrix = componentContainer.get(RouteCostMatrix.class);
+        //RouteCostMatrix routeMatrix = componentContainer.get(RouteCostMatrix.class);
         routeIndex = componentContainer.get(RouteIndex.class);
 
-        this.config = componentContainer.get(TramchesterConfig.class);
+        //TramchesterConfig config = componentContainer.get(TramchesterConfig.class);
 
         overlap = componentContainer.get(RouteDateAndDayOverlap.class);
 
-        date = TestEnv.testDay();
+        //TramDate date = TestEnv.testDay();
     }
 
     @Test
     void shouldTestRouteThatOverlapHaveCorrectDates() {
 
         UpcomingDates.daysAhead().forEach(date -> {
-            Route firstRoute = routeHelper.getOneRoute(TFGMRouteNames.Blue, date);
+            Route firstRoute = routeHelper.getOneRoute(TFGMRouteNames.Pink, date);
             assertOverlaps(date, firstRoute);
         });
 

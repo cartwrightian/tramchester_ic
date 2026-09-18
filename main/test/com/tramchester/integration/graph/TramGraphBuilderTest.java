@@ -25,10 +25,7 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.ServiceRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -43,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.graph.core.GraphDirection.Incoming;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -62,6 +60,7 @@ class TramGraphBuilderTest {
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
     private ImmutableEnumSet<TransportRelationshipTypes> transportRelationshipTypes;
+    private StationAvailabilityRepository stationAvailabilityRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -79,6 +78,7 @@ class TramGraphBuilderTest {
 
         stationRepository = componentContainer.get(StationRepository.class);
         serviceRepository = componentContainer.get(ServiceRepository.class);
+        stationAvailabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
@@ -258,21 +258,27 @@ class TramGraphBuilderTest {
 
         RouteStation routeStationMediaCityA = getRouteStationWithCheck(mediaCityUK, tramRoutePiccEccles);
 
-        List<GraphRelationship> outboundsFromRouteStation = getRouteStationRelationships(routeStationMediaCityA, Outgoing, transportRelationshipTypes);
+        // checks so obvious when a closure/change is happening
+        assertTrue(mediaCityUK.getPickupRoutes().contains(tramRoutePiccEccles));
+        assertTrue(stationAvailabilityRepository.getPickupRoutesFor(mediaCityUK, when, TimeRange.AllDay(), TramsOnly).
+                contains(tramRoutePiccEccles));
+
+        List<GraphRelationship> outboundsFromRouteStation = getRouteStationRelationships(routeStationMediaCityA, Outgoing,
+                transportRelationshipTypes);
 
         IdSet<Service> graphSvcsFromRouteStations = outboundsFromRouteStation.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 //map(GraphRelationship::getServiceId).
                 map(relationship -> serviceRepository.getServiceById(relationship.getServiceId())).
-                filter(service -> when.isBefore(service.getCalendar().getDateRange().getEndDate())).
+                filter(service -> service.getCalendar().operatesOn(when)).
                 collect(IdSet.collector());
 
-        assertFalse(graphSvcsFromRouteStations.isEmpty());
+        assertFalse(graphSvcsFromRouteStations.isEmpty(), "On " + when + " no services from " + tramRoutePiccEccles.getId());
 
         // check number of outbound services matches services in transport data files
         IdSet<Service> fileSvcIds = getTripsFor(transportData.getTrips(), mediaCityUK).stream().
                 filter(trip -> trip.getRoute().equals(tramRoutePiccEccles)).
-                filter(trip -> when.isBefore(trip.getService().getCalendar().getDateRange().getEndDate())).
+                filter(trip -> trip.getService().getCalendar().operatesOn(when)).
                 map(trip -> trip.getService().getId()).
                 collect(IdSet.idCollector());
 
@@ -885,7 +891,6 @@ class TramGraphBuilderTest {
     void shouldHaveCorrectInboundsAtMediaCity() {
 
         checkInboundConsistency(MediaCityUK, Yellow);
-
         checkInboundConsistency(HarbourCity, Yellow);
 
         checkInboundConsistency(Broadway, Yellow);
@@ -895,20 +900,12 @@ class TramGraphBuilderTest {
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
-        checkOutboundConsistency(StPetersSquare, Green);
-
         checkOutboundConsistency(Cornbrook, Green);
-
-        // duplicate, sep tests for mediacity
-        //checkOutboundConsistency(MediaCityUK, Blue);
 
         checkOutboundConsistency(HarbourCity, Yellow);
 
-        // these two are not consistent because same svc can go different ways while still having same route code
-        // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
-        // => end up with two outbound services instead of one, hence numbers looks different
-        // graphAndFileConsistencyCheckOutbounds(Stations.Broadway.getId(), RouteCodesForTesting.ECCLES_TO_ASH);
-        // graphAndFileConsistencyCheckOutbounds(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
+        checkOutboundConsistency(StPetersSquare, Pink);
+
     }
 
     @Test
@@ -982,6 +979,11 @@ class TramGraphBuilderTest {
     }
 
     private void checkOutboundConsistency(Station station, Route route) {
+        // checks so obvious when a closure/change is happening
+        assertTrue(station.getPickupRoutes().contains(route));
+        assertTrue(stationAvailabilityRepository.getPickupRoutesFor(station, when, TimeRange.AllDay(), TramsOnly).
+                contains(route));
+
         RouteStation routeStation = getRouteStationWithCheck(station, route);
 
         List<GraphRelationship> routeStationOutbounds = getRouteStationRelationships(routeStation, Outgoing,
@@ -993,9 +995,12 @@ class TramGraphBuilderTest {
        IdSet<Service> serviceRelatIds = routeStationOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 map(graphRelationship -> serviceRepository.getServiceById(graphRelationship.getServiceId())).
-                filter(service -> when.isBefore(service.getCalendar().getDateRange().getEndDate())).
-                collect(IdSet.collector());
-       assertFalse(serviceRelatIds.isEmpty());
+                //filter(service -> when.isBefore(service.getCalendar().getDateRange().getEndDate())).
+                filter(service -> service.getCalendar().operatesOn(when)).
+
+               collect(IdSet.collector());
+       assertFalse(serviceRelatIds.isEmpty(), "No services from route stations for " + routeStation.getId()
+                + " on " + when + " from " + routeStationOutbounds);
 
         Set<Trip> fileCallingTrips =
                 transportData.getRouteById(route.getId()).getTrips().stream().
@@ -1005,7 +1010,7 @@ class TramGraphBuilderTest {
 
         IdSet<Service> fileSvcIdFromTrips = fileCallingTrips.stream().
                 map(Trip::getService).
-                filter(svc -> when.isBefore(svc.getCalendar().getDateRange().getEndDate())).
+                filter(svc -> svc.getCalendar().operatesOn(when)).
                 collect(IdSet.collector());
 
         // NOTE: Check clean target that and graph has been rebuilt if see failure here
