@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -13,12 +14,12 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -26,18 +27,20 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-@DisabledUntilDate(year = 2026, month = 9, day = 7)
 class RouteCalculatorSubGraphEcclesLineSundayTest {
     private static ComponentContainer componentContainer;
 
     private static SubgraphConfig config;
     private static TramRouteHelper tramRouteHelper;
+    private static Route route;
 
     private RouteCalculatorTestFacade calculator;
     private final static TramDate sunday = UpcomingDates.nextSunday();
@@ -63,7 +66,8 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        Route route = tramRouteHelper.getBlue(sunday);
+        // this can change with timetable changes
+        route = tramRouteHelper.getYellow(sunday);
         graphFilter.addRoute(route.getId());
     }
 
@@ -84,11 +88,24 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
     }
 
+    @Test
+    void checkMediaCityServesRoute() {
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        Station mediaCity = MediaCityUK.from(stationRepository);
+
+        Set<Route> pickupRoutes = mediaCity.getPickupRoutes();
+        assertTrue(pickupRoutes.contains(route), "did not find %s in %s".formatted(route.getId(), HasId.asIds(pickupRoutes)));
+
+        Set<Route> dropoffs = mediaCity.getDropoffRoutes();
+        assertTrue(dropoffs.contains(route), "did not find %s in %s".formatted(route.getId(), HasId.asIds(dropoffs)));
+    }
+
     @AfterEach
     void onceAfterEveryTest() {
         txn.close();
     }
 
+    @Disabled("This depends on which route is serving eccles, and whether it runs to Velopark")
     @Test
     void shouldReproIssueWithMediaCityToVelopark() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(8, 5), false,

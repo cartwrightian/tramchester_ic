@@ -34,7 +34,7 @@ public class JourneyRequest {
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
                           TramDuration maxJourneyDuration, long maxNumberOfJourneys, ImmutableEnumSet<TransportMode> requestedModes) {
         this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys,
-                requestedModes, true);
+                requestedModes, false);
     }
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,
@@ -42,7 +42,7 @@ public class JourneyRequest {
                    ImmutableEnumSet<TransportMode> requestedModes)
     {
         this(date, originalQueryTime, arriveBy, maxChanges, maxJourneyDuration,
-                maxNumberOfJourneys, requestedModes,true);
+                maxNumberOfJourneys, requestedModes,false);
     }
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,

@@ -334,7 +334,7 @@ public class TripRepositoryTest {
                 map(routeId -> ((TramRouteId) routeId.getId()).getRouteName()).
                 collect(Collectors.toSet());
 
-        assertTrue(routeNames.contains(TFGMRouteNames.Blue), "Unexpected routes " + routeNames);
+        assertTrue(routeNames.contains(TFGMRouteNames.Yellow), "Unexpected routes " + routeNames);
 
     }
 

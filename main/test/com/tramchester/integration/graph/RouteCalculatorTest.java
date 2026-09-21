@@ -238,6 +238,19 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldReproduceIssueSundaySept2026() {
+        final TramTime queryTime = TramTime.of(14, 5);
+
+        TramDate date = TramDate.of(2026, 10,4);
+        JourneyRequest journeyRequest = standardJourneyRequest(date, queryTime, maxNumResults, 2);
+
+        List<Journey> journeys = calculator.calculateRouteAsList(EastDidsbury, Eccles, journeyRequest);
+
+        assertFalse(journeys.isEmpty(), journeyRequest.toString());
+
+    }
+
+    @Test
     void shouldHaveSameResultWithinReasonableTime() {
         final TramTime queryTimeA = TramTime.of(8, 50);
         final TramTime queryTimeB = queryTimeA.plusMinutes(1);
@@ -851,7 +864,8 @@ public class RouteCalculatorTest {
 
     @NotNull
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
-        boolean assertOnChange = !UpcomingDates.PiccGardensAutumn2026.contains(date);
+        boolean assertOnChange = !(UpcomingDates.PiccGardensAutumn2026.contains(date) ||
+                UpcomingDates.MarketStreetAndShudehillSept.contains(date));
         return new JourneyRequest(date, time, false, new JourneyRequest.MaxNumberOfChanges(maxNumberChanges),
                 maxJourneyDuration, maxNumberJourneys,
                 requestedModes, assertOnChange);

@@ -301,8 +301,8 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // 1->2 closures
-        assertEquals(2, dropOffs.size(), dropOffs.toString());
-        assertTrue(dropOffs.contains(TFGMRouteNames.Blue), "Missing from " + dropOffs);
+        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        assertTrue(dropOffs.contains(Yellow), "Missing from " + dropOffs);
 
         Set<Route> availableDropoffs = mediaCity.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
@@ -315,8 +315,8 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // 1->2 closures
-        assertEquals(2, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(TFGMRouteNames.Blue), "Missing from " + pickUps);
+        assertEquals(1, pickUps.size(), pickUps.toString());
+        assertTrue(pickUps.contains(Yellow), "Missing from " + pickUps);
 
         Set<Route> availablePickups = mediaCity.getPickupRoutes().stream().
                 filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
