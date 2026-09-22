@@ -16,8 +16,6 @@ public interface JourneyStateUpdate {
 
     void beginTrip(IdFor<Trip> newTripId);
 
-    //void beginWalk(GraphNode beforeWalkNode, boolean atStart, TramDuration cost);
-
     void beginWalk(GraphNode beforeWalkNode);
     void beginWalk(GraphNode beforeWalkNode, TramDuration cost);
 

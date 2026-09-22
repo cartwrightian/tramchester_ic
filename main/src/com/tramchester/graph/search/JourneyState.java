@@ -36,7 +36,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private final IdSet<Trip> tripsDone;
     private IdFor<Trip> currentTrip;
     private final List<IdFor<Station>> passedStations;
-    private final IdSet<Station> duplicatedPasses;
 
     public JourneyState(final TramTime queryTime, final TraversalState traversalState) {
         coreState = new CoreState(queryTime);
@@ -45,7 +44,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         journeyOffset = TramDuration.ZERO;
         tripsDone = new IdSet<>();
         passedStations = new ArrayList<>();
-        duplicatedPasses = new IdSet<>();
         currentTrip = Trip.InvalidId();
     }
 
@@ -62,7 +60,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.traversalState = previousState.traversalState;
         this.tripsDone = IdSet.copy(previousState.tripsDone);
         this.passedStations = new ArrayList<>(previousState.passedStations);
-        this.duplicatedPasses = IdSet.copy(previousState.duplicatedPasses);
         this.currentTrip = previousState.currentTrip;
         if (coreState.onBoard()) {
             this.boardingTime = previousState.boardingTime;
@@ -97,7 +94,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public void recordRouteStation(final GraphNode node, final boolean justBoarded) {
         final IdFor<Station> stationId = node.getStationId();
-        final boolean alreadyPassed = passedStations.contains(stationId);
         if (justBoarded) {
             if (passedStations.isEmpty()) {
                 passedStations.add(stationId);
@@ -105,11 +101,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             // else NOT an error since might have walking connection or similar
             // i.e. media city to imperial war museum
         } else {
-            if (alreadyPassed) {
-                // TODO only warn if appropriate i.e. this is never an issue for trains
-//                logger.warn("Passed station again " + stationId);
-                duplicatedPasses.add(stationId);
-            }
             passedStations.add(stationId);
         }
 
@@ -167,7 +158,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     /***
-     * Use to check don't add a diversion back to a station already seen
+     * Use to check that don't add a diversion back to a station already seen
      * DONT USE for checking for a return to a station during normal routing as this will not work
      * due to the update happening *before* this method is called
      * @param stationId the id of the station to check for
@@ -310,17 +301,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public boolean justBoarded() {
         return traversalState.getStateType() == TraversalStateType.JustBoardedState;
-    }
-
-    /***
-     * Did we pass this station more than once?
-     * For trains this isn't an issue, for tfgm trams indicated a inefficient routing
-     * @param stationId id of station to check
-     * @return true, if we passed this station more than once
-     */
-    @Override
-    public boolean hasDuplicatedPass(final IdFor<Station> stationId) {
-        return duplicatedPasses.contains(stationId);
     }
 
     @Override

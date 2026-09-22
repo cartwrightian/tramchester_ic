@@ -11,6 +11,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -141,8 +142,8 @@ public abstract class RouteCalculatorSupport {
 
         final TramNetworkTraverser tramNetworkTraverser = traverserFactory.get(txn);
 
-        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons, arrivalHandler,
-                towardsDestination, running);
+        final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons,
+                arrivalHandler, towardsDestination, running);
 
         logger.info("Arrivals " + arrivalHandler);
 
@@ -284,8 +285,6 @@ public abstract class RouteCalculatorSupport {
 
         final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
-//        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, tramDate);
-
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
                 closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration);
 
@@ -311,7 +310,8 @@ public abstract class RouteCalculatorSupport {
                                 pathRequest,
                                 createPreviousVisits(journeyRequest),
                                 arrivalHandler, running, traverserFactory, towardsDestination)).
-                        map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
+                        map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn)).
+                        filter(journey -> validJourney(journey,journeyRequest));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {
@@ -363,7 +363,8 @@ public abstract class RouteCalculatorSupport {
 
         final Stream<Journey> results = findShortestPath(txn.asImmutable(), serviceReasons, singlePathRequest,
                         createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination).
-                map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
+                map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn)).
+                filter(journey -> validJourney(journey, journeyRequest));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {
@@ -372,6 +373,31 @@ public abstract class RouteCalculatorSupport {
         });
 
         return results;
+    }
+
+    private boolean validJourney(final Journey journey, final JourneyRequest journeyRequest) {
+
+        if (journeyRequest.getRequestedModes().equals(TransportMode.TramsOnly)) {
+            final List<Location<?>> path = journey.getPath();
+            final List<LocationId<?>> dups = getDuplicatesOnPath(path);
+
+            if (dups.isEmpty()) {
+                return true;
+            }
+            logger.warn("Duplicated stations on path " + HasId.asIds(path) + " for " + journey);
+            return false;
+        }
+        return true;
+
+    }
+
+    List<LocationId<?>> getDuplicatesOnPath(final List<Location<?>> path) {
+        Set<LocationId<?>> unique = path.stream().map(Location::getLocationId).collect(Collectors.toSet());
+
+        return unique.stream().
+                filter(locationId -> (path.stream().filter(location -> location.getLocationId().equals(locationId)).count() > 1))
+                .toList();
+
     }
 
     public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,

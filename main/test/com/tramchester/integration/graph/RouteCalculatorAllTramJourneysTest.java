@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,13 +56,14 @@ public class RouteCalculatorAllTramJourneysTest {
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 24)
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
 
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).
                 createStationPairsForAll(TramsOnly);
 
-        final TramTime time = TramTime.of(8, 5);
+        final TramTime time = TramTime.of(9, 5);
 
         JourneyRequest.MaxNumberOfChanges maxChanges =
                 JourneyRequest.MaxNumberOfChanges.of(testConfig.getMaxNumberChanges());

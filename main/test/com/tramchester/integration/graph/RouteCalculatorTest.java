@@ -12,10 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.places.ChangeLocation;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -401,15 +398,22 @@ public class RouteCalculatorTest {
 
         JourneyRequest request = standardJourneyRequest(today, TramTime.of(20, 9), 6, 1);
 
-        TramStations startingPoint = Deansgate;
-
-        List<Journey> results = calculator.calculateRouteAsList(startingPoint, ManAirport, request);
+        List<Journey> results = calculator.calculateRouteAsList(Deansgate, ManAirport, request);
         assertFalse(results.isEmpty(),"no journeys found");
 
-        results.forEach(result -> {
-            long seenStart = result.getPath().stream().filter(location -> location.getId().equals(startingPoint.getId())).count();
-            assertEquals(1, seenStart, "seen start location again for " + result);
+        results.forEach(journey -> {
+            List<Location<?>> path = journey.getPath();
+            assertEquals(Collections.emptyList(), getDuplicatesOnPath(path), "Found duplicates on path for " + journey);
         });
+    }
+
+    List<LocationId<?>> getDuplicatesOnPath(final List<Location<?>> path) {
+        Set<LocationId<?>> unique = path.stream().map(Location::getLocationId).collect(Collectors.toSet());
+
+        return unique.stream().
+                filter(locationId -> (path.stream().filter(location -> location.getLocationId().equals(locationId)).count() > 1))
+                .toList();
+
     }
 
     @Test
