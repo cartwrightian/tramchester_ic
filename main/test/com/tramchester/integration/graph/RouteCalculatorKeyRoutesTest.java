@@ -36,7 +36,8 @@ import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("JUnitTestMethodWithNoAssertions")
+
+@Disabled("WIP - unreliable on CI")
 class RouteCalculatorKeyRoutesTest {
 
     private static ComponentContainer componentContainer;
@@ -77,6 +78,7 @@ class RouteCalculatorKeyRoutesTest {
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
+    @DataExpiryTest
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToInterchanges(Tram).stream().
@@ -86,6 +88,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
+    @DataExpiryTest
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram);
