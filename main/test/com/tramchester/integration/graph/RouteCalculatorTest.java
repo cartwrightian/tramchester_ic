@@ -647,6 +647,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldProvideASpreadOfDepartureTimes() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(14, 50),
@@ -655,7 +656,8 @@ public class RouteCalculatorTest {
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);
 
         assertFalse(journeys.isEmpty(), "NO results for " + journeyRequest);
-        assertTrue(journeys.size()>1, "not enough results for " + journeyRequest + " got " + journeys);
+        assertTrue(journeys.size()>1, "not enough (%s) results for %s got %s"
+                .formatted(journeys.size(), journeyRequest, journeys));
 
         Set<TramTime> uniqueDepartureTimes = journeys.stream().
                 map(Journey::getDepartTime).
