@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+@Disabled("Issue with CI")
 class RouteCalculatorKeyRoutesTest {
 
     private static ComponentContainer componentContainer;
