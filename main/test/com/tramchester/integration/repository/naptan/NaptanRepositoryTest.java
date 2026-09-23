@@ -55,6 +55,7 @@ class NaptanRepositoryTest {
         repository = componentContainer.get(NaptanRepositoryContainer.class);
     }
 
+    @Disabled("this is changing on a daily basis, sept 2026")
     @Test
     void shouldHaveExpectedNumberOfRecords() {
         assertEquals(39702, repository.size());
