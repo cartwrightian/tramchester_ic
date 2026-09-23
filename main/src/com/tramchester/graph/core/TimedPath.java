@@ -17,7 +17,7 @@ public final class TimedPath {
     }
 
     public TimedPath(final GraphPath path, final PathRequest pathRequest) {
-        this(path, pathRequest.getActualQueryTime(), pathRequest.getNumChanges());
+        this(path, pathRequest.getActualQueryTime(), pathRequest.getActualNumChanges());
     }
 
     @Override

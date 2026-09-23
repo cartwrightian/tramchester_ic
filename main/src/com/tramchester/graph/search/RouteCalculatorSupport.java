@@ -228,21 +228,18 @@ public abstract class RouteCalculatorSupport {
                 journeyConstraints.getDestinationModes());
     }
 
-    public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
-                                         ImmutableEnumSet<TransportMode> requestedModes, int numChanges,
-                                         JourneyConstraints journeyConstraints, TramDuration maxInitialWait,
-                                         boolean diagnosticsRequested, long maxNumberJourneys) {
+    public PathRequest createPathRequest(final JourneyRequest journeyRequest, GraphNode startNode,
+                                         final TramTime actualQueryTime,
+                                         int actualNumChanges,
+                                         JourneyConstraints journeyConstraints, TramDuration maxInitialWait) {
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
-                actualQueryTime, numChanges, diagnosticsRequested);
-        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait,
-                journeyConstraints.getDestinationModes(), maxNumberJourneys);
+                actualQueryTime, actualNumChanges, journeyRequest.getDiagnosticsEnabled());
+        return new PathRequest(journeyRequest, startNode, actualQueryTime, actualNumChanges, serviceHeuristics, maxInitialWait,
+                journeyConstraints.getDestinationModes());
     }
 
-//    protected TimeRange getDestinationsAvailable(LocationCollection destinations, TramDate tramDate) {
-//        return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
-//    }
-
-    public static TramDuration getMaxInitialWaitFor(final List<? extends BoundingBoxWithStations> startingBoxes, final TramchesterConfig config) {
+    public static TramDuration getMaxInitialWaitFor(final List<? extends BoundingBoxWithStations> startingBoxes,
+                                                    final TramchesterConfig config) {
         final Optional<TramDuration> findMaxInitialWait = startingBoxes.stream().
                 flatMap(box -> box.getStations().stream()).
                 map(station -> TramchesterConfig.getMaxInitialWaitFor(station, config))
@@ -301,10 +298,9 @@ public abstract class RouteCalculatorSupport {
         final TramNetworkTraverserFactory traverserFactory = getTraverserFactory(destinations, destinationNodeIds);
 
         final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
-                flatMap(numChanges ->
-                        queryTimes.stream().map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
-                                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(),
-                                journeyRequest.getMaxNumberOfJourneys()))).
+                flatMap(actualNumChanges ->
+                        queryTimes.stream().map(actualQueryTime -> createPathRequest(journeyRequest, startNode, actualQueryTime,
+                                actualNumChanges, journeyConstraints, maxInitialWait))).
                         flatMap(pathRequest -> findShortestPath(txn.asImmutable(),
                                 createServiceReasons(journeyRequest, pathRequest),
                                 pathRequest,
@@ -351,9 +347,8 @@ public abstract class RouteCalculatorSupport {
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-        final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), requestedModes,
-                journeyRequest.getMaxChanges().get(),
-                journeyConstraints, maxInitialWait, journeyRequest.getDiagnosticsEnabled(), journeyRequest.getMaxNumberOfJourneys());
+        final PathRequest singlePathRequest = createPathRequest(journeyRequest, startNode, journeyRequest.getOriginalTime(),
+                journeyRequest.getMaxChanges().get(), journeyConstraints, maxInitialWait);
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 

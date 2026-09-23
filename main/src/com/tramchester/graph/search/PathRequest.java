@@ -9,37 +9,32 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 
 public class PathRequest {
+    private final JourneyRequest journeyRequest;
     private final GraphNode startNode;
-    private final TramDate queryDate;
-    private final TramTime queryTime;
-    private final int numChanges;
-    private final ImmutableEnumSet<TransportMode> requestedModes;
+    private final TramTime actualQueryTime;
+    private final int actualNumChanges;
     private final ImmutableEnumSet<TransportMode> destinationModes;
     private final TramDuration maxInitialWait;
-    private final long maxNumberJourneys;
 
     private final ServiceHeuristics serviceHeuristics;
 
-    public PathRequest(JourneyRequest journeyRequest, GraphNode startNode, int numChanges, ServiceHeuristics serviceHeuristics,
+    public PathRequest(JourneyRequest journeyRequest, GraphNode startNode, int actualNumChanges, ServiceHeuristics serviceHeuristics,
                        TramDuration maxInitialWait, ImmutableEnumSet<TransportMode> desintationModes) {
-        this(startNode, journeyRequest.getDate(), journeyRequest.getOriginalTime(), numChanges, serviceHeuristics,
-                journeyRequest.getRequestedModes(),
-                maxInitialWait, desintationModes, journeyRequest.getMaxNumberOfJourneys());
+        this(journeyRequest, startNode, journeyRequest.getOriginalTime(), actualNumChanges, serviceHeuristics,
+                maxInitialWait, desintationModes);
     }
 
     // query time here can range over the series of times
-    public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
-                       ServiceHeuristics serviceHeuristics, ImmutableEnumSet<TransportMode> requestedModes,
-                       TramDuration maxInitialWait, ImmutableEnumSet<TransportMode> destinationModes, long maxNumberJourneys) {
+    public PathRequest(JourneyRequest journeyRequest, GraphNode startNode, TramTime actualQueryTime, int actualNumChanges,
+                       ServiceHeuristics serviceHeuristics,
+                       TramDuration maxInitialWait, ImmutableEnumSet<TransportMode> destinationModes) {
+        this.journeyRequest = journeyRequest;
         this.startNode = startNode;
-        this.queryDate = queryDate;
-        this.queryTime = queryTime;
-        this.numChanges = numChanges;
+        this.actualQueryTime = actualQueryTime;
+        this.actualNumChanges = actualNumChanges;
         this.serviceHeuristics = serviceHeuristics;
-        this.requestedModes = requestedModes;
         this.maxInitialWait = maxInitialWait;
         this.destinationModes = destinationModes;
-        this.maxNumberJourneys = maxNumberJourneys;
     }
 
     public ServiceHeuristics getServiceHeuristics() {
@@ -48,32 +43,31 @@ public class PathRequest {
 
     public TramTime getActualQueryTime() {
         // not always the same as original query time from JourneyRequest
-        return queryTime;
+        return actualQueryTime;
     }
 
-    public int getNumChanges() {
-        return numChanges;
+    public int getActualNumChanges() {
+        return actualNumChanges;
     }
 
     @Override
     public String toString() {
         return "PathRequest{" +
-                "startNode=" + startNode +
-                ", queryTime=" + queryTime +
-                ", numChanges=" + numChanges +
+                "startNode=" + startNode.getId() +
+                ", journeyRequest=" + journeyRequest +
+                ", actualQueryTime=" + actualQueryTime +
+                ", actualNumChanges=" + actualNumChanges +
                 ", serviceHeuristics=" + serviceHeuristics +
-                ", queryDate=" + queryDate +
-                ", requestedModes=" + requestedModes +
                 ", maxInitialWait=" + maxInitialWait +
                 '}';
     }
 
     public TramDate getQueryDate() {
-        return queryDate;
+        return journeyRequest.getDate();
     }
 
     public ImmutableEnumSet<TransportMode> getRequestedModes() {
-        return requestedModes;
+        return journeyRequest.getRequestedModes();
     }
 
     public TramDuration getMaxInitialWait() {
@@ -89,6 +83,6 @@ public class PathRequest {
     }
 
     public long getMaxNumberJourneys() {
-        return maxNumberJourneys;
+        return journeyRequest.getMaxNumberOfJourneys();
     }
 }

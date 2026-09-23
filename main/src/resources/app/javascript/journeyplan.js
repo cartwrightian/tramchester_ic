@@ -1,11 +1,16 @@
 
 const axios = require('axios');
 
-import { createApp, ref } from 'vue'
+import { createApp } from 'vue'
 
 import vueCookies from 'vue-cookies'
 
+// TODO Is this needed since vuetify 4.x? Seems not
+// import './../styles/layers.css'
+import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
+import './../css/tramchester.css'
+
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
@@ -14,9 +19,6 @@ require('file-loader?name=[name].[ext]!../index.html');
 import { createVuetify } from 'vuetify'
 const vuetify = createVuetify({components, directives})
 
-import '@mdi/font/css/materialdesignicons.css'
-
-import './../css/tramchester.css'
 
 import Notes from "./components/Notes"
 import Journeys from './components/Journeys'

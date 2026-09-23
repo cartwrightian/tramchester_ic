@@ -51,7 +51,7 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
 
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
-        Stream<GraphPath> results = searchAlgo.findPaths(actualQueryTime, running);
+        Stream<GraphPath> results = searchAlgo.findPaths(actualQueryTime, running, pathRequest);
 
         reasons.reportReasons(txn, pathRequest, destinations);
         previousVisits.reportStats();

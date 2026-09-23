@@ -14,6 +14,7 @@ import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -52,7 +53,7 @@ public class FindPathsForJourney {
         this.numberJourneys = numberJourneys;
     }
 
-    public Stream<GraphPath> findPaths(final TramTime actualQueryTime, final Running running) {
+    public Stream<GraphPath> findPaths(final TramTime actualQueryTime, final Running running, final PathRequest pathRequest) {
 
         final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
 
@@ -61,7 +62,7 @@ public class FindPathsForJourney {
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         final SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
-        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys);
+        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys, pathRequest);
         searchState.setJourneyState(stateKey, journeyState);
 
         // TODO ideally want yield/stream here

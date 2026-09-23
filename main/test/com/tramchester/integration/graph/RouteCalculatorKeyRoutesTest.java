@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@Disabled("WIP - unreliable on CI")
 class RouteCalculatorKeyRoutesTest {
 
     private static ComponentContainer componentContainer;
@@ -90,7 +89,7 @@ class RouteCalculatorKeyRoutesTest {
 
     @DataExpiryTest
     @Test
-    void shouldFindEndOfRoutesToEndOfRoute() {
+    void shouldFindEndOfRouteToEndOfRoute() {
         LocationIdPairSet<Station> stationIdPairs = combinations.getCreatePairs(when).endOfRoutesToEndOfRoutes(Tram);
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);

@@ -93,7 +93,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         EasyMock.expect(txn.getNodeById(nodeId)).andReturn(node);
 
         PathRequest pathRequest = createMock(PathRequest.class);
-        EasyMock.expect(pathRequest.getNumChanges()).andReturn(3);
+        EasyMock.expect(pathRequest.getActualNumChanges()).andReturn(3);
         EasyMock.expect(pathRequest.getActualQueryTime()).andReturn(time);
 
         HeuristicsReason serviceReasonA = HeuristicsReasons.AlreadyDeparted(TramTime.of(15, 33), howIGotHere);

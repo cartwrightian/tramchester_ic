@@ -4,6 +4,7 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.PathRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +21,11 @@ public class PathSearchState {
     // results
     final List<GraphPathInMemory> foundPaths;
     private final long numberJourneys;
+    private final PathRequest diagnostics;
 
-    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys) {
+    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys, PathRequest diagnostics) {
         this.numberJourneys = numberJourneys;
+        this.diagnostics = diagnostics;
         nodeQueue = new PriorityQueue<>();
         nodeQueue.add(NodeSearchState.createInitialState(searchStateKey, pathToHere));
 
@@ -122,12 +125,12 @@ public class PathSearchState {
 
     public boolean continueSearch() {
         if (nodeQueue.isEmpty()) {
-            logger.warn("Queue was empty");
+            logger.warn("Queue was empty for " + diagnostics);
             return false;
         }
         synchronized (foundPaths) {
             if (foundPaths.size()>=numberJourneys) {
-                logger.info("Matched " + numberJourneys + " journeys");
+                logger.info("Matched " + numberJourneys + " journeys for " + diagnostics);
                 return false;
             }
         }

@@ -157,7 +157,7 @@ public class ServiceReasons {
     }
 
     private void reportStats(final GraphTransaction txn, final PathRequest pathRequest) {
-        int numberOfChanges = pathRequest.getNumChanges();
+        int numberOfChanges = pathRequest.getActualNumChanges();
         TramTime actualTime = pathRequest.getActualQueryTime();
         if ((!success.get()) && journeyRequest.getWarnIfNoResults()) {
             logger.warn("No result found at " + actualTime + " changes " + numberOfChanges + " for " + journeyRequest );
