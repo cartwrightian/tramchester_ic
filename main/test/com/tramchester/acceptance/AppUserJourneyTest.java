@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -400,6 +401,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 
+    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
@@ -437,8 +439,12 @@ public class AppUserJourneyTest extends UserJourneyTest {
         }
 
         // need to sort, otherwise unpredictable
+        // also just check the 2 stage (can get 3 during closures and diversions)
         List<TestResultSummaryRow> sortedByDepartTime = results.stream().
+                filter(row -> row.getStages().size()==2).
                 sorted(Comparator.comparing(TestResultSummaryRow::getDepartTime)).toList();
+
+        assertFalse(sortedByDepartTime.isEmpty(), "None matched from " + results);
 
         // select first depart journey
         TestResultSummaryRow firstResult = sortedByDepartTime.getFirst();
@@ -449,8 +455,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         List<Stage> stages = firstResult.getStages();
         assertEquals(2, stages.size());
 
-        Stage firstStage = stages.get(0);
-        Stage secondStage = stages.get(1);
+        Stage firstStage = stages.getFirst();
 
         Set<String> firstStageHeadsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(),
                 "Bury via Market Street & Victoria",Crumpsal.getName(), Etihad.getName()));
@@ -466,6 +471,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         List<TramTime> validTimes = Arrays.asList(TramTime.of(10, 29),
                 TramTime.of(10,27),
                 TramTime.of(10,23), TramTime.of(10,39));
+
+        Stage secondStage = stages.getLast();
 
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),
@@ -598,7 +605,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(departTimes.stream().allMatch(TramTime::isValid),"departTime not valid");
 
         TramTime stageDepartTime = stage.getDepartTime();
-        assertTrue(departTimes.contains(stageDepartTime), "Wrong departTime got '" + stageDepartTime + "' but needed " + departTimes);
+        assertTrue(departTimes.contains(stageDepartTime),
+                "Wrong departTime got %s but needed %s".formatted(stageDepartTime, departTimes));
 
         assertEquals(action, stage.getAction(), "action");
         assertEquals(actionStation, stage.getActionStation(), "actionStation");
