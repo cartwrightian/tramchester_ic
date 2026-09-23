@@ -413,12 +413,12 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
 
+        String twoChanges = String.format("%s, %s", TraffordBar.name(), StWerburghsRoad.getName());
+
         // add St Peters during closures
         final List<String> expectedChanges = Arrays.asList(TraffordBar.getName(), Cornbrook.getName(),
-                StPetersSquare.getName());
-
-        expectedChanges.add(String.format("%s, %s", TraffordBar.name(), StWerburghsRoad.getName()));
-
+                StPetersSquare.getName(), twoChanges);
+        
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
         TramTime previousArrivalTime = planTime; // sorted by arrival time
         for (TestResultSummaryRow result : results) {
