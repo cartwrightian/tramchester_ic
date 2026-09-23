@@ -413,7 +413,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
 
-        String twoChanges = String.format("%s, %s", TraffordBar.name(), StWerburghsRoad.getName());
+        String twoChanges = String.format("%s, %s", TraffordBar.getName(), StWerburghsRoad.getName());
 
         // add St Peters during closures
         final List<String> expectedChanges = Arrays.asList(TraffordBar.getName(), Cornbrook.getName(),
