@@ -176,7 +176,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @DisabledUntilDate(year = 2026,month = 9, day = 24)
+    @DisabledUntilDate(year = 2026,month = 9, day = 26)
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(when);

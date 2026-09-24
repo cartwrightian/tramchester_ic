@@ -71,6 +71,8 @@ public class RouteCalculatorAllTramJourneysTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 TramDuration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
 
+//        journeyRequest.setCachingDisabled(true);
+
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 
         RouteCalculationCombinations.Failures<Station> failed = results.getFailed();

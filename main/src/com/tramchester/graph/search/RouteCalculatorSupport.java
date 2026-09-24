@@ -166,8 +166,8 @@ public abstract class RouteCalculatorSupport {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
         } else {
             if (nonWalking>maxStages) {
-                logger.error(format("Too many non-walking stages (%s), max stages was %s", stages.size(), maxStages));
-                logger.error(stages.toString());
+                logger.error(format("Too many non-walking stages (%s), max stages was %s \n within %s",
+                        stages.size(), maxStages, stages));
             }
         }
 
@@ -266,7 +266,7 @@ public abstract class RouteCalculatorSupport {
             return Stream.empty();
         }
 
-        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        //final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
         final TramDate tramDate = journeyRequest.getDate();
@@ -289,7 +289,7 @@ public abstract class RouteCalculatorSupport {
         logger.info("Query times: " + queryTimes);
 
         // TODO Handling arrive by
-        final ArrivalHandler arrivalHandler = ArrivalHandler.get();
+        final ArrivalHandler arrivalHandler = ArrivalHandler.create();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
@@ -343,7 +343,7 @@ public abstract class RouteCalculatorSupport {
 
         logger.info("Journey Constraints: " + journeyConstraints);
 
-        final ArrivalHandler lowestCostSeen = ArrivalHandler.get();
+        final ArrivalHandler lowestCostSeen = ArrivalHandler.create();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
@@ -416,7 +416,8 @@ public abstract class RouteCalculatorSupport {
         if (journeyRequest.getDiagnosticsEnabled()) {
             logger.warn("Diagnostics enabled, will only query for single result");
 
-            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, routesAndServicesFilter, destinations, maxInitialWait, running).
+            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, routesAndServicesFilter,
+                    destinations, maxInitialWait, running).
                     limit(journeyRequest.getMaxNumberOfJourneys());
         } else {
             return getJourneyStream(txn, startNode, endNode, destinations, journeyRequest, queryTimes, routesAndServicesFilter,

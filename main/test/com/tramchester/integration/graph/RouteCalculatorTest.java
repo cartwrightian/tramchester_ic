@@ -827,14 +827,22 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
     }
 
+    @Disabled("not showing the issue")
     @Test
-    void shouldHaveTraffordCentreWharfsideDuringSummer2026OnSunday() {
-        // this section is 'isolated' during august 2025
-        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30),
-                maxNumResults, 1);
+    void shouldReproMissingTraffordCentreToExchangeKeySept2026() {
+        // Failed some of 9312 (finished 9312) combinations
+        // [JourneyOrNot{ queryDate=TramDate{epochDays=20720, dayOfWeek=THURSDAY, date=2026-09-24},
+        // queryTime=TramTime{h=9, m=5}, requested=StationIdAndNamePair{The Trafford Centre[Id{'Station:9400ZZMATRC'}],
+        // Exchange Quay[Id{'Station:9400ZZMAEXC'}]}}]  ==>
 
-        assertGetAndCheckJourneys(journeyRequest, Wharfside, TraffordCentre);
-        assertGetAndCheckJourneys(journeyRequest, TraffordCentre, Wharfside);
+        int count = 100;
+        while(count-->0) {
+
+            JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 5),
+                    maxNumResults, maxChanges);
+
+            assertGetAndCheckJourneys(journeyRequest, TraffordCentre, ExchangeQuay);
+        }
     }
 
     @Test

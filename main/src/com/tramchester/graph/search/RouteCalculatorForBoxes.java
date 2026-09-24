@@ -121,7 +121,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 logger.debug(format("Finding shortest path for %s --> %s for %s", startBox, destinations, journeyRequest));
             }
             final LocationSet<Station> startingStations = startBox.getStations();
-            final ArrivalHandler lowestCostSeenForBox = ArrivalHandler.get();
+            final ArrivalHandler lowestCostSeenForBox = ArrivalHandler.create();
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 

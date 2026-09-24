@@ -88,7 +88,8 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public Optional<Journey> findJourneys(final GraphTransaction txn, final LocationId<T> start, final LocationId<T> dest,
                                           final JourneyRequest journeyRequest, final Running running) {
-        return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest, running)
+        return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest),
+                        journeyRequest, running)
                 .limit(1).
                 findAny();
     }
@@ -168,12 +169,18 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 map(stationIdPair -> new LocationIdAndNamePair<>(stationIdPair, resolver)).
                 map(stationIdPair -> {
                     try (final GraphTransaction txn = database.beginTx(timeout)) {
+                        Thread.currentThread().setName(createThreadName(stationIdPair));
                         final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginLocationId(),
                                 stationIdPair.getEndLocationId(), request, running);
                         return new JourneyOrNot<>(stationIdPair, queryDate, queryTime, optionalJourney);
                     }
                 });
         return new CombinationResults<>(resultsStream);
+    }
+
+    private String createThreadName(LocationIdAndNamePair<T> stationIdPair) {
+        return String.format("[%s->%s]", stationIdPair.getBeginId().getGraphId(),
+                stationIdPair.getEndId().getGraphId());
     }
 
     public boolean betweenInterchanges(final Station start, final Station dest) {

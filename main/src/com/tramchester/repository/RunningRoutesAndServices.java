@@ -41,14 +41,15 @@ public class RunningRoutesAndServices {
         final Set<Service> servicesForMode = serviceRepository.getServices(modes);
         final Set<Route> routesForMode = routeRepository.getRoutes(modes);
 
+        final TramDate nextDay = date.plusDays(1);
+        final TramDate previousDay = date.minusDays(1);
+
         final IdMap<Service> serviceIds = getServicesFor(date, servicesForMode);
         final IdMap<Route> routeIds = getRoutesFor(date, routesForMode);
 
-        final TramDate nextDay = date.plusDays(1);
         final IdMap<Service> runningServicesNextDay = getServicesFor(nextDay, servicesForMode);
         final IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay, routesForMode);
 
-        final TramDate previousDay = date.minusDays(1);
         final IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay, servicesForMode);
         final IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay, routesForMode);
 
@@ -120,7 +121,7 @@ public class RunningRoutesAndServices {
             this.routesPreviousDay = routesPreviousDay;
         }
 
-        public boolean isServiceRunningByDate(IdFor<Service> serviceId, boolean nextDay) {
+        public boolean isServiceRunningByDate(final IdFor<Service> serviceId, final boolean nextDay) {
             if (servicesToday.hasId(serviceId)) {
                 return true;
             }

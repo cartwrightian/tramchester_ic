@@ -10,7 +10,7 @@ public interface ArrivalHandler {
         Worse
     }
 
-    static ArrivalHandler get() {
+    static ArrivalHandler create() {
         // TODO Define correct number here
         //return new LowestCostSeenForTime(5);
         return new LowestCostSeenForTime(2);
