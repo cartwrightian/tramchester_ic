@@ -28,10 +28,12 @@ import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
+import com.tramchester.graph.search.stateMachine.journeyState.ImmutableJourneyState;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -526,6 +528,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(node.getLabels()).andReturn(labels);
 
+        EasyMock.expect(serviceHeuristics.checkAlreadyPassed(journeyState, node, howIGotHere, reasons)).
+                andReturn(createValidReason(Continue));
+
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
                 andReturn(HeuristicsReasons.StationClosed(howIGotHere, Shudehill.getId()));
 
@@ -586,6 +591,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(node.getLabels()).andReturn(labels);
 
+        EasyMock.expect(serviceHeuristics.checkAlreadyPassed(journeyState, node, howIGotHere, reasons)).
+                andReturn(createValidReason(Continue));
         EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
                 andReturn(createValidReason(Reachable));
         EasyMock.expect(serviceHeuristics.lowerCostIncludingInterchange(node, howIGotHere, reasons)).andReturn(
@@ -620,6 +627,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(createValidReason(NeighbourConnectionsOk));
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(TramDuration.ZERO, howIGotHere, reasons)).
                 andStubReturn(createValidReason(DurationOk));
+
 
         int pathLen = 50;
         EasyMock.expect(serviceHeuristics.backToStartNode(nodeId, pathLen, startNodeId, howIGotHere, reasons)).

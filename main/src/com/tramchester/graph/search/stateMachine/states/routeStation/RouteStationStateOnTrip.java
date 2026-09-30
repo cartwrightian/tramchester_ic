@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.stateMachine.states;
+package com.tramchester.graph.search.stateMachine.states.routeStation;
 
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -7,10 +7,13 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.*;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
 
 import java.util.stream.Stream;
 
@@ -70,7 +73,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private RouteStationStateOnTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships,
                                     final TramDuration cost, final GraphNode routeStationNode, final IdFor<Trip> tripId, final TransportMode transportMode,
                                     final TowardsRouteStation<RouteStationStateOnTrip> builder) {
-        super(parent, relationships, journeyState, cost, builder, routeStationNode, false);
+        super(parent, relationships, journeyState, cost, builder, routeStationNode, PassType.OnTrip);
         this.routeStationNode = routeStationNode;
         this.tripId = tripId;
         this.transportMode = transportMode;
@@ -82,8 +85,12 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsNoPlatformStation, final GraphNode node, final TramDuration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsNoPlatformStation, final GraphNode node,
+                                                 final TramDuration cost, boolean viaDivert,
                                                  final JourneyStateUpdate journeyState) {
+        if (viaDivert) {
+            throw new RuntimeException("Should not arrive at " + this + " via divert");
+        }
         leaveVehicle(journeyState, transportMode, "Unable to depart tram");
         return towardsNoPlatformStation.fromRouteStationOnTrip(this, node, cost, journeyState, txn);
     }

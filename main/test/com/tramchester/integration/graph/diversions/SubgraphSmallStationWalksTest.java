@@ -123,7 +123,7 @@ class SubgraphSmallStationWalksTest {
 
         results.forEach(result -> {
            assertEquals(2, result.getStages().size(), result.toString());
-           assertEquals(Connect, result.getStages().get(1).getMode());
+           assertEquals(Connect, result.getStages().get(1).getTransportMode());
         });
     }
 
@@ -137,7 +137,7 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
 
         results.forEach(result -> {
-            assertEquals(Connect, result.getStages().getFirst().getMode(), "wrong mode? " + result);
+            assertEquals(Connect, result.getStages().getFirst().getTransportMode(), "wrong mode? " + result);
         });
     }
 
@@ -152,7 +152,7 @@ class SubgraphSmallStationWalksTest {
 
         results.forEach(result -> {
             assertEquals(1, result.getStages().size(), result.toString());
-            assertEquals(Connect, result.getStages().getFirst().getMode(), "wrong mode? " + result);
+            assertEquals(Connect, result.getStages().getFirst().getTransportMode(), "wrong mode? " + result);
         });
     }
 

@@ -28,6 +28,8 @@ public enum TransportMode implements HasTransportMode {
     public static final ImmutableEnumSet<TransportMode> TramsOnly = Tram.singleton();
     public static final ImmutableEnumSet<TransportMode> TrainOnly = Train.singleton();
 
+    public static final ImmutableEnumSet<TransportMode> Vehicles = ImmutableEnumSet.from(Arrays.asList(Bus, Tram, Train,
+            Ferry, Subway, RailReplacementBus, Ship));
 
     private static final Map<Short, TransportMode> index;
     private static final ImmutableEnumSet<TransportMode> NoneOf = ImmutableEnumSet.noneOf(TransportMode.class);
@@ -56,6 +58,10 @@ public enum TransportMode implements HasTransportMode {
 
     public static boolean isTram(final HasTransportModes hasModes) {
         return hasModes.getTransportModes().contains(TransportMode.Tram);
+    }
+
+    public static boolean isVehicle(final HasTransportMode hasTransportMode) {
+        return Vehicles.contains(hasTransportMode.getTransportMode());
     }
 
     public static TransportMode fromNumber(final short number) {

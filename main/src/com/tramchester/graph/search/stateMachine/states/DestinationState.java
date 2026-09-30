@@ -2,9 +2,11 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.station.StationState;
 
 import java.util.stream.Stream;
 
@@ -35,9 +37,14 @@ public class DestinationState extends TraversalState
             return TraversalStateType.DestinationState;
         }
 
-        public DestinationState from(NoPlatformStationState noPlatformStation, TramDuration cost, GraphNode node, final JourneyStateUpdate journeyState) {
+//        public DestinationState from(NoPlatformStationState noPlatformStation, TramDuration cost, GraphNode node, final JourneyStateUpdate journeyState) {
+//            journeyState.atDestination(cost);
+//            return new DestinationState(noPlatformStation, cost, node, this);
+//        }
+
+        public DestinationState from(StationState stationState, TramDuration cost, GraphNode node, final JourneyStateUpdate journeyState) {
             journeyState.atDestination(cost);
-            return new DestinationState(noPlatformStation, cost, node, this);
+            return new DestinationState(stationState, cost, node, this);
         }
 
         public DestinationState from(WalkingState walkingState, TramDuration cost, GraphNode node, final JourneyStateUpdate journeyState) {
@@ -45,10 +52,10 @@ public class DestinationState extends TraversalState
             return new DestinationState(walkingState, cost, node, this);
         }
 
-        public DestinationState from(PlatformStationState platformStationState, TramDuration cost, GraphNode node, final JourneyStateUpdate journeyState) {
-            journeyState.atDestination(cost);
-            return new DestinationState(platformStationState, cost, node, this);
-        }
+//        public DestinationState from(PlatformStationState platformStationState, TramDuration cost, GraphNode node, final JourneyStateUpdate journeyState) {
+//            journeyState.atDestination(cost);
+//            return new DestinationState(platformStationState, cost, node, this);
+//        }
 
         public DestinationState from(GroupedStationState groupedStationState, TramDuration cost, GraphNode node, final JourneyStateUpdate journeyState) {
             journeyState.atDestination(cost);

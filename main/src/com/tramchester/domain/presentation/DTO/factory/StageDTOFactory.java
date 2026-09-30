@@ -36,7 +36,7 @@ public class StageDTOFactory {
     public SimpleStageDTO build(final TransportStage<?,?> source, final TravelAction travelAction, final TramDate queryDate) {
         final Route route = source.getRoute();
 
-        TransportMode mode = source.getMode();
+        TransportMode mode = source.getTransportMode();
         if (mode==TransportMode.Tram) {
             if (Agency.IsMetrolink(route.getAgency().getId()) && busReplacementRepository.isReplacement(route.getId())) {
                 mode=TransportMode.Bus;
@@ -86,7 +86,7 @@ public class StageDTOFactory {
     }
 
     private String getHeadsignFor(TransportStage<?, ?> source) {
-        if (source.getMode()== TransportMode.Train) {
+        if (source.getTransportMode()== TransportMode.Train) {
             return railHeadsignFactory.getFor(source);
         } else {
             return source.getHeadSign();

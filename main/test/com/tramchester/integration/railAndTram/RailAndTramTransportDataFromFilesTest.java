@@ -89,10 +89,10 @@ public class RailAndTramTransportDataFromFilesTest {
         List<Platform> platforms = new LinkedList<>(station.getPlatforms());
 
         // should be 2??
-        assertEquals(1, platforms.size());
+        assertEquals(2, platforms.size());
 
-        assertEquals(PlatformId.createId(station,"UNK"), platforms.getFirst().getId());
-        assertEquals("UNK", platforms.getFirst().getPlatformNumber());
+        assertEquals(PlatformId.createId(station,"B"), platforms.getFirst().getId());
+        assertEquals("B", platforms.getFirst().getPlatformNumber());
     }
 
     @Test

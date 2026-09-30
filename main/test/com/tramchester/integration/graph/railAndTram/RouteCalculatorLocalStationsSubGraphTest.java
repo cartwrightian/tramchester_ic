@@ -153,7 +153,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         assertEquals(1, fromTramStages.size());
 
         TransportStage<?, ?> fromTram = fromTramStages.getFirst();
-        assertEquals(Connect, fromTram.getMode());
+        assertEquals(Connect, fromTram.getTransportMode());
         assertEquals(TramDuration.ofSeconds(51), fromTram.getDuration());
     }
 
@@ -173,7 +173,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         assertEquals(1, fromTrainStages.size());
 
         TransportStage<?, ?> fromTrain = fromTrainStages.getFirst();
-        assertEquals(Connect, fromTrain.getMode());
+        assertEquals(Connect, fromTrain.getTransportMode());
         assertEquals(TramDuration.ofSeconds(51), fromTrain.getDuration());
     }
 
@@ -192,7 +192,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(Train, stages.getFirst().getMode(), "wrong second stage for " + stages);
+            assertEquals(Train, stages.getFirst().getTransportMode(), "wrong second stage for " + stages);
         });
     }
 
@@ -211,7 +211,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(Train, stages.getFirst().getMode(), "wrong second stage for " + stages);
+            assertEquals(Train, stages.getFirst().getTransportMode(), "wrong second stage for " + stages);
         });
     }
 
@@ -237,8 +237,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
-        assertEquals(Connect, stages.get(0).getMode(), "wrong first stage for " + stages);
-        assertEquals(Train, stages.get(1).getMode(), "wrong second stage for " + stages);
+        assertEquals(Connect, stages.get(0).getTransportMode(), "wrong first stage for " + stages);
+        assertEquals(Train, stages.get(1).getTransportMode(), "wrong second stage for " + stages);
 
     }
 
@@ -259,9 +259,9 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(3, stages.size(),  "too many stages " + journeys);
-        assertEquals(Train, stages.get(0).getMode(), "wrong first stage for " + journey);
-        assertEquals(Connect, stages.get(1).getMode(), "wrong second stage for " + journey);
-        assertEquals(Tram, stages.get(2).getMode(), "wrong third stage for " + journey);
+        assertEquals(Train, stages.get(0).getTransportMode(), "wrong first stage for " + journey);
+        assertEquals(Connect, stages.get(1).getTransportMode(), "wrong second stage for " + journey);
+        assertEquals(Tram, stages.get(2).getTransportMode(), "wrong third stage for " + journey);
     }
 
     @Test
@@ -280,8 +280,8 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
-        assertEquals(Connect, stages.get(0).getMode(), "wrong first stage for " + stages);
-        assertEquals(Train, stages.get(1).getMode(), "wrong second stage for " + stages);
+        assertEquals(Connect, stages.get(0).getTransportMode(), "wrong first stage for " + stages);
+        assertEquals(Train, stages.get(1).getTransportMode(), "wrong second stage for " + stages);
 
     }
 

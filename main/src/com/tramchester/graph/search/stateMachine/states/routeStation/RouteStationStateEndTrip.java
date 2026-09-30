@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.stateMachine.states;
+package com.tramchester.graph.search.stateMachine.states.routeStation;
 
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -7,9 +7,12 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.*;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
 
 import java.util.stream.Stream;
 
@@ -57,14 +60,18 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                      final Stream<GraphRelationship> routeStationOutbound, final TramDuration cost,
                                      final TransportMode mode, final GraphNode routeStationNode,
                                      final TowardsRouteStation<RouteStationStateEndTrip> builder) {
-        super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode, false);
+        super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode, PassType.EndTrip);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node,
+                                                 final TramDuration cost, boolean viaDivert,
                                                  final JourneyStateUpdate journeyStateUpdate) {
+        if (viaDivert) {
+            throw new RuntimeException("Should not reach " + this + " via divert");
+        }
         leaveVehicle(journeyStateUpdate);
         return towardsStation.fromRouteStationEndTrip(this, node, cost, journeyStateUpdate, txn);
     }

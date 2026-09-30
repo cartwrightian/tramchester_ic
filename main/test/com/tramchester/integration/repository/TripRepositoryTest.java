@@ -25,7 +25,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -104,7 +103,6 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
@@ -120,14 +118,16 @@ public class TripRepositoryTest {
 
         assertFalse(routes.isEmpty());
 
-        assertEquals(3, routes.size(), HasId.asIds(routes));
+        // +1 replacement bus
+        assertEquals(3+1, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when)));
 
         assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
-        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
+
+        //assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
 
         assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
 

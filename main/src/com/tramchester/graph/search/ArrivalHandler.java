@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.graph.caches.LowestCostSeenForTime;
+import com.tramchester.graph.search.stateMachine.journeyState.ImmutableJourneyState;
 
 public interface ArrivalHandler {
 

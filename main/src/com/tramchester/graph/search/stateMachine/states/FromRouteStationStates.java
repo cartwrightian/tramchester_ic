@@ -3,7 +3,9 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateEndTrip;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateOnTrip;
 
 public interface FromRouteStationStates {
     TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node,

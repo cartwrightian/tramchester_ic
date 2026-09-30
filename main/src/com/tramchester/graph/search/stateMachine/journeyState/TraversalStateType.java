@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.stateMachine.states;
+package com.tramchester.graph.search.stateMachine.journeyState;
 
 public enum TraversalStateType {
     DestinationState,

@@ -4,7 +4,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.ArrivalHandler;
-import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.stateMachine.journeyState.ImmutableJourneyState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

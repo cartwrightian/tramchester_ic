@@ -32,7 +32,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     }
 
     @Override
-    public TransportMode getMode() {
+    public TransportMode getTransportMode() {
         return TransportMode.Walk;
     }
     

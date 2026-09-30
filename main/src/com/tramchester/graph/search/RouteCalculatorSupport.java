@@ -160,14 +160,15 @@ public abstract class RouteCalculatorSupport {
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, towardsDestination, txn, fullLogging);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
 
-        long nonWalking = stages.stream().filter(stage -> stage.getMode() != TransportMode.Walk).count();
 
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
         } else {
-            if (nonWalking>maxStages) {
-                logger.error(format("Too many non-walking stages (%s), max stages was %s \n within %s",
-                        stages.size(), maxStages, stages));
+            final long vehicleStages = stages.stream().filter(TransportMode::isVehicle).count();
+
+            if (vehicleStages>maxStages) {
+                logger.error(format("Too many vehicle stages (%s), max stages was %s \n within %s",
+                       vehicleStages, maxStages, stages));
             }
         }
 
@@ -334,7 +335,7 @@ public abstract class RouteCalculatorSupport {
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
-        final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        //final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
         final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
@@ -379,7 +380,7 @@ public abstract class RouteCalculatorSupport {
             if (dups.isEmpty()) {
                 return true;
             }
-            logger.warn("Duplicated stations on path " + HasId.asIds(path) + " for " + journey);
+            logger.warn("Duplicated stations %s on path %s for %s".formatted(HasId.asIds(dups), HasId.asIds(path), journey));
             return false;
         }
         return true;

@@ -36,15 +36,12 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
 //    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
-    static List<TramStations> marketStreetAndShudehill = List.of(Shudehill, MarketStreet);
 
-    static List<TramStations> piccGardens = List.of(PiccadillyGardens);
     private static final Set<TramStations> piccGardensDiversionsAround = new HashSet<>(List.of(StPetersSquare, MarketStreet, Piccadilly));
 
     public static final List<StationClosures> CurrentClosures = List.of(
-            new StationClosuresListForTest(marketStreetAndShudehill, UpcomingDates.MarketStreetAndShudehillSept,
-            true, Collections.emptySet(), Collections.emptySet()),
-            new StationClosuresListForTest(piccGardens, UpcomingDates.PiccGardensAutumn2026,
+            new StationClosuresListForTest(List.of(PiccadillyGardens),
+                    UpcomingDates.PiccGardensAutumn2026,
                     true, piccGardensDiversionsAround, Collections.emptySet())
     );
 
@@ -77,8 +74,12 @@ public abstract class IntegrationTestConfig extends TestConfig {
      *         end: 2025-08-10
      */
 
-    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = List.of(
+    // first is on the map, second in tfgm results, but gap in the service is not on the site anywhere
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = //Collections.emptyList();
+            List.of(
                     new TemporaryStationsWalkConfigForTest(StationIdPair.of(MediaCityUK, ImperialWarMuseum),
+                            MediaCityToImperialWarMus),
+                        new TemporaryStationsWalkConfigForTest(StationIdPair.of(Broadway, HarbourCity),
                             MediaCityToImperialWarMus));
 
     // EXAMPLE

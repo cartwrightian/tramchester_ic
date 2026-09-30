@@ -1,6 +1,7 @@
 package com.tramchester.graph.core;
 
 import com.tramchester.domain.time.TramDuration;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 
 public class PathMapper {
@@ -17,14 +18,16 @@ public class PathMapper {
     public void process(final TraversalState initial, final ForGraphNode forGraphNode, final ForGraphRelationship forGraphRelationship) {
         currentState = initial;
         TramDuration currentCost = TramDuration.ZERO;
+        boolean viaDivert = false;
         for (GraphEntity<?> entity : path.getEntities(txn)) {
             if (entity.isNode()) {
                 final GraphNode graphNode = (GraphNode) entity;
-                currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
+                currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost, viaDivert);
             }
             if (entity.isRelationship()) {
                 final GraphRelationship graphRelationship = (GraphRelationship) entity;
                 currentCost = forGraphRelationship.getCostFor(currentState, graphRelationship);
+                viaDivert = graphRelationship.getType()== TransportRelationshipTypes.DIVERSION;
             }
         }
     }
@@ -38,6 +41,7 @@ public class PathMapper {
     }
 
     public interface ForGraphNode {
-        TraversalState getNextStateFrom(final TraversalState previous, GraphNode node, final TramDuration currentCost);
+        TraversalState getNextStateFrom(final TraversalState previous, GraphNode node, final TramDuration currentCost,
+                                        boolean viaDivert);
     }
 }

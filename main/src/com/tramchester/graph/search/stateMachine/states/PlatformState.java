@@ -4,8 +4,13 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.routeStation.JustBoardedState;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateEndTrip;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateOnTrip;
+import com.tramchester.graph.search.stateMachine.states.station.PlatformStationState;
 
 import java.util.stream.Stream;
 
@@ -87,8 +92,12 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node,
+                                                     final TramDuration cost, final boolean viaDivert,
                                                      final JourneyStateUpdate journeyState) {
+        if (viaDivert) {
+            throw new RuntimeException("Should not reach " + this + " with divert");
+        }
         return towardsStation.fromPlatform(this, node, cost, journeyState, txn);
     }
 

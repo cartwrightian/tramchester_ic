@@ -50,8 +50,13 @@ public class TemporaryStationWalksRepository {
     }
 
     private TemporaryStationWalk resolveStations(final TemporaryStationsWalkIds temporaryStationWalkIds, final DataSourceID dataSourceId) {
-        StationPair stationPair = stationRepository.getStationPair(temporaryStationWalkIds.getStationPair());
-        return new TemporaryStationWalk(stationPair, temporaryStationWalkIds.getDateRange(), dataSourceId);
+        final StationPair stationPair = stationRepository.getStationPair(temporaryStationWalkIds.getStationPair());
+        if (temporaryStationWalkIds.hasCostOverride()) {
+            return new TemporaryStationWalk(stationPair, temporaryStationWalkIds.getDateRange(), dataSourceId,
+                    temporaryStationWalkIds.getCostOverride());
+        } else {
+            return new TemporaryStationWalk(stationPair, temporaryStationWalkIds.getDateRange(), dataSourceId);
+        }
     }
 
     public Set<TemporaryStationWalk> getTemporaryWalksFor(final DataSourceID dataSourceId) {

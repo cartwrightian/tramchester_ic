@@ -4,7 +4,6 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.collections.IterableWithEmptyCheck;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.Towards;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import org.slf4j.Logger;
@@ -33,12 +32,12 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
     }
 
     public Stream<GraphRelationship> addValidDiversions(final Stream<GraphRelationship> existing,
-                                                        final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
+                                                        final GraphNode node, final boolean onDiversion,
                                                         final GraphTransaction txn) {
 
-        if (journeyStateUpdate.onDiversion()) {
+        if (onDiversion) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Already on diversion " + node.getStationId());
+                logger.debug("Arrived via diversion " + node.getStationId());
             }
             return existing;
         }
@@ -47,10 +46,10 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         if (node.hasRelationship(txn, GraphDirection.Outgoing, DIVERSION)) {
             final Stream<GraphRelationship> diversions = node.getRelationships(txn, GraphDirection.Outgoing, DIVERSION).
                     filter(diversion -> diversion.validOn(queryDate)).
-                    filter(diversion -> !journeyStateUpdate.alreadyPassed(diversion.getEndStationId(txn))).
+                    // TODO ideally put next filter in TramRouteEvaluator
+                    //filter(diversion -> !journeyStateUpdate.alreadyBoardedAt(diversion.getEndStationId(txn))).
                     sorted(Comparator.comparing(GraphRelationship::getCost));
 
-            // TODO ordering here?
             return Streams.concat(existing, diversions);
         }
 

@@ -22,12 +22,14 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.core.*;
+import com.tramchester.graph.core.GraphDatabase;
+import com.tramchester.graph.core.MutableGraphNode;
+import com.tramchester.graph.core.MutableGraphRelationship;
+import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.core.inMemory.GraphRelationshipInMemory;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.*;
@@ -56,7 +58,7 @@ public class GraphPropsInMemoryTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new UnitTestOfGraphConfig(GraphDBType.InMemory);
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

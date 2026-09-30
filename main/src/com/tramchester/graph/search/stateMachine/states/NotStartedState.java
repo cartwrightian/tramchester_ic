@@ -4,7 +4,10 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
+import com.tramchester.graph.search.stateMachine.states.station.PlatformStationState;
 
 public class NotStartedState extends TraversalState {
 
@@ -36,19 +39,22 @@ public class NotStartedState extends TraversalState {
 
     @Override
     protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, final GraphNode node,
-                                       final TramDuration cost, final JourneyStateUpdate journeyState) {
+                                       final TramDuration cost, final boolean viaDivert,
+                                       final JourneyStateUpdate journeyState) {
         return towardsGroup.fromStart(this, node, journeyStateUpdate, cost, txn);
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node,
+                                                     final TramDuration cost, final boolean viaDivert,
                                                      final JourneyStateUpdate journeyState) {
-        return towardsStation.fromStart(this, node, cost, journeyState, txn);
+        return towardsStation.fromStart(this, node, cost, journeyState, viaDivert, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node,
+                                                 final TramDuration cost,final boolean viaDivert,
                                                  final JourneyStateUpdate journeyState) {
-        return towardsStation.fromStart(this, node, cost, journeyState, txn);
+        return towardsStation.fromStart(this, node, cost, journeyState, viaDivert, txn);
     }
 }

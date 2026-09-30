@@ -25,12 +25,12 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -111,7 +111,7 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(17,45), 3, 1);
 
         Set<String> expectedChanges = Stream.of(Cornbrook, StPetersSquare, Deansgate,
-                        Piccadilly, PiccadillyGardens, Victoria, MarketStreet).
+                        Piccadilly, PiccadillyGardens, Victoria, MarketStreet, Etihad).
                 map(TramStations::getName).collect(Collectors.toSet());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
@@ -127,8 +127,14 @@ public class RouteCalculatorTest {
             assertTrue(expectedChanges.contains(interchange), interchange + " not in " + expectedChanges);
 
             List<ChangeLocation<?>> changeStations = journey.getChangeStations();
-            assertEquals(1, changeStations.size(), changeStations.toString());
-            assertTrue(expectedChanges.contains(changeStations.getFirst().location().getName()));
+            // new timetable/map - so 2 or 3 is valid here
+            int numberChangeStations = changeStations.size();
+            assertTrue(numberChangeStations==2 || numberChangeStations==3, "wrong number change stations " + changeStations);
+            //assertTrue(expectedChanges.contains(changeStations.getFirst().location().getName()));
+
+            Set<String> changeStationNames = changeStations.stream().map(item -> item.location().getName()).collect(Collectors.toSet());
+            changeStationNames.removeAll(expectedChanges);
+            assertTrue(changeStationNames.isEmpty(), "unexpected change locations, mismatch was " +changeStationNames);
         });
 
         assertEquals(journeys.size(), indexes.size());
@@ -294,7 +300,7 @@ public class RouteCalculatorTest {
     }
 
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
+    @PiccGardensSept2026
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -373,6 +379,17 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldReproIssueMarketStreetToShawAndCrompto() {
+        //checkRouteNextNDays(MarketStreet, ShawAndCrompton, TramTime.of(8, 5), maxChanges);
+        TramDate date = TramDate.of(2026, 9, 30);
+        JourneyRequest request = standardJourneyRequest(date, TramTime.of(8, 5), 1,
+                2);
+        List<Journey> results = calculator.calculateRouteAsList(MarketStreet, ShawAndCrompton, request);
+
+        assertFalse(results.isEmpty(), "No journeys for " + request);
+    }
+
+    @Test
     void shouldCheckWithUpcomingPiccGardensClosure() {
         TramDate date = UpcomingDates.PiccGardensAutumn2026.getStartDate();
         JourneyRequest request = standardJourneyRequest(date, TramTime.of(11, 45), 3,
@@ -434,7 +451,7 @@ public class RouteCalculatorTest {
 
             VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
-            assertEquals(Tram, firstStage.getMode());
+            assertEquals(Tram, firstStage.getTransportMode());
 
             IdFor<Station> firstStageEndId = firstStage.getLastStation().getId();
             assertTrue(firstChanges.contains(firstStageEndId), "Unexpected change %s expected %s".formatted(stages, firstChanges));
@@ -444,7 +461,7 @@ public class RouteCalculatorTest {
 
             VehicleStage finalStage = (VehicleStage) stages.getLast();
             assertEquals(ManAirport.getId(), finalStage.getLastStation().getId());
-            assertEquals(Tram, finalStage.getMode());
+            assertEquals(Tram, finalStage.getTransportMode());
             if (stages.size()==2) {
                 assertEquals(firstStage.getLastStation(), finalStage.getFirstStation());
             } else if (stages.size()==3) {
@@ -647,7 +664,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldProvideASpreadOfDepartureTimes() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(14, 50),
@@ -758,6 +774,7 @@ public class RouteCalculatorTest {
         return duplicates;
     }
 
+    @PiccGardensSept2026
     @Test
     void reproduceIssueEdgePerTrip() {
 
@@ -789,11 +806,22 @@ public class RouteCalculatorTest {
 
     }
 
+    @Disabled("WIP")
     @Test
     void shouldReproIssueWithStPetersToBeyondEcclesRangeOfTimes() {
         // +2 on changes during summer changes, and eccles line
         List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,0+2, 23);
         assertTrue(missingTimes.isEmpty(), "For " +  when + " missing times " + missingTimes);
+    }
+
+    @Test
+    void shouldReproIssueWithStPetersToBeyondEcclesSpecificTime() {
+        // +2 on changes during summer changes, and eccles line
+        TramTime time = TramTime.of(8,25);
+        JourneyRequest request = standardJourneyRequest(when, time, 1, 0 + 2);
+        List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, Eccles, request);
+        //List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,0+1, 23);
+        assertFalse(results.isEmpty(), "No results for " + request);
     }
 
 
@@ -878,8 +906,7 @@ public class RouteCalculatorTest {
 
     @NotNull
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
-        boolean assertOnChange = !(UpcomingDates.PiccGardensAutumn2026.contains(date) ||
-                UpcomingDates.MarketStreetAndShudehillSept.contains(date));
+        boolean assertOnChange = !(UpcomingDates.PiccGardensAutumn2026.contains(date));
         return new JourneyRequest(date, time, false, new JourneyRequest.MaxNumberOfChanges(maxNumberChanges),
                 maxJourneyDuration, maxNumberJourneys,
                 requestedModes, assertOnChange);

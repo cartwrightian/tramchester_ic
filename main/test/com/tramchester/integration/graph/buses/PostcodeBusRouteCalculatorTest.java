@@ -172,7 +172,7 @@ class PostcodeBusRouteCalculatorTest {
             List<TransportStage<?, ?>> stages = journey.getStages();
             final int size = stages.size();
             assertTrue(size<=3, journey.toString());
-            assertEquals( TransportMode.Walk, stages.get(size-1).getMode(), journey.toString());
+            assertEquals( TransportMode.Walk, stages.get(size-1).getTransportMode(), journey.toString());
         });
     }
 
@@ -187,9 +187,9 @@ class PostcodeBusRouteCalculatorTest {
         journeys.forEach(journey -> {
             final List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(3, stages.size(), journey.toString());
-            assertEquals(TransportMode.Walk, stages.get(0).getMode());
-            assertEquals(TransportMode.Bus, stages.get(1).getMode());
-            assertEquals(TransportMode.Walk, stages.get(2).getMode());
+            assertEquals(TransportMode.Walk, stages.get(0).getTransportMode());
+            assertEquals(TransportMode.Bus, stages.get(1).getTransportMode());
+            assertEquals(TransportMode.Walk, stages.get(2).getTransportMode());
         });
     }
 
@@ -211,7 +211,7 @@ class PostcodeBusRouteCalculatorTest {
     }
 
     private void assertWalkAtStart(Set<Journey> journeys) {
-        journeys.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
+        journeys.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getTransportMode()));
     }
 
     private void checkNearby(PostcodeLocation start, BusStations end) {
@@ -226,7 +226,7 @@ class PostcodeBusRouteCalculatorTest {
 
         oneStage.forEach(journey -> {
             TransportStage<?,?> transportStage = journey.getStages().getFirst();
-            assertEquals(TransportMode.Walk, transportStage.getMode());
+            assertEquals(TransportMode.Walk, transportStage.getTransportMode());
             assertEquals(start.getLatLong(), transportStage.getFirstStation().getLatLong());
             assertEquals(end.getId(), transportStage.getLastStation().getId());
         });
@@ -242,7 +242,7 @@ class PostcodeBusRouteCalculatorTest {
 
         oneStage.forEach(journey -> {
             final TransportStage<?, ?> transportStage = journey.getStages().getFirst();
-            assertEquals(TransportMode.Walk, transportStage.getMode());
+            assertEquals(TransportMode.Walk, transportStage.getTransportMode());
             assertEquals(start.getId(), transportStage.getFirstStation().getId());
         });
     }

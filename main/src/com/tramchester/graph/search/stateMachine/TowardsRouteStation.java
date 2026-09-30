@@ -8,7 +8,7 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.search.stateMachine.states.RouteStationState;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilder;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 

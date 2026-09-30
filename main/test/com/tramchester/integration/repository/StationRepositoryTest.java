@@ -25,7 +25,6 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -83,13 +82,13 @@ public class StationRepositoryTest {
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
         // summer 2026
-        int expectedNumStations = 26-2;
+        int expectedNumStations = 26-1;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
-        assertFalse(dropOffs.contains(Shudehill.getId()));
+        assertTrue(dropOffs.contains(Shudehill.getId()));
 
         assertTrue(dropOffs.contains(Bury.getId()));
 
@@ -98,24 +97,25 @@ public class StationRepositoryTest {
         assertEquals(expectedNumStations, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
-        assertFalse(pickUps.contains(Shudehill.getId()));
+        assertTrue(pickUps.contains(Shudehill.getId()));
         assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldReproIssueWithShudehillAppearingOnRedRoute() {
 
         Station shudehill = Shudehill.from(stationRepository);
 
-        @NotNull Set<String> lines = shudehill.getDropoffRoutes().stream().
+        @NotNull Set<TFGMRouteNames> lines = shudehill.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(when)).
-                map(Route::getShortName).
+                map(route -> (TramRouteId)route.getId()).
+                map(TramRouteId::getRouteName).
+                filter(name -> !name.isReplacementBus()).
                 collect(Collectors.toSet());
 
         assertEquals(3, lines.size(), lines.toString());
 
-        assertFalse(lines.contains(Red.getShortName()), "Got " + Red.getShortName() + " in " + lines);
+        assertFalse(lines.contains(Red), "Got " + Red.getShortName() + " in " + lines);
 
     }
 
@@ -323,6 +323,22 @@ public class StationRepositoryTest {
 
         assertFalse(availablePickups.isEmpty());
 
+    }
+
+    @Test
+    void shouldHaveOverlapRoutesForAshtonAndEtihad() {
+        Station etihad = Etihad.from(stationRepository);
+        Station ashton = Ashton.from(stationRepository);
+
+        Set<Route> etihadRoutes = etihad.getPickupRoutes();
+        Set<Route> ashtonRoutes = ashton.getDropoffRoutes();
+
+        SetUtils.SetView<Route> both = SetUtils.intersection(etihadRoutes, ashtonRoutes);
+        assertFalse(both.isEmpty());
+
+        // tram map show blue, data says yellow
+        Route expected = routeHelper.getYellow(when);
+        assertTrue(both.contains(expected), "Did not find " + expected.getId() + " in " + HasId.asIds(both));
     }
 
     @Test

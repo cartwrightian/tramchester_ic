@@ -8,7 +8,11 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateEndTrip;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateOnTrip;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
 
 import java.util.stream.Stream;
 
@@ -31,7 +35,8 @@ public class FindStateAfterRouteStation  {
         // end of a trip, may need to go back to this route station to catch new service
 
         final Stream<GraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false);
-        final Stream<GraphRelationship> relationships = stateBuilder.addValidDiversions(boardsAndOthers, node, journeyStateUpdate, txn);
+        final Stream<GraphRelationship> relationships = stateBuilder.addValidDiversions(boardsAndOthers, node,
+                false, txn);
 
         return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, relationships, destination);
     }

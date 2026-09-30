@@ -183,7 +183,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
 
         logger.debug("Adding Temp Station Walk to/from " + firstNode.getId() + " and " + second.getId());
 
-        final TramDuration cost = geography.getWalkingDuration(first, second);
+        final TramDuration cost = temporaryStationWalk.getCost(geography); // geography.getWalkingDuration(first, second);
 
         logger.info(format("Create walk to/from %s and %s cost %s", first.getId(), second.getId(), cost));
 

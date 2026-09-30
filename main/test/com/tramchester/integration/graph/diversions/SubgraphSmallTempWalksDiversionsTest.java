@@ -209,7 +209,7 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         results.forEach(result -> {
             assertEquals(1, result.getStages().size(), result.toString());
-            assertEquals(TransportMode.Tram, result.getStages().getFirst().getMode());
+            assertEquals(TransportMode.Tram, result.getStages().getFirst().getTransportMode());
         });
     }
 
@@ -277,7 +277,7 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         results.forEach(result -> {
             assertEquals(1, result.getStages().size(), results.toString());
-            assertEquals(TransportMode.Connect, result.getStages().getFirst().getMode());
+            assertEquals(TransportMode.Connect, result.getStages().getFirst().getTransportMode());
         });
 
         results.forEach(result -> {
@@ -296,8 +296,8 @@ class SubgraphSmallTempWalksDiversionsTest {
 
         results.forEach(result -> {
             assertEquals(2, result.getStages().size(), result.toString());
-            assertEquals(TransportMode.Tram, result.getStages().getFirst().getMode());
-            assertEquals(TransportMode.Connect, result.getStages().getLast().getMode());
+            assertEquals(TransportMode.Tram, result.getStages().getFirst().getTransportMode());
+            assertEquals(TransportMode.Connect, result.getStages().getLast().getTransportMode());
         });
 
         results.forEach(result -> {

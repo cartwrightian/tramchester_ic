@@ -3,6 +3,8 @@ package com.tramchester.domain;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramDuration;
+import com.tramchester.mappers.Geography;
 
 import java.util.Objects;
 
@@ -10,11 +12,19 @@ public class TemporaryStationWalk {
     private final StationPair stationPair;
     private final DateRange dateRange;
     private final DataSourceID dataSourceID;
+    private final TramDuration costOverride;
 
     public TemporaryStationWalk(StationPair stationPair, DateRange dateRange, DataSourceID dataSourceID) {
+        this(stationPair, dateRange, dataSourceID, null);
+    }
+
+    public TemporaryStationWalk(StationPair stationPair, DateRange dateRange, DataSourceID dataSourceID,
+                                TramDuration costOverride) {
         this.stationPair = stationPair;
         this.dateRange = dateRange;
         this.dataSourceID = dataSourceID;
+        this.costOverride = costOverride;
+
     }
 
     public StationPair getStationPair() {
@@ -23,6 +33,13 @@ public class TemporaryStationWalk {
 
     public DateRange getDateRange() {
         return dateRange;
+    }
+
+    public TramDuration getCost(final Geography geography) {
+        if (costOverride==null) {
+            return geography.getWalkingDuration(stationPair.getBegin(), stationPair.getEnd());
+        }
+        return costOverride;
     }
 
     // Right now assumed these are always for a whole day

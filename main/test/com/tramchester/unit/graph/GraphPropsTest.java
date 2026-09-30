@@ -27,15 +27,11 @@ import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.testSupport.GraphDBType;
-import com.tramchester.testSupport.GraphTypeConfigResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.*;
-import com.tramchester.testSupport.testTags.MultiDB;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,8 +43,6 @@ import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
-@MultiDB
-@ExtendWith(GraphTypeConfigResolver.class)
 public class GraphPropsTest {
 
     // TODO Split into GraphNodeTest and GraphRelationshipTest
@@ -63,8 +57,8 @@ public class GraphPropsTest {
     //private boolean inMemory;
 
     @BeforeAll
-    static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
-        config = new UnitTestOfGraphConfig(graphDBType);
+    static void onceBeforeAllTestRuns() throws IOException {
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

@@ -2,6 +2,12 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.Towards;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.routeStation.JustBoardedState;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateEndTrip;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateOnTrip;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
+import com.tramchester.graph.search.stateMachine.states.station.PlatformStationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

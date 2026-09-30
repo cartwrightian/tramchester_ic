@@ -2,7 +2,13 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.routeStation.JustBoardedState;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateEndTrip;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationStateOnTrip;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
+import com.tramchester.graph.search.stateMachine.states.station.PlatformStationState;
 
 public abstract class EmptyTraversalState {
 
@@ -29,11 +35,15 @@ public abstract class EmptyTraversalState {
     }
 
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, GraphNode node, TramDuration cost,
+                                                 boolean arrivedViaDiversion,
                                                  JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node, TramDuration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node,
+                                       TramDuration cost,
+                                       boolean arrivedViaDiversion,
+                                       JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
@@ -42,6 +52,7 @@ public abstract class EmptyTraversalState {
     }
 
     protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, TramDuration cost,
+                                                     boolean arrivedViaDiversion,
                                                      JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }

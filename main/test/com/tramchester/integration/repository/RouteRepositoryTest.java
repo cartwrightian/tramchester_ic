@@ -23,6 +23,7 @@ import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
+import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -270,27 +271,19 @@ public class RouteRepositoryTest {
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);
     }
 
+    @PiccGardensSept2026
     @Test
     void shouldReproduceIssuesStPetersSquareSept2026() {
 
-        TramDate problemDate = TramDate.of(2026, 9, 19);
-//        assertHaveOverlap(problemDate, StPetersSquare, PiccadillyGardens);
-        assertHaveOverlap(problemDate, StPetersSquare, Piccadilly);
-//        assertHaveOverlap(problemDate, StPetersSquare, NewIslington);
-//        assertHaveOverlap(problemDate, StPetersSquare, HoltTown);
-        assertHaveOverlap(problemDate, StPetersSquare, Etihad);
+        assertHaveOverlap(when, StPetersSquare, Piccadilly);
+        assertHaveOverlap(when, StPetersSquare, Etihad);
 
-//        assertHaveOverlap(problemDate, Piccadilly, Etihad);
-//        assertHaveOverlap(problemDate, Piccadilly, VeloPark);
-        assertHaveOverlap(problemDate, Piccadilly, Ashton);
+    }
 
-//        assertHaveOverlap(problemDate, NewIslington, Ashton);
-        assertHaveOverlap(problemDate, Etihad, Ashton);
-//        assertHaveOverlap(problemDate, VeloPark, Ashton);
-
-        //assertHaveOverlap(problemDate, StPetersSquare, VeloPark);
-//        assertHaveOverlap(problemDate, StPetersSquare, Ashton);
-
+    @Test
+    void shouldReproduceIssuePiccadillySept2026() {
+        assertHaveOverlap(when, Piccadilly, Ashton);
+        assertHaveOverlap(when, Etihad, Ashton);
     }
 
     private void assertHaveOverlap(TramDate problemDate, TramStations start, TramStations end) {

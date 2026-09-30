@@ -1,13 +1,16 @@
-package com.tramchester.graph.search.stateMachine.states;
+package com.tramchester.graph.search.stateMachine.states.routeStation;
 
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.*;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
 
 import java.util.stream.Stream;
 
@@ -61,7 +64,7 @@ public class JustBoardedState extends RouteStationState {
 
     private JustBoardedState(final ImmutableTraversalState traversalState, final Stream<GraphRelationship> outbounds,
                              JourneyStateUpdate journeyState, final TramDuration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
-        super(traversalState, outbounds, journeyState, cost, builder, graphNode, true);
+        super(traversalState, outbounds, journeyState, cost, builder, graphNode, PassType.JustBoarded);
     }
 
     @Override

@@ -3,8 +3,6 @@ package com.tramchester.graph.search.inMemory;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.Running;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -13,9 +11,9 @@ import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.reference.GraphLabels;
-import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -186,7 +184,7 @@ public class FindPathsForJourney {
         if (currentNode.getId().equals(startNode.getId())) {
             // point to 'real' start node -> mirroring the way the existing implementation works
             final ImmutableTraversalState nextTraversalState = currentTraversalState.nextState(startNode.getLabels(), startNode,
-                    journeyStateForChildren, TramDuration.ZERO);
+                    journeyStateForChildren, TramDuration.ZERO, false);
             journeyStateForChildren.updateTraversalState(nextTraversalState);
 
         } else {
@@ -199,10 +197,7 @@ public class FindPathsForJourney {
                 journeyStateForChildren.updateTotalCost(total);
             }
 
-            if (lastRelationship.isType(DIVERSION)) {
-                final IdFor<Station> stationId = lastRelationship.getStartStationId(txn);
-                journeyStateForChildren.beginDiversion(stationId);
-            }
+            final boolean arrivedViaDiversion = lastRelationship.isType(DIVERSION);
 
             // sanity check
             if (!lastRelationship.getEndNodeId(txn).equals(currentNode.getId())) {
@@ -211,7 +206,7 @@ public class FindPathsForJourney {
 
             final GraphLabels labels = currentNode.getLabels();
             final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, currentNode,
-                    journeyStateForChildren, cost);
+                    journeyStateForChildren, cost, arrivedViaDiversion);
 
             journeyStateForChildren.updateTraversalState(traversalStateForChildren);
         }
@@ -225,13 +220,6 @@ public class FindPathsForJourney {
         final ImmutableTraversalState currentTraversalState = currentState.getTraversalState();
         return currentTraversalState.getOutbounds();
 
-        // Cannot just expand start node, as some relationships must be filtered i.e. valid diversions
-//        if (currentNode.getId().equals(startNode.getId())) {
-//            return startNode.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.forPlanning());
-//        } else {
-//            final ImmutableTraversalState currentTraversalState = currentState.getTraversalState();
-//            return currentTraversalState.getOutbounds();
-//        }
     }
 
 

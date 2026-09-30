@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.ArrivalHandler;
-import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.stateMachine.journeyState.ImmutableJourneyState;
 import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.diagnostics.*;
@@ -149,9 +149,9 @@ public abstract class TramRouteEvaluator {
 
         // WIP
         // already boarded at this location? TODO only check for certain states
-        if (journeyState.justBoarded()) {
-            if (journeyState.duplicatedBoardingSeen()) {
-                //logger.warn("Already saw boarding at " + nextNodeId);
+        if (journeyState.duplicatedBoardingSeen()) {
+            if (journeyState.justBoarded()) {
+                logger.warn("Already saw boarding at " + nextNodeId);
                 return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
             }
         }
@@ -240,6 +240,20 @@ public abstract class TramRouteEvaluator {
         // is dest reachable from here and is route operating today?
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
+
+//            // WIP
+//            // TODO only apply this for transport modes / agencies where going back past an exising station does not make sense
+//            // For trains this isn't right
+//            if (journeyState.alreadySeenOnATrip(nextNode.getStationId())) {
+//                logger.warn("Already passed route station " + nextNode.getStationId());
+//                // TODO correct status
+//                return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
+//            }
+
+            final HeuristicsReason alreadyPassedStation = serviceHeuristics.checkAlreadyPassed(journeyState, nextNode, howIGotHere, reasons);
+            if (!alreadyPassedStation.isValid()) {
+                return alreadyPassedStation;
+            }
 
             final HeuristicsReason forMode = serviceHeuristics.checkModes(nodeLabels, requestedLabels, howIGotHere, reasons);
             if (!forMode.isValid()) {

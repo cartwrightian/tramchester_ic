@@ -79,7 +79,7 @@ public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>>
     }
 
     @Override
-    public TransportMode getMode() {
+    public TransportMode getTransportMode() {
         return TransportMode.Connect;
     }
 

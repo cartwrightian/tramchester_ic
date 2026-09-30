@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.stateMachine.journeyState;
 
 import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -9,8 +9,9 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationState;
 
-public interface JourneyStateUpdate {
+public interface JourneyStateUpdate extends CoreJourneyState {
     void board(TransportMode transportMode, GraphNode node, boolean hasPlatform) throws TramchesterException;
     void leave(TransportMode mode, TramDuration totalCost, GraphNode node) throws TramchesterException;
 
@@ -27,17 +28,14 @@ public interface JourneyStateUpdate {
     void updateTotalCost(TramDuration total);
     void recordDepartureTimeAtMinuteNode(TramTime time, TramDuration totalCost) throws TramchesterException;
 
-    void recordRouteStation(GraphNode node, boolean endOfTrip);
+    void recordRouteStation(GraphNode node, RouteStationState.PassType passType);
 
     void recordStationGroup(IdFor<StationGroup> stationGroupId);
 
-    void beginDiversion(final IdFor<Station> stationId);
-    boolean onDiversion();
-
     boolean onTrip();
-    IdFor<Trip> getCurrentTrip();
 
-    boolean alreadyPassed(IdFor<Station> stationId);
+    // TODO Bring back?
+    //boolean alreadyBoardedAt(IdFor<Station> stationId);
 
     void atDestination(TramDuration cost);
 }

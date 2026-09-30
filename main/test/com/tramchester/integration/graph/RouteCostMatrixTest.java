@@ -179,7 +179,7 @@ public class RouteCostMatrixTest {
             }
         });
 
-        TramDate problemDate = TramDate.of(2026, 9, 19);
+        TramDate problemDate = TestEnv.testDay(); //TramDate.of(2026, 9, 19);
 
         Set<RoutePair> pairsForDate = allPairs.stream().
                 filter(pair -> pair.bothAvailableOn(problemDate)).

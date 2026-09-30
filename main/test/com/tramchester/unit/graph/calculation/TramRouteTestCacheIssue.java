@@ -12,18 +12,14 @@ import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.TramRouteCalculator;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.GraphDBType;
-import com.tramchester.testSupport.GraphTypeConfigResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import com.tramchester.testSupport.testTags.MultiDB;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -33,8 +29,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("for diagnosing cache issue, repeat until fail")
-@MultiDB
-@ExtendWith(GraphTypeConfigResolver.class)
 class TramRouteTestCacheIssue {
     private static ComponentContainer componentContainer;
     private static UnitTestOfGraphConfig config;
@@ -46,8 +40,8 @@ class TramRouteTestCacheIssue {
     private GraphTransaction txn;
 
     @BeforeEach
-    void beforeEachTestRuns(GraphDBType graphDBType) throws IOException {
-        config = new UnitTestOfGraphConfig(graphDBType);
+    void beforeEachTestRuns() throws IOException {
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

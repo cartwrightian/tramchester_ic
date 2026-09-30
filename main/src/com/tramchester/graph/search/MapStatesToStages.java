@@ -18,6 +18,8 @@ import com.tramchester.domain.transportStages.*;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationState;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -65,7 +67,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
     private VehicleStagePending vehicleStagePending;
 
     private IdFor<Trip> currentTrip;
-    private boolean onDiversion;
+    //private boolean onDiversion;
 
     public MapStatesToStages(StationRepository stationRepository, PlatformRepository platformRepository,
                              TripRepository tripRepository, TramTime queryTime) {
@@ -80,7 +82,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
         departureTimeFromMinuteNode = TramTime.invalid();
         totalCostAtLastDeparture = TramDuration.getInvalid();
         currentTrip = Trip.InvalidId();
-        onDiversion = false;
+//        onDiversion = false;
 
         state = State.NotStarted;
     }
@@ -109,10 +111,10 @@ public class MapStatesToStages implements JourneyStateUpdate {
 
         final IdFor<Station> actionStationId = node.getStationId();
 
-        if (onDiversion) {
-            logger.info("End diversion at " + actionStationId);
-            onDiversion = false;
-        }
+//        if (onDiversion) {
+//            logger.info("End diversion, Board at " + actionStationId);
+//            onDiversion = false;
+//        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("Board " + transportMode + " " + actionStationId + " totalcost  " + totalCost);
@@ -295,23 +297,18 @@ public class MapStatesToStages implements JourneyStateUpdate {
 
 
     @Override
-    public void recordRouteStation(GraphNode node, boolean justBoarded) {
+    public void recordRouteStation(GraphNode node, RouteStationState.PassType passType) {
         // no-op
     }
 
-    @Override
-    public void beginDiversion(final IdFor<Station> stationId) {
-        if (onDiversion) {
-            throw new RuntimeException("Already on diversion at " + stationId);
-        }
-        logger.info("Begin diversion at " + stationId);
-        onDiversion = true;
-    }
-
-    @Override
-    public boolean onDiversion() {
-        return onDiversion;
-    }
+//    @Override
+//    public void beginDiversion(final IdFor<Station> stationId) {
+//        if (onDiversion) {
+//            throw new RuntimeException("Already on diversion at " + stationId);
+//        }
+//        logger.info("Begin diversion at " + stationId);
+//        onDiversion = true;
+//    }
 
     @Override
     public boolean onTrip() {
@@ -321,12 +318,6 @@ public class MapStatesToStages implements JourneyStateUpdate {
     @Override
     public IdFor<Trip> getCurrentTrip() {
         return currentTrip;
-    }
-
-    @Override
-    public boolean alreadyPassed(IdFor<Station> stationId) {
-        // noop
-        return false;
     }
 
     @Override
@@ -499,7 +490,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
 
             final TramDuration costForStage = currentTotalCost.minus(costAtBoardingPoint);
 
-            logger.info("Leave " + mode + " at " + lastStationId + "  costForStage = " + costForStage +
+            logger.debug("Leave " + mode + " at " + lastStationId + "  costForStage = " + costForStage +
                     " totalCost = " + currentTotalCost);
 
             final Station firstStation = stationRepository.getStationById(actionStationId);

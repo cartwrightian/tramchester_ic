@@ -5,10 +5,10 @@ import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.core.GraphNodeId;
-import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.stateMachine.journeyState.ImmutableJourneyState;
 import com.tramchester.graph.search.stateMachine.states.HasTowardsStationId;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 
 import java.util.List;
 import java.util.Objects;

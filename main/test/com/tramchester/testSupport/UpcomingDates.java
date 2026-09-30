@@ -38,17 +38,17 @@ public class UpcomingDates {
     static final int DAYS_AHEAD = 14;
 
 
-    public static DateRange MarketStreetAndShudehillSept = DateRange.of(TramDate.of(2026, 9, 21),
-            TramDate.of(2026, 9, 26));
+//    public static DateRange MarketStreetAndShudehillSept = DateRange.of(TramDate.of(2026, 9, 21),
+//            TramDate.of(2026, 9, 26));
 
     public static DateRange PiccGardensAutumn2026 = DateRange.of(TramDate.of(2026, 9, 27),
             TramDate.of(2026, 10, 3));
 
     // ongoing? Used to add walk Media City to Imperial Was Museum
-    public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 1),
-            TramDate.of(2026, 10, 15));
+    public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 26),
+            TramDate.of(2026, 11, 15));
 
-    public static TramDate victoriaLineEarlyMorning = TramDate.of(2026, 9, 20);
+//    public static TramDate victoriaLineEarlyMorning = TramDate.of(2026, 9, 20);
 
     public static TramDate rochdaleBeginOctober2026 = TramDate.of(2026, 10, 3);
     public static TimeRange rochdaleBeginOctoberTimeRange2026 = TimeRange.of(TramTime.of(4,0), TramTime.of(14,0));
@@ -60,17 +60,17 @@ public class UpcomingDates {
 
     public static boolean hasClosure(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
 
-        if (MarketStreetAndShudehillSept.contains(date)) {
-            if (MarketStreet.matches(stationId) || Shudehill.matches(stationId)) {
-                return true;
-            }
-        }
-        if (victoriaLineEarlyMorning.equals(date)) {
-            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(10,0));
-            if (closure.anyOverlap(timeRange)) {
-                return true;
-            }
-        }
+//        if (MarketStreetAndShudehillSept.contains(date)) {
+//            if (MarketStreet.matches(stationId) || Shudehill.matches(stationId)) {
+//                return true;
+//            }
+//        }
+//        if (victoriaLineEarlyMorning.equals(date)) {
+//            TimeRange closure = TimeRange.of(TramTime.of(4,0), TramTime.of(10,0));
+//            if (closure.anyOverlap(timeRange)) {
+//                return true;
+//            }
+//        }
         if (PiccGardensAutumn2026.contains(date)) {
             if (PiccadillyGardens.matches(stationId)) {
                 return true;

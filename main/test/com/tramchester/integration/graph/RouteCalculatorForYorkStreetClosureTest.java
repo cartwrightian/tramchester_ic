@@ -191,7 +191,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
         assertTrue(incorrectStages.isEmpty(), incorrectStages.toString());
 
         List<Journey> incorrectConnect = results.stream().
-                filter(journey -> !getStage.apply(journey).getMode().equals(Connect)).
+                filter(journey -> !getStage.apply(journey).getTransportMode().equals(Connect)).
                 toList();
         assertTrue(incorrectConnect.isEmpty(), incorrectConnect.toString());
     }

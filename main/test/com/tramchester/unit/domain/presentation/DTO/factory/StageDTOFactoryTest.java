@@ -209,7 +209,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action,
                              String expectedHeadsign) {
         assertEquals(IdForDTO.createFor(stage.getActionStation()), dto.getActionStation().getId());
-        assertEquals(stage.getMode(), dto.getMode());
+        assertEquals(stage.getTransportMode(), dto.getMode());
         assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());
         assertEquals(IdForDTO.createFor(stage.getLastStation()), dto.getLastStation().getId());
         assertEquals(stage.getExpectedArrivalTime().toDate(when), dto.getExpectedArrivalTime());

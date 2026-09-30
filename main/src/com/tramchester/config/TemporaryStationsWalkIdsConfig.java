@@ -1,9 +1,11 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.TramDuration;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -20,6 +22,7 @@ public class TemporaryStationsWalkIdsConfig implements TemporaryStationsWalkIds 
     private final LocalDate begin;
     private final LocalDate end;
 
+    @JsonCreator
     public TemporaryStationsWalkIdsConfig(@JsonProperty(value = "stations", required = true) StationPairConfig stationPair,
                                           @JsonProperty(value = "begin", required = true) LocalDate begin,
                                           @JsonProperty(value = "end", required = true) LocalDate end) {
@@ -39,11 +42,20 @@ public class TemporaryStationsWalkIdsConfig implements TemporaryStationsWalkIds 
     }
 
     @Override
+    public boolean hasCostOverride() {
+        return false;
+    }
+
+    @Override
+    public TramDuration getCostOverride() {
+        return null;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TemporaryStationsWalkIds that)) return false;
         return TemporaryStationsWalkIds.areEqual(this, that);
-//        return Objects.equals(stationPair, that.stationPair) && Objects.equals(begin, that.begin) && Objects.equals(end, that.end);
     }
 
     @Override
@@ -53,10 +65,6 @@ public class TemporaryStationsWalkIdsConfig implements TemporaryStationsWalkIds 
 
     @Override
     public String toString() {
-        return "TemporaryStationsWalkIdsConfig{" +
-                "stationPair=" + stationPair +
-                ", begin=" + begin +
-                ", end=" + end +
-                '}';
+        return TemporaryStationsWalkIds.asString(this);
     }
 }

@@ -500,7 +500,7 @@ public class RailTimetableMapper {
         private MutablePlatform getOrCreatePlatform(final Station originStation, final RailLocationRecord originLocation,
                                                     final IdFor<NPTGLocality> areaId) {
 
-            final String originLocationPlatform = originLocation.getPlatform();
+            final String originLocationPlatform = originLocation.getPlatform().strip();
             final String platformNumber = originLocationPlatform.isEmpty() ? "UNK" : originLocationPlatform;
 
             final PlatformId platformId = PlatformId.createId(originStation, platformNumber);

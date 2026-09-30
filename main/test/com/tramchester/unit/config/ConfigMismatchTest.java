@@ -397,6 +397,7 @@ class ConfigMismatchTest {
             assertEquals(expectedDataSource.getTransportGTFSModes(), dataSourceConfig.getTransportGTFSModes(), "TransportGTFSModes");
             assertEquals(expectedDataSource.getAdditionalInterchanges(), dataSourceConfig.getAdditionalInterchanges(), "AdditionalInterchanges");
             if (checkClosures) {
+                assertEquals(expectedDataSource.getStationClosures().size(), dataSourceConfig.getStationClosures().size(), "station closures");
                 assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
                 assertEquals(expectedDataSource.getTemporaryStationWalks(), dataSourceConfig.getTemporaryStationWalks(), "start walks");
             }

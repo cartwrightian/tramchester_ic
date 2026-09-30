@@ -107,7 +107,7 @@ public class AllModesJourneysTest {
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
             TransportStage<?,?> stage = journey.getStages().getFirst();
-            assertEquals(Tram, stage.getMode());
+            assertEquals(Tram, stage.getTransportMode());
         });
     }
 

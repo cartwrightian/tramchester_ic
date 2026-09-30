@@ -9,7 +9,6 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramStations;
 
@@ -19,9 +18,9 @@ import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 
-public class SimpleGroupedGraphConfig extends UnitTestOfGraphConfig {
-    public SimpleGroupedGraphConfig(GraphDBType graphDBType) {
-        super(graphDBType);
+public class SimpleGraphConfig extends UnitTestOfGraphConfig {
+    public SimpleGraphConfig() {
+        super();
     }
 
     @Override

@@ -72,7 +72,7 @@ public class Journey implements Iterable<TransportStage<?,?>> {
     }
 
     public Set<TransportMode> getTransportModes() {
-        return stages.stream().map(TransportStage::getMode).collect(Collectors.toSet());
+        return stages.stream().map(TransportStage::getTransportMode).collect(Collectors.toSet());
     }
 
     public TramTime getArrivalTime() {
@@ -104,7 +104,7 @@ public class Journey implements Iterable<TransportStage<?,?>> {
     }
 
     private TransportMode getFirstStageMode() {
-        return stages.getFirst().getMode();
+        return stages.getFirst().getTransportMode();
     }
 
     public Location<?> getBeginning() {
@@ -135,10 +135,10 @@ public class Journey implements Iterable<TransportStage<?,?>> {
             TransportStage<?, ?> firstStage = stages.getFirst();
 
             final ChangeLocation<?> changeStation;
-            if (firstStage.getMode() == Walk) {
+            if (firstStage.getTransportMode() == Walk) {
                 // walking stage, either to/from a location - we want the actual station here
                 final Location<?> firstStation = firstStage.getFirstStation();
-                final TransportMode mode = firstStage.getMode();
+                final TransportMode mode = firstStage.getTransportMode();
                 if (firstStation.getLocationType()==LocationType.Station) {
                     changeStation = new ChangeLocation<>(firstStation, mode);
                 } else {
@@ -157,7 +157,7 @@ public class Journey implements Iterable<TransportStage<?,?>> {
 
         for (int index = 1; index < size; index++) {
             TransportStage<?, ?> transportStage = stages.get(index);
-            final TransportMode actualMode = transportStage.getMode();
+            final TransportMode actualMode = transportStage.getTransportMode();
             final TransportMode mode;
             if (index==lastIndex) {
                 if (actualMode==Walk) {

@@ -98,7 +98,7 @@ class PostcodeTramJourneyPlannerTest {
         Set<Journey> journeySet =  planner.quickestRouteForLocation(centralLocation, TramStations.Bury, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
-        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getTransportMode()));
         checkDepartBefore(journeySet, request.getArriveBy());
     }
 
@@ -109,7 +109,7 @@ class PostcodeTramJourneyPlannerTest {
         Set<Journey> journeySet =  planner.quickestRouteForLocation(TramStations.Bury, centralLocation, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
-        journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().getFirst().getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().getFirst().getTransportMode()));
         checkDepartBefore(journeySet, request.getArriveBy());
 
     }
@@ -126,18 +126,18 @@ class PostcodeTramJourneyPlannerTest {
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertTrue(journey.getStages().size()>=3));
         // walk at start
-        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
+        journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getTransportMode()));
         // walk at end
         journeySet.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
             int lastIndex = stages.size()-1;
-            assertEquals(TransportMode.Walk, stages.get(lastIndex).getMode());
+            assertEquals(TransportMode.Walk, stages.get(lastIndex).getTransportMode());
         });
         // trams in the middle
         journeySet.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
             for (int i = 1; i < stages.size()-1; i++) {
-                assertEquals(TransportMode.Tram, stages.get(i).getMode());
+                assertEquals(TransportMode.Tram, stages.get(i).getTransportMode());
             }
         });
         checkDepartBefore(journeySet, request.getArriveBy());

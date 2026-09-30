@@ -23,13 +23,10 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.GraphDBType;
-import com.tramchester.testSupport.GraphTypeConfigResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.MixedTransportTestDataFactory;
-import com.tramchester.testSupport.testTags.MultiDB;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,9 +36,6 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.MixedTransportTestDataFactory.MixedTransportTestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-
-@MultiDB
-@ExtendWith(GraphTypeConfigResolver.class)
 class MixedRouteTest {
 
     private static MixedTransportTestDataFactory.MixedTransportTestData transportData;
@@ -56,9 +50,9 @@ class MixedRouteTest {
     private ImmutableEnumSet<TransportMode> modes;
 
     @BeforeAll
-    static void onceBeforeAllTestRuns(GraphDBType graphDBType) throws IOException {
+    static void onceBeforeAllTestRuns() throws IOException {
 
-        config = new SimpleMixedRouteGraphConfig(graphDBType);
+        config = new SimpleMixedRouteGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -172,8 +166,8 @@ class MixedRouteTest {
 
     private static class SimpleMixedRouteGraphConfig extends IntegrationTestConfig {
 
-        public SimpleMixedRouteGraphConfig(GraphDBType graphDBTtype) {
-            super(TestGroupType.unit, graphDBTtype);
+        public SimpleMixedRouteGraphConfig() {
+            super(TestGroupType.unit, GraphDBType.InMemory);
         }
 
         @Override

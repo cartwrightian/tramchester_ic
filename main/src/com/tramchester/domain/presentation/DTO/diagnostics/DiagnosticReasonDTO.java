@@ -4,7 +4,7 @@ import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
 import com.tramchester.graph.search.diagnostics.HeuristicsReason;
 import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 
 import java.util.List;
 import java.util.Objects;

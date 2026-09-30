@@ -17,7 +17,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
+import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -161,7 +161,7 @@ public class RunningRoutesAndServicesTest {
                 route.isAvailableOn(date.plusDays(2)));
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
+    @PiccGardensSept2026
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
         TramDate when = UpcomingDates.testDay().plusDays(1);

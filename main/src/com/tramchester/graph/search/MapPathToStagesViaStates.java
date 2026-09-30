@@ -56,10 +56,9 @@ public class MapPathToStagesViaStates implements PathToStages {
                                                 final TowardsDestination towardsDestination, final GraphTransaction txn, boolean fullLogging) {
         final GraphPath path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();
-        if (fullLogging) {
-            logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
-                    path.length(), journeyRequest, queryTime, timedPath.numChanges()));
-        }
+
+        logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
+                path.length(), journeyRequest, queryTime, timedPath.numChanges()));
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(journeyRequest.getDate(), timedPath.queryTime(),
                 towardsDestination, config, journeyRequest.getRequestedModes());
@@ -76,10 +75,11 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         pathMapper.process(initial, new PathMapper.ForGraphNode() {
             @Override
-            public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final TramDuration currentCost) {
+            public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final TramDuration currentCost,
+                                                   final boolean viaDivert) {
                 final GraphLabels labels = node.getLabels();
                 try {
-                    final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
+                    final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost, viaDivert);
                     logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
                     return next;
                 }
@@ -93,7 +93,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         }, new PathMapper.ForGraphRelationship() {
             @Override
             public TramDuration getCostFor(final TraversalState current, final GraphRelationship relationship) {
-                final TramDuration lastRelationshipCost = relationship.getCost(); //nodeContentsRepository.getCost(relationship);
+                final TramDuration lastRelationshipCost = relationship.getCost();
 
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 
@@ -103,10 +103,6 @@ public class MapPathToStagesViaStates implements PathToStages {
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM)) {
                     mapStatesToStages.passStop(relationship);
-                }
-                if (relationship.isType(DIVERSION)) {
-                    final IdFor<Station> stationId = relationship.getStartStationId(txn);
-                    mapStatesToStages.beginDiversion(stationId);
                 }
                 return lastRelationshipCost;
             }

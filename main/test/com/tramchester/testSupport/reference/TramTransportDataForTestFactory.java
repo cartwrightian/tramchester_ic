@@ -19,7 +19,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.testSupport.TestEnv;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +45,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     public final static TramDate startDate = TramDate.of(2014, 2, 10);
     public final static TramDate endDate = TramDate.of(2020, 8, 15);
-    private static final DayOfWeek dayOfWeek = DayOfWeek.MONDAY;
-
-    // TODO remove this workaround and make the startDate and endDate use current date(s)
-    public final static TramDate routeDate = TestEnv.testDay();
+    public static final DayOfWeek dayOfWeek = DayOfWeek.MONDAY;
 
     @Inject
     public TramTransportDataForTestFactory(ProvidesNow providesNow) {
@@ -248,11 +244,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 dataSourceID, isCentral);
     }
 
-    private MutableRoute createTramRoute(final TestRoute knownRoute) {
-        return new MutableRoute(knownRoute.getId(), knownRoute.shortName(), "route " + knownRoute.shortName(), TestEnv.MetAgency(),
-                knownRoute.mode());
-    }
-
     private void addAStation(TransportDataContainer container, MutableStation station) {
         container.addStation(station);
     }
@@ -362,12 +353,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         public Route getRouteA() {
             return KnownTramRoute.getRed();
-            //return getRouteById(getRed(routeDate).getId());
         }
 
         public Route getRouteB() {
             return KnownTramRoute.getPink();
-            //return getRouteById(getPink(routeDate).getId());
         }
 
     }

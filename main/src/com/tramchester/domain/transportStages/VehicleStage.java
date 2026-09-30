@@ -70,7 +70,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
     }
 
     @Override
-    public TransportMode getMode() {
+    public TransportMode getTransportMode() {
         return mode;
     }
 

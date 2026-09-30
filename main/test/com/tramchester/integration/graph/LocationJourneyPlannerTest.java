@@ -27,9 +27,9 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -87,6 +87,7 @@ class LocationJourneyPlannerTest {
         txn.close();
     }
 
+    @PiccGardensSept2026
     @Test
     void shouldHaveDirectWalkNearPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
@@ -214,7 +215,7 @@ class LocationJourneyPlannerTest {
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
-        results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
+        results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getTransportMode()));
 
         results.forEach(result -> assertTrue(result.getPath().size()==11 || result.getPath().size()==12));
 
@@ -269,7 +270,6 @@ class LocationJourneyPlannerTest {
         });
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldFindJourneyWithWalkingDirectAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);
@@ -410,13 +410,14 @@ class LocationJourneyPlannerTest {
 
         results.forEach(journey-> {
             TransportStage<?,?> rawStage = journey.getStages().getFirst();
-            assertEquals(TransportMode.Walk, rawStage.getMode());
+            assertEquals(TransportMode.Walk, rawStage.getTransportMode());
             assertEquals(nearAltrincham.latLong(), rawStage.getLastStation().getLatLong());
             assertEquals(Altrincham.getId(), rawStage.getFirstStation().getId());
             assertNotEquals(TramDuration.ZERO, rawStage.getDuration());
         });
     }
 
+    @PiccGardensSept2026
     @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(9, 0),
@@ -428,7 +429,7 @@ class LocationJourneyPlannerTest {
 
         results.forEach(journey-> {
             TransportStage<?,?> rawStage = journey.getStages().getFirst();
-            assertEquals(TransportMode.Walk, rawStage.getMode());
+            assertEquals(TransportMode.Walk, rawStage.getTransportMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());
             assertEquals(nearPiccGardens.latLong(), rawStage.getFirstStation().getLatLong());
             TestEnv.assertMinutesRoundedEquals(TramDuration.ofMinutes(2), rawStage.getDuration());

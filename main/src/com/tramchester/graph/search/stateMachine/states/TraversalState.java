@@ -6,7 +6,9 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.CoreJourneyState;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 
 import java.util.stream.Stream;
 
@@ -80,7 +82,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     @Override
     public TraversalState nextState(final GraphLabels originalLabels, final GraphNode node,
-                                    final JourneyStateUpdate journeyState, final TramDuration cost) {
+                                    final JourneyStateUpdate journeyState, final TramDuration cost,
+                                    final boolean viaDiversion) {
 
         final boolean isInterchange = originalLabels.contains(INTERCHANGE);
         final boolean hasPlatforms = originalLabels.contains(HAS_PLATFORMS);
@@ -105,12 +108,14 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
         final TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node, journeyState);
 
-        return getTraversalState(nextType, node, journeyState, cost, isInterchange);
+        return getTraversalState(nextType, node, journeyState, cost, isInterchange, viaDiversion);
 
     }
 
     private TraversalState getTraversalState(final TraversalStateType nextType, final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
-                                             final TramDuration cost, final boolean isInterchange) {
+                                             final TramDuration cost, final boolean isInterchange,
+                                             final boolean viaDivert) {
+
         switch (nextType) {
             case MinuteState -> {
                 return toMinute(traversalStateFactory.getTowardsMinute(stateType), node, cost, journeyStateUpdate);
@@ -119,13 +124,13 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 return toHour(traversalStateFactory.getTowardsHour(stateType), node, cost, journeyStateUpdate);
             }
             case GroupedStationState -> {
-                return toGrouped(traversalStateFactory.getTowardsGroup(stateType), journeyStateUpdate, node, cost, journeyStateUpdate);
+                return toGrouped(traversalStateFactory.getTowardsGroup(stateType), journeyStateUpdate, node, cost, viaDivert, journeyStateUpdate);
             }
             case PlatformStationState -> {
-                return toPlatformStation(traversalStateFactory.getTowardsStation(stateType), node, cost, journeyStateUpdate);
+                return toPlatformStation(traversalStateFactory.getTowardsStation(stateType), node, cost, viaDivert, journeyStateUpdate);
             }
             case NoPlatformStationState -> {
-                return toNoPlatformStation(traversalStateFactory.getTowardsNoPlatformStation(stateType), node, cost, journeyStateUpdate);
+                return toNoPlatformStation(traversalStateFactory.getTowardsNoPlatformStation(stateType), node, cost, viaDivert, journeyStateUpdate);
             }
             case ServiceState -> {
                 return toService(traversalStateFactory.getTowardsService(stateType), node, cost);
@@ -151,6 +156,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     private TraversalStateType getNextStateType(final TraversalStateType currentStateType, final GraphLabel graphLabel,
                                                 final boolean hasPlatforms, final GraphNode node, JourneyStateUpdate journeyState) {
+
         switch (graphLabel) {
             case MINUTE -> { return TraversalStateType.MinuteState; }
             case HOUR -> { return TraversalStateType.HourState; }
@@ -165,7 +171,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     private TraversalStateType getRouteStationStateFor(final TraversalStateType currentStateType, final GraphNode routeStationNode,
-                                                       JourneyStateUpdate journeyState) {
+                                                       final CoreJourneyState journeyState) {
         if (currentStateType==TraversalStateType.PlatformState || currentStateType==TraversalStateType.NoPlatformStationState) {
             return TraversalStateType.JustBoardedState;
         }

@@ -21,7 +21,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
@@ -202,7 +201,7 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
+
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
         //TramDate date = TramDate.of(2026,5,30);

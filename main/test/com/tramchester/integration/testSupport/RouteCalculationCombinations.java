@@ -44,7 +44,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     private final TripEndsRepository routeEndRepository;
     private final ChecksOpen<T> checksOpen;
     private final LocationRepository locationRepository;
-    private final TramchesterConfig config;
 
     public RouteCalculationCombinations(ComponentContainer componentContainer, ChecksOpen<T> checksOpen) {
         this.database = componentContainer.get(GraphDatabase.class);
@@ -53,7 +52,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         this.locationRepository = componentContainer.get(LocationRepository.class);
         this.interchangeRepository = componentContainer.get(InterchangeRepository.class);
         this.routeEndRepository = componentContainer.get(TripEndsRepository.class);
-        this.config = componentContainer.get(TramchesterConfig.class);
         this.checksOpen = checksOpen;
     }
 

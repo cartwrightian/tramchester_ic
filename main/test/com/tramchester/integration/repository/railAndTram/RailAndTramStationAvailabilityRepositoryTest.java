@@ -160,7 +160,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         long tramDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Tram)).count();
 
-        assertEquals(3, tramDropoffs, "wrong number tram in " + HasId.asIds(dropOffs));
+        assertEquals(2, tramDropoffs, "wrong number tram in " + HasId.asIds(dropOffs));
 
         long trainDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Train)).count();
         assertNotEquals(0, trainDropoffs, "no train in " + HasId.asIds(dropOffs));

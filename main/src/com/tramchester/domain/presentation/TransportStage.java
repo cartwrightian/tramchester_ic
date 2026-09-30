@@ -1,18 +1,18 @@
 package com.tramchester.domain.presentation;
 
+import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.List;
 
-public interface TransportStage<FROM extends Location<?>, DEST extends Location<?>> {
+public interface TransportStage<FROM extends Location<?>, DEST extends Location<?>> extends HasTransportMode {
     String getHeadSign();
     Route getRoute();
 
@@ -29,7 +29,8 @@ public interface TransportStage<FROM extends Location<?>, DEST extends Location<
 
     boolean hasBoardingPlatform();
 
-    TransportMode getMode();
+    // From HasTransportMode
+    //TransportMode getTransportMode();
 
     /***
      * Stops passed, might not stop here, see getCallingPoints() for vehicles

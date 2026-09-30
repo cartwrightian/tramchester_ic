@@ -13,6 +13,7 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.diagnostics.*;
+import com.tramchester.graph.search.stateMachine.journeyState.ImmutableJourneyState;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,4 +275,16 @@ public class ServiceHeuristics {
         return diagnostics;
     }
 
+    public HeuristicsReason checkAlreadyPassed(ImmutableJourneyState journeyState, GraphNode node,
+                                               HowIGotHere howIGotHere, ServiceReasons reasons) {
+        //if (journeyConstraints.disallowPassingAgain()) {
+            if (journeyState.alreadySeenOnATrip(node.getStationId())) {
+                // TODO correct logging level
+                logger.warn("Already passed route station " + node.getStationId());
+                // TODO correct status
+                return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
+            }
+        //}
+        return valid(ReasonCode.Continue, howIGotHere, reasons);
+    }
 }

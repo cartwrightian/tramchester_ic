@@ -2,6 +2,7 @@ package com.tramchester.testSupport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -46,6 +48,7 @@ public class DiagramCreator {
     private final NPTGRepository nptgRepository;
 
     private static final Path diagramsFolder = Path.of("diagrams");
+    private final DateTimeFormatter FormatForDiagram = DateTimeFormatter.BASIC_ISO_DATE;
 
     enum Shape {
         oval, house, octagon, box
@@ -191,18 +194,26 @@ public class DiagramCreator {
         }
         relationshipSeen.add(edge.getId());
 
-        if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
+        if (relationshipType == ON_ROUTE) {
             addLine(builder, format("\"%s\"->\"%s\" [color=\"%s\"];\n", startNodeId, endNodeId,
                     getColorFor(relationshipType)));
-        } else if (relationshipType== LINKED) {
+        } else if (relationshipType == LINKED) {
             final ImmutableEnumSet<TransportMode> modes = edge.getTransportModes();
             String label = getNameFor(relationshipType) + ":" + modes;
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, label,
                     getColorFor(relationshipType)));
+        } else if (relationshipType == DIVERSION) {
+            final String shortForm = createShortForm(relationshipType, edge);
+            DateRange dateRange = edge.getDateRange();
+            String dateRangeTxt = format("%s to %s", dateRange.getStartDate().format(FormatForDiagram),
+                dateRange.getEndDate().format(FormatForDiagram));
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\n%s\" color=\"%s\"];\n", startNodeId, endNodeId,
+                    shortForm, dateRangeTxt,
+                    getColorFor(relationshipType)));
         } else {
             final String shortForm = createShortForm(relationshipType, edge);
-            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId, shortForm,
-                    getColorFor(relationshipType)));
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"];\n", startNodeId, endNodeId,
+                    shortForm, getColorFor(relationshipType)));
         }
     }
 

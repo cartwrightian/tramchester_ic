@@ -185,7 +185,7 @@ public class RailRouteCalculatorTest {
         assertEquals(1, stages.size());
         TransportStage<?, ?> stage = stages.getFirst();
 
-        assertEquals(TransportMode.Train, stage.getMode());
+        assertEquals(TransportMode.Train, stage.getTransportMode());
         assertEquals(2, stage.getPassedStopsCount());
     }
 
@@ -236,7 +236,7 @@ public class RailRouteCalculatorTest {
 
             TransportStage<?, ?> trainStage = stages.getFirst();
 
-            assertEquals(TransportMode.Train, trainStage.getMode());
+            assertEquals(TransportMode.Train, trainStage.getTransportMode());
             final int passedStopsCount = trainStage.getPassedStopsCount();
             assertEquals(3, passedStopsCount, trainStage.toString());
 

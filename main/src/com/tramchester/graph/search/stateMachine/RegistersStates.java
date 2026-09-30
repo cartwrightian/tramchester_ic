@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 
 import java.util.HashMap;
 import java.util.Set;

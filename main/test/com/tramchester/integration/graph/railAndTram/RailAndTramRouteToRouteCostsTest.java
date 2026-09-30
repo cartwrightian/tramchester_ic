@@ -97,13 +97,14 @@ public class RailAndTramRouteToRouteCostsTest {
     // Rail station Man Picc is not returning tram routes, but is an interchange station
 
     @Test
-    void shouldValidHopsBetweenTramAndInterchangceWhenConnectPossibleTramOnly() {
+    void shouldValidHopsBetweenTramAndInterchangeWhenConnectPossibleTramOnly() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         int result = getPossibleMinChanges(tram(Altrincham), rail(ManchesterPiccadilly),
                 TransportMode.TramsOnly, date, timeRange);
 
-        assertEquals(0, result);
+        // closures
+        assertEquals(0+1, result);
     }
 
     private int getPossibleMinChanges(Station being, Station end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -114,13 +115,14 @@ public class RailAndTramRouteToRouteCostsTest {
     }
 
     @Test
-    void shouldValidHopsBetweenInterchangceAndTramWhenConnectPossibleTramOnly() {
+    void shouldValidHopsBetweenInterchangeAndTramWhenConnectPossibleTramOnly() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         int result = getPossibleMinChanges(rail(RailStationIds.Altrincham), tram(Piccadilly),
                 TransportMode.TramsOnly, date, timeRange);
 
-        assertEquals(0, result);
+        // closures
+        assertEquals(0+1, result);
     }
 
     @Test

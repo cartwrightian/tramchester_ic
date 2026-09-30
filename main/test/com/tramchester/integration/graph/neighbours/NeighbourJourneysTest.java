@@ -192,7 +192,7 @@ public class NeighbourJourneysTest {
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
             TransportStage<?,?> stage = journey.getStages().getFirst();
-            assertEquals(Tram, stage.getMode());
+            assertEquals(Tram, stage.getTransportMode());
         });
     }
 
@@ -217,10 +217,10 @@ public class NeighbourJourneysTest {
             final List<TransportStage<?, ?>> stages = journey.getStages();
 
             TransportStage<?,?> firstStage = stages.getFirst();
-            assertEquals(Tram, firstStage.getMode(), firstStage.toString());
+            assertEquals(Tram, firstStage.getTransportMode(), firstStage.toString());
 
             TransportStage<?,?> last = stages.getLast();
-            assertEquals(TransportMode.Walk, last.getMode(), last.toString());
+            assertEquals(TransportMode.Walk, last.getTransportMode(), last.toString());
         });
     }
 
@@ -236,7 +236,7 @@ public class NeighbourJourneysTest {
 
         journeys.forEach(journey -> {
             TransportStage<?,?> stage = journey.getStages().getFirst();
-            assertEquals(TransportMode.Connect, stage.getMode());
+            assertEquals(TransportMode.Connect, stage.getTransportMode());
         });
     }
 

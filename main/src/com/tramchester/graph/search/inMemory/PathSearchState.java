@@ -3,7 +3,7 @@ package com.tramchester.graph.search.inMemory;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
-import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.PathRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

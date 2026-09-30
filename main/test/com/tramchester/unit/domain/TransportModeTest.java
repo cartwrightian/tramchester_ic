@@ -4,6 +4,7 @@ import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.*;
@@ -26,6 +27,18 @@ public class TransportModeTest {
     void testSFromNumber() {
         assertEquals(Bus, TransportMode.fromNumber((short) 1));
         assertEquals(TransportMode.Unknown, TransportMode.fromNumber((short) 999));
+    }
+
+    @Test
+    void shouldHaveVehicleModes() {
+        assertFalse(Vehicles.contains(Walk));
+        assertFalse(Vehicles.contains(Connect));
+        assertFalse(Vehicles.contains(Unknown));
+        assertFalse(Vehicles.contains(NotSet));
+
+        long countVehicles = Arrays.stream(values()).filter(Vehicles::contains).count();
+        assertEquals(7, countVehicles);
+
     }
 
     @Test

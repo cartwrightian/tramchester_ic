@@ -158,7 +158,7 @@ class RailAndTramLocationJourneyPlannerTest {
 
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            assertEquals(TransportMode.Walk, stages.getFirst().getMode(), "Expected walk, go " + journey);
+            assertEquals(TransportMode.Walk, stages.getFirst().getTransportMode(), "Expected walk, go " + journey);
 
             WalkingFromStationStage walkingStage = (WalkingFromStationStage) stages.getFirst();
             assertEquals(Piccadilly.getId(), walkingStage.getFirstStation().getId());

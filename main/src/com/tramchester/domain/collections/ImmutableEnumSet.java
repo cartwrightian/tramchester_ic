@@ -1,6 +1,8 @@
 package com.tramchester.domain.collections;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -31,6 +33,11 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
 
     static <S extends Enum<S>> ImmutableEnumSet<S> allOf(Class<S> theClass) {
         return ImmutableEnumSetImpl.allOf(theClass);
+    }
+
+    static <S extends Enum<S>> ImmutableEnumSet<S> from(final List<S> list) {
+        HashSet<S> set = new HashSet<>(list);
+        return copyOf(set);
     }
 
     Stream<T> stream();

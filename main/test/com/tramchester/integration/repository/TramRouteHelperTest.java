@@ -9,7 +9,7 @@ import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
+import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TramRouteHelperTest {
 
@@ -50,7 +51,7 @@ class TramRouteHelperTest {
         assertTrue(TFGMRouteNames.ReplacementBus.isReplacementBus());
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
+    @PiccGardensSept2026
     @Test
     void shouldFindAllKnownRoutes() {
 

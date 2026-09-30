@@ -11,14 +11,6 @@ gtfsSourceConfig:
     addWalksForClosed: true
     stationClosures:
       - stations:
-          ids: [ 9400ZZMASHU, 9400ZZMAMKT ]
-        dateRange:
-          begin: 2026-09-21
-          end: 2026-09-26
-        fullyClosed: true
-        diversionsAroundClosure: [ ]
-        diversionsToFromClosure: [ ]
-      - stations:
           ids: [ "9400ZZMAPGD" ]
         dateRange:
           begin: 2026-09-27
@@ -30,8 +22,13 @@ gtfsSourceConfig:
     - stations:
         first: 9400ZZMAMCU
         second: 9400ZZMAIWM
-      begin: 2026-09-01
-      end: 2026-10-15
+      begin: 2026-09-26
+      end: 2026-11-15
+    - stations:
+        first: 9400ZZMABWY
+        second: 9400ZZMAHCY
+      begin: 2026-09-26
+      end: 2026-11-15
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}

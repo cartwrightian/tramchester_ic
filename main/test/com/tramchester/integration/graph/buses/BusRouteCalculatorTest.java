@@ -179,7 +179,7 @@ class BusRouteCalculatorTest {
 
     private long countNonConnectStages(Journey journey) {
         return journey.getStages().stream().
-                filter(stage -> stage.getMode().getTransportMode() != TransportMode.Connect).count();
+                filter(stage -> stage.getTransportMode().getTransportMode() != TransportMode.Connect).count();
     }
 
     @Test

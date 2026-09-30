@@ -17,7 +17,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.RochdaleLineClosure2026;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.List;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 
-@RochdaleLineClosure2026
 class RouteCalculatorSubGraphMonsallTest {
     private static ComponentContainer componentContainer;
     private static SubgraphConfig config;

@@ -15,10 +15,10 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -256,7 +256,6 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnly() {
         TramDate testDay = when;
@@ -277,7 +276,6 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(testDay, 9, 2), stage.getExpectedArrivalTime());
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnlyArriveBy() {
         TramTime queryTime = TramTime.of(9, 0);
@@ -300,6 +298,7 @@ class JourneyPlannerLocationResourceTest {
         return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
+    @PiccGardensSept2026
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 

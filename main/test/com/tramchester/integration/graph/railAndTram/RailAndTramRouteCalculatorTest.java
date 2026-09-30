@@ -152,9 +152,9 @@ public class RailAndTramRouteCalculatorTest {
 
         trains.forEach(trainJourney -> {
             List<TransportStage<?, ?>> stages = trainJourney.getStages();
-            assertEquals(2, stages.size());
-            assertEquals(Connect, stages.getFirst().getMode());
-            assertEquals(Train, stages.getLast().getMode());
+            assertEquals(2, stages.size(), "too many stages " + stages);
+            assertEquals(Connect, stages.getFirst().getTransportMode());
+            assertEquals(Train, stages.getLast().getTransportMode());
         });
 
         List<Journey> trams = journeys.stream().filter(journey -> journey.getTransportModes().contains(Tram)).toList();
@@ -480,10 +480,10 @@ public class RailAndTramRouteCalculatorTest {
         assertEquals(2, stages.size(), "wrong number " + stages);
 
         TransportStage<?, ?> connect = stages.getFirst();
-        assertEquals(Connect, connect.getMode(), "Not a connecting stage " + connect);
+        assertEquals(Connect, connect.getTransportMode(), "Not a connecting stage " + connect);
 
         TransportStage<?, ?> vehicle = stages.getLast();
-        assertEquals(Train, vehicle.getMode(), "Not a vehicle stage " + connect);
+        assertEquals(Train, vehicle.getTransportMode(), "Not a vehicle stage " + connect);
 
     }
 
@@ -514,11 +514,11 @@ public class RailAndTramRouteCalculatorTest {
         assertEquals(1, fromTrainStages.size());
 
         TransportStage<?, ?> fromTram = fromTramStages.getFirst();
-        assertEquals(Connect, fromTram.getMode());
+        assertEquals(Connect, fromTram.getTransportMode());
         assertEquals(TramDuration.ofSeconds(51), fromTram.getDuration());
 
         TransportStage<?, ?> fromTrain = fromTrainStages.getFirst();
-        assertEquals(Connect, fromTrain.getMode());
+        assertEquals(Connect, fromTrain.getTransportMode());
         assertEquals(TramDuration.ofSeconds(51), fromTrain.getDuration());
     }
 
@@ -538,7 +538,7 @@ public class RailAndTramRouteCalculatorTest {
         assertEquals(2, stages.size(), "wrong number of stages " + stages);
 
         TransportStage<?, ?> stage = stages.getLast();
-        assertEquals(Train, stage.getMode(), "wrong second stage for " + stages);
+        assertEquals(Train, stage.getTransportMode(), "wrong second stage for " + stages);
         assertEquals(TramDuration.ofMinutes(17), stage.getDuration());
     }
 
@@ -561,8 +561,8 @@ public class RailAndTramRouteCalculatorTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
-        assertEquals(Connect, stages.get(0).getMode(), "wrong first stage for " + stages);
-        assertEquals(Train, stages.get(1).getMode(), "wrong second stage for " + stages);
+        assertEquals(Connect, stages.get(0).getTransportMode(), "wrong first stage for " + stages);
+        assertEquals(Train, stages.get(1).getTransportMode(), "wrong second stage for " + stages);
 
     }
 
@@ -613,7 +613,7 @@ public class RailAndTramRouteCalculatorTest {
         oneStageJourneys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(Train, stages.getFirst().getMode(), "wrong first stage for " + stages);
+            assertEquals(Train, stages.getFirst().getTransportMode(), "wrong first stage for " + stages);
         });
     }
 
@@ -634,8 +634,8 @@ public class RailAndTramRouteCalculatorTest {
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journey);
-        assertEquals(Connect, stages.get(0).getMode(), "wrong first stage for " + stages);
-        assertEquals(Train, stages.get(1).getMode(), "wrong second stage for " + stages);
+        assertEquals(Connect, stages.get(0).getTransportMode(), "wrong first stage for " + stages);
+        assertEquals(Train, stages.get(1).getTransportMode(), "wrong second stage for " + stages);
 
     }
 
@@ -710,7 +710,7 @@ public class RailAndTramRouteCalculatorTest {
         List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).toList();
         assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
 
-        direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(Connect, stage.getMode(),
+        direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(Connect, stage.getTransportMode(),
                 "Mode wrong for journey " + journey + " for request " + request)));
 
     }
@@ -745,7 +745,7 @@ public class RailAndTramRouteCalculatorTest {
         List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).toList();
         assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
 
-        direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(mode, stage.getMode(),
+        direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(mode, stage.getTransportMode(),
                 "Mode wrong for journey " + journey + " for request " + request)));
     }
 

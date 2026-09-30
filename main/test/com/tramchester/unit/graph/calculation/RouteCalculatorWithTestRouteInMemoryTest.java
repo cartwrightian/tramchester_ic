@@ -26,7 +26,6 @@ import com.tramchester.graph.search.inMemory.ShortestPath;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -53,7 +52,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGroupedGraphConfig(GraphDBType.InMemory);
+        config = new SimpleGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -211,7 +210,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
             TransportStage<?, ?> walk = journey.getStages().getFirst();
-            assertEquals(TransportMode.Walk, walk.getMode());
+            assertEquals(TransportMode.Walk, walk.getTransportMode());
             assertEquals(destination, walk.getLastStation());
             assertEquals(queryTime, walk.getFirstDepartureTime());
             TestEnv.assertMinutesRoundedEquals(walkCost, walk.getDuration());

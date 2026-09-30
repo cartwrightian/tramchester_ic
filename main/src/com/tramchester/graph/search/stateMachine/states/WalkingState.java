@@ -6,9 +6,13 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
+import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
+import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
+import com.tramchester.graph.search.stateMachine.states.station.PlatformStationState;
+import com.tramchester.graph.search.stateMachine.states.station.StationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,15 +77,23 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node,
+                                                     final TramDuration cost, final boolean viaDivert,
                                                      final JourneyStateUpdate journeyState) {
+        if (viaDivert) {
+            throw new RuntimeException("Should not reach " + this + " with divert");
+        }
         journeyState.endWalk(node, cost);
         return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final TramDuration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node,
+                                                 final TramDuration cost, final boolean viaDivert,
                                                  final JourneyStateUpdate journeyState) {
+        if (viaDivert) {
+            throw new RuntimeException("Should not reach " + this + " with divert");
+        }
         journeyState.endWalk(node, cost);
         return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
