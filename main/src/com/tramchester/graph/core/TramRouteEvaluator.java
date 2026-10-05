@@ -241,16 +241,8 @@ public abstract class TramRouteEvaluator {
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
 
-//            // WIP
-//            // TODO only apply this for transport modes / agencies where going back past an exising station does not make sense
-//            // For trains this isn't right
-//            if (journeyState.alreadySeenOnATrip(nextNode.getStationId())) {
-//                logger.warn("Already passed route station " + nextNode.getStationId());
-//                // TODO correct status
-//                return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
-//            }
-
-            final HeuristicsReason alreadyPassedStation = serviceHeuristics.checkAlreadyPassed(journeyState, nextNode, howIGotHere, reasons);
+            final HeuristicsReason alreadyPassedStation = serviceHeuristics.checkAlreadyPassed(journeyState, nextNode,
+                    howIGotHere, reasons);
             if (!alreadyPassedStation.isValid()) {
                 return alreadyPassedStation;
             }
@@ -273,31 +265,21 @@ public abstract class TramRouteEvaluator {
                 return modesMatch;
             }
 
-            //if (depthFirst) {
-                // too slow for breadth first on larger graphs
-                final HeuristicsReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
-                        howIGotHere, reasons, visitingTime);
-                if (!reachDestination.isValid()) {
-                    return reachDestination;
-                }
+            // too slow for breadth first on larger graphs
+            final HeuristicsReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
+                    howIGotHere, reasons, visitingTime);
+            if (!reachDestination.isValid()) {
+                return reachDestination;
+            }
 
-                // Without the filtering from serviceHeuristics.canReachDestination becomes very expensive
-                final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode, howIGotHere, reasons);
-                if (!serviceReason.isValid()) {
-                    return serviceReason;
-                }
-            //}
+            // Without the filtering from serviceHeuristics.canReachDestination becomes very expensive
+            final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode, howIGotHere, reasons);
+            if (!serviceReason.isValid()) {
+                return serviceReason;
+            }
+
 
         }
-
-        // TODO is this still needed, should drop through via continue anyway?
-//        final GraphRelationship inboundRelationship = txn.lastFrom(thePath);
-//        if (inboundRelationship != null) {
-//            // for walking routes we do want to include them all even if at same time
-//            if (inboundRelationship.isType(WALKS_TO_STATION)) {
-//                return reasons.recordReason(HeuristicReasonsOK.IsValid(ReasonCode.WalkOk, howIGotHere));
-//            }
-//        }
 
         return reasons.recordReason(HeuristicReasonsOK.Continue(howIGotHere));
     }

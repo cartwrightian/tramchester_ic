@@ -9,7 +9,7 @@ import com.tramchester.domain.places.Station;
 
 public class RouteStationId implements IdFor<RouteStation> {
 
-    private static final String ROUTE_STATION_ID_DIVIDER = "_";
+    private static final String ROUTE_STATION_ID_DIVIDER = "#";
 
     private final IdFor<Route> routeId;
     private final IdFor<Station> stationId;

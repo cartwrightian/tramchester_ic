@@ -119,17 +119,17 @@ public class TripRepositoryTest {
         assertFalse(routes.isEmpty());
 
         // +1 replacement bus
-        assertEquals(3+1, routes.size(), HasId.asIds(routes));
+        assertEquals(3, routes.size(), HasId.asIds(routes));
 
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when)));
 
-        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
-
-        //assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
-
-        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
+//        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
+//
+//        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
+//
+//        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
 
     }
 

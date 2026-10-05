@@ -2,14 +2,14 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.TramRouteId;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteHelperTest {
 
@@ -51,13 +49,13 @@ class TramRouteHelperTest {
         assertTrue(TFGMRouteNames.ReplacementBus.isReplacementBus());
     }
 
-    @PiccGardensSept2026
     @Test
     void shouldFindAllKnownRoutes() {
 
         TramDate date = TestEnv.testDay();
 
         Set<TFGMRouteNames> missing = Arrays.stream(TFGMRouteNames.values()).
+                filter(routeNames -> !routeNames.isReplacementBus()).
                 filter(routeName -> getRouteByName(date, routeName).isEmpty()).
                 collect(Collectors.toSet());
 
@@ -74,9 +72,14 @@ class TramRouteHelperTest {
     }
 
     public List<Route> getRouteByName(TramDate date, TFGMRouteNames routeName) {
-       return routeRepository.getRoutesRunningOn(date, TramsOnly).stream().
-                filter(route -> ((TramRouteId) route.getId()).getRouteName() == routeName).
-                toList();
+        Set<Route> found = routeRepository.findRoutesByShortName(MutableAgency.METL, routeName.getShortName());
+        assertFalse(found.isEmpty(), "Found no routes to match " + routeName);
+        List<Route> onDate = found.stream().filter(route -> route.isAvailableOn(date)).toList();
+        assertFalse(onDate.isEmpty(), "None matched date " + date + " " + HasId.asIds(found));
+        return onDate;
+//       return routeRepository.getRoutesRunningOn(date, TramsOnly).stream().
+//                filter(route -> ((TramRouteId) route.getId()).getRouteName() == routeName).
+//                toList();
     }
 
 

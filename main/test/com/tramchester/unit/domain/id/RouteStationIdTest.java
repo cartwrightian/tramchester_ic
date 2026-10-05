@@ -39,11 +39,28 @@ public class RouteStationIdTest {
     }
 
     @Test
+    void shouldCopeNowRouteIdsCanHaveUnderscore() {
+        IdFor<Route> problemRouteId = Route.createBasicRouteId("abcd_5678");
+        RouteStationId compositeIdA = RouteStationId.createId(problemRouteId, stationId);
+
+        assertEquals(stationId, compositeIdA.getStationId());
+        assertEquals(problemRouteId, compositeIdA.getRouteId());
+
+        String graphId = compositeIdA.getGraphId();
+        assertEquals("abcd_5678#1234", graphId);
+
+        RouteStationId afterTxt = RouteStationId.parse(graphId);
+        assertEquals(stationId, afterTxt.getStationId());
+        assertEquals(problemRouteId, afterTxt.getRouteId());
+
+    }
+
+    @Test
     void shouldOutputGraphIdAsExpected() {
 
         IdFor<RouteStation> compositeIdA = RouteStationId.createId(routeA, stationId);
 
-        assertEquals("routeA_1234", compositeIdA.getGraphId());
+        assertEquals("routeA#1234", compositeIdA.getGraphId());
     }
 
     @Test
@@ -51,7 +68,7 @@ public class RouteStationIdTest {
 
         IdFor<RouteStation> expected = RouteStationId.createId(routeA, stationId);
 
-        IdFor<RouteStation> id = RouteStationId.parse("routeA_1234");
+        IdFor<RouteStation> id = RouteStationId.parse("routeA#1234");
         assertEquals(id, expected);
     }
 

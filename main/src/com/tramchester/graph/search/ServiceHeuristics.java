@@ -151,6 +151,13 @@ public class ServiceHeuristics {
         reasons.incrementTotalChecked();
 
         final IdFor<RouteStation> routeStationId = node.getRouteStationId();
+        // Diagnosis for when route id format changed
+//        if (!stationRepository.hasRouteStationId(routeStationId)) {
+//            String msg = "RouteStation %s is missing for node %s props %s".formatted(routeStationId, node.getId(),
+//                    node.getAllProperties());
+//            logger.error(msg);
+//            throw new RuntimeException(msg);
+//        }
         final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         final IdFor<Station> associatedStationId = routeStation.getStationId();
@@ -281,8 +288,7 @@ public class ServiceHeuristics {
             if (journeyState.alreadySeenOnATrip(node.getStationId())) {
                 // TODO correct logging level
                 logger.warn("Already passed route station " + node.getStationId());
-                // TODO correct status
-                return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
+                return reasons.recordReason(HeuristicsReasons.AlreadySeenRouteStation(howIGotHere));
             }
         //}
         return valid(ReasonCode.Continue, howIGotHere, reasons);

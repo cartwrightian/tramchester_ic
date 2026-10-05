@@ -321,7 +321,7 @@ public class RouteRepositoryTest {
                 filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         // summer 2026 closures/buses
-        int throughRoutes = 5+1; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        int throughRoutes = 5+2; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 

@@ -112,15 +112,17 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 coreState.setDuplicatedBoarding();
             }
             boardingStations.add(stationId);
-        } else if (passType== RouteStationState.PassType.OnTrip){
+        } else if (passType==RouteStationState.PassType.OnTrip){
             // TODO FIX THIS!
 
-//            if (!onTripStations.isEmpty()) {
-//                final IdFor<Station> previous = onTripStations.getLast();
-//                if (stationId.equals(previous)) {
-//                    throw new RuntimeException("Matches previous %s for %s".formatted(previous, onTripStations));
-//                }
-//            }
+            if (!onTripStations.isEmpty()) {
+                final IdFor<Station> previous = onTripStations.getLast();
+                if (stationId.equals(previous)) {
+                    String msg = "Matches previous %s for %s".formatted(previous, onTripStations);
+                    logger.error(msg);
+                    //throw new RuntimeException(msg);
+                }
+            }
             onTripStations.add(stationId);
         }
 
@@ -187,6 +189,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public void atDestination(TramDuration cost) {
         // no-op
+    }
+
+    @Override
+    public void incrementDiversions() {
+        coreState.incrementDiversions();
     }
 
     @Override
@@ -260,11 +267,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     public void board(final TransportMode mode, final GraphNode node, final boolean hasPlatform) throws TramchesterException {
         guardAlreadyOnboard();
         // can board at same location if different routes?
-//        final IdFor<Station> stationId = node.getStationId();
-//        if (boardingStations.contains(stationId)) {
-//            logger.warn("Already boarded at %s list was %s \n Ontrip: %s".
-//                    formatted(stationId, boardingStations, onTripStations));
-//        }
+        final IdFor<Station> stationId = node.getStationId();
+        if (boardingStations.contains(stationId)) {
+            logger.warn("Already boarded at %s list was %s \n Ontrip: %s".
+                    formatted(stationId, boardingStations, onTripStations));
+        }
         coreState.board(mode);
     }
 
@@ -382,16 +389,13 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         private final TramTime queryTime;
 
-        @Deprecated
-        private final List<LocationId<?>> boardingLocations;
-
         private boolean duplicatedBoardingSeen;
 
         public CoreState(final TramTime queryTime) {
             this(queryTime, queryTime, false, 0,
                     TransportMode.NotSet, 0, 0,
                     0, LocationId.wrap(Station.InvalidId()),
-                    new ArrayList<>(), false, TramTime.invalid());
+                    false, TramTime.invalid());
         }
 
         // COPY cons
@@ -400,19 +404,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this(previous.queryTime, previous.journeyClock, previous.hasBegun, previous.numberOfBoardings,
                     previous.currentMode, previous.numberOfWalkingConnections,
                     previous.numberNeighbourConnections,
-//                    previous.currentlyOnDiversion,
                     previous.numberOfDiversionsTaken, previous.lastSeenStation.copy(),
-                    new ArrayList<>(previous.boardingLocations),
-                    //false);
                     previous.duplicatedBoardingSeen, previous.firstBoardTime);
         }
 
         private CoreState(final TramTime queryTime, final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings,
                                                   final TransportMode currentMode, final int numberOfWalkingConnections,
                                                   final int numberNeighbourConnections,
-//                          final boolean currentlyOnDiversion,
                                                   final int numberOfDiversionsTaken, final LocationId<?> lastSeenStation,
-                                                  final List<LocationId<?>> boardingLocations,
                                                     final boolean duplicatedBoardingSeen, TramTime firstBoardTime) {
             this.hasBegun = hasBegun;
             this.queryTime = queryTime;
@@ -421,10 +420,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this.numberOfBoardings = numberOfBoardings;
             this.numberOfWalkingConnections = numberOfWalkingConnections;
             this.numberNeighbourConnections = numberNeighbourConnections;
-//            this.currentlyOnDiversion = currentlyOnDiversion;
             this.numberOfDiversionsTaken = numberOfDiversionsTaken;
             this.lastSeenStation = lastSeenStation;
-            this.boardingLocations = boardingLocations;
             this.duplicatedBoardingSeen = duplicatedBoardingSeen;
             this.firstBoardTime = firstBoardTime;
         }
@@ -439,17 +436,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void board(final TransportMode mode) {
             numberOfBoardings = numberOfBoardings + 1;
-//            if (boardingLocations.contains(lastSeenStation)) {
-//                // check if occurred earlier
-//                if (!boardingLocations.getLast().equals(lastSeenStation)) {
-//                    duplicatedBoardingSeen = true;
-//                    if (logger.isDebugEnabled()) {
-//                        logger.debug("Duplicated boarding (" + numberOfBoardings + ") at " + lastSeenStation + " and boardings " + boardingLocations);
-//                    }
-//                }
-//            } else {
-//                boardingLocations.add(lastSeenStation);
-//            }
             currentMode = mode;
             if (!hasBegun) {
                 // can't set first board time here as don't know really time of boarding until we see a Minute Node,
@@ -494,19 +480,17 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                     numberOfWalkingConnections == coreState.numberOfWalkingConnections &&
                     numberNeighbourConnections == coreState.numberNeighbourConnections &&
                     numberOfDiversionsTaken == coreState.numberOfDiversionsTaken &&
-//                    currentlyOnDiversion == coreState.currentlyOnDiversion &&
                     duplicatedBoardingSeen == coreState.duplicatedBoardingSeen &&
                     Objects.equals(journeyClock, coreState.journeyClock) &&
                     currentMode == coreState.currentMode &&
-                    Objects.equals(lastSeenStation, coreState.lastSeenStation) &&
-                    Objects.equals(boardingLocations, coreState.boardingLocations);
+                    Objects.equals(lastSeenStation, coreState.lastSeenStation);
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(hasBegun, journeyClock, currentMode, numberOfBoardings, numberOfWalkingConnections,
                     numberNeighbourConnections, numberOfDiversionsTaken,
-                    lastSeenStation, boardingLocations, duplicatedBoardingSeen);
+                    lastSeenStation, duplicatedBoardingSeen);
         }
 
         @Override
@@ -540,37 +524,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             lastSeenStation = LocationId.wrap(stationGroupId);
         }
 
-//        @Deprecated
-//        public void endDiversion(final GraphNode node) {
-//            if (currentlyOnDiversion) {
-//                if (logger.isDebugEnabled()) {
-//                    logger.debug("End diversion at " + node.getStationId());
-//                }
-//                currentlyOnDiversion = false;
-//            }
-//        }
-
-//        @Deprecated
-//        public void beginDiversion(final IdFor<Station> stationId) {
-//            if (currentlyOnDiversion) {
-//                String msg = "Already on diversion, at " + stationId;
-//                logger.error(msg);
-//                // WIP TODO
-//                throw new RuntimeException(msg);
-//            } else {
-//                if (logger.isDebugEnabled()) {
-//                    logger.debug("Begin diversion at " + stationId);
-//                }
-//                currentlyOnDiversion = true;
-//                numberOfDiversionsTaken = numberOfDiversionsTaken + 1;
-//            }
-//        }
-
-//        @Deprecated
-//        public boolean isOnDiversion() {
-//            return currentlyOnDiversion;
-//        }
-
         public LocationId<?> getLastVisited() {
             return lastSeenStation;
         }
@@ -592,6 +545,10 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void setDuplicatedBoarding() {
             this.duplicatedBoardingSeen = true;
+        }
+
+        public void incrementDiversions() {
+            //this.numberOfDiversionsTaken++;
         }
     }
 

@@ -6,7 +6,6 @@ import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.integration.testSupport.TestGroupType;
-import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
@@ -14,14 +13,10 @@ import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.tramchester.testSupport.UpcomingDates.MediaCityToImperialWarMus;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -34,16 +29,15 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-//    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
+    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
-
-    private static final Set<TramStations> piccGardensDiversionsAround = new HashSet<>(List.of(StPetersSquare, MarketStreet, Piccadilly));
-
-    public static final List<StationClosures> CurrentClosures = List.of(
-            new StationClosuresListForTest(List.of(PiccadillyGardens),
-                    UpcomingDates.PiccGardensAutumn2026,
-                    true, piccGardensDiversionsAround, Collections.emptySet())
-    );
+//    private static final Set<TramStations> piccGardensDiversionsAround = new HashSet<>(List.of(StPetersSquare, MarketStreet, Piccadilly));
+//
+//    public static final List<StationClosures> CurrentClosures = List.of(
+//            new StationClosuresListForTest(List.of(PiccadillyGardens),
+//                    UpcomingDates.PiccGardensAutumn2026,
+//                    true, piccGardensDiversionsAround, Collections.emptySet())
+//    );
 
     /**
      * EXAMPLE

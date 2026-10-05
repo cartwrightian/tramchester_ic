@@ -129,7 +129,7 @@ public class RouteCalculatorTest {
             List<ChangeLocation<?>> changeStations = journey.getChangeStations();
             // new timetable/map - so 2 or 3 is valid here
             int numberChangeStations = changeStations.size();
-            assertTrue(numberChangeStations==2 || numberChangeStations==3, "wrong number change stations " + changeStations);
+            assertTrue(numberChangeStations==1 || numberChangeStations==2, "wrong number change stations " + changeStations);
             //assertTrue(expectedChanges.contains(changeStations.getFirst().location().getName()));
 
             Set<String> changeStationNames = changeStations.stream().map(item -> item.location().getName()).collect(Collectors.toSet());
@@ -389,15 +389,15 @@ public class RouteCalculatorTest {
         assertFalse(results.isEmpty(), "No journeys for " + request);
     }
 
-    @Test
-    void shouldCheckWithUpcomingPiccGardensClosure() {
-        TramDate date = UpcomingDates.PiccGardensAutumn2026.getStartDate();
-        JourneyRequest request = standardJourneyRequest(date, TramTime.of(11, 45), 3,
-                2);
-        List<Journey> results = calculator.calculateRouteAsList(Victoria, Ashton, request);
-
-        assertFalse(results.isEmpty(), "No journeys for " + request);
-    }
+//    @Test
+//    void shouldCheckWithUpcomingPiccGardensClosure() {
+//        TramDate date = UpcomingDates.PiccGardensAutumn2026.getStartDate();
+//        JourneyRequest request = standardJourneyRequest(date, TramTime.of(11, 45), 3,
+//                2);
+//        List<Journey> results = calculator.calculateRouteAsList(Victoria, Ashton, request);
+//
+//        assertFalse(results.isEmpty(), "No journeys for " + request);
+//    }
 
     @Test
     void shouldLimitNumberChangesResultsInNoJourneys() {
@@ -898,6 +898,21 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldReproIssueWithHarbourCityToChrolton() {
+        //[JourneyOrNot{ queryDate=TramDate{epochDays=20734, dayOfWeek=THURSDAY, date=2026-10-08},
+        // queryTime=TramTime{h=9, m=5}, requested=StationIdAndNamePair{Harbour City[Id{'Station:9400ZZMAHCY'}],
+        // Chorlton[Id{'Station:9400ZZMACHO'}]}}]  ==> expected: <0> but was: <1>
+
+        TramTime time = TramTime.of(9,5);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
+                JourneyRequest.MaxNumberOfChanges.of(maxChanges), maxJourneyDuration, 1,
+                requestedModes, true);
+        List<Journey> journeys = calculator.calculateRouteAsList(HarbourCity, Chorlton, journeyRequest);
+        assertFalse(journeys.isEmpty());
+
+    }
+
+    @Test
     void reproIssueRochdaleToEccles() {
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = standardJourneyRequest(when, time, maxNumResults, 2);
@@ -906,7 +921,7 @@ public class RouteCalculatorTest {
 
     @NotNull
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
-        boolean assertOnChange = !(UpcomingDates.PiccGardensAutumn2026.contains(date));
+        boolean assertOnChange = true; //!(UpcomingDates.PiccGardensAutumn2026.contains(date));
         return new JourneyRequest(date, time, false, new JourneyRequest.MaxNumberOfChanges(maxNumberChanges),
                 maxJourneyDuration, maxNumberJourneys,
                 requestedModes, assertOnChange);

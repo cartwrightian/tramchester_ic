@@ -99,7 +99,7 @@ public class RoutePairToInterchangeRepositoryTest {
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
         Route routeA = routeHelper.getYellow(date);
-        Route routeB = routeHelper.getBlue(date);
+        Route routeB = routeHelper.getPurple(date);
 
         RoutePair routeIndexPair = RoutePair.of(routeA, routeB);
 
@@ -108,13 +108,10 @@ public class RoutePairToInterchangeRepositoryTest {
         Set<InterchangeStation> interchanges = repository.getInterchanges(routeIndexPair, modes);
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
-//
-//        IdSet<Station> expected = Stream.of(PiccadillyGardens, Piccadilly).
-//                map(TramStations::getId).
-//                collect(IdSet.idCollector());
 
         // closures
-        IdSet<Station> expected = FakeStation.IdSetOf(Cornbrook, StPetersSquare, TraffordBar);
+        IdSet<Station> expected = FakeStation.IdSetOf(Cornbrook, TraffordBar, StPetersSquare, Etihad,
+                Piccadilly, PiccadillyGardens);
 
         if (config.hasRailConfig()) {
             // TODO

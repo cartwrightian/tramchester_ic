@@ -332,6 +332,11 @@ public class MapStatesToStages implements JourneyStateUpdate {
         }
     }
 
+    @Override
+    public void incrementDiversions() {
+        // no-op
+    }
+
 
     public List<TransportStage<?, ?>> getStages() {
         stateTransition(State.Destination, State.Destination);

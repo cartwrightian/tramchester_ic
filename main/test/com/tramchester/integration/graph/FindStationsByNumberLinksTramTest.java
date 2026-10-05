@@ -96,8 +96,8 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-//                OldhamMumps,
-//                Westwood,
+                OldhamMumps,
+                Westwood,
                 Shudehill
 
         );

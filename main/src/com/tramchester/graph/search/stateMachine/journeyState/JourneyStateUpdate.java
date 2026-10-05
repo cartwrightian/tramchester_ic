@@ -38,4 +38,6 @@ public interface JourneyStateUpdate extends CoreJourneyState {
     //boolean alreadyBoardedAt(IdFor<Station> stationId);
 
     void atDestination(TramDuration cost);
+
+    void incrementDiversions();
 }

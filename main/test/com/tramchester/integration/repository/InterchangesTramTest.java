@@ -99,6 +99,9 @@ public class InterchangesTramTest {
                 HarbourCity,
                 MediaCityUK,
 
+                // replacement bus
+                OldhamMumps, Westwood,
+
                 StWerburghsRoad
         );
 

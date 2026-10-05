@@ -75,7 +75,7 @@ class RouteReachableTramTest {
                 map(TramRouteId::getRouteName).collect(Collectors.toSet());
 
         assertTrue(routeNames.contains(TFGMRouteNames.Green), "Did not find in " + routeNames);
-        assertTrue(routeNames.contains(TFGMRouteNames.Blue), "Did not find in " + routeNames);
+        assertTrue(routeNames.contains(TFGMRouteNames.Purple), "Did not find in " + routeNames);
     }
 
 

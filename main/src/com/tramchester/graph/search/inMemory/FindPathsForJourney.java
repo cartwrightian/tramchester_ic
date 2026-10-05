@@ -198,6 +198,7 @@ public class FindPathsForJourney {
             }
 
             final boolean arrivedViaDiversion = lastRelationship.isType(DIVERSION);
+            currentJourneyState.incrementDiversions();
 
             // sanity check
             if (!lastRelationship.getEndNodeId(txn).equals(currentNode.getId())) {

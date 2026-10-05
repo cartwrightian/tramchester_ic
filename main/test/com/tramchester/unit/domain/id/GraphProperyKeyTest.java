@@ -57,7 +57,7 @@ public class GraphProperyKeyTest {
     private String textFor(GraphPropertyKey key) {
         return switch (key) {
             case WALK_ID -> "53.485846, -2.239472";
-            case ROUTE_STATION_ID -> "routeA_1234";
+            case ROUTE_STATION_ID -> "routeA#1234";
             default -> "someText";
         };
     }

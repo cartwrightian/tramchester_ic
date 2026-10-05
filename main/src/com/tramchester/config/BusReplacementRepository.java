@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.RouteRepository;
 import jakarta.inject.Inject;
@@ -60,4 +61,7 @@ public class BusReplacementRepository {
         return replacements.size();
     }
 
+    public ImmutableIdSet<Route> getReplacementBuses() {
+        return replacements;
+    }
 }

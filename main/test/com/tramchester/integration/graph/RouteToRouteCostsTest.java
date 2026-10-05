@@ -245,7 +245,7 @@ public class RouteToRouteCostsTest {
         int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),
                 Ashton.from(stationRepository), modes, when, timeRange);
 
-        assertEquals(0, possibleMin);
+        assertEquals(1, possibleMin);
     }
 
     @Test

@@ -774,7 +774,7 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> largest = findLargest.get();
 
-        assertEquals(572, largest.size());
+        assertEquals(2316, largest.size());
 
         RouteStationId routeStationId = (RouteStationId) largest.getFirst().getEndNode(txn).getRouteStationId();
 

@@ -81,8 +81,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        // summer 2026
-        int expectedNumStations = 26-1;
+        int expectedNumStations = 26;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
@@ -113,7 +112,7 @@ public class StationRepositoryTest {
                 filter(name -> !name.isReplacementBus()).
                 collect(Collectors.toSet());
 
-        assertEquals(3, lines.size(), lines.toString());
+        assertEquals(4, lines.size(), lines.toString());
 
         assertFalse(lines.contains(Red), "Got " + Red.getShortName() + " in " + lines);
 
