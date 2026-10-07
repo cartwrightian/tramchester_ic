@@ -68,19 +68,15 @@ public abstract class IntegrationTestConfig extends TestConfig {
      *         end: 2025-08-10
      */
 
+    // NOTE: Clean graph after changing this!
     // first is on the map, second in tfgm results, but gap in the service is not on the site anywhere
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = //Collections.emptyList();
             List.of(
                     new TemporaryStationsWalkConfigForTest(StationIdPair.of(MediaCityUK, ImperialWarMuseum),
-                            MediaCityToImperialWarMus),
-                        new TemporaryStationsWalkConfigForTest(StationIdPair.of(Broadway, HarbourCity),
-                            MediaCityToImperialWarMus));
-
-    // EXAMPLE
-//            List.of(
-//                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(ExchangeSquare, Victoria), getSummer2026Closures())
-//                    //new TemporaryStationsWalkConfigForTest(StationIdPair.of(Anchorage, HarbourCity), getSummer2026Closures())
-//            );
+                            MediaCityToImperialWarMus)
+//                        new TemporaryStationsWalkConfigForTest(StationIdPair.of(Broadway, HarbourCity),
+//                            MediaCityToImperialWarMus));
+            );
 
     private final GraphDBTestConfig dbConfig;
 

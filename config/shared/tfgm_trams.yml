@@ -16,11 +16,6 @@ gtfsSourceConfig:
         second: 9400ZZMAIWM
       begin: 2026-09-26
       end: 2026-11-15
-    - stations:
-        first: 9400ZZMABWY
-        second: 9400ZZMAHCY
-      begin: 2026-09-26
-      end: 2026-11-15
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}

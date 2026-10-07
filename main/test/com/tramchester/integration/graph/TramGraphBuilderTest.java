@@ -949,7 +949,7 @@ class TramGraphBuilderTest {
     }
 
     @Test
-    void shouldHaveLongTermWalkingDiversionsNearHarbourCity() {
+    void shouldHaveLongTermWalkingDiversionsNearMediaCity() {
         TemporaryStationWalksRepository walksRepository = componentContainer.get(TemporaryStationWalksRepository.class);
         Geography geography = componentContainer.get(Geography.class);
 
@@ -958,7 +958,7 @@ class TramGraphBuilderTest {
         // skip if no walks defined
         assertFalse(walks.isEmpty(), "diversions no longer in place?");
 
-        assertEquals(2, walks.size());
+        assertEquals(1, walks.size());
 
         walks.forEach(walk -> {
             StationPair pair = walk.getStationPair();
