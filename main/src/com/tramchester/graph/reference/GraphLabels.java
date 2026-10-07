@@ -37,10 +37,6 @@ public class GraphLabels implements Iterable<GraphLabel> {
         return theLabels.contains(label);
     }
 
-//    public EnumSet<GraphLabel> createEnumSet() {
-//        return ImmutableEnumSet.createEnumSet(theLabels);
-//    }
-
     public Stream<GraphLabel> stream() {
         return theLabels.stream();
     }

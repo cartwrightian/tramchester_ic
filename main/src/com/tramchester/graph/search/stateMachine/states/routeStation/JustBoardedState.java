@@ -5,9 +5,10 @@ import com.tramchester.graph.core.GraphDirection;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.PassedStations;
 import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
@@ -64,7 +65,7 @@ public class JustBoardedState extends RouteStationState {
 
     private JustBoardedState(final ImmutableTraversalState traversalState, final Stream<GraphRelationship> outbounds,
                              JourneyStateUpdate journeyState, final TramDuration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
-        super(traversalState, outbounds, journeyState, cost, builder, graphNode, PassType.JustBoarded);
+        super(traversalState, outbounds, journeyState, cost, builder, graphNode, PassedStations.PassType.JustBoarded);
     }
 
     @Override

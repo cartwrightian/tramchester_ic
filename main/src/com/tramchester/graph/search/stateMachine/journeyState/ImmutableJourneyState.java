@@ -31,6 +31,6 @@ public interface ImmutableJourneyState extends HasTransportMode, CoreJourneyStat
     boolean duplicatedBoardingSeen();
     boolean justBoarded();
 
-    boolean alreadySeenOnATrip(IdFor<Station> stationId);
+    boolean alreadyPassedStation(IdFor<Station> stationId);
 
 }

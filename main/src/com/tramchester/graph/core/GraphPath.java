@@ -2,6 +2,8 @@ package com.tramchester.graph.core;
 
 import com.tramchester.domain.time.TramDuration;
 
+import java.util.stream.Stream;
+
 public interface GraphPath {
 
     int length();
@@ -9,6 +11,8 @@ public interface GraphPath {
     TramDuration getTotalCost();
 
     Iterable<GraphEntity<? extends GraphId>> getEntities(GraphTransaction txn);
+
+    Stream<GraphEntity<? extends GraphId>> getEntityStream(GraphTransaction txn);
 
     GraphNode getStartNode(GraphTransaction txn);
 
@@ -23,4 +27,6 @@ public interface GraphPath {
     GraphPath duplicateWith(GraphTransaction txn, GraphNode node);
 
     GraphPath duplicateWith(GraphTransaction txn, GraphRelationship graphRelationship);
+
+    String displayPath();
 }

@@ -150,7 +150,7 @@ public class Journey implements Iterable<TransportStage<?,?>> {
             }
         }
 
-        List<ChangeLocation<?>> result = new ArrayList<>();
+        final List<ChangeLocation<?>> result = new ArrayList<>();
 
         final int size = stages.size();
         final int lastIndex = size-1;

@@ -19,7 +19,7 @@ import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationState;
+import com.tramchester.graph.search.stateMachine.journeyState.PassedStations;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -297,7 +297,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
 
 
     @Override
-    public void recordRouteStation(GraphNode node, RouteStationState.PassType passType) {
+    public void recordRouteStation(GraphNode node, PassedStations.PassType passType) {
         // no-op
     }
 

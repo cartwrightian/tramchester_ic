@@ -7,9 +7,10 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
-import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.PassedStations;
 import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
@@ -60,7 +61,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                      final Stream<GraphRelationship> routeStationOutbound, final TramDuration cost,
                                      final TransportMode mode, final GraphNode routeStationNode,
                                      final TowardsRouteStation<RouteStationStateEndTrip> builder) {
-        super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode, PassType.EndTrip);
+        super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode, PassedStations.PassType.EndTrip);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
     }

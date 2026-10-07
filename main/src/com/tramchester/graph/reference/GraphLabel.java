@@ -35,10 +35,8 @@ public enum GraphLabel { //implements Label {
 
     public static final EnumSet<GraphLabel> TransportModesLabels = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
 
-    public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSet.copyOf(
-            EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE));
-
-    //public static final ImmutableEnumSet<GraphLabel> NoneOf = ImmutableEnumSet.noneOf(GraphLabel.class);
+//    public static final ImmutableEnumSet<GraphLabel> CoreDomain = ImmutableEnumSet.copyOf(
+//            EnumSet.of(STATION, ROUTE_STATION, PLATFORM, SERVICE, MINUTE));
 
     private final ImmutableEnumSet<GraphLabel> singleton;
 
@@ -72,11 +70,8 @@ public enum GraphLabel { //implements Label {
         return ImmutableEnumSet.copyOf(updated);
     }
 
-//    GraphLabels addTo(final GraphLabels labels) {
-//        return labels.add(this);
-//    }
-
     public ImmutableEnumSet<GraphLabel> singleton() {
         return singleton;
     }
+
 }

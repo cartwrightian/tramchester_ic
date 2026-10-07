@@ -23,9 +23,9 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.core.MutableGraphTransaction;
+import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.LocationJourneyPlanner;
+import com.tramchester.graph.search.diagnostics.RecordJourneyGraphPath;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -167,6 +167,10 @@ class TramRouteWithDiversionTest {
 
     @Test
     void shouldFollowDiversion() {
+
+        RecordJourneyGraphPath recordJourneyGraphPath = componentContainer.get(RecordJourneyGraphPath.class);
+        recordJourneyGraphPath.enable();
+
         final int maxChanges = config.getMaxNumberChanges();
 
         JourneyRequest journeyRequest = new JourneyRequest(withinDiversion, queryTime, false, maxChanges,
@@ -190,6 +194,33 @@ class TramRouteWithDiversionTest {
         assertEquals(TramDuration.ofMinutes(1), transportStage.getDuration());
         assertEquals(TramTime.of(7,57), transportStage.getFirstDepartureTime());
         assertEquals(TramTime.of(7,58), transportStage.getExpectedArrivalTime()); // +1 for dep cost
+
+        // Check underlying path here
+        List<TimedPath> timedPaths = recordJourneyGraphPath.getPathsFor(journeyRequest.getUid());
+        assertEquals(1, timedPaths.size());
+
+        TimedPath timedPath = timedPaths.getFirst();
+
+        GraphPath graphPath = timedPath.path();
+
+        GraphNode startNode = txn.findNode(transportData.getFirst());
+        GraphNode endNode = txn.findNode(transportData.getLast());
+
+        assertEquals(startNode, graphPath.getStartNode(txn));
+        assertEquals(endNode, graphPath.getEndNode(txn));
+
+        //Iterable<GraphEntity<? extends GraphId>> allEntities = graphPath.getEntities(txn);
+
+        List<GraphEntity<? extends GraphId>> entityList = graphPath.getEntityStream(txn).toList();
+
+        assertEquals(3, entityList.size(), "Wrong length " + graphPath.displayPath());
+
+        assertTrue(entityList.get(1).isRelationship());
+
+        GraphRelationship diversion = (GraphRelationship) entityList.get(1);
+        assertEquals(startNode, diversion.getStartNode(txn));
+        assertEquals(endNode, diversion.getEndNode(txn));
+
     }
 
     private Stream<Journey> calculateRoute(Location<?> first, Location<?> second, JourneyRequest journeyRequest) {

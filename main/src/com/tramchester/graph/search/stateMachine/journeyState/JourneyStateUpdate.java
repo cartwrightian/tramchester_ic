@@ -9,7 +9,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
-import com.tramchester.graph.search.stateMachine.states.routeStation.RouteStationState;
 
 public interface JourneyStateUpdate extends CoreJourneyState {
     void board(TransportMode transportMode, GraphNode node, boolean hasPlatform) throws TramchesterException;
@@ -28,7 +27,7 @@ public interface JourneyStateUpdate extends CoreJourneyState {
     void updateTotalCost(TramDuration total);
     void recordDepartureTimeAtMinuteNode(TramTime time, TramDuration totalCost) throws TramchesterException;
 
-    void recordRouteStation(GraphNode node, RouteStationState.PassType passType);
+    void recordRouteStation(GraphNode node, PassedStations.PassType passType);
 
     void recordStationGroup(IdFor<StationGroup> stationGroupId);
 

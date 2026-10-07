@@ -18,10 +18,13 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
-import com.tramchester.graph.core.GraphDatabase;
-import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.core.*;
+import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.search.diagnostics.RecordJourneyGraphPath;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
@@ -37,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -898,18 +902,110 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldReproIssueWithHarbourCityToChrolton() {
+    void shouldReproIssueWithHarbourCityToChorlton() {
         //[JourneyOrNot{ queryDate=TramDate{epochDays=20734, dayOfWeek=THURSDAY, date=2026-10-08},
         // queryTime=TramTime{h=9, m=5}, requested=StationIdAndNamePair{Harbour City[Id{'Station:9400ZZMAHCY'}],
         // Chorlton[Id{'Station:9400ZZMACHO'}]}}]  ==> expected: <0> but was: <1>
+
+        RecordJourneyGraphPath recordJourneyGraphPath = componentContainer.get(RecordJourneyGraphPath.class);
+        recordJourneyGraphPath.enable();
 
         TramTime time = TramTime.of(9,5);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
                 JourneyRequest.MaxNumberOfChanges.of(maxChanges), maxJourneyDuration, 1,
                 requestedModes, true);
         List<Journey> journeys = calculator.calculateRouteAsList(HarbourCity, Chorlton, journeyRequest);
+
+        // Check underlying path here
+        assertTrue(recordJourneyGraphPath.hasPathsFor(journeyRequest.getUid()), "no paths");
+        List<TimedPath> allPaths = recordJourneyGraphPath.getPathsFor(journeyRequest.getUid());
+        assertFalse(allPaths.isEmpty());
+
+        assertOnValidDiversions(allPaths);
+
+        ImmutableEnumSet<GraphLabel> passesStations = ImmutableEnumSet.of(GraphLabel.STATION, GraphLabel.ROUTE_STATION);
+
+        allPaths.forEach(path -> {
+            // all passed stations
+            List<IdFor<Station>> stationsInPath = path.path().getEntityStream(txn).
+                    filter(GraphEntity::isNode).
+                    map(entity -> (GraphNode) entity).
+                    filter(node -> node.getLabels().anyIntersectionWith(passesStations)).
+                    map(GraphNode::getStationId).
+                    toList();
+
+            // only flag as a dup if not adjacent in the list - i.e. leave, station, board at interchange is fine....
+            List<IdFor<Station>> consolidateAdjacnets = new ArrayList<>();
+            IdFor<Station> previous = Station.InvalidId();
+            for (final IdFor<Station> current : stationsInPath) {
+                if (!current.equals(previous)) {
+                    consolidateAdjacnets.add(current);
+                    previous = current;
+                }
+            }
+
+            List<IdFor<Station>> dups = consolidateAdjacnets.stream().
+                    filter(candidate -> consolidateAdjacnets.stream().filter(id -> id.equals(candidate)).count() > 1).toList();
+
+            assertTrue(dups.isEmpty(), "had dups " + dups + " within " + path);
+        });
+
         assertFalse(journeys.isEmpty());
 
+    }
+
+    private void assertOnValidDiversions(List<TimedPath> allPaths) {
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+
+        Function<TimedPath,Boolean> containsDiversion = timedPath -> timedPath.path().getEntityStream(txn).
+                filter(GraphEntity::isRelationship).
+                map(graphEntity -> (GraphRelationship)graphEntity).
+                anyMatch(graphRelationship -> graphRelationship.getType()==TransportRelationshipTypes.DIVERSION);
+
+        List<TimedPath> timedPathWithDiversions = allPaths.stream().filter(containsDiversion::apply).toList();
+
+        // might not have followed any diversions.....
+        //assertFalse(timedPathWithDiversions.isEmpty());
+        if (timedPathWithDiversions.isEmpty()) {
+            return;
+        }
+
+        timedPathWithDiversions.forEach(timedPath -> {
+
+            GraphPath graphPath = timedPath.path();
+
+            GraphNode startNode = txn.findNode(HarbourCity.from(stationRepository));
+            GraphNode endNode = txn.findNode(Chorlton.from(stationRepository));
+
+            assertEquals(startNode, graphPath.getStartNode(txn));
+            assertEquals(endNode, graphPath.getEndNode(txn));
+
+            List<GraphEntity<? extends GraphId>> entityList = graphPath.getEntityStream(txn).toList();
+
+            List<Integer> diversionIndexs = new ArrayList<>();
+            for (int i = 0; i < entityList.size(); i++) {
+                GraphEntity<? extends GraphId> entity = entityList.get(i);
+                if (entity.isRelationship()) {
+                    GraphRelationship relationship = (GraphRelationship) entity;
+                    if (relationship.getType() == TransportRelationshipTypes.DIVERSION) {
+                        diversionIndexs.add(i);
+                    }
+                }
+            }
+
+            assertFalse(diversionIndexs.isEmpty(), "no diversions within " + timedPath.toString());
+
+            diversionIndexs.forEach(index -> {
+                GraphNode before = (GraphNode) entityList.get(index-1);
+                GraphRelationship diversion = (GraphRelationship) entityList.get(index);
+                GraphNode after = (GraphNode) entityList.get(index+1);
+
+                assertTrue(before.getLabels().contains(GraphLabel.STATION), "not a station " + before.getLabels());
+                assertTrue(after.getLabels().contains(GraphLabel.STATION), "not a station " + after.getLabels());
+
+            });
+
+        });
     }
 
     @Test

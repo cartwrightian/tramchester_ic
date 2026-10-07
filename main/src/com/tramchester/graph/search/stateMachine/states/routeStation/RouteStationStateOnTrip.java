@@ -7,10 +7,11 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
-import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.journeyState.PassedStations;
 import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
@@ -73,7 +74,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private RouteStationStateOnTrip(JourneyStateUpdate journeyState, final ImmutableTraversalState parent, final Stream<GraphRelationship> relationships,
                                     final TramDuration cost, final GraphNode routeStationNode, final IdFor<Trip> tripId, final TransportMode transportMode,
                                     final TowardsRouteStation<RouteStationStateOnTrip> builder) {
-        super(parent, relationships, journeyState, cost, builder, routeStationNode, PassType.OnTrip);
+        super(parent, relationships, journeyState, cost, builder, routeStationNode, PassedStations.PassType.OnTrip);
         this.routeStationNode = routeStationNode;
         this.tripId = tripId;
         this.transportMode = transportMode;

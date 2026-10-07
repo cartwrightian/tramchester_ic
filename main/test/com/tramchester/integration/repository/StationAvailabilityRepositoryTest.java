@@ -107,7 +107,7 @@ public class StationAvailabilityRepositoryTest {
         TramDate monday = TestEnv.nextMonday();
 
         // late services from Alty run to Old Trafford
-        TimeRange timeRange = TimeRange.of(TramTime.of(0,25), TramTime.of(0,45));
+        TimeRange timeRange = TimeRange.of(TramTime.of(0,15), TramTime.of(0,45));
         Set<Route> tooLate = dropOffs.getRoutes(monday, timeRange, modes);
         assertFalse(tooLate.isEmpty(), HasId.asIds(tooLate));
     }

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class GraphPathInMemory implements GraphPath {
 
@@ -30,6 +31,11 @@ public class GraphPathInMemory implements GraphPath {
 
     public GraphPathInMemory duplicateWith(final GraphTransaction txn, final GraphRelationship graphRelationship) {
         return duplicate().addRelationship(txn, graphRelationship);
+    }
+
+    @Override
+    public String displayPath() {
+        return entityList.display();
     }
 
     @Override
@@ -74,6 +80,11 @@ public class GraphPathInMemory implements GraphPath {
                 return entityList.stream().iterator();
             }
         };
+    }
+
+    @Override
+    public Stream<GraphEntity<? extends GraphId>> getEntityStream(GraphTransaction txn) {
+        return entityList.stream();
     }
 
     @Override

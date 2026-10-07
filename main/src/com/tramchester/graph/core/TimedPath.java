@@ -23,7 +23,7 @@ public final class TimedPath {
     @Override
     public String toString() {
         return "TimedPath{" +
-                "path=" + path +
+                "path=" + path.displayPath() +
                 ", queryTime=" + queryTime +
                 ", numChanges=" + numChanges +
                 '}';

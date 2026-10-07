@@ -160,7 +160,6 @@ public abstract class RouteCalculatorSupport {
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, towardsDestination, txn, fullLogging);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
 
-
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
         } else {
@@ -177,8 +176,13 @@ public abstract class RouteCalculatorSupport {
         if (fullLogging) {
             logger.info("Created journey with " + stages.size() + " stages and depart time of " + departTime);
         }
-        return new Journey(departTime, path.queryTime(), arrivalTime, stages, locationList, path.numChanges(),
+        final Journey journey = new Journey(departTime, path.queryTime(), arrivalTime, stages, locationList, path.numChanges(),
                 journeyIndex.getAndIncrement());
+        boolean validJourney = validJourney(journey, journeyRequest);
+
+        failedJourneyDiagnostics.captureGraphPath(validJourney, journeyRequest, path);
+
+        return journey;
     }
 
     private TramTime getDepartTimeFor(final List<TransportStage<?, ?>> stages, final JourneyRequest journeyRequest) {

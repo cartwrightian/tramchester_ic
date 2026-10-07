@@ -285,9 +285,10 @@ public class ServiceHeuristics {
     public HeuristicsReason checkAlreadyPassed(ImmutableJourneyState journeyState, GraphNode node,
                                                HowIGotHere howIGotHere, ServiceReasons reasons) {
         //if (journeyConstraints.disallowPassingAgain()) {
-            if (journeyState.alreadySeenOnATrip(node.getStationId())) {
-                // TODO correct logging level
-                logger.warn("Already passed route station " + node.getStationId());
+        IdFor<Station> stationId = node.getStationId();
+        if (journeyState.alreadyPassedStation(stationId)) {
+                // TODO correct logging level here?
+                logger.debug("Already passed " + stationId);
                 return reasons.recordReason(HeuristicsReasons.AlreadySeenRouteStation(howIGotHere));
             }
         //}

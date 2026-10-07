@@ -39,8 +39,8 @@ public abstract class StationState extends TraversalState implements NodeId {
     protected final GraphNode stationNode;
     private final IdFor<Station> stationId;
 
-    protected StationState(final ImmutableTraversalState parent, final Stream<GraphRelationship> outbounds, final TramDuration costForLastEdge,
-                           final GraphNode stationNode,
+    protected StationState(final ImmutableTraversalState parent, final Stream<GraphRelationship> outbounds,
+                           final TramDuration costForLastEdge, final GraphNode stationNode,
                            final JourneyStateUpdate journeyState, final TraversalStateType builderDestinationType) {
         super(parent, outbounds, costForLastEdge, builderDestinationType, stationNode.getId());
         this.stationNode = stationNode;

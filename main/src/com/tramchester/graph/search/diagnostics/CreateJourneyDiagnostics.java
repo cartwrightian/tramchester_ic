@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
@@ -12,6 +13,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
 import com.tramchester.graph.core.GraphNodeId;
+import com.tramchester.graph.core.TimedPath;
 import com.tramchester.repository.LocationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -29,11 +31,12 @@ public class CreateJourneyDiagnostics {
     private static final Logger logger = LoggerFactory.getLogger(CreateJourneyDiagnostics.class);
 
     private final LocationRepository locationRepository;
-
+    private final RecordJourneyGraphPath recordJourneyGraphPath;
 
     @Inject
-    public CreateJourneyDiagnostics(LocationRepository locationRepository) {
+    public CreateJourneyDiagnostics(LocationRepository locationRepository, RecordJourneyGraphPath recordJourneyGraphPath) {
         this.locationRepository = locationRepository;
+        this.recordJourneyGraphPath = recordJourneyGraphPath;
     }
 
     public JourneyDiagnostics recordFailedJourneys(final List<HeuristicsReason> reasons, final LocationCollection destinations) {
@@ -217,6 +220,13 @@ public class CreateJourneyDiagnostics {
                     heuristicsReason.getHowIGotHere());
         }
         return new DiagnosticReasonDTO(heuristicsReason);
+    }
+
+    public void captureGraphPath(boolean validJourney, JourneyRequest journeyRequest, TimedPath path) {
+        if (!validJourney) {
+            logger.warn("Path for failed journey " + path.toString());
+        }
+        recordJourneyGraphPath.record(journeyRequest.getUid(), path);
     }
 
     private class DiagnosticTree {

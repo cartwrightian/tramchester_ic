@@ -6,13 +6,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.presentation.DTO.graph.PropertyDTO;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -141,7 +144,31 @@ public class GraphNodeInMemory extends GraphNodeProperties<PropertyContainer> {
 
         return inMemory.findRelationships(id, direction);
     }
-    
+
+    @Override
+    public String display() {
+        Optional<Map.Entry<GraphPropertyKey, Object>> maybeId = super.getAllProperties().entrySet().stream().
+                filter(entry -> GraphPropertyKey.isId(entry.getKey())).
+                findFirst();
+        final String idTxt;
+        if (maybeId.isPresent()) {
+            if (graphLabels.contains(GraphLabel.SERVICE)) {
+                return getServiceId().toString();
+            } else if (graphLabels.contains(GraphLabel.ROUTE_STATION)) {
+                return getRouteStationId().toString();
+            } else {
+                idTxt = maybeId.get().getValue().toString();
+            }
+        } else if (graphLabels.contains(GraphLabel.MINUTE)) {
+            idTxt = getTime().toString();
+        } else if (graphLabels.contains(GraphLabel.HOUR)) {
+            idTxt = String.valueOf(getHour());
+        } else {
+            idTxt = "TBD for diag";
+        }
+        return "GraphNode(id=%s labels=%s %s".formatted(id, graphLabels, idTxt);
+    }
+
     @Override
     public boolean hasRelationship(final GraphTransaction txn, final GraphDirection graphDirection,
                                    final TransportRelationshipTypes relationshipType, final GraphNode end) {

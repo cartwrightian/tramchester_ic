@@ -37,7 +37,7 @@ final class PropertyContainer implements GraphEntityProperties.GraphProps<Proper
         return new PropertyContainer(new HashMap<>(props), diagnostics);
     }
 
-    private void setPropertyFromDTO(GraphPropertyKey key, Object serializedForm) {
+    private void setPropertyFromDTO(final GraphPropertyKey key, final Object serializedForm) {
         if (key.isDomainId()) {
             final IdFor<?> id = IdFor.parse(key, serializedForm.toString());
             setProperty(key, id);

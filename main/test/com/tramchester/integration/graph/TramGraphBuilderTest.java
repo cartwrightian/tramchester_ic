@@ -2,9 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
@@ -25,6 +23,7 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
@@ -947,6 +946,39 @@ class TramGraphBuilderTest {
         assertNotEquals(0, txn.numberOf(TO_HOUR));
 
         assertEquals(txn.numberOf(TO_MINUTE), txn.numberOf(TO_MINUTE_ON_TRIP));
+    }
+
+    @Test
+    void shouldHaveLongTermWalkingDiversionsNearHarbourCity() {
+        TemporaryStationWalksRepository walksRepository = componentContainer.get(TemporaryStationWalksRepository.class);
+        Geography geography = componentContainer.get(Geography.class);
+
+        Set<TemporaryStationWalk> walks = walksRepository.getTemporaryWalksFor(DataSourceID.tfgm);
+
+        // skip if no walks defined
+        assertFalse(walks.isEmpty(), "diversions no longer in place?");
+
+        assertEquals(2, walks.size());
+
+        walks.forEach(walk -> {
+            StationPair pair = walk.getStationPair();
+
+            GraphNode startNode = txn.findNode(pair.getBegin());
+            GraphNode endNode = txn.findNode(pair.getEnd());
+
+            List<GraphRelationship> diversions = startNode.getRelationships(txn, Outgoing, DIVERSION).toList();
+            assertEquals(1, diversions.size(), "too many diversions " + diversions + " for " + pair.getStationIds());
+
+            GraphRelationship diversion = diversions.getFirst();
+            GraphNode endNodeFromDiversion = diversion.getEndNode(txn);
+            assertEquals(endNode, endNodeFromDiversion);
+
+            assertEquals(walk.getCost(geography), diversion.getCost());
+            assertEquals(walk.getDateRange(), diversion.getDateRange());
+            assertEquals(walk.getTimeRange(), diversion.getTimeRange());
+        });
+
+
     }
 
     @Disabled("diagnostics around number of relationships")

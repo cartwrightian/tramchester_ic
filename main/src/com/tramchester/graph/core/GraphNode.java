@@ -64,4 +64,6 @@ public interface GraphNode extends GraphEntity<GraphNodeId> {
     TransportMode getTransportMode();
     int getHour();
 
+    // diagnostics
+    String display();
 }

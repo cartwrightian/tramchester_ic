@@ -22,61 +22,7 @@ public interface EntityList {
 
     GraphIdList getIds();
 
-    class Spike implements EntityList {
-
-        private final List<GraphEntity<? extends GraphId>> list;
-        private final GraphIdListInMem ids;
-        private Spike previous;
-
-        public Spike(Spike previous) {
-            this.previous = previous;
-            list = new ArrayList<>();
-            ids = new GraphIdListInMem();
-        }
-
-        @Override
-        public EntityList branchFrom() {
-            return new Spike(previous);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            if (list.isEmpty()) {
-                return previous.isEmpty();
-            }
-            return false;
-        }
-
-        @Override
-        public void add(GraphNode node) {
-            addEntity(node);
-        }
-
-        @Override
-        public void add(GraphRelationship graphRelationship) {
-            addEntity(graphRelationship);
-        }
-
-        public void addEntity(final GraphEntity<? extends GraphId> graphEntity) {
-            list.add(graphEntity);
-            ids.add(graphEntity.getId());
-        }
-
-        @Override
-        public @NotNull Stream<GraphEntity<? extends GraphId>> stream() {
-            return Stream.concat(previous.stream(), list.stream());
-        }
-
-        @Override
-        public int size() {
-            return list.size() + previous.size();
-        }
-
-        @Override
-        public GraphIdList getIds() {
-            throw new RuntimeException("Not implemented yet");
-        }
-    }
+    String display();
 
     class Simple implements EntityList {
 
@@ -135,6 +81,21 @@ public interface EntityList {
         @Override
         public GraphIdList getIds() {
             return ids;
+        }
+
+        @Override
+        public String display() {
+            final StringBuilder result = new StringBuilder();
+            list.forEach(item -> {
+                if (item.isNode()) {
+                    GraphNode node = (GraphNode) item;
+                    result.append(node.display());
+                } else if (item.isRelationship()) {
+                    GraphRelationship relationship = (GraphRelationship) item;
+                    result.append("-(").append(relationship.getType()).append(")->").append("\n");
+                }
+            });
+            return result.toString();
         }
 
         @Override

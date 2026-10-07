@@ -191,10 +191,10 @@ public abstract class TramRouteEvaluator {
         }
 
         // returned to the start?
-        final HeuristicsReason backToStartNode = serviceHeuristics.backToStartNode(nextNodeId, thePath.length(),
+        final HeuristicsReason backToStart = serviceHeuristics.backToStartNode(nextNodeId, thePath.length(),
                 startNodeId, howIGotHere, reasons);
-        if (!backToStartNode.isValid()) {
-            return backToStartNode;
+        if (!backToStart.isValid()) {
+            return backToStart;
         }
 
         final TramTime visitingTime = journeyState.getJourneyClock();
