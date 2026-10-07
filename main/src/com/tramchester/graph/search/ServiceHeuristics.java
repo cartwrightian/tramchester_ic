@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
@@ -7,6 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.*;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
@@ -284,14 +286,19 @@ public class ServiceHeuristics {
 
     public HeuristicsReason checkAlreadyPassed(ImmutableJourneyState journeyState, GraphNode node,
                                                HowIGotHere howIGotHere, ServiceReasons reasons) {
-        //if (journeyConstraints.disallowPassingAgain()) {
-        IdFor<Station> stationId = node.getStationId();
-        if (journeyState.alreadyPassedStation(stationId)) {
-                // TODO correct logging level here?
-                logger.debug("Already passed " + stationId);
+        final TransportMode mode = node.getTransportMode();
+
+        if (TramchesterConfig.passAgainDisallowed(mode)) {
+
+            final IdFor<Station> stationId = node.getStationId();
+            if (journeyState.alreadyPassedStation(stationId)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Already passed " + stationId);
+                }
                 return reasons.recordReason(HeuristicsReasons.AlreadySeenRouteStation(howIGotHere));
             }
-        //}
+        }
+
         return valid(ReasonCode.Continue, howIGotHere, reasons);
     }
 }

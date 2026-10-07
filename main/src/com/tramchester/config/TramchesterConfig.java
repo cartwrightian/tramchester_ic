@@ -21,8 +21,7 @@ import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.*;
 
-import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
-import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static tech.units.indriya.unit.Units.METRE_PER_SECOND;
 import static tech.units.indriya.unit.Units.SECOND;
 
@@ -40,6 +39,10 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     protected TramchesterConfig() {
         dataSources = new HashMap<>();
+    }
+
+    public static boolean passAgainDisallowed(final TransportMode mode) {
+        return mode==Tram;
     }
 
     public abstract String getEnvironmentName() ;

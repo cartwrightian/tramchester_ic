@@ -10,15 +10,14 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.graph.search.stateMachine.journeyState.PassedStations.PassType.Diversion;
-import static com.tramchester.graph.search.stateMachine.journeyState.PassedStations.PassType.JustBoarded;
-
 public class PassedStations {
     private static final Logger logger = LoggerFactory.getLogger(PassedStations.class);
 
     public enum PassType {
         JustBoarded, OnTrip, EndTrip, Diversion
     }
+
+    final ImmutableEnumSet<PassType> previousMatchLegit = ImmutableEnumSet.of(PassType.JustBoarded);
 
     private final List<IdFor<Station>> passed;
     private final List<IdFor<Station>> boardingStations;
@@ -56,7 +55,7 @@ public class PassedStations {
     public void recordToNeighbour(final IdFor<Station> startOfDiversion) {
         if (passed.isEmpty()) {
             logger.info("At start, adding to On Trip Stations " + startOfDiversion);
-            capturePass(startOfDiversion, Diversion);
+            capturePass(startOfDiversion, PassType.Diversion);
             return;
         }
 
@@ -64,17 +63,15 @@ public class PassedStations {
             logger.info("On diversion from " + startOfDiversion);
         } else {
             logger.info("Added diversion to On Trip Stations " + startOfDiversion);
-            capturePass(startOfDiversion, Diversion);
+            capturePass(startOfDiversion, PassType.Diversion);
         }
     }
 
     private void capturePass(final IdFor<Station> stationId, final PassType passType) {
-        ImmutableEnumSet<PassType> previousMatchLegit = ImmutableEnumSet.of(JustBoarded);
         if (lastPassed!=null) {
             final IdFor<Station> previous = lastPassed.getKey();
             if (stationId.equals(previous)) {
                 if (!previousMatchLegit.contains(passType)) {
-                    // TODO FIX THIS!
                     String msg = "Matches previous %s for %s %s".formatted(lastPassed, stationId, passType);
                     logger.error(msg);
                 }

@@ -148,21 +148,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return currentTrip;
     }
 
-    /***
-     * Use to check that don't add a diversion back to a station already seen
-     * DON'T USE for checking for a return to a station during normal routing as this will not work
-     * due to the update happening *before* this method is called
-     */
-//    @Override
-//    public boolean alreadyBoardedAt(final IdFor<Station> stationId) {
-//        boolean already = boardingStations.contains(stationId);
-//        // TODO into DEBUG!
-//        if (already) {
-//            logger.warn("Already boarded %s \nboarded %s \n onTrip %s".formatted(stationId, boardingStations, onTripStations));
-//        }
-//        return already;
-//    }
-
     @Override
     public void atDestination(TramDuration cost) {
         // no-op
