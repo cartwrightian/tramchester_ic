@@ -773,12 +773,13 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> largest = findLargest.get();
 
-        assertEquals(2316, largest.size());
+        assertEquals(2010, largest.size());
 
         RouteStationId routeStationId = (RouteStationId) largest.getFirst().getEndNode(txn).getRouteStationId();
 
-        assertEquals(Cornbrook.getId(), routeStationId.getStationId());
-        assertEquals(TFGMRouteNames.Yellow, ((TramRouteId)routeStationId.getRouteId()).getRouteName());
+        // this can change, depending on timetable and closures
+        assertEquals(MarketStreet.getId(), routeStationId.getStationId());
+        assertEquals(TFGMRouteNames.Blue, ((TramRouteId)routeStationId.getRouteId()).getRouteName());
 
         IdSet<Trip> incomingTimes = largest.stream().
                 map(rel -> rel.getStartNode(txn)).
@@ -919,7 +920,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(22D, Math.ceil(percentage));
+        assertEquals(21D, Math.ceil(percentage));
     }
 
     @Test

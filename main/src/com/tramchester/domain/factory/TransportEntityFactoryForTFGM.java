@@ -1,5 +1,7 @@
 package com.tramchester.domain.factory;
 
+import com.google.inject.Inject;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.dataimport.data.StopTimeData;
@@ -25,19 +27,24 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@LazySingleton
 public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory {
 
-    private static final String METROLINK_ID_PREFIX = "9400ZZ";
+    public static final String METROLINK_ID_PREFIX = "9400ZZ";
     private static final String METROLINK_NAME_POSTFIX = "(Manchester Metrolink)";
 
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
+    public static final String UNKNOWN_PLATFORM = "unknown";
 
     private final NaptanRepository naptanRepository;
-    private final boolean naptanEnabled;
+    private boolean naptanEnabled;
 
     private final TramDuration minChangeDuration = TramDuration.ofMinutes(MutableStation.DEFAULT_MIN_CHANGE_TIME);
 
@@ -45,19 +52,56 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
     private final Map<String, String> originalCodeForStop; // stopId -> full stopCode with platform suffix
 
     private final IdSet<Station> missingFromNaptan;
+    private final IdSet<Station> missingAPlatform;
+    private final EnumSet<TFGMRouteNames> usedNames;
 
-    public TransportEntityFactoryForTFGM(NaptanRepository naptanRepository) {
+    @Inject
+    public TransportEntityFactoryForTFGM(final NaptanRepository naptanRepository) {
         super();
         this.naptanRepository = naptanRepository;
-        this.naptanEnabled = naptanRepository.isEnabled();
         this.stopIdToStationId = new HashMap<>();
         this.originalCodeForStop = new HashMap<>();
-        missingFromNaptan = new IdSet<>();
+        this.missingFromNaptan = new IdSet<>();
+        this.missingAPlatform = new IdSet<>();
+        this.usedNames = EnumSet.noneOf(TFGMRouteNames.class);
+    }
+
+    @PreDestroy
+    public void stop() {
+        missingFromNaptan.clear();
+        missingAPlatform.clear();
+        usedNames.clear();
+        stopIdToStationId.clear();
+        originalCodeForStop.clear();
+    }
+
+    @PostConstruct
+    public void start() {
+        this.naptanEnabled = naptanRepository.isEnabled();
+        if (!naptanEnabled) {
+            logger.info("naptan disabled");
+        }
     }
 
     @Override
     public DataSourceID getDataSourceId() {
         return DataSourceID.tfgm;
+    }
+
+    @Override
+    public IdFor<Station> formStationId(final StopData stopData) {
+        final String stopId = stopData.getId();
+        final String stopCode = stopData.getCode();
+
+        final IdFor<Station> stationId = getStationIdFor(stopCode);
+        stopIdToStationId.put(stopId, stationId);
+        originalCodeForStop.put(stopId, stopCode);
+        return stationId;
+    }
+
+    @Override
+    public IdFor<Station> formStationId(final StopTimeData stopTimeData) {
+        return stopIdToStationId.get(stopTimeData.getStopId());
     }
 
     @Override
@@ -76,6 +120,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
             } else {
                 routeName = TFGMRouteNames.parseFromSource(routeNameText);
             }
+            usedNames.add(routeName);
             final TramRouteId routeId = TramRouteId.create(routeName, idText);
             return new MutableRoute(routeId, longName, agency, transportMode);
         } else {
@@ -85,13 +130,19 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
     }
 
+    /***
+     * Assume stationId from formStationId method in this class
+     * @param stationId a valid station ID created by this entity factory
+     * @param stopData the underlying GTFS stop data for this station
+     * @return a new station
+     */
     @Override
     public MutableStation createStation(final IdFor<Station> stationId, final StopData stopData) {
 
         final boolean isMetrolink = isMetrolinkTram(stopData);
         final String stationCode = stopData.getCode();
 
-        final boolean hasNaptanRecord = hasNaptan(stationCode);
+        final boolean hasNaptanRecord = haveNaptanEntryFor(stationCode);
         final NaptanRecord naptanRecord = hasNaptanRecord ? naptanRepository.getForActo(stationId) : null;
 
         final boolean isInterchange;
@@ -135,9 +186,15 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
                 getDataSourceId(), isInterchange, minChangeDuration, isCentral);
     }
 
-    boolean hasNaptan(final String stationCode) {
+    /***
+     * If naptan enabled check if an entry available for this acto code
+     * @param acto full acto code including platform
+     * @return true, iff naptan enabled && has entry for the acto code
+     */
+    private boolean haveNaptanEntryFor(final String acto) {
         if (naptanEnabled) {
-            return naptanRepository.containsActo(Station.createId(stationCode));
+            // needs to be full ID here, including platform postfix
+            return naptanRepository.containsActo(Station.createId(acto));
         }
         return false;
     }
@@ -147,13 +204,15 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
         // TODO better way to do this
         if (!isMetrolinkTram(stopData)) {
+            logger.warn("maybeCreatePlatform called for a non tfgm platform? " + stopData);
             return Optional.empty();
         }
 
-        final String stopCode = stopData.getCode();
+        final String actoCode = stopData.getCode();
+
         final IdFor<Station> stationId = stopIdToStationId.get(stopData.getId());
 
-        final PlatformId platformId = createPlatformId(stationId, stopCode);
+        final PlatformId platformId = getPlatformIdFrom(actoCode, stationId);
 
         final String platformNumber = platformId.getNumber();
 
@@ -163,22 +222,43 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
         if (naptanEnabled) {
             if (naptanRepository.containsActo(platformId)) {
-                NaptanRecord naptanData = naptanRepository.getForActo(platformId);
-
+                final NaptanRecord naptanData = naptanRepository.getForActo(platformId);
                 areaId = naptanData.getLocalityId();
-                gridPosition = naptanData.getGridPosition();
+                gridPosition = naptanData.getGridPosition(); // TODO Add logging if there is a big diff in position data?
                 latLong = naptanData.getLatLong();
             }
-
-            // TODO Add logging if there is a significant diff in position data?
         }
 
         final String platformName = removeMetrolinkPostfix(cleanStationName(stopData));
 
         final MutablePlatform platform = new MutablePlatform(platformId, station, platformName,
                 getDataSourceId(), platformNumber, areaId, latLong, gridPosition, station.isMarkedInterchange());
-        return Optional.of(platform);
 
+        return Optional.of(platform);
+    }
+
+    @Override
+    public PlatformId getPlatformId(final StopTimeData stopTimeData, final Station station) {
+        final String acto = originalCodeForStop.get(stopTimeData.getStopId()); // contains the platform suffix
+        return getPlatformIdFrom(acto, station.getId());
+    }
+
+    /***
+     * create a platform ID from actocode (9400ZZabcdef) and Station Id
+     * @param actoCode the textual acto code
+     * @param stationId station where the platform is
+     * @return create PlatformId
+     */
+    public PlatformId getPlatformIdFrom(final String actoCode, final IdFor<Station> stationId) {
+        final int index = actoCode.length()-1;
+        final PlatformId platformId;
+        if (!Character.isDigit(actoCode.charAt(index))) {
+            missingAPlatform.add(stationId);
+            platformId = createPlatformId(stationId, actoCode + UNKNOWN_PLATFORM);
+        } else {
+            platformId = createPlatformId(stationId, actoCode);
+        }
+        return platformId;
     }
 
     @Override
@@ -190,12 +270,6 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
     }
 
     @Override
-    public IdFor<Platform> getPlatformId(final StopTimeData stopTimeData, final Station station) {
-        final String originalCode = originalCodeForStop.get(stopTimeData.getStopId()); // contains the platform suffix
-        return createPlatformId(station.getId(), originalCode);
-    }
-
-    @Override
     public void logDiagnostics(final WriteableTransportData writeableTransportData) {
         ImmutableIdSet<Station> relevantMissing = missingFromNaptan.stream().
                 filter(writeableTransportData::hasStationId).
@@ -204,10 +278,19 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
             logger.warn("The following stations ids were not found in naptan " + relevantMissing);
             missingFromNaptan.clear();
         }
+        final EnumSet<TFGMRouteNames> names = EnumSet.allOf(TFGMRouteNames.class);
+        names.removeAll(usedNames);
+        if (!names.isEmpty()) {
+            logger.warn("Unused TFGMRouteNames " + names);
+        }
+        if (!missingAPlatform.isEmpty()) {
+            logger.error("The following stations id's did not have a platform (present as platform and non-platform maybe??) "
+                + missingAPlatform);
+        }
 
     }
 
-    public static PlatformId createPlatformId(final IdFor<Station> stationId, final String fullCodeWithPlatformSuffix) {
+    private static PlatformId createPlatformId(final IdFor<Station> stationId, final String fullCodeWithPlatformSuffix) {
 
         final String remaining = StringIdFor.removeIdFrom(fullCodeWithPlatformSuffix, stationId);
         if (remaining.isEmpty()) {
@@ -232,28 +315,16 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
         }
     }
 
-    @Override
-    public IdFor<Station> formStationId(final StopData stopData) {
-        final String stopId = stopData.getId();
-        final String stopCode = stopData.getCode();
-
-        final IdFor<Station> stationId = getStationIdFor(stopCode);
-        stopIdToStationId.put(stopId, stationId);
-        originalCodeForStop.put(stopId, stopCode);
-        return stationId;
-    }
-
-    @Override
-    public IdFor<Station> formStationId(final StopTimeData stopTimeData) {
-        return stopIdToStationId.get(stopTimeData.getStopId());
-    }
-
-    @NotNull
     public static IdFor<Station> getStationIdFor(final String stationCode) {
         if (stationCode.startsWith(METROLINK_ID_PREFIX)) {
-            // metrolink platform ids include platform as final digit, remove to give id of station itself
+            // metrolink platform ids MIGHT include platform as final digit, remove to give id of station itself
             final int index = stationCode.length()-1;
-            return Station.createId(stationCode.substring(0,index));
+            if (Character.isDigit(stationCode.charAt(index))) {
+                return Station.createId(stationCode.substring(0, index));
+            } else {
+                logger.warn("Did not see numeric platform number for " + stationCode);
+                return Station.createId(stationCode);
+            }
         }
         return Station.createId(stationCode);
     }

@@ -31,6 +31,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
+    // EXAMPLE
 //    private static final Set<TramStations> piccGardensDiversionsAround = new HashSet<>(List.of(StPetersSquare, MarketStreet, Piccadilly));
 //
 //    public static final List<StationClosures> CurrentClosures = List.of(
@@ -38,14 +39,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
 //                    UpcomingDates.PiccGardensAutumn2026,
 //                    true, piccGardensDiversionsAround, Collections.emptySet())
 //    );
-
-    /**
-     * EXAMPLE
-     *     static List<TramStations> closedStations = List.of(Pomona, HarbourCity);
-     *     List.of(new StationClosuresListForTest(closedStations, UpcomingDates.summer2026MajorClosure,
-     *             true, Collections.emptySet(), Collections.emptySet())
-     *     );
-     **/
 
 
     /**
@@ -74,8 +67,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
             List.of(
                     new TemporaryStationsWalkConfigForTest(StationIdPair.of(MediaCityUK, ImperialWarMuseum),
                             MediaCityToImperialWarMus)
-//                        new TemporaryStationsWalkConfigForTest(StationIdPair.of(Broadway, HarbourCity),
-//                            MediaCityToImperialWarMus));
             );
 
     private final GraphDBTestConfig dbConfig;

@@ -42,9 +42,6 @@ public interface TransportEntityFactory {
 
     GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId);
 
-    //public IdFor<Route> createRouteId(String routeIdText);
-    //IdFor<Route> createRouteId(GTFSTransportationType routeType, RouteData routeData);
-
     IdFor<Station> formStationId(StopData stopData);
 
     IdFor<Station> formStationId(StopTimeData stopTimeData);

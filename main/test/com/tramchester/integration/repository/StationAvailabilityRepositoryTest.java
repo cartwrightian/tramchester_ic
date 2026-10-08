@@ -26,6 +26,7 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
@@ -211,6 +212,7 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
+    @ClosuresAutumn2026
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -234,8 +236,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    // Seems to be an issue with the data for 10th October
-    //@DisabledUntilDate(year = 2026, month = 10, day = 4)
+    @ClosuresAutumn2026
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {

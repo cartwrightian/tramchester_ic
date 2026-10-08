@@ -30,10 +30,10 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -162,18 +162,19 @@ public class RouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveSimpleOneStopJourneyNextDays() {
         checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(15,0), 0);
     }
 
-
+    @ClosuresAutumn2026
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
         checkRouteNextNDays(Altrincham, TraffordBar, TramTime.of(15,0), 0);
     }
 
-
+    @ClosuresAutumn2026
     @DataExpiryTest
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
@@ -303,8 +304,6 @@ public class RouteCalculatorTest {
         });
     }
 
-
-    @PiccGardensSept2026
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -353,6 +352,7 @@ public class RouteCalculatorTest {
 
 
     // over max wait, catch failure to accumulate journey times correctly
+    @ClosuresAutumn2026
     @Test
     void shouldHaveSimpleButLongJoruneySameRoute() {
         checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(15,0), maxChanges);
@@ -385,23 +385,13 @@ public class RouteCalculatorTest {
     @Test
     void shouldReproIssueMarketStreetToShawAndCrompto() {
         //checkRouteNextNDays(MarketStreet, ShawAndCrompton, TramTime.of(8, 5), maxChanges);
-        TramDate date = TramDate.of(2026, 9, 30);
-        JourneyRequest request = standardJourneyRequest(date, TramTime.of(8, 5), 1,
+        //TramDate date = TramDate.of(2026, 9, 30);
+        JourneyRequest request = standardJourneyRequest(when, TramTime.of(8, 5), 1,
                 2);
         List<Journey> results = calculator.calculateRouteAsList(MarketStreet, ShawAndCrompton, request);
 
         assertFalse(results.isEmpty(), "No journeys for " + request);
     }
-
-//    @Test
-//    void shouldCheckWithUpcomingPiccGardensClosure() {
-//        TramDate date = UpcomingDates.PiccGardensAutumn2026.getStartDate();
-//        JourneyRequest request = standardJourneyRequest(date, TramTime.of(11, 45), 3,
-//                2);
-//        List<Journey> results = calculator.calculateRouteAsList(Victoria, Ashton, request);
-//
-//        assertFalse(results.isEmpty(), "No journeys for " + request);
-//    }
 
     @Test
     void shouldLimitNumberChangesResultsInNoJourneys() {
@@ -778,7 +768,6 @@ public class RouteCalculatorTest {
         return duplicates;
     }
 
-    @PiccGardensSept2026
     @Test
     void reproduceIssueEdgePerTrip() {
 

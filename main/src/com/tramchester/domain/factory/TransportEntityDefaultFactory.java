@@ -10,7 +10,6 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.repository.WriteableTransportData;
 
 import java.util.Optional;
 
@@ -73,9 +72,6 @@ public abstract class TransportEntityDefaultFactory  implements TransportEntityF
 
     @Override
     public abstract IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station);
-
-    @Override
-    public abstract void logDiagnostics(WriteableTransportData writeableTransportData);
 
     @Override
     public abstract MutableTrip createTrip(TripData tripData, MutableService service, Route route, TransportMode transportMode);

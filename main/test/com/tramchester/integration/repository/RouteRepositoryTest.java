@@ -21,9 +21,9 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
-import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -218,6 +218,7 @@ public class RouteRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldReproduceIssueWithRoutesThatHaveNoOverlap() {
         // overlap blue route have appeared, cannot use Blue here
@@ -271,7 +272,6 @@ public class RouteRepositoryTest {
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);
     }
 
-    @PiccGardensSept2026
     @Test
     void shouldReproduceIssuesStPetersSquareSept2026() {
 
@@ -321,7 +321,7 @@ public class RouteRepositoryTest {
                 filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         // summer 2026 closures/buses
-        int throughRoutes = 5+2; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        int throughRoutes = 5+1; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 

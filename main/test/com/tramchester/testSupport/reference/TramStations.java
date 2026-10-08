@@ -67,6 +67,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
     Crumpsal("9400ZZMACRU", "Crumpsall", pos(53.51716010436,-2.24104993052)),
     SaleWaterPark("9400ZZMASWP", "Sale Water Park", pos(53.428243,-2.290767)),
     Westwood("9400ZZMAWWD", "Westwood", pos(53.54239674552,-2.12578358419)),
+    Sale("9400ZZMASLE", "Sale", pos(53.4242069217,-2.31909066981)),
+    Stretford("9400ZZMASFD", "Stretford", pos(53.44603525801,-2.30371649028)),
     ShawAndCrompton("9400ZZMASHA", "Shaw and Crompton", pos(53.5763, -2.08963));
 
     private final String rawId;
@@ -88,9 +90,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Bury,
             TraffordCentre,
             MediaCityUK
-            // summer 2026
-            //ExchangeSquare
-
+            // october 2026
+            //Sale
     ));
 
     public static Set<TramStations> getEndOfTheLine() {

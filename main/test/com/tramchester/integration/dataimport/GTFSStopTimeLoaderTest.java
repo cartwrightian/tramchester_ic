@@ -8,13 +8,13 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.factory.TransportEntityFactory;
+import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -85,18 +85,17 @@ public class GTFSStopTimeLoaderTest {
 
         ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
         TransportDataReaderFactory readerFactory = componentContainer.get(TransportDataReaderFactory.class);
-        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+        TransportEntityFactoryForTFGM entityFactory = componentContainer.get(TransportEntityFactoryForTFGM.class);
         UnzipFetchedData unzipFetchedData = componentContainer.get(UnzipFetchedData.class);
 
         UnzipFetchedData.Ready ready = unzipFetchedData.getReady();
-        TransportDataSourceFactory dataSourceFactory = new TransportDataSourceFactory(readerFactory, naptanRepository, ready);
+        TransportDataSourceFactory dataSourceFactory = new TransportDataSourceFactory(readerFactory, ready, entityFactory);
         TransportDataContainer buildable = new TransportDataContainer(providesNow, "testSourceName");
-
 
         dataSourceFactory.start();
         TransportDataSource dataSource = dataSourceFactory.getFor(DataSourceID.tfgm);
 
-        TransportEntityFactory entityFactory = dataSource.getEntityFactory() ;
+        //TransportEntityFactory entityFactory = dataSource.getEntityFactory() ;
 
         AgencyDataLoader agencyDataLoader = new AgencyDataLoader(dataSource.getDataSourceInfo(), entityFactory);
         CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
@@ -116,7 +115,7 @@ public class GTFSStopTimeLoaderTest {
             buildable.dispose();
             dataSourceFactory.start();
             dataSource = dataSourceFactory.getFor(DataSourceID.tfgm);
-            entityFactory = dataSource.getEntityFactory() ;
+            //entityFactory = dataSource.getEntityFactory() ;
 
             GTFSStopTimeLoader loader = new GTFSStopTimeLoader(buildable, entityFactory, dataSource.getConfig());
             loader.load(dataSource.getStopTimes(), preloaded, tripsAndServices);

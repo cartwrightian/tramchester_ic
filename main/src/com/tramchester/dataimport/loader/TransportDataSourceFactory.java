@@ -7,7 +7,6 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
-import com.tramchester.repository.naptan.NaptanRepository;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -26,13 +25,14 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
 
     private final List<TransportDataSource> transportDataSources;
     private final TransportDataReaderFactory readerFactory;
-    private final NaptanRepository naptanRepository;
+    private final TransportEntityFactoryForTFGM tfgmEntityFactory;
 
     @Inject
-    public TransportDataSourceFactory(TransportDataReaderFactory readerFactory, NaptanRepository naptanRepository,
-                                      @SuppressWarnings("unused") UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
+    public TransportDataSourceFactory(TransportDataReaderFactory readerFactory,
+                                      @SuppressWarnings("unused") UnzipFetchedData.Ready dataIsDownloadedAndUnzipped,
+                                      TransportEntityFactoryForTFGM tfgmEntityFactory) {
         this.readerFactory = readerFactory;
-        this.naptanRepository = naptanRepository;
+        this.tfgmEntityFactory = tfgmEntityFactory;
         transportDataSources = new ArrayList<>();
     }
 
@@ -78,7 +78,8 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
     private TransportEntityFactory getEntityFactoryFor(final GTFSSourceConfig sourceConfig) {
         final DataSourceID sourceID = DataSourceID.valueOf(sourceConfig.getName());
         if (DataSourceID.tfgm == sourceID) {
-            return new TransportEntityFactoryForTFGM(naptanRepository);
+            return tfgmEntityFactory;
+            //return new TransportEntityFactoryForTFGM(naptanRepository);
         } else {
             throw new RuntimeException("No entity factory is defined for " + sourceConfig.getName());
         }

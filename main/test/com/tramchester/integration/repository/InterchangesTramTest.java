@@ -89,7 +89,7 @@ public class InterchangesTramTest {
                 PiccadillyGardens,
 
                 Piccadilly,
-                Etihad,
+                //Etihad,
 
                 Victoria,
                 Shudehill,
@@ -99,10 +99,12 @@ public class InterchangesTramTest {
                 HarbourCity,
                 MediaCityUK,
 
-                // replacement bus
+                // replacement buses
                 OldhamMumps, Westwood,
+                StWerburghsRoad,
 
-                StWerburghsRoad
+                // autumn 2026 closures
+                Deansgate, Firswood, Wharfside, Stretford, Sale
         );
 
         Set<Station> expectedStations = expectedTramStations.
@@ -132,7 +134,7 @@ public class InterchangesTramTest {
                 filter(station -> !expectedStations.contains(station)).
                 collect(Collectors.toSet());
 
-        assertTrue(unexpected.isEmpty(), HasId.asIds(unexpected));
+        assertTrue(unexpected.isEmpty(), "Unexpected " + HasId.asIds(unexpected));
     }
 
     @Test

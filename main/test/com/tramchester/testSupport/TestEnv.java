@@ -11,7 +11,6 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.PlatformStopCall;
@@ -58,7 +57,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // summer 2026
-    public static final int NumberOfStationLinks = 206;
+    public static final int NumberOfStationLinks = 220;
 
     public static final int NumberOfRoutes = 40;
 
@@ -181,7 +180,9 @@ public class TestEnv {
                                                       TramTime depart, TestRoute route) {
         final Station station = tramStation.fake(route);
 
-        PlatformId platformId = TransportEntityFactoryForTFGM.createPlatformId(station.getId(), stopCode);
+        //PlatformId platformId = TransportEntityFactoryForTFGM.getPlatformIdFrom(stopCode, station.getId());
+        String platformNumber = stopCode.replace(tramStation.getRawId(),"");
+        PlatformId platformId = PlatformId.createId(station.getId(), platformNumber);
         Platform platform = MutablePlatform.buildForTFGMTram(platformId, station, tramStation.getLatLong(),
                 DataSourceID.unknown, NPTGLocality.InvalidId());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;

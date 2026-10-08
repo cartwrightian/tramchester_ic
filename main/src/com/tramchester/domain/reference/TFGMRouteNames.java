@@ -9,6 +9,10 @@ public enum TFGMRouteNames {
 //    FreeholdRochdale("Replacement Bus Freehold - Rochdale", true),
     VictoriaPiccadilly("Replacement Bus Victoria - Piccadilly", true),
     FreeholdRochdale("Replacement Bus Freehold - Rochdale Town Centre", true),
+    PiccadillyChorlton("Replacement Bus Piccadilly Station - Chorlton", true),
+    PiccadillyMediaCity("Replacement Bus Piccadilly - Media City", true),
+    PiccadillyTraffordCentre("Replacement Bus Piccadilly Station - The Trafford Centre", true),
+    SalePiccadilly("Replacement Bus Sale - Piccadilly", true),
 
     // generic name used quite often
     ReplacementBus("Replacement bus", true),

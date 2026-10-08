@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.presentation.LatLong;
@@ -10,25 +11,42 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StopData {
 
-    @JsonProperty("stop_id")
-    private String id;
-    @JsonProperty("stop_code")
-    private String code;
-    @JsonProperty("stop_lat")
-    private double latitude;
-    @JsonProperty("stop_lon")
-    private double longitude;
-    @JsonProperty("stop_name")
-    private String name;
+    //@JsonProperty("stop_id")
+    private final String id;
+    //@JsonProperty("stop_code")
+    private final String code;
+    //@JsonProperty("stop_lat")
+    private final double latitude;
+    //@JsonProperty("stop_lon")
+    private final double longitude;
+    //@JsonProperty("stop_name")
+    private final String name;
 
-    // deserialization
-    public StopData() {
+    @JsonCreator
+    public StopData(@JsonProperty("stop_id") String id,
+            @JsonProperty("stop_code") String code,
+            @JsonProperty("stop_lat") double latitude,
+            @JsonProperty("stop_lon") double longitude,
+            @JsonProperty("stop_name") String name) {
+        this.id = id;
+        this.code = code;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
     }
+
+//    // deserialization
+//    public StopData() {
+//    }
 
     public String getId() {
         return id;
     }
 
+    /***
+     * the underlying GTFS id for the stop
+     * @return the gtfs code
+     */
     public String getCode() {
         return code;
     }

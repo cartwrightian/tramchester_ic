@@ -18,7 +18,6 @@ import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -298,7 +297,6 @@ class JourneyPlannerLocationResourceTest {
         return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
-    @PiccGardensSept2026
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 

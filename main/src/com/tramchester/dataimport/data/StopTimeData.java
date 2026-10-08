@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -31,9 +32,21 @@ public class StopTimeData {
     @JsonProperty("drop_off_type")
     private String dropOffType;
 
+    @JsonCreator
     public StopTimeData() {
         // faster for AfterBurner in Mapper as will use code gen, see
         // TransportDataReaderFactory and https://github.com/FasterXML/jackson-modules-base/tree/2.19/afterburner
+    }
+
+    public StopTimeData(String tripId, String arrivalTime, String departureTime, String stopId, int stopSequence,
+                String pickupType, String dropOffType) {
+        this.tripId = tripId;
+        this.arrivalTime = arrivalTime;
+        this.departureTime = departureTime;
+        this.stopId = stopId;
+        this.stopSequence = stopSequence;
+        this.pickupType = pickupType;
+        this.dropOffType = dropOffType;
     }
 
     private String padIfNeeded(final String text) {

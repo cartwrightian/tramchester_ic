@@ -98,7 +98,7 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TransportMode.TramsOnly).size());
 
-        int expectedPlatforms = 201-2;
+        int expectedPlatforms = 201-1;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TransportMode.TramsOnly).size());
     }
 
@@ -155,7 +155,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(3, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -214,12 +214,12 @@ public class TransportDataFromFilesTramTest {
                         map(routeStation -> routeStation.getRoute().getShortName()).
                         collect(Collectors.toSet());
 
-        assertEquals(3, lines.size(), lines.toString());
+        assertEquals(2, lines.size(), lines.toString());
 
         String diag = "Missing from " + lines + " on " + when;
         assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()), diag);
         // autumn 2026
-        assertTrue(lines.contains(TFGMRouteNames.Blue.getShortName()), diag);
+        assertFalse(lines.contains(TFGMRouteNames.Blue.getShortName()), diag);
         assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()), diag);
 
 
@@ -399,6 +399,7 @@ public class TransportDataFromFilesTramTest {
         });
     }
 
+
     @Test
     void shouldHaveEndOfLineStations() {
 
@@ -455,7 +456,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1580, maximumNumberOfTrips);
+        assertEquals(1578, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

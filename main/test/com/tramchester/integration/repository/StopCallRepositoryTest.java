@@ -256,7 +256,7 @@ public class StopCallRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedEcclesLinesClosures() {
+    void shouldHaveExpectedEcclesLine() {
         // no longer calling media city
         List<IdFor<Station>> stopsBetween = stopCallRepository.getStopcallsBetween(Cornbrook.getId(),
                 Eccles.getId(), when, HarbourCity.getId());
@@ -272,4 +272,6 @@ public class StopCallRepositoryTest {
 
         assertEquals(6, stopsBetween.size());
     }
+
+
 }

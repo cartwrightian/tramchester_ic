@@ -91,7 +91,7 @@ public class RoutePairToInterchangeRepositoryTest {
             assertTrue(stationIds.contains(RailStationIds.ManchesterVictoria.getId()), stationIds.toString());
 
         } else {
-            assertEquals(1+3, stationIds.size(), stationIds.toString());
+            assertEquals(1, stationIds.size(), stationIds.toString());
         }
 
     }
@@ -110,8 +110,8 @@ public class RoutePairToInterchangeRepositoryTest {
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
         // closures
-        IdSet<Station> expected = FakeStation.IdSetOf(Cornbrook, TraffordBar, StPetersSquare, Etihad,
-                Piccadilly, PiccadillyGardens);
+        IdSet<Station> expected = FakeStation.IdSetOf(Cornbrook, TraffordBar, StPetersSquare,
+                Piccadilly, PiccadillyGardens, Deansgate);
 
         if (config.hasRailConfig()) {
             // TODO

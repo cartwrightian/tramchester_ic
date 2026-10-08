@@ -35,13 +35,16 @@ public class TramDepartureFactory {
     private final AgencyRepository agencyRepository;
     private final StationRepositoryPublic stationRepository;
     private final PlatformRepository platformRepository;
+    private final TransportEntityFactoryForTFGM transportEntityFactoryForTFGM;
     private Agency agency;
 
     @Inject
-    public TramDepartureFactory(AgencyRepository agencyRepository, StationRepositoryPublic stationRepository, PlatformRepository platformRepository) {
+    public TramDepartureFactory(AgencyRepository agencyRepository, StationRepositoryPublic stationRepository,
+                                PlatformRepository platformRepository, TransportEntityFactoryForTFGM transportEntityFactoryForTFGM) {
         this.agencyRepository = agencyRepository;
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
+        this.transportEntityFactoryForTFGM = transportEntityFactoryForTFGM;
     }
 
     @PostConstruct
@@ -91,9 +94,9 @@ public class TramDepartureFactory {
         // TODO Log if this workaround is in use
         if (TRAFFORD_CENTER_PLATFORM1.equals(atcoCode)) {
             // trafford park platform workaround
-            return TransportEntityFactoryForTFGM.createPlatformId(station.getId(), TRAFFORD_CENTER_PLATFORM2);
+            return transportEntityFactoryForTFGM.getPlatformIdFrom(TRAFFORD_CENTER_PLATFORM2, station.getId());
         }
-        return TransportEntityFactoryForTFGM.createPlatformId(station.getId(), atcoCode);
+        return transportEntityFactoryForTFGM.getPlatformIdFrom(atcoCode, station.getId());
     }
 
     public UpcomingDeparture createDueTram(TramStationDepartureInfo departureInfo, String status, Station station,

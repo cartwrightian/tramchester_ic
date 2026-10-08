@@ -36,6 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.factory.TransportEntityFactoryForTFGM.METROLINK_ID_PREFIX;
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -81,7 +82,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 26;
+        int expectedNumStations = 26-1;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
@@ -233,7 +234,7 @@ public class StationRepositoryTest {
         Set<TFGMRouteNames> expected = new HashSet<>(
                 Arrays.asList(
                         Green,
-                        Blue,
+                        //Blue,
                         Navy,
                         Red,
                         Purple,
@@ -300,7 +301,7 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // 1->2 closures
-        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        assertEquals(1+1, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(Yellow), "Missing from " + dropOffs);
 
         Set<Route> availableDropoffs = mediaCity.getDropoffRoutes().stream().
@@ -314,7 +315,7 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // 1->2 closures
-        assertEquals(1, pickUps.size(), pickUps.toString());
+        assertEquals(1+1, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Yellow), "Missing from " + pickUps);
 
         Set<Route> availablePickups = mediaCity.getPickupRoutes().stream().
@@ -322,6 +323,49 @@ public class StationRepositoryTest {
 
         assertFalse(availablePickups.isEmpty());
 
+    }
+
+    @Test
+    void reproIssueWithSaleAppearingWithAndWithoutPlatformNumbers() {
+        assertTrue(stationRepository.hasStationId(Sale.getId()));
+        assertFalse(stationRepository.hasStationId(Station.createId("9400ZZMASL")));
+    }
+
+    @Test
+    void shouldNotHaveDuplicatedNames() {
+        Map<String, IdSet<Station>> map = new HashMap<>();
+        stationRepository.getStations().forEach(station -> {
+            String name = station.getName();
+            if (!map.containsKey(name)) {
+                map.put(name, new IdSet<>());
+            }
+            map.get(name).add(station.getId());
+        });
+
+        Map<String, IdSet<Station>> results = map.entrySet().stream().
+                filter(entry -> entry.getValue().size() > 1).
+                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        assertTrue(results.isEmpty(), "Too many stations " + results);
+
+    }
+
+    @Test
+    void shouldHaveExpectedFormatAndLengthForAllStationIds() {
+        Set<Station> stations = stationRepository.getStations();
+
+        Set<String> rawIds = stations.stream().map(station -> station.getId().getGraphId()).collect(Collectors.toSet());
+
+        String prefix = METROLINK_ID_PREFIX + "MA";
+
+        assertTrue(rawIds.stream().allMatch(txt -> txt.startsWith(prefix)));
+
+        Set<String> wrongLen = stations.stream().
+                map(station -> station.getId().getGraphId()).
+                filter(text -> text.length() != prefix.length() + 3).
+                collect(Collectors.toSet());
+
+        assertTrue(wrongLen.isEmpty(), "Wrong length: " + wrongLen);
     }
 
     @Test

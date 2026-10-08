@@ -35,17 +35,12 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-//    public static DateRange PiccGardensAutumn2026 = DateRange.of(TramDate.of(2026, 9, 27),
-//            TramDate.of(2026, 10, 3));
-
     // ongoing? Used to add walk Media City to Imperial Was Museum
     public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 26),
             TramDate.of(2026, 11, 15));
 
-
-//    public static TramDate rochdaleBeginOctober2026 = TramDate.of(2026, 10, 3);
-//    public static TimeRange rochdaleBeginOctoberTimeRange2026 = TimeRange.of(TramTime.of(4,0),
-//            TramTime.of(14,0));
+    public static DateRange MajorWorksAutumn2026 = DateRange.of(TramDate.of(2026, 10,17),
+            TramDate.of(2026, 11, 2));
 
     public static TramDate victoriaWorksOctober2026 = TramDate.of(2026, 10, 11);
     public static TimeRange victoriaWorksOctober2026TimeRange = TimeRange.of(TramTime.of(3,0),
@@ -62,17 +57,10 @@ public class UpcomingDates {
                 return true;
             }
         }
+        if (MajorWorksAutumn2026.contains(date)) {
 
-//        if (PiccGardensAutumn2026.contains(date)) {
-//            if (PiccadillyGardens.matches(stationId)) {
-//                return true;
-//            }
-//        }
-//        if (rochdaleBeginOctober2026.equals(date)) {
-//            if (StopCallRepositoryTest.FreeholdToRochdaleStations.contains(stationId)) {
-//                return rochdaleBeginOctoberTimeRange2026.anyOverlap(timeRange);
-//            }
-//        }
+        }
+
         return false;
     }
 

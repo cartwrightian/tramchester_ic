@@ -97,7 +97,6 @@ public class RouteToRouteCostsTest {
                 flatMap(start -> allStations.stream().map(dest -> StationPair.of(start, dest))).
                 filter(pair -> !UpcomingDates.hasClosure(pair.getStationIds(), when)).
                 filter(pair -> open(closedStationsRepository, pair)).
-                //filter(pair -> avoid(HarbourCity, pair)).
                 filter(pair -> !pair.areSame()).
                 collect(Collectors.toSet());
 

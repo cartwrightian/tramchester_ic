@@ -2,6 +2,7 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.Station;
@@ -29,13 +30,16 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
     private TramDepartureFactory tramDepartureFactory;
     private StationRepositoryPublic stationRepository;
     private PlatformRepository platformRepository;
+    private TransportEntityFactoryForTFGM entityFactory;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         AgencyRepository agencyRepository = createStrictMock(AgencyRepository.class);
         stationRepository = createStrictMock(StationRepositoryPublic.class);
         platformRepository = createStrictMock(PlatformRepository.class);
-        tramDepartureFactory = new TramDepartureFactory(agencyRepository, stationRepository, platformRepository);
+        entityFactory = createStrictMock(TransportEntityFactoryForTFGM.class);
+        tramDepartureFactory = new TramDepartureFactory(agencyRepository, stationRepository, platformRepository,
+                entityFactory);
     }
 
     @Test
@@ -64,6 +68,8 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.hasStationId(stationId)).andReturn(true);
         EasyMock.expect(stationRepository.getStationById(stationId)).andReturn(airport);
         PlatformId platformId = PlatformId.createId(stationId, "2");
+
+        EasyMock.expect(entityFactory.getPlatformIdFrom("9400ZZMAAIR2", stationId)).andReturn(platformId);
         EasyMock.expect(platformRepository.hasPlatformId(platformId)).andReturn(true);
         EasyMock.expect(platformRepository.getPlatformById(platformId)).andReturn(airportPlatform);
 
@@ -86,10 +92,14 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
 
     @Test
     void shouldHaveNotPlatformIfNotFoundInRepo() {
-        EasyMock.expect(stationRepository.hasStationId(ManAirport.getId())).andReturn(true);
-        EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andReturn(ManAirport.fake());
-        PlatformId platformId = PlatformId.createId(ManAirport.getId(), "9");
+        IdFor<Station> stationId = ManAirport.getId();
+
+        EasyMock.expect(stationRepository.hasStationId(stationId)).andReturn(true);
+        EasyMock.expect(stationRepository.getStationById(stationId)).andReturn(ManAirport.fake());
+        PlatformId platformId = PlatformId.createId(stationId, "9");
         EasyMock.expect(platformRepository.hasPlatformId(platformId)).andReturn(false);
+
+        EasyMock.expect(entityFactory.getPlatformIdFrom("9400ZZMAAIR9", stationId)).andReturn(platformId);
 
         replayAll();
         TramStationDepartureInfo result = tramDepartureFactory.createStationDeparture(BigDecimal.valueOf(42), OverheadDisplayLines.Altrincham, LineDirection.Outgoing,

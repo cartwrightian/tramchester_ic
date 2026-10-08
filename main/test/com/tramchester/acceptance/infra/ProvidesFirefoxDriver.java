@@ -69,6 +69,12 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
                 firefoxProfile.setPreference("geo.prompt.testing.allow", false);
             }
 
+            // try to disable helper tool install, which breaks in headless and on CI box, sigh....
+//            firefoxProfile.setPreference("app.update.auto", false);
+//            firefoxProfile.setPreference("app.update.enabled", false);
+//            firefoxProfile.setPreference("app.update.service.enabled", false);
+//            firefoxProfile.setPreference("toolkit.telemetry.enabled", false);
+
             final FirefoxOptions firefoxOptions = new FirefoxOptions();
             firefoxOptions.setProfile(firefoxProfile);
 
@@ -76,6 +82,8 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
             if (System.getenv(TestEnv.DISABLE_HEADLESS_ENV_VAR)==null) {
                 firefoxOptions.addArguments("-headless");
             }
+
+
 
             final FirefoxDriver firefoxDriver = new FirefoxDriver(firefoxOptions);
             firefoxDriver.setLogLevel(Level.SEVERE);

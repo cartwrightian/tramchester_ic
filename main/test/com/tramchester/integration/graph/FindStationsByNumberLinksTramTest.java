@@ -85,7 +85,6 @@ class FindStationsByNumberLinksTramTest {
 
         IdSet<Station> expected = FakeStation.IdSetOf(
                 PiccadillyGardens,
-                //Piccadilly,
                 MarketStreet,
                 TraffordBar,
                 Cornbrook,
@@ -98,8 +97,9 @@ class FindStationsByNumberLinksTramTest {
                 HarbourCity,
                 OldhamMumps,
                 Westwood,
-                Shudehill
-
+                Shudehill,
+                // Autumn 2026
+                Piccadilly, Firswood, MediaCityUK, Deansgate, Sale, Wharfside, Stretford
         );
 
         ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);

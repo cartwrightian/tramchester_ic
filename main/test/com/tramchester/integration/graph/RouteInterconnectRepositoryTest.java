@@ -116,7 +116,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(results.hasAny());
 
         // closure bus replacements
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+1);
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+2);
 
         assertEquals(expectedChanges, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
@@ -208,7 +208,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+1);
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+2);
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 
@@ -238,52 +238,6 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(wrongSecond.isEmpty(), wrongFirst.toString());
 
     }
-
-//    @Test
-//    void shouldHaveExpectedBacktrackFor1ChangesSummer2026() {
-//        assumeTrue(TramchesterConfig.getSummer2026Closures().contains(date));
-//
-//        Set<Route> buses = routeRepository.findRoutesByName(METL, "Piccadilly Station - Chorlton");
-//        Optional<Route> search = buses.stream().filter(route -> route.isAvailableOn(date)).findFirst();
-//        assertTrue(search.isPresent());
-//
-//        Route routeA = search.get();
-//        Route routeB = getRouteFor(TFGMRouteNames.Pink);
-//        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
-//
-//        assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
-//        Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
-//
-//        int expectedChanges = 2;
-//
-//        assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
-//
-//        // unrealistic as would be 0 in code, direct via one interchange
-//        assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
-//
-//        Set<Pair<RoutePair, RoutePair>> results = repository.getBackTracksFor(1, indexPair);
-//
-//        // all pairs should have interchanges
-//        Set<Pair<RouteIndexPair, RouteIndexPair>> noInterchanges = results.stream().
-//                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
-//                filter(pair -> !(interchangeRepository.hasInterchangeFor(pair.getLeft()) && interchangeRepository.hasInterchangeFor(pair.getRight()))).
-//                collect(Collectors.toSet());
-//
-//        assertTrue(noInterchanges.isEmpty(), noInterchanges.toString());
-//
-//        Set<Route> wrongFirst = results.stream().map(pair -> pair.getLeft().first()).
-//                filter(first -> !first.equals(routeA)).
-//                collect(Collectors.toSet());
-//
-//        assertTrue(wrongFirst.isEmpty(), wrongFirst.toString());
-//
-//        Set<Route> wrongSecond = results.stream().map(pair -> pair.getRight().second()).
-//                filter(second -> !second.equals(routeB)).
-//                collect(Collectors.toSet());
-//
-//        assertTrue(wrongSecond.isEmpty(), wrongFirst.toString());
-//
-//    }
 
     @TraffordCentreTramsFromCrumpsal2026
     @Test

@@ -21,7 +21,6 @@ import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PiccGardensSept2026;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.*;
@@ -224,7 +223,6 @@ public class JourneyPlannerResourceTest {
                 assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
-    @PiccGardensSept2026
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 
