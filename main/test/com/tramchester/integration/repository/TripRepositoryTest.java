@@ -25,8 +25,8 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -152,8 +152,7 @@ public class TripRepositoryTest {
     }
 
 
-    // missing bus timetable data??
-    @DisabledUntilDate(year = 2026, month = 10, day = 12)
+    @ClosuresAutumn2026
     @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {

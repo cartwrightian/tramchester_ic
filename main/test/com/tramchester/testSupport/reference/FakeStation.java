@@ -139,4 +139,8 @@ public interface FakeStation extends HasId<Station> {
     static IdSet<Station> IdSetOf(FakeStation... fakeStations) {
         return Arrays.stream(fakeStations).map(FakeStation::getId).collect(IdSet.idCollector());
     }
+
+    static <T extends FakeStation> Set<T> SetOf(T... fakeStations) {
+        return Arrays.stream(fakeStations).collect(Collectors.toSet());
+    }
 }

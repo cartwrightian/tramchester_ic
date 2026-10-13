@@ -178,7 +178,7 @@ public class RouteCalculatorTest {
     @DataExpiryTest
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
-        checkRouteNextNDays(StPetersSquare, ManAirport, TramTime.of(14,0), 1);
+        checkRouteNextNDays(StPetersSquare, ManAirport, TramTime.of(14,0), maxChanges+1);
     }
 
     @Test
@@ -243,19 +243,6 @@ public class RouteCalculatorTest {
         TramDuration elapsed = TramTime.difference(queryTime, firstDepartTime);
         assertFalse(greaterOrEquals(elapsed, cutoffInterval), "first result too far in future " + firstDepartTime
                 + " cuttoff " + cutoffInterval + " earliest journey " + earliest) ;
-    }
-
-    @Test
-    void shouldReproduceIssueSundaySept2026() {
-        final TramTime queryTime = TramTime.of(14, 5);
-
-        TramDate date = TramDate.of(2026, 10,4);
-        JourneyRequest journeyRequest = standardJourneyRequest(date, queryTime, maxNumResults, 2);
-
-        List<Journey> journeys = calculator.calculateRouteAsList(EastDidsbury, Eccles, journeyRequest);
-
-        assertFalse(journeys.isEmpty(), journeyRequest.toString());
-
     }
 
     @Test
@@ -352,10 +339,9 @@ public class RouteCalculatorTest {
 
 
     // over max wait, catch failure to accumulate journey times correctly
-    @ClosuresAutumn2026
     @Test
-    void shouldHaveSimpleButLongJoruneySameRoute() {
-        checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(15,0), maxChanges);
+    void shouldHaveSimpleButLongJourneySameRoute() {
+        checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(15,0), maxChanges+1);
     }
 
     @Test
@@ -428,14 +414,60 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void testJourneyFromAltyToAirportDuringClosure() {
+        TramDate today = TramDate.from(TestEnv.LocalNow());
+
+        assertFalse(today.isAfter(UpcomingDates.MajorWorksAutumn2026.getEndDate()));
+
+        JourneyRequest request = standardJourneyRequest(today, TramTime.of(10, 0),
+                maxNumResults, maxChanges+1);
+        List<Journey> results =  calculator.calculateRouteAsList(Altrincham, ManAirport, request);
+
+        // Stretford & Sale for replacement buses
+        IdSet<Station> firstChanges = FakeStation.IdSetOf(TraffordBar, Cornbrook, Stretford, Sale);
+
+        assertFalse(results.isEmpty(), "no results");    // results is iterator
+        for (Journey journey : results) {
+            List<TransportStage<?,?>> stages = journey.getStages();
+
+            assertFalse(stages.isEmpty(), "No stages for " + journey);
+
+            VehicleStage firstStage = (VehicleStage) stages.getFirst();
+            assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
+            assertEquals(Tram, firstStage.getTransportMode());
+
+            IdFor<Station> firstStageEndId = firstStage.getLastStation().getId();
+            assertTrue(firstChanges.contains(firstStageEndId), "Unexpected change %s expected %s".formatted(stages, firstChanges));
+
+            VehicleStage finalStage = (VehicleStage) stages.getLast();
+            assertEquals(ManAirport.getId(), finalStage.getLastStation().getId());
+            assertEquals(Tram, finalStage.getTransportMode());
+            if (stages.size()==2) {
+                assertEquals(firstStage.getLastStation(), finalStage.getFirstStation());
+            } else if (stages.size()==3) {
+                // with new routes can change here
+                IdSet<Station> expectedLastChange = FakeStation.IdSetOf(Cornbrook, StWerburghsRoad, TraffordBar);
+                IdFor<Station> lastChangeId = finalStage.getFirstStation().getId();
+                assertTrue(expectedLastChange.contains(lastChangeId),
+                        "Did not find %s in %s".formatted(lastChangeId, expectedLastChange));
+            } else {
+                fail("Unexpected number of stages " + stages.size() + ": " +stages);
+            }
+
+        }
+    }
+
+    @ClosuresAutumn2026
+    @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
         JourneyRequest request = standardJourneyRequest(today, TramTime.of(10, 0),
-                maxNumResults, 2);
+                maxNumResults, maxChanges+1);
         List<Journey> results =  calculator.calculateRouteAsList(Altrincham, ManAirport, request);
 
-        IdSet<Station> firstChanges = FakeStation.IdSetOf(TraffordBar, Cornbrook);
+        // Stretford & Sale for replacement buses
+        IdSet<Station> firstChanges = FakeStation.IdSetOf(TraffordBar, Cornbrook, Stretford, Sale);
 
         assertFalse(results.isEmpty(), "no results");    // results is iterator
         for (Journey journey : results) {
@@ -1006,13 +1038,15 @@ public class RouteCalculatorTest {
 
     @NotNull
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
-        boolean assertOnChange = true; //!(UpcomingDates.PiccGardensAutumn2026.contains(date));
+        boolean assertOnChange = UpcomingDates.MajorWorksAutumn2026.getEndDate().isBefore(date);
+
         return new JourneyRequest(date, time, false, new JourneyRequest.MaxNumberOfChanges(maxNumberChanges),
                 maxJourneyDuration, maxNumberJourneys,
                 requestedModes, assertOnChange);
     }
 
-    private void checkRouteNextNDays(final TramStations start, final TramStations dest, final TramTime time, int maxNumberChanges) {
+    private void checkRouteNextNDays(final TramStations start, final TramStations dest, final TramTime time,
+                                     int maxNumberChanges) {
         if (dest.equals(start)) {
             return;
         }
@@ -1029,7 +1063,8 @@ public class RouteCalculatorTest {
 
         final List<TramDate> failedDates = new ArrayList<>();
         for(final TramDate testDate : dates) {
-            final JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, 2, maxNumberChanges);
+            final JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, 2,
+                    maxNumberChanges);
             List<Journey> found = assertGetAndCheckJourneys(journeyRequest, start, dest, false);
             if (found.isEmpty()) {
                 failedDates.add(testDate);

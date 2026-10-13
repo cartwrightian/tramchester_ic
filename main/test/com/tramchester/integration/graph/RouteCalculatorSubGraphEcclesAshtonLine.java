@@ -20,6 +20,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -114,6 +115,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveEcclesCornbrook() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
@@ -123,6 +125,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
                 "None found for " + request);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveBroadwayCornbrook() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(10, 50), false,
@@ -132,6 +135,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
                 "None found for " + request);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveBroadwayHarbourCity() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
@@ -169,6 +173,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, Cornbrook, request).isEmpty());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCornbrookEccles() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,

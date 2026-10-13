@@ -26,6 +26,7 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
@@ -41,6 +42,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,12 +82,15 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     // validated via TripRepositoryTest
-    public static TramTime EarliestTramTime = TramTime.of(4,28);
+    public static TramTime EarliestTramTime = TramTime.of(4,51);
 
     // TODO is this accurate?
     public static TramTime EarliestTrainTime = TramTime.of(0,1);
 
-    public static final String AltToPicBusLongName = "Piccadilly Station - Altrincham";
+    public static Set<TramStations> Autumn2026Connections = FakeStation.SetOf(Piccadilly, Firswood, MediaCityUK, Deansgate,
+            Sale, Wharfside, Stretford);
+
+    //public static final String AltToPicBusLongName = "Piccadilly Station - Altrincham";
 
     public static GraphDBType getDefaultDBTYpe() {
         return GraphDBType.InMemory;

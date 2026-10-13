@@ -81,33 +81,26 @@ public class InterchangesTramTest {
     @Test
     void shouldHaveExpectedTramInterchanges() {
 
-        Stream<TramStations> expectedTramStations = Stream.of(
+        Set<TramStations> expectedTramStations = Stream.of(
+                PiccadillyGardens,
+                MarketStreet,
                 TraffordBar,
                 Cornbrook,
-                StPetersSquare,
-                MarketStreet,
-                PiccadillyGardens,
-
-                Piccadilly,
-                //Etihad,
-
                 Victoria,
-                Shudehill,
+                StPetersSquare,
 
+                StWerburghsRoad,
                 Pomona,
                 Broadway,
                 HarbourCity,
-                MediaCityUK,
+                Shudehill,
+                MediaCityUK
 
-                // replacement buses
-                OldhamMumps, Westwood,
-                StWerburghsRoad,
+        ).collect(Collectors.toSet());
 
-                // autumn 2026 closures
-                Deansgate, Firswood, Wharfside, Stretford, Sale
-        );
+        expectedTramStations.addAll(TestEnv.Autumn2026Connections);
 
-        Set<Station> expectedStations = expectedTramStations.
+        Set<Station> expectedStations = expectedTramStations.stream().
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         final Set<Station> additional = AdditionalTramInterchanges.stations().

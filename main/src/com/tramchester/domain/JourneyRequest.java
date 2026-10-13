@@ -69,7 +69,8 @@ public class JourneyRequest {
         if (assertOnNumChanges) {
             final int limit = (requestedModes.size() == 1) ? 2 : 3;
             if (maxChanges.get() > limit) {
-                throw new RuntimeException("Finding out where it's too high, got " + maxChanges + " > " + limit + " " + requestedModes);
+                throw new RuntimeException("on %s Finding out where it's too high, got %s > %d %s"
+                        .formatted(date, maxChanges, limit, requestedModes));
             }
         }
 

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(DisabledUntilDateCondition.class)
-@DisabledUntilDate(year = 2026, month = 10, day = 12)
+@DisabledUntilDate(year = 2026, month = 10, day = 18)
 public @interface ClosuresAutumn2026 {
     // revisit this, bus route trips seems to be missing at the moment
 }

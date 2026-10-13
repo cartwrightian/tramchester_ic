@@ -89,18 +89,18 @@ class FindStationsByNumberLinksTramTest {
                 TraffordBar,
                 Cornbrook,
                 Victoria,
-                // summer 2026
-                StWerburghsRoad,
                 StPetersSquare,
+                // closures and timetable changes
+                StWerburghsRoad,
                 Pomona,
                 Broadway,
                 HarbourCity,
-                OldhamMumps,
-                Westwood,
-                Shudehill,
+                Shudehill
                 // Autumn 2026
-                Piccadilly, Firswood, MediaCityUK, Deansgate, Sale, Wharfside, Stretford
+                //Piccadilly, Firswood, MediaCityUK, Deansgate, Sale, Wharfside, Stretford
         );
+
+        TestEnv.Autumn2026Connections.forEach(fakeStation -> expected.add(fakeStation.getId()));
 
         ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);
 

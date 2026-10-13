@@ -191,13 +191,17 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> list = outboundLinks.toList();
 
-        assertEquals(1, list.size(), list.toString());
+        // replacement buses
+        assertEquals(1+1, list.size(), list.toString());
 
-        Set<IdFor<Station>> destinations = list.stream().
+        IdSet<Station> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(GraphNode::getStationId).collect(Collectors.toSet());
+                map(GraphNode::getStationId).collect(IdSet.idCollector());
 
-        assertTrue(destinations.contains(NavigationRoad.getId()));
+        assertTrue(destinations.contains(NavigationRoad.getId()), "not found in destinations " + destinations);
+
+        assertTrue(destinations.contains(Piccadilly.getId()), "not found in destinations " + destinations);
+
     }
 
     @Test
@@ -773,7 +777,7 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> largest = findLargest.get();
 
-        assertEquals(2010, largest.size());
+        assertEquals(1860, largest.size());
 
         RouteStationId routeStationId = (RouteStationId) largest.getFirst().getEndNode(txn).getRouteStationId();
 
