@@ -23,7 +23,7 @@ public enum BusStations implements FakeStation, HasId<Station> {
             new LatLong(53.30245, -2.37551)),
     BuryInterchange("1800BYIC0B1", "Bury Interchange (Stand B), Bury",
             new LatLong(53.59134, -2.29706)),
-    PiccadilyStationStopA("1800EB01201", "Manchester Piccadilly Rail Station (Stop A London Road), Manchester City Centre, Manchester",
+    PiccadilyStationStopA("1800EB01201", "Piccadilly Station (Stop A London Road), Manchester City Centre, Manchester",
             new LatLong(53.47683, -2.23146)),
     PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens (Stop H Parker Street), Piccadilly Gardens, Manchester City Centre",
             new LatLong(53.48063,-2.23825)),
