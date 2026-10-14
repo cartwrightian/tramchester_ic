@@ -3,7 +3,6 @@ package com.tramchester.config;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -204,9 +203,9 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return getRail()!=null;
     }
 
-    public boolean onlyMarkedInterchange(Station station) {
-        DataSourceID sourceId = station.getDataSourceID();
-        TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
+    public boolean onlyMarkedInterchanges(final DataSourceID dataSourceID) {
+        //final DataSourceID sourceId = station.getDataSourceID();
+        final TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(dataSourceID);
         return sourceConfig.getOnlyMarkedInterchanges();
     }
 

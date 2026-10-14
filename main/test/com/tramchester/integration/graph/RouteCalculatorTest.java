@@ -690,6 +690,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldProvideASpreadOfDepartureTimes() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(14, 50),

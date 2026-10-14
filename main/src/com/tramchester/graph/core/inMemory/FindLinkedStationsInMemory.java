@@ -56,7 +56,7 @@ public class FindLinkedStationsInMemory extends FindLinkedStations {
             final Stream<GraphNode> nodes = txn.findNodes(STATION).
                     filter(node -> node.hasLabel(forMode)).
                     filter(node -> node.hasRelationship(txn, Outgoing, LINKED)).
-                    filter(node -> node.getRelationships(txn, Outgoing, LINKED).count()>=threshhold);
+                    filter(node -> node.getRelationships(txn, Outgoing, LINKED).count() >= threshhold);
 
             return nodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
 

@@ -85,11 +85,12 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                                     final JourneyStateUpdate journeyState, final TramDuration cost,
                                     final boolean viaDiversion) {
 
+        // TODO If interchange need to check if valid for current date
         final boolean isInterchange = originalLabels.contains(INTERCHANGE);
         final boolean hasPlatforms = originalLabels.contains(HAS_PLATFORMS);
 
         // TODO assumption here that performance is ok as using EnumSet for these operations
-        GraphLabels otherLabels = originalLabels.without(TransportModesLabels);
+        final GraphLabels otherLabels = originalLabels.without(TransportModesLabels);
 
         final GraphLabel actualNodeType;
         final int numLabels = otherLabels.size();
@@ -142,10 +143,12 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 return toWalk(traversalStateFactory.getTowardsWalk(stateType), node, cost, journeyStateUpdate);
             }
             case RouteStationStateOnTrip -> {
-                return toRouteStationOnTrip(traversalStateFactory.getTowardsRouteStationOnTrip(stateType), journeyStateUpdate, node, cost, isInterchange);
+                return toRouteStationOnTrip(traversalStateFactory.getTowardsRouteStationOnTrip(stateType),
+                        journeyStateUpdate, node, cost, isInterchange);
             }
             case RouteStationStateEndTrip -> {
-                return toRouteStationEndTrip(traversalStateFactory.getTowardsRouteStationEndTrip(stateType), journeyStateUpdate, node, cost, isInterchange);
+                return toRouteStationEndTrip(traversalStateFactory.getTowardsRouteStationEndTrip(stateType),
+                        journeyStateUpdate, node, cost, isInterchange);
             }
             case JustBoardedState -> {
                 return toJustBoarded(traversalStateFactory.getTowardsJustBoarded(stateType), node, cost, journeyStateUpdate);

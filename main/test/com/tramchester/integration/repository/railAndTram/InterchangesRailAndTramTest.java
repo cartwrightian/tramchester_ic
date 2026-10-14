@@ -73,7 +73,7 @@ class InterchangesRailAndTramTest {
     void shouldHaveExpectedConfig() {
         assertTrue(config.getRail().getOnlyMarkedInterchanges());
         Station station = getStation(RailStationIds.ManchesterPiccadilly);
-        assertTrue(config.onlyMarkedInterchange(station));
+        assertTrue(config.onlyMarkedInterchanges(station.getDataSourceID()));
     }
 
     @Test

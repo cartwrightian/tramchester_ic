@@ -67,14 +67,15 @@ public class Interchanges implements InterchangeRepository {
 
     @PostConstruct
     public void start() {
-        Set<TransportMode> enabledModes = config.getTransportModes();
+        /// NOTE: started after station & links built in DB but before full graph build
+        final ImmutableEnumSet<TransportMode> enabledModes = config.getTransportModesImmutable();
 
         logger.info("Starting for " + enabledModes);
 
         enabledModes.forEach(this::addMarkedStations);
 
         enabledModes.stream().filter(this::discoveryEnabled).forEach(mode -> {
-            int linkThreshhold = getLinkThreshhold(mode);
+            final int linkThreshhold = getLinkThreshhold(mode);
             populateInterchangesFor(mode, linkThreshhold);
         });
 
@@ -144,20 +145,24 @@ public class Interchanges implements InterchangeRepository {
         final ImmutableIdSet<Station> rawIds = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
 
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
-        Set<Station> foundViaLinks = rawIds.stream().
+        final Set<Station> foundViaLinks = rawIds.stream().
                 map(stationRepository::getStationById).
-                 filter(station -> !station.isMarkedInterchange()).
-                filter(station -> !config.onlyMarkedInterchange(station)).
+                filter(station -> !station.isMarkedInterchange()).
+                filter(station -> !config.onlyMarkedInterchanges(station.getDataSourceID())).
                 collect(Collectors.toSet());
-        logger.info(format("Added %s interchanges for %s and link threshold %s interchanges %s", foundViaLinks.size(), mode, linkThreshhold,
+
+        // TODO Need to ID date ranges when should be used as an interchange
+
+        logger.info(format("Adding %s interchanges for %s and link threshold %s interchanges %s", foundViaLinks.size(), mode, linkThreshhold,
                 HasId.asIds(foundViaLinks)));
         addStations(foundViaLinks, InterchangeType.NumberOfLinks);
     }
 
     private void addMarkedStations(final TransportMode mode) {
         logger.info("Adding stations marked as interchanges");
-        final Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).
-                stream().filter(Station::isMarkedInterchange).collect(Collectors.toSet());
+        final Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).stream().
+                filter(Station::isMarkedInterchange).
+                collect(Collectors.toSet());
         addStations(markedAsInterchange, InterchangeType.FromSourceData);
         logger.info(format("Added %s %s stations marked as as interchange", markedAsInterchange.size(), mode));
     }

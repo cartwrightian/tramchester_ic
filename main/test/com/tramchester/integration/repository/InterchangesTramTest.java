@@ -24,11 +24,13 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.MultiMode;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -181,26 +183,6 @@ public class InterchangesTramTest {
         interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
     }
 
-    @Disabled("WIP, allow naptan change check in")
-    @Test
-    void shouldNotHaveAdditionalInterchangesAfter19August2020() {
-        LocalDate currentDay = LocalDate.now();
-
-        // changes to 30th, still in the data....
-        LocalDate cutoffDate = LocalDate.of(2022, 8, 30);
-
-        if (currentDay.isAfter(cutoffDate)) {
-            Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
-            IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
-
-            assertFalse(stationIds.contains(Whitefield.getId()));
-            assertFalse(stationIds.contains(Altrincham.getId()));
-
-            // should be   [9400ZZMAGMX, 9400ZZMAPIC] in config
-        }
-
-    }
-
     @Test
     void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
         TramDate date = TestEnv.testDay();
@@ -224,6 +206,7 @@ public class InterchangesTramTest {
         TramDate date = TestEnv.testDay();
 
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+
         Set<Route> dropOffRoutes = interchanges.stream().
                 flatMap(interchangeStation -> interchangeStation.getDropoffRoutes().stream()).
                 filter(route -> route.isAvailableOn(date)).

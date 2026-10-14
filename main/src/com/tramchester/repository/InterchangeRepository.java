@@ -13,8 +13,11 @@ import java.util.stream.Stream;
 
 @ImplementedBy(Interchanges.class)
 public interface InterchangeRepository {
+
     boolean isInterchange(Location<?> location);
+
     Set<InterchangeStation> getAllInterchanges();
+
     int size();
 
     InterchangeStation getInterchange(Location<?> location);

@@ -242,24 +242,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             final MutableGraphRelationship existingLinked = from.getSingleRelationshipMutable(txn, LINKED, Outgoing, end);
             existingLinked.addTransportMode(mode);
 
-//            final List<MutableGraphRelationship> allLinked = from.getRelationshipsMutable(txn, Outgoing, LINKED).toList();
-//
-//            final Optional<MutableGraphRelationship> findToNode = allLinked.stream().
-//                    filter(relation -> relation.getEndNode(txn).equals(end)).
-//                    findFirst();
-//
-//            if (findToNode.isPresent()) {
-//                final MutableGraphRelationship existingLinked = findToNode.get();
-//                existingLinked.addTransportMode(mode);
-//            } else {
-//                // for debug
-//                // from.hasRelationship(txn, Outgoing, LINKED, end);
-//                final List<GraphRelationship> relationships = from.getRelationships(txn, Outgoing, LINKED).toList();
-//                String msg = "Failed to fetch existing LINKED from " + from + " to "
-//                        + end + " within " + relationships;
-//                logger.error(msg);
-//                throw new RuntimeException(msg);
-//            }
         } else {
             // else create new
             final MutableGraphRelationship stationsLinked = createRelationship(txn, from, end, LINKED);
@@ -274,8 +256,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             platformNode.set(platform);
             platformNode.set(station);
             platformNode.setPlatformNumber(platform);
-            // no longer needed?
-            //setTransportMode(station, platformNode);
 
             stationAndPlatformNodeCache.putPlatform(platform.getId(), platformNode);
         }
@@ -311,22 +291,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         routeStationNodeCache.putRouteStation(routeStation.getId(), routeStationNode);
         return routeStationNode;
     }
-
-//    private void setTransportMode(final Station station, final MutableGraphNode node) {
-//        Set<TransportMode> modes = station.getTransportModes();
-//        if (modes.isEmpty()) {
-//            logger.error("No transport modes set for " + station.getId());
-//            return;
-//        }
-//        if (modes.size()==1) {
-//            TransportMode first = modes.iterator().next();
-//            node.setTransportMode(first);
-////            setProperty(node, first);
-//        } else {
-//            logger.error(format("Unable to set transportmode property, more than one mode (%s) for %s",
-//                    modes, station.getId()));
-//        }
-//    }
 
     public static class Ready {
         private Ready() {

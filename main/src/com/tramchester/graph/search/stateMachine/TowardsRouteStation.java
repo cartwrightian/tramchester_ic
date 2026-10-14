@@ -37,6 +37,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         final Stream<GraphRelationship> outboundsToFollow;
         if (interchangesOnly) {
             if (isInterchange) {
+                // TODO Check valid for the date?
                 outboundsToFollow = node.getRelationships(txn, GraphDirection.Outgoing, INTERCHANGE_DEPART);
             } else {
                 outboundsToFollow = Stream.empty();
