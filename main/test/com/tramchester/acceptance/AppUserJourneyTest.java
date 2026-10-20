@@ -16,6 +16,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
@@ -246,7 +247,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
             assertTrue(currentArrivalTime.isValid());
             assertTrue(result.getDepartTime().isValid());
             assertTrue(currentArrivalTime.isAfter(result.getDepartTime()), "arrived before depart");
-            assertEquals("Direct", result.getChanges());
+//            assertEquals("Direct", result.getChanges());
+            assertEquals("Piccadilly", result.getChanges());
             previous = currentArrivalTime;
         }
 
@@ -257,16 +259,18 @@ public class AppUserJourneyTest extends UserJourneyTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        assertEquals(1, stages.size());
+        assertEquals(1+1, stages.size());
         Stage stage = stages.getFirst();
 
         Set<String> headSigns = new HashSet<>(Arrays.asList(Bury.getName(), Piccadilly.getName(),
                 "Bury via Market Street & Victoria", Crumpsal.getName(), Etihad.getName()));
         Set<TramTime> departTimes = Collections.singleton(firstResult.getDepartTime());
-        String expectedAction = "Board Tram";
+//        String expectedAction = "Board Tram";
+        String expectedAction = "Board Bus";
+
         validateAStage(stage, departTimes, expectedAction, Altrincham.getName(),
                 Collections.singletonList(1),
-                headSigns, 9);
+                headSigns, 9-9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -401,7 +405,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 
-    @DisabledUntilDate(year = 2026, month = 9, day = 26)
+    @DisabledUntilDate(year = 2026, month = 10, day = 21)
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
@@ -415,7 +419,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
 
-        String twoChanges = String.format("%s, %s", TraffordBar.getName(), StWerburghsRoad.getName());
+        String twoChanges = String.format("%s, %s", Piccadilly.getName(), Firswood.getName());
 
         // add St Peters during closures
         final List<String> expectedChanges = Arrays.asList(TraffordBar.getName(), Cornbrook.getName(),
@@ -441,7 +445,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         // need to sort, otherwise unpredictable
         // also just check the 2 stage (can get 3 during closures and diversions)
         List<TestResultSummaryRow> sortedByDepartTime = results.stream().
-                filter(row -> row.getStages().size()==2).
+                filter(row -> row.getStages().size()==2+1).
                 sorted(Comparator.comparing(TestResultSummaryRow::getDepartTime)).toList();
 
         assertFalse(sortedByDepartTime.isEmpty(), "None matched from " + results);
@@ -453,12 +457,12 @@ public class AppUserJourneyTest extends UserJourneyTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        assertEquals(2, stages.size());
+        assertEquals(2+1, stages.size());
 
         Stage firstStage = stages.getFirst();
 
         Set<String> firstStageHeadsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(),
-                "Bury via Market Street & Victoria",Crumpsal.getName(), Etihad.getName()));
+                "Bury via Market Street & Victoria", Crumpsal.getName(), Etihad.getName()));
 
         TramTime firstDepartTime = firstResult.getDepartTime();
         validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", Altrincham.getName(),
@@ -483,6 +487,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     }
 
+    @ClosuresAutumn2026
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) throws IOException {
@@ -611,7 +616,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(action, stage.getAction(), "action");
         assertEquals(actionStation, stage.getActionStation(), "actionStation");
         assertTrue(platforms.contains(stage.getPlatform()), "platform");
-
 
         String stageHeadsign = stage.getHeadsign();
         assertTrue(headsigns.contains(stageHeadsign), "Wrong headsign, got '"+ stageHeadsign +"' but needed one of" + headsigns);

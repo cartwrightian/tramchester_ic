@@ -63,11 +63,11 @@ public class TestResultSummaryRow {
     }
 
     public List<Stage> getStages() {
-        List<Stage> stages = new ArrayList<>();
+        final List<Stage> stages = new ArrayList<>();
         // expand the row
         row.findElement(By.tagName("button")).click();
         // find the stages
-        WebElement stagesElement = parent.findElement(By.id("stages"));
+        final WebElement stagesElement = parent.findElement(By.id("stages"));
         List<WebElement> rows = stagesElement.findElements(By.className("stageSummary"));
         rows.forEach(row -> stages.add(new Stage(row)));
         return stages;

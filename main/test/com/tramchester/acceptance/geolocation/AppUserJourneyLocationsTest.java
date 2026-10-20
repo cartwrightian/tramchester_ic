@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourneyFromMyLocation;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -135,7 +134,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         // TODO to recent just bury, not alty
     }
 
-    // TODO Missing a test from a station to a locaion
+    // TODO Missing a test from a station to a location
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
@@ -163,7 +162,9 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
             assertTrue(arriveTime.isAfter(departTime), arriveTime.toString());
 //            assertEquals("Direct", result.getChanges());
             String changes = result.getChanges();
-            assertTrue(changes.equals(NavigationRoad.getName()) || changes.equals(Altrincham.getName()));
+//            assertTrue(changes.equals(NavigationRoad.getName()) || changes.equals(Altrincham.getName()),
+//                    "Changes not as expected " + changes);
+            assertEquals("Altrincham, Piccadilly", changes);
         }
 
         // select first journey - this seems to be inconsistent, not returning first displayed journey
@@ -173,7 +174,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        assertEquals(2, stages.size());
+        assertEquals(2+1, stages.size());
 
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
@@ -188,7 +189,9 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         final TramTime secondStageDepartTime = secondStage.getDepartTime();
         assertTrue(secondStageDepartTime.isAfter(firstStageDepartTime));
-        String expectedAction = "Board Tram";
+
+//        String expectedAction = "Board Tram";
+        String expectedAction = "Board Bus";
 
         assertEquals(expectedAction, secondStage.getAction(), "action wrong for " + stages);
         assertEquals(station, secondStage.getActionStation(), "action stations wrong");
