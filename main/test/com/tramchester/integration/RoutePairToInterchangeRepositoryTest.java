@@ -18,6 +18,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.FakeStation;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,8 +75,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
-        Route routeA = routeHelper.getBlue(date);
-        Route routeB = routeHelper.getRed(date);
+        Route routeA = routeHelper.getOneRoute(Navy, date);
+        Route routeB = routeHelper.getOneRoute(Pink, date);
 
         RoutePair routePair = RoutePair.of(routeA, routeB);
 
@@ -84,18 +86,19 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
+        assertTrue(stationIds.contains(Firswood.getId()), stationIds.toString());
 
         if (config.hasRailConfig()) {
             assertEquals(2, stationIds.size(), stationIds.toString());
             assertTrue(stationIds.contains(RailStationIds.ManchesterVictoria.getId()), stationIds.toString());
 
         } else {
-            assertEquals(1, stationIds.size(), stationIds.toString());
+            assertEquals(2, stationIds.size(), stationIds.toString());
         }
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
         Route routeA = routeHelper.getYellow(date);

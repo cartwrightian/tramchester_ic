@@ -2,12 +2,10 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -204,8 +202,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void createLinkRelationships(MutableGraphTransaction tx, final Route route, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
-        //  not give the correct results for buses and trains where time between station can vary depending upon the
-        //  service
+        //  not give the correct results for buses and trains where time between stations can vary depending upon the
+        //  service - Move to average cost?? Or High, Medium, Low? etc
         final Map<StationIdPair, TramDuration> pairs = new HashMap<>(); // (start, dest) -> cost
         route.getTrips().forEach(trip -> {
                 final StopCalls stops = trip.getStopCalls();
@@ -222,10 +220,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 });
             });
 
+        // TOOD Add services ids to links
+
         pairs.keySet().forEach(pair -> {
             final MutableGraphNode startNode = stationAndPlatformNodeCache.getStation(tx, pair.getBeginId());
             final MutableGraphNode endNode = stationAndPlatformNodeCache.getStation(tx, pair.getEndId());
-            createLinkRelationship(startNode, endNode, route.getTransportMode(), tx);
+            createLinkRelationship(startNode, endNode, route, tx);
         });
 
     }
@@ -234,18 +234,23 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode end, final TransportMode mode,
+    private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode end, final Route route,
                                         final MutableGraphTransaction txn) {
+
+        final TransportMode mode = route.getTransportMode();
+        final IdSet<Service> serviceIds = route.getServices().stream().collect(IdSet.collector());
 
         if (from.hasRelationship(txn, Outgoing, LINKED, end)) {
 
             final MutableGraphRelationship existingLinked = from.getSingleRelationshipMutable(txn, LINKED, Outgoing, end);
             existingLinked.addTransportMode(mode);
+            existingLinked.addServiceIds(serviceIds);
 
         } else {
             // else create new
             final MutableGraphRelationship stationsLinked = createRelationship(txn, from, end, LINKED);
             stationsLinked.addTransportMode(mode);
+            stationsLinked.setServiceIds(serviceIds);
         }
     }
 

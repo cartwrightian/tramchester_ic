@@ -17,6 +17,7 @@ public enum GraphPropertyKey {
     TRIP_ID_LIST("trip_id_list"),
     ROUTE_ID("route_id"),
     SERVICE_ID("service_id"),
+    SERVICE_ID_LIST("service_id_list"),
     TRANSPORT_MODE("transport_mode"),
     TRANSPORT_MODES("transport_modes"),
     AREA_ID("area_id"),

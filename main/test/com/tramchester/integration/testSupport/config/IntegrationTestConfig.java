@@ -19,7 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.testSupport.UpcomingDates.MediaCityToImperialWarMus;
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.ImperialWarMuseum;
+import static com.tramchester.testSupport.reference.TramStations.MediaCityUK;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -67,6 +68,10 @@ public abstract class IntegrationTestConfig extends TestConfig {
             List.of(
                     new TemporaryStationsWalkConfigForTest(StationIdPair.of(MediaCityUK, ImperialWarMuseum),
                             MediaCityToImperialWarMus)
+//                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(StPetersSquare, ExchangeSquare),
+//                            MajorWorksAutumn2026),
+//                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(StPetersSquare, PiccadillyGardens),
+//                            MajorWorksAutumn2026)
             );
 
     private final GraphDBTestConfig dbConfig;

@@ -155,6 +155,7 @@ public class Interchanges implements InterchangeRepository {
 
         logger.info(format("Adding %s interchanges for %s and link threshold %s interchanges %s", foundViaLinks.size(), mode, linkThreshhold,
                 HasId.asIds(foundViaLinks)));
+
         addStations(foundViaLinks, InterchangeType.NumberOfLinks);
     }
 

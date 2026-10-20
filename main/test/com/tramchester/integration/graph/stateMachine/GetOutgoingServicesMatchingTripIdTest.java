@@ -23,8 +23,8 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
-import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
+import static com.tramchester.domain.reference.TFGMRouteNames.Pink;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GetOutgoingServicesMatchingTripIdTest {
@@ -79,15 +79,15 @@ public class GetOutgoingServicesMatchingTripIdTest {
 
     @Test
     void shouldFindRelationshipsTowardsDestination() {
-        Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getGreen(when);
+        Station station = RochdaleRail.from(stationRepository);
+        Route route = tramRouteHelper.getOneRoute(Pink, when);
 
         GraphNode node = findRouteStation(station, route);
 
         List<Trip> callingTrips = route.getTrips().stream().
                 filter(trip -> trip.callsAt(station.getId())).
                 filter(trip -> !trip.lastStation().equals(station.getId())).
-                filter(trip -> trip.isAfter(station.getId(), Altrincham.getId())).
+                filter(trip -> trip.isAfter(station.getId(), Rochdale.getId())).
                 toList();
 
         assertTrue(callingTrips.size()>1);

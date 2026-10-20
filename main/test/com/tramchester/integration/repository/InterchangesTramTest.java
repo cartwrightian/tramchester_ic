@@ -23,6 +23,7 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -150,6 +151,7 @@ public class InterchangesTramTest {
         assertTrue(dropoffRoutes.contains(toEastDids), HasId.asIds(dropoffRoutes));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveSomeNotInterchanges() {
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
@@ -183,6 +185,7 @@ public class InterchangesTramTest {
         interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
         TramDate date = TestEnv.testDay();
@@ -231,6 +234,7 @@ public class InterchangesTramTest {
      * @see TramTrainNeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
      */
     @DisabledIf("isGMConfig")
+    @ClosuresAutumn2026
     @Test
     public void altrinchamNotAnInterchange() {
         Station station = stationRepository.getStationById(Altrincham.getId());

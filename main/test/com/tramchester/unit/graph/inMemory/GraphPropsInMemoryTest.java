@@ -2,10 +2,7 @@ package com.tramchester.unit.graph.inMemory;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.MutableRoute;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
@@ -226,6 +223,32 @@ public class GraphPropsInMemoryTest {
 
         assertEquals(begin, relationship.getStartTime());
         assertEquals(end, relationship.getEndTime());
+    }
+
+    @Test
+    void shouldSetServiceIds() {
+        MutableGraphRelationship relationship = createRelationship();
+
+        IdSet<Service> serviceIds = new IdSet<>();
+        serviceIds.add(Service.createId("svcA"));
+        serviceIds.add(Service.createId("svcB"));
+        serviceIds.add(Service.createId("svcC"));
+
+        relationship.setServiceIds(serviceIds);
+
+        ImmutableIdSet<Service> resultA = relationship.getServiceIds();
+        assertEquals(serviceIds, resultA);
+
+        IdSet<Service> moreServiceIds = new IdSet<>();
+        serviceIds.add(Service.createId("svcD"));
+        serviceIds.add(Service.createId("svcE"));
+        relationship.addServiceIds(moreServiceIds);
+
+        ImmutableIdSet<Service> resultB = relationship.getServiceIds();
+        assertEquals(serviceIds.size()+moreServiceIds.size(), resultB.size());
+        assertTrue(resultB.containsAll(serviceIds));
+        assertTrue(resultB.containsAll(moreServiceIds));
+
     }
 
 

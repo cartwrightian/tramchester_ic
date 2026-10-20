@@ -30,6 +30,7 @@ import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.FakeStation;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import com.tramchester.testSupport.testTags.TraffordCentreTramsFromCrumpsal2026;
@@ -100,6 +101,7 @@ public class RouteInterconnectRepositoryTest {
         modes = TransportMode.TramsOnly;
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -127,6 +129,7 @@ public class RouteInterconnectRepositoryTest {
         return routeHelper.getOneRoute(line, date);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -148,6 +151,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeNotOnDate() {
 
@@ -199,6 +203,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -327,6 +332,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldReproIssueWithGreenLineRoute() {
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);

@@ -34,6 +34,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +46,7 @@ import java.util.Optional;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ClosuresAutumn2026
 public class TraversalStateTest extends EasyMockSupport {
     private static GuiceContainerDependencies componentContainer;
     private static TramchesterConfig config;

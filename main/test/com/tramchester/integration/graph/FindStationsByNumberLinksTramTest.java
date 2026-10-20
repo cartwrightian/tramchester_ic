@@ -5,14 +5,21 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.Interchanges;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,6 +27,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -67,15 +76,50 @@ class FindStationsByNumberLinksTramTest {
 
         IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
 
-//        ImmutableIdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, additionalInterchanges);
-//
-//        assertTrue(inConfigAndStationsWithLinks.isEmpty(), "\nFound also in config " + inConfigAndStationsWithLinks +
-//                " \nstations with links were " + stationWithLinks);
-
         assertTrue(stationWithLinks.containsNoneOf(additionalInterchanges), "\nFound also in config " + additionalInterchanges +
                 " \nstations with links were " + stationWithLinks);
         assertTrue(additionalInterchanges.containsNoneOf(stationWithLinks), "\nFound also in config " + stationWithLinks +
                 " \nstations with links were " + additionalInterchanges);
+    }
+
+    @DisabledUntilDate(year = 2026, month = 10, day = 21)
+    @Test
+    void shouldGetDateRangeWhenOverThreshold() {
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+
+        Station station = Cornbrook.from(stationRepository);
+
+        // needs to have at least theshold links
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        assertTrue(interchangeRepository.isInterchange(station), "Not an interchange");
+
+        DateRange result = finder.dateRangeFor(station, threshold);
+
+        Set<Service> allServices = station.getDropoffRoutes().stream().
+                flatMap(route -> route.getServices().stream()).
+                collect(Collectors.toSet());
+
+        Set<ServiceCalendar> calendars = allServices.stream().map(Service::getCalendar).collect(Collectors.toSet());
+
+        calendars.forEach(calendar -> assertTrue(result.overlapsWith(calendar.getDateRange())));
+
+    }
+
+    @DisabledUntilDate(year = 2026, month = 10, day = 21)
+    @Test
+    void shouldGetDateRangeWhenOverThresholdWhileReplacementBuses() {
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+
+        Station station = Sale.from(stationRepository);
+
+        // needs to have at least threshold links
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        assertTrue(interchangeRepository.isInterchange(station), "Not an interchange");
+
+        DateRange result = finder.dateRangeFor(station, threshold);
+
+        assertEquals(UpcomingDates.MajorWorksAutumn2026, result);
+
     }
 
     @Test

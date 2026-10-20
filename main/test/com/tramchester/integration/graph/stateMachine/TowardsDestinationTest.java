@@ -20,6 +20,7 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -76,6 +77,7 @@ public class TowardsDestinationTest {
         }
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveDestinationIds() {
 
@@ -132,6 +134,7 @@ public class TowardsDestinationTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindRelationshipsTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
@@ -159,6 +162,7 @@ public class TowardsDestinationTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindNoRelationshipsIfNotTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
@@ -198,6 +202,7 @@ public class TowardsDestinationTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindRelationshipsTowardsDestinationGroupFromRouteStation() {
         Station station = StPetersSquare.from(stationRepository);

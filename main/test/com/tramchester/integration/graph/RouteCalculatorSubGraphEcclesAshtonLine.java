@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+@ClosuresAutumn2026
 class RouteCalculatorSubGraphEcclesLineSundayTest {
     private static ComponentContainer componentContainer;
 

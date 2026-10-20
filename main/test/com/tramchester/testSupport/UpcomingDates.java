@@ -39,8 +39,8 @@ public class UpcomingDates {
     public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 26),
             TramDate.of(2026, 11, 15));
 
-    public static DateRange MajorWorksAutumn2026 = DateRange.of(TramDate.of(2026, 10,17),
-            TramDate.of(2026, 11, 2));
+    public static DateRange MajorWorksAutumn2026 = DateRange.of(TramDate.of(2026, 10,19),
+            TramDate.of(2026, 11, 1));
 
     public static TramDate victoriaWorksOctober2026 = TramDate.of(2026, 10, 11);
     public static TimeRange victoriaWorksOctober2026TimeRange = TimeRange.of(TramTime.of(3,0),

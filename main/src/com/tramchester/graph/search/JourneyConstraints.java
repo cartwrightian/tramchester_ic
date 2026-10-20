@@ -55,7 +55,7 @@ public class JourneyConstraints {
 
         //this.maxNumberWalkingConnections = config.getMaxWalkingConnections();
 
-        this.closedStationsIds = closedStations.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
+        this.closedStationsIds = closedStations.stream().map(ClosedStation::getId).collect(IdSet.idCollector());
 
         if (!closedStationsIds.isEmpty()) {
             logger.info("Have closed stations " + closedStationsIds);
@@ -93,7 +93,7 @@ public class JourneyConstraints {
             return false;
         }
         return closedStations.stream().
-                filter(closedStation -> closedStation.getStationId().equals(stationId)).
+                filter(closedStation -> closedStation.getId().equals(stationId)).
                 allMatch(ClosedStation::closedWholeDay);
     }
 

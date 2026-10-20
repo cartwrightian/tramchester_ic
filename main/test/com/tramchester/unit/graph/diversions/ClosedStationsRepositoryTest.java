@@ -294,7 +294,7 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
         ClosedStation closed = closeStationRepository.getClosedStation(bury, when, timeRange);
         assertNotNull(closed);
-        assertEquals(bury.getId(), closed.getStationId());
+        assertEquals(bury.getId(), closed.getId());
         dateRange.stream().forEach(date -> {
             assertTrue(closed.getDateTimeRange().contains(date));
         });
@@ -318,7 +318,7 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
         ClosedStation closed = closeStationRepository.getClosedStation(station, when, timeRange);
         assertNotNull(closed);
-        assertEquals(station.getId(), closed.getStationId());
+        assertEquals(station.getId(), closed.getId());
         dateRange.stream().forEach(date -> {
             assertTrue(closed.getDateTimeRange().contains(date));
         });

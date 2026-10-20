@@ -26,6 +26,7 @@ import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownLocality;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.collections4.SetUtils;
@@ -74,6 +75,7 @@ public class StationRepositoryTest {
         when = TestEnv.testDay();
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getGreen(when);
@@ -113,7 +115,7 @@ public class StationRepositoryTest {
                 filter(name -> !name.isReplacementBus()).
                 collect(Collectors.toSet());
 
-        assertEquals(4, lines.size(), lines.toString());
+        assertEquals(4-2, lines.size(), lines.toString());
 
         assertFalse(lines.contains(Red), "Got " + Red.getShortName() + " in " + lines);
 
@@ -208,7 +210,7 @@ public class StationRepositoryTest {
 
         // platform
         assertTrue(station.hasPlatforms());
-        assertEquals(1, station.getPlatforms().size());
+        assertEquals(1+1, station.getPlatforms().size());
         final Optional<Platform> maybePlatformOne = station.getPlatforms().
                 stream().filter(platform -> platform.getId().equals(expectedId))
                 .findFirst();
@@ -265,6 +267,7 @@ public class StationRepositoryTest {
         assertTrue(pickups.containsAll(dropOffs));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedPickupAndDropoffForOneStation() {
         Station station = TraffordCentre.from(stationRepository);
@@ -368,6 +371,7 @@ public class StationRepositoryTest {
         assertTrue(wrongLen.isEmpty(), "Wrong length: " + wrongLen);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveOverlapRoutesForAshtonAndEtihad() {
         Station etihad = Etihad.from(stationRepository);

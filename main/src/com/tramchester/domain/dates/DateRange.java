@@ -8,9 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.mappers.serialisation.TramDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramDateJsonSerializer;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -48,6 +46,62 @@ public class DateRange {
 
     public static DateRange of(TramDate begin, int durationDays) {
         return of(begin, begin.plusDays(durationDays));
+    }
+
+    public static DateRange leastOverlap(final Set<DateRange> ranges) {
+        if (ranges.isEmpty()) {
+            throw new RuntimeException("Empty set");
+        }
+
+        final List<DateRange> sorted = new ArrayList<>(ranges);
+        if (ranges.size()==1) {
+            return sorted.getFirst();
+        }
+        // now sort, shortest range first
+        sorted.sort(Comparator.comparingLong(DateRange::numberOfDays));
+
+        final DateRange first = sorted.getFirst();
+        if (sorted.size()==1) {
+            return first;
+        }
+
+        DateRange result = first;
+        for (int i = 1; i < sorted.size(); i++) {
+            final DateRange next = sorted.get(i);
+            if (!result.overlapsWith(next)) {
+                throw new RuntimeException("no overlap between %s and %s from %s".formatted(result, next, ranges));
+            }
+            result = result.createOverlapWith(next);
+        }
+
+        return result;
+
+    }
+
+    /***
+     * Returns a new DateRange with only the overlap
+     * @param other the other DateRange to create the overlap with
+     * @return the DateRange where this and other overlap
+     * Throws if no overlap
+     */
+    public DateRange createOverlapWith(final DateRange other) {
+        if (!this.overlapsWith(other)) {
+            throw new RuntimeException("No overlap between %s and %s".formatted(this, other));
+        }
+        final TramDate overlapStart;
+        if (other.startDate.isAfter(startDate)) {
+            overlapStart = other.startDate;
+        } else {
+            overlapStart = startDate;
+        }
+        final TramDate overlapEnd;
+        if (other.endDate.isBefore(endDate)) {
+            overlapEnd = other.endDate;
+        } else {
+            overlapEnd = endDate;
+        }
+        return DateRange.of(overlapStart, overlapEnd);
+
     }
 
     public boolean contains(final TramDate queryDate) {

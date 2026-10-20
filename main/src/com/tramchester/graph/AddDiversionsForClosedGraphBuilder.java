@@ -145,16 +145,16 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
 
         closedStations.stream().
-                filter(closedStation -> graphFilter.shouldInclude(closedStation.getStationId())).
+                filter(closedStation -> graphFilter.shouldInclude(closedStation.getId())).
                 forEach(this::createWalks);
     }
 
     private void createWalks(final ClosedStation closedStation) {
-        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create diversions for " +closedStation.getStationId())) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create diversions for " +closedStation.getId())) {
             addDiversionsToAndFromClosed(txn, closedStation);
             final int added = addDiversionsAroundClosed(txn, closedStation);
             if (added==0) {
-                logger.warn("Did not create any diversions around closure of " + closedStation.getStationId());
+                logger.warn("Did not create any diversions around closure of " + closedStation.getId());
             }
             txn.commit();
         }
@@ -195,7 +195,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     }
 
     private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn, final ClosedStation closedStation) {
-        final Station actualStation = stationRepository.getStationById(closedStation.getStationId());
+        final Station actualStation = stationRepository.getStationById(closedStation.getId());
 
         final Set<Station> others = closedStation.getDiversionToFromClosure();
 

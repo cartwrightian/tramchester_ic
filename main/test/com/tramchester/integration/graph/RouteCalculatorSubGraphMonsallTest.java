@@ -17,6 +17,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -87,6 +88,7 @@ class RouteCalculatorSubGraphMonsallTest {
                 when, 1);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveEndToEnd() {
         validateNumberOfStages(EastDidsbury, Rochdale, TramTime.of(8,0), when, 1);

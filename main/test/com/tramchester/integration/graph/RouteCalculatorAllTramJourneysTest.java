@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,6 +26,7 @@ import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ClosuresAutumn2026
 @ExtendWith(ConfigParameterResolver.class)
 @MultiMode
 public class RouteCalculatorAllTramJourneysTest {

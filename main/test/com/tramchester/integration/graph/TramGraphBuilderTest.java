@@ -29,6 +29,7 @@ import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -101,19 +102,47 @@ class TramGraphBuilderTest {
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
         GraphNode cornbrookNode = txn.findNode(cornbrook);
-        Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, Outgoing, LINKED);
 
-        List<GraphRelationship> list = outboundLinks.toList();
+        List<GraphRelationship> relationships = cornbrookNode.getRelationships(txn, Outgoing, LINKED).toList();
 
-        assertEquals(3, list.size(), "Wrong number of outbounds " + list);
+        assertEquals(3, relationships.size(), "Wrong number of outbounds " + relationships);
 
-        Set<IdFor<Station>> destinations = list.stream().
+        Set<IdFor<Station>> destinations = relationships.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
                 map(GraphNode::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(TraffordBar.getId()), "missing from " + destinations);
         assertTrue(destinations.contains(Deansgate.getId()), "missing from " + destinations);
         assertTrue(destinations.contains(Pomona.getId()), "missing from " + destinations);
+    }
+
+    @Test
+    void shouldHaveCorrectServiceIdsOnLinks() {
+        Station cornbrook = Cornbrook.from(stationRepository);
+        GraphNode cornbrookNode = txn.findNode(cornbrook);
+
+        Set<Route> routesToTraffordBar = cornbrook.getPickupRoutes().stream().
+                filter(route -> route.getTrips().stream().anyMatch(trip -> trip.callsAt(TraffordBar.getId()))).
+                collect(Collectors.toSet());
+
+        assertFalse(routesToTraffordBar.isEmpty());
+
+        IdSet<Service> serviceIds = routesToTraffordBar.stream().
+                flatMap(route -> route.getServices().stream()).
+                collect(IdSet.collector());
+
+        Optional<GraphRelationship> findToTraffordBar = cornbrookNode.getRelationships(txn, Outgoing, LINKED).
+                filter(rel -> rel.getEndNode(txn).getStationId().equals(TraffordBar.getId())).
+                findFirst();
+
+        assertFalse(findToTraffordBar.isEmpty());
+
+        GraphRelationship toTraffordBar = findToTraffordBar.get();
+        IdSet<Service> results = toTraffordBar.getServiceIds();
+
+        IdSet<Service> mismatch = IdSet.disjunction(results, serviceIds);
+        assertTrue(mismatch.isEmpty(), "Got mismatch %s between link \n%s and expected\n %s".
+                formatted(mismatch, results, serviceIds));
     }
 
     @Test
@@ -192,7 +221,7 @@ class TramGraphBuilderTest {
         List<GraphRelationship> list = outboundLinks.toList();
 
         // replacement buses
-        assertEquals(1+1, list.size(), list.toString());
+        assertEquals(1+2, list.size(), list.toString());
 
         IdSet<Station> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -252,6 +281,7 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(Timperley.getId()));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -292,6 +322,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectOutboundsServiceAndTripAtCornbrook() {
 
@@ -321,6 +352,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -590,6 +622,7 @@ class TramGraphBuilderTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -647,6 +680,7 @@ class TramGraphBuilderTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveEndOfTripAtEndOfLineStation() {
         Station bury = Bury.from(stationRepository);
@@ -690,6 +724,7 @@ class TramGraphBuilderTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectRelationshipsForServicesAtCornbrook() {
 
@@ -777,7 +812,7 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> largest = findLargest.get();
 
-        assertEquals(1860, largest.size());
+        assertEquals(2344, largest.size());
 
         RouteStationId routeStationId = (RouteStationId) largest.getFirst().getEndNode(txn).getRouteStationId();
 
@@ -794,6 +829,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveSameOutboundTripIdsForNeighbouringRouteStationWhenSameRouteAndSvc() {
         // outbound from manchester Timperley then Brooklands (not navigation road since some services "turn around" at timperley)
@@ -876,6 +912,7 @@ class TramGraphBuilderTest {
                 collect(IdSet.collector());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
@@ -891,6 +928,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
@@ -901,6 +939,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
@@ -924,7 +963,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(21D, Math.ceil(percentage));
+        assertEquals(22D, Math.ceil(percentage));
     }
 
     @Test
@@ -953,6 +992,7 @@ class TramGraphBuilderTest {
         assertEquals(txn.numberOf(TO_MINUTE), txn.numberOf(TO_MINUTE_ON_TRIP));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveLongTermWalkingDiversionsNearMediaCity() {
         TemporaryStationWalksRepository walksRepository = componentContainer.get(TemporaryStationWalksRepository.class);
@@ -1079,7 +1119,7 @@ class TramGraphBuilderTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void checkInboundConsistency(TramStations tramStation, TFGMRouteNames knownRoute) {
+    private void checkInboundConsistency(final TramStations tramStation, final TFGMRouteNames knownRoute) {
         Route route = tramRouteHelper.getOneRoute(knownRoute, when);
         Station station = tramStation.from(stationRepository);
 

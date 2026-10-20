@@ -6,7 +6,6 @@ import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
@@ -22,6 +21,7 @@ import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ class SubgraphSmallStationWalksTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
 
-        StationIdPair stationIdPair = new StationIdPair(Piccadilly.getId(), PiccadillyGardens.getId());
+        //StationIdPair stationIdPair = new StationIdPair(Piccadilly.getId(), PiccadillyGardens.getId());
 
         DateRange dateRange = DateRange.of(when.minusWeeks(1), when.plusWeeks(1));
 //        TemporaryStationsWalkIds temporaryStationsWalkA = new TemporaryStationsWalkConfigForTest(stationIdPair,
@@ -109,6 +109,7 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindRouteUsingWalkCornbrookToPicc() {
 
@@ -127,6 +128,7 @@ class SubgraphSmallStationWalksTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindRouteUsingWalkPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

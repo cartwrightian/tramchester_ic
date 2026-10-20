@@ -77,6 +77,7 @@ public class RouteRepositoryTest {
         assertTrue(TransportMode.isTram(result));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedRoutesAtDeansgate() {
 
@@ -114,6 +115,7 @@ public class RouteRepositoryTest {
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldNotHaveRedRouteServingShudehill() {
         Route red = routeHelper.getOneRoute(Red, when);
@@ -148,6 +150,7 @@ public class RouteRepositoryTest {
         assertEquals(toVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
         Route fromBuryToAltrincham = routeHelper.getOneRoute(Green, when);
@@ -169,7 +172,7 @@ public class RouteRepositoryTest {
                 collect(IdSet.collector());
 
         // closures summer 2026
-        assertEquals(8-1, running.size());
+        assertEquals(8+1, running.size());
 
     }
 
@@ -184,7 +187,7 @@ public class RouteRepositoryTest {
                 filter(RouteRepositoryTest::isReplacementBus).
                 collect(IdSet.collector());
 
-        assertEquals(0, running.size());
+        assertEquals(5, running.size());
 
     }
 
@@ -257,6 +260,7 @@ public class RouteRepositoryTest {
                 findFirst();
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
@@ -272,6 +276,7 @@ public class RouteRepositoryTest {
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldReproduceIssuesStPetersSquareSept2026() {
 
@@ -306,6 +311,7 @@ public class RouteRepositoryTest {
         return SetUtils.intersection(pickupAvailable, dropoffAvailable);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
@@ -349,6 +355,40 @@ public class RouteRepositoryTest {
 
         assertTrue(cornbrookPickups.contains(victoriaToAirport), pickupDiag);
         assertTrue(cornbrookDropofss.contains(victoriaToAirport), dropoffDiag);
+
+    }
+
+    @Test
+    void shouldHaveExpectedRoutesAtCornbrookDuringClosue() {
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
+
+        Station cornbrook = Cornbrook.from(stationRepository);
+
+        TramDate date = TestEnv.testDay();
+
+        Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().
+                filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+
+        Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().
+                filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+
+        assertEquals(2  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
+        assertEquals(1 , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
+
+        String diagnostics = "Missing on " + when + " got ";
+        String pickupDiag = diagnostics + HasId.asIds(cornbrookPickups);
+        String dropoffDiag = diagnostics + HasId.asIds(cornbrookDropofss);
+
+        Route buryToAlty = tramRouteHelper.getOneRoute(Pink, when);
+
+        assertTrue(cornbrookPickups.contains(buryToAlty), pickupDiag);
+        assertTrue(cornbrookDropofss.contains(buryToAlty), dropoffDiag);
+
+        // was Blue, now Yellow
+        Route toMediaCity = tramRouteHelper.getOneRoute(PiccadillyMediaCity, when);
+
+        assertTrue(cornbrookPickups.contains(toMediaCity), pickupDiag);
+
 
     }
 

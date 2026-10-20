@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
-import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
+import static com.tramchester.testSupport.reference.TramStations.Rochdale;
+import static com.tramchester.testSupport.reference.TramStations.RochdaleRail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -61,21 +61,22 @@ class RouteReachableTramTest {
     void shouldTestGetRoutesFromStartToNeighbour() {
 
         TramDate when = TestEnv.testDay();
-        Station start = stationRepository.getStationById(Altrincham.getId());
-        Station next = stationRepository.getStationById(NavigationRoad.getId());
+        Station start = stationRepository.getStationById(Rochdale.getId());
+        Station next = stationRepository.getStationById(RochdaleRail.getId());
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,30), TramDuration.ofMinutes(30), TramDuration.ofMinutes(30));
         List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange, TransportMode.TramsOnly);
 
         IdSet<Route> routeIds = results.stream().collect(IdSet.collector());
 
-        assertEquals(2, routeIds.size(), routeIds.toString());
+        assertEquals(1, routeIds.size(), routeIds.toString());
 
         Set<TFGMRouteNames> routeNames = routeIds.stream().map(routeId -> (TramRouteId) routeId).
                 map(TramRouteId::getRouteName).collect(Collectors.toSet());
 
-        assertTrue(routeNames.contains(TFGMRouteNames.Green), "Did not find in " + routeNames);
-        assertTrue(routeNames.contains(TFGMRouteNames.Purple), "Did not find in " + routeNames);
+        assertTrue(routeNames.contains(TFGMRouteNames.Pink), "Did not find in " + routeNames);
+//        assertTrue(routeNames.contains(TFGMRouteNames.Green), "Did not find in " + routeNames);
+//        assertTrue(routeNames.contains(TFGMRouteNames.Purple), "Did not find in " + routeNames);
     }
 
 

@@ -78,6 +78,7 @@ public class TripRepositoryTest {
     }
 
     // to get diagnose issues with new GTFS data and no journeys alty to Navigation Rd post midnight
+    @ClosuresAutumn2026
     @Test
     void shouldHaveTripsFromAltrinchamPostMidnight() {
         Set<Trip> fromAlty = tripRepository.getTrips().stream().
@@ -120,17 +121,10 @@ public class TripRepositoryTest {
         assertFalse(routes.isEmpty());
 
         // +1 replacement bus
-        assertEquals(3, routes.size(), HasId.asIds(routes));
+        assertEquals(2, routes.size(), HasId.asIds(routes));
 
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
         assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when)));
-
-//        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
-//
-//        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
-//
-//        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
 
     }
 
@@ -213,6 +207,7 @@ public class TripRepositoryTest {
         assertTrue(missing.isEmpty(), missing.toString());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveCorrectTimeForStopLegs() {
         Set<Trip> trips = tripRepository.getTripsCallingAt(NavigationRoad.from(stationRepository), when);
@@ -256,6 +251,7 @@ public class TripRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveTripsForSundayMorningAtBroadway() {
         //TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
@@ -298,6 +294,7 @@ public class TripRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Cornbrook);
@@ -341,6 +338,7 @@ public class TripRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveSundayTripsFromCornbrook() {
         ServiceRepository serviceRepository = componentContainer.get(ServiceRepository.class);

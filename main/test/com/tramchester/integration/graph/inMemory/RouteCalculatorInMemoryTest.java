@@ -18,6 +18,7 @@ import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -71,11 +72,13 @@ public class RouteCalculatorInMemoryTest {
         txn.close();
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveConsistentPathsDirect() {
         testForConsistency(NavigationRoad, TraffordBar);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveJourneyFromExchangeSquareToMediaCity() {
 

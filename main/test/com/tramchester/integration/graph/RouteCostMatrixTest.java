@@ -18,6 +18,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.*;
@@ -76,6 +77,7 @@ public class RouteCostMatrixTest {
         date = TestEnv.testDay();
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedIndexWhereDirectInterchangePossible() {
         Route routeA = routeHelper.getGreen(date);
@@ -85,6 +87,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getYellow(date);
@@ -95,6 +98,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedIndexForEcclesRouteOntoAltyRoute() {
         Route routeA = routeHelper.getBlue(date);
@@ -113,6 +117,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedIndexPinkYellowDuringClosure() {
         Route routeA = routeHelper.getPink(date);
@@ -122,6 +127,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedIndexForEcclesRouteFromAltyRoute() {
         Route routeA = routeHelper.getGreen(date);
@@ -131,6 +137,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldGetBitsSetIfAlreadySetForLowerDepth() {
         Route routeA = routeHelper.getRed(date);

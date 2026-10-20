@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,14 +58,15 @@ class StationAdjacencyRepositoryTest {
     }
 
     @Test
-    void shouldGiveCorrectCostForAdjacencyAltyNavigationRoad() {
+    void shouldGiveCorrectCostForAdjacency() {
 
-        assertMinutesEquals(3, repository.getAdjacent(StationIdPair.of(Altrincham, NavigationRoad), date, timeRange));
+        assertMinutesEquals(4, repository.getAdjacent(StationIdPair.of(Rochdale, RochdaleRail), date, timeRange));
 
         TramDuration adjacent = repository.getAdjacent(StationIdPair.of(NavigationRoad, Cornbrook), date, timeRange);
         assertFalse(adjacent.isValid());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldGiveCorrectCostForAdjacencyCornbrookDeansgate() {
 
@@ -73,6 +75,7 @@ class StationAdjacencyRepositoryTest {
         assertEquals(TramDuration.ofMinutes(3), duration.truncateToMinutes());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldGiveCorrectCostForAdjacencyDeansgateCornbrook() {
         StationIdPair stationPair = StationIdPair.of(Deansgate, Cornbrook);
@@ -83,7 +86,7 @@ class StationAdjacencyRepositoryTest {
     @Test
     void shouldHavePairsOfStations() {
         Set<StationPair> pairs = repository.getTramStationParis(date);
-        IdFor<Station> stationId = NavigationRoad.getId();
+        IdFor<Station> stationId = RochdaleRail.getId();
 
         List<StationPair> results = pairs.stream().
                 filter(pair -> pair.getBegin().getId().equals(stationId) ||

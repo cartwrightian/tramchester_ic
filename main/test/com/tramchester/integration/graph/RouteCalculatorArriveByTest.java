@@ -15,6 +15,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.*;
@@ -27,8 +28,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
-import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -84,6 +84,26 @@ public class RouteCalculatorArriveByTest {
     }
 
     @Test
+    void shouldHaveExpectedPathsForSimpleJourneyDuringClosure() {
+        TramTime arriveByTime = TramTime.of(9, 15);
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, arriveByTime, true,
+                maxChanges, maxJourneyDuration, maxNumResults, requestedModes);
+
+        List<Journey> results = calculator.calculateRouteAsList(Altrincham, Piccadilly, journeyRequest);
+
+        assertFalse(results.isEmpty());
+
+        Set<Journey> arriveBefore = results.stream().
+                filter(journey -> journey.getArrivalTime().isBefore(arriveByTime)).
+                collect(Collectors.toSet());
+
+        assertFalse(arriveBefore.isEmpty(), "no results before " + arriveByTime + " in " + results);
+
+    }
+
+    @ClosuresAutumn2026
+    @Test
     void shouldHaveExpectedPathsForSimpleJourney() {
         TramTime arriveByTime = TramTime.of(8, 15);
 
@@ -100,6 +120,7 @@ public class RouteCalculatorArriveByTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime arriveByTime = TramTime.of(11,45);

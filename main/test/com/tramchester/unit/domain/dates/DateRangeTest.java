@@ -192,7 +192,68 @@ public class DateRangeTest {
         }
 
         assertEquals(range, result);
+    }
 
+    @Test
+    void shouldCreateOverlap() {
+        DateRange dateRangeA = DateRange.of(TramDate.of(2026, 10, 10), TramDate.of(2026, 10, 31));
+        DateRange dateRangeB = DateRange.of(TramDate.of(2026, 10, 15), TramDate.of(2026, 10, 25));
+        DateRange dateRangeC = DateRange.of(TramDate.of(2026, 10, 5), TramDate.of(2026, 10, 20));
+        DateRange dateRangeD = DateRange.of(TramDate.of(2026, 10, 25), TramDate.of(2026, 11, 15));
+
+        assertEquals(dateRangeB, dateRangeA.createOverlapWith(dateRangeB));
+        assertEquals(dateRangeB, dateRangeB.createOverlapWith(dateRangeA));
+
+        DateRange expected2 = DateRange.of(TramDate.of(2026, 10, 10), TramDate.of(2026, 10, 20));
+        assertEquals(expected2, dateRangeA.createOverlapWith(dateRangeC));
+        assertEquals(expected2, dateRangeC.createOverlapWith(dateRangeA));
+
+        DateRange expected3 = DateRange.of(TramDate.of(2026, 10, 25), TramDate.of(2026, 10, 31));
+        assertEquals(expected3, dateRangeA.createOverlapWith(dateRangeD));
+        assertEquals(expected3, dateRangeD.createOverlapWith(dateRangeA));
+
+        assertFalse(dateRangeC.overlapsWith(dateRangeD));
+        assertThrows(RuntimeException.class, () -> dateRangeC.createOverlapWith(dateRangeD));
+        assertThrows(RuntimeException.class, () -> dateRangeD.createOverlapWith(dateRangeC));
+    }
+
+    // mirrors the cases from above
+    @Test
+    void shouldCreateOverlapSimpleCase() {
+        DateRange dateRangeA = DateRange.of(TramDate.of(2026, 10, 10), TramDate.of(2026, 10, 31));
+        DateRange dateRangeB = DateRange.of(TramDate.of(2026, 10, 15), TramDate.of(2026, 10, 25));
+        DateRange dateRangeC = DateRange.of(TramDate.of(2026, 10, 5), TramDate.of(2026, 10, 20));
+        DateRange dateRangeD = DateRange.of(TramDate.of(2026, 10, 25), TramDate.of(2026, 11, 15));
+
+        assertEquals(dateRangeB, DateRange.leastOverlap(Set.of(dateRangeA, dateRangeB)));
+
+        DateRange expected2 = DateRange.of(TramDate.of(2026, 10, 10), TramDate.of(2026, 10, 20));
+        assertEquals(expected2, DateRange.leastOverlap(Set.of(dateRangeA, dateRangeC)));
+
+        DateRange expected3 = DateRange.of(TramDate.of(2026, 10, 25), TramDate.of(2026, 10, 31));
+        assertEquals(expected3, DateRange.leastOverlap(Set.of(dateRangeA, dateRangeD)));
+
+        assertFalse(dateRangeC.overlapsWith(dateRangeD));
+        assertThrows(RuntimeException.class, () -> DateRange.leastOverlap(Set.of(dateRangeC,dateRangeD)));
+    }
+
+    @Test
+    void shouldFindSmallestOverlap() {
+        DateRange dateRangeA = DateRange.of(TramDate.of(2026, 10, 10), TramDate.of(2026, 10, 31));
+        DateRange dateRangeB = DateRange.of(TramDate.of(2026, 10, 15), TramDate.of(2026, 10, 25));
+        DateRange dateRangeC = DateRange.of(TramDate.of(2026, 10, 5), TramDate.of(2026, 10, 20));
+        DateRange dateRangeD = DateRange.of(TramDate.of(2026, 10, 25), TramDate.of(2026, 11, 15));
+
+        DateRange expected1 = DateRange.of(dateRangeB.getStartDate(), dateRangeC.getEndDate());
+        assertEquals(expected1, DateRange.leastOverlap(Set.of(dateRangeA, dateRangeB, dateRangeC)));
+
+        DateRange expected2 = DateRange.of(dateRangeD.getStartDate(), dateRangeB.getEndDate());
+        assertEquals(expected2, DateRange.leastOverlap(Set.of(dateRangeA, dateRangeB, dateRangeD)));
+
+        DateRange dateRangeE = DateRange.of(TramDate.of(2026, 10, 1), TramDate.of(2026, 10, 31));
+
+        DateRange expected3 = DateRange.of(dateRangeD.getStartDate(), dateRangeA.getEndDate());
+        assertEquals(expected3, DateRange.leastOverlap(Set.of(dateRangeA, dateRangeD, dateRangeE)));
     }
 
 

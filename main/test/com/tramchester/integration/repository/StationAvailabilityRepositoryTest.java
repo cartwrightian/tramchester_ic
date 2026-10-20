@@ -83,6 +83,7 @@ public class StationAvailabilityRepositoryTest {
         modes = TransportMode.TramsOnly;
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldBeAvailableAtExpectedHoursOld() {
 
@@ -99,6 +100,7 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(lateAtNight);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedServedRoutesForLocation() {
         Station station = Altrincham.from(stationRepository);
@@ -124,6 +126,7 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(duringTheDay);
     }
 
+    @ClosuresAutumn2026
     @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
@@ -147,6 +150,7 @@ public class StationAvailabilityRepositoryTest {
 
     }
 
+    @ClosuresAutumn2026
     @DataExpiryTest
     @Test
     void shouldHaveCorrectLateNightServicesAtEndOfLine() {
@@ -185,6 +189,7 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(result, "unexpected late night services " + " for"  + timeRange);
     }
 
+    @ClosuresAutumn2026
     @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
@@ -208,7 +213,7 @@ public class StationAvailabilityRepositoryTest {
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
-        assertEquals(2, results.size(),
+        assertEquals(2-1, results.size(),
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
@@ -272,22 +277,22 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
-        assertEquals(5, dropOffs.size());
-        checkContains(dropOffs, Red);
+        assertEquals(5-2, dropOffs.size());
+        //checkContains(dropOffs, Red);
         checkContains(dropOffs, Blue);
-        checkContains(dropOffs, Green);
+        //checkContains(dropOffs, Green);
         checkContains(dropOffs, Pink);
-        checkContains(dropOffs, Navy);
+//        checkContains(dropOffs, Navy);
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(victoria, date, timeRange, TransportMode.TramsOnly);
 
         // summer 2026
-        assertEquals(5, pickups.size());
-        checkContains(pickups, Red);
+        assertEquals(5-2, pickups.size());
+        //checkContains(pickups, Red);
         checkContains(pickups, Blue);
-        checkContains(pickups, Green);
+        //checkContains(pickups, Green);
         checkContains(pickups, Pink);
-        checkContains(pickups, Navy);
+        //checkContains(pickups, Navy);
 
     }
 

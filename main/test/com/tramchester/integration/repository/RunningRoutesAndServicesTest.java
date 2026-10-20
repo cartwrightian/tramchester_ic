@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TFGMRouteNames.Pink;
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -172,10 +173,10 @@ public class RunningRoutesAndServicesTest {
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModesImmutable());
 
-        Route altyToBuryRoute = helper.getGreen(previousDay);
+        Route route = helper.getOneRoute(Pink, previousDay);
 
-        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
-        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));
+        assertTrue(filter.isRouteRunning(route.getId(), false));
+        assertTrue(filter.isRouteRunning(route.getId(), true));
 
     }
 

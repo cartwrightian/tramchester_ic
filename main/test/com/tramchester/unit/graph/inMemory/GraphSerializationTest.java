@@ -3,14 +3,12 @@ package com.tramchester.unit.graph.inMemory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.ImmutableIdSet;
-import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.id.TripIdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
@@ -152,6 +150,12 @@ GraphSerializationTest {
         relationship.addTransportMode(Bus);
         relationship.addTransportMode(Tram);
 
+        IdSet<Service> serviceIds = new IdSet<>();
+        serviceIds.add(Service.createId("svcA"));
+        serviceIds.add(Service.createId("svcB"));
+        serviceIds.add(Service.createId("svcC"));
+        relationship.setServiceIds(serviceIds);
+
         String text = serializeToString(relationship);
 
         GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
@@ -170,6 +174,7 @@ GraphSerializationTest {
             assertTrue(trips.contains(tripA));
             assertTrue(trips.contains(tripB));
             assertEquals(ImmutableEnumSet.of(Bus,Tram), result.getTransportModes());
+            assertEquals(serviceIds, relationship.getServiceIds());
 
         }
         catch(ClassCastException e) {

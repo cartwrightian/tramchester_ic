@@ -67,7 +67,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         DateTimeRange expected = DateTimeRange.of(dateRange, TimeRange.AllDay());
 
 
-        assertEquals(Bury.getId(), created.getStationId());
+        assertEquals(Bury.getId(), created.getId());
         assertEquals(expected, created.getDateTimeRange());
         assertTrue(created.closedWholeDay());
 
@@ -120,7 +120,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
 
         DateTimeRange expected = DateTimeRange.of(dateRange, TimeRange.AllDay());
 
-        assertEquals(Bury.getId(), created.getStationId());
+        assertEquals(Bury.getId(), created.getId());
         assertEquals(expected, created.getDateTimeRange());
 
         assertEquals(Collections.singleton(StPetersSquare.fake()), created.getDiversionAroundClosure());
@@ -148,7 +148,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         ClosedStation created = closedStationFactory.createClosedStation(closures, Bury.getId(), include);
         verifyAll();
 
-        assertEquals(Bury.getId(), created.getStationId());
+        assertEquals(Bury.getId(), created.getId());
 
         DateTimeRange expected = DateTimeRange.of(dateRange, TimeRange.AllDay());
 

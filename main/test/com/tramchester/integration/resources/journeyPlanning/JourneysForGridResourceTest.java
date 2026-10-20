@@ -22,6 +22,7 @@ import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.KnownLocations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.TramApp;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.AfterAll;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ClosuresAutumn2026
 @ExtendWith(TramAppTestExtension.class)
 class JourneysForGridResourceTest {
 

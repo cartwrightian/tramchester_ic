@@ -29,6 +29,7 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -143,6 +144,7 @@ class LocationJourneyPlannerTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 0), false,
@@ -180,6 +182,7 @@ class LocationJourneyPlannerTest {
         assertEquals(TransportMode.Tram, change.fromMode());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedChangeStationsWhenTwoStageBeginWithWalk() {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 0), false,
@@ -204,6 +207,7 @@ class LocationJourneyPlannerTest {
 
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindJourneyWithWalkingEarlyMorning() {
 
@@ -246,6 +250,7 @@ class LocationJourneyPlannerTest {
         results.forEach(journey -> assertTrue(journey.getQueryTime().isBefore(queryTime)));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 0);
@@ -337,13 +342,14 @@ class LocationJourneyPlannerTest {
 
         List<ChangeLocation<?>> changeStations = lowestCostJourney.getChangeStations();
 
-        assertEquals(1, changeStations.size(),  " stations " + HasId.asIds(changeStations));
+        assertEquals(2, changeStations.size(),  " stations " + HasId.asIds(changeStations));
 
         ChangeLocation<?> changeStation = changeStations.getFirst();
         assertTrue(nearStationIds.contains(changeStation.getId()), changeStation + " not in " + nearStationIds);
         assertEquals(TransportMode.Tram, changeStation.fromMode(), changeStation.toString());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindJourneyWithWalkingEndOfDay() {
         final JourneyRequest request = new JourneyRequest(when, TramTime.of(23, 0),
@@ -355,6 +361,7 @@ class LocationJourneyPlannerTest {
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveNearAltyToDeansgate() {
         // mirrors test in AppUserJourneyLocationsTest

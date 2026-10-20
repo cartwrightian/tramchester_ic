@@ -11,6 +11,7 @@ import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
@@ -121,6 +122,21 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     }
 
     @Override
+    public void setServiceIds(final ImmutableIdSet<Service> serviceIds) {
+        invalidateCache();
+        relationshipProperties.setProperty(SERVICE_ID_LIST, serviceIds);
+    }
+
+    @Override
+    public void addServiceIds(final ImmutableIdSet<Service> additional) {
+        invalidateCache();
+        final IdSet<Service> current = (IdSet<Service>) relationshipProperties.getProperty(SERVICE_ID_LIST);
+        final IdSet<Service> result = new IdSet<>();
+        relationshipProperties.setProperty(SERVICE_ID_LIST, result.addAll(additional).addAll(current));
+
+    }
+
+    @Override
     public void setTimeRange(final TimeRange timeRange) {
         // TODO Into time range object
         if (timeRange.allDay()) {
@@ -187,6 +203,12 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         } else {
             return TramDuration.ZERO;
         }
+    }
+
+    @JsonIgnore
+    @Override
+    public IdSet<Service> getServiceIds() {
+        return (IdSet<Service>) relationshipProperties.getProperty(SERVICE_ID_LIST);
     }
 
     @JsonIgnore

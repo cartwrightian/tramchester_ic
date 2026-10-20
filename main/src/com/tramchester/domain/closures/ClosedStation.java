@@ -10,7 +10,7 @@ import com.tramchester.domain.time.TimeRange;
 import java.util.Objects;
 import java.util.Set;
 
-public class ClosedStation {
+public class ClosedStation implements HasId<Station> {
     private final Station station;
     private final DateTimeRange dateTimeRange;
 
@@ -34,7 +34,13 @@ public class ClosedStation {
         return station;
     }
 
+    @Deprecated
     public IdFor<Station> getStationId() {
+        return station.getId();
+    }
+
+    @Override
+    public IdFor<Station> getId() {
         return station.getId();
     }
 
@@ -83,5 +89,6 @@ public class ClosedStation {
     public boolean closedWholeDay() {
         return dateTimeRange.allDay();
     }
+
 
 }

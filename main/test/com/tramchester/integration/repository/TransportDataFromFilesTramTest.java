@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
-import static com.tramchester.domain.reference.TFGMRouteNames.Navy;
+import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
@@ -98,26 +98,30 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TransportMode.TramsOnly).size());
 
-        int expectedPlatforms = 201-1;
+        int expectedPlatforms = 201;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TransportMode.TramsOnly).size());
     }
 
     @Test
     void shouldHaveExpectedNumRoutes() {
-        Set<String> found = transportData.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
-                map(Route::getShortName).
+        Set<TFGMRouteNames> found = transportData.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
+                map(route -> (TramRouteId) route.getId()).
+                map(TramRouteId::getRouteName).
+                filter(routeName -> !routeName.isReplacementBus()).
                 collect(Collectors.toSet());
 
-        Set<String> expected = Arrays.stream(TFGMRouteNames.values()).
+        Set<TFGMRouteNames> expected = Arrays.stream(TFGMRouteNames.values()).
                 filter(routeName -> !routeName.isReplacementBus()).
-                map(TFGMRouteNames::getShortName).collect(Collectors.toSet());
+                collect(Collectors.toSet());
 
         // closures autumn 2026
-        //expected.remove(Purple.getShortName());
+        expected.remove(Yellow);
+        expected.remove(Red);
+        expected.remove(Green);
 
-        Set<String> mismatch = SetUtils.disjunction(found, expected);
+        Set<TFGMRouteNames> mismatch = SetUtils.disjunction(found, expected);
 
-        assertTrue(mismatch.isEmpty(), "Mismatch " + mismatch + " between expected " + expected + " and " + found);
+        assertTrue(mismatch.isEmpty(), "Mismatch " + mismatch + "\n between expected " + expected + " and \n" + found);
 
     }
 
@@ -155,7 +159,8 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        // autumn 2026
+        assertEquals(2-1, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -214,13 +219,14 @@ public class TransportDataFromFilesTramTest {
                         map(routeStation -> routeStation.getRoute().getShortName()).
                         collect(Collectors.toSet());
 
-        assertEquals(2, lines.size(), lines.toString());
-
-        String diag = "Missing from " + lines + " on " + when;
-        assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()), diag);
         // autumn 2026
+        assertEquals(2-1, lines.size(), lines.toString());
+
+        // autumn 2026
+        String diag = "NOT Missing from " + lines + " on " + when;
+        assertFalse(lines.contains(TFGMRouteNames.Green.getShortName()), diag);
         assertFalse(lines.contains(TFGMRouteNames.Blue.getShortName()), diag);
-        assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()), diag);
+        assertFalse(lines.contains(TFGMRouteNames.Purple.getShortName()), diag);
 
 
     }

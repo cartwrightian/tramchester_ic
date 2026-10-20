@@ -165,6 +165,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
             }
             throw new RuntimeException("Hour is missing for " + this);
         }
+
     }
 
 }

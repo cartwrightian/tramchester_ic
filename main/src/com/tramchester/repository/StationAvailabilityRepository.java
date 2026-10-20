@@ -292,7 +292,7 @@ public class StationAvailabilityRepository {
     }
 
     private Set<Route> getDropoffRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, ImmutableEnumSet<TransportMode> modes) {
-        logger.warn(closedStation.getStationId() + " is closed, using linked stations for dropoffs");
+        logger.warn(closedStation.getId() + " is closed, using linked stations for dropoffs");
         return closedStation.getDiversionAroundClosure().stream().
                 flatMap(linked -> dropoffsForLocations.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
@@ -306,7 +306,7 @@ public class StationAvailabilityRepository {
     }
 
     private Set<Route> getPickupRoutesFor(ClosedStation closedStation, TramDate date, TimeRange timeRange, ImmutableEnumSet<TransportMode> modes) {
-        logger.warn(closedStation.getStationId() + " is closed, using linked stations for pickups");
+        logger.warn(closedStation.getId() + " is closed, using linked stations for pickups");
         return closedStation.getDiversionAroundClosure().stream().
                 flatMap(linked -> pickupsForLocations.get(linked.getLocationId()).getRoutes(date, timeRange, modes).stream()).
                 collect(Collectors.toSet());

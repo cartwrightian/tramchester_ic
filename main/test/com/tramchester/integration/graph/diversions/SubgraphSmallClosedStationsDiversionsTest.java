@@ -38,6 +38,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -180,6 +181,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         ranges.forEach(range -> assertTrue(range.getTimeRange().allDay(), "Expected all day time range for " + range));
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
 
@@ -229,6 +231,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty(), "no journeys for " + journeyRequest);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindRouteAroundCloseBackOnToTramCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -239,6 +242,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindRouteAroundCloseBackOnToTramPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -269,6 +273,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindRouteWhenFromStationWithDiversionToOtherDiversionStation() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -287,6 +292,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty(), "no results for " + journeyRequest);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindStPetersToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -296,6 +302,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty());
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldFindDeansgateToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

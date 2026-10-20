@@ -24,6 +24,7 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -108,6 +109,7 @@ class RouteCalculatorTraffordBarBurtonRoadTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveTraffordBarToChorlton() {
         List<Journey> results = validateAtLeastOneJourney(TraffordBar, Chorlton, TramTime.of(9, 0), when);
@@ -116,6 +118,7 @@ class RouteCalculatorTraffordBarBurtonRoadTest {
         });
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveTraffordBarToFirswood() {
         List<Journey> results = validateAtLeastOneJourney(TraffordBar, Firswood, TramTime.of(9, 0), when);
