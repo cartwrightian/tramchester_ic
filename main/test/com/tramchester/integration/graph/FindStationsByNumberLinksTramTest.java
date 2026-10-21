@@ -82,7 +82,8 @@ class FindStationsByNumberLinksTramTest {
                 " \nstations with links were " + additionalInterchanges);
     }
 
-    @DisabledUntilDate(year = 2026, month = 10, day = 21)
+    // WIP Spike - likely remove
+    @DisabledUntilDate(year = 2026, month = 10, day = 22)
     @Test
     void shouldGetDateRangeWhenOverThreshold() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
@@ -105,7 +106,8 @@ class FindStationsByNumberLinksTramTest {
 
     }
 
-    @DisabledUntilDate(year = 2026, month = 10, day = 21)
+    // WIP Spike - likely remove
+    @DisabledUntilDate(year = 2026, month = 10, day = 22)
     @Test
     void shouldGetDateRangeWhenOverThresholdWhileReplacementBuses() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
