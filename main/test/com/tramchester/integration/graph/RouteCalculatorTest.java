@@ -615,6 +615,7 @@ public class RouteCalculatorTest {
 //        assertGetAndCheckJourneys(journeyRequestD, StPetersSquare, MarketStreet);
     }
 
+    @ClosuresAutumn2026
     @Test
     void shouldHaveHeatonParkToBurtonRoad() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults,
