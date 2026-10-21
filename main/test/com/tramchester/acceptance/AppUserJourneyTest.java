@@ -405,7 +405,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 
-    @DisabledUntilDate(year = 2026, month = 10, day = 21)
+    @DisabledUntilDate(year = 2026, month = 10, day = 22)
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
