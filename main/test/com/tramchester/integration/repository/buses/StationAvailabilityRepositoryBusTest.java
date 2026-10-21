@@ -244,11 +244,11 @@ public class StationAvailabilityRepositoryBusTest {
     @Disabled("performance testing")
     @Test
     void shouldCreateRepository() {
-        TripRepository tripRepository = componentContainer.get(TripRepository.class);
+        ServicesForLocationRepository servicesForLocationRepository = componentContainer.get(ServicesForLocationRepository.class);
         InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         StationAvailabilityRepository stationAvailabilityRepository =
-                new StationAvailabilityRepository(stationRepository, closedStationRepository,
-                        new GraphFilterActive(false), tripRepository, interchangeRepository);
+                new StationAvailabilityRepository(servicesForLocationRepository, stationRepository, closedStationRepository,
+                        new GraphFilterActive(false), interchangeRepository);
 
         for (int i = 0; i < 10; i++) {
             stationAvailabilityRepository.start();

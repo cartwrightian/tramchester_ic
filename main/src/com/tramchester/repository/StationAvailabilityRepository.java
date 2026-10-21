@@ -32,28 +32,26 @@ public class StationAvailabilityRepository {
     private final Map<LocationId<?>, ServedRoute> pickupsForLocations;
     private final Map<LocationId<?>, ServedRoute> dropoffsForLocations;
 
-    private final Map<LocationId<?>, Set<Service>> servicesForLocations;
+    private final ServicesForLocationRepository servicesForLocations;
 
     private final StationRepository stationRepository;
     private final ClosedStationsRepository closedStationsRepository;
     private final GraphFilterActive graphFilterActive;
-    private final TripRepository tripRepository;
     private final InterchangeRepository interchangeRepository;
 
 
     @Inject
-    public StationAvailabilityRepository(StationRepository stationRepository, ClosedStationsRepository closedStationsRepository,
-                                         GraphFilterActive graphFilterActive, TripRepository tripRepository,
+    public StationAvailabilityRepository(ServicesForLocationRepository servicesForLocations, StationRepository stationRepository,
+                                         ClosedStationsRepository closedStationsRepository, GraphFilterActive graphFilterActive,
                                          InterchangeRepository interchangeRepository) {
+        this.servicesForLocations = servicesForLocations;
         this.stationRepository = stationRepository;
         this.closedStationsRepository = closedStationsRepository;
         this.graphFilterActive = graphFilterActive;
-        this.tripRepository = tripRepository;
         this.interchangeRepository = interchangeRepository;
 
         pickupsForLocations = new HashMap<>();
         dropoffsForLocations = new HashMap<>();
-        servicesForLocations = new HashMap<>();
     }
 
     @PostConstruct
@@ -64,22 +62,11 @@ public class StationAvailabilityRepository {
         logger.info("Add pickup and dropoff for stations");
         stations.forEach(this::addForStation);
 
-        addServicesForStations();
-
         logger.info(format("started, from %s stations add entries %s for pickups and %s for dropoff",
                 stations.size(), pickupsForLocations.size(), dropoffsForLocations.size()));
     }
 
-    private void addServicesForStations() {
-        logger.info("Add services for stations");
-        stationRepository.getStations().forEach(station -> servicesForLocations.put(station.getLocationId(), new HashSet<>()));
 
-        // TODO is this incorrect in the case of interchange locations ??
-        tripRepository.getTrips().stream().
-                flatMap(trip -> trip.getStopCalls().stream()).
-                filter(StopCall::callsAtStation).
-                forEach(stopCall -> servicesForLocations.get(stopCall.getLocationId()).add(stopCall.getService()));
-    }
 
     private void addForStation(final Station station) {
         final boolean diagnostic = !graphFilterActive.isActive() && logger.isDebugEnabled();
@@ -158,7 +145,6 @@ public class StationAvailabilityRepository {
         logger.info("Stopping");
         pickupsForLocations.clear();
         dropoffsForLocations.clear();
-        servicesForLocations.clear();
         logger.info("Stopped");
     }
 
@@ -196,7 +182,7 @@ public class StationAvailabilityRepository {
             throw new RuntimeException("Missing dropoffs for " + locationId);
         }
 
-        final Set<Service> services = servicesForLocations.get(locationId);
+        final Set<Service> services = servicesForLocations.getFor(locationId);
 
         final boolean modesMatch = services.stream().
                 anyMatch(service -> service.anyOverlapWith(requestedModes));
