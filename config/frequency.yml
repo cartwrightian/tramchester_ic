@@ -70,7 +70,7 @@ depthFirst: true
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5
-maxNumberChanges: 2
+maxNumberChanges: 3
 maxWalkingConnections: 3
 maxJourneyDuration: 180
 nearestStopRangeKM: 1.0
