@@ -3,8 +3,11 @@ package com.tramchester.repository;
 import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.LocationId;
+import com.tramchester.domain.reference.TransportMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,5 +54,13 @@ public class ServicesForLocationRepository {
 
     public Set<Service> getFor(final LocationId<?> locationId) {
         return servicesForLocations.get(locationId);
+    }
+
+    public boolean isAvailable(final TramDate date, final LocationId<?> locationId) {
+        return servicesForLocations.get(locationId).stream().anyMatch(service -> service.getCalendar().operatesOn(date));
+    }
+
+    public boolean modesOverlap(final ImmutableEnumSet<TransportMode> modes, final LocationId<?> locationId) {
+        return servicesForLocations.get(locationId).stream().anyMatch(service -> service.anyOverlapWith(modes));
     }
 }

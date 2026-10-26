@@ -38,8 +38,6 @@ public class ServedRoute {
         allServedModes = EnumSet.noneOf(TransportMode.class);
     }
 
-
-
     public boolean isEmpty() {
         return routeAndServices.isEmpty();
     }
@@ -58,14 +56,6 @@ public class ServedRoute {
             results.addAll(getRouteForDateAndTimeRange(previousDay, previousDayRange, modes));
         }
         return results;
-    }
-
-    public Stream<TimeRange> getTimeRanges(final TramDate tramDate, final ImmutableEnumSet<TransportMode> modes) {
-        return routeAndServices.stream().
-                filter(routeAndService -> routeAndService.isAvailableOn(tramDate)).
-                filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
-                map(TimeWindowsKey::from).
-                map(timeWindows::get);
     }
 
     // TODO Remove date filtering here?
@@ -145,7 +135,6 @@ public class ServedRoute {
                 filter(trip -> trip.callsAt(interchangeStation)).
                 collect(Collectors.toSet());
 
-        // TODO just a stream
         final Stream<StopCall> stationStopCalls = callingTrips.stream().
                 map(Trip::getStopCalls).
                 map(stopCalls -> stopCalls.getStopFor(interchangeStation)).

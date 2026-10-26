@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.testSupport.UpcomingDates;
 import io.dropwizard.configuration.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
@@ -65,16 +68,30 @@ class ConfigMismatchTest {
     }
 
     @Test
+    void shouldHaveTempIncreaseInNumberOfChanges() throws IOException, ConfigurationException {
+        TramDate today = new ProvidesLocalNow().getTramDate();
+        int expected = UpcomingDates.MajorWorksAutumn2026.contains(today) ? 3 : 2;
+
+        Set<Path> configFiles = getConfigFiles();
+
+        for(Path pathToConfig : configFiles) {
+            AppConfiguration configuration = StandaloneConfigLoader.LoadConfigFromFile(pathToConfig);
+            assertEquals(expected, configuration.getMaxNumberChanges(),
+                    "Failed for " + pathToConfig.toAbsolutePath());
+        }
+    }
+
+    @Test
     void shouldHaveValidIdsForRemoteConfigSections() throws IOException, ConfigurationException {
         Set<Path> configFiles = getConfigFiles();
 
-        for(Path config : configFiles) {
-            AppConfiguration configuration = StandaloneConfigLoader.LoadConfigFromFile(config);
+        for(Path pathToConfig : configFiles) {
+            AppConfiguration configuration = StandaloneConfigLoader.LoadConfigFromFile(pathToConfig);
             List<RemoteDataSourceConfig> remoteSourceConfigs = configuration.getRemoteSources();
             for(RemoteDataSourceConfig remoteSourceConfig : remoteSourceConfigs) {
                 final DataSourceID dataSourceID = DataSourceID.findOrUnknown(remoteSourceConfig.getName());
                 assertNotEquals(DataSourceID.unknown, dataSourceID,
-                        "Bad source id for " + remoteSourceConfig.getDataSourceId() + " in " + config.toAbsolutePath());
+                        "Bad source id for " + remoteSourceConfig.getDataSourceId() + " in " + pathToConfig.toAbsolutePath());
 
             }
         }

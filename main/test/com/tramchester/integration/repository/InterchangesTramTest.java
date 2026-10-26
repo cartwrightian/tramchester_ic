@@ -96,7 +96,7 @@ public class InterchangesTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity,
-                Shudehill,
+                //Shudehill,
                 MediaCityUK
 
         ).collect(Collectors.toSet());

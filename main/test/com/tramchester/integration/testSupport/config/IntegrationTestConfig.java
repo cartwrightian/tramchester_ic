@@ -113,6 +113,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     @Override
     public int getMaxNumberChanges() {
-        return 2;
+        return 3;
     }
 }

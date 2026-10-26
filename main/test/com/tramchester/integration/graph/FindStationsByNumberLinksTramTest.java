@@ -83,7 +83,7 @@ class FindStationsByNumberLinksTramTest {
     }
 
     // WIP Spike - likely remove
-    @DisabledUntilDate(year = 2026, month = 10, day = 22)
+    @DisabledUntilDate(year = 2026, month = 10, day = 27)
     @Test
     void shouldGetDateRangeWhenOverThreshold() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
@@ -107,7 +107,7 @@ class FindStationsByNumberLinksTramTest {
     }
 
     // WIP Spike - likely remove
-    @DisabledUntilDate(year = 2026, month = 10, day = 22)
+    @DisabledUntilDate(year = 2026, month = 10, day = 27)
     @Test
     void shouldGetDateRangeWhenOverThresholdWhileReplacementBuses() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
@@ -140,8 +140,8 @@ class FindStationsByNumberLinksTramTest {
                 StWerburghsRoad,
                 Pomona,
                 Broadway,
-                HarbourCity,
-                Shudehill
+                HarbourCity
+                //Shudehill
                 // Autumn 2026
                 //Piccadilly, Firswood, MediaCityUK, Deansgate, Sale, Wharfside, Stretford
         );

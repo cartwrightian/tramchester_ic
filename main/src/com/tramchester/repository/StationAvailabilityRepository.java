@@ -39,7 +39,6 @@ public class StationAvailabilityRepository {
     private final GraphFilterActive graphFilterActive;
     private final InterchangeRepository interchangeRepository;
 
-
     @Inject
     public StationAvailabilityRepository(ServicesForLocationRepository servicesForLocations, StationRepository stationRepository,
                                          ClosedStationsRepository closedStationsRepository, GraphFilterActive graphFilterActive,
@@ -65,8 +64,6 @@ public class StationAvailabilityRepository {
         logger.info(format("started, from %s stations add entries %s for pickups and %s for dropoff",
                 stations.size(), pickupsForLocations.size(), dropoffsForLocations.size()));
     }
-
-
 
     private void addForStation(final Station station) {
         final boolean diagnostic = !graphFilterActive.isActive() && logger.isDebugEnabled();
@@ -158,7 +155,7 @@ public class StationAvailabilityRepository {
         return isAvailable(location, date, timeRange, requestedModes, false);
     }
 
-    public boolean isAvailable(final Location<?> location, final TramDate date, final TimeRange timeRange,
+    private boolean isAvailable(final Location<?> location, final TramDate date, final TimeRange timeRange,
                                final ImmutableEnumSet<TransportMode> requestedModes, boolean requireDropoff) {
 
         if (location.getLocationType()==LocationType.StationGroup) {
@@ -182,18 +179,12 @@ public class StationAvailabilityRepository {
             throw new RuntimeException("Missing dropoffs for " + locationId);
         }
 
-        final Set<Service> services = servicesForLocations.getFor(locationId);
-
-        final boolean modesMatch = services.stream().
-                anyMatch(service -> service.anyOverlapWith(requestedModes));
-
-        if (!modesMatch) {
+        final boolean serviceModesMatch = servicesForLocations.modesOverlap(requestedModes, locationId);
+        if (!serviceModesMatch) {
             logger.warn("No services modes overlap for " + locationId + " and " + requestedModes);
         }
 
-        final boolean datesMatch = services.stream().
-                anyMatch(service -> service.getCalendar().operatesOn(date));
-
+        final boolean datesMatch = servicesForLocations.isAvailable(date, locationId);
         if (!datesMatch) {
             logger.warn("No services date overlap for " + locationId);
         }

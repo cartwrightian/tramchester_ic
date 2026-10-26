@@ -4,7 +4,9 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ServicesForLocationRepository;
 import com.tramchester.repository.StationRepository;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,10 +50,20 @@ public class ServicesForLocationRepositoryTest {
     }
 
     @Test
+    void shouldCheckForOverlappingModes() {
+        Station station = TramStations.Piccadilly.from(stationRepository);
+        LocationId<Station> locationId = station.getLocationId();
+
+        assertTrue(repository.modesOverlap(TramsOnly, locationId));
+        assertFalse(repository.modesOverlap(TransportMode.Bus.singleton(), locationId));
+    }
+
+    @Test
     void shouldHaveServicesForPiccadilly() {
         Station station = TramStations.Piccadilly.from(stationRepository);
+        LocationId<Station> locationId = station.getLocationId();
 
-        Set<Service> services = repository.getFor(station.getLocationId());
+        Set<Service> services = repository.getFor(locationId);
 
         assertFalse(services.isEmpty());
 
@@ -58,6 +71,8 @@ public class ServicesForLocationRepositoryTest {
                 filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
 
         assertFalse(running.isEmpty());
+
+        assertTrue(repository.isAvailable(when, locationId));
 
     }
 
@@ -73,6 +88,8 @@ public class ServicesForLocationRepositoryTest {
                 filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
 
         assertTrue(running.isEmpty());
+
+        assertFalse(repository.isAvailable(when, station.getLocationId()));
 
     }
 }

@@ -15,6 +15,7 @@ public enum TFGMRouteNames {
     PiccadillyAltrincham("Replacement Bus Piccadilly - Altrincham", true),
     AltrinchamOldTrafford("Replacement Bus Altrincham - Old Trafford", true),
     SalePiccadilly("Replacement Bus Sale - Piccadilly", true),
+    EcclesMediaCity("Replacement Bus Eccles - Media City UK", true),
 
     // generic name used quite often
     ReplacementBus("Replacement bus", true),

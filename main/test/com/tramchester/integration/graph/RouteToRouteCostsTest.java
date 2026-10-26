@@ -147,8 +147,8 @@ public class RouteToRouteCostsTest {
                     if (minChange ==Integer.MAX_VALUE) {
                         failed.add(new RoutePair(start, end));
                     } else {
-                       assertTrue(config.getMaxNumberChanges()>=minChange, "Too many changes " + start.getId() +
-                               " and " + end.getId() + " on " + when);
+                       assertTrue(config.getMaxNumberChanges()>=minChange,
+                               "Too many changes %s between %s and %s on %s".formatted(minChange, start.getId(), end.getId(), when));
                     }
                 }
             }

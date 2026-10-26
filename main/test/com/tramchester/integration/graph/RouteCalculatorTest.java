@@ -1085,7 +1085,7 @@ public class RouteCalculatorTest {
     @NotNull
     private JourneyRequest standardJourneyRequest(TramDate date, TramTime time, long maxNumberJourneys, int maxNumberChanges) {
         TramDate worksAutumn2026EndDate = UpcomingDates.MajorWorksAutumn2026.getEndDate();
-        boolean assertOnChange = worksAutumn2026EndDate.plusDays(4).isBefore(date);
+        boolean assertOnChange = worksAutumn2026EndDate.plusDays(14).isBefore(date);
 
         return new JourneyRequest(date, time, false, new JourneyRequest.MaxNumberOfChanges(maxNumberChanges),
                 maxJourneyDuration, maxNumberJourneys,

@@ -303,8 +303,8 @@ public class StationRepositoryTest {
                 map(TramRouteId::getRouteName).
                 collect(Collectors.toSet());
 
-        // 1->2 closures
-        assertEquals(1+1, dropOffs.size(), dropOffs.toString());
+        // 1->3 closures
+        assertEquals(1+2, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(Yellow), "Missing from " + dropOffs);
 
         Set<Route> availableDropoffs = mediaCity.getDropoffRoutes().stream().
@@ -318,7 +318,7 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // 1->2 closures
-        assertEquals(1+1, pickUps.size(), pickUps.toString());
+        assertEquals(1+2, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Yellow), "Missing from " + pickUps);
 
         Set<Route> availablePickups = mediaCity.getPickupRoutes().stream().

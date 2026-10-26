@@ -172,7 +172,7 @@ public class RouteRepositoryTest {
                 collect(IdSet.collector());
 
         // closures summer 2026
-        assertEquals(8+1, running.size());
+        assertEquals(8+2, running.size());
 
     }
 
@@ -187,7 +187,7 @@ public class RouteRepositoryTest {
                 filter(RouteRepositoryTest::isReplacementBus).
                 collect(IdSet.collector());
 
-        assertEquals(5, running.size());
+        assertEquals(6, running.size());
 
     }
 
