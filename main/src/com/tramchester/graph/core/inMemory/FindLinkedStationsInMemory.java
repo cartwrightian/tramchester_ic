@@ -76,10 +76,10 @@ public class FindLinkedStationsInMemory extends FindLinkedStations {
     }
 
     @Override
-    public DateRange dateRangeFor(final Station station, final int threshold) {
+    public  List<IdSet<Service>> serviceIdsPerLink(final Station station) {
 
         final IdFor<Station> stationId = station.getId();
-        logger.info("Find link date ranges for %s and threshold %s".formatted(stationId, threshold));
+        logger.info("Find services per link date ranges for %s".formatted(stationId));
 
         // non-unique, might all run to the same calendar
         final List<Set<DateRange>> rangesPerLink;
@@ -91,46 +91,29 @@ public class FindLinkedStationsInMemory extends FindLinkedStations {
                 throw new RuntimeException(msg);
             }
 
-            final List<IdSet<Service>> servicesPerLink = node.getRelationships(txn, Outgoing, LINKED).
+            return node.getRelationships(txn, Outgoing, LINKED).
                     map(GraphRelationship::getServiceIds).
                     toList();
-
-            if (servicesPerLink.size()<threshold) {
-                String msg = "Not enough links for %s, got %s and threshold %s. Not an interchange?".
-                        formatted(stationId, servicesPerLink.size(), threshold);
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            } else {
-                logger.info("Found %s links/calendars for %s".formatted(servicesPerLink.size(), stationId));
-            }
-
-            rangesPerLink = servicesPerLink.stream().
-                    map(this::createAggregateFor).
-                    toList();
         }
 
-        final Set<DateRange> dateRanges = overlappingCalendarsOverThreshold(threshold, rangesPerLink, stationId);
-
-        logger.info("Found %s unique calendars matching %s and threshold %s".formatted(dateRanges.size(), stationId, threshold));
-
-//        final Set<DateRange> dateRanges = results.stream().
-//                map(ServiceCalendar::getDateRange).
-//                collect(Collectors.toSet());
-
-        if (dateRanges.isEmpty()) {
-            String msg = "Did not find any date ranges for %s and %s, services %s".
-                    formatted(stationId, threshold, rangesPerLink);
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
-
-        final DateRange result = DateRange.leastOverlap(dateRanges);
-
-        // TODO into debug? Should not be too noisy, only interchanges
-        logger.info("For station %s and threshold %s found %s (from %s)".
-                formatted(stationId, threshold, result, dateRanges));
-
-        return result;
+//        final Set<DateRange> dateRanges = overlappingCalendarsOverThreshold(threshold, rangesPerLink, stationId);
+//
+//        logger.info("Found %s unique calendars matching %s and threshold %s".formatted(dateRanges.size(), stationId, threshold));
+//
+//        if (dateRanges.isEmpty()) {
+//            String msg = "Did not find any date ranges for %s and %s, services %s".
+//                    formatted(stationId, threshold, rangesPerLink);
+//            logger.error(msg);
+//            throw new RuntimeException(msg);
+//        }
+//
+//        final DateRange result = DateRange.leastOverlap(dateRanges);
+//
+//        // TODO into debug? Should not be too noisy, only interchanges
+//        logger.info("For station %s and threshold %s found %s (from %s)".
+//                formatted(stationId, threshold, result, dateRanges));
+//
+//        return result;
     }
 
     /***
@@ -171,6 +154,7 @@ public class FindLinkedStationsInMemory extends FindLinkedStations {
 //                results.add(overlapping);
 //            }
         }
+
         logger.info("Found %s non-unique calendars for %s and threshold %s".formatted(linksThatOverlap, stationId, threshold));
         if (linksThatOverlap>=threshold) {
             return new HashSet<>(rangesThatOverlap);

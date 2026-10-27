@@ -127,6 +127,11 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return this;
     }
 
+    public IdSet<T> removeAll(final IdSet<T> other) {
+        theSet.removeAll(other.theSet);
+        return this;
+    }
+
     @Override
     public Stream<IdFor<T>> stream() {
         return theSet.stream();
@@ -240,7 +245,7 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return new IdSet<>(SetUtils.disjunction(setA.theSet, setB.theSet));
     }
 
-    public static <T extends HasId<T> & CoreDomain> ImmutableIdSet<T> union(final IdSet<T> setA, final IdSet<T> setB) {
+    public static <T extends HasId<T> & CoreDomain> IdSet<T> union(final IdSet<T> setA, final IdSet<T> setB) {
         return new IdSet<>(SetUtils.union(setA.theSet, setB.theSet));
     }
 

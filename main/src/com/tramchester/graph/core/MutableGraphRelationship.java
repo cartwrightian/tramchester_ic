@@ -52,6 +52,7 @@ public interface MutableGraphRelationship extends GraphRelationship {
 
     void addTripId(IdFor<Trip> tripId);
 
+    // todo refactor in generic IdSet or IdFor handling?
     void setServiceIds(ImmutableIdSet<Service> serviceIds);
     void addServiceIds(ImmutableIdSet<Service> serviceIds);
 }

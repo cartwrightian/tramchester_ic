@@ -245,7 +245,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             final MutableGraphRelationship existingLinked = from.getSingleRelationshipMutable(txn, LINKED, Outgoing, end);
             existingLinked.addTransportMode(mode);
             existingLinked.addServiceIds(serviceIds);
-
         } else {
             // else create new
             final MutableGraphRelationship stationsLinked = createRelationship(txn, from, end, LINKED);

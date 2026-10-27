@@ -1,8 +1,8 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.Service;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -12,6 +12,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 
+import java.util.List;
 import java.util.Set;
 
 // TODO Now only one impl get have implementation here.....
@@ -42,5 +43,5 @@ public abstract class  FindLinkedStations {
         return StationToStationConnection.createForWalk(start, end, modes, StationToStationConnection.LinkType.Linked, geography);
     }
 
-    public abstract DateRange dateRangeFor(Station station, int threshold);
+    public abstract List<IdSet<Service>> serviceIdsPerLink(Station station);
 }
