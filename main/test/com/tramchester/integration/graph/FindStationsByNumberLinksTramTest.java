@@ -12,9 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.Interchanges;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import org.jspecify.annotations.NonNull;
@@ -26,7 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // TODO Combine with FindLinkedStationsTest
 class FindStationsByNumberLinksTramTest {
@@ -75,52 +74,6 @@ class FindStationsByNumberLinksTramTest {
         assertTrue(additionalInterchanges.containsNoneOf(stationWithLinks), "\nFound also in config " + stationWithLinks +
                 " \nstations with links were " + additionalInterchanges);
     }
-
-    @Test
-    void shouldServiceIdsForLinks() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-
-        Station station = Cornbrook.from(stationRepository);
-
-        // needs to have at least threshold links
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-        assertTrue(interchangeRepository.isInterchange(station), "Not an interchange");
-
-        List<IdSet<Service>> results = finder.serviceIdsPerLink(station);
-
-        assertFalse(results.isEmpty());
-
-        IdSet<Service> allServices = getAllServicesFor(station);
-
-        results.forEach(servicesPerLink -> {
-            IdSet<Service> mismatch = servicesPerLink.removeAll(allServices);
-            assertTrue(mismatch.isEmpty(), "Mismatch %s between expected %s and %s".
-                    formatted(mismatch, allServices, servicesPerLink));
-        });
-    }
-
-    // TODO But is this useful?
-    // i.e. instead augment/capture interchange availability based on serviceId and/or date
-    @Test
-    void shouldFindLinksWithMoreThanNOverlappingServices() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-
-        Station station = Sale.from(stationRepository);
-
-        // needs to have at least threshold links
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-        assertTrue(interchangeRepository.isInterchange(station), "Not an interchange");
-
-         IdSet<Service> services = finder.atLeastNLinkedOverlappedServices(threshold, station);
-
-         assertFalse(services.isEmpty());
-
-        IdSet<Service> allServices = getAllServicesFor(station);
-        IdSet<Service> mismatch = services.removeAll(allServices);
-        assertTrue(mismatch.isEmpty(), "Mismatch %s between expected %s and %s".
-                formatted(mismatch, allServices, services));
-    }
-
 
     @Test
     void shouldIdInterchangePointsLinked() {

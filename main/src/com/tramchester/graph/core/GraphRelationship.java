@@ -8,7 +8,6 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
@@ -58,5 +57,4 @@ public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
     boolean validOn(TramDate tramDate);
     boolean hasTripIdInList(IdFor<Trip> tripId);
 
-    IdSet<Service> getServiceIds();
 }

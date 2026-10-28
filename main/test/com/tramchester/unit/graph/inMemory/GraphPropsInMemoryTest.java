@@ -226,33 +226,6 @@ public class GraphPropsInMemoryTest {
     }
 
     @Test
-    void shouldSetServiceIds() {
-        MutableGraphRelationship relationship = createRelationship();
-
-        IdSet<Service> serviceIds = new IdSet<>();
-        serviceIds.add(Service.createId("svcA"));
-        serviceIds.add(Service.createId("svcB"));
-        serviceIds.add(Service.createId("svcC"));
-
-        relationship.setServiceIds(serviceIds);
-
-        ImmutableIdSet<Service> resultA = relationship.getServiceIds();
-        assertEquals(serviceIds, resultA);
-
-        IdSet<Service> moreServiceIds = new IdSet<>();
-        serviceIds.add(Service.createId("svcD"));
-        serviceIds.add(Service.createId("svcE"));
-        relationship.addServiceIds(moreServiceIds);
-
-        ImmutableIdSet<Service> resultB = relationship.getServiceIds();
-        assertEquals(serviceIds.size()+moreServiceIds.size(), resultB.size());
-        assertTrue(resultB.containsAll(serviceIds));
-        assertTrue(resultB.containsAll(moreServiceIds));
-
-    }
-
-
-    @Test
     void shouldSetDateTimeRangeCorrectly() {
         MutableGraphRelationship relationship = createRelationship();
 

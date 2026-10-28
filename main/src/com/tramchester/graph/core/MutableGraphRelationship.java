@@ -2,13 +2,11 @@ package com.tramchester.graph.core;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
@@ -52,7 +50,4 @@ public interface MutableGraphRelationship extends GraphRelationship {
 
     void addTripId(IdFor<Trip> tripId);
 
-    // todo refactor in generic IdSet or IdFor handling?
-    void setServiceIds(ImmutableIdSet<Service> serviceIds);
-    void addServiceIds(ImmutableIdSet<Service> serviceIds);
 }

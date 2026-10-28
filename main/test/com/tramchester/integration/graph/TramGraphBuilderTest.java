@@ -117,35 +117,6 @@ class TramGraphBuilderTest {
     }
 
     @Test
-    void shouldHaveCorrectServiceIdsOnLinks() {
-        Station cornbrook = Cornbrook.from(stationRepository);
-        GraphNode cornbrookNode = txn.findNode(cornbrook);
-
-        Set<Route> routesToTraffordBar = cornbrook.getPickupRoutes().stream().
-                filter(route -> route.getTrips().stream().anyMatch(trip -> trip.callsAt(TraffordBar.getId()))).
-                collect(Collectors.toSet());
-
-        assertFalse(routesToTraffordBar.isEmpty());
-
-        IdSet<Service> serviceIds = routesToTraffordBar.stream().
-                flatMap(route -> route.getServices().stream()).
-                collect(IdSet.collector());
-
-        Optional<GraphRelationship> findToTraffordBar = cornbrookNode.getRelationships(txn, Outgoing, LINKED).
-                filter(rel -> rel.getEndNode(txn).getStationId().equals(TraffordBar.getId())).
-                findFirst();
-
-        assertFalse(findToTraffordBar.isEmpty());
-
-        GraphRelationship toTraffordBar = findToTraffordBar.get();
-        IdSet<Service> results = toTraffordBar.getServiceIds();
-
-        IdSet<Service> mismatch = IdSet.disjunction(results, serviceIds);
-        assertTrue(mismatch.isEmpty(), "Got mismatch %s between link \n%s and expected\n %s".
-                formatted(mismatch, results, serviceIds));
-    }
-
-    @Test
     void shouldNotHaveMissingTripsOnAnyServiceRelations() {
 
         Stream<GraphNode> nodes = txn.findNodes(GraphLabel.ROUTE_STATION);
