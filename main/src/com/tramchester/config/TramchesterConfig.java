@@ -41,7 +41,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     }
 
     public static boolean passAgainDisallowed(final TransportMode mode) {
-        return mode==Tram;
+        return TransportMode.isTram(mode);
     }
 
     public abstract String getEnvironmentName() ;

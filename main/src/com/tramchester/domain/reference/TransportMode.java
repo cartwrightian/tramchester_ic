@@ -9,20 +9,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public enum TransportMode implements HasTransportMode {
-    Bus((short)1),
-    Tram((short)2),
-    Train((short)3),
-    Walk((short)4),
-    Ferry((short)5),
-    Subway((short)6),
-    RailReplacementBus((short)7),
-    Ship((short)8),
+    Bus,
+    Tram,
+    Train,
+    Walk,
+    Ferry,
+    Subway,
+    RailReplacementBus,
+    Ship,
 
-    Connect((short)52),
+    Connect,
 
-    NotSet((short)53),
+    NotSet,
 
-    Unknown((short)999);
+    Unknown;
 
     public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
     public static final ImmutableEnumSet<TransportMode> TramsOnly = Tram.singleton();
@@ -31,24 +31,12 @@ public enum TransportMode implements HasTransportMode {
     public static final ImmutableEnumSet<TransportMode> Vehicles = ImmutableEnumSet.from(Arrays.asList(Bus, Tram, Train,
             Ferry, Subway, RailReplacementBus, Ship));
 
-    private static final Map<Short, TransportMode> index;
     private static final ImmutableEnumSet<TransportMode> NoneOf = ImmutableEnumSet.noneOf(TransportMode.class);
-
-    static {
-        index = new HashMap<>();
-        for(TransportMode mode : EnumSet.allOf(TransportMode.class)) {
-            index.put(mode.graphId, mode);
-        }
-    }
-
-    @JsonIgnore
-    private final short graphId;
 
     @JsonIgnore
     private final ImmutableEnumSet<TransportMode> singleton;
 
-    TransportMode(final short graphId) {
-        this.graphId = graphId;
+    TransportMode() {
         singleton = ImmutableEnumSet.of(this);
     }
 
@@ -64,18 +52,6 @@ public enum TransportMode implements HasTransportMode {
         return Vehicles.contains(hasTransportMode.getTransportMode());
     }
 
-    public static TransportMode fromNumber(final short number) {
-        return index.get(number);
-    }
-
-    public static ImmutableEnumSet<TransportMode> fromNumbers(final short[] numbers) {
-        final Set<TransportMode> result = new HashSet<>();
-        for (final short value : numbers) {
-            result.add(index.get(value));
-        }
-        return ImmutableEnumSet.copyOf(result);
-    }
-
     public static ImmutableEnumSet<TransportMode> parseCSV(final String csv) {
         final String[] divided = csv.split(",");
         return ImmutableEnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
@@ -89,10 +65,6 @@ public enum TransportMode implements HasTransportMode {
     @Override
     public TransportMode getTransportMode() {
         return this;
-    }
-
-    public short getNumber() {
-        return graphId;
     }
 
     public ImmutableEnumSet<TransportMode> singleton() {

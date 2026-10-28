@@ -79,7 +79,7 @@ public class TramStationAdjacenyRepository  {
 
     }
 
-    public Set<StationPair> getTramStationParis(final TramDate date) {
+    public Set<StationPair> getTramStationPairs(final TramDate date) {
 
         return tripRepository.getTrips().stream().
                 filter(TransportMode::isTram).

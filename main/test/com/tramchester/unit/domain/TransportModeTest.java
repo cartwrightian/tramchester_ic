@@ -5,7 +5,6 @@ import com.tramchester.domain.reference.TransportMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
@@ -23,11 +22,11 @@ public class TransportModeTest {
         assertFalse(modesB.anyIntersectionWith(modesC));
     }
 
-    @Test
-    void testSFromNumber() {
-        assertEquals(Bus, TransportMode.fromNumber((short) 1));
-        assertEquals(TransportMode.Unknown, TransportMode.fromNumber((short) 999));
-    }
+//    @Test
+//    void testSFromNumber() {
+//        assertEquals(Bus, TransportMode.fromNumber((short) 1));
+//        assertEquals(TransportMode.Unknown, TransportMode.fromNumber((short) 999));
+//    }
 
     @Test
     void shouldHaveVehicleModes() {
@@ -41,14 +40,14 @@ public class TransportModeTest {
 
     }
 
-    @Test
-    void testSFromNumbers() {
-
-        short[] numbers = { 1 , 4 , 8};
-        ImmutableEnumSet<TransportMode> result = TransportMode.fromNumbers(numbers);
-
-        assertEquals(ImmutableEnumSet.copyOf(EnumSet.of(Bus, Walk, Ship)), result);
-    }
+//    @Test
+//    void testSFromNumbers() {
+//
+//        short[] numbers = { 1 , 4 , 8};
+//        ImmutableEnumSet<TransportMode> result = TransportMode.fromNumbers(numbers);
+//
+//        assertEquals(ImmutableEnumSet.copyOf(EnumSet.of(Bus, Walk, Ship)), result);
+//    }
 
     @Test
     void parseFromCSV() {

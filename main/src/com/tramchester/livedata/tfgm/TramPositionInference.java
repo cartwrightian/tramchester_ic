@@ -63,7 +63,7 @@ public class TramPositionInference {
 
         TramDate date = TramDate.from(localDateTime);
         logger.info("Infer tram positions for whole network");
-        Set<StationPair> pairs = adjacenyRepository.getTramStationParis(date);
+        Set<StationPair> pairs = adjacenyRepository.getTramStationPairs(date);
         List<TramPosition> results = pairs.stream().
                 filter(stationPair -> !closedStationsRepository.isClosed(stationPair.getEnd(), date) &&
                                 !closedStationsRepository.isClosed(stationPair.getBegin(), date)).

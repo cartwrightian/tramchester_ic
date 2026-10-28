@@ -85,7 +85,7 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldHavePairsOfStations() {
-        Set<StationPair> pairs = repository.getTramStationParis(date);
+        Set<StationPair> pairs = repository.getTramStationPairs(date);
         IdFor<Station> stationId = RochdaleRail.getId();
 
         List<StationPair> results = pairs.stream().

@@ -106,6 +106,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
     @Override
     public MutableRoute createRoute(final GTFSTransportationType routeType, final RouteData routeData, final MutableAgency agency) {
+        // tram replacement buses are marked as tram in the data
         final TransportMode transportMode = GTFSTransportationType.toTransportMode(routeType);
 
         final String longName = routeData.getLongName();
@@ -115,7 +116,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
         if (transportMode.equals(TransportMode.Tram)) {
             final TFGMRouteNames routeName;
             if (routeNameText.equals(TFGMRouteNames.Constants.REPLACEMENT_BUS_PREFIX)) {
-                // Workaround for replacement buses all having the same short name
+                // Workaround for replacement buses all having the same route_short_name
                 routeName = TFGMRouteNames.parseFromSource(routeNameText+" "+longName.trim());
             } else {
                 routeName = TFGMRouteNames.parseFromSource(routeNameText);

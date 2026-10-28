@@ -5,8 +5,6 @@ import java.util.Map;
 
 public enum TFGMRouteNames {
 
-//    RochdaleOldham("Replacement Bus Rochhdale - Oldham", true),
-//    FreeholdRochdale("Replacement Bus Freehold - Rochdale", true),
     VictoriaPiccadilly("Replacement Bus Victoria - Piccadilly", true),
     FreeholdRochdale("Replacement Bus Freehold - Rochdale Town Centre", true),
     PiccadillyChorlton("Replacement Bus Piccadilly Station - Chorlton", true),
