@@ -17,6 +17,7 @@ import com.tramchester.repository.Interchanges;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,8 +76,6 @@ class FindStationsByNumberLinksTramTest {
                 " \nstations with links were " + additionalInterchanges);
     }
 
-    // WIP Spike - likely remove
-    //@DisabledUntilDate(year = 2026, month = 10, day = 27)
     @Test
     void shouldServiceIdsForLinks() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
@@ -91,22 +90,35 @@ class FindStationsByNumberLinksTramTest {
 
         assertFalse(results.isEmpty());
 
-        IdSet<Service> dropOffs = station.getDropoffRoutes().stream().
-                flatMap(route -> route.getServices().stream()).
-                collect(IdSet.collector());
-
-        IdSet<Service> pickups = station.getPickupRoutes().stream().
-                flatMap(route -> route.getServices().stream()).
-                collect(IdSet.collector());
-
-        IdSet<Service> allServices = IdSet.union(dropOffs, pickups);
+        IdSet<Service> allServices = getAllServicesFor(station);
 
         results.forEach(servicesPerLink -> {
             IdSet<Service> mismatch = servicesPerLink.removeAll(allServices);
             assertTrue(mismatch.isEmpty(), "Mismatch %s between expected %s and %s".
                     formatted(mismatch, allServices, servicesPerLink));
         });
+    }
 
+    // TODO But is this useful?
+    // i.e. instead augment/capture interchange availability based on serviceId and/or date
+    @Test
+    void shouldFindLinksWithMoreThanNOverlappingServices() {
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+
+        Station station = Sale.from(stationRepository);
+
+        // needs to have at least threshold links
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        assertTrue(interchangeRepository.isInterchange(station), "Not an interchange");
+
+         IdSet<Service> services = finder.atLeastNLinkedOverlappedServices(threshold, station);
+
+         assertFalse(services.isEmpty());
+
+        IdSet<Service> allServices = getAllServicesFor(station);
+        IdSet<Service> mismatch = services.removeAll(allServices);
+        assertTrue(mismatch.isEmpty(), "Mismatch %s between expected %s and %s".
+                formatted(mismatch, allServices, services));
     }
 
 
@@ -138,6 +150,18 @@ class FindStationsByNumberLinksTramTest {
 
         assertTrue(diff.isEmpty(), "Different: " + diff + "\nbetween expected:\n" + expected + " \nfound:" + found);
 
+    }
+
+    private static @NonNull IdSet<Service> getAllServicesFor(Station station) {
+        IdSet<Service> dropOffs = station.getDropoffRoutes().stream().
+                flatMap(route -> route.getServices().stream()).
+                collect(IdSet.collector());
+
+        IdSet<Service> pickups = station.getPickupRoutes().stream().
+                flatMap(route -> route.getServices().stream()).
+                collect(IdSet.collector());
+
+        return IdSet.union(dropOffs, pickups);
     }
 
 }

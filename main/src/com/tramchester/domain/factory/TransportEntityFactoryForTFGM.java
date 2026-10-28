@@ -201,10 +201,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
 
     @Override
     public Optional<MutablePlatform> maybeCreatePlatform(final StopData stopData, final Station station) {
-
         // TODO better way to do this
         if (!isMetrolinkTram(stopData)) {
-            logger.warn("maybeCreatePlatform called for a non tfgm platform? " + stopData);
+            if (logger.isDebugEnabled()) {
+                logger.debug("maybeCreatePlatform called for a non tfgm platform? " + stopData);
+            }
             return Optional.empty();
         }
 

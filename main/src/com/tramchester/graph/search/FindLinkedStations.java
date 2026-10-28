@@ -12,8 +12,11 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // TODO Now only one impl get have implementation here.....
 public abstract class  FindLinkedStations {
@@ -44,4 +47,26 @@ public abstract class  FindLinkedStations {
     }
 
     public abstract List<IdSet<Service>> serviceIdsPerLink(Station station);
+
+    public IdSet<Service> atLeastNLinkedOverlappedServices(int threshold, Station station) {
+        List<IdSet<Service>> servicesPerLinks = serviceIdsPerLink(station);
+
+        Map<IdFor<Service>, AtomicInteger> totals = new HashMap<>();
+
+        for (int i = 0; i < servicesPerLinks.size(); i++) {
+            IdSet<Service> servicesForLink = servicesPerLinks.get(i);
+            servicesForLink.forEach(serviceId -> {
+                if (!totals.containsKey(serviceId)) {
+                    totals.put(serviceId, new AtomicInteger());
+                }
+                totals.get(serviceId).incrementAndGet();
+            });
+        }
+
+        return totals.entrySet().stream().
+                filter(entry -> entry.getValue().get()>=threshold).
+                map(Map.Entry::getKey).
+                collect(IdSet.idCollector());
+
+    }
 }
