@@ -3,6 +3,7 @@ package com.tramchester.dataimport.loader;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
@@ -102,7 +103,11 @@ public class GTFSStopTimeLoader {
                 throw new RuntimeException("Missing closed station id in preloaded " + closedStationId);
             }
             final MutableStation station = preloadStations.get(closedStationId);
-            transportModes.forEach(station::addMode);
+            final ImmutableEnumSet<TransportMode> missingModes = ImmutableEnumSet.copyOf(transportModes).without(station.getTransportModes());
+            if (!missingModes.isEmpty()) {
+                logger.warn("Need to update station %s with modes %s".formatted(closedStationId, missingModes));
+                missingModes.forEach(station::addMode);
+            }
             buildable.addStation(station);
             logger.info("Added closed station " + closedStationId);
         }

@@ -79,10 +79,10 @@ public enum TransportRelationshipTypes {
         return switch (transportMode) {
             case Train, RailReplacementBus -> TRAIN_GOES_TO;
             case Bus -> BUS_GOES_TO;
-            case Tram -> TRAM_GOES_TO;
+            case Tram, TramReplacementBus -> TRAM_GOES_TO;
             case Ferry, Ship -> FERRY_GOES_TO;
             case Subway -> SUBWAY_GOES_TO;
-            default -> throw new RuntimeException("Unexpected travel mode " + transportMode);
+            case Walk, NotSet, Unknown, Connect -> throw new RuntimeException("Unexpected travel mode " + transportMode);
         };
     }
 

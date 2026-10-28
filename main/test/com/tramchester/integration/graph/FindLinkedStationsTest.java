@@ -80,8 +80,11 @@ class FindLinkedStationsTest {
     }
 
     private StationToStationConnection createLink(TramStations stationA, TramStations stationB) {
-        return StationToStationConnection.createForWalk(stationA.from(stationRepository), stationB.from(stationRepository),
-                TransportMode.TramsOnly, StationToStationConnection.LinkType.Linked, geography);
+        return StationToStationConnection.createForWalk(
+                stationA.from(stationRepository),
+                stationB.from(stationRepository),
+                TransportMode.Tram.singleton(),
+                StationToStationConnection.LinkType.Linked, geography);
     }
 
 }

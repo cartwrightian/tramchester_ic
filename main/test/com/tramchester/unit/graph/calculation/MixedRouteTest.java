@@ -79,7 +79,7 @@ class MixedRouteTest {
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
 
-        modes = ImmutableEnumSet.copyOf(config.getTransportModes());
+        modes = config.getTransportModesImmutable();
     }
 
     @AfterEach

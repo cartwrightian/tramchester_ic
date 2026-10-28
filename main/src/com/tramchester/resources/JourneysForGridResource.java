@@ -78,7 +78,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         final TramDuration maxDuration = TramDuration.ofMinutes(gridQueryDTO.getMaxDuration());
 
         // todo into parameters
-        final ImmutableEnumSet<TransportMode> allModes = ImmutableEnumSet.copyOf(config.getTransportModes());
+        final ImmutableEnumSet<TransportMode> allModes = config.getTransportModesImmutable();
 
         int maxChanges = gridQueryDTO.getMaxChanges();
         final JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,

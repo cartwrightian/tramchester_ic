@@ -46,13 +46,13 @@ public enum GraphLabel { //implements Label {
 
     public static GraphLabel forMode(final TransportMode mode) {
         return switch (mode) {
-            case Tram -> TRAM;
+            case Tram, TramReplacementBus -> TRAM;
             case Bus -> BUS;
             case Train, RailReplacementBus -> TRAIN;
             case Ferry, Ship -> FERRY;
             case Subway -> SUBWAY;
             case Walk -> QUERY_NODE; // TODO This is inconsistent!
-            default -> throw new RuntimeException("Unsupported mode " + mode);
+            case Connect, NotSet, Unknown -> throw new RuntimeException("Unsupported mode " + mode);
         };
     }
 

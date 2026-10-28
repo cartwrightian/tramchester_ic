@@ -73,7 +73,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     public Response getAll() {
         logger.info("Get station links");
 
-        final Stream<StationToStationConnection> allLinks = config.getTransportModes().
+        final Stream<StationToStationConnection> allLinks = config.getTransportModesImmutable().
                 stream().flatMap(mode -> findStationLinks.findLinkedFor(mode).stream());
 
         final List<StationToStationConnectionDTO> results = allLinks.
@@ -159,7 +159,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
         logger.info("Get composite links");
 
         List<StationGroupDTO> groups = new ArrayList<>();
-        config.getTransportModes().forEach(mode ->
+        config.getTransportModesImmutable().forEach(mode ->
                 groups.addAll(stationGroupsRepository.getStationGroupsFor(mode).stream().
                         map(dtoFactory::createStationGroupDTO).collect(Collectors.toSet())));
 

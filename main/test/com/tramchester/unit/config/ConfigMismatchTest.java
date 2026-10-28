@@ -343,7 +343,7 @@ class ConfigMismatchTest {
             validateNeighbourConfig(expected, testConfig);
         }
         if (Category.Modes.not(excluded)) {
-            assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
+            assertEquals(expected.getTransportModesImmutable(), testConfig.getTransportModesImmutable(), "getTransportModes");
         }
         assertEquals(expected.getCalcTimeoutMillis(), testConfig.getCalcTimeoutMillis(), "CalcTimeoutMillis");
         assertEquals(expected.getPlanningEnabled(), testConfig.getPlanningEnabled(), "planningEnabled");

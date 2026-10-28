@@ -21,7 +21,7 @@ public class TransportModeRepository {
 
     @Inject
     public TransportModeRepository(TramchesterConfig config) {
-        this.enabledModes = ImmutableEnumSet.copyOf(config.getTransportModes());
+        this.enabledModes = config.getTransportModesImmutable();
         this.inProduction = config.inProdEnv();
     }
 

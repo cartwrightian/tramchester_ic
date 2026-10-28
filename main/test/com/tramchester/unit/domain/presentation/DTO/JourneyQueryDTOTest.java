@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,8 +133,8 @@ public class JourneyQueryDTOTest {
     private static class LocalConfig extends TestConfig {
 
         @Override
-        public EnumSet<TransportMode> getTransportModes() {
-            return EnumSet.of(TransportMode.Tram);
+        public ImmutableEnumSet<TransportMode> getTransportModesImmutable() {
+            return TransportMode.TramsOnly;
         }
 
         @Override

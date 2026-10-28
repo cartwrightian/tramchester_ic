@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.GraphLabel.INTERCHANGE;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
@@ -395,7 +394,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                          final BoardingDepartNodeCache boardingDepartNodeCache) {
 
         if (!stopCall.callsAtStation()) {
-            if (route.getTransportMode()==Tram) {
+            if (TransportMode.isTram( route)) {
                 logger.warn("No pickup or drop-off for " + stopCall);
             }
             return;

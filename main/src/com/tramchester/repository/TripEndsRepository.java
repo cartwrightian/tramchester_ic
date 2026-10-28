@@ -27,7 +27,7 @@ public class TripEndsRepository {
 
     private final TripRepository tripRepository;
     private final Map<TransportMode, ImmutableIdSet<Station>> firstAndLastStops;
-    private final Set<TransportMode> enabledModes;
+    private final ImmutableEnumSet<TransportMode> enabledModes;
     private final StationRepository stationRepository;
 
     @Inject
@@ -36,7 +36,7 @@ public class TripEndsRepository {
         this.stationRepository = stationRepository;
 
         firstAndLastStops = new EnumMap<>(TransportMode.class);
-        enabledModes = config.getTransportModes();
+        enabledModes = config.getTransportModesImmutable();
     }
 
     @PostConstruct

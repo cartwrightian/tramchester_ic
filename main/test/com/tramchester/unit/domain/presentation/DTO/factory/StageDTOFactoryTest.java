@@ -204,6 +204,9 @@ class StageDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(TransportMode.Bus, stageDTO.getMode());
+
+        // TODO
+        //fail("should be replacement bus");
     }
 
     private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action,

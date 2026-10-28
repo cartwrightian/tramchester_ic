@@ -94,6 +94,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         }
 
         @Override
+        public boolean containsAll(Collection<T> items) {
+            return false;
+        }
+
+        @Override
         public Set<T> intersectionWith(final ImmutableEnumSet<T> other) {
             return Collections.emptySet();
         }
@@ -130,6 +135,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
 
         @Override
         public ImmutableEnumSet<T> without(Set<T> remove) {
+            return this;
+        }
+
+        @Override
+        public ImmutableEnumSet<T> without(ImmutableEnumSet<T> remove) {
             return this;
         }
 
@@ -179,6 +189,14 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         @Override
         public boolean contains(final T item) {
             return this.item.equals(item);
+        }
+
+        @Override
+        public boolean containsAll(final Collection<T> items) {
+            if (items.size()==1) {
+                return items.contains(item);
+            }
+            return false;
         }
 
         @Override
@@ -237,6 +255,17 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         }
 
         @Override
+        public ImmutableEnumSet<T> without(final ImmutableEnumSet<T> remove) {
+            if (remove.contains(item)) {
+                final EnumSet<T> keepTypeInfo = EnumSet.of(item); // workaround
+                keepTypeInfo.clear();
+                return new Many<>(keepTypeInfo);
+            } else {
+                return new One<>(item);
+            }
+        }
+
+        @Override
         public @NotNull Iterator<T> iterator() {
             return Collections.singleton(item).iterator();
         }
@@ -268,6 +297,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         @Override
         public boolean contains(final T item) {
             return contained.contains(item);
+        }
+
+        @Override
+        public boolean containsAll(Collection<T> items) {
+            return contained.containsAll(items);
         }
 
         @Override
@@ -337,6 +371,17 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         public ImmutableEnumSet<T> without(final Set<T> remove) {
             final List<T> filtered = new ArrayList<>(contained);
             filtered.removeAll(remove);
+            if (filtered.size()==1) {
+                return new One<>(filtered.getFirst());
+            } else {
+                return ImmutableEnumSetImpl.createFrom(EnumSet.copyOf(filtered));
+            }
+        }
+
+        @Override
+        public ImmutableEnumSet<T> without(final ImmutableEnumSet<T> remove) {
+            final List<T> filtered = new ArrayList<>(contained);
+            remove.forEach(filtered::remove);
             if (filtered.size()==1) {
                 return new One<>(filtered.getFirst());
             } else {

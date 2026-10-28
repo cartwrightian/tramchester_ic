@@ -174,7 +174,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         if (!isEnabled()) {
             return Collections.emptyList();
         }
-        if (!station.getTransportModes().contains(TransportMode.Tram)) {
+        if (!TransportMode.isTram(station)) { // !station.getTransportModes().contains(TransportMode.Tram)) {
             logger.info("Not a tram station, not checking for messages for " + station.getId());
             return Collections.emptyList();
         }

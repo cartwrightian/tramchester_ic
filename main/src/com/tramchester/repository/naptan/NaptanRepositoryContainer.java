@@ -216,7 +216,7 @@ public class NaptanRepositoryContainer  extends ComponentThatCaches<NaptanRecord
             bounds = config.getBounds();
             margin = config.getWalkingDistanceRange();
 
-            hasTrain = config.getTransportModes().contains(Train);
+            hasTrain = config.getTransportModesImmutable().contains(Train);
             requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModesImmutable());
         }
 
@@ -272,7 +272,7 @@ public class NaptanRepositoryContainer  extends ComponentThatCaches<NaptanRecord
 
         public CachingLoader(final NPTGRepository nptgRepository, TramchesterConfig config) {
             this.nptgRepository = nptgRepository;
-            this.hasTrain = config.getTransportModes().contains(Train);
+            this.hasTrain = config.getTransportModesImmutable().contains(Train);
 
             stops = new IdMap<>();
             tiplocToAtco = new HashMap<>();

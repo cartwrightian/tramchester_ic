@@ -106,7 +106,7 @@ public class MutableStation implements Station {
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
         if (modes.isEmpty()) {
-            return ImmutableEnumSet.noneOf(TransportMode.class);
+            return TransportMode.noneOf();
         }
         return ImmutableEnumSet.copyOf(modes);
     }
@@ -274,7 +274,7 @@ public class MutableStation implements Station {
         servesRoutesPickup.add(pickupFromRoute);
     }
 
-    public void addMode(TransportMode mode) {
+    public void addMode(final TransportMode mode) {
         modes.add(mode);
     }
 

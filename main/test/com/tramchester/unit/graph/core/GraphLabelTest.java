@@ -33,8 +33,8 @@ public class GraphLabelTest {
         ImmutableEnumSet<TransportMode> modes = getTransportModes();
 
         ImmutableEnumSet<GraphLabel> results = GraphLabel.forModes(modes);
-        int size = modes.size() - 2; // Ferry&Ship->Ferry, Rail&RailReplacementBus->Train
-        assertEquals(size, results.size());
+        int size = modes.size() - 3; // Ferry&Ship->Ferry, Rail&RailReplacementBus->Train, Tram&ReplacementBusTram
+        assertEquals(size, results.size(), "mismatch size between %s and %s".formatted(modes, results));
     }
 
     @Test

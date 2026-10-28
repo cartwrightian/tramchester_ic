@@ -78,7 +78,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                 return;
             }
         }
-        config.getTransportModes().forEach(this::addGroupedStationsNodesAndLinks);
+        config.getTransportModesImmutable().forEach(this::addGroupedStationsNodesAndLinks);
         try(MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             addDBFlag(txn);
             txn.commit();

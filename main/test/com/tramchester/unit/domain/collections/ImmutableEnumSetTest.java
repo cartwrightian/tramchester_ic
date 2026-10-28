@@ -6,6 +6,7 @@ import com.tramchester.graph.reference.GraphLabel;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.*;
@@ -27,6 +28,10 @@ public class ImmutableEnumSetTest {
         assertFalse(set.isEmpty());
         assertTrue(set.contains(Tram));
         assertFalse(set.contains(Bus));
+
+        assertTrue(set.containsAll(List.of(Tram)));
+        assertFalse(set.containsAll(List.of(Bus)));
+        assertFalse(set.containsAll(List.of(Tram, Bus)));
 
         assertTrue(set.anyIntersectionWith(ImmutableEnumSet.of(Tram)));
         assertTrue(set.anyIntersectionWith(ImmutableEnumSet.of(Bus,Tram)));
@@ -54,6 +59,7 @@ public class ImmutableEnumSetTest {
         assertEquals(2, resultAdd.size());
         assertTrue(resultAdd.contains(Bus));
         assertTrue(resultAdd.contains(Tram));
+        assertTrue(resultAdd.containsAll(List.of(Tram, Bus)));
 
     }
 
@@ -93,6 +99,11 @@ public class ImmutableEnumSetTest {
         assertTrue(set.contains(Tram));
         assertTrue(set.contains(Walk));
         assertTrue(set.contains(RailReplacementBus));
+
+        assertTrue(set.containsAll(List.of(Tram)));
+        assertTrue(set.containsAll(List.of(Tram, Walk)));
+        assertTrue(set.containsAll(List.of(Tram, Walk, RailReplacementBus)));
+
         assertFalse(set.contains(Bus));
 
         assertTrue(set.anyIntersectionWith(ImmutableEnumSet.of(Tram)));
@@ -109,7 +120,6 @@ public class ImmutableEnumSetTest {
         ImmutableEnumSet<GraphLabel> conversionResult = set.convertTo(GraphLabel.class, GraphLabel::forMode);
         assertEquals(3, conversionResult.size());
         assertTrue(conversionResult.contains(GraphLabel.TRAM));
-
 
         ImmutableEnumSet<TransportMode> withoutA = set.without(EnumSet.of(Ferry, Bus));
         assertEquals(set, withoutA);

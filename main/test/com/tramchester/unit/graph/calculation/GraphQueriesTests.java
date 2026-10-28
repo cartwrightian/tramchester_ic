@@ -61,7 +61,7 @@ class GraphQueriesTests {
 
         assertEquals(6, links.size());
 
-        ImmutableEnumSet<TransportMode> modes = TransportMode.TramsOnly;
+        ImmutableEnumSet<TransportMode> modes = Tram.singleton();
         assertTrue(matches(links, modes, transportData.getFirst(), transportData.getSecond()));
         assertTrue(matches(links, modes, transportData.getSecond(), transportData.getInterchange()));
         assertTrue(matches(links, modes, transportData.getInterchange(), transportData.getFourthStation()));

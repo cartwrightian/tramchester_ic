@@ -66,7 +66,8 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
             warnForMissing = false;
         } else {
             // for mixed modes don't warn on lack on route overlap
-            this.warnForMissing = config.getTransportModes().size()==1;
+            // TODO might need to update for Tram replacement buses?
+            this.warnForMissing = config.getTransportModesImmutable().size()==1;
         }
     }
 

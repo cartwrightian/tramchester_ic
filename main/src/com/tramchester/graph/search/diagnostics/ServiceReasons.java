@@ -146,7 +146,7 @@ public class ServiceReasons {
     private ReasonCode getReasonCode(final TransportMode transportMode) {
         return switch (transportMode) {
             case Tram -> ReasonCode.OnTram;
-            case Bus, RailReplacementBus -> ReasonCode.OnBus;
+            case Bus, RailReplacementBus, TramReplacementBus -> ReasonCode.OnBus;
             case Train -> ReasonCode.OnTrain;
             case Walk, Connect -> ReasonCode.OnWalk;
             case Ferry, Ship -> ReasonCode.OnShip;

@@ -223,7 +223,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldFindNoHopsIfWrongTransportMode() {
 
-        assumeFalse(config.getTransportModes().contains(Train)); // for DualTest
+        assumeFalse(config.getTransportModesImmutable().contains(Train)); // for DualTest
 
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);

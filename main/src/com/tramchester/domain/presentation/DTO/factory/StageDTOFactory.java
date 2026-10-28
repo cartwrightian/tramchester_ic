@@ -37,6 +37,8 @@ public class StageDTOFactory {
         final Route route = source.getRoute();
 
         TransportMode mode = source.getTransportMode();
+
+        // TODO moving to direct use of ReplacementTramBus
         if (mode==TransportMode.Tram) {
             if (Agency.IsMetrolink(route.getAgency().getId()) && busReplacementRepository.isReplacement(route.getId())) {
                 mode=TransportMode.Bus;

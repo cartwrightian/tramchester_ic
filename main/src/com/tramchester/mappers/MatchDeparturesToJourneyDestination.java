@@ -41,7 +41,7 @@ public class MatchDeparturesToJourneyDestination {
     private boolean matchesJourneyDestination(final UpcomingDeparture upcomingDeparture, final IdFor<Station> destId, final ImmutableIdSet<Station> changeIds) {
         // transport mode here needs to include connecting stage....
         return switch (upcomingDeparture.getMode()) {
-            case Tram -> matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, changeIds, destId);
+            case Tram, TramReplacementBus -> matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, changeIds, destId);
             case Train, RailReplacementBus -> hasCallingPoints(upcomingDeparture);
             case Ferry, Subway, Bus, Ship -> false;
             case Walk, Connect, NotSet, Unknown -> throw new RuntimeException("Unexpected mode for an UpcomingDeparture " + upcomingDeparture);

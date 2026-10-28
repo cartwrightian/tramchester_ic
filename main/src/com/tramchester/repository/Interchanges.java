@@ -134,7 +134,7 @@ public class Interchanges implements InterchangeRepository {
 
     private boolean discoveryEnabled(final TransportMode mode) {
         return switch (mode) {
-            case Tram, Bus, Train, Ferry, Subway, RailReplacementBus -> true;
+            case Tram, TramReplacementBus, Bus, Train, Ferry, Subway, RailReplacementBus -> true;
             case Connect, NotSet, Walk, Ship, Unknown -> false;
         };
     }

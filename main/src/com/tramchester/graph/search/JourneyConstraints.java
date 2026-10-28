@@ -64,7 +64,7 @@ public class JourneyConstraints {
     }
 
     private int computeMaxPathLength() {
-        return config.getTransportModes().stream().map(this::getPathMaxFor).max(Integer::compareTo).orElseThrow();
+        return config.getTransportModesImmutable().stream().map(this::getPathMaxFor).max(Integer::compareTo).orElseThrow();
     }
 
     private int getPathMaxFor(TransportMode mode) {

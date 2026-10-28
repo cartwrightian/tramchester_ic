@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -212,7 +213,7 @@ public class RailAndTramTransportDataFromFilesTest {
 
     @Test
     void shouldHaveCorrectModes() {
-        Set<TransportMode> transportModes = config.getTransportModes();
+        ImmutableEnumSet<TransportMode> transportModes = config.getTransportModesImmutable();
 
         assertEquals(3, transportModes.size(), transportModes.toString());
         assertTrue(transportModes.contains(Tram));

@@ -112,7 +112,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         final ImmutableEnumSet<TransportMode> modes;
         if (modesFromQuery.isEmpty()) {
             logger.warn("modes not supplied, fall back to all configured modes");
-            modes = ImmutableEnumSet.copyOf(config.getTransportModes());
+            modes = config.getTransportModesImmutable();
         } else {
             modes = ImmutableEnumSet.copyOf(modesFromQuery);
         }

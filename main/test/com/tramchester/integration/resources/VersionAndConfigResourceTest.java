@@ -1,5 +1,6 @@
 package com.tramchester.integration.resources;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.Version;
 import com.tramchester.domain.reference.TransportMode;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
-import java.util.Set;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,7 +63,7 @@ class VersionAndConfigResourceTest {
 
     @Test
     void shouldGetConfig() {
-        Set<TransportMode> expectedModes = configuration.getTransportModes();
+        ImmutableEnumSet<TransportMode> expectedModes = configuration.getTransportModesImmutable();
 
         Response response = APIClient.getApiResponse(factory, endPoint+"/config");
         assertEquals(200, response.getStatus());
@@ -81,7 +81,7 @@ class VersionAndConfigResourceTest {
 
     @Test
     void shouldGetTransportModesWithBetaFlag() {
-        Set<TransportMode> expectedModes = configuration.getTransportModes();
+        ImmutableEnumSet<TransportMode> expectedModes = configuration.getTransportModesImmutable();
 
         Response responce = APIClient.getApiResponse(factory, endPoint+"/config?beta=true");
         assertEquals(200, responce.getStatus());

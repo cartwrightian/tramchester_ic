@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport.config;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,10 +14,10 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -57,18 +58,18 @@ public class GraphDBTestConfig implements GraphDBConfig {
 
         final boolean hasClosures = gtfsDataSource.stream().anyMatch(gtfsSourceConfig -> !gtfsSourceConfig.getStationClosures().isEmpty());
 
-        final EnumSet<TransportMode> modesFromConfig = config.getTransportModes();
-        String modes = modesFromConfig.isEmpty() ? "NoModesEnabled" : asText(modesFromConfig);
+        final ImmutableEnumSet<TransportMode> modesFromConfig = config.getTransportModesImmutable();
+        String modes = modesFromConfig.isEmpty() ? "NoModesEnabled" : asText(modesFromConfig.stream());
 
         String subFolderName = pathPrefix.isEmpty() ? format("%s_%s", group, modes) : format("%s_%s_%s", pathPrefix, group, modes);
 
         if (!sourcesFromConfig.isEmpty()) {
-            subFolderName = subFolderName + "_sources_" + asText(sourcesFromConfig);
+            subFolderName = subFolderName + "_sources_" + asText(sourcesFromConfig.stream());
         }
 
         String dbName = "tramchester_database";
         if (!groupedModesFromConfig.isEmpty()) {
-            dbName = dbName + "_grouped_" + asText(groupedModesFromConfig);
+            dbName = dbName + "_grouped_" + asText(groupedModesFromConfig.stream());
         }
         if (config.hasNeighbourConfig()) {
             dbName = dbName + "_withNeighbours";
@@ -139,9 +140,9 @@ public class GraphDBTestConfig implements GraphDBConfig {
     }
 
     // need consistent ordering here to prevent duplication
-    private <E extends Enum<E>> String asText(final Set<E> enums) {
+    private <E extends Enum<E>> String asText(final Stream<E> enums) {
 
-        final List<E> ordered = enums.stream().sorted(Comparator.comparing(Enum::name)).toList();
+        final List<E> ordered = enums.sorted(Comparator.comparing(Enum::name)).toList();
 
         final StringBuilder builder = new StringBuilder();
         for (E value : ordered) {

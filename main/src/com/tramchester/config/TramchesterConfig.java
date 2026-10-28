@@ -142,6 +142,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return ImmutableEnumSet.copyOf(transportModes);
     }
 
+    @Deprecated
     public EnumSet<TransportMode> getTransportModes() {
         final EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);
         getGtfsSourceConfig().stream().

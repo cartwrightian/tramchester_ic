@@ -101,7 +101,7 @@ public class PerformanceTestCLI extends BaseCLI {
     private void doCalculations(TramDate date,
                                 TramchesterConfig config, RouteCalculationCombinations<Station> combinations, Running running) {
 
-        final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.copyOf(config.getTransportModes());
+        final ImmutableEnumSet<TransportMode> modes = config.getTransportModesImmutable();
 
         final LocationIdPairSet<Station> stationIdPairs = getPairs(date, modes, combinations);
 

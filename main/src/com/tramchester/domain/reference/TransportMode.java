@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public enum TransportMode implements HasTransportMode {
     Bus,
     Tram,
+    TramReplacementBus,
     Train,
     Walk,
     Ferry,
@@ -25,7 +26,7 @@ public enum TransportMode implements HasTransportMode {
     Unknown;
 
     public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
-    public static final ImmutableEnumSet<TransportMode> TramsOnly = Tram.singleton();
+    public static final ImmutableEnumSet<TransportMode> TramsOnly = ImmutableEnumSet.of(Tram, TramReplacementBus);
     public static final ImmutableEnumSet<TransportMode> TrainOnly = Train.singleton();
 
     public static final ImmutableEnumSet<TransportMode> Vehicles = ImmutableEnumSet.from(Arrays.asList(Bus, Tram, Train,
