@@ -3,6 +3,7 @@ package com.tramchester.dataimport.loader;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdFor;
@@ -31,7 +32,7 @@ public class RouteDataLoader {
     }
 
     public LoadedRoutesCache load(final Stream<RouteData> routeDataStream, final CompositeIdMap<Agency, MutableAgency> allAgencies) {
-        final EnumSet<GTFSTransportationType> transportModes = EnumSet.copyOf(sourceConfig.getTransportGTFSModes());
+        final ImmutableEnumSet<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
         final DataSourceID dataSourceID = sourceConfig.getDataSourceId();
 
         final AtomicInteger count = new AtomicInteger();
@@ -109,7 +110,7 @@ public class RouteDataLoader {
             excludedRouteIds.clear();
         }
 
-        public void recordInLog(final Set<GTFSTransportationType> transportModes) {
+        public void recordInLog(final ImmutableEnumSet<GTFSTransportationType> transportModes) {
             if (excludedRouteIds.isEmpty()) {
                 return;
             }

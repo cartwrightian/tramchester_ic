@@ -181,7 +181,9 @@ public class StationGroup implements Location<StationGroup>, GraphProperty, HasG
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        return flattenEnum(Station::getTransportModes);
+        return groupedStations.stream().
+                flatMap(station -> station.getTransportModes().stream()).
+                collect(ImmutableEnumSet.collect(TransportMode.class));
     }
 
     @Override
@@ -197,13 +199,6 @@ public class StationGroup implements Location<StationGroup>, GraphProperty, HasG
         return groupedStations.stream().
                 flatMap(station -> map.apply(station).stream()).
                 collect(Collectors.toUnmodifiableSet());
-    }
-
-    private <R extends Enum<R>> ImmutableEnumSet<R> flattenEnum(Function<Station, ImmutableEnumSet<R>> map) {
-        final Set<R> collect = groupedStations.stream().
-                flatMap(station -> map.apply(station).stream()).
-                collect(Collectors.toUnmodifiableSet());
-        return ImmutableEnumSet.copyOf(collect);
     }
 
     @Override

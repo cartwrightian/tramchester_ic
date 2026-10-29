@@ -44,8 +44,8 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         // TODO not long enough?
         TramDuration maxInitialWait = TramDuration.ofMinutes(45);
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(
-                Collections.singleton(GTFSTransportationType.bus),
-                modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), maxInitialWait,
+                GTFSTransportationType.bus.singleton(),
+                TransportMode.noneOf(), additionalInterchanges, groupedStationModes, Collections.emptyList(), maxInitialWait,
                 Collections.emptyList());
         remoteDataSourceConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
     }

@@ -35,7 +35,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -96,6 +98,30 @@ class StationGeographyResourceTest {
 
         assertTrue(results.contains(createLink(StPetersSquare, Deansgate, linkType)));
         assertTrue(results.contains(createLink(Deansgate, StPetersSquare, linkType)));
+    }
+
+    @Test
+    void shouldHaveExpectLinksDuringReplacementBuses() {
+        String endPoint = "geo/links";
+
+        Response response = APIClient.getApiResponse(factory, endPoint);
+        assertEquals(200, response.getStatus(), "status");
+
+        List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
+
+        // during closures
+        Set<StationToStationConnectionDTO> busLinks = results.stream().
+                filter(item -> item.getTransportModes().contains(TransportMode.TramReplacementBus)).collect(Collectors.toSet());
+        assertFalse(busLinks.isEmpty());
+
+        Optional<StationToStationConnectionDTO> findFromAlty = busLinks.stream().
+                filter(link -> link.getBegin().getName().equals(Altrincham.getName())).
+                max(Comparator.comparing(StationToStationConnectionDTO::getDistanceInMeters));
+
+        assertFalse(findFromAlty.isEmpty());
+        StationToStationConnectionDTO fromAlty = findFromAlty.get();
+
+        assertEquals(Piccadilly.getName(), fromAlty.getEnd().getName());
     }
 
     @Test

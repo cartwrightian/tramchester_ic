@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport.config;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.geo.BoundingBox;
@@ -32,7 +33,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        final Set<TransportMode> modesWithPlatforms = new HashSet<>(Arrays.asList(Tram, Train));
+        final ImmutableEnumSet<TransportMode> modesWithPlatforms = ImmutableEnumSet.of(Tram, Train);
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
         Path dowloadFolder = Path.of("data/bus");

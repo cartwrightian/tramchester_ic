@@ -75,10 +75,9 @@ public enum NaptanStopType {
     }
 
     public static ImmutableEnumSet<NaptanStopType> getTypesFor(final ImmutableEnumSet<TransportMode> transportModes) {
-        final Set<NaptanStopType> found = transportModes.stream().
+        return transportModes.stream().
                 flatMap(mode -> getTypesFor(mode).stream()).
-                collect(Collectors.toSet());
-        return ImmutableEnumSet.copyOf(found);
+                collect(ImmutableEnumSet.collect(NaptanStopType.class));
     }
 
     public static Set<NaptanStopType> getTypesFor(final TransportMode mode) {

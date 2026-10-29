@@ -239,16 +239,20 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void createLinkRelationship(final MutableGraphNode from, final MutableGraphNode end, final Route route,
                                         final MutableGraphTransaction txn) {
 
-        final TransportMode mode = route.getTransportMode();
+        final TransportMode routeMode = route.getTransportMode();
 
+        final TransportMode mode = TransportMode.mapReplacements(routeMode);
+
+        final MutableGraphRelationship linkRelationship;
         if (from.hasRelationship(txn, Outgoing, LINKED, end)) {
-
-            final MutableGraphRelationship existingLinked = from.getSingleRelationshipMutable(txn, LINKED, Outgoing, end);
-            existingLinked.addTransportMode(mode);
+            linkRelationship = from.getSingleRelationshipMutable(txn, LINKED, Outgoing, end);
         } else {
-            // else create new
-            final MutableGraphRelationship stationsLinked = createRelationship(txn, from, end, LINKED);
-            stationsLinked.addTransportMode(mode);
+            linkRelationship = createRelationship(txn, from, end, LINKED);
+        }
+
+        linkRelationship.addTransportMode(mode);
+        if (routeMode!=mode) {
+            linkRelationship.addTransportMode(routeMode);
         }
     }
 

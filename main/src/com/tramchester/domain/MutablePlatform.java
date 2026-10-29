@@ -18,7 +18,6 @@ import com.tramchester.graph.reference.GraphLabel;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -231,12 +230,8 @@ public class MutablePlatform implements Platform {
 
     @Override
     public ImmutableEnumSet<TransportMode> getTransportModes() {
-        Set<TransportMode> modes = Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
-                map(Route::getTransportMode).collect(Collectors.toSet());
-        if (modes.isEmpty()) {
-            return ImmutableEnumSet.noneOf(TransportMode.class);
-        }
-        return ImmutableEnumSet.copyOf(modes);
+        return Streams.concat(servesRoutesDropoff.stream(), servesRoutesPickup.stream()).
+                map(Route::getTransportMode).collect(ImmutableEnumSet.collect(TransportMode.class));
     }
 
     @Override

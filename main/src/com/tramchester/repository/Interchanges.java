@@ -191,7 +191,7 @@ public class Interchanges implements InterchangeRepository {
         // todo into config? Per datasource & transport mode? Bus 2??
         return switch (mode) {
             case Ferry -> 2;
-            case Bus, Tram, Subway, Train, RailReplacementBus -> 3;
+            case Bus, Tram, Subway, Train, RailReplacementBus, TramReplacementBus -> 3;
             default -> throw new RuntimeException("Todo for " + mode);
         };
     }
@@ -256,7 +256,7 @@ public class Interchanges implements InterchangeRepository {
     private void addMultiModeStations() {
         // NOTE: by default the train data set contains mixed mode due to replacement buses, bus links, subways etc
         final Set<Station> multimodeStations = stationRepository.getActiveStationStream().
-                filter(station -> station.getTransportModes().size() > 1).
+                filter(this::isMultimode).
                 collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");
 
@@ -264,14 +264,16 @@ public class Interchanges implements InterchangeRepository {
                 filter(station -> !addStationToInterchanges(station, InterchangeType.Multimodal)).
                 collect(IdSet.collector());
 
-        //        multimodeStations.forEach(station -> station.getTransportModes().forEach(x -> addStationToInterchanges(station,
-//                InterchangeType.Multimodal)));
-
         if (!couldNotAdd.isEmpty()) {
             logger.error("Failed to add multimode interchanes " + couldNotAdd);
         }
 
+    }
 
+    private boolean isMultimode(final Station station) {
+        // roll up replacement bus and train
+        ImmutableEnumSet<TransportMode> transportModes = TransportMode.consolidateReplacements(station.getTransportModes());
+        return transportModes.size() > 1;
     }
 
     @Override
@@ -324,16 +326,16 @@ public class Interchanges implements InterchangeRepository {
      */
     @Override
     public ImmutableEnumSet<TransportMode> getInterchangeModes(final LocationCollection destinations) {
-        final Set<TransportMode> modes = destinations.locationStream().
+        return destinations.locationStream().
                 filter(this::isInterchange).
                 map(this::getInterchange).
                 flatMap(interchangeStation -> interchangeStation.getTransportModes().stream()).
-                collect(Collectors.toSet());
-        if (modes.isEmpty()) {
-            return ImmutableEnumSet.noneOf(TransportMode.class);
-        } else {
-            return ImmutableEnumSet.copyOf(modes);
-        }
+                collect(ImmutableEnumSet.collect(TransportMode.class));
+//        if (modes.isEmpty()) {
+//            return ImmutableEnumSet.noneOf(TransportMode.class);
+//        } else {
+//            return ImmutableEnumSet.copyOf(modes);
+//        }
     }
 
     @Override

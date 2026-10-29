@@ -83,10 +83,10 @@ public class JourneyToDTOMapper {
 
     private TravelAction decideTravelAction(final List<SimpleStageDTO> stages, final TransportStage<?,?> rawStage) {
         return switch (rawStage.getTransportMode()) {
-            case Tram, Bus, RailReplacementBus, Train, Ferry, Subway -> decideActionForStations(stages);
+            case Tram, Bus, RailReplacementBus, Train, Ferry, Subway, TramReplacementBus -> decideActionForStations(stages);
             case Walk -> decideWalkingAction(rawStage);
             case Connect -> TravelAction.ConnectTo;
-            default -> throw new RuntimeException("Not defined for " + rawStage.getTransportMode());
+            case Ship, NotSet, Unknown -> throw new RuntimeException("Not defined for " + rawStage.getTransportMode());
         };
     }
 

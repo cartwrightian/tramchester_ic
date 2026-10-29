@@ -5,8 +5,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.DatabaseRemoteDataSourceConfig;
@@ -24,6 +23,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.tramchester.domain.reference.GTFSTransportationType.tram;
+import static com.tramchester.domain.reference.GTFSTransportationType.tramReplacementBus;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 
 public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
@@ -89,8 +92,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         this.caching = caching;
 
         Path downloadFolder = Path.of("data/tram");
-        gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
+        gtfsSourceConfig = new TFGMGTFSSourceTestConfig(ImmutableEnumSet.of(tram, tramReplacementBus),
+                TramsOnly, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                 MAX_INITIAL_WAIT, tempWalks);
         remoteTFGMConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
         remoteDBSourceConfig = new DatabaseRemoteDataSourceConfig(Path.of("databases"));

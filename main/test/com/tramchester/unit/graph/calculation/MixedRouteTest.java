@@ -172,13 +172,13 @@ class MixedRouteTest {
 
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-            Set<GTFSTransportationType> modes = new HashSet<>(
-                    Arrays.asList(GTFSTransportationType.bus, GTFSTransportationType.tram, GTFSTransportationType.ferry));
+            ImmutableEnumSet<GTFSTransportationType> modes = ImmutableEnumSet.of(GTFSTransportationType.bus,
+                    GTFSTransportationType.tram, GTFSTransportationType.ferry);
 
-            EnumSet<TransportMode> modesWithPlatforms = EnumSet.of(TransportMode.Tram);
+            //EnumSet<TransportMode> modesWithPlatforms = EnumSet.of(TransportMode.Tram);
 
             TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
-                    modes, modesWithPlatforms,
+                    modes, TransportMode.Tram.singleton(),
                     IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), TramDuration.ofMinutes(13), Collections.emptyList());
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }

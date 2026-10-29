@@ -2,6 +2,7 @@ package com.tramchester.integration.repository.naptan;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -25,7 +26,6 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ class NaptanRepositoryTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan(
-                EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
+                ImmutableEnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

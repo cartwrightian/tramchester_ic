@@ -445,7 +445,7 @@ public class RouteCalculatorTest {
 
             VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
-            assertEquals(Tram, firstStage.getTransportMode());
+            assertEquals(TransportMode.TramReplacementBus, firstStage.getTransportMode());
 
             IdFor<Station> firstStageEndId = firstStage.getLastStation().getId();
             assertTrue(firstChanges.contains(firstStageEndId), "Unexpected change %s in %s \nexpected %s".

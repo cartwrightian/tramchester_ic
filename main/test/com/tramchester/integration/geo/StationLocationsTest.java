@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownLocations.*;
@@ -41,7 +41,7 @@ public class StationLocationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramTestConfigWithNaptan(EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
+        config = new IntegrationTramTestConfigWithNaptan(ImmutableEnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

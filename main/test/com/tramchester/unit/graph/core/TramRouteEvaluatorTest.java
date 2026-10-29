@@ -97,7 +97,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.singletonList(new TFGMGTFSSourceTestConfig(
-                        GTFSTransportationType.tram, TransportMode.Tram, IdSet.emptySet(),
+                        GTFSTransportationType.tram.singleton(), TransportMode.Tram.singleton(), IdSet.emptySet(),
                         Collections.emptySet(), Collections.emptyList(), TramDuration.ofMinutes(13),
                         Collections.emptyList()));
             }

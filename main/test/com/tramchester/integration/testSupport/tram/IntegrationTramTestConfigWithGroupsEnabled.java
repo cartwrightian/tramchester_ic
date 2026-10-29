@@ -8,22 +8,22 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 
 public class IntegrationTramTestConfigWithGroupsEnabled extends IntegrationTramTestConfigWithNaptan  {
     private final TFGMGTFSSourceTestConfig overrideTFGMTestConfig;
 
     public IntegrationTramTestConfigWithGroupsEnabled() {
-        super(EnumSet.of(Tram));
+        super(TramsOnly);
 
         final Set<TransportMode> groupStationModes = Collections.singleton(Tram);
 
-        overrideTFGMTestConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                Tram, AdditionalTramInterchanges.stations(),
+        overrideTFGMTestConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram.singleton(),
+                Tram.singleton(), AdditionalTramInterchanges.stations(),
                 groupStationModes, CurrentClosures,
                 IntegrationTramTestConfig.MAX_INITIAL_WAIT,
                 Collections.emptyList());

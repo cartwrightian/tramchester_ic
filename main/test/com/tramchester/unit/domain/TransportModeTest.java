@@ -22,12 +22,6 @@ public class TransportModeTest {
         assertFalse(modesB.anyIntersectionWith(modesC));
     }
 
-//    @Test
-//    void testSFromNumber() {
-//        assertEquals(Bus, TransportMode.fromNumber((short) 1));
-//        assertEquals(TransportMode.Unknown, TransportMode.fromNumber((short) 999));
-//    }
-
     @Test
     void shouldHaveVehicleModes() {
         assertFalse(Vehicles.contains(Walk));
@@ -39,15 +33,6 @@ public class TransportModeTest {
         assertEquals(7, countVehicles);
 
     }
-
-//    @Test
-//    void testSFromNumbers() {
-//
-//        short[] numbers = { 1 , 4 , 8};
-//        ImmutableEnumSet<TransportMode> result = TransportMode.fromNumbers(numbers);
-//
-//        assertEquals(ImmutableEnumSet.copyOf(EnumSet.of(Bus, Walk, Ship)), result);
-//    }
 
     @Test
     void parseFromCSV() {
@@ -67,5 +52,17 @@ public class TransportModeTest {
     @Test
     void shouldHaveSameSingleton() {
         assertSame(Walk.singleton(), Walk.singleton());
+    }
+
+    @Test
+    void shouldConsolidateReplacementServices() {
+        assertEquals(Tram.singleton(), TransportMode.consolidateReplacements(ImmutableEnumSet.of(TramReplacementBus)));
+        assertEquals(Train.singleton(), TransportMode.consolidateReplacements(ImmutableEnumSet.of(RailReplacementBus)));
+
+        assertEquals(Ferry.singleton(), TransportMode.consolidateReplacements(ImmutableEnumSet.of(Ferry)));
+
+        ImmutableEnumSet<TransportMode> transportModes = ImmutableEnumSet.of(TramReplacementBus, Tram, Ferry);
+        assertEquals(transportModes.without(TramReplacementBus.singleton()), TransportMode.consolidateReplacements(transportModes));
+
     }
 }

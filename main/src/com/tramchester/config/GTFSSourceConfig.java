@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -31,10 +32,10 @@ public interface GTFSSourceConfig extends TransportDataSourceConfig {
     boolean getHasFeedInfo();
 
     // transport modes to include from this dataset
-    Set<GTFSTransportationType> getTransportGTFSModes();
+    ImmutableEnumSet<GTFSTransportationType> getTransportGTFSModes();
 
     // transport modes for this datasource that have platform data included
-    Set<TransportMode> getTransportModesWithPlatforms();
+    ImmutableEnumSet<TransportMode> getTransportModesWithPlatforms();
 
     // no service dates
     // basically a workaround for tfgm timetable including services for dates their website says there are no services..

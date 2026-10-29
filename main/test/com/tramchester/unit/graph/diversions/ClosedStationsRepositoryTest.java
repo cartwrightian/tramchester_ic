@@ -382,16 +382,9 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
         private final TFGMGTFSSourceTestConfig gtfsSourceConfig;
 
-//        public ConfigWithClosure(StationClosures closed) {
-//            final List<StationClosures> closedStations = List.of(closed);
-//            gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-//                    TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
-//                    MAX_INITIAL_WAIT, Collections.emptyList());
-//        }
-
         public ConfigWithClosure(final List<StationClosures> closedStations) {
-            gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                    TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
+            gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram.singleton(),
+                    TransportMode.Tram.singleton(), AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                     MAX_INITIAL_WAIT, Collections.emptyList());
         }
 

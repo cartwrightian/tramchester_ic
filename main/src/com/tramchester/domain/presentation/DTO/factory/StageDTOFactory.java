@@ -1,8 +1,6 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.BusReplacementRepository;
-import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
@@ -24,13 +22,13 @@ public class StageDTOFactory {
 
     private final DTOFactory stationDTOFactory;
     private final RailHeadsignFactory railHeadsignFactory;
-    private final BusReplacementRepository busReplacementRepository;
+    //private final BusReplacementRepository busReplacementRepository;
 
     @Inject
-    public StageDTOFactory(DTOFactory stationDTOFactory, RailHeadsignFactory railHeadsignFactory, BusReplacementRepository busReplacementRepository) {
+    public StageDTOFactory(DTOFactory stationDTOFactory, RailHeadsignFactory railHeadsignFactory) {
         this.stationDTOFactory = stationDTOFactory;
         this.railHeadsignFactory = railHeadsignFactory;
-        this.busReplacementRepository = busReplacementRepository;
+        //this.busReplacementRepository = busReplacementRepository;
     }
 
     public SimpleStageDTO build(final TransportStage<?,?> source, final TravelAction travelAction, final TramDate queryDate) {
@@ -39,11 +37,11 @@ public class StageDTOFactory {
         TransportMode mode = source.getTransportMode();
 
         // TODO moving to direct use of ReplacementTramBus
-        if (mode==TransportMode.Tram) {
-            if (Agency.IsMetrolink(route.getAgency().getId()) && busReplacementRepository.isReplacement(route.getId())) {
-                mode=TransportMode.Bus;
-            }
-        }
+//        if (mode==TransportMode.Tram) {
+//            if (Agency.IsMetrolink(route.getAgency().getId()) && busReplacementRepository.isReplacement(route.getId())) {
+//                mode=TransportMode.Bus;
+//            }
+//        }
 
         final LocationRefWithPosition firstStation = stationDTOFactory.createLocationRefWithPosition(source.getFirstStation());
         final LocationRefWithPosition lastStation = stationDTOFactory.createLocationRefWithPosition(source.getLastStation());

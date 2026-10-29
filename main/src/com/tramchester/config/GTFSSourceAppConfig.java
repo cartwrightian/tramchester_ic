@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -25,8 +26,8 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
 
     final private String name;
     final private Boolean hasFeedInfo;
-    final private Set<GTFSTransportationType> transportModes;
-    final private Set<TransportMode> transportModesWithPlatforms;
+    final private ImmutableEnumSet<GTFSTransportationType> transportModes;
+    final private ImmutableEnumSet<TransportMode> transportModesWithPlatforms;
     final private Set<LocalDate> noServices;   // date format: 2020-12-25
     final private Set<String> additionalInterchanges;
     final private Set<TransportMode> groupedStationModes;
@@ -51,8 +52,10 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
                                @JsonProperty(value = "initialWaitMinutes", required = true)Integer initialWaitMinutes) {
         this.name = name;
         this.hasFeedInfo = hasFeedInfo;
-        this.transportModes = transportModes;
-        this.transportModesWithPlatforms = transportModesWithPlatforms;
+        this.transportModes = transportModes.isEmpty() ? ImmutableEnumSet.noneOf(GTFSTransportationType.class) :
+                ImmutableEnumSet.copyOf(transportModes);
+        this.transportModesWithPlatforms = transportModesWithPlatforms.isEmpty() ? TransportMode.noneOf() :
+                ImmutableEnumSet.copyOf(transportModesWithPlatforms);
         this.noServices = noServices;
         this.additionalInterchanges = additionalInterchanges;
         this.groupedStationModes = groupedStationModes;
@@ -75,12 +78,12 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public Set<GTFSTransportationType> getTransportGTFSModes() {
+    public ImmutableEnumSet<GTFSTransportationType> getTransportGTFSModes() {
         return transportModes;
     }
 
     @Override
-    public Set<TransportMode> getTransportModesWithPlatforms() {
+    public ImmutableEnumSet<TransportMode> getTransportModesWithPlatforms() {
         return transportModesWithPlatforms;
     }
 

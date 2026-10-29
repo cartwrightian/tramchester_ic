@@ -6,6 +6,7 @@ import com.tramchester.graph.reference.GraphLabel;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -140,6 +141,18 @@ public class ImmutableEnumSetTest {
         assertTrue(resultAdd.contains(Walk));
         assertTrue(resultAdd.contains(RailReplacementBus));
 
+    }
+
+    @Test
+    void shouldCollect() {
+        Set<TransportMode> modes = EnumSet.of(Tram, Train, Bus, Ferry, RailReplacementBus);
+
+        ImmutableEnumSet<TransportMode> collected = modes.stream().collect(ImmutableEnumSet.collect(TransportMode.class));
+
+        assertEquals(ImmutableEnumSet.copyOf(modes), collected);
+
+        assertEquals(ImmutableEnumSet.noneOf(TransportMode.class),
+                new HashSet<TransportMode>().stream().collect(ImmutableEnumSet.collect(TransportMode.class)));
     }
 
     @Test

@@ -5,9 +5,11 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.repository.NeighboursRepository;
@@ -34,7 +36,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
@@ -73,13 +74,19 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     public Response getAll() {
         logger.info("Get station links");
 
-        final Stream<StationToStationConnection> allLinks = config.getTransportModesImmutable().
-                stream().flatMap(mode -> findStationLinks.findLinkedFor(mode).stream());
+        final ImmutableEnumSet<TransportMode> modes = config.getTransportModesImmutable();
 
-        final List<StationToStationConnectionDTO> results = allLinks.
+        final Set<StationToStationConnection> uniqueLinks = modes.stream().
+                flatMap(mode -> findStationLinks.findLinkedFor(mode).stream()).
+                collect(Collectors.toSet());
+
+        final List<StationToStationConnectionDTO> results = uniqueLinks.stream().
                 filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).
                 toList();
+
+        logger.info("Found %s unique links, %s with valid position, for modes %s".
+                formatted(uniqueLinks.size(), results.size(), modes));
 
         return Response.ok(results).build();
     }

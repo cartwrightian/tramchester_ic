@@ -7,7 +7,6 @@ import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,10 +32,9 @@ public class MixedLocationSet implements LocationCollection {
     }
 
     public ImmutableEnumSet<TransportMode> getModes() {
-        final EnumSet<TransportMode> theSet = locations.stream().
+        return locations.stream().
                 flatMap(location -> location.getTransportModes().stream()).
-                collect(Collectors.toCollection(() -> EnumSet.noneOf(TransportMode.class)));
-        return ImmutableEnumSet.copyOf(theSet);
+                collect(ImmutableEnumSet.collect(TransportMode.class));
     }
 
     @Override

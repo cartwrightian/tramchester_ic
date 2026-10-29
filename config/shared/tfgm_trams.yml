@@ -1,7 +1,7 @@
 gtfsSourceConfig:
   - name: tfgm
     hasFeedInfo: false
-    transportModes: [ tram ]
+    transportModes: [ tram, tramReplacementBus ]
     transportModesWithPlatforms: [ Tram ]
     initialWaitMinutes: 13
     noServices: []

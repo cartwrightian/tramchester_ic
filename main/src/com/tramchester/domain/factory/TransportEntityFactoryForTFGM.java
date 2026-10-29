@@ -34,6 +34,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramReplacementBus;
+
 @LazySingleton
 public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory {
 
@@ -113,7 +116,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
         final String routeNameText = routeData.getShortName().trim();
         final String idText = routeData.getId();
 
-        if (transportMode.equals(TransportMode.Tram)) {
+        if (transportMode.equals(Tram)) {
             final TFGMRouteNames routeName;
             if (routeNameText.equals(TFGMRouteNames.Constants.REPLACEMENT_BUS_PREFIX)) {
                 // Workaround for replacement buses all having the same route_short_name
@@ -123,7 +126,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityDefaultFactory
             }
             usedNames.add(routeName);
             final TramRouteId routeId = TramRouteId.create(routeName, idText);
-            return new MutableRoute(routeId, longName, agency, transportMode);
+            final TransportMode routeMode = routeName.isReplacementBus() ? TramReplacementBus : Tram;
+            return new MutableRoute(routeId, longName, agency, routeMode);
         } else {
             // Buses
             return new MutableRoute(Route.createBasicRouteId(idText), routeNameText, longName, agency, transportMode);

@@ -2,18 +2,18 @@ package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 
 public class IntegrationTramTestConfigWithNaptan extends IntegrationTramTestConfig {
 
-    private final EnumSet<TransportMode> transportModes;
+    private final ImmutableEnumSet<TransportMode> transportModes;
 
-    public IntegrationTramTestConfigWithNaptan(EnumSet<TransportMode> transportModes) {
+    public IntegrationTramTestConfigWithNaptan(ImmutableEnumSet<TransportMode> transportModes) {
         super();
         this.transportModes = transportModes;
     }
@@ -25,10 +25,10 @@ public class IntegrationTramTestConfigWithNaptan extends IntegrationTramTestConf
 
     @Override
     public GraphDBConfig getGraphDBConfig() {
-        if (transportModes.size()==1 && transportModes.contains(TransportMode.Tram)) {
+        if ((transportModes.size()==1 || transportModes.size()==2) && transportModes.contains(TransportMode.Tram)) {
             return super.getGraphDBConfig();
         }
-        throw new RuntimeException("No supported for this config");
+        throw new RuntimeException("Not supported for this config " + transportModes);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class IntegrationTramTestConfigWithNaptan extends IntegrationTramTestConf
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
+    public ImmutableEnumSet<TransportMode> getTransportModesImmutable() {
         return transportModes;
     }
 }

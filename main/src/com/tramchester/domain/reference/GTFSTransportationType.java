@@ -2,10 +2,8 @@ package com.tramchester.domain.reference;
 
 import com.tramchester.domain.collections.ImmutableEnumSet;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public enum GTFSTransportationType {
 
@@ -21,7 +19,8 @@ public enum GTFSTransportationType {
     monorail("12"),
 
     // NOTE: These are not official types
-    replacementBus("98"),
+    //replacementBus("98"),
+    tramReplacementBus("81"),
     unknown("99");
 
     private static final Map<String, GTFSTransportationType> textMap;
@@ -35,8 +34,10 @@ public enum GTFSTransportationType {
     }
 
     private final String text;
+    private final ImmutableEnumSet<GTFSTransportationType> singleton;
 
     GTFSTransportationType(String theText) {
+        singleton = ImmutableEnumSet.of(this);
         this.text = theText;
     }
 
@@ -51,6 +52,9 @@ public enum GTFSTransportationType {
         return text;
     }
 
+    public ImmutableEnumSet<GTFSTransportationType> singleton() {
+        return singleton;
+    }
 
     public static TransportMode toTransportMode(GTFSTransportationType transportationType) {
         return switch (transportationType) {
@@ -59,14 +63,15 @@ public enum GTFSTransportationType {
             case train -> TransportMode.Train;
             case ferry -> TransportMode.Ferry;
             case subway -> TransportMode.Subway;
-            case replacementBus -> TransportMode.RailReplacementBus;
-            default -> throw new RuntimeException("Unexpected route type (check config?) " + transportationType);
+            case tramReplacementBus -> TransportMode.TramReplacementBus;
+            case cableTram, aerialLift, funicular, trolleyBus, monorail, unknown ->
+                    throw new RuntimeException("Unexpected route type (check config?) " + transportationType);
         };
     }
 
-    public static ImmutableEnumSet<TransportMode> toTransportMode(Set<GTFSTransportationType> gtfsTransportationTypes) {
-        EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);
-        gtfsTransportationTypes.forEach(gtfsTransportationType -> result.add(toTransportMode(gtfsTransportationType)));
-        return ImmutableEnumSet.copyOf(result);
+    public static ImmutableEnumSet<TransportMode> toTransportMode(ImmutableEnumSet<GTFSTransportationType> gtfsTransportationTypes) {
+        return gtfsTransportationTypes.stream().
+                map(GTFSTransportationType::toTransportMode).
+                collect(ImmutableEnumSet.collect(TransportMode.class));
     }
 }

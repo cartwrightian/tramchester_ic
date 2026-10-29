@@ -1,6 +1,5 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
-import com.tramchester.config.BusReplacementRepository;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Route;
@@ -37,7 +36,8 @@ import java.util.List;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class StageDTOFactoryTest extends EasyMockSupport {
 
@@ -45,14 +45,14 @@ class StageDTOFactoryTest extends EasyMockSupport {
     private TramDate when;
     private DTOFactory stationDTOFactory;
     private RailHeadsignFactory railHeadsignFactory;
-    private BusReplacementRepository busReplacementRepository;
+//    private BusReplacementRepository busReplacementRepository;
 
     @BeforeEach
     void beforeEachTestRun() {
         stationDTOFactory = createMock(DTOFactory.class);
         railHeadsignFactory = createMock(RailHeadsignFactory.class);
-        busReplacementRepository = createMock(BusReplacementRepository.class);
-        factory = new StageDTOFactory(stationDTOFactory, railHeadsignFactory, busReplacementRepository);
+//        busReplacementRepository = createMock(BusReplacementRepository.class);
+        factory = new StageDTOFactory(stationDTOFactory, railHeadsignFactory);
         when = TestEnv.testDay();
     }
 
@@ -113,7 +113,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
 
-        EasyMock.expect(busReplacementRepository.isReplacement(testRoute.getId())).andReturn(false);
+        //EasyMock.expect(busReplacementRepository.isReplacement(testRoute.getId())).andReturn(false);
 
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
                 andStubReturn(new LocationRefWithPosition(firstStation));
@@ -185,14 +185,14 @@ class StageDTOFactoryTest extends EasyMockSupport {
         Station firstStation = MarketStreet.fakeWithPlatform(1, when);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
-                TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
+                TransportMode.TramReplacementBus, trip, TramTime.of(0, 0), Bury.fake(),
                 stopCallIndexes
         );
         vehicleStage.setCost(TramDuration.ofMinutes(5));
 
         vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
 
-        EasyMock.expect(busReplacementRepository.isReplacement(testRoute.getId())).andReturn(true);
+        //EasyMock.expect(busReplacementRepository.isReplacement(testRoute.getId())).andReturn(true);
 
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
                 andStubReturn(new LocationRefWithPosition(firstStation));
@@ -203,10 +203,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
         verifyAll();
 
-        assertEquals(TransportMode.Bus, stageDTO.getMode());
-
-        // TODO
-        //fail("should be replacement bus");
+        assertEquals(TransportMode.TramReplacementBus, stageDTO.getMode());;
     }
 
     private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action,

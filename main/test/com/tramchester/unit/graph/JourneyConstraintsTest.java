@@ -4,6 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -195,8 +195,8 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         }
 
         @Override
-        public EnumSet<TransportMode> getTransportModes() {
-            return EnumSet.of(Tram);
+        public ImmutableEnumSet<TransportMode> getTransportModesImmutable() {
+            return ImmutableEnumSet.of(Tram);
         }
     }
 

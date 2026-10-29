@@ -396,7 +396,7 @@ class TramRouteWithDiversionTest {
             final Set<TransportMode> compositeStationModes = Collections.singleton(Tram);
             final ImmutableIdSet<Station> additionalInterchanges = IdSet.singleton(TramStations.Cornbrook.getId());
             TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
-                    GTFSTransportationType.tram, Tram, additionalInterchanges, compositeStationModes,
+                    GTFSTransportationType.tram.singleton(), Tram.singleton(), additionalInterchanges, compositeStationModes,
                     Collections.emptyList(), TramDuration.ofMinutes(13), temporaryWalks);
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }

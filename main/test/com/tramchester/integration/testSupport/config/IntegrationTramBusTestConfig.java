@@ -28,11 +28,11 @@ public class IntegrationTramBusTestConfig extends IntegrationBusTestConfig {
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        final Set<TransportMode> modesWithPlatforms = Collections.singleton(Tram);
+        //final Set<TransportMode> modesWithPlatforms = Collections.singleton(Tram);
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
         TFGMGTFSSourceTestConfig sourceTestConfig = new TFGMGTFSSourceTestConfig(TestEnv.tramAndBus,
-                modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), TramDuration.ofMinutes(13),
+                Tram.singleton(), AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), TramDuration.ofMinutes(13),
                 Collections.emptyList());
 
         return Collections.singletonList(sourceTestConfig);

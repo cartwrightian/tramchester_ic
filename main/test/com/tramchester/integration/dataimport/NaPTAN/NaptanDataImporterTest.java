@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataImporter;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
@@ -33,7 +34,7 @@ class NaptanDataImporterTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan(
-                EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
+                ImmutableEnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
 
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

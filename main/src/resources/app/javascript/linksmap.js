@@ -71,19 +71,9 @@ function addStationToMap(station, stationLayerGroup, isInterchange) {
     }
     marker.bindTooltip(stationText);
 
-    //station.platforms.forEach(platform => addPlatformsToMap(platform, stationLayerGroup));
-
     stationLayerGroup.addLayer(marker);
 }
 
-// function addPlatformsToMap(platform, stationLayerGroup) {
-//     const lat = platform.latLong.lat;
-//     const lon = platform.latLong.lon;
-
-//     var marker = new L.circleMarker(L.latLng(lat, lon), { title: platform.name, radius: 1, color: "black" });
-//     marker.bindTooltip("Platform " +platform.id+ "<br>Name " + platform.name);
-//     stationLayerGroup.addLayer(marker);
-// }
 
 function createPolyForArea(area, colour) {
     const boundary = area.points;

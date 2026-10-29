@@ -46,12 +46,12 @@ public enum TransportRelationshipTypes {
     private static final ImmutableEnumSet<TransportRelationshipTypes> forPlanning;
 
     static {
-        final EnumSet<TransportRelationshipTypes> values = EnumSet.allOf(TransportRelationshipTypes.class);
-        values.remove(ON_ROUTE); // not used for traversals
-        values.remove(LINKED);
-        values.remove(STATION_TO_ROUTE);
+        final ImmutableEnumSet<TransportRelationshipTypes> values = ImmutableEnumSet.allOf(TransportRelationshipTypes.class);
+//        values.remove(ON_ROUTE); // not used for traversals
+//        values.remove(LINKED);
+//        values.remove(STATION_TO_ROUTE);
         //forPlanning = new TransportRelationshipTypes[values.size()];
-        forPlanning = ImmutableEnumSet.copyOf(values);
+        forPlanning = values.without(ImmutableEnumSet.of(ON_ROUTE, LINKED, STATION_TO_ROUTE));
     }
 
     public static final ImmutableEnumSet<TransportRelationshipTypes> NoneOf = ImmutableEnumSet.noneOf(TransportRelationshipTypes.class);

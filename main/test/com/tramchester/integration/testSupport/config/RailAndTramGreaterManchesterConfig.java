@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.*;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.rail.OpenRailDataTestConfig;
@@ -15,7 +16,6 @@ import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 
 // NOTE: if rename this take care of names in build.gradle, for example on integrationGM target
@@ -42,8 +42,8 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
     }
 
     @Override
-    public EnumSet<TransportMode> getTransportModes() {
-        return EnumSet.of(TransportMode.Tram, TransportMode.Train, TransportMode.RailReplacementBus);
+    public ImmutableEnumSet<TransportMode> getTransportModesImmutable() {
+        return ImmutableEnumSet.of(TransportMode.Tram, TransportMode.TramReplacementBus, TransportMode.Train, TransportMode.RailReplacementBus);
     }
 
     @Override

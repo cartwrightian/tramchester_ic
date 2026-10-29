@@ -69,12 +69,13 @@ public class JourneyConstraints {
 
     private int getPathMaxFor(TransportMode mode) {
         return switch (mode) {
-            case Tram -> TRAMS_MAX_PATH_LENGTH;
+            case Tram, TramReplacementBus -> TRAMS_MAX_PATH_LENGTH;
             case Bus -> BUSES_MAX_PATH_LENGTH;
             case Train, RailReplacementBus -> TRAINS_MAX_PATH_LENGTH;
             case Subway -> SUBWAY_MAX_PATH_LENGTH;
             case Ferry -> FERRY_MAX_PATH_LENGTH;
-            default -> throw new RuntimeException("Unexpected transport mode " + mode);
+            case Walk, Ship, Connect, NotSet, Unknown ->
+                    throw new RuntimeException("Unexpected transport mode " + mode);
         };
     }
 

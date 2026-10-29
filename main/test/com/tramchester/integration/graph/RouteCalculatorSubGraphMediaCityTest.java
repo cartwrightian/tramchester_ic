@@ -417,8 +417,8 @@ class RouteCalculatorSubGraphMediaCityTest {
 
             final Set<TransportMode> groupStationModes = Collections.emptySet(); //Collections.singleton(TransportMode.Bus);
 
-            TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                    Tram, additionalInterchanges, groupStationModes, IntegrationTramTestConfig.CurrentClosures,
+            TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram.singleton(),
+                    Tram.singleton(), additionalInterchanges, groupStationModes, IntegrationTramTestConfig.CurrentClosures,
                     TramDuration.ofMinutes(45), Collections.emptyList());
 
             return Collections.singletonList(gtfsSourceConfig);

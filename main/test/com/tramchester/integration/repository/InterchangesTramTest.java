@@ -178,12 +178,12 @@ public class InterchangesTramTest {
         assertEquals(interchangeStation.getDropoffRoutes(), station.getDropoffRoutes());
     }
 
-    @DisabledIf("isGMConfig")
-    @Test
-    void shouldAllBeSingleModeForTram() {
-        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
-        interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
-    }
+//    @DisabledIf("isGMConfig")
+//    @Test
+//    void shouldAllBeSingleModeForTram() {
+//        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+//        interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
+//    }
 
     @ClosuresAutumn2026
     @Test

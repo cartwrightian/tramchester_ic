@@ -46,9 +46,9 @@ public class GTFSStopTimeLoader {
         final String sourceName = dataSourceConfig.getName();
         final AtomicInteger invalidTimeCount = new AtomicInteger(0);
 
-        final Set<TransportMode> withPlatforms = dataSourceConfig.getTransportModesWithPlatforms();
-        final EnumSet<TransportMode> modesWithPlatforms = withPlatforms.isEmpty() ?
-                EnumSet.noneOf(TransportMode.class) : EnumSet.copyOf(withPlatforms);
+        final ImmutableEnumSet<TransportMode> withPlatforms = dataSourceConfig.getTransportModesWithPlatforms();
+        final ImmutableEnumSet<TransportMode> modesWithPlatforms = withPlatforms.isEmpty() ?
+                ImmutableEnumSet.noneOf(TransportMode.class) : withPlatforms;
 
         final StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory,
                 dataSourceConfig, tripAndServices, modesWithPlatforms);
@@ -138,11 +138,11 @@ public class GTFSStopTimeLoader {
         private final TransportEntityFactory factory;
         private final GTFSSourceConfig dataSourceConfig;
         private final PreloadTripAndServices tripAndServices;
-        private final EnumSet<TransportMode> modesWithPlatforms;
+        private final ImmutableEnumSet<TransportMode> modesWithPlatforms;
 
         public StopTimeDataLoader(WriteableTransportData buildable, PreloadedStationsAndPlatforms preloadStations,
                                   TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig, PreloadTripAndServices tripAndServices,
-                                  EnumSet<TransportMode> modesWithPlatforms) {
+                                  ImmutableEnumSet<TransportMode> modesWithPlatforms) {
             this.buildable = buildable;
             this.preloadStations = preloadStations;
             this.factory = factory;

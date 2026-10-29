@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramReplacementBus;
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -168,7 +168,7 @@ public class RouteRepositoryTest {
     @Test
     void shouldHaveExpectedNumberOfTramRoutesRunning() {
         IdSet<Route> running = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
-                filter(route -> route.getTransportMode()==Tram).
+                filter(route -> TramsOnly.contains(route.getTransportMode())).
                 collect(IdSet.collector());
 
         // closures summer 2026
@@ -181,14 +181,19 @@ public class RouteRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedNumberOfReplacementBusesRunning() {
+    void shouldHaveExpectedNumberOfReplacementBusesRunningByRouteName() {
         IdSet<Route> running = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
-                filter(route -> route.getTransportMode()==Tram).
+                filter(route -> TramsOnly.contains(route.getTransportMode())).
                 filter(RouteRepositoryTest::isReplacementBus).
                 collect(IdSet.collector());
 
         assertEquals(6, running.size());
+    }
 
+    @Test
+    void shouldHaveExpectedNumberOfReplacementBusesRunning() {
+        Set<Route> byMode = routeRepository.getRoutesRunningOn(when, TramReplacementBus.singleton());
+        assertEquals(6, byMode.size());
     }
 
     @Test

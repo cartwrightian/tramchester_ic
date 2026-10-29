@@ -23,16 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TransportModeRepositoryTest {
 
-    private final Set<TransportMode> modesWithPlatforms = Collections.singleton(TransportMode.Tram);
+    private final ImmutableEnumSet<TransportMode> modesWithPlatforms = TransportMode.Tram.singleton();
     private final IdSet<Station> additionalInterchanges = IdSet.emptySet();
     private final List<TemporaryStationsWalkIds> temporaryStationWalks = Collections.emptyList();
 
     @Test
     void shouldHaveCorrectTransportModesSingle() {
-        Set<GTFSTransportationType> configModes = new HashSet<>();
-        configModes.add(GTFSTransportationType.tram);
+//        Set<GTFSTransportationType> configModes = new HashSet<>();
+//        configModes.add(GTFSTransportationType.tram);
 
-        TramchesterConfig config = createConfig(configModes);
+        TramchesterConfig config = createConfig(GTFSTransportationType.tram.singleton());
 
         TransportModeRepository repository = new TransportModeRepository(config);
         ImmutableEnumSet<TransportMode> modes = repository.getModes();
@@ -43,9 +43,11 @@ class TransportModeRepositoryTest {
 
     @Test
     void shouldHaveCorrectTransportModesMultipleForSameSource() {
-        Set<GTFSTransportationType> configModes = new HashSet<>();
-        configModes.add(GTFSTransportationType.tram);
-        configModes.add(GTFSTransportationType.bus);
+//        Set<GTFSTransportationType> configModes = new HashSet<>();
+//        configModes.add(GTFSTransportationType.tram);
+//        configModes.add(GTFSTransportationType.bus);
+        ImmutableEnumSet<GTFSTransportationType> configModes = ImmutableEnumSet.of(GTFSTransportationType.tram,
+                GTFSTransportationType.bus);
 
         TramchesterConfig config = createConfig(configModes);
 
@@ -59,18 +61,23 @@ class TransportModeRepositoryTest {
 
     @Test
     void shouldHaveCorrectTransportModesMultipleForDiffSource() {
-        Set<GTFSTransportationType> configModesSourceA = new HashSet<>();
-        configModesSourceA.add(GTFSTransportationType.tram);
-        configModesSourceA.add(GTFSTransportationType.train);
+//        Set<GTFSTransportationType> configModesSourceA = new HashSet<>();
+//        configModesSourceA.add(GTFSTransportationType.tram);
+//        configModesSourceA.add(GTFSTransportationType.train);
+        ImmutableEnumSet<GTFSTransportationType> configModesSourceA = ImmutableEnumSet.of(GTFSTransportationType.tram,
+                GTFSTransportationType.train);
 
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
         GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig(configModesSourceA, modesWithPlatforms,
                 additionalInterchanges, Collections.emptySet(), Collections.emptyList(), TramDuration.ofMinutes(13), temporaryStationWalks);
         dataSources.add(sourceA);
 
-        Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
-        configModesSourceB.add(GTFSTransportationType.bus);
-        configModesSourceB.add(GTFSTransportationType.train);
+//        Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
+//        configModesSourceB.add(GTFSTransportationType.bus);
+//        configModesSourceB.add(GTFSTransportationType.train);
+        ImmutableEnumSet<GTFSTransportationType> configModesSourceB = ImmutableEnumSet.of(GTFSTransportationType.bus,
+                GTFSTransportationType.train);
+
         GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig(configModesSourceB, modesWithPlatforms,
                 additionalInterchanges, Collections.emptySet(), Collections.emptyList(), TramDuration.ofMinutes(13), temporaryStationWalks);
         dataSources.add(sourceB);
@@ -87,7 +94,7 @@ class TransportModeRepositoryTest {
     }
 
     @NotNull
-    private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
+    private TramchesterConfig createConfig(ImmutableEnumSet<GTFSTransportationType> configModes) {
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
         GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig(configModes, modesWithPlatforms,
                 additionalInterchanges, Collections.emptySet(), Collections.emptyList(), TramDuration.ofMinutes(13), temporaryStationWalks);

@@ -7,13 +7,12 @@ import com.tramchester.resources.APIResource;
 import com.tramchester.resources.GraphDatabaseDependencyMarker;
 
 import java.nio.file.Path;
-import java.util.EnumSet;
 
 public class ResourceTramTestConfigWithNaptan<T extends APIResource>  extends IntegrationTramTestConfigWithNaptan {
     private final boolean planningEnabled;
 
     public ResourceTramTestConfigWithNaptan(Class<T> resourceClass) {
-        super(EnumSet.of(TransportMode.Tram));
+        super(TransportMode.TramsOnly);
         planningEnabled =  GraphDatabaseDependencyMarker.class.isAssignableFrom(resourceClass);
     }
 

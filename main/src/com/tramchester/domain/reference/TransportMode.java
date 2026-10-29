@@ -5,8 +5,7 @@ import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
 
 public enum TransportMode implements HasTransportMode {
     Bus,
@@ -20,9 +19,7 @@ public enum TransportMode implements HasTransportMode {
     Ship,
 
     Connect,
-
     NotSet,
-
     Unknown;
 
     public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
@@ -55,11 +52,23 @@ public enum TransportMode implements HasTransportMode {
 
     public static ImmutableEnumSet<TransportMode> parseCSV(final String csv) {
         final String[] divided = csv.split(",");
-        return ImmutableEnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
+        return Arrays.stream(divided).map(TransportMode::valueOf).collect(ImmutableEnumSet.collect(TransportMode.class));
     }
 
     public static ImmutableEnumSet<TransportMode> noneOf() {
         return NoneOf;
+    }
+
+    public static ImmutableEnumSet<TransportMode> consolidateReplacements(final ImmutableEnumSet<TransportMode> transportModes) {
+        return transportModes.stream().map(TransportMode::mapReplacements).collect(ImmutableEnumSet.collect(TransportMode.class));
+    }
+
+    public static TransportMode mapReplacements(final TransportMode item) {
+        return switch (item) {
+            case RailReplacementBus -> Train;
+            case TramReplacementBus -> Tram;
+            case Bus, Tram, Train, Walk, Ferry, Subway, Ship, Connect, NotSet, Unknown -> item;
+        };
     }
 
     @JsonIgnore

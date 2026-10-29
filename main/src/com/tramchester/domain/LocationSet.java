@@ -7,7 +7,6 @@ import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -15,7 +14,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LocationSet<T extends Location<T>> implements LocationCollection {
@@ -56,10 +54,9 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
 
     @Override
     public ImmutableEnumSet<TransportMode> getModes() {
-        final EnumSet<TransportMode> theSet = locations.stream().
+        return locations.stream().
                 flatMap(location -> location.getTransportModes().stream()).
-                collect(Collectors.toCollection(() -> EnumSet.noneOf(TransportMode.class)));
-        return ImmutableEnumSet.copyOf(theSet);
+                collect(ImmutableEnumSet.collect(TransportMode.class));
     }
 
     @Override

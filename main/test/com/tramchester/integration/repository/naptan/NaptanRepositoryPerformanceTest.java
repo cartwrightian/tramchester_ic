@@ -2,14 +2,13 @@ package com.tramchester.integration.repository.naptan;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRepositoryContainer;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
-
-import java.util.EnumSet;
 
 @Disabled("Performance testing only")
 public class NaptanRepositoryPerformanceTest {
@@ -20,7 +19,7 @@ public class NaptanRepositoryPerformanceTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan(
-                EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
+                ImmutableEnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

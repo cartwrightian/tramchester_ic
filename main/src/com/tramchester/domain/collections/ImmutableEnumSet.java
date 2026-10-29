@@ -1,7 +1,13 @@
 package com.tramchester.domain.collections;
 
+import org.apache.commons.collections4.SetUtils;
+
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
@@ -20,7 +26,7 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
         return ImmutableEnumSetImpl.join((ImmutableEnumSetImpl<S>)itemsA, (ImmutableEnumSetImpl<S>)itemsB);
     }
 
-    static <S extends Enum<S>> ImmutableEnumSet<S> copyOf(Set<S> items) {
+    static <S extends Enum<S>> ImmutableEnumSet<S> copyOf(final Set<S> items) {
         return ImmutableEnumSetImpl.copyOf(items);
     }
 
@@ -80,5 +86,38 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
     static <S extends Enum<S>> ImmutableEnumSet<S> of(final S itemA, final S itemB, final S itemC, final S itemD, final S itemE) {
         return ImmutableEnumSetImpl.createFrom(EnumSet.of(itemA, itemB, itemC, itemD, itemE));
     }
+
+    static <T extends Enum<T>> Collector<T, EnumSet<T>, ImmutableEnumSet<T>> collect(Class<T> klass) {
+        return new Collector<>() {
+            @Override
+            public Supplier<EnumSet<T>> supplier() {
+                return () -> EnumSet.noneOf(klass);
+            }
+
+            @Override
+            public BiConsumer<EnumSet<T>, T> accumulator() {
+                return AbstractCollection::add;
+            }
+
+            @Override
+            public BinaryOperator<EnumSet<T>> combiner() {
+                return (setA, setB) -> {
+                    setA.addAll(setB);
+                    return setA;
+                };
+            }
+
+            @Override
+            public Function<EnumSet<T>, ImmutableEnumSet<T>> finisher() {
+                return set -> set.isEmpty() ? ImmutableEnumSet.noneOf(klass) : ImmutableEnumSetImpl.copyOf(set);
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return SetUtils.unmodifiableSet(Characteristics.UNORDERED);
+            }
+        };
+    }
+
 
 }

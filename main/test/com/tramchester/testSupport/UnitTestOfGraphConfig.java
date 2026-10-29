@@ -26,8 +26,8 @@ public class UnitTestOfGraphConfig extends TestConfig {
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
-                EnumSet.of(GTFSTransportationType.tram),
-                EnumSet.of(Tram), IdSet.emptySet(), EnumSet.noneOf(TransportMode.class), Collections.emptyList(),
+                GTFSTransportationType.tram.singleton(),
+                Tram.singleton(), IdSet.emptySet(), EnumSet.noneOf(TransportMode.class), Collections.emptyList(),
                 TramDuration.ofMinutes(13), Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }

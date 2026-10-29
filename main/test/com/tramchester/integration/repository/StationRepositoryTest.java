@@ -41,6 +41,7 @@ import static com.tramchester.domain.factory.TransportEntityFactoryForTFGM.METRO
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramReplacementBus;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -176,6 +177,8 @@ public class StationRepositoryTest {
 
         assertEquals(LocationType.Station, station.getLocationType());
         assertTrue(station.servesMode(Tram));
+        // during closures
+        assertTrue(station.servesMode(TramReplacementBus));
         assertTrue(station.isActive());
         assertFalse(station.isMarkedInterchange());
 

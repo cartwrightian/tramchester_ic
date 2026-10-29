@@ -78,8 +78,8 @@ public class TestEnv {
 
     public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
-    public final static HashSet<GTFSTransportationType> tramAndBus =
-            new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
+    public final static ImmutableEnumSet<GTFSTransportationType> tramAndBus =
+            ImmutableEnumSet.of(GTFSTransportationType.tram, GTFSTransportationType.bus);
 
     // validated via TripRepositoryTest
     public static TramTime EarliestTramTime = TramTime.of(4,51);

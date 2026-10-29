@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.TFGMRouteNames.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -356,7 +357,7 @@ public class TransportDataFromFilesTramTest {
         Set<Trip> allTrips = new HashSet<>();
         allsStations.forEach(station -> allTrips.addAll(getTripsFor(transportData.getTrips(), station)));
 
-        long tripsSize = transportData.getTrips().stream().filter(trip -> trip.getTransportMode()==Tram).count();
+        long tripsSize = transportData.getTrips().stream().filter(trip -> TramsOnly.contains(trip.getTransportMode())).count();
         assertEquals(tripsSize, allTrips.size());
 
         ImmutableIdSet<Trip> tripIdsFromSvcs = allTramRoutes.stream().map(Route::getTrips).

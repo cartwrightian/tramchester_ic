@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.nptg.NPTGXMLDataLoader;
 import com.tramchester.dataimport.nptg.xml.NPTGLocalityXMLData;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.reference.TransportMode;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ class NptgDataImporterTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan(
-                EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
+                ImmutableEnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
 
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

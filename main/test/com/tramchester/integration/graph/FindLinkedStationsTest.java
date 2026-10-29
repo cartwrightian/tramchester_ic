@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.TramReplacementBus;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,8 +76,13 @@ class FindLinkedStationsTest {
     @Test
     void shouldHaveCorrectTransportMode() {
         Set<StationToStationConnection> forTrams = findStationLinks.findLinkedFor(Tram);
-        long notTram = forTrams.stream().filter(link -> !link.getLinkingModes().contains(Tram)).count();
-        assertEquals(0, notTram);
+        long noTram = forTrams.stream().filter(link -> !link.getLinkingModes().contains(Tram)).count();
+        assertEquals(0, noTram);
+
+        // only during closures
+        long replacements = forTrams.stream().filter(link -> link.getLinkingModes().contains(TramReplacementBus)).count();
+        assertNotEquals(0, replacements);
+
     }
 
     private StationToStationConnection createLink(TramStations stationA, TramStations stationB) {
