@@ -18,9 +18,9 @@ public class VehicleStageDTO extends SimpleStageDTO {
     public VehicleStageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
                            LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, TramDuration duration,
                            String headSign, TransportMode mode, int passedStops,
-                           RouteRefDTO route, TravelAction action, TramDate queryDate, IdForDTO tripId) {
+                           RouteRefDTO route, TravelAction action, String actionText, TramDate queryDate, IdForDTO tripId) {
         super(firstStation, lastStation, actionStation, firstDepartureTime, expectedArrivalTime, duration, headSign,
-                mode, passedStops, route, action, queryDate);
+                mode, passedStops, route, action, actionText, queryDate);
 
         this.hasPlatform = false;
         this.platform = null;
@@ -31,9 +31,9 @@ public class VehicleStageDTO extends SimpleStageDTO {
                            PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime,
                            TramDuration duration,
                            String headSign, TransportMode mode, int passedStops,
-                           RouteRefDTO route, TravelAction action, TramDate queryDate, IdForDTO tripId) {
+                           RouteRefDTO route, TravelAction action, String actionText, TramDate queryDate, IdForDTO tripId) {
         this(firstStation, lastStation, actionStation, firstDepartureTime, expectedArrivalTime, duration, headSign, mode,
-            passedStops, route, action, queryDate, tripId);
+            passedStops, route, action, actionText, queryDate, tripId);
 
         this.hasPlatform = true;
         this.platform = boardingPlatform;

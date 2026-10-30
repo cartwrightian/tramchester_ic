@@ -162,7 +162,10 @@ class JourneyPlannerLocationResourceTest {
 
             assertEquals(2, stages.size(), stages.toString());
             assertEquals(TransportMode.Walk, stages.get(0).getMode());
+            assertEquals("Walk to", stages.get(0).getActionText());
+
             assertEquals(Tram, stages.get(1).getMode());
+            assertEquals("Board Tram", stages.get(1).getActionText());
 
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
             assertEquals(1, changeStations.size());
@@ -190,9 +193,13 @@ class JourneyPlannerLocationResourceTest {
 
             assertEquals(Tram, stages.getFirst().getMode());
 
+            SimpleStageDTO tramStage = stages.getFirst();
+            assertEquals("Board Tram", tramStage.getActionText());
+
             SimpleStageDTO walkingStage = stages.getLast();
             assertEquals(TransportMode.Walk, walkingStage.getMode());
             assertEquals(nearAltrincham.latLong(), walkingStage.getLastStation().getLatLong());
+            assertEquals("Walk from", walkingStage.getActionText());
 
             List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
 

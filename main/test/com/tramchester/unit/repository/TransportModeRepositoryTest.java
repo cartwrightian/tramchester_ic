@@ -29,9 +29,6 @@ class TransportModeRepositoryTest {
 
     @Test
     void shouldHaveCorrectTransportModesSingle() {
-//        Set<GTFSTransportationType> configModes = new HashSet<>();
-//        configModes.add(GTFSTransportationType.tram);
-
         TramchesterConfig config = createConfig(GTFSTransportationType.tram.singleton());
 
         TransportModeRepository repository = new TransportModeRepository(config);
@@ -43,9 +40,6 @@ class TransportModeRepositoryTest {
 
     @Test
     void shouldHaveCorrectTransportModesMultipleForSameSource() {
-//        Set<GTFSTransportationType> configModes = new HashSet<>();
-//        configModes.add(GTFSTransportationType.tram);
-//        configModes.add(GTFSTransportationType.bus);
         ImmutableEnumSet<GTFSTransportationType> configModes = ImmutableEnumSet.of(GTFSTransportationType.tram,
                 GTFSTransportationType.bus);
 
@@ -61,9 +55,6 @@ class TransportModeRepositoryTest {
 
     @Test
     void shouldHaveCorrectTransportModesMultipleForDiffSource() {
-//        Set<GTFSTransportationType> configModesSourceA = new HashSet<>();
-//        configModesSourceA.add(GTFSTransportationType.tram);
-//        configModesSourceA.add(GTFSTransportationType.train);
         ImmutableEnumSet<GTFSTransportationType> configModesSourceA = ImmutableEnumSet.of(GTFSTransportationType.tram,
                 GTFSTransportationType.train);
 
@@ -72,9 +63,6 @@ class TransportModeRepositoryTest {
                 additionalInterchanges, Collections.emptySet(), Collections.emptyList(), TramDuration.ofMinutes(13), temporaryStationWalks);
         dataSources.add(sourceA);
 
-//        Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
-//        configModesSourceB.add(GTFSTransportationType.bus);
-//        configModesSourceB.add(GTFSTransportationType.train);
         ImmutableEnumSet<GTFSTransportationType> configModesSourceB = ImmutableEnumSet.of(GTFSTransportationType.bus,
                 GTFSTransportationType.train);
 

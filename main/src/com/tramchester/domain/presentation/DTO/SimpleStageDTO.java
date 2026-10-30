@@ -30,11 +30,12 @@ public class SimpleStageDTO {
     private String action;
 
     private RouteRefDTO route;
+    private String actionText;
 
     public SimpleStageDTO(LocationRefWithPosition firstStation, LocationRefWithPosition lastStation, LocationRefWithPosition actionStation,
                           LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, TramDuration duration,
                           String headSign, TransportMode mode, int passedStops,
-                          RouteRefDTO route, TravelAction action, TramDate queryDate) {
+                          RouteRefDTO route, TravelAction action, String actionText, TramDate queryDate) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
@@ -45,6 +46,7 @@ public class SimpleStageDTO {
         this.passedStops = passedStops;
         this.route = route;
         this.action = action.toString();
+        this.actionText = actionText;
         this.queryDate = queryDate.toLocalDate();
 
         // todo seconds?
@@ -112,6 +114,10 @@ public class SimpleStageDTO {
         return false;
     }
 
+    public String getActionText() {
+        return actionText;
+    }
+
     @Override
     public String toString() {
         return "SimpleStageDTO{" +
@@ -126,6 +132,7 @@ public class SimpleStageDTO {
                 ", mode=" + mode +
                 ", passedStops=" + passedStops +
                 ", action='" + action + '\'' +
+                ", actionText='" + actionText + '\'' +
                 ", route=" + route +
                 '}';
     }

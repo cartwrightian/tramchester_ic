@@ -27,8 +27,8 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -101,7 +101,7 @@ public class RailRouteCalculatorTest {
     }
 
     private ImmutableEnumSet<TransportMode> getRequestedModes() {
-        return RailOnly;
+        return TrainOnly;
     }
 
     @Test

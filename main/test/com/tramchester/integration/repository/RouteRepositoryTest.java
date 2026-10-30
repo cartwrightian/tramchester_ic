@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -171,13 +172,8 @@ public class RouteRepositoryTest {
                 filter(route -> TramsOnly.contains(route.getTransportMode())).
                 collect(IdSet.collector());
 
-        // closures summer 2026
-        assertEquals(8+2, running.size());
+        assertEquals(7, running.size());
 
-    }
-
-    private static boolean isReplacementBus(Route bus) {
-        return bus.getShortName().startsWith(TFGMRouteNames.Constants.REPLACEMENT_BUS_PREFIX);
     }
 
     @Test
@@ -187,12 +183,23 @@ public class RouteRepositoryTest {
                 filter(RouteRepositoryTest::isReplacementBus).
                 collect(IdSet.collector());
 
-        assertEquals(6, running.size());
+        assertEquals(0, running.size());
+    }
+
+    private static boolean isReplacementBus(Route route) {
+        return route.getTransportMode()==TramReplacementBus;
     }
 
     @Test
     void shouldHaveExpectedNumberOfReplacementBusesRunning() {
         Set<Route> byMode = routeRepository.getRoutesRunningOn(when, TramReplacementBus.singleton());
+        assertEquals(0, byMode.size());
+    }
+
+    @Test
+    void shouldHaveExpectedNumberOfReplacementBusesRunningToday() {
+        TramDate date = TramDate.of(LocalDate.now());
+        Set<Route> byMode = routeRepository.getRoutesRunningOn(date, TramReplacementBus.singleton());
         assertEquals(6, byMode.size());
     }
 
@@ -364,7 +371,7 @@ public class RouteRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedRoutesAtCornbrookDuringClosue() {
+    void shouldHaveExpectedRoutesAtCornbrookDuringClosure() {
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
 
         Station cornbrook = Cornbrook.from(stationRepository);
@@ -377,8 +384,8 @@ public class RouteRepositoryTest {
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
-        assertEquals(2  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
-        assertEquals(1 , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
+        assertEquals(6  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
+        assertEquals(6 , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 
         String diagnostics = "Missing on " + when + " got ";
         String pickupDiag = diagnostics + HasId.asIds(cornbrookPickups);
@@ -390,7 +397,7 @@ public class RouteRepositoryTest {
         assertTrue(cornbrookDropofss.contains(buryToAlty), dropoffDiag);
 
         // was Blue, now Yellow
-        Route toMediaCity = tramRouteHelper.getOneRoute(PiccadillyMediaCity, when);
+        Route toMediaCity = tramRouteHelper.getOneRoute(Yellow, when);
 
         assertTrue(cornbrookPickups.contains(toMediaCity), pickupDiag);
 

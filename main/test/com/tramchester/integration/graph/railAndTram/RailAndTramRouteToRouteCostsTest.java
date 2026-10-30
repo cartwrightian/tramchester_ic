@@ -32,8 +32,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -143,7 +143,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
         // should find a result since Altrincham -> Altincham Rail -> Stockport iff neighbours enabled
         int result = getPossibleMinChanges(tram(Altrincham), rail(Stockport),
-                RailOnly, date, timeRange);
+                TrainOnly, date, timeRange);
 
         assertEquals(0, result);
     }
@@ -173,7 +173,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         int result = getPossibleMinChanges(rail(ManchesterPiccadilly), rail(Stockport),
-                RailOnly, date, timeRange);
+                TrainOnly, date, timeRange);
 
         assertEquals(0, result); // non stop
     }

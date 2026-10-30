@@ -342,7 +342,7 @@ class LocationJourneyPlannerTest {
 
         List<ChangeLocation<?>> changeStations = lowestCostJourney.getChangeStations();
 
-        assertEquals(2, changeStations.size(),  " stations " + HasId.asIds(changeStations));
+        assertEquals(1, changeStations.size(),  " stations " + HasId.asIds(changeStations));
 
         ChangeLocation<?> changeStation = changeStations.getFirst();
         assertTrue(nearStationIds.contains(changeStation.getId()), changeStation + " not in " + nearStationIds);

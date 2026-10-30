@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
+import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
@@ -119,6 +120,9 @@ public class JourneyPlannerResourceTest {
 
             String headSign = firstStage.getHeadSign();
             assertTrue(possibleHeadsigns.contains(headSign), "unexpected headsign " + headSign);
+
+            assertEquals(TravelAction.Board.name(), firstStage.getAction());
+            assertEquals("Board Tram", firstStage.getActionText());
 
             PlatformDTO platform = firstStage.getPlatform();
             LocalDateTime firstDepartureTime = journey.getFirstDepartureTime();
@@ -297,7 +301,7 @@ public class JourneyPlannerResourceTest {
     }
 
     @Test
-    void testAltyToManAirportHasRealisticTranferAtCornbrook() {
+    void testAltyToManAirportHasRealisticTransferAtCornbrook() {
         // Clousures on alty line during July on Sunday
         TramDate date = TestEnv.testDay(); // TestEnv.nextSunday();
 

@@ -33,8 +33,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -89,12 +89,12 @@ public class RouteToRouteCostsRailTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenStockportAndManPicc() {
-        assertEquals(0, getPossibleMinChanges(stockport, manPicc, RailOnly, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(stockport, manPicc, TrainOnly, date, timeRange));
     }
 
     @Test
     void shouldHaveExpectedNumberHopsChangesManToStockport() {
-        assertEquals(0, getPossibleMinChanges(manPicc, stockport, RailOnly, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(manPicc, stockport, TrainOnly, date, timeRange));
     }
 
     private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -111,9 +111,9 @@ public class RouteToRouteCostsRailTest {
         Station navigationRaod = stationRepository.getStationById(NavigationRaod.getId());
         Station stockport = stationRepository.getStationById(Stockport.getId());
 
-        assertEquals(0, getPossibleMinChanges(altrincham, navigationRaod, RailOnly, date, timeRange));
-        assertEquals(0, getPossibleMinChanges(navigationRaod, stockport, RailOnly, date, timeRange));
-        assertEquals(0, getPossibleMinChanges(altrincham, stockport, RailOnly, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(altrincham, navigationRaod, TrainOnly, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(navigationRaod, stockport, TrainOnly, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(altrincham, stockport, TrainOnly, date, timeRange));
 
     }
 

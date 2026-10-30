@@ -119,5 +119,5 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
         };
     }
 
-
+    List<T> createList();
 }

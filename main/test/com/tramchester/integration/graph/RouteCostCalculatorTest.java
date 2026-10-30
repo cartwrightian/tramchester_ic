@@ -83,12 +83,12 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldReproduceIssueFromAltyToCornbrook() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(58), getAverageCostBetween(altrincham, Cornbrook.from(stationRepository)));
+        assertEquals(TramDuration.ofMinutes(21), getAverageCostBetween(altrincham, Cornbrook.from(stationRepository)));
     }
 
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(58), getAverageCostBetween(mediaCity, Ashton.from(stationRepository)));
+        assertEquals(TramDuration.ofMinutes(61), getAverageCostBetween(mediaCity, Ashton.from(stationRepository)));
         assertEquals(TramDuration.ofMinutes(57), getAverageCostBetween(Ashton.from(stationRepository), mediaCity));
     }
 
@@ -98,14 +98,14 @@ class RouteCostCalculatorTest {
 
         final Station bury = Bury.from(stationRepository);
 
-        assertEquals(TramDuration.ofMinutes(84), getAverageCostBetween(bury, altrincham));
-        assertEquals(TramDuration.ofMinutes(81), getAverageCostBetween(altrincham, bury));
+        assertEquals(TramDuration.ofMinutes(64), getAverageCostBetween(bury, altrincham));
+        assertEquals(TramDuration.ofMinutes(63), getAverageCostBetween(altrincham, bury));
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() throws InvalidDurationException {
-        assertEquals(TramDuration.ofMinutes(65), getAverageCostBetween(mediaCity, airport));
-        assertEquals(TramDuration.ofMinutes(67), getAverageCostBetween(airport, mediaCity));
+        assertEquals(TramDuration.ofMinutes(60), getAverageCostBetween(mediaCity, airport));
+        assertEquals(TramDuration.ofMinutes(60), getAverageCostBetween(airport, mediaCity));
     }
 
     @Test

@@ -22,8 +22,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.TestEnv.Modes.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -119,7 +118,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
         Station altrinchamRail = RailStationIds.Altrincham.from(stationRepository);
 
         // true because a train station
-        boolean availableForTrains = availabilityRepository.isAvailable(altrinchamRail, when, timeRange, RailOnly);
+        boolean availableForTrains = availabilityRepository.isAvailable(altrinchamRail, when, timeRange, TrainOnly);
         assertTrue(availableForTrains);
 
         // true because a multi modal station linked to a tram station

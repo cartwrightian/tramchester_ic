@@ -87,17 +87,21 @@ public class RunningRoutesAndServicesTest {
 
         assertFalse(tripsIntoNextDay.isEmpty(), "sanity check");
 
+        TramTime earliestTime = tripsIntoNextDay.stream().map(Trip::arrivalTime).filter(TramTime::isNextDay).min(TramTime::compareTo).orElseThrow();
+        TramTime latestTime = tripsIntoNextDay.stream().map(Trip::arrivalTime).filter(TramTime::isNextDay).max(TramTime::compareTo).orElseThrow();
+
+        // find the services from the trips
         Set<Service> servicesIntoNextDay = tripsIntoNextDay.stream().map(Trip::getService).collect(Collectors.toSet());
 
-        // NOW ensure checking for a service that crosses into following day works as expected
+        // ensure checking for a service that crosses into following day works as expected
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModesImmutable());
 
         Set<Service> fromPreviousDay = servicesIntoNextDay.stream().
-                filter(service -> filter.isServiceRunningByTime(service.getId(), TramTime.of(0, 0), 25)).
+                filter(service -> filter.isServiceRunningByTime(service.getId(), earliestTime, 15)).
                 collect(Collectors.toSet());
 
-        assertFalse(fromPreviousDay.isEmpty(), "no services from previous day from "
-                + HasId.asIds(servicesIntoNextDay) + " for " + when);
+        assertFalse(fromPreviousDay.isEmpty(), "no services from previous day from %s for %s time %s -> %s".
+                formatted(HasId.asIds(servicesIntoNextDay), when, earliestTime, latestTime));
     }
 
     @Disabled("unreliable, replaced")

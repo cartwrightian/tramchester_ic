@@ -71,6 +71,8 @@ public class RouteCalculatorTest {
     private GraphTransaction txn;
     private TramDuration maxJourneyDuration;
     private int maxNumResults;
+
+    // makes dealing with closures easier
     private int directChanges;
 
     @BeforeAll
@@ -96,7 +98,8 @@ public class RouteCalculatorTest {
         maxNumResults = config.getMaxNumberResults();
         maxChanges = config.getMaxNumberChanges();
 
-        directChanges = 1;
+        // makes dealing with closures easier
+        directChanges = 0;
     }
 
     @AfterEach
@@ -173,12 +176,14 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleOneStopJourneyNextDays() {
-        checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(15,0), directChanges);
+        // +1 closures
+        checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(15,0), directChanges+1);
     }
 
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Altrincham, TraffordBar, TramTime.of(15,0), directChanges);
+        // +1 closures
+        checkRouteNextNDays(Altrincham, TraffordBar, TramTime.of(15,0), directChanges+1);
     }
 
     @ClosuresAutumn2026
@@ -430,7 +435,7 @@ public class RouteCalculatorTest {
         assertFalse(today.isAfter(UpcomingDates.MajorWorksAutumn2026.getEndDate()));
 
         JourneyRequest request = standardJourneyRequest(today, TramTime.of(10, 0),
-                maxNumResults, maxChanges+1);
+                maxNumResults, maxChanges);
         List<Journey> results =  calculator.calculateRouteAsList(Altrincham, ManAirport, request);
 
         // Stretford & Sale for replacement buses

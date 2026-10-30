@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphPropsTest {
@@ -107,7 +107,7 @@ public class GraphPropsTest {
         MutableGraphNode node = txn.createNode(GraphLabel.VERSION);
 
         DataSourceInfo tfgmInfo = new DataSourceInfo(DataSourceID.tfgm, "1.2", TestEnv.UTCNow(), TramsOnly);
-        DataSourceInfo openRailInfo = new DataSourceInfo(DataSourceID.openRailData, "998", TestEnv.UTCNow(), RailOnly);
+        DataSourceInfo openRailInfo = new DataSourceInfo(DataSourceID.openRailData, "998", TestEnv.UTCNow(), TrainOnly);
 
         node.set(tfgmInfo);
         node.set(openRailInfo);

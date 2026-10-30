@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TransportModeTest {
@@ -30,7 +29,10 @@ public class TransportModeTest {
         assertFalse(Vehicles.contains(NotSet));
 
         long countVehicles = Arrays.stream(values()).filter(Vehicles::contains).count();
-        assertEquals(7, countVehicles);
+        assertEquals(8, countVehicles);
+
+        // not vehicle - alerts if new value added to the enum
+        assertEquals(4, values().length-countVehicles);
 
     }
 
@@ -46,12 +48,21 @@ public class TransportModeTest {
 
     @Test
     void shouldCheckForOverlaps() {
-        assertFalse(TransportMode.TramsOnly.anyIntersectionWith(RailOnly));
+        assertFalse(TransportMode.TramsOnly.anyIntersectionWith(TrainOnly));
     }
 
     @Test
     void shouldHaveSameSingleton() {
         assertSame(Walk.singleton(), Walk.singleton());
+    }
+
+    @Test
+    void shouldHaveReplacementBus() {
+        long countReplacements = Arrays.stream(values()).filter(TransportMode::isReplacementBus).count();
+        assertEquals(2, countReplacements);
+
+        long notReplacements = Arrays.stream(values()).filter(item -> !isReplacementBus(item)).count();
+        assertEquals(10, notReplacements);
     }
 
     @Test

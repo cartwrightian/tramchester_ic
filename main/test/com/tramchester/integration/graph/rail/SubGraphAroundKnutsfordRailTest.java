@@ -33,9 +33,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Hale;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Knutsford;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -111,7 +111,7 @@ class SubGraphAroundKnutsfordRailTest {
 
         TimeRange timeRange = TimeRangePartial.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
 
-        ImmutableEnumSet<TransportMode> transportModes = RailOnly;
+        ImmutableEnumSet<TransportMode> transportModes = TrainOnly;
 
         int haleKnutsford = getPossibleMinChanges(hale, knutsford, transportModes, when, timeRange);
         assertEquals(0, haleKnutsford, "expected no changes");
@@ -155,7 +155,7 @@ class SubGraphAroundKnutsfordRailTest {
                 if (!startId.equals(destinationId)) {
                     int numberOfChanges = getPossibleMinChanges(startId.from(stationRepository),
                             destinationId.from(stationRepository),
-                            RailOnly, when, timeRange);
+                            TrainOnly, when, timeRange);
                     assertEquals(0, numberOfChanges);
                 }
             }
@@ -165,7 +165,7 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                TramDuration.ofMinutes(30), 1, RailOnly);
+                TramDuration.ofMinutes(30), 1, TrainOnly);
         List<Journey> results = testFacade.calculateRouteAsList(Hale.getId(), Knutsford.getId(), journeyRequest);
         assertFalse(results.isEmpty());
     }
@@ -181,7 +181,7 @@ class SubGraphAroundKnutsfordRailTest {
     private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest, TramDuration maxJourneyDuration) {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                maxJourneyDuration, 1, RailOnly);
+                maxJourneyDuration, 1, TrainOnly);
 
         List<Journey> results = testFacade.calculateRouteAsList(start.getId(), dest.getId(), journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest + " for " + journeyRequest);

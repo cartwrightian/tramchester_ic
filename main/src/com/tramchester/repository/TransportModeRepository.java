@@ -8,13 +8,11 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
-
 @LazySingleton
 public class TransportModeRepository {
     private static final Logger logger = LoggerFactory.getLogger(TransportModeRepository.class);
 
-    public static final ImmutableEnumSet<TransportMode> ProductionModes = TramsOnly;
+    //public static final ImmutableEnumSet<TransportMode> ProductionModes = TramsOnly;
 
     private final ImmutableEnumSet<TransportMode> enabledModes;
     private final boolean inProduction;
@@ -29,19 +27,21 @@ public class TransportModeRepository {
         return enabledModes;
     }
 
-    public ImmutableEnumSet<TransportMode> getModes(boolean beta) {
+    public ImmutableEnumSet<TransportMode> getModes(final boolean beta) {
         if (!inProduction) {
             return enabledModes;
-        }
-
-        if (beta) {
-            logger.warn("In Prod Environment, Beta mode is enabled");
         } else {
-            if (enabledModes.size()>1) {
-                logger.warn("Multiple transport modes enabled but beta mode is false");
-            }
-        }
 
-        return beta ? enabledModes : ProductionModes;
+            if (beta) {
+                logger.warn("In Prod Environment, Beta mode is enabled");
+            } else {
+                if (TransportMode.consolidateReplacements(enabledModes).size() > 1) {
+                    logger.warn("Multiple transport modes enabled but beta mode is false");
+                }
+            }
+
+            return enabledModes;
+            //return beta ? enabledModes : ProductionModes;
+        }
     }
 }

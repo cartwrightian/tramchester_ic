@@ -93,7 +93,7 @@ public class RoutePairToInterchangeRepositoryTest {
             assertTrue(stationIds.contains(RailStationIds.ManchesterVictoria.getId()), stationIds.toString());
 
         } else {
-            assertEquals(2, stationIds.size(), stationIds.toString());
+            assertEquals(7, stationIds.size(), stationIds.toString());
         }
 
     }

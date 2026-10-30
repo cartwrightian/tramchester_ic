@@ -70,13 +70,16 @@ class VersionAndConfigResourceTest {
 
         ConfigDTO results = response.readEntity(ConfigDTO.class);
 
-        List<TransportMode> result = results.getModes();
+        List<TransportMode> modes = results.getModes();
 
-        assertEquals(expectedModes.size(), result.size());
-        assertTrue(expectedModes.containsAll(result));
+        assertEquals(expectedModes.size(), modes.size());
+        assertTrue(expectedModes.containsAll(modes));
         assertFalse(results.getPostcodesEnabled());
         assertEquals(configuration.getMaxNumberResults(), results.getNumberJourneysToDisplay());
         assertEquals(configuration.getMaxNumberChanges(), results.getMaxNumberChanges());
+        assertFalse(results.getModeSelectionEnabled());
+
+        assertEquals(List.of(TransportMode.Tram), results.getLiveDataModes());
     }
 
     @Test

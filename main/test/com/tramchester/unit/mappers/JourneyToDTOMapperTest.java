@@ -91,7 +91,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         stages.add(walkingStage);
 
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
-        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, "Walk to", when)).andReturn(stageDTOA);
 
         final List<Location<?>> path = Collections.singletonList(Deansgate.fake());
         Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages, path, requestedNumberChanges, 0);
@@ -130,7 +130,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         stages.add(walkingStage);
 
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
-        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, when)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, "Walk from", when)).andReturn(stageDTOA);
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(Deansgate.fake())).
                 andStubReturn(new LocationRefWithPosition(Deansgate.fake()));
@@ -175,9 +175,9 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
         VehicleStageDTO stageDTOB = new VehicleStageDTO();
 
-        EasyMock.expect(stageFactory.build(connectingStage, TravelAction.ConnectTo, when)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(connectingStage, TravelAction.ConnectTo, "Connect with", when)).andReturn(stageDTOA);
         // TODO Should be board?
-        EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change, when)).andReturn(stageDTOB);
+        EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change, "Board Tram", when)).andReturn(stageDTOB);
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(Altrincham.fake())).
                 andStubReturn(new LocationRefWithPosition(Altrincham.fake()));
@@ -245,10 +245,10 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 andStubReturn(new LocationRefWithPosition(MarketStreet.fake()));
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(end)).andStubReturn(new LocationRefWithPosition(end));
 
-        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
-        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOB);
+        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, "Board Tram", when)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, "Walk to",when)).andReturn(stageDTOB);
         // TODO Ought to be Board?
-        EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change, when)).andReturn(stageDTOC);
+        EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change, "Board Tram",when)).andReturn(stageDTOC);
 
         final List<Location<?>> path = Collections.singletonList(begin);
         Journey journey = new Journey(am10.plusMinutes(5), am10, am10.plusMinutes(10), stages, path, requestedNumberChanges, 0);
@@ -299,11 +299,10 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStageDTO stageDTOB = new VehicleStageDTO();
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(start)).andStubReturn(new LocationRefWithPosition(start));
-        //EasyMock.expect(DTOFactory.createLocationRefWithPosition(middle)).andReturn(new LocationRefWithPosition(middle));
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(finish)).andReturn(new LocationRefWithPosition(finish));
 
-        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
-        EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, when)).andReturn(stageDTOB);
+        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, "Board Tram",when)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, "Change Tram",when)).andReturn(stageDTOB);
 
         final List<Location<?>> path = Collections.singletonList(start);
         Journey journey = new Journey(startTime.plusMinutes(5), startTime, startTime.plusMinutes(10),

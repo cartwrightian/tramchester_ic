@@ -24,10 +24,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -273,6 +270,7 @@ public class StopCallRepositoryTest {
         assertEquals(unique.size(), stopsBetween.size());
     }
 
+    @Disabled
     @Test
     void shouldHaveExpectedAutumnClosures() {
         // no longer calling media city

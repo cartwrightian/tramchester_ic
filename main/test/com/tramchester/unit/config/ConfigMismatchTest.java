@@ -178,8 +178,6 @@ class ConfigMismatchTest {
 
         checkDataSourceConfig(appConfig.getRail(),  nationalRailConfig.getRail());
 
-//        checkRailDataVersionFor(appConfig);
-//        checkRailDataVersionFor(testConfig);
     }
 
     @Test
@@ -220,7 +218,7 @@ class ConfigMismatchTest {
     }
 
     @Test
-    void shouldHaveKeyParamtersSameForGMRail() throws ConfigurationException, IOException {
+    void shouldHaveKeyParametersSameForGMRail() throws ConfigurationException, IOException {
         AppConfiguration appConfig = loadConfigFromFile("gm.yml");
         AppConfiguration testConfig = new RailAndTramGreaterManchesterConfig();
 
@@ -406,6 +404,7 @@ class ConfigMismatchTest {
                 assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
                 assertEquals(expectedDataSource.getTemporaryStationWalks(), dataSourceConfig.getTemporaryStationWalks(), "start walks");
             }
+            assertEquals(expectedDataSource.getTransportModesWithPlatforms(), dataSourceConfig.getTransportModesWithPlatforms());
             assertEquals(expectedDataSource.getAddWalksForClosed(), dataSourceConfig.getAddWalksForClosed(), "AddWalksForClosed");
             assertEquals(expectedDataSource.getHasFeedInfo(), dataSourceConfig.getHasFeedInfo(), "feedinfo mismatch");
             checkDataSourceConfig(expectedDataSource, dataSourceConfig);

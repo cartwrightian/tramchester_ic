@@ -2,8 +2,10 @@ package com.tramchester.resources;
 
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.Version;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -56,9 +58,14 @@ public class VersionResource implements APIResource {
     public Response config(@QueryParam("beta") String betaRaw) {
         logger.info("Get config");
 
+        // TODO Not in use, but can be used to tweak config if ?beta is set in the URL
         final boolean beta = betaRaw!=null;
 
-        final ConfigDTO configDTO = new ConfigDTO(repository.getModes(beta), config);
+        final ImmutableEnumSet<TransportMode> modes = repository.getModes(beta);
+        ImmutableEnumSet<TransportMode> coreModes = TransportMode.consolidateReplacements(modes);
+
+        final boolean modeSelectionEnabled = coreModes.size()>1;
+        final ConfigDTO configDTO = new ConfigDTO(modes, config, modeSelectionEnabled, coreModes);
 
         logger.info("Returning config " + configDTO);
 

@@ -42,7 +42,7 @@ function getCurrentDate() {
 }
 
 function selectModesEnabled(scope) {
-    return scope.modes.length > 1;
+    return scope.modeSelectionEnabled;
 }
 
 // called post journey query
@@ -104,7 +104,6 @@ function queryLiveData(app, callingStations) {
         modes = app.selectedModes; 
     }
 
-
     var startLocationId; 
     if (place != null) {
         if (startLocationType == locationType) { 
@@ -130,13 +129,16 @@ function queryLiveData(app, callingStations) {
         journeyList = app.journeys;
     }
 
+    // ensure we don't query for modes where no live data available
+    const queryModes = modes.filter(item => app.liveDataModes.includes(item))
+
     const query = {
         time: app.time,
         locationType: startLocationType,
         locationId: startLocationId,
         //notes: true, -- no longer used
         notesFor: getNotesFor,
-        modes: modes,
+        modes: queryModes,
         journeys: journeyList
     }
 
@@ -174,6 +176,8 @@ function getTransportModesThenStations(app, beta) {
         .then(function (response) {
             app.networkError = false;
             app.modes = response.data.modes;
+            app.modeSelectionEnabled = response.data.modeSelectionEnabled;
+            app.liveDataModes = response.data.liveDataModes;
             app.maxChanges = response.data.maxNumberChanges;
             app.selectedModes = app.modes; // start with all modes selected
             app.postcodesEnabled = response.data.postcodesEnabled;
@@ -350,6 +354,8 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         liveDepartureResponse: null,
         feedinfo: [],
         modes: [],
+        liveDataModes: [],
+        modeSelectionEnabled: false,
         selectedModes: [],
         numberJourneysToDisplay: 0,
         searchInProgress: false,    // searching for routes

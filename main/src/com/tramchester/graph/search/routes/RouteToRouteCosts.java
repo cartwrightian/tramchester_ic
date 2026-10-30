@@ -322,8 +322,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                                             final StationAvailabilityFacade interchangesOperating,
                                             final int closureOffset, final ImmutableEnumSet<TransportMode> requestedModes) {
         if (DEBUG_ENABLED) {
-            logger.debug(format("Compute number of changes between %s and %s on %s",
-                    HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
+            logger.debug(format("Compute number of changes between %s and %s on %s for %s",
+                    HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, requestedModes));
         }
 
         final IndexedBitSet dateAndModeOverlaps = costs.createOverlapMatrixFor(date, requestedModes);
@@ -340,8 +340,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         int minHops = minHops(numberOfChangesForRoutes);
         if (minHops > maxDepth) {
-            logger.error(format("Unexpected result for min hops %s greater than max depth %s, for %s to %s, change cache %s",
-                    minHops, maxDepth, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), interchangesOperating));
+            logger.error(format("Unexpected result for min hops %s greater than max depth %s %s, for %s to %s, change cache %s",
+                    minHops, maxDepth, requestedModes, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), interchangesOperating));
         } else {
             minHops = minHops + closureOffset;
         }

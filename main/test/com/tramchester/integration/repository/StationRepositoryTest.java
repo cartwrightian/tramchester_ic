@@ -111,12 +111,12 @@ public class StationRepositoryTest {
 
         @NotNull Set<TFGMRouteNames> lines = shudehill.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(when)).
+                filter(route -> route.getTransportMode()==Tram).
                 map(route -> (TramRouteId)route.getId()).
                 map(TramRouteId::getRouteName).
-                filter(name -> !name.isReplacementBus()).
                 collect(Collectors.toSet());
 
-        assertEquals(4-2, lines.size(), lines.toString());
+        assertEquals(4, lines.size(), lines.toString());
 
         assertFalse(lines.contains(Red), "Got " + Red.getShortName() + " in " + lines);
 

@@ -165,12 +165,7 @@ export default {
             return result;
         },
         actionFormatter(stage) {
-            const action = stage.action;
-            if (action=='Walk to' || action=='Walk from') {
-                return action;
-            }
-            const transportMode = stage.mode; //currentlyExpandedJourney(this).stages[stageIndex].mode;
-            return action + ' ' + transportMode;
+            return stage.actionText;
         },
         stationURL(item) {
             return 'https://www.google.com/maps/search/?api=1&query='+ item.latLong.lat + ',' + item.latLong.lon;

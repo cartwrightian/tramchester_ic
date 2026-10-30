@@ -22,26 +22,17 @@ public class StageDTOFactory {
 
     private final DTOFactory stationDTOFactory;
     private final RailHeadsignFactory railHeadsignFactory;
-    //private final BusReplacementRepository busReplacementRepository;
 
     @Inject
     public StageDTOFactory(DTOFactory stationDTOFactory, RailHeadsignFactory railHeadsignFactory) {
         this.stationDTOFactory = stationDTOFactory;
         this.railHeadsignFactory = railHeadsignFactory;
-        //this.busReplacementRepository = busReplacementRepository;
     }
 
-    public SimpleStageDTO build(final TransportStage<?,?> source, final TravelAction travelAction, final TramDate queryDate) {
+    public SimpleStageDTO build(final TransportStage<?,?> source, final TravelAction travelAction, final String actionText, final TramDate queryDate) {
         final Route route = source.getRoute();
 
         TransportMode mode = source.getTransportMode();
-
-        // TODO moving to direct use of ReplacementTramBus
-//        if (mode==TransportMode.Tram) {
-//            if (Agency.IsMetrolink(route.getAgency().getId()) && busReplacementRepository.isReplacement(route.getId())) {
-//                mode=TransportMode.Bus;
-//            }
-//        }
 
         final LocationRefWithPosition firstStation = stationDTOFactory.createLocationRefWithPosition(source.getFirstStation());
         final LocationRefWithPosition lastStation = stationDTOFactory.createLocationRefWithPosition(source.getLastStation());
@@ -58,7 +49,7 @@ public class StageDTOFactory {
                     actionStation,
                     firstDepartureTime, expectedArrivalTime, duration,
                     source.getHeadSign(), mode, source.getPassedStopsCount(),
-                    routeRefDTO, travelAction, queryDate);
+                    routeRefDTO, travelAction, actionText, queryDate);
         }
 
         final IdForDTO tripId = new IdForDTO(source.getTripId());
@@ -73,7 +64,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     duration, headsign,
                     mode,
-                    source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
+                    source.getPassedStopsCount(), routeRefDTO, travelAction, actionText, queryDate, tripId);
         } else {
             return new VehicleStageDTO(firstStation,
                     lastStation,
@@ -81,7 +72,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     duration, headsign,
                     mode,
-                    source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
+                    source.getPassedStopsCount(), routeRefDTO, travelAction, actionText, queryDate, tripId);
         }
     }
 

@@ -186,7 +186,7 @@ public class StationAvailabilityRepository {
 
         final boolean datesMatch = servicesForLocations.isAvailable(date, locationId);
         if (!datesMatch) {
-            logger.warn("No services date overlap for " + locationId);
+            logger.warn("No services date overlap for %s and %s".formatted(locationId, requestedModes));
         }
 
         final ServedRoute pickupsAtLocation = pickupsForLocations.get(locationId);

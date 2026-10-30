@@ -46,7 +46,6 @@ class RouteMapperTest {
         componentContainer.close();
     }
 
-
     @Test
     void shouldHaveWorkaroundForAirportRouteIdsTransposedInData() {
         Route fromAirportRoute = tramRouteHelper.getNavy(date);
@@ -55,7 +54,7 @@ class RouteMapperTest {
 
         assertEquals(ManAirport.getId(), results.getFirst().getId());
 
-        assertEquals(Firswood.getId(), results.getLast().getId());
+        assertEquals(Victoria.getId(), results.getLast().getId());
 
     }
 

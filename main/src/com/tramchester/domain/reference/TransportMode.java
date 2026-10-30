@@ -24,10 +24,12 @@ public enum TransportMode implements HasTransportMode {
 
     public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
     public static final ImmutableEnumSet<TransportMode> TramsOnly = ImmutableEnumSet.of(Tram, TramReplacementBus);
+    // TODO Include replacements
     public static final ImmutableEnumSet<TransportMode> TrainOnly = Train.singleton();
+    public static final ImmutableEnumSet<TransportMode> ReplacementBus = ImmutableEnumSet.of(RailReplacementBus, TramReplacementBus);
 
     public static final ImmutableEnumSet<TransportMode> Vehicles = ImmutableEnumSet.from(Arrays.asList(Bus, Tram, Train,
-            Ferry, Subway, RailReplacementBus, Ship));
+            Ferry, Subway, RailReplacementBus, Ship, TramReplacementBus));
 
     private static final ImmutableEnumSet<TransportMode> NoneOf = ImmutableEnumSet.noneOf(TransportMode.class);
 
@@ -69,6 +71,10 @@ public enum TransportMode implements HasTransportMode {
             case TramReplacementBus -> Tram;
             case Bus, Tram, Train, Walk, Ferry, Subway, Ship, Connect, NotSet, Unknown -> item;
         };
+    }
+
+    public static boolean isReplacementBus(TransportMode transportMode) {
+        return ReplacementBus.contains(transportMode);
     }
 
     @JsonIgnore

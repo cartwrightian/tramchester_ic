@@ -72,9 +72,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 andReturn(new LocationRefWithPosition(location));
 
         replayAll();
-        SimpleStageDTO build = factory.build(stage, TravelAction.WalkTo, when);
+        SimpleStageDTO build = factory.build(stage, TravelAction.WalkTo, "Walk to", when);
         checkValues(stage, build, false, TravelAction.WalkTo, stage.getHeadSign());
         verifyAll();
+
+        assertEquals("Walk to", build.getActionText());
+
     }
 
     @Test
@@ -90,9 +93,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 andReturn(new LocationRefWithPosition(NavigationRoad.fake()));
 
         replayAll();
-        SimpleStageDTO build = factory.build(connectingStage, TravelAction.ConnectTo, when);
+        SimpleStageDTO build = factory.build(connectingStage, TravelAction.ConnectTo,"Walk to",when);
         checkValues(connectingStage, build, false, TravelAction.ConnectTo, connectingStage.getHeadSign());
         verifyAll();
+
+        assertEquals("Walk to", build.getActionText());
+
     }
 
     @Test
@@ -121,10 +127,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 andReturn(new LocationRefWithPosition(Bury.fake()));
 
         replayAll();
-        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
+        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, "Board Tram", when);
         verifyAll();
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board, "headSign");
+
+        assertEquals("Board Tram", stageDTO.getActionText());
 
         assertInstanceOf(VehicleStageDTO.class, stageDTO);
 
@@ -161,10 +169,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
         EasyMock.expect(railHeadsignFactory.getFor(vehicleStage)).andReturn("trainHeadSign");
 
         replayAll();
-        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
+        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, "Board Train",when);
         verifyAll();
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board, "trainHeadSign");
+
+        assertEquals("Board Train", stageDTO.getActionText());
 
         assertInstanceOf(VehicleStageDTO.class, stageDTO);
 
@@ -200,10 +210,11 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 andReturn(new LocationRefWithPosition(Bury.fake()));
 
         replayAll();
-        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
+        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, "Board Replacement Bus",when);
         verifyAll();
 
-        assertEquals(TransportMode.TramReplacementBus, stageDTO.getMode());;
+        assertEquals(TransportMode.TramReplacementBus, stageDTO.getMode());
+        assertEquals("Board Replacement Bus", stageDTO.getActionText());
     }
 
     private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action,

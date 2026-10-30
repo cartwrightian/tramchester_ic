@@ -37,9 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
-import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -210,7 +208,7 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, when, timeRange);
 
-        assertEquals(1+1, getMinCost(result));
+        assertEquals(1, getMinCost(result));
     }
 
     private int getPossibleMinChanges(Location<?> being, Location<?> end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -228,7 +226,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        int result = getPossibleMinChanges(start, end, RailOnly, when, timeRange);
+        int result = getPossibleMinChanges(start, end, TrainOnly, when, timeRange);
 
         assertEquals(Integer.MAX_VALUE, getMinCost(result));
 
@@ -241,7 +239,7 @@ public class RouteToRouteCostsTest {
 
         int result = getPossibleMinChanges(mediaCity, ashton, modes, when, timeRange);
 
-        assertEquals(1+1, getMinCost(result));
+        assertEquals(1, getMinCost(result));
     }
 
     @Test
@@ -258,7 +256,7 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, when, timeRange);
 
-        assertEquals(0+1, getMinCost(result));
+        assertEquals(0, getMinCost(result));
     }
 
     @Disabled("Picc garden walks needed")

@@ -144,6 +144,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         }
 
         @Override
+        public List<T> createList() {
+            return Collections.emptyList();
+        }
+
+        @Override
         public @NotNull Iterator<T> iterator() {
             return new Iterator<>() {
                 @Override
@@ -263,6 +268,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
             } else {
                 return new One<>(item);
             }
+        }
+
+        @Override
+        public List<T> createList() {
+            return List.of(item);
         }
 
         @Override
@@ -387,6 +397,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
             } else {
                 return ImmutableEnumSetImpl.createFrom(EnumSet.copyOf(filtered));
             }
+        }
+
+        @Override
+        public List<T> createList() {
+            return new ArrayList<>(contained);
         }
 
     }

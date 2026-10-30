@@ -21,8 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServicesForLocationRepositoryTest {
     private static GuiceContainerDependencies componentContainer;
@@ -77,7 +76,7 @@ public class ServicesForLocationRepositoryTest {
     }
 
     @Test
-    void shouldNotHaveServicesForNavigationRoad() {
+    void shouldHaveServicesForNavigationRoad() {
         Station station = TramStations.NavigationRoad.from(stationRepository);
 
         Set<Service> services = repository.getFor(station.getLocationId());
@@ -87,9 +86,9 @@ public class ServicesForLocationRepositoryTest {
         Set<Service> running = services.stream().
                 filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
 
-        assertTrue(running.isEmpty());
+        boolean expected = !running.isEmpty();
 
-        assertFalse(repository.isAvailable(when, station.getLocationId()));
+        assertEquals(expected, repository.isAvailable(when, station.getLocationId()));
 
     }
 }

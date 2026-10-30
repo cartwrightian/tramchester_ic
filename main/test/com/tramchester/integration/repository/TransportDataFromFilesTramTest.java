@@ -115,11 +115,6 @@ public class TransportDataFromFilesTramTest {
                 filter(routeName -> !routeName.isReplacementBus()).
                 collect(Collectors.toSet());
 
-        // closures autumn 2026
-        expected.remove(Yellow);
-        expected.remove(Red);
-        expected.remove(Green);
-
         Set<TFGMRouteNames> mismatch = SetUtils.disjunction(found, expected);
 
         assertTrue(mismatch.isEmpty(), "Mismatch " + mismatch + "\n between expected " + expected + " and \n" + found);
@@ -160,8 +155,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // autumn 2026
-        assertEquals(2-1, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -220,15 +214,12 @@ public class TransportDataFromFilesTramTest {
                         map(routeStation -> routeStation.getRoute().getShortName()).
                         collect(Collectors.toSet());
 
-        // autumn 2026
-        assertEquals(2-1, lines.size(), lines.toString());
+        assertEquals(2, lines.size(), lines.toString());
 
-        // autumn 2026
         String diag = "NOT Missing from " + lines + " on " + when;
-        assertFalse(lines.contains(TFGMRouteNames.Green.getShortName()), diag);
+        assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()), diag);
         assertFalse(lines.contains(TFGMRouteNames.Blue.getShortName()), diag);
-        assertFalse(lines.contains(TFGMRouteNames.Purple.getShortName()), diag);
-
+        assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()), diag);
 
     }
 
