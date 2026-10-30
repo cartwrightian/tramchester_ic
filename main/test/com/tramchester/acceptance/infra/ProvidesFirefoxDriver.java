@@ -69,19 +69,15 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
                 firefoxProfile.setPreference("geo.prompt.testing.allow", false);
             }
 
-            // try to disable helper tool install, which breaks in headless and on CI box, sigh....
-            //firefoxProfile.setPreference("app.update.auto", false);
+//            firefoxProfile.setPreference("app.update.background.enabled", false);
 //            firefoxProfile.setPreference("app.update.enabled", false);
-//            firefoxProfile.setPreference("app.update.service.enabled", false);
-//            firefoxProfile.setPreference("toolkit.telemetry.enabled", false);
+            firefoxProfile.setPreference("app.update.promptWaitTime", 1);
+            //firefoxProfile.setPreference("app.update.elevate.maxAttempts", 1);
 
-            final FirefoxOptions firefoxOptions = new FirefoxOptions();
-            firefoxOptions.addPreference("app.update.auto", false);
-            firefoxOptions.addPreference("app.update.auto", false);
-            firefoxOptions.addPreference("app.update.enabled", false);
-            firefoxOptions.addPreference("app.update.silent", false);
-
-            firefoxOptions.setProfile(firefoxProfile);
+            final FirefoxOptions firefoxOptions = new FirefoxOptions().
+//                    addPreference("app.update.background.enabled", false).
+//                    addPreference("app.update.enabled", false).
+                    setProfile(firefoxProfile);
 
             // allow disabling of headless more via env var
             if (System.getenv(TestEnv.DISABLE_HEADLESS_ENV_VAR)==null) {

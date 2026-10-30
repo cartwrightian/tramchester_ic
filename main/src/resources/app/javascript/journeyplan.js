@@ -130,7 +130,8 @@ function queryLiveData(app, callingStations) {
     }
 
     // ensure we don't query for modes where no live data available
-    const queryModes = modes.filter(item => app.liveDataModes.includes(item))
+
+    const queryModes = modes==null ? app.selectedModes : modes.filter(item => app.liveDataModes.includes(item))
 
     const query = {
         time: app.time,

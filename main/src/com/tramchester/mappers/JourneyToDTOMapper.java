@@ -51,12 +51,14 @@ public class JourneyToDTOMapper {
         final TramTime queryTime = journey.getQueryTime();
 
         TravelAction previousAction = TravelAction.None;
+        TransportMode previousMode = TransportMode.NotSet;
         for(final TransportStage<?,?> rawStage : rawJourneyStages) {
             final TravelAction travelAction = decideTravelAction(stages, rawStage);
-            final String actionText = TravelAction.decideActionText(travelAction, rawStage.getTransportMode(), previousAction);
+            final String actionText = TravelAction.decideActionText(travelAction, rawStage.getTransportMode(), previousAction, previousMode);
             final SimpleStageDTO stageDTO = stageFactory.build(rawStage, travelAction, actionText, queryDate);
             stages.add(stageDTO);
             previousAction = travelAction;
+            previousMode = rawStage.getTransportMode();
         }
 
         final LocationRefWithPosition begin = stationDTOFactory.createLocationRefWithPosition(journey.getBeginning());
