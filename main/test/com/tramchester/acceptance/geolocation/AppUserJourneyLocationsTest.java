@@ -9,10 +9,12 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,12 +23,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourneyFromMyLocation;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,7 +52,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     public static final AcceptanceAppExtenstion appExtension = new AcceptanceAppExtenstion(App.class, configPath);
 
     private final String bury = TramStations.Bury.getName();
-    private final String altrincham = TramStations.Altrincham.getName();
+    private final String altrincham = Altrincham.getName();
 
     private LocalDate when;
     private String url;
@@ -84,7 +90,10 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         FetchAllStationsFromAPI fetchAllStationsFromAPI = new FetchAllStationsFromAPI(appExtension);
 
-        final int allStations = fetchAllStationsFromAPI.getStations().size();
+        Set<String> allStations = fetchAllStationsFromAPI.getStations().stream().
+                map(LocationRefDTO::getName).
+                collect(Collectors.toSet());
+
         //final int closed = fetchAllStationsFromAPI.getClosedStations().size();
         //final int expectedNumber = allStations-closed;
 
@@ -98,14 +107,20 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         List<String> nearestFromStops = appPage.getNearestFromStops();
         assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, NavigationRoad.getName()));
 
-        List<String> allFrom = appPage.getAllStopsFromStops();
-        assertFalse(allFrom.contains(altrincham));
-        assertFalse(allFrom.contains(NavigationRoad.getName()));
+        List<String> fromStops = appPage.getAllStopsFromStops();
+        assertFalse(fromStops.contains(altrincham));
+        assertFalse(fromStops.contains(NavigationRoad.getName()));
 
         List<String> recentFromStops = appPage.getRecentFromStops();
-        assertThat(allFrom, not(contains(recentFromStops)));
+        assertThat(fromStops, not(contains(recentFromStops)));
 
-        assertEquals(allStations, nearestFromStops.size() + allFrom.size() + recentFromStops.size());
+        Set<String> allFromStops = new HashSet<>(nearestFromStops);
+        allFromStops.addAll(fromStops);
+        allFromStops.addAll(recentFromStops);
+
+        Set<String> mismatchFrom = SetUtils.disjunction(allStations, allFromStops);
+
+        assertTrue(mismatchFrom.isEmpty(), "Got mismatch for from stops " + mismatchFrom);
 
         // to
         List<String> myLocationToStops = appPage.getNearbyToStops();
@@ -113,13 +128,23 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         List<String> nearestToStops = appPage.getNearestFromStops();
         assertThat(nearestToStops, hasItems(altrincham, NavigationRoad.getName()));
-        List<String> allTo = appPage.getAllStopsToStops();
-        assertThat(allTo, not(contains(nearestToStops)));
-        int recentToCount = appPage.getRecentToStops().size();
-        assertEquals(allStations, nearestToStops.size()+allTo.size()+recentToCount);
+
+        List<String> toStops = appPage.getAllStopsToStops();
+        assertThat(toStops, not(contains(nearestToStops)));
+
+        List<String> recentToStops = appPage.getRecentToStops();
+
+        Set<String> allToStops = new HashSet<>(nearestToStops);
+        allToStops.addAll(toStops);
+        allToStops.addAll(recentToStops);
+
+        Set<String> mismatchTo = SetUtils.disjunction(allStations, allToStops);
+
+        assertTrue(mismatchTo.isEmpty(), "Got mismatch for to stops " + mismatchTo);
+        //assertEquals(allStations.size(), nearestToStops.size()+toStops.size()+recentToCount);
 
         // check recents works as expected
-        desiredJourney(appPage, TramStations.Altrincham, TramStations.Bury, when, TramTime.of(10,15), false);
+        desiredJourney(appPage, Altrincham, TramStations.Bury, when, TramTime.of(10,15), false);
         appPage.planAJourney();
         appPage.waitForReady();
 
@@ -160,11 +185,9 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
             TramTime arriveTime = result.getArriveTime();
             assertTrue(arriveTime.isValid());
             assertTrue(arriveTime.isAfter(departTime), arriveTime.toString());
-//            assertEquals("Direct", result.getChanges());
             String changes = result.getChanges();
-//            assertTrue(changes.equals(NavigationRoad.getName()) || changes.equals(Altrincham.getName()),
-//                    "Changes not as expected " + changes);
-            assertEquals("Altrincham, Piccadilly", changes);
+            assertTrue(changes.equals(NavigationRoad.getName()) || changes.equals(Altrincham.getName()),
+                    "Changes not as expected " + changes);
         }
 
         // select first journey - this seems to be inconsistent, not returning first displayed journey
@@ -174,7 +197,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        assertEquals(2+1, stages.size());
+        assertEquals(2, stages.size());
 
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
@@ -190,8 +213,8 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         final TramTime secondStageDepartTime = secondStage.getDepartTime();
         assertTrue(secondStageDepartTime.isAfter(firstStageDepartTime));
 
-//        String expectedAction = "Board Tram";
-        String expectedAction = "Board Bus";
+        String expectedAction = "Board Tram";
+//        String expectedAction = "Board Bus";
 
         assertEquals(expectedAction, secondStage.getAction(), "action wrong for " + stages);
         assertEquals(station, secondStage.getActionStation(), "action stations wrong");

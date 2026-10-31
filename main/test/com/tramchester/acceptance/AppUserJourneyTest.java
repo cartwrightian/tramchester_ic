@@ -14,7 +14,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
 import com.tramchester.testSupport.testTags.SmokeTest;
@@ -247,8 +246,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
             assertTrue(currentArrivalTime.isValid());
             assertTrue(result.getDepartTime().isValid());
             assertTrue(currentArrivalTime.isAfter(result.getDepartTime()), "arrived before depart");
-//            assertEquals("Direct", result.getChanges());
-            assertEquals("Piccadilly", result.getChanges());
+            // bus replacement
+            assertEquals("Direct", result.getChanges());
+            //assertEquals("Piccadilly", result.getChanges());
             previous = currentArrivalTime;
         }
 
@@ -259,18 +259,18 @@ public class AppUserJourneyTest extends UserJourneyTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        assertEquals(1+1, stages.size());
+        assertEquals(1, stages.size());
         Stage stage = stages.getFirst();
 
         Set<String> headSigns = new HashSet<>(Arrays.asList(Bury.getName(), Piccadilly.getName(),
                 "Bury via Market Street & Victoria", Crumpsal.getName(), Etihad.getName()));
         Set<TramTime> departTimes = Collections.singleton(firstResult.getDepartTime());
-//        String expectedAction = "Board Tram";
-        String expectedAction = "Board Bus";
+        String expectedAction = "Board Tram";
+        //String expectedAction = "Board Bus";
 
         validateAStage(stage, departTimes, expectedAction, Altrincham.getName(),
                 Collections.singletonList(1),
-                headSigns, 9-9);
+                headSigns, 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -405,7 +405,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
                 "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 
-    @DisabledUntilDate(year = 2026, month = 10, day = 22)
+    @Disabled("Row selection is broken since last selenium update")
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
@@ -419,11 +419,12 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
 
-        String twoChanges = String.format("%s, %s", Piccadilly.getName(), Firswood.getName());
+        String twoChangesA = String.format("%s, %s", Piccadilly.getName(), Firswood.getName());
+        String twoChangesB = String.format("%s, %s", Sale.getName(), TraffordBar.getName());
 
         // add St Peters during closures
         final List<String> expectedChanges = Arrays.asList(TraffordBar.getName(), Cornbrook.getName(),
-                StPetersSquare.getName(), twoChanges);
+                StPetersSquare.getName(), twoChangesA, twoChangesB);
 
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
         TramTime previousArrivalTime = planTime; // sorted by arrival time
@@ -445,10 +446,12 @@ public class AppUserJourneyTest extends UserJourneyTest {
         // need to sort, otherwise unpredictable
         // also just check the 2 stage (can get 3 during closures and diversions)
         List<TestResultSummaryRow> sortedByDepartTime = results.stream().
-                filter(row -> row.getStages().size()==2+1).
+                filter(row -> row.getStages().size()==2).
                 sorted(Comparator.comparing(TestResultSummaryRow::getDepartTime)).toList();
 
         assertFalse(sortedByDepartTime.isEmpty(), "None matched from " + results);
+
+        //  TODO Selecting the earliest row seems buggy since last selenium update :-(
 
         // select first depart journey
         TestResultSummaryRow firstResult = sortedByDepartTime.getFirst();
@@ -457,7 +460,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
-        assertEquals(2+1, stages.size());
+        assertEquals(2, stages.size());
 
         Stage firstStage = stages.getFirst();
 
