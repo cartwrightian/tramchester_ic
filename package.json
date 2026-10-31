@@ -29,7 +29,7 @@
     "picomatch": "^4.0.7",
     "postcss": "^8.5.32",
     "serialize-javascript": "^7.1.1",
-    "vue": "^3.5.42",
+    "vue": "^3.5.44",
     "vue-cookies": "^1.8.6",
     "vuetify": "^4.2.0"
   },
