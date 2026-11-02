@@ -57,4 +57,5 @@ public interface GraphRelationship extends GraphEntity<GraphRelationshipId> {
     boolean validOn(TramDate tramDate);
     boolean hasTripIdInList(IdFor<Trip> tripId);
 
+    ImmutableIdSet<Service> getServiceIds();
 }

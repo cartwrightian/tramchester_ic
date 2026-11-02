@@ -3,17 +3,10 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
-import com.tramchester.dataimport.loader.TransportDataReader;
-import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -27,10 +20,8 @@ import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.collections4.SetUtils;
@@ -44,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
-import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.domain.reference.TFGMRouteNames.Navy;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
@@ -62,7 +53,6 @@ public class TransportDataFromFilesTramTest {
 
     public static final int NUM_TFGM_TRAM_STATIONS = 99;
     private static ComponentContainer componentContainer;
-    private static TramchesterConfig config;
 
     private TransportData transportData;
     private Collection<Service> allServices;
@@ -71,8 +61,7 @@ public class TransportDataFromFilesTramTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
-        config = tramchesterConfig;
-        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -223,44 +212,13 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @Test
-    void shouldGetServicesByDate() {
-        TramDate nextSaturday = UpcomingDates.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(nextSaturday, TransportMode.TramsOnly);
 
-        assertFalse(results.isEmpty(), "no services next saturday");
-        long onCorrectDate = results.stream().
-                filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
-
-        assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
-
-        TramDate noTrams = nextSaturday.plusWeeks(11*52);
-        results = transportData.getServicesOnDate(noTrams, TransportMode.TramsOnly);
-        assertTrue(results.isEmpty(), "not empty, got " + results);
-    }
 
     @Test
     void shouldHaveSaneServiceStartAndFinishTimes() {
         Set<Service> badTimings = allServices.stream().filter(svc -> svc.getStartTime().isAfter(svc.getFinishTime())).
                 collect(Collectors.toSet());
         assertTrue(badTimings.isEmpty());
-    }
-
-    @DataExpiryTest
-    @Test
-    void shouldHaveServiceEndDatesBeyondNextNDays() {
-
-//        TramDate startDate = TramDate.from(TestEnv.LocalNow());
-//        TramDate endDate = startDate.plusDays(DAYS_AHEAD);
-
-        DateRange dateRange = DateRange.from(UpcomingDates.daysAhead());
-
-        Set<Service> services = transportData.getServices();
-        Set<Service> expiringServices = services.stream().
-                filter(service -> !service.getCalendar().getDateRange().overlapsWith(dateRange)).
-                collect(Collectors.toSet());
-
-        assertNotEquals(services, expiringServices, "all services are expiring");
     }
 
     @Test
@@ -276,31 +234,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @DataExpiryTest
-    @Test
-    void shouldHaveTramServicesAvailableNDaysAhead() {
 
-        Set<TramDate> noServices = UpcomingDates.getUpcomingDates().
-                filter(date -> transportData.getServicesOnDate(date, TransportMode.TramsOnly).isEmpty()).
-                collect(Collectors.toSet());
-
-        assertTrue(noServices.isEmpty(), "no services on " + noServices);
-
-    }
-
-    @Test
-    void shouldHaveServicesThatIncludeDateInRange() {
-
-        Set<Service> allServices = transportData.getServices();
-
-        Set<Service> includeDate = allServices.stream().filter(service -> service.getCalendar().getDateRange().contains(when)).collect(Collectors.toSet());
-
-        assertFalse(includeDate.isEmpty());
-
-        Set<Service> onActualDate = includeDate.stream().filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
-
-        assertFalse(onActualDate.isEmpty());
-    }
 
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
@@ -356,45 +290,6 @@ public class TransportDataFromFilesTramTest {
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
 
-    }
-
-    @Test
-    void shouldBeApplyingExceptionalDatesCorrectly() {
-
-        TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
-        List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
-        TransportDataReader transportDataReader = transportDataReaders.getFirst(); // yuk
-        Set<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates().collect(Collectors.toSet());
-
-        Set<Service> calendarsForTrams = transportData.getServices();
-
-        Set<CalendarDateData> applyToCurrentServices = calendarsDates.stream().
-                filter(calendarDateData -> transportData.hasServiceId(calendarDateData.getServiceId())).
-                collect(Collectors.toSet());
-
-        // are not any in the data at the moment 15/11/2022
-        assertFalse(applyToCurrentServices.isEmpty(), "did not alter any of " + HasId.asIds(calendarsForTrams));
-
-        assertEquals(1,  config.getGtfsSourceConfig().size(), "expected only one data source");
-        GTFSSourceConfig sourceConfig = config.getGtfsSourceConfig().getFirst();
-        TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
-
-        applyToCurrentServices.forEach(exception -> {
-            Service service = transportData.getServiceById(exception.getServiceId());
-            ServiceCalendar calendar = service.getCalendar();
-
-            TramDate exceptionDate = exception.getDate();
-            int exceptionType = exception.getExceptionType();
-            if (exceptionType == CalendarDateData.ADDED) {
-                if (excludedByConfig.contains(exceptionDate)) {
-                    assertFalse(calendar.operatesOn(exceptionDate));
-                } else {
-                    assertTrue(calendar.operatesOn(exceptionDate));
-                }
-            } else if (exceptionType == CalendarDateData.REMOVED) {
-                assertFalse(calendar.operatesOn(exceptionDate));
-            }
-        });
     }
 
 

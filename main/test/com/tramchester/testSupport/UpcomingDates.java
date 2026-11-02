@@ -36,8 +36,8 @@ public class UpcomingDates {
     static final int DAYS_AHEAD = 14;
 
     // ongoing? Used to add walk Media City to Imperial Was Museum
-    public static DateRange MediaCityToImperialWarMus = DateRange.of(TramDate.of(2026, 9, 26),
-            TramDate.of(2026, 11, 15));
+    public static DateRange MediaCityOffPeakWalksNeeded = DateRange.of(TramDate.of(2026, 9, 26),
+            TramDate.of(2026, 12, 15));
 
     public static DateRange MajorWorksAutumn2026 = DateRange.of(TramDate.of(2026, 10,19),
             TramDate.of(2026, 11, 1));

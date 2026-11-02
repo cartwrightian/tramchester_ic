@@ -24,7 +24,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.*;
@@ -84,7 +84,7 @@ public class RouteToRouteCostsTest {
         timeRange = TimeRangePartial.of(TramTime.of(7,45), TramTime.of(22,45));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveResultsForAllStationsBelowMaxChanges() {
         ClosedStationsRepository closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
@@ -162,7 +162,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, when, timeRange, modes)));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(when);
@@ -175,7 +175,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getRed(when);
@@ -189,7 +189,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
         Route routeA = routeHelper.getGreen(when);
@@ -285,7 +285,7 @@ public class RouteToRouteCostsTest {
                 possibleMinChanges, start.getId(), end.getId(), date));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldSortAsExpected() {
 
@@ -323,7 +323,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(changes), changes);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleServicesAtMidnight() {
         Station altrincham = StPetersSquare.from(stationRepository);
@@ -338,7 +338,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(changes), "On " + when + " " + changes);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleServicesJustAfterMidnight() {
         Station altrincham = Altrincham.from(stationRepository);

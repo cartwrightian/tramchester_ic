@@ -2,12 +2,10 @@ package com.tramchester.graph.core;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.id.TripIdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
@@ -38,10 +36,8 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
         }
     }
 
-
     protected RouteStationId getRouteStationId(final E entity) {
         return (RouteStationId) entity.getProperty(ROUTE_STATION_ID);
-
     }
 
     // public to support testing
@@ -69,6 +65,30 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
 
         // supports optimization
         Set<GraphPropertyKey> getUnused();
+
+        default void addServiceIds(final ImmutableIdSet<Service> serviceIds) {
+            final IdSet<Service> existing = getServiceIds();
+
+            final IdSet<Service> updated;
+            if (existing.isEmpty()) {
+                updated = IdSet.copy(serviceIds);
+            } else {
+                updated = IdSet.copy(existing).addAll(serviceIds);
+            }
+            setProperty(SERVICE_ID_LIST, updated);
+        }
+
+        default void setServiceIds(IdSet<Service> serviceIds) {
+            setProperty(SERVICE_ID_LIST, IdSet.copy(serviceIds));
+        }
+
+
+        default IdSet<Service> getServiceIds() {
+            if (hasProperty(SERVICE_ID_LIST)) {
+                return (IdSet<Service>) getProperty(SERVICE_ID_LIST);
+            }
+            return IdSet.emptySet();
+        }
 
         default void addTripId(final IdFor<Trip> tripId) {
 
@@ -165,6 +185,7 @@ public class GraphEntityProperties<E extends GraphEntityProperties.GraphProps<E>
             }
             throw new RuntimeException("Hour is missing for " + this);
         }
+
 
     }
 

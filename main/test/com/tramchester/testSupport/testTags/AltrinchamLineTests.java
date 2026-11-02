@@ -1,6 +1,5 @@
 package com.tramchester.testSupport.testTags;
 
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.conditional.DisabledUntilDateCondition;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -12,7 +11,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(DisabledUntilDateCondition.class)
-@DisabledUntilDate(year = 2026, month = 11, day = 1)
-public @interface ClosuresAutumn2026 {
-    // revisit this, bus route trips seems to be missing at the moment
+public @interface AltrinchamLineTests {
+    // useful when alty line was shut for disabling those tests
 }

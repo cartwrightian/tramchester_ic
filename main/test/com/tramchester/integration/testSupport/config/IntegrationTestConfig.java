@@ -18,9 +18,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.testSupport.UpcomingDates.MediaCityToImperialWarMus;
-import static com.tramchester.testSupport.reference.TramStations.ImperialWarMuseum;
-import static com.tramchester.testSupport.reference.TramStations.MediaCityUK;
+import static com.tramchester.testSupport.UpcomingDates.MediaCityOffPeakWalksNeeded;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -67,9 +66,9 @@ public abstract class IntegrationTestConfig extends TestConfig {
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = //Collections.emptyList();
             List.of(
                     new TemporaryStationsWalkConfigForTest(StationIdPair.of(MediaCityUK, ImperialWarMuseum),
-                            MediaCityToImperialWarMus)
-//                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(StPetersSquare, ExchangeSquare),
-//                            MajorWorksAutumn2026),
+                            MediaCityOffPeakWalksNeeded),
+                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(MediaCityUK, Broadway),
+                            MediaCityOffPeakWalksNeeded)
 //                    new TemporaryStationsWalkConfigForTest(StationIdPair.of(StPetersSquare, PiccadillyGardens),
 //                            MajorWorksAutumn2026)
             );
@@ -113,6 +112,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     @Override
     public int getMaxNumberChanges() {
-        return 3;
+        return 2;
     }
 }

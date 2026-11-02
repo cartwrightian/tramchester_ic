@@ -21,7 +21,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.collections4.SetUtils;
@@ -78,7 +78,7 @@ public class RouteRepositoryTest {
         assertTrue(TransportMode.isTram(result));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedRoutesAtDeansgate() {
 
@@ -116,7 +116,7 @@ public class RouteRepositoryTest {
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldNotHaveRedRouteServingShudehill() {
         Route red = routeHelper.getOneRoute(Red, when);
@@ -151,7 +151,7 @@ public class RouteRepositoryTest {
         assertEquals(toVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
         Route fromBuryToAltrincham = routeHelper.getOneRoute(Green, when);
@@ -200,7 +200,7 @@ public class RouteRepositoryTest {
     void shouldHaveExpectedNumberOfReplacementBusesRunningToday() {
         TramDate date = TramDate.of(LocalDate.now());
         Set<Route> byMode = routeRepository.getRoutesRunningOn(date, TramReplacementBus.singleton());
-        assertEquals(6, byMode.size());
+        assertEquals(0, byMode.size());
     }
 
     @Test
@@ -233,7 +233,7 @@ public class RouteRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproduceIssueWithRoutesThatHaveNoOverlap() {
         // overlap blue route have appeared, cannot use Blue here
@@ -272,7 +272,7 @@ public class RouteRepositoryTest {
                 findFirst();
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
@@ -288,7 +288,7 @@ public class RouteRepositoryTest {
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproduceIssuesStPetersSquareSept2026() {
 
@@ -323,7 +323,7 @@ public class RouteRepositoryTest {
         return SetUtils.intersection(pickupAvailable, dropoffAvailable);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
         TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);

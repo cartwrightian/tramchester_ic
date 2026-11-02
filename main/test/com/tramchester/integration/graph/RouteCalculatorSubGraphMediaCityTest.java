@@ -126,7 +126,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
-        assumeFalse(UpcomingDates.MediaCityToImperialWarMus.contains(when));
+        assumeFalse(UpcomingDates.MediaCityOffPeakWalksNeeded.contains(when));
 
     }
 

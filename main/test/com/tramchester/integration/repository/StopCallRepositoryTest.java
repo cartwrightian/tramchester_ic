@@ -22,7 +22,7 @@ import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.*;
 
@@ -126,7 +126,7 @@ public class StopCallRepositoryTest {
         assertEquals(5, results.size(), "Wrong number for calls for period " + results);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldGetCostsForAStopCall() {
         TramDate when = TestEnv.testDay();
@@ -146,7 +146,7 @@ public class StopCallRepositoryTest {
         assertEquals(TramDuration.ofMinutes(3), costs.min(), costs.toString());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindUniqueCallingPointsBetween() {
         List<IdFor<Station>> stations = stopCallRepository.getStopcallsBetween(OldTrafford.getId(), StPetersSquare.getId(), when);
@@ -160,7 +160,7 @@ public class StopCallRepositoryTest {
         assertEquals(StPetersSquare.getId(), stations.get(4));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindUniqueCallingPointsBetweenAdjacentStations() {
         List<IdFor<Station>> stationsFwd = stopCallRepository.getStopcallsBetween(NavigationRoad.getId(), Timperley.getId(), when);
@@ -179,7 +179,7 @@ public class StopCallRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindUniqueCallingPointsEndOfALine() {
         List<IdFor<Station>> stations = stopCallRepository.getStopcallsBetween(Altrincham.getId(), Timperley.getId(), when);
@@ -191,7 +191,7 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindUniqueCallingPointsEndOfALineDateRange() {
         DateRange range = DateRange.of(when, when.plusWeeks(1));
@@ -204,7 +204,7 @@ public class StopCallRepositoryTest {
         assertEquals(Altrincham.getId(), stations.get(0));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
         //TramDate date = TramDate.of(2026,5,30);
@@ -258,7 +258,7 @@ public class StopCallRepositoryTest {
         assertEquals(DerkerToRochdale, stopsBetween);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedEcclesLine() {
         // no longer calling media city

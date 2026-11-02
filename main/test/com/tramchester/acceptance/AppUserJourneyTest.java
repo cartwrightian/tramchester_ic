@@ -15,7 +15,7 @@ import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
@@ -490,7 +490,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) throws IOException {

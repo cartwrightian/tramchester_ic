@@ -9,9 +9,12 @@ import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.graph.search.FindLinkedStations;
@@ -39,14 +42,18 @@ public class Interchanges implements InterchangeRepository {
     private final GraphFilter graphFilter;
     private final RouteIndex routeIndex;
     private final RouteIndexPairFactory pairFactory;
+    private final ProvidesLocalNow providesLocalNow;
 
     private final Map<IdFor<Station>, InterchangeStation> interchanges;
     private final PairToInterchange pairToInterchange;
+
+    public static final int WEEKS_AHEAD_FOR_LINKS = 12;
 
     @Inject
     public Interchanges(FindLinkedStations findStationsByNumberConnections, StationRepository stationRepository,
                         NeighboursRepository neighboursRepository, TramchesterConfig config, GraphFilter graphFilter,
                         RouteIndex routeIndex, RouteIndexPairFactory pairFactory,
+                        ProvidesLocalNow providesLocalNow,
                         @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
@@ -55,6 +62,7 @@ public class Interchanges implements InterchangeRepository {
         this.graphFilter = graphFilter;
         this.routeIndex = routeIndex;
         this.pairFactory = pairFactory;
+        this.providesLocalNow = providesLocalNow;
 
         interchanges = new HashMap<>();
         pairToInterchange = new PairToInterchange();
@@ -70,13 +78,16 @@ public class Interchanges implements InterchangeRepository {
         /// NOTE: started after station & links built in DB but before full graph build
         final ImmutableEnumSet<TransportMode> enabledModes = config.getTransportModesImmutable();
 
+        TramDate today = providesLocalNow.getTramDate();
+        DateRange dateRange = DateRange.of(today, today.plusWeeks(WEEKS_AHEAD_FOR_LINKS));
+
         logger.info("Starting for " + enabledModes);
 
         enabledModes.forEach(this::addMarkedStations);
 
         enabledModes.stream().filter(this::discoveryEnabled).forEach(mode -> {
             final int linkThreshhold = getLinkThreshhold(mode);
-            populateInterchangesFor(mode, linkThreshhold);
+            populateInterchangesFor(mode, linkThreshhold, dateRange);
         });
 
         addAdditionalInterchanges(config.getGtfsSourceConfig());
@@ -139,10 +150,11 @@ public class Interchanges implements InterchangeRepository {
         };
     }
 
-    private void populateInterchangesFor(final TransportMode mode, final int linkThreshhold) {
+    private void populateInterchangesFor(final TransportMode mode, final int linkThreshhold, DateRange dateRange) {
 
-        logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
-        final ImmutableIdSet<Station> rawIds = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
+        logger.info("Finding interchanges for %s and threshhold %d %s".formatted(mode, linkThreshhold, dateRange));
+
+        final ImmutableIdSet<Station> rawIds = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold, dateRange);
 
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
         final Set<Station> foundViaLinks = rawIds.stream().
@@ -265,7 +277,7 @@ public class Interchanges implements InterchangeRepository {
                 collect(IdSet.collector());
 
         if (!couldNotAdd.isEmpty()) {
-            logger.error("Failed to add multimode interchanes " + couldNotAdd);
+            logger.error("Failed to add multimode interchanges " + couldNotAdd);
         }
 
     }

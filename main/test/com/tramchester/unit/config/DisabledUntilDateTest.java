@@ -60,7 +60,7 @@ public class DisabledUntilDateTest {
         List<Class<?>> expired = all.stream().
                 //filter(klass -> !klass.getDeclaringClass().equals(this.getClass())).
                 filter(klass -> !klass.getPackageName().equals(examplesPackageName)).
-                sorted(Comparator.comparing(a -> a.getDeclaringClass().getName())).
+                sorted(Comparator.comparing(Class::getSimpleName)).
                 toList();
 
         assertEquals(Collections.emptyList(), expired, finder.getClassNamesAndLineNumbers(expired));

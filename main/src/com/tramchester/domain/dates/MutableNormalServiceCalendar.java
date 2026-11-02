@@ -89,6 +89,11 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
         }
     }
 
+    /***
+     * Use with care for overlaps
+     * @return the range of dates the calendar spans, use anyDateOverlaps to check if a service actually overlaps
+     * on a specific date
+     */
     @Override
     public DateRange getDateRange() {
         return dateRange;

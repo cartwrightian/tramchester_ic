@@ -23,7 +23,7 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -38,7 +38,7 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersS
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@ClosuresAutumn2026
+@AltrinchamLineTests
 class RouteCalculatorSubGraphTest {
     private static ComponentContainer componentContainer;
     private static SubgraphConfig config;

@@ -24,7 +24,7 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -101,7 +101,7 @@ class RouteCalculatorForBoundingBoxTest {
         assertTrue(missing.isEmpty(), HasId.asIds(missing));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindJourneysForBoundedBoxStations() throws InterruptedException {
         BoundingBox bounds = stationLocations.getActiveStationBounds();

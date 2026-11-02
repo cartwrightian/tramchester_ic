@@ -47,10 +47,6 @@ public enum TransportRelationshipTypes {
 
     static {
         final ImmutableEnumSet<TransportRelationshipTypes> values = ImmutableEnumSet.allOf(TransportRelationshipTypes.class);
-//        values.remove(ON_ROUTE); // not used for traversals
-//        values.remove(LINKED);
-//        values.remove(STATION_TO_ROUTE);
-        //forPlanning = new TransportRelationshipTypes[values.size()];
         forPlanning = values.without(ImmutableEnumSet.of(ON_ROUTE, LINKED, STATION_TO_ROUTE));
     }
 
@@ -107,14 +103,6 @@ public enum TransportRelationshipTypes {
                 map(TransportRelationshipTypes::forMode).collect(Collectors.toSet());
 
         return ImmutableEnumSet.copyOf(unique);
-
-//        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[unique.size()];
-//        int index = 0;
-//        for (final TransportRelationshipTypes type: unique) {
-//            results[index] = type;
-//            index++;
-//        }
-//        return results;
     }
 
     public ImmutableEnumSet<TransportRelationshipTypes> singleton() {

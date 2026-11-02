@@ -3,8 +3,10 @@ package com.tramchester.repository;
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
@@ -18,4 +20,5 @@ public interface ServiceRepository {
     Service getServiceById(IdFor<Service> serviceId);
     boolean hasServiceId(IdFor<Service> serviceId);
 
+    boolean anyOverlaps(ImmutableIdSet<Service> serviceIds, DateRange dateRange);
 }

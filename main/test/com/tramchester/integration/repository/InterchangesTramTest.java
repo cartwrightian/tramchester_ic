@@ -23,7 +23,7 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -95,13 +95,11 @@ public class InterchangesTramTest {
                 StWerburghsRoad,
                 Pomona,
                 Broadway,
-                HarbourCity,
+                HarbourCity
                 //Shudehill,
-                MediaCityUK
+                //MediaCityUK
 
         ).collect(Collectors.toSet());
-
-        expectedTramStations.addAll(TestEnv.Autumn2026Connections);
 
         Set<Station> expectedStations = expectedTramStations.stream().
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
@@ -151,10 +149,11 @@ public class InterchangesTramTest {
         assertTrue(dropoffRoutes.contains(toEastDids), HasId.asIds(dropoffRoutes));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveSomeNotInterchanges() {
         assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.OldTrafford.getId())));
+        assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Sale.getId())));
     }
 
     @Test
@@ -185,7 +184,7 @@ public class InterchangesTramTest {
 //        interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
 //    }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
         TramDate date = TestEnv.testDay();
@@ -234,7 +233,7 @@ public class InterchangesTramTest {
      * @see TramTrainNeighboursAsInterchangesTest#altrinchamBecomesInterchangeWhenNeighboursCreated()
      */
     @DisabledIf("isGMConfig")
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     public void altrinchamNotAnInterchange() {
         Station station = stationRepository.getStationById(Altrincham.getId());

@@ -3,14 +3,12 @@ package com.tramchester.unit.graph.inMemory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.ImmutableIdSet;
-import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.id.TripIdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
@@ -220,6 +218,24 @@ GraphSerializationTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(Trip.createId("tripA")));
         assertTrue(result.contains(Trip.createId("tripB")));
+
+    }
+
+    @Test
+    void shouldRoundTripServiceIds() {
+        ImmutableIdSet<Service> idSet = IdSet.from(Arrays.asList(Service.createId("svcA"), Service.createId("svcB")));
+
+        GraphRelationshipInMemory relationship = createRelationship(TransportRelationshipTypes.LINKED);
+
+        relationship.addServiceIds(idSet);
+
+        String text = serializeToString(relationship);
+
+        GraphRelationshipInMemory result = deserializeFromString(text, GraphRelationshipInMemory.class);
+
+        assertEquals(relationship, result);
+
+        assertEquals(idSet, relationship.getServiceIds());
 
     }
 

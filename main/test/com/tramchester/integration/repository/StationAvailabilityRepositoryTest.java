@@ -26,7 +26,7 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
@@ -83,7 +83,7 @@ public class StationAvailabilityRepositoryTest {
         modes = TransportMode.TramsOnly;
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldBeAvailableAtExpectedHoursOld() {
 
@@ -100,7 +100,7 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(lateAtNight);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedServedRoutesForLocation() {
         Station station = Altrincham.from(stationRepository);
@@ -110,7 +110,8 @@ public class StationAvailabilityRepositoryTest {
         TramDate monday = TestEnv.nextMonday();
 
         // late services from Alty run to Old Trafford
-        TimeRange timeRange = TimeRange.of(TramTime.of(0,15), TramTime.of(0,45));
+        TimeRange timeRange = TimeRange.of(TramTime.of(23,55), TramTime.nextDay(0,45));
+
         Set<Route> tooLate = dropOffs.getRoutes(monday, timeRange, modes);
         assertFalse(tooLate.isEmpty(), HasId.asIds(tooLate));
     }
@@ -126,7 +127,7 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(duringTheDay);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
@@ -150,7 +151,7 @@ public class StationAvailabilityRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @DataExpiryTest
     @Test
     void shouldHaveCorrectLateNightServicesAtEndOfLine() {
@@ -189,7 +190,7 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(result, "unexpected late night services " + " for"  + timeRange);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
@@ -217,7 +218,7 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
@@ -241,7 +242,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {

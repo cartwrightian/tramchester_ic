@@ -18,7 +18,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -75,8 +75,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
-        Route routeA = routeHelper.getOneRoute(Navy, date);
-        Route routeB = routeHelper.getOneRoute(Pink, date);
+        Route routeA = routeHelper.getOneRoute(Blue, date);
+        Route routeB = routeHelper.getOneRoute(Red, date);
 
         RoutePair routePair = RoutePair.of(routeA, routeB);
 
@@ -86,19 +86,19 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertTrue(stationIds.contains(Firswood.getId()), stationIds.toString());
+        assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
 
         if (config.hasRailConfig()) {
             assertEquals(2, stationIds.size(), stationIds.toString());
             assertTrue(stationIds.contains(RailStationIds.ManchesterVictoria.getId()), stationIds.toString());
 
         } else {
-            assertEquals(7, stationIds.size(), stationIds.toString());
+            assertEquals(1, stationIds.size(), stationIds.toString());
         }
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
         Route routeA = routeHelper.getYellow(date);
@@ -114,7 +114,7 @@ public class RoutePairToInterchangeRepositoryTest {
 
         // closures
         IdSet<Station> expected = FakeStation.IdSetOf(Cornbrook, TraffordBar, StPetersSquare,
-                Piccadilly, PiccadillyGardens, Deansgate);
+                 PiccadillyGardens);
 
         if (config.hasRailConfig()) {
             // TODO

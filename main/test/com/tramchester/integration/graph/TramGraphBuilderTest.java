@@ -29,7 +29,7 @@ import com.tramchester.testSupport.GraphHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -90,7 +90,9 @@ class TramGraphBuilderTest {
 
     @AfterEach
     void afterEachTestRuns() {
-        txn.close();
+        if (txn!=null) {
+            txn.close();
+        }
     }
 
     @AfterAll
@@ -114,6 +116,27 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(TraffordBar.getId()), "missing from " + destinations);
         assertTrue(destinations.contains(Deansgate.getId()), "missing from " + destinations);
         assertTrue(destinations.contains(Pomona.getId()), "missing from " + destinations);
+    }
+
+    @Test
+    void shouldHaveServiceIdsForLinkedRelationships() {
+        Station station = Broadway.from(stationRepository);
+        GraphNode cornbrookNode = txn.findNode(station);
+
+        IdSet<Service> pickupSvcs = station.getPickupRoutes().stream().flatMap(route -> route.getServices().stream()).collect(IdSet.collector());
+        IdSet<Service> dropOffSvcs = station.getDropoffRoutes().stream().flatMap(route -> route.getServices().stream()).collect(IdSet.collector());
+
+        IdSet<Service> expectedSvcs = IdSet.copy(pickupSvcs).addAll(dropOffSvcs);
+
+        List<GraphRelationship> relationships = cornbrookNode.getRelationships(txn, Outgoing, LINKED).toList();
+
+        relationships.forEach(relationship -> {
+            ImmutableIdSet<Service> ids = relationship.getServiceIds();
+            assertFalse(ids.isEmpty());
+            assertTrue(expectedSvcs.containsAll(ids));
+            IdSet<Service> missingIds = ids.stream().filter(id -> !serviceRepository.hasServiceId(id)).collect(IdSet.idCollector());
+            assertTrue(missingIds.isEmpty());
+        });
     }
 
     @Test
@@ -252,7 +275,7 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(Timperley.getId()));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -293,7 +316,7 @@ class TramGraphBuilderTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectOutboundsServiceAndTripAtCornbrook() {
 
@@ -323,7 +346,7 @@ class TramGraphBuilderTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -593,7 +616,7 @@ class TramGraphBuilderTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
@@ -651,7 +674,7 @@ class TramGraphBuilderTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveEndOfTripAtEndOfLineStation() {
         Station bury = Bury.from(stationRepository);
@@ -695,7 +718,7 @@ class TramGraphBuilderTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectRelationshipsForServicesAtCornbrook() {
 
@@ -800,7 +823,7 @@ class TramGraphBuilderTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveSameOutboundTripIdsForNeighbouringRouteStationWhenSameRouteAndSvc() {
         // outbound from manchester Timperley then Brooklands (not navigation road since some services "turn around" at timperley)
@@ -883,7 +906,7 @@ class TramGraphBuilderTest {
                 collect(IdSet.collector());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
@@ -899,7 +922,7 @@ class TramGraphBuilderTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
@@ -910,7 +933,7 @@ class TramGraphBuilderTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
@@ -963,7 +986,7 @@ class TramGraphBuilderTest {
         assertEquals(txn.numberOf(TO_MINUTE), txn.numberOf(TO_MINUTE_ON_TRIP));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveLongTermWalkingDiversionsNearMediaCity() {
         TemporaryStationWalksRepository walksRepository = componentContainer.get(TemporaryStationWalksRepository.class);
@@ -974,7 +997,7 @@ class TramGraphBuilderTest {
         // skip if no walks defined
         assertFalse(walks.isEmpty(), "diversions no longer in place?");
 
-        assertEquals(1, walks.size());
+        assertEquals(2, walks.size());
 
         walks.forEach(walk -> {
             StationPair pair = walk.getStationPair();
@@ -982,12 +1005,20 @@ class TramGraphBuilderTest {
             GraphNode startNode = txn.findNode(pair.getBegin());
             GraphNode endNode = txn.findNode(pair.getEnd());
 
-            List<GraphRelationship> diversions = startNode.getRelationships(txn, Outgoing, DIVERSION).toList();
-            assertEquals(1, diversions.size(), "too many diversions " + diversions + " for " + pair.getStationIds());
+            List<GraphRelationship> allDiversions = startNode.getRelationships(txn, Outgoing, DIVERSION).toList();
+            assertFalse(allDiversions.isEmpty());
 
-            GraphRelationship diversion = diversions.getFirst();
-            GraphNode endNodeFromDiversion = diversion.getEndNode(txn);
-            assertEquals(endNode, endNodeFromDiversion);
+            Optional<GraphRelationship> diversionMaybe = allDiversions.stream().
+                    filter(div -> div.getEndNodeId(txn).equals(endNode.getId())).
+                    findFirst();
+
+            assertTrue(diversionMaybe.isPresent());
+
+            GraphRelationship diversion = diversionMaybe.get();
+
+            //GraphRelationship diversion = diversions.getFirst();
+//            GraphNode endNodeFromDiversion = diversion.getEndNode(txn);
+//            assertEquals(endNode, endNodeFromDiversion);
 
             assertEquals(walk.getCost(geography), diversion.getCost());
             assertEquals(walk.getDateRange(), diversion.getDateRange());

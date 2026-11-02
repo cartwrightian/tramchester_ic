@@ -30,7 +30,7 @@ import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import com.tramchester.testSupport.testTags.TraffordCentreTramsFromCrumpsal2026;
@@ -101,7 +101,7 @@ public class RouteInterconnectRepositoryTest {
         modes = TransportMode.TramsOnly;
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -118,7 +118,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(results.hasAny());
 
         // closure bus replacements
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+2);
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5);
 
         assertEquals(expectedChanges, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
@@ -129,7 +129,7 @@ public class RouteInterconnectRepositoryTest {
         return routeHelper.getOneRoute(line, date);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -151,7 +151,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeNotOnDate() {
 
@@ -182,7 +182,7 @@ public class RouteInterconnectRepositoryTest {
         Route routeA = getRouteFor(TFGMRouteNames.Yellow);
         Route routeB = getRouteFor(TFGMRouteNames.Red);
 
-        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB), "Wrong connection depth");
+        assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB), "Wrong connection depth");
 
         RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
 
@@ -199,11 +199,11 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(hasResults.hasAny());
 
-        assertEquals(2, hasResults.getDepth()); // two sets of changes needed
+        assertEquals(1, hasResults.getDepth()); // two sets of changes needed
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
         Route routeA = getRouteFor(TFGMRouteNames.Green);
@@ -213,7 +213,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5+2);
+        int expectedChanges = ((config.hasRailConfig()) ? 8 : 5);
 
         assertEquals(expectedChanges, interchanges.size(), HasId.asIds(interchanges));
 
@@ -332,7 +332,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithGreenLineRoute() {
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);

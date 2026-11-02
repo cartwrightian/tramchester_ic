@@ -14,7 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,7 +69,7 @@ public class CreateQueryTimesTest {
         mins = config.getQueryInterval();
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveNormalQueryTimes() {
         TramTime queryTime = TramTime.of(9, 45);
@@ -111,7 +111,7 @@ public class CreateQueryTimesTest {
         assertFalse(times.isEmpty());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveNormalQueryTimesEndOfDayCentral() {
         TramTime queryTime = TramTime.of(23, 55);
@@ -128,7 +128,7 @@ public class CreateQueryTimesTest {
         assertEquals(lastTime, times.getLast(), "wrong last time " + times);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveNormalQueryTimesEndOfDayEndOfLine() {
         TramTime queryTime = TramTime.nextDay(0, 30);

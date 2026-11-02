@@ -21,7 +21,7 @@ import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
 import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -109,7 +109,7 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindRouteUsingWalkCornbrookToPicc() {
 
@@ -128,7 +128,7 @@ class SubgraphSmallStationWalksTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindRouteUsingWalkPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

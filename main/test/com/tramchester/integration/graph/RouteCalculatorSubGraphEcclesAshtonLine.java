@@ -20,7 +20,7 @@ import com.tramchester.testSupport.DiagramCreator;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -32,11 +32,10 @@ import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-@ClosuresAutumn2026
+@AltrinchamLineTests
 class RouteCalculatorSubGraphEcclesLineSundayTest {
     private static ComponentContainer componentContainer;
 
@@ -97,9 +96,11 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
 
         Set<Route> pickupRoutes = mediaCity.getPickupRoutes();
         assertTrue(pickupRoutes.contains(route), "did not find %s in %s".formatted(route.getId(), HasId.asIds(pickupRoutes)));
+        //assertEquals(1, pickupRoutes.size(), HasId.asIds(pickupRoutes));
 
         Set<Route> dropoffs = mediaCity.getDropoffRoutes();
         assertTrue(dropoffs.contains(route), "did not find %s in %s".formatted(route.getId(), HasId.asIds(dropoffs)));
+        //assertEquals(1, dropoffs.size(), HasId.asIds(dropoffs));
     }
 
     @AfterEach
@@ -116,7 +117,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveEcclesCornbrook() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
@@ -126,7 +127,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
                 "None found for " + request);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveBroadwayCornbrook() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(10, 50), false,
@@ -136,7 +137,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
                 "None found for " + request);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveBroadwayHarbourCity() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
@@ -174,7 +175,7 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, Cornbrook, request).isEmpty());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCornbrookEccles() {
         JourneyRequest request = new JourneyRequest(sunday, TramTime.of(9, 30), false,
@@ -214,8 +215,6 @@ class RouteCalculatorSubGraphEcclesLineSundayTest {
             // TODO no closures, but is this correct?
             super(Collections.emptyList());
         }
-
-
 
         @Override
         public boolean isGraphFiltered() {

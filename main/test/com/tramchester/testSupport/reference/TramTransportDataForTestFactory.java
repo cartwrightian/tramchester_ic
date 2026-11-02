@@ -234,6 +234,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.addService(serviceA);
         container.addService(serviceB);
         container.addService(serviceC);
+        container.addService(serviceD);
 
         container.reportNumbers();
     }

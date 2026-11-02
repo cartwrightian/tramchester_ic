@@ -15,7 +15,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.*;
@@ -74,7 +74,7 @@ class RouteCostCalculatorTest {
         txn.close();
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyNavRoad() throws InvalidDurationException {
         assertEquals(TramDuration.ofMinutes(3), getAverageCostBetween(NavigationRoad.from(stationRepository), altrincham));

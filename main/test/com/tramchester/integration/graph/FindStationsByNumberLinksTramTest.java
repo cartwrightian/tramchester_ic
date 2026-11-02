@@ -6,6 +6,8 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
@@ -21,8 +23,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import static com.tramchester.repository.Interchanges.WEEKS_AHEAD_FOR_LINKS;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,6 +38,8 @@ class FindStationsByNumberLinksTramTest {
 
     private FindLinkedStations finder;
     private int threshold;
+
+    private DateRange dateRange;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -52,6 +58,9 @@ class FindStationsByNumberLinksTramTest {
     void beforeEachTestRuns() {
         threshold = Interchanges.getLinkThreshhold(TransportMode.Tram);
         finder = componentContainer.get(FindLinkedStations.class);
+
+        TramDate start = TramDate.of(LocalDate.now());
+        dateRange = DateRange.of(start, start.plusWeeks(WEEKS_AHEAD_FOR_LINKS));
     }
 
     /**
@@ -67,7 +76,7 @@ class FindStationsByNumberLinksTramTest {
         assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
         ImmutableIdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
 
-        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
+        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold, dateRange);
 
         assertTrue(stationWithLinks.containsNoneOf(additionalInterchanges), "\nFound also in config " + additionalInterchanges +
                 " \nstations with links were " + stationWithLinks);
@@ -76,9 +85,24 @@ class FindStationsByNumberLinksTramTest {
     }
 
     @Test
+    void shouldNotFindLinksIfDateRangeDoesNotMatch() {
+
+        List<GTFSSourceConfig> dataSources = config.getGtfsSourceConfig();
+        assertEquals(1, dataSources.size());
+
+        GTFSSourceConfig dataSource = dataSources.getFirst();
+        assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
+
+        DateRange inThePast = DateRange.of(TramDate.of(1999, 1, 25), TramDate.of(1999 ,1 ,26));
+        IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshold, inThePast);
+
+        assertTrue(stationWithLinks.isEmpty());
+    }
+
+    @Test
     void shouldIdInterchangePointsLinked() {
 
-        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshold);
+        IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshold, dateRange);
 
         IdSet<Station> expected = FakeStation.IdSetOf(
                 PiccadillyGardens,
@@ -92,12 +116,9 @@ class FindStationsByNumberLinksTramTest {
                 Pomona,
                 Broadway,
                 HarbourCity
-                //Shudehill
-                // Autumn 2026
-                //Piccadilly, Firswood, MediaCityUK, Deansgate, Sale, Wharfside, Stretford
         );
 
-        TestEnv.Autumn2026Connections.forEach(fakeStation -> expected.add(fakeStation.getId()));
+        //TestEnv.Autumn2026Connections.forEach(fakeStation -> expected.add(fakeStation.getId()));
 
         ImmutableIdSet<Station> diff = IdSet.disjunction(found, expected);
 

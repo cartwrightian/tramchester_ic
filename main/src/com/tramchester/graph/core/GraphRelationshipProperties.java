@@ -11,6 +11,7 @@ import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
@@ -50,6 +51,18 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
 
     public Object getPropertyForTesting(final GraphPropertyKey graphPropertyKey) {
         return relationshipProperties.getProperty(graphPropertyKey);
+    }
+
+    @Override
+    public void addServiceIds(final ImmutableIdSet<Service> services) {
+        relationshipProperties.addServiceIds(services);
+        invalidateCache();
+    }
+
+    public void setServiceIds(final IdSet<Service> serviceIds) {
+        // for deserialisation
+        relationshipProperties.setServiceIds(serviceIds);
+        invalidateCache();
     }
 
     @Override
@@ -233,6 +246,12 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
     @JsonIgnore
     public ImmutableIdSet<Trip> getTripIds() {
         return relationshipProperties.getTripIds();
+    }
+
+    @JsonIgnore
+    @Override
+    public ImmutableIdSet<Service> getServiceIds() {
+        return relationshipProperties.getServiceIds();
     }
 
     /***

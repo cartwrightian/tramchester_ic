@@ -71,8 +71,12 @@ public class IdSet<T extends CoreDomain> implements ImmutableIdSet<T> {
         return wrap(ids);
     }
 
-    public static <T extends CoreDomain> IdSet<T> copy(IdSet<T> other) {
+    public static <T extends CoreDomain> IdSet<T> copy(final IdSet<T> other) {
         return new IdSet<>(other.theSet);
+    }
+
+    public static <T extends CoreDomain> IdSet<T> copy(final ImmutableIdSet<T> other) {
+        return copy(((IdSet<T>)other));
     }
 
     public static <LOCATION extends Location<LOCATION>> ImmutableIdSet<LOCATION> from(LocationIdPair<LOCATION> locationIdPair) {

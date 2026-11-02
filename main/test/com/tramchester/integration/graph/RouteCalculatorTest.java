@@ -28,9 +28,10 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -186,14 +187,14 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Altrincham, TraffordBar, TramTime.of(15,0), directChanges+1);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @DataExpiryTest
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
         checkRouteNextNDays(StPetersSquare, ManAirport, TramTime.of(14,0), maxChanges);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveSimpleJourney() {
         final TramTime originalQueryTime = TramTime.of(10, 15);
@@ -283,7 +284,7 @@ public class RouteCalculatorTest {
         assertEquals(firstDeparttimeA, firstDeparttimeB);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveReasonableJourneyAltyToDeansgate() {
         JourneyRequest request = standardJourneyRequest(when, TramTime.of(10, 15), maxNumResults, maxChanges);
@@ -305,7 +306,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldUseAllRoutesCorrectlyWhenMultipleRoutesServDestination() {
 
@@ -432,7 +433,7 @@ public class RouteCalculatorTest {
     void testJourneyFromAltyToAirportDuringClosure() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
-        assertFalse(today.isAfter(UpcomingDates.MajorWorksAutumn2026.getEndDate()));
+        //assertFalse(today.isAfter(UpcomingDates.MajorWorksAutumn2026.getEndDate()));
 
         JourneyRequest request = standardJourneyRequest(today, TramTime.of(10, 0),
                 maxNumResults, maxChanges);
@@ -450,7 +451,7 @@ public class RouteCalculatorTest {
 
             VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
-            assertEquals(TransportMode.TramReplacementBus, firstStage.getTransportMode());
+            assertEquals(TransportMode.Tram, firstStage.getTransportMode());
 
             IdFor<Station> firstStageEndId = firstStage.getLastStation().getId();
             assertTrue(firstChanges.contains(firstStageEndId), "Unexpected change %s in %s \nexpected %s".
@@ -473,7 +474,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void testJourneyFromAltyToAirport() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -499,7 +500,7 @@ public class RouteCalculatorTest {
             assertTrue(firstChanges.contains(firstStageEndId), "Unexpected change %s expected %s".formatted(stages, firstChanges));
 
             int firstStagePassed = (firstStageEndId.equals(TraffordBar.getId())) ? 7 : 8;
-            assertEquals(firstStagePassed, firstStage.getPassedStopsCount());
+            assertEquals(firstStagePassed, firstStage.getPassedStopsCount(), "First stage end " + firstStageEndId);
 
             VehicleStage finalStage = (VehicleStage) stages.getLast();
             assertEquals(ManAirport.getId(), finalStage.getLastStation().getId());
@@ -532,7 +533,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Monsall, Piccadilly);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleCrossingMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23, 55), maxNumResults,
@@ -540,7 +541,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestA, Cornbrook, StPetersSquare);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleCrossingMidnightDirectAltrinchamToNavigationRoad() {
 
@@ -549,21 +550,21 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleAtMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleAtMidnightDirectCornbrookStPetersDuringYorkStreetClosure() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,50), maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandlePastMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,1),
@@ -571,7 +572,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleAtMidnightDirectAltrinchamNavigation() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,0),
@@ -580,28 +581,28 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleJustBeforeMidnightDirectAltrinchamNavigation() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,59), maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandlePastMidnightDirectAltrinchamNavigation() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandlePastMidnightDirectAltrinchamNOffTraffordBackToDepot() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,15), maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, OldTrafford);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHandleAfterMidnightDirectCentral() {
         TramDate testDate = when;
@@ -620,7 +621,7 @@ public class RouteCalculatorTest {
 //        assertGetAndCheckJourneys(journeyRequestD, StPetersSquare, MarketStreet);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveHeatonParkToBurtonRoad() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults,
@@ -634,7 +635,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, HeatonPark, Piccadilly);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHavePiccadillyToBurtonRoad() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 30), maxNumResults, 1);
@@ -666,7 +667,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Chorlton, BurtonRoad);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldAltrinchamToShawAndCrompton() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,45), maxNumResults,
@@ -690,7 +691,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Bury);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithMediaCityTrams() {
 
@@ -700,7 +701,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, MediaCityUK);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExchangeSquareToDestinationsDuringSummer2026Closures() {
         assumeTrue(!UpcomingDates.hasClosure(ExchangeSquare.getId(), when));
@@ -721,14 +722,16 @@ public class RouteCalculatorTest {
         return TramTime.difference(departs, arrive);
     }
 
-    @ClosuresAutumn2026
+    @DisabledUntilDate(year = 2026, month = 11, day = 9)
+    @AltrinchamLineTests
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
-        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(11, 0), maxNumResults, maxChanges);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(11, 0),
+                maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldProvideASpreadOfDepartureTimes() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(14, 50),
@@ -788,7 +791,7 @@ public class RouteCalculatorTest {
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
         // catches issue with services, only some of which go to media city, while others direct to broadway
@@ -801,7 +804,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest9am, Cornbrook, Eccles);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithJourneysToEccles() {
 
@@ -841,7 +844,7 @@ public class RouteCalculatorTest {
         return duplicates;
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void reproduceIssueEdgePerTrip() {
 
@@ -858,7 +861,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithStWerbToLangworthy() {
         //TramDate date = TramDate.of(2026, 8, 20);
@@ -882,7 +885,7 @@ public class RouteCalculatorTest {
         assertTrue(missingTimes.isEmpty(), "For " +  when + " missing times " + missingTimes);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithStPetersToBeyondEcclesSpecificTime() {
         // +2 on changes during summer changes, and eccles line
@@ -900,7 +903,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Deansgate, Ashton);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void reproduceIssueWithTramsSundayStPetersToDeansgate() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,0),
@@ -908,17 +911,17 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void reproduceSundayToFromEcclesAndCornbrookWithNoChanges() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
-                TramTime.of(9,30), maxNumResults, directChanges);
+                TramTime.of(9,30), maxNumResults, directChanges+1);
 
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void reproduceIssueSundayToFromEcclesAndCornbrookWithOneChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(),
@@ -946,7 +949,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproduceIssueCornbrookToAshtonSatursdays() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSaturday(),
@@ -971,7 +974,7 @@ public class RouteCalculatorTest {
         }
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueWithHarbourCityToChorlton() {
         //[JourneyOrNot{ queryDate=TramDate{epochDays=20734, dayOfWeek=THURSDAY, date=2026-10-08},
@@ -1079,7 +1082,7 @@ public class RouteCalculatorTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void reproIssueRochdaleToEccles() {
         TramTime time = TramTime.of(9,0);

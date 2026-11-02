@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
@@ -391,6 +392,21 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public boolean hasServiceId(IdFor<Service> serviceId) {
         return services.hasId(serviceId);
+    }
+
+    @Override
+    public boolean anyOverlaps(final ImmutableIdSet<Service> serviceIds, final DateRange dateRange) {
+        final IdSet<Service> outdated = serviceIds.stream().filter(id -> !hasServiceId(id)).collect(IdSet.idCollector());
+
+        if (!outdated.isEmpty()) {
+            String message = "Outdated service Ids in Graph? " + outdated;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+
+        return serviceIds.stream().map(this::getServiceById).
+                map(Service::getCalendar).
+                anyMatch(serviceCalendar -> dateRange.overlapsWith(serviceCalendar.getDateRange()));
     }
 
     @Override

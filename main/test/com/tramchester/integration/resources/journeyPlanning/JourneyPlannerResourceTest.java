@@ -22,7 +22,7 @@ import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.*;
@@ -76,13 +76,13 @@ public class JourneyPlannerResourceTest {
         appExtension = null;
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldPlanSimpleJourneyFromAltyToCornbrook() {
         checkAltyToCornbrook(TramTime.of(8, 15), false);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldPlanSimpleJourneyFromAltyToCornbrookArriveBy() {
         TramTime arriveByTime = TramTime.of(8, 15);
@@ -177,7 +177,7 @@ public class JourneyPlannerResourceTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
@@ -218,7 +218,7 @@ public class JourneyPlannerResourceTest {
         assertTrue(plan.getJourneys().isEmpty());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 
@@ -336,7 +336,7 @@ public class JourneyPlannerResourceTest {
         validateAtLeastOneJourney(TraffordCentre, TraffordBar, when, TramTime.of(23,30));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindEndOfDayThreeStageJourney() {
         validateAtLeastOneJourney(Altrincham, ShawAndCrompton, when, TramTime.of(22,45));
@@ -350,7 +350,7 @@ public class JourneyPlannerResourceTest {
         assertFalse(results.getJourneys().isEmpty() );
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldCorrectlyQueryAfterMidnight() {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Altrincham,
@@ -374,7 +374,7 @@ public class JourneyPlannerResourceTest {
         assertEquals(filtered.size(), journeys.size(), "Not same " + journeys + " filtered " + filtered);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
 

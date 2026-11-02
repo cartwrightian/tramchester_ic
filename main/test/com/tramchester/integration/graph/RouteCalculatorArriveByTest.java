@@ -15,7 +15,7 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.junit.jupiter.api.*;
@@ -102,7 +102,7 @@ public class RouteCalculatorArriveByTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedPathsForSimpleJourney() {
         TramTime arriveByTime = TramTime.of(8, 15);
@@ -120,7 +120,7 @@ public class RouteCalculatorArriveByTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime arriveByTime = TramTime.of(11,45);

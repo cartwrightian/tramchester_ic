@@ -32,7 +32,7 @@ import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import com.tramchester.testSupport.testTags.TramApp;
@@ -219,7 +219,7 @@ class DeparturesResourceTest {
         assertTrue(notes.isEmpty(), "expected no notes in " + result);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQuerytimeNow() {
@@ -281,7 +281,7 @@ class DeparturesResourceTest {
         assertTrue(result.getNotes().isEmpty());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     @LiveDataDueTramsTest
     void shouldNotGetNearbyIfOutsideOfThreshold() {

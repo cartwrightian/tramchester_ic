@@ -2,12 +2,10 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -250,6 +248,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             linkRelationship = createRelationship(txn, from, end, LINKED);
         }
 
+        final IdSet<Service> serviceIds = route.getServices().stream().collect(IdSet.collector());
+        linkRelationship.addServiceIds(serviceIds);
         linkRelationship.addTransportMode(mode);
         if (routeMode!=mode) {
             linkRelationship.addTransportMode(routeMode);

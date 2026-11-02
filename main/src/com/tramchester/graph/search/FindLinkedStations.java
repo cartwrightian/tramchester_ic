@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -26,7 +27,7 @@ public abstract class  FindLinkedStations {
     // supports visualisation of the transport network
     public abstract Set<StationToStationConnection> findLinkedFor(TransportMode mode);
 
-    public abstract IdSet<Station> atLeastNLinkedStations(TransportMode mode, int threshhold);
+    public abstract IdSet<Station> atLeastNLinkedStations(TransportMode mode, int threshhold, DateRange dateRange);
 
     protected StationToStationConnection createConnection(final GraphRelationship relationship, final GraphTransaction txn) {
 

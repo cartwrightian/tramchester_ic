@@ -30,7 +30,7 @@ public class UpcomingDatesTest {
 
     @Test
     void shouldTestIfStillNeeded() {
-        assertTrue(UpcomingDates.MediaCityToImperialWarMus.contains(TestEnv.testDay()));
+        assertTrue(UpcomingDates.MediaCityOffPeakWalksNeeded.contains(TestEnv.testDay()));
     }
 
 }

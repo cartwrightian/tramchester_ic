@@ -26,7 +26,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
@@ -78,7 +78,7 @@ public class TripRepositoryTest {
     }
 
     // to get diagnose issues with new GTFS data and no journeys alty to Navigation Rd post midnight
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveTripsFromAltrinchamPostMidnight() {
         Set<Trip> fromAlty = tripRepository.getTrips().stream().
@@ -148,7 +148,7 @@ public class TripRepositoryTest {
     }
 
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {
@@ -209,7 +209,7 @@ public class TripRepositoryTest {
         assertTrue(missing.isEmpty(), missing.toString());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveCorrectTimeForStopLegs() {
         Set<Trip> trips = tripRepository.getTripsCallingAt(NavigationRoad.from(stationRepository), when);
@@ -253,7 +253,7 @@ public class TripRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveTripsForSundayMorningAtBroadway() {
         //TramRouteHelper tramRouteHelper = new TramRouteHelper(componentContainer);
@@ -296,7 +296,7 @@ public class TripRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Cornbrook);
@@ -340,7 +340,7 @@ public class TripRepositoryTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveSundayTripsFromCornbrook() {
         ServiceRepository serviceRepository = componentContainer.get(ServiceRepository.class);

@@ -26,7 +26,7 @@ import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownLocality;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.MultiMode;
 import org.apache.commons.collections4.SetUtils;
@@ -76,7 +76,7 @@ public class StationRepositoryTest {
         when = TestEnv.testDay();
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getGreen(when);
@@ -85,7 +85,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 26-1;
+        int expectedNumStations = 26;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
@@ -270,7 +270,7 @@ public class StationRepositoryTest {
         assertTrue(pickups.containsAll(dropOffs));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveExpectedPickupAndDropoffForOneStation() {
         Station station = TraffordCentre.from(stationRepository);
@@ -374,7 +374,7 @@ public class StationRepositoryTest {
         assertTrue(wrongLen.isEmpty(), "Wrong length: " + wrongLen);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldHaveOverlapRoutesForAshtonAndEtihad() {
         Station etihad = Etihad.from(stationRepository);
@@ -387,7 +387,7 @@ public class StationRepositoryTest {
         assertFalse(both.isEmpty());
 
         // tram map show blue, data says yellow
-        Route expected = routeHelper.getYellow(when);
+        Route expected = routeHelper.getBlue(when);
         assertTrue(both.contains(expected), "Did not find " + expected.getId() + " in " + HasId.asIds(both));
     }
 

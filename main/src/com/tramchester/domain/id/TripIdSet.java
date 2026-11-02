@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+// TODO Still needed? Why not just same as IdSet<Service>
 public class TripIdSet implements ImmutableIdSet<Trip> {
 
     private static final TripIdSet EMPTY = new TripIdSet(ImmutableSet.of());

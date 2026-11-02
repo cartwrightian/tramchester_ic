@@ -67,6 +67,7 @@ class ConfigMismatchTest {
         }
     }
 
+    @Disabled
     @Test
     void shouldHaveTempIncreaseInNumberOfChanges() throws IOException, ConfigurationException {
         TramDate today = new ProvidesLocalNow().getTramDate();

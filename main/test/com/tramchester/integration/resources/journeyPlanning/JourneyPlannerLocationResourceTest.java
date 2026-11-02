@@ -18,7 +18,7 @@ import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ClosuresAutumn2026;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.TramApp;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -126,7 +126,7 @@ class JourneyPlannerLocationResourceTest {
         }
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void planRouteAllowingForWalkingTimeArriveBy() {
         TramTime queryTime = TramTime.of(20, 9);
@@ -149,7 +149,7 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(2, stages.size());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldPlanRouteStartingInAWalk() {
         final TramTime queryTime = TramTime.of(20, 9);
@@ -176,7 +176,7 @@ class JourneyPlannerLocationResourceTest {
         });
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldPlanRouteEndingInAWalk() {
         final TramTime queryTime = TramTime.of(20, 9);
@@ -216,7 +216,7 @@ class JourneyPlannerLocationResourceTest {
 
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldPlanRouteEndingInAWalkArriveBy() {
         TramTime queryTime = TramTime.of(19, 9);
@@ -241,7 +241,7 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(TransportMode.Walk, stages.get(lastStageIndex).getMode());
    }
 
-   @ClosuresAutumn2026
+   @AltrinchamLineTests
     @Test
     void shouldGiveWalkingRouteFromMyLocationToNearbyStop() {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, TramStations.Altrincham,
@@ -255,7 +255,7 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldGiveWalkingRouteFromStationToMyLocation() {
         Set<JourneyDTO> journeys = validateJourneyToLocation(TramStations.Altrincham, nearAltrincham,
@@ -311,7 +311,7 @@ class JourneyPlannerLocationResourceTest {
         return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void reproduceIssueNearAltyToAshton()  {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 
@@ -327,7 +327,7 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(find3Stage.isPresent(), "No 3 stage journeys in " + journeys);
     }
 
-    @ClosuresAutumn2026
+    @AltrinchamLineTests
     @Test
     void shouldFindRouteNearEndOfServiceTimes() {
         TramStations destination = Deansgate;

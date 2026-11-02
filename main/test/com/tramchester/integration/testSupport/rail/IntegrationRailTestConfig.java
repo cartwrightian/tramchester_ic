@@ -40,9 +40,6 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public GraphDBConfig getGraphDBConfig() {
-//        if (geoScope==Scope.National) {
-//            throw new RuntimeException("Wrong geo scope");
-//        }
         return new GraphDBTestConfig(geoScope.name(), testGroupType, this);
     }
 
@@ -89,6 +86,11 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
     @Override
     public OpenLdbConfig getOpenLdb() {
         return new TestOpenLdbConfig();
+    }
+
+    @Override
+    public int getMaxNumberChanges() {
+        return 3;
     }
 
     @Override

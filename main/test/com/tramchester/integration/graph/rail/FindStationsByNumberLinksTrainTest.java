@@ -3,6 +3,8 @@ package com.tramchester.integration.graph.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -16,7 +18,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig.Scope.GreaterManchester;
+import static com.tramchester.repository.Interchanges.WEEKS_AHEAD_FOR_LINKS;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,7 +51,10 @@ class FindStationsByNumberLinksTrainTest {
     @Test
     void shouldIdForkPointsFromTrainNetwork() {
         int threshhold = 3;
-        IdSet<Station> found = discoverer.atLeastNLinkedStations(TransportMode.Train, threshhold);
+        TramDate start = TramDate.of(LocalDate.now());
+        DateRange dateRange = DateRange.of(start, start.plusWeeks(WEEKS_AHEAD_FOR_LINKS));
+
+        IdSet<Station> found = discoverer.atLeastNLinkedStations(TransportMode.Train, threshhold, dateRange);
 
         assertTrue(found.contains(RailStationIds.ManchesterPiccadilly.getId()));
         //assertTrue(found.contains(RailStationIds.LondonEuston.getId()));
