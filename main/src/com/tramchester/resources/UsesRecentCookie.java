@@ -52,8 +52,8 @@ public class UsesRecentCookie extends TransportResource {
         }
     }
 
-    protected NewCookie createRecentCookie(final Cookie current, Location<?> start, Location<?> dest,
-                                           boolean secure, URI baseURI) throws JsonProcessingException {
+    protected NewCookie createRecentCookie(final Cookie current, final Location<?> start, final Location<?> dest,
+                                           final boolean secure, final URI baseURI) throws JsonProcessingException {
         logger.info(format("Updating recent stations cookie with %s and %s ", start.getId(), dest.getId()));
 
         RecentJourneys recentJourneys = recentFromCookie(current);
@@ -66,9 +66,20 @@ public class UsesRecentCookie extends TransportResource {
         }
 
         // NOTE: SameSite is set via ResponseCookieFilter as NewCookie can't set SameSite (yet, TODO)
-        String encoded = RecentJourneys.encodeCookie(mapper, recentJourneys);
-        return new NewCookie(TRAMCHESTER_RECENT, encoded, "/api", baseURI.getHost(), VERSION,
-                "tramchester recent journeys", ONE_HUNDRED_DAYS_AS_SECS, secure);
+        final String encoded = RecentJourneys.encodeCookie(mapper, recentJourneys);
+
+        return new NewCookie.Builder(TRAMCHESTER_RECENT).
+                value(encoded).
+                path("/api").
+                version(VERSION).
+                domain(baseURI.getHost()).
+                comment("tramchester recent journeys").
+                maxAge(ONE_HUNDRED_DAYS_AS_SECS).
+                secure(secure).
+                build();
+
+//        return new NewCookie(TRAMCHESTER_RECENT, encoded, "/api", baseURI.getHost(), VERSION,
+//                "tramchester recent journeys", ONE_HUNDRED_DAYS_AS_SECS, secure);
     }
 
     private static boolean shouldAddToCookie(Location<?> start) {

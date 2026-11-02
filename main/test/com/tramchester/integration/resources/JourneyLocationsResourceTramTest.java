@@ -183,7 +183,7 @@ class JourneyLocationsResourceTramTest {
                 "{\"when\":1705525176399,\"id\":\"N0075057\",\"locationType\":\"StationGroup\"}]}";
 
         String encoded = URLEncoder.encode(exampleOfIssue, StandardCharsets.UTF_8);
-        Cookie cookie = new Cookie("tramchesterRecent", encoded);
+        Cookie cookie = new Cookie.Builder("tramchesterRecent").value(encoded).build();
 
         Response result = APIClient.getApiResponse(factory, "locations/recent?modes=Tram,Tram", List.of(cookie));
         assertEquals(200, result.getStatus());
@@ -213,7 +213,8 @@ class JourneyLocationsResourceTramTest {
         recentJourneys.setTimestamps(recents);
 
         String recentAsString = RecentJourneys.encodeCookie(mapper, recentJourneys);
-        return new Cookie("tramchesterRecent", recentAsString);
+        return new Cookie.Builder("tramchesterRecent").value(recentAsString).build();
+        //return new Cookie("tramchesterRecent", recentAsString);
     }
 
 }

@@ -100,7 +100,10 @@ public class JourneyPlannerCookieTest {
         RecentJourneys recentJourneys = new RecentJourneys();
         Timestamped ashtonCookieEntry = new Timestamped(TramStations.Ashton.getLocationId(), now, LocationType.Station);
         recentJourneys.setTimeStamps(Sets.newHashSet(ashtonCookieEntry));
-        Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
+
+        Cookie cookie = new Cookie.Builder("tramchesterRecent").
+                value(RecentJourneys.encodeCookie(mapper,recentJourneys)).
+                build();
 
         // journey to bury
         Response response = getResponseForJourney(start, end, time, now.toLocalDate(), List.of(cookie));

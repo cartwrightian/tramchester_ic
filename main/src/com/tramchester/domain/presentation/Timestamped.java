@@ -28,15 +28,15 @@ public class Timestamped  {
         // deserialisation
     }
 
-    public Timestamped(LocationId<?> id, LocalDateTime when, LocationType locationType) {
+    public Timestamped(final LocationId<?> id, final LocalDateTime when, final LocationType locationType) {
         this(IdForDTO.createFor(id), when, locationType);
     }
 
-    public Timestamped(Location<?> location, LocalDateTime when) {
+    public Timestamped(final Location<?> location, final LocalDateTime when) {
         this(IdForDTO.createFor(location), when, location.getLocationType());
     }
 
-    public Timestamped(IdForDTO id, LocalDateTime when, LocationType locationType) {
+    public Timestamped(final IdForDTO id, final LocalDateTime when, final LocationType locationType) {
         this.id = id;
         this.when = when;
         this.locationType = locationType;
@@ -75,7 +75,7 @@ public class Timestamped  {
     }
 
     // not using comparable as that causes equality issues, we just want ordering by time and NOT equality by time
-    public static int compare(Timestamped first, Timestamped second) {
+    public static int compare(final Timestamped first, final Timestamped second) {
         return first.when.compareTo(second.when);
     }
 

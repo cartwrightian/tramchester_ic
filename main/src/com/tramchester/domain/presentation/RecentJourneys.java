@@ -36,13 +36,13 @@ public class RecentJourneys  {
         return new RecentJourneys().setTimestamps(new HashSet<>());
     }
 
-    public static RecentJourneys decodeCookie(ObjectMapper objectMapper, String cookieString) throws IOException {
-        String decoded = URLDecoder.decode(cookieString, StandardCharsets.UTF_8);
+    public static RecentJourneys decodeCookie(final ObjectMapper objectMapper, final String cookieString) throws IOException {
+        final String decoded = URLDecoder.decode(cookieString, StandardCharsets.UTF_8);
         return objectMapper.readValue(decoded, RecentJourneys.class);
     }
 
-    public static String encodeCookie(ObjectMapper objectMapper, RecentJourneys recentJourneys) throws JsonProcessingException {
-        String json = objectMapper.writeValueAsString(recentJourneys);
+    public static String encodeCookie(final ObjectMapper objectMapper, final RecentJourneys recentJourneys) throws JsonProcessingException {
+        final String json = objectMapper.writeValueAsString(recentJourneys);
         return URLEncoder.encode(json, StandardCharsets.UTF_8);
     }
 
