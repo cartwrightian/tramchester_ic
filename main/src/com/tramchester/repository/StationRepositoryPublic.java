@@ -4,7 +4,7 @@ import com.google.inject.ImplementedBy;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -15,10 +15,10 @@ import java.util.stream.Stream;
 public interface StationRepositoryPublic {
     Set<Station> getStationsServing(TransportMode mode);
     Station getStationById(IdFor<Station> stationId);
+    Station getStationById(IdForDTO id);
     boolean hasStationId(IdFor<Station> stationId);
     Stream<Station> getActiveStationStream();
 
     StationPair getStationPair(StationIdPair idPair);
 
-    boolean hasRouteStationId(IdFor<RouteStation> routeStationId);
 }

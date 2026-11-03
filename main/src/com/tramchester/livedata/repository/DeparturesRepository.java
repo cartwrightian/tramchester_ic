@@ -6,6 +6,7 @@ import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.collections.ImmutableEnumSet;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -53,12 +54,28 @@ public class DeparturesRepository {
         this.config = config;
     }
 
+    public List<UpcomingDeparture> getDueForLocation(final Set<Station> stations, final LocalDate date, final TramTime time,
+                                                     final ImmutableEnumSet<TransportMode> modes,
+                                                     final DestinationAndCallingPoints destinationAndCallingPoints) {
+        final List<UpcomingDeparture> departures = stations.stream().
+                flatMap(station -> getStationDepartures(station, modes, destinationAndCallingPoints).stream()).
+                filter(departure -> departure.getDate().equals(date)).
+                filter(departure -> isTimely(time, departure)).
+                toList();
+
+        if (departures.isEmpty()) {
+            logger.warn("Departures list empty for " + HasId.asIds(stations) + " at " + time);
+        }
+
+        return departures;
+    }
+
     public List<UpcomingDeparture> getDueForLocation(final Location<?> location, final LocalDate date, final TramTime time,
                                                      final ImmutableEnumSet<TransportMode> modes,
                                                      final DestinationAndCallingPoints destinationAndCallingPoints) {
         logger.info(format("Get due %s services %s at %s for %s %s",
                 destinationAndCallingPoints, modes, location.getId(), date, time));
-        List<UpcomingDeparture> departures = switch (location.getLocationType()) {
+        final List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes, destinationAndCallingPoints);
             case StationGroup -> getStationGroupDepartures((StationGroup) location, modes, destinationAndCallingPoints);
             case MyLocation, Postcode -> getDeparturesNearTo(location, modes, destinationAndCallingPoints);
@@ -153,5 +170,6 @@ public class DeparturesRepository {
                 return Stream.empty(); }
         }
     }
+
 
 }

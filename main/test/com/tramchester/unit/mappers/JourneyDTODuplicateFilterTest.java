@@ -132,7 +132,7 @@ class JourneyDTODuplicateFilterTest {
                 path, queryDate.toLocalDate(), journeyIndex);
     }
 
-    private LocationRefWithPosition getStationRef(TramStations tramStations) {
+    private LocationRefWithPosition getStationRef(final TramStations tramStations) {
         return new LocationRefWithPosition(tramStations.fake());
     }
 

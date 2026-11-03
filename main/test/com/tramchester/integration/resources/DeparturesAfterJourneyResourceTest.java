@@ -201,7 +201,7 @@ class DeparturesAfterJourneyResourceTest {
         Location<?> destinationForDueTram = stationRepository.getStationById(destinationForDueTramId);
         final JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, displayLocation,
                 destinationForDueTram, false, maxChanges);
-        final JourneyPlanRepresentation plan = journeyPlanner. getJourneyPlan(journeyQueryDto);
+        final JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(journeyQueryDto);
 
         assertFalse(plan.getJourneys().isEmpty(), "could find journey from " + displayLocation.getId() + " to " +
                 destinationForDueTramId);

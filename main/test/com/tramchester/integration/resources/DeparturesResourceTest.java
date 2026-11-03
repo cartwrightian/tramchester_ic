@@ -186,7 +186,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataDueTramsTest
-    void shouldGetDueTramsForStationWithQuerytimePast() {
+    void shouldGetDueTramsForStationWithQueryTimePast() {
         LocalTime queryTime = localDateTime.toLocalTime().minusMinutes(120);
 
         DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
@@ -203,7 +203,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataDueTramsTest
-    void shouldGetDueTramsForStationWithQuerytimeFuture() {
+    void shouldGetDueTramsForStationWithQueryTimeFuture() {
         LocalTime queryTime = localDateTime.toLocalTime().plusMinutes(120);
 
         DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
@@ -222,7 +222,7 @@ class DeparturesResourceTest {
     @AltrinchamLineTests
     @Test
     @LiveDataDueTramsTest
-    void shouldGetNearbyDeparturesQuerytimeNow() {
+    void shouldGetNearbyDeparturesQueryTimeNow() {
         LatLong where = nearAltrinchamInterchange.latLong();
         LocalTime queryTime = localDateTime.toLocalTime();
 
@@ -251,7 +251,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataDueTramsTest
-    void shouldGetNearbyDeparturesQuerytimeFuture() {
+    void shouldGetNearbyDeparturesQueryTimeFuture() {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
         LocalTime queryTime =localDateTime.toLocalTime().plusMinutes(120);
         //SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
@@ -267,7 +267,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataDueTramsTest
-    void shouldGetNearbyDeparturesQuerytimePast() {
+    void shouldGetNearbyDeparturesQueryTimePast() {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
         LocalTime queryTime =localDateTime.toLocalTime().minusMinutes(120);
 
@@ -308,7 +308,6 @@ class DeparturesResourceTest {
         LocationRefDTO nextDepart = departureDTO.getFrom();
         assertTrue(nearAlty.contains(nextDepart.getId()), nextDepart.toString());
         assertFalse(departureDTO.getStatus().isEmpty());
-
     }
 
     private DepartureListDTO getDeparturesForLatlongTime(LatLong where, LocalTime queryTime) {

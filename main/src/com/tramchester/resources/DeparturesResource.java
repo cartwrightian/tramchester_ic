@@ -5,7 +5,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DestinationAndCallingPoints;
-import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
@@ -122,10 +121,10 @@ public class DeparturesResource extends TransportResource implements APIResource
 
             final DestinationAndCallingPoints destinationAndCallingPoints = mapJourneyDTOToStations.getDestAndCalling(journeys);
 
-            // TODO If jounrney has connecting stage or walking stage at the start need to also get due for that location
-            final StationGroup departures = mapJourneyDTOToStations.getDepartureLocations(journeys);
+            // TODO If journey has connecting stage or walking stage at the start need to also get due for that location
+            Set<Station> departureStations = mapJourneyDTOToStations.getDepartureStations(journeys);
 
-            final List<UpcomingDeparture> depsForJourneys = departuresRepository.getDueForLocation(departures,
+            final List<UpcomingDeparture> depsForJourneys = departuresRepository.getDueForLocation(departureStations,
                     dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints);
 
             final SortedSet<DepartureDTO> departureDTOs = departuresMapper.createDepDTOForJourneys(depsForJourneys,

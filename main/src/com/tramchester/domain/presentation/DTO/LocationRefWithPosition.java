@@ -8,7 +8,7 @@ public class LocationRefWithPosition extends LocationRefDTO {
 
     private LatLong latLong;
 
-    public LocationRefWithPosition(Location<?> location) {
+    public LocationRefWithPosition(final Location<?> location) {
         super(location);
         this.latLong = location.getLatLong();
     }

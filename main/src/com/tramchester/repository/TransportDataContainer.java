@@ -159,6 +159,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public Station getStationById(final IdForDTO id) {
+        return getStationById(Station.createId(id));
+    }
+
+    @Override
     public Set<Station> getStations() {
         return Collections.unmodifiableSet(stationsById.getValues());
     }

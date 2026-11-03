@@ -2,27 +2,25 @@ package com.tramchester.livedata.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DestinationAndCallingPoints;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.StationGroup;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.repository.LocationRepository;
+import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 // TODO rename
@@ -31,11 +29,11 @@ import java.util.List;
 public class MapJourneyDTOToStations {
     private static final Logger logger = LoggerFactory.getLogger(MapJourneyDTOToStations.class);
 
-    private final LocationRepository locationRepository;
+    private final StationRepository stationRepository;
 
     @Inject
-    public MapJourneyDTOToStations(LocationRepository locationRepository) {
-        this.locationRepository = locationRepository;
+    public MapJourneyDTOToStations(StationRepository stationRepository) {
+        this.stationRepository = stationRepository;
     }
 
     public static ImmutableIdSet<Station> getAllChangeStations(final List<JourneyDTO> journeys) {
@@ -88,33 +86,45 @@ public class MapJourneyDTOToStations {
         return new DestinationAndCallingPoints(finalStation, changeStations);
     }
 
-    public StationGroup getDepartureLocations(final List<JourneyDTO> journeys) {
+    public Set<Station> getDepartureStations(final List<JourneyDTO> journeys) {
 
-        final List<Station> locations = journeys.stream().
+        final Set<Station> stations = journeys.stream().
                 flatMap(journey -> getDepartureLocations(journey).stream()).
-                toList();
+                collect(Collectors.toSet());
 
-        return new StationGroup(new LocationSet<>(locations), "departures",
-                LatLong.Invalid, NPTGLocality.InvalidId());
+        if (stations.isEmpty()) {
+            logger.warn("Unable to fetch departure stations from " + journeys);
+        }
+
+        return stations;
+
+//        return new StationGroup(new LocationSet<>(stations), "departures",
+//                LatLong.Invalid, NPTGLocality.InvalidId());
     }
-
 
     // TODO Test Scenarios
     private List<Station> getDepartureLocations(final JourneyDTO journey) {
         final List<Station> result = new ArrayList<>();
-        if (journey.getBegin().getLocationType()==LocationType.Station) {
-            final Station journeyBegin = (Station) locationRepository.getLocation(journey.getBegin());
+
+        final LocationRefDTO begin = journey.getBegin();
+        if (begin.getLocationType()==LocationType.Station) {
+            final Station journeyBegin = stationRepository.getStationById(begin.getId());
             result.add(journeyBegin);
+        } else if (begin.getLocationType()==LocationType.MyLocation) {
+            final LocationRefDTO dest = journey.getDestination();
+            final Station boardingStation = stationRepository.getStationById(dest.getId());
+            result.add(boardingStation);
         } else {
-            logger.info("Journey begin is not a station, was" + journey.getBegin());
+            logger.info("Journey begin is not a station, was" + begin);
         }
 
         final List<SimpleStageDTO> stages = journey.getStages();
         if (stages.size()>=2) {
             final SimpleStageDTO firstStage = stages.getFirst();
             if (firstStage.getMode()==TransportMode.Connect || firstStage.getMode()==TransportMode.Walk) {
-                if (firstStage.getLastStation().getLocationType()==LocationType.Station) {
-                    final Station location = (Station) locationRepository.getLocation(firstStage.getLastStation());
+                final LocationRefWithPosition lastStageDestination = firstStage.getLastStation();
+                if (lastStageDestination.getLocationType()==LocationType.Station) {
+                    final Station location = stationRepository.getStationById(lastStageDestination.getId());
                     result.add(location);
                 } else {
                     logger.warn("Destination of first stage not a station " + firstStage);

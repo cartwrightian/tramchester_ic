@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.serialization.StringIdForDeserializer;
 import com.tramchester.domain.id.serialization.StringIdForSerializer;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 
 import java.util.Objects;
@@ -44,7 +43,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return new StringIdFor<>(text, domainType);
     }
 
-    public static IdFor<Station> createId(final IdForDTO idForDTO, final Class<Station> klass) {
+    public static <T extends CoreDomain> IdFor<T> createId(final IdForDTO idForDTO, final Class<T> klass) {
         return createId(idForDTO.getActualId(), klass);
     }
 
