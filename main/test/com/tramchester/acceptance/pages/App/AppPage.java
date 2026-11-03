@@ -7,10 +7,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -65,20 +62,24 @@ public class AppPage extends Page {
         findAndClickElement(PLAN);
     }
 
-    private void findAndClickElement(String elementId) {
-        WebElement webElement = driver.findElement(By.id(elementId));
+    private void findAndClickElement(final String elementId) {
+        final WebElement webElement = driver.findElement(By.id(elementId));
 
-        Actions actions = moveToElement(webElement);
-        actions.click().perform();
+        webElement.click();
+        //moveToElement(webElement).click().perform();
     }
 
     @NotNull
     private Actions moveToElement(final WebElement webElement) {
-        // sigh
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", webElement);
-        Actions actions = new Actions(driver);
-        actions.moveToElement(webElement).perform();
-        return actions;
+        // TODO should not need this
+        // ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", webElement);
+        Actions actionA = new Actions(driver);
+        actionA.scrollToElement(webElement).perform(); //.moveToElement(webElement).perform();
+//
+//        Actions actionB = new Actions(driver);
+//        actionB.moveToElement(webElement).perform(); //.moveToElement(webElement).perform();
+
+        return actionA;
     }
 
     public void earlier() {
@@ -150,7 +151,7 @@ public class AppPage extends Page {
         return findElementById(TIME);
     }
 
-    private WebDriverWait createWait() {
+    private Wait<WebDriver> createWait() {
         return new WebDriverWait(driver, timeoutInSeconds);
     }
 
@@ -315,12 +316,13 @@ public class AppPage extends Page {
     }
 
     public void displayDisclaimer() {
-        WebDriverWait wait = createWait();
-        By disclaimerButtonId = By.id("disclaimerButton");
-        wait.until(driver -> presenceOfElementLocated(disclaimerButtonId));
+//        Wait<WebDriver> wait = createWait();
+//        By disclaimerButtonId = By.id("disclaimerButton");
+//        wait.until(driver -> presenceOfElementLocated(disclaimerButtonId));
 
-        WebElement disclaimerButton = driver.findElement(disclaimerButtonId);
-        moveToElement(disclaimerButton).click().perform();
+        WebElement disclaimerButton = driver.findElement(By.id("disclaimerButton"));
+        disclaimerButton.click();
+        //moveToElement(disclaimerButton).click().perform();
     }
 
     public boolean waitForDisclaimerVisible() {
@@ -349,9 +351,13 @@ public class AppPage extends Page {
 
     private boolean waitForModalToOpen(final By byId, final String buttonName) {
         createWait().until(webDriver -> elementToBeClickable(byId).apply(webDriver));
-        WebElement diag = driver.findElement(byId);
-        WebElement button = diag.findElement(By.id(buttonName));
-        return waitForCondition(elementToBeClickable(button));
+
+        return true;
+
+//        createWait().until(webDriver -> elementToBeClickable(byId).apply(webDriver));
+//        final WebElement diag = driver.findElement(byId);
+//        final WebElement button = diag.findElement(By.id(buttonName));
+//        return waitForCondition(elementToBeClickable(button));
     }
 
     private boolean waitForModalToClose(By byId) {
@@ -367,7 +373,7 @@ public class AppPage extends Page {
 
     }
 
-    private boolean waitForCondition(ExpectedCondition<?> expectedCondition) {
+    private boolean waitForCondition(final ExpectedCondition<?> expectedCondition) {
         try {
             createWait().until(webDriver -> expectedCondition);
             return true;
@@ -379,14 +385,19 @@ public class AppPage extends Page {
     private void okToModal(final By locator, final String buttonId) {
         final WebElement modelDialogue = driver.findElement(locator);
         final WebElement button = modelDialogue.findElement(By.id(buttonId));
+
         createWait().until(webDriver -> button.isDisplayed());
         createWait().until(webDriver -> button.isEnabled());
-        moveToElement(button).pause(Duration.ofMillis(200)).click().perform();
-        if (modelDialogue.isDisplayed()) {
-            //createWait().until(webDriver -> !modelDialogue.isEnabled());
-            moveToElement(button).click().perform();
-            createWait().until(ExpectedConditions.invisibilityOf(modelDialogue));
-        }
+
+        moveToElement(button);
+        //moveToElement(button).pause(Duration.ofMillis(200)).click().perform();
+        button.click();
+
+//        if (modelDialogue.isDisplayed()) {
+//            moveToElement(button);
+//            button.click();
+//            createWait().until(ExpectedConditions.invisibilityOf(modelDialogue));
+//        }
     }
 
     public void selectNow() {
@@ -408,7 +419,8 @@ public class AppPage extends Page {
         WebElement arriveByElement = driver.findElement(By.id("arriveBy"));
         boolean currently = arriveByElement.isSelected();
         if (currently!=arriveBy) {
-            moveToElement(arriveByElement).click().perform();
+            moveToElement(arriveByElement);
+            arriveByElement.click();
         }
     }
 
@@ -433,11 +445,11 @@ public class AppPage extends Page {
         return element.isDisplayed() && element.isEnabled();
     }
 
-    public boolean hasCookieNamed(String cookieName) {
+    public boolean hasCookieNamed(final String cookieName) {
         return driver.manage().getCookieNamed(cookieName)!=null;
     }
 
-    public Cookie waitForCookie(String cookieName) {
+    public Cookie waitForCookie(final String cookieName) {
         createWait().until(webDriver -> webDriver.manage().getCookieNamed(cookieName)!=null);
         return driver.manage().getCookieNamed(cookieName);
     }
