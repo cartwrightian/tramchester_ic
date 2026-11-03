@@ -113,21 +113,12 @@ jobs:
             sudo update-locale LANG=en_GB.UTF-8
       - run:
           name: acceptance
-          environment:
           command: |
             echo release number is $RELEASE_NUMBER LANG is $LANG
             ./gradlew --build-cache acceptance --no-daemon
-#      - run:
-#          name: deployUAT
-#          environment:
-#            ENV: UAT
-#          command: |
-#            echo release number is $RELEASE_NUMBER
-#            ./gradlew --build-cache deploy updateLB tidy --no-daemon
       - run:
           name: undeployDev
-          environment:
-            ENV: Dev
+          when: always
           command: |
             echo release number is $RELEASE_NUMBER
             ./gradlew --build-cache undeploy --no-daemon
