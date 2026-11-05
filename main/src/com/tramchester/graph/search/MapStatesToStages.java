@@ -79,7 +79,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
         stages = new ArrayList<>();
         totalCost = TramDuration.ZERO;
 
-        departureTimeFromMinuteNode = TramTime.invalid();
+        departureTimeFromMinuteNode = TramTime.INVALID;
         totalCostAtLastDeparture = TramDuration.getInvalid();
         currentTrip = Trip.InvalidId();
 //        onDiversion = false;
@@ -462,7 +462,7 @@ public class MapStatesToStages implements JourneyStateUpdate {
 
             this.costAtBoardingPoint = TramDuration.getInvalid();
             this.stopSequenceNumbers = new ArrayList<>();
-            this.boardingTime = TramTime.invalid();
+            this.boardingTime = TramTime.INVALID;
         }
 
         public static VehicleStagePending begin(StationRepository stationRepository, TripRepository tripRepository,

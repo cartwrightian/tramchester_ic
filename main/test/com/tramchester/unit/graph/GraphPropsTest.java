@@ -581,7 +581,7 @@ public class GraphPropsTest {
     void shouldSetCostExact() {
         MutableGraphRelationship relationship = createRelationship();
 
-        TramDuration duration = TramDuration.ofMinutes(42).plusSeconds(15);
+        TramDuration duration = TramDuration.of(42,15);
 
         relationship.setCost(duration);
 

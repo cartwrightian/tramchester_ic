@@ -91,7 +91,7 @@ public class RecordHelper {
 
         public TramTime find(final byte[] bytes) {
             if (isBlank(bytes)) {
-                return TramTime.invalid();
+                return TramTime.INVALID;
             }
 
             final int key = indexFor(bytes);

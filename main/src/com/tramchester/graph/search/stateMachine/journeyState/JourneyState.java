@@ -353,7 +353,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this(queryTime, queryTime, false, 0,
                     TransportMode.NotSet, 0, 0,
                     0, LocationId.wrap(Station.InvalidId()),
-                    false, TramTime.invalid());
+                    false, TramTime.INVALID);
         }
 
         // COPY cons

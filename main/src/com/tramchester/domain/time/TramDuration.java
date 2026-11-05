@@ -18,10 +18,12 @@ public class TramDuration implements Comparable<TramDuration> {
     private static final Factory factory;
 
     public static final TramDuration ZERO;
+    public static final TramDuration MAX_VALUE;
 
     static {
         factory = new Factory();
         ZERO = factory.fromSeconds(0L);
+        MAX_VALUE = factory.fromSeconds(Long.MAX_VALUE);
     }
 
     private final Long duration;
@@ -40,10 +42,6 @@ public class TramDuration implements Comparable<TramDuration> {
 
     public static TramDuration ofHours(final long hours) {
         return factory.fromSeconds(hours*60L*60L);
-    }
-
-    public static TramDuration getMax() {
-        return factory.getMax();
     }
 
     public static TramDuration getInvalid() {
@@ -109,7 +107,6 @@ public class TramDuration implements Comparable<TramDuration> {
     public TramDuration truncateToMinutes() {
         long minutes = Math.floorDivExact(duration, 60L);
         return ofMinutes(minutes);
-        //return new TramDuration(duration.truncatedTo(ChronoUnit.MINUTES));
     }
 
     public long toMinutes() {
@@ -119,9 +116,7 @@ public class TramDuration implements Comparable<TramDuration> {
     // MATH
 
     public TramDuration minus(final TramDuration other) {
-
-        //final Duration result = duration.minus(other.duration);
-        long result = duration-other.duration;
+        final long result = duration-other.duration;
         return factory.fromSeconds(result);
     }
 
@@ -130,20 +125,20 @@ public class TramDuration implements Comparable<TramDuration> {
     }
 
     public TramDuration plus(final TramDuration other) {
-        if (other.isMax()) {
+        if (other==MAX_VALUE) {
             throw new RuntimeException("other is Max");
         }
-        if (this.isMax()) {
-            throw new RuntimeException("This is Max");
+        if (this==MAX_VALUE) {
+            throw new RuntimeException("this is Max");
         }
         return factory.fromSeconds(duration+other.duration);
     }
 
     public boolean isMax() {
-        return this==factory.getMax();
+        return this==MAX_VALUE;
     }
 
-    public TramDuration plusSeconds(final int seconds) {
+    public TramDuration plusSeconds(final long seconds) {
         return factory.fromSeconds(duration+seconds);
     }
 
@@ -165,17 +160,13 @@ public class TramDuration implements Comparable<TramDuration> {
 
         private final ConcurrentMap<Long, TramDuration> secondsToDuration;
 
+
         private Factory() {
             secondsToDuration = new ConcurrentHashMap<>();
-            secondsToDuration.put(0L, new TramDuration(0L));
         }
 
         public TramDuration fromSeconds(final Long seconds) {
            return secondsToDuration.computeIfAbsent(seconds, key -> new TramDuration(seconds));
-        }
-
-        public TramDuration getMax() {
-            return fromSeconds(Long.MAX_VALUE);
         }
 
         public TramDuration getInvalid() {

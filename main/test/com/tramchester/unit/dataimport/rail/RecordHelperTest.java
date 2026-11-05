@@ -49,7 +49,7 @@ public class RecordHelperTest {
         Line line = Line.of("xxxx    yyyy");
         TramTime result = recordHelper.extractTime(line, 4);
 
-        assertEquals(TramTime.invalid(), result);
+        assertEquals(TramTime.INVALID, result);
     }
 
     @Test

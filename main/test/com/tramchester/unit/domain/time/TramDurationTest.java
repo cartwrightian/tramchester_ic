@@ -82,7 +82,7 @@ public class TramDurationTest {
         assertSame(TramDuration.ofHours(42), TramDuration.ofHours(42));
         assertSame(TramDuration.ofSeconds(111L), TramDuration.ofSeconds(111L));
         assertSame(TramDuration.getInvalid(), TramDuration.getInvalid());
-        assertSame(TramDuration.getMax(), TramDuration.getMax());
+        assertSame(TramDuration.MAX_VALUE, TramDuration.MAX_VALUE);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class TramDurationTest {
         assertEquals(TramDuration.ZERO, TramDuration.ofSeconds(0L));
         assertSame(TramDuration.ZERO, TramDuration.ofSeconds(0L));
 
-        TramDuration max = TramDuration.getMax();
+        TramDuration max = TramDuration.MAX_VALUE;
         assertTrue(max.isMax());
 
         TramDuration notMax = TramDuration.ofSeconds(Long.MAX_VALUE-1);

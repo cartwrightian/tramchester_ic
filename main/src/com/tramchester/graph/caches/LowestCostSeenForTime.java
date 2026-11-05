@@ -28,8 +28,8 @@ public class LowestCostSeenForTime implements ArrivalHandler {
         lowestCostForQuery = new ConcurrentHashMap<>();
         lowestNumChangesForQuery = new ConcurrentHashMap<>();
         boardingTimes = new ConcurrentHashMap<>();
-        shortestEver = TramDuration.getMax();
-        earliestBoarding = TramTime.invalid();
+        shortestEver = TramDuration.MAX_VALUE;
+        earliestBoarding = TramTime.INVALID;
         leastChangesEver = Integer.MAX_VALUE;
     }
 

@@ -165,7 +165,7 @@ public class GraphPathInMemory implements GraphPath {
                 map(GraphRelationship::getCost).
                 reduce(TramDuration::plus);
 
-        return total.orElse(TramDuration.getMax());
+        return total.orElse(TramDuration.MAX_VALUE);
     }
 
     public boolean isEmpty() {

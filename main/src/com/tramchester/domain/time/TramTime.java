@@ -32,7 +32,13 @@ public class TramTime implements Comparable<TramTime> {
     private final int hash;
     private final String toPattern;
 
-    private static final Factory factory = new Factory();
+    private static final Factory factory;
+    public static final TramTime INVALID;
+
+    static {
+         factory = new Factory();
+         INVALID = Factory.invalidTime;
+    }
 
     private TramTime(final int hour, final int minute, final int offsetDays) {
         this.hour = hour;
@@ -71,9 +77,9 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(hours, minutes, offsetDays);
     }
 
-    public static TramTime invalid() {
-        return Factory.invalidTime;
-    }
+//    public static TramTime invalid() {
+//        return Factory.invalidTime;
+//    }
 
     /***
      * Orders hours with pivotPointHour as the earliest ranked, rolling around the 24 hours

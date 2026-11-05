@@ -200,7 +200,7 @@ class RouteCalculatorWithTestRouteInMemoryTest {
         final Station destination = transportData.getSecond();
 
         TramDuration walkCost = getWalkCost(start, destination);
-        assertEquals(TramDuration.ofMinutes(3).plusSeconds(19), walkCost);
+        assertEquals(TramDuration.of(3,19), walkCost);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
                 journeyRequest, 2);

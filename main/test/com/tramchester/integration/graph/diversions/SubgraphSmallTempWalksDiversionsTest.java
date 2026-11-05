@@ -52,8 +52,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class SubgraphSmallTempWalksDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
-    public static final TramDuration STPETERS_PICC_WALK = TramDuration.ofMinutes(10).plusSeconds(36);
-    private static final TramDuration STPETERS_PICC_GARDENS_WALK = TramDuration.ofMinutes(6).plusSeconds(1);
+    public static final TramDuration STPETERS_PICC_WALK = TramDuration.of(10,36);
+    private static final TramDuration STPETERS_PICC_GARDENS_WALK = TramDuration.of(6,1);
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
