@@ -50,6 +50,10 @@ public class TramDuration implements Comparable<TramDuration> {
         return factory.getInvalid();
     }
 
+    public static TramDuration of(int minutes, int seconds) {
+        return ofSeconds((minutes*60L) + seconds);
+    }
+
     public Long toSeconds() {
         return duration;
     }
@@ -144,13 +148,15 @@ public class TramDuration implements Comparable<TramDuration> {
     }
 
     public boolean lessThan(final TramDuration other) {
-//        return duration < other.duration;
         return duration.compareTo(other.duration) < 0;
     }
 
     public boolean moreThan(final TramDuration other) {
-//        return duration > other.duration;
         return duration.compareTo(other.duration) > 0;
+    }
+
+    public boolean moreThanOrEquals(final TramDuration other) {
+        return duration.compareTo(other.duration) >= 0;
     }
 
     // Factory

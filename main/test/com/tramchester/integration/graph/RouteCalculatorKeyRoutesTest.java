@@ -12,7 +12,6 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphDatabase;
@@ -184,7 +183,7 @@ class RouteCalculatorKeyRoutesTest {
         assertTrue(max.isPresent());
         TramDuration longest = max.get();
 
-        assertTrue(Durations.greaterOrEquals(maxJourneyDuration, longest), "longest was " + longest + " more than config: "
+        assertTrue(maxJourneyDuration.moreThanOrEquals(longest), "longest was " + longest + " more than config: "
                 + maxJourneyDuration);
     }
 

@@ -54,7 +54,7 @@ public class TimeRangePartial implements TimeRange {
         TramDuration calcBefore = before;
         if (time.getHourOfDay()==0 && !time.isNextDay()) {
             final TramDuration currentMinsOfDay = TramDuration.ofMinutes(time.getMinuteOfHour());
-            if (Durations.greaterThan(before, currentMinsOfDay)) {
+            if (before.moreThan(currentMinsOfDay)) {
                 calcBefore = currentMinsOfDay;
             }
         }

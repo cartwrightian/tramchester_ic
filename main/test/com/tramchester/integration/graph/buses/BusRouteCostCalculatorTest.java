@@ -8,7 +8,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.RouteCostCalculator;
@@ -88,38 +87,50 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportComp() {
-        assertEquals(Durations.of(38,38), getCostBetween(average(), altrincham, stockport));
-        assertEquals(Durations.of(43,21), getCostBetween(average(), stockport, altrincham));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(38, 38), getCostBetween(average(), altrincham, stockport));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(43, 21), getCostBetween(average(), stockport, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        assertEquals(Durations.of(46, 35), getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
-        assertEquals(Durations.of(51,18), getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(46, 35), getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(51, 18), getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        assertEquals(Durations.of(52,47), getCostBetween(average(), altrincham, shudehill));
-        assertEquals(Durations.of(56,25), getCostBetween(average(), shudehill, altrincham));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(52, 47), getCostBetween(average(), altrincham, shudehill));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(56, 25), getCostBetween(average(), shudehill, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        assertEquals(Durations.of(53,47), getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
-        assertEquals(Durations.of(57,25), getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(53, 47), getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(57, 25), getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockportComp() {
-        assertEquals(Durations.of(42,29), getCostBetween(average(), shudehill, stockport));
-        assertEquals(Durations.of(33,34), getCostBetween(average(), stockport, shudehill));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(42, 29), getCostBetween(average(), shudehill, stockport));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(33, 34), getCostBetween(average(), stockport, shudehill));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        assertEquals(Durations.of(50,22), getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
-        assertEquals(Durations.of(41,16), getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(50, 22), getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
+        //return TramDuration.ofMinutes(minutes).plusSeconds(seconds);
+        assertEquals(TramDuration.of(41, 16), getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
     }
 
     private BiFunction<Location<?>, Location<?>, TramDuration> average() {

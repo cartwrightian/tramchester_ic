@@ -184,6 +184,10 @@ public class TramDurationTest {
 
         assertTrue(durationA.lessThan(durationB));
         assertFalse(durationA.lessThan(durationA));
+
+        assertTrue(durationA.moreThanOrEquals(durationA));
+        assertFalse(durationA.moreThanOrEquals(durationB));
+
         assertTrue(durationB.moreThan(durationA));
         assertFalse(durationB.moreThan(durationB));
     }

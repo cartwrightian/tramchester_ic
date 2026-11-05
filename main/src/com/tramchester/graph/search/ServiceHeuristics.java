@@ -254,7 +254,7 @@ public class ServiceHeuristics {
     public HeuristicsReason journeyDurationUnderLimit(final TramDuration totalDuration, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {
+        if (totalDuration.moreThan(journeyConstraints.getMaxJourneyDuration())) {
             return reasons.recordReason(HeuristicsReasons.TookTooLong(actualQueryTime.plusRounded(totalDuration), howIGotHere));
         }
         return valid(ReasonCode.DurationOk, howIGotHere, reasons);

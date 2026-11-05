@@ -8,7 +8,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
@@ -187,7 +186,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     private void leave(final TramDuration currentTotalCost) {
-        if (Durations.lessThan(currentTotalCost, journeyOffset)) {
+        //if (Durations.lessThan(currentTotalCost, journeyOffset)) {
+        if (currentTotalCost.lessThan(journeyOffset)) {
             throw new RuntimeException("Invalid total cost "+currentTotalCost+" less that current total offset " +journeyOffset);
         }
 

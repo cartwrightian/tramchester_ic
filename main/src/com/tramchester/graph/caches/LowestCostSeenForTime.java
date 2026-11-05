@@ -1,6 +1,5 @@
 package com.tramchester.graph.caches;
 
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.ArrivalHandler;
@@ -141,7 +140,7 @@ public class LowestCostSeenForTime implements ArrivalHandler {
 
         if (lowestCostForQuery.containsKey(earliestBoard)) {
             final TramDuration lowestCostSeen = lowestCostForQuery.get(earliestBoard);
-            return Durations.greaterThan(totalCostSoFar, lowestCostSeen);
+            return totalCostSoFar.moreThan(lowestCostSeen);
         } else {
             return false;
         }

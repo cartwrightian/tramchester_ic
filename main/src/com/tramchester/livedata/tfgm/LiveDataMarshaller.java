@@ -1,7 +1,6 @@
 package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
@@ -127,7 +126,8 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
         }
 
         final TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
-        if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
+        TramDuration durationA = TramTime.difference(now, updateTime);
+        if (durationA.moreThan(TIME_LIMIT)) {
             return Timely.TimeExpired;
         }
 

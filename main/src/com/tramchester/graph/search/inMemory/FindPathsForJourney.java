@@ -3,7 +3,6 @@ package com.tramchester.graph.search.inMemory;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.Running;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
@@ -191,7 +190,7 @@ public class FindPathsForJourney {
             final GraphRelationship lastRelationship = pathToHere.getLastRelationship(txn);
             final TramDuration cost = lastRelationship.getCost();
 
-            if (Durations.greaterThan(cost, TramDuration.ZERO)) {
+            if (cost.moreThan(TramDuration.ZERO)) {
                 final TramDuration totalCost = currentJourneyState.getTotalDurationSoFar();
                 final TramDuration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);

@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.domain.time.Durations.greaterOrEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -255,7 +254,7 @@ public class RouteCalculatorTest {
 
         final TramTime firstDepartTime = earliest.get().getDepartTime();
         TramDuration elapsed = TramTime.difference(queryTime, firstDepartTime);
-        assertFalse(greaterOrEquals(elapsed, cutoffInterval), "first result too far in future " + firstDepartTime
+        assertFalse(elapsed.moreThanOrEquals(cutoffInterval), "first result too far in future " + firstDepartTime
                 + " cuttoff " + cutoffInterval + " earliest journey " + earliest) ;
     }
 

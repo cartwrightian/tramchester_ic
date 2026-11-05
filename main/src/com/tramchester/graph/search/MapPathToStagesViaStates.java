@@ -6,7 +6,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
@@ -97,7 +96,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 
-                if (Durations.greaterThan(lastRelationshipCost, TramDuration.ZERO)) {
+                if (lastRelationshipCost.moreThan(TramDuration.ZERO)) {
                     final TramDuration total = current.getTotalDuration().plus(lastRelationshipCost);
                     mapStatesToStages.updateTotalCost(total);
                 }

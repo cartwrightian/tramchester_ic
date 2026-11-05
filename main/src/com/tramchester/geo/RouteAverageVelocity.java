@@ -5,7 +5,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.repository.RouteRepository;
 import jakarta.inject.Inject;
@@ -71,7 +70,10 @@ public class RouteAverageVelocity {
     private double getVelocityForTrip(final Trip trip) {
         final List<StopCalls.StopLeg> legs = trip.getStopCalls().getLegs(false);
         OptionalDouble findAverage = legs.stream().
-                filter(leg -> Durations.greaterThan(leg.getCost(), minLegTime)).
+                filter(leg -> {
+                    TramDuration durationA = leg.getCost();
+                    return durationA.moreThan(minLegTime);
+                }).
                 mapToDouble(this::velocityForLeg).
                 filter(value -> value>0).
                 average();
