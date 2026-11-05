@@ -73,8 +73,8 @@ public class RouteStationId implements IdFor<RouteStation> {
 
         RouteStationId that = (RouteStationId) o;
 
-        if (!routeId.equals(that.routeId)) return false;
-        return stationId.equals(that.stationId);
+        if (!stationId.equals(that.stationId)) return false;
+        return routeId.equals(that.routeId);
     }
 
     @Override

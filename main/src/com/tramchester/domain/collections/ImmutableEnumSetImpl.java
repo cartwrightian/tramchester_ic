@@ -366,12 +366,15 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
                 return false;
             }
 
-            for (final T item : other) {
-                if (contains(item)) {
-                    return true;
-                }
-            }
-            return false;
+            return EnumSet.copyOf(contained).removeAll(other);
+
+            // slow
+//            for (final T item : other) {
+//                if (contains(item)) {
+//                    return true;
+//                }
+//            }
+//            return false;
 
             // slow
             //return !SetUtils.intersection(modesA, modesB).isEmpty();

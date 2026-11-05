@@ -3,6 +3,7 @@ package com.tramchester.unit.domain.collections;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.reference.GraphLabel;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
@@ -153,6 +154,19 @@ public class ImmutableEnumSetTest {
 
         assertEquals(ImmutableEnumSet.noneOf(TransportMode.class),
                 new HashSet<TransportMode>().stream().collect(ImmutableEnumSet.collect(TransportMode.class)));
+    }
+
+    @Disabled("performance testing")
+    @Test
+    void shouldTestPerformanceOfAnyIntersection() {
+        ImmutableEnumSet<TransportMode> many = ImmutableEnumSet.of(Walk, Train, Ferry);
+        EnumSet<TransportMode> noOverlap = EnumSet.of(RailReplacementBus, Tram, Subway);
+        EnumSet<TransportMode> overlap = EnumSet.of(RailReplacementBus, Tram, Walk);
+
+        for (int i = 0; i < 1000000000; i++) {
+            assertFalse(many.anyIntersectionWith(noOverlap));
+            assertTrue(many.anyIntersectionWith(overlap));
+        }
     }
 
     @Test
