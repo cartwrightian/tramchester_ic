@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.time.TramDuration;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TramDurationTest {
@@ -93,6 +96,17 @@ public class TramDurationTest {
 
         TramDuration tramDurationD = TramDuration.ofSeconds(119);
         assertEquals(1, tramDurationD.toMinutes());
+    }
+    
+    @Test
+    void shouldConvertToDuration() {
+        TramDuration tramDuration = TramDuration.ofSeconds(42);
+
+        Duration result = tramDuration.toDuration();
+        assertEquals(42, result.getSeconds());
+
+        Duration truncated = result.truncatedTo(SECONDS);
+        assertEquals(result, truncated);
     }
 
     @Test

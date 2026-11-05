@@ -30,10 +30,6 @@ public class TramDuration implements Comparable<TramDuration> {
         this.duration = duration;
     }
 
-//    private static TramDuration from(final long duration) {
-//        return new TramDuration(duration);
-//    }
-
     public static TramDuration ofMinutes(final long minutes) {
         return factory.fromSeconds(minutes*60L);
     }
@@ -63,12 +59,11 @@ public class TramDuration implements Comparable<TramDuration> {
     }
 
     public int getMinutesSafe() {
-        final long seconds = duration; //.getSeconds();
-        final int mod = Math.floorMod(seconds, 60);
+        final int mod = Math.floorMod(duration, 60);
         if (mod!=0) {
             throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
         }
-        return (int) Math.floorDiv(seconds, 60);
+        return (int) Math.floorDiv(duration, 60);
     }
 
     public boolean isZero() {
