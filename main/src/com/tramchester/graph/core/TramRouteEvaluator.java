@@ -236,6 +236,17 @@ public abstract class TramRouteEvaluator {
             }
         }
 
+        // -->Station
+        // Check modes, specifically to catch case when crossing from neighbours on route
+        if (nodeLabels.contains(GraphLabel.STATION)) {
+            if (journeyState.hasBegunJourney()) {
+                final HeuristicsReason forMode = serviceHeuristics.checkModes(nodeLabels, requestedLabels, howIGotHere, reasons);
+                if (!forMode.isValid()) {
+                    return forMode;
+                }
+            }
+        }
+
         // -->Route Station
         // is dest reachable from here and is route operating today?
         // is the station open?

@@ -21,7 +21,7 @@ public interface JourneyStateUpdate extends CoreJourneyState {
 
     void endWalk(GraphNode stationNode, TramDuration cost);
 
-    void toNeighbour(GraphNode startNode, GraphNode endNode, TramDuration cost);
+    void toNeighbour(GraphNode startNode, GraphNode endNode, TramDuration cost, boolean viaDivert);
     void recordStation(IdFor<Station> stationId);
 
     void updateTotalCost(TramDuration total);

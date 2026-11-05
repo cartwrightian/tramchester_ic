@@ -28,7 +28,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TFGMRouteNames.*;
+import static com.tramchester.domain.reference.TFGMRouteNames.Blue;
+import static com.tramchester.domain.reference.TFGMRouteNames.Red;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -112,13 +113,13 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        // closures
         IdSet<Station> expected = FakeStation.IdSetOf(Cornbrook, TraffordBar, StPetersSquare,
                  PiccadillyGardens);
 
         if (config.hasRailConfig()) {
-            // TODO
-            //expected.add(RailStationIds.ManchesterPiccadilly.getId());
+            IdSet<Station> adds = FakeStation.IdSetOf(RailStationIds.ManchesterPiccadilly,
+                    RailStationIds.ManchesterDeansgate, Piccadilly, Deansgate);
+            expected.addAll(adds);
         }
 
         ImmutableIdSet<Station> diff = IdSet.disjunction(expected, stationIds);

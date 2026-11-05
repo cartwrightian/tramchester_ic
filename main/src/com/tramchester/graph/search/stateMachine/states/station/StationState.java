@@ -67,7 +67,7 @@ public abstract class StationState extends TraversalState implements NodeId {
     protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode next,
                                                      final TramDuration cost, final boolean viaDivert,
                                                      final JourneyStateUpdate journeyState) {
-        journeyState.toNeighbour(stationNode, next, cost);
+        journeyState.toNeighbour(stationNode, next, cost, viaDivert);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, txn, viaDivert);
     }
 
@@ -75,7 +75,7 @@ public abstract class StationState extends TraversalState implements NodeId {
     protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder toStation, final GraphNode node,
                                                  final TramDuration cost, final boolean viaDivert,
                                                  final JourneyStateUpdate journeyState) {
-        journeyState.toNeighbour(stationNode, node, cost);
+        journeyState.toNeighbour(stationNode, node, cost, viaDivert);
         return toStation.fromNeighbour(this, node, cost, journeyState, txn, viaDivert);
     }
 

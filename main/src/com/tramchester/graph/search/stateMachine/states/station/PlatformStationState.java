@@ -60,7 +60,8 @@ public class PlatformStationState extends StationState {
                                               final JourneyStateUpdate journeyState,
                                               final boolean arrivedViaDiversion,
                                               final GraphTransaction txn) {
-            final ImmutableEnumSet<TransportRelationshipTypes> fromStart = ImmutableEnumSet.of(WALKS_FROM_STATION, GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
+            final ImmutableEnumSet<TransportRelationshipTypes> fromStart = ImmutableEnumSet.of(WALKS_FROM_STATION,
+                    GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
             final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, Outgoing, fromStart);
             final Stream<GraphRelationship> relationships = addValidDiversions(initial, stationNode, arrivedViaDiversion, txn);
 

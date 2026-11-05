@@ -257,8 +257,8 @@ public class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void toNeighbour(final GraphNode startNode, final GraphNode endNode, final TramDuration cost) {
-        State previousState = stateTransition(List.of(State.NotStarted, State.Waiting),
+    public void toNeighbour(final GraphNode startNode, final GraphNode endNode, final TramDuration cost, boolean viaDivert) {
+        final State previousState = stateTransition(List.of(State.NotStarted, State.Waiting),
                 List.of(State.ToNeighbour, State.ToNeighbour));
 
         final IdFor<Station> startId = startNode.getStationId();

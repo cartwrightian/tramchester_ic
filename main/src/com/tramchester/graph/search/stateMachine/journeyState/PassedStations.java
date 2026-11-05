@@ -52,17 +52,21 @@ public class PassedStations {
         }
     }
 
-    public void recordToNeighbour(final IdFor<Station> startOfDiversion) {
+    public void recordToNeighbour(final IdFor<Station> startOfDiversion, final boolean viaDivert) {
+        // TODO differentiate Diversion or Connection to Neighbour for PassType
+
+        final String reason = viaDivert ? "Divert" : "Neighbour";
+
         if (passed.isEmpty()) {
-            logger.info("At start, adding to On Trip Stations " + startOfDiversion);
+            logger.info("At start, adding %s to On Trip Stations %s".formatted(reason, startOfDiversion));
             capturePass(startOfDiversion, PassType.Diversion);
             return;
         }
 
         if (passed.getLast().equals(startOfDiversion)) {
-            logger.info("On diversion from " + startOfDiversion);
+            logger.info("To %s from %s".formatted(reason, startOfDiversion));
         } else {
-            logger.info("Added diversion to On Trip Stations " + startOfDiversion);
+            logger.info("Added %s to On Trip Stations %s".formatted(reason, startOfDiversion));
             capturePass(startOfDiversion, PassType.Diversion);
         }
     }

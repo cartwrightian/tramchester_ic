@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.repository.Interchanges.WEEKS_AHEAD_FOR_LINKS;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -85,9 +86,6 @@ public class ServiceRepositoryTest {
     @DataExpiryTest
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
-
-//        TramDate startDate = TramDate.from(TestEnv.LocalNow());
-//        TramDate endDate = startDate.plusDays(DAYS_AHEAD);
 
         DateRange dateRange = DateRange.from(UpcomingDates.daysAhead());
 
@@ -168,9 +166,12 @@ public class ServiceRepositoryTest {
     void shouldServicesOverlappingWithUpcomingPeriod() {
 
         TramDate today = TramDate.of(LocalDate.now());
-        DateRange dateRange = DateRange.of(today, today.plusWeeks(WEEKS_AHEAD_FOR_LINKS));
+        int weeksAhead = config.getTransportModesImmutable().contains(Train) ? WEEKS_AHEAD_FOR_LINKS*2 : WEEKS_AHEAD_FOR_LINKS;
+        DateRange dateRange = DateRange.of(today, today.plusWeeks(weeksAhead));
 
         IdSet<Service> allSvcs = serviceRepository.getServices().stream().
+                filter(service -> !service.getCalendar().operatesNoDays()).
+                filter(service -> !service.getCalendar().isCancelled()).
                 filter(service -> service.getCalendar().getDateRange().getEndDate().isAfter(today)).
                 collect(IdSet.collector());
 
@@ -178,6 +179,12 @@ public class ServiceRepositoryTest {
             boolean expect = !serviceRepository.getServiceById(id).getCalendar().operatesNoDays();
             assertEquals(expect, serviceRepository.anyOverlaps(IdSet.singleton(id), dateRange), "No overlap for " + id);
         });
+
+        IdSet<Service> noOverlap = allSvcs.stream().
+                filter(svc -> !serviceRepository.anyOverlaps(IdSet.singleton(svc), dateRange)).
+                collect(IdSet.idCollector());
+
+        assertTrue(noOverlap.isEmpty(), "no overlap with " + weeksAhead + " for " + noOverlap);
 
         assertTrue(serviceRepository.anyOverlaps(allSvcs, dateRange));
     }

@@ -104,7 +104,7 @@ public class RailAndTramRouteToRouteCostsTest {
                 TransportMode.TramsOnly, date, timeRange);
 
         // closures
-        assertEquals(0+1, result);
+        assertEquals(0, result);
     }
 
     private int getPossibleMinChanges(Station being, Station end, ImmutableEnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -122,7 +122,7 @@ public class RailAndTramRouteToRouteCostsTest {
                 TransportMode.TramsOnly, date, timeRange);
 
         // closures
-        assertEquals(0+1, result);
+        assertEquals(0, result);
     }
 
     @Test

@@ -132,9 +132,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void toNeighbour(final GraphNode startNode, final GraphNode endNode, final TramDuration cost) {
+    public void toNeighbour(final GraphNode startNode, final GraphNode endNode, final TramDuration cost, boolean viaDivert) {
         final IdFor<Station> startOfDiversion = startNode.getStationId();
-        passedStations.recordToNeighbour(startOfDiversion);
+        passedStations.recordToNeighbour(startOfDiversion, viaDivert);
         coreState.incrementNeighbourConnections();
     }
 

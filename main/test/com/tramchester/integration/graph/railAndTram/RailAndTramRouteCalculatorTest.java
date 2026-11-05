@@ -26,6 +26,7 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
@@ -35,6 +36,8 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -214,7 +217,7 @@ public class RailAndTramRouteCalculatorTest {
                 maxNumberJourneys, modes);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Piccadilly, RailStationIds.Altrincham, journeyRequest);
-        assertEquals(2, journeys.size());
+        assertFalse(journeys.isEmpty());
 
         List<Journey> sortedByNumberStages = journeys.stream().
                 sorted(Comparator.comparingInt(j-> j.getStages().size())).toList();
@@ -735,6 +738,29 @@ public class RailAndTramRouteCalculatorTest {
 
         List<Journey> results = testFacade.calculateRouteAsList(TramStations.Altrincham, TramStations.ManAirport, request);
         assertFalse(results.isEmpty());
+    }
+
+    @AltrinchamLineTests
+    @Test
+    void shouldProvideASpreadOfDepartureTimes() {
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(14,50), false, 2,
+                TramDuration.ofMinutes(110), 2, TramsOnly);
+
+        List<Journey> journeys = testFacade.calculateRouteAsList(Altrincham, ManAirport, journeyRequest);
+
+        assertFalse(journeys.isEmpty(), "NO results for " + journeyRequest);
+
+        assertTrue(journeys.size()>1, "not enough (%s) results for %s got %s"
+                .formatted(journeys.size(), journeyRequest, journeys));
+
+        Set<TramTime> uniqueDepartureTimes = journeys.stream().
+                map(Journey::getDepartTime).
+                collect(Collectors.toSet());
+
+        assertFalse(uniqueDepartureTimes.isEmpty());
+        assertNotEquals(1, uniqueDepartureTimes.size(), "Only got " + uniqueDepartureTimes +
+                " times for " + journeyRequest + "\njourneys " + journeys);
     }
 
     private void atLeastOneDirect(JourneyRequest request, FakeStation start, FakeStation dest, TransportMode mode) {

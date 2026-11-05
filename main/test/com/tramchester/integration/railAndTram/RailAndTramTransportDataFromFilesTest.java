@@ -10,6 +10,7 @@ import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
@@ -87,13 +88,19 @@ public class RailAndTramTransportDataFromFilesTest {
         Station station = transportData.getStationById(Altrincham.getId());
         assertTrue(station.hasPlatforms());
 
-        List<Platform> platforms = new LinkedList<>(station.getPlatforms());
+        Set<Platform> platforms = station.getPlatforms();
 
-        // should be 2??
+        // 1 for train, 1 for tram (unknown for rail)
         assertEquals(2, platforms.size());
 
-        assertEquals(PlatformId.createId(station,"B"), platforms.getFirst().getId());
-        assertEquals("B", platforms.getFirst().getPlatformNumber());
+        String expectedPlatform = "B";
+        PlatformId expectedId = PlatformId.createId(station, expectedPlatform);
+
+        IdSet<Platform> platformIds = platforms.stream().collect(IdSet.collector());
+        assertTrue(platformIds.contains(expectedId), "not seen first in " + platforms);
+
+        Set<String> numbers = platforms.stream().map(Platform::getPlatformNumber).collect(Collectors.toSet());
+        assertTrue(numbers.contains(expectedPlatform), "missing from " + numbers);
     }
 
     @Test
@@ -215,7 +222,8 @@ public class RailAndTramTransportDataFromFilesTest {
     void shouldHaveCorrectModes() {
         ImmutableEnumSet<TransportMode> transportModes = config.getTransportModesImmutable();
 
-        assertEquals(3, transportModes.size(), transportModes.toString());
+        // +1 TramReplacementBus
+        assertEquals(3+1, transportModes.size(), transportModes.toString());
         assertTrue(transportModes.contains(Tram));
         assertTrue(transportModes.contains(Train));
         assertTrue(transportModes.contains(RailReplacementBus));

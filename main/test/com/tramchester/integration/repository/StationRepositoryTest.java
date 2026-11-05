@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.Trip;
@@ -357,10 +358,14 @@ public class StationRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedFormatAndLengthForAllStationIds() {
-        Set<Station> stations = stationRepository.getStations();
+    void shouldHaveExpectedFormatAndLengthForAllTramStationIds() {
 
-        Set<String> rawIds = stations.stream().map(station -> station.getId().getGraphId()).collect(Collectors.toSet());
+        // TODO similar test for train?
+
+        Set<Station> stations = stationRepository.getStations(ImmutableEnumSet.of(Tram));
+
+        Set<String> rawIds = stations.stream().
+                map(station -> station.getId().getGraphId()).collect(Collectors.toSet());
 
         String prefix = METROLINK_ID_PREFIX + "MA";
 

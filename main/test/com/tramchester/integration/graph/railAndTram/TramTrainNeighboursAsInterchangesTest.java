@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -86,7 +85,7 @@ public class TramTrainNeighboursAsInterchangesTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTram);
         assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
-        assertEquals(ImmutableEnumSet.of(Tram, Train), interchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, TramReplacementBus, Train), interchange.getTransportModes());
     }
 
     @Test
@@ -94,7 +93,7 @@ public class TramTrainNeighboursAsInterchangesTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTrain);
         assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
-        assertEquals(ImmutableEnumSet.of(Tram, Train), interchange.getTransportModes());
+        assertEquals(ImmutableEnumSet.of(Tram, TramReplacementBus, Train), interchange.getTransportModes());
     }
 
 }
