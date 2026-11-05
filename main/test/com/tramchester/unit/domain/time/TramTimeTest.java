@@ -357,7 +357,7 @@ class TramTimeTest {
         TramTime ref = of(0,0);
         assertEquals(of(0,42), ref.plus(TramDuration.ofMinutes(42)));
         assertEquals(of(2,42), ref.plus(TramDuration.ofMinutes(42+120)));
-        assertEquals(of(0,42), ref.plus(TramDuration.ofSeconds(42*60)));
+        assertEquals(of(0,42), ref.plus(TramDuration.ofSeconds(42*60L)));
 
         ref = of(23,10);
         assertEquals(of(23,52), ref.plus(TramDuration.ofMinutes(42)));
@@ -418,11 +418,11 @@ class TramTimeTest {
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
 
-        result = reference.minus(TramDuration.ofSeconds(60));
+        result = reference.minus(TramDuration.ofSeconds(60L));
         assertEquals(12, result.getHourOfDay());
         assertEquals(3, result.getMinuteOfHour());
 
-        result = reference.minus(TramDuration.ofSeconds(60*30));
+        result = reference.minus(TramDuration.ofSeconds(60*30L));
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
     }
@@ -431,34 +431,34 @@ class TramTimeTest {
     void shouldThrowIfAccuracyIsLostOnSubtraction() {
         TramTime reference = of(12, 4);
 
-        assertThrows(RuntimeException.class, () -> reference.minus(TramDuration.ofSeconds(31)));
-        assertThrows(RuntimeException.class, () -> reference.minus(TramDuration.ofSeconds(29)));
+        assertThrows(RuntimeException.class, () -> reference.minus(TramDuration.ofSeconds(31L)));
+        assertThrows(RuntimeException.class, () -> reference.minus(TramDuration.ofSeconds(29L)));
     }
 
     @Test
     void shouldThrowIfAccuracyIsLostOnAddition() {
         TramTime reference = of(12, 4);
 
-        assertThrows(RuntimeException.class, () -> reference.plus(TramDuration.ofSeconds(31)));
-        assertThrows(RuntimeException.class, () -> reference.plus(TramDuration.ofSeconds(29)));
+        assertThrows(RuntimeException.class, () -> reference.plus(TramDuration.ofSeconds(31L)));
+        assertThrows(RuntimeException.class, () -> reference.plus(TramDuration.ofSeconds(29L)));
     }
 
     @Test
     void shouldRoundToNearestMinutes() {
         TramTime time = of(1,13);
 
-        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(0)));
-        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(1)));
-        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(29)));
+        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(0L)));
+        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(1L)));
+        assertEquals(time, time.plusRounded(TramDuration.ofSeconds(29L)));
 
         TramTime plusOneMinute = time.plusMinutes(1);
-        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(30)));
-        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(31)));
-        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(59)));
-        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(60)));
-        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(61)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(30L)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(31L)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(59L)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(60L)));
+        assertEquals(plusOneMinute, time.plusRounded(TramDuration.ofSeconds(61L)));
 
-        assertEquals(time.plusMinutes(2), time.plusRounded(TramDuration.ofSeconds(121)));
+        assertEquals(time.plusMinutes(2), time.plusRounded(TramDuration.ofSeconds(121L)));
 
 
     }

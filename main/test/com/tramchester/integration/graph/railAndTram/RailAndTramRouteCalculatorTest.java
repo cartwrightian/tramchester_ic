@@ -518,11 +518,11 @@ public class RailAndTramRouteCalculatorTest {
 
         TransportStage<?, ?> fromTram = fromTramStages.getFirst();
         assertEquals(Connect, fromTram.getTransportMode());
-        assertEquals(TramDuration.ofSeconds(51), fromTram.getDuration());
+        assertEquals(TramDuration.ofSeconds(51L), fromTram.getDuration());
 
         TransportStage<?, ?> fromTrain = fromTrainStages.getFirst();
         assertEquals(Connect, fromTrain.getTransportMode());
-        assertEquals(TramDuration.ofSeconds(51), fromTrain.getDuration());
+        assertEquals(TramDuration.ofSeconds(51L), fromTrain.getDuration());
     }
 
     @Test

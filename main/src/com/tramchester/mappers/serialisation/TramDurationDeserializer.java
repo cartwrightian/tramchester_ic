@@ -41,7 +41,7 @@ public class TramDurationDeserializer extends JsonDeserializer<TramDuration> {
     private static @NotNull TramDuration deserialize(JsonParser jsonParser, JsonNode node) throws JsonParseException {
         JsonNode secondsNode = node.get(TramDurationSerializer.FIELD_NAME_SECONDS);
         if (secondsNode.isInt()) {
-            final int seconds = secondsNode.asInt();
+            final Long seconds = secondsNode.asLong();
             return TramDuration.ofSeconds(seconds);
         } else {
             throw new JsonParseException(jsonParser, "Could not extract duraction from " + node);

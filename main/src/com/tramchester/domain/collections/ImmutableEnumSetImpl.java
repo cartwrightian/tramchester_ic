@@ -348,11 +348,24 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
 
         @Override
         public boolean anyIntersectionWith(final ImmutableEnumSet<T> other) {
-            return anyIntersectionWith(((ImmutableEnumSetImpl<T>)other).getContainedUnsafe());
+            if (other instanceof None) {
+                return false;
+            }
+            if (other instanceof ImmutableEnumSetImpl.One<T> one) {
+                return contains(one.item);
+            }
+            if (other instanceof ImmutableEnumSetImpl.Many<T> many) {
+                return anyIntersectionWith(many.contained);
+            }
+            throw new RuntimeException("Unknown implementation " + other.getClass());
         }
 
         @Override
         public boolean anyIntersectionWith(final EnumSet<T> other) {
+            if (other.isEmpty()) {
+                return false;
+            }
+
             for (final T item : other) {
                 if (contains(item)) {
                     return true;

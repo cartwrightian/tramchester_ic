@@ -106,7 +106,7 @@ public class WalkNodesAndRelationshipsTest {
 
         KnownLocations knownLocation = nearStPetersSquare;
         Station startStation = TramStations.StPetersSquare.fake();
-        TramDuration cost = TramDuration.ofSeconds(75);
+        TramDuration cost = TramDuration.ofSeconds(75L);
 
         StationWalk walk = new StationWalk(startStation, cost);
         Set<StationWalk> stationWalks = Collections.singleton(walk);
@@ -181,7 +181,7 @@ public class WalkNodesAndRelationshipsTest {
     void shouldCreateWalkFromStationAndThenDelete() {
 
         Station startStation = TramStations.StPetersSquare.fake();
-        TramDuration cost = TramDuration.ofSeconds(75);
+        TramDuration cost = TramDuration.ofSeconds(75L);
 
         StationWalk walk = new StationWalk(startStation, cost);
         Set<StationWalk> stationWalks = Collections.singleton(walk);

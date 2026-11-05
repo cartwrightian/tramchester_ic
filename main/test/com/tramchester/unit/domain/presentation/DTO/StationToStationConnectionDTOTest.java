@@ -40,7 +40,7 @@ class StationToStationConnectionDTOTest extends EasyMockSupport {
 
         Quantity<Length> distance = Quantities.getQuantity(42.5768D, Units.METRE);
         StationToStationConnection stationLink = new StationToStationConnection(altrincham, stPeters, modes,
-                StationToStationConnection.LinkType.Diversion, distance, TramDuration.ofSeconds(124));
+                StationToStationConnection.LinkType.Diversion, distance, TramDuration.ofSeconds(124L));
 
         replayAll();
         StationToStationConnectionDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);

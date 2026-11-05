@@ -3,9 +3,11 @@ package com.tramchester.unit.domain.time;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.time.TramDuration;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,8 +16,8 @@ public class TramDurationTest {
 
     @Test
     void shouldHaveEquality() {
-        TramDuration tramDurationA = TramDuration.ofSeconds(42);
-        TramDuration tramDurationB = TramDuration.ofSeconds(42);
+        TramDuration tramDurationA = TramDuration.ofSeconds(42L);
+        TramDuration tramDurationB = TramDuration.ofSeconds(42L);
 
         assertEquals(42, tramDurationA.toSeconds());
 
@@ -25,9 +27,34 @@ public class TramDurationTest {
 
     }
 
+    @Disabled("perf test")
+    @Test
+    void shouldComparePerformanceBoxing() {
+        int COUNT = 1000000000;
+
+        final long unboxed = 42L;
+        final Long boxed = unboxed;
+
+        Instant start = Instant.now();
+        for (long i = 0; i < COUNT; i++) {
+            TramDuration duration = TramDuration.ofSeconds(unboxed);
+            duration.isValid();
+        }
+        long firstTime = Duration.between(start, Instant.now()).toMillis();
+
+        start = Instant.now();
+        for (long i = 0; i < COUNT; i++) {
+            TramDuration duration = TramDuration.ofSeconds(boxed);
+            duration.isValid();
+        }
+        long secondTime = Duration.between(start, Instant.now()).toMillis();
+
+        assertEquals(firstTime ,secondTime);
+    }
+
     @Test
     void shouldAdd() {
-        TramDuration tramDurationA = TramDuration.ofSeconds(10);
+        TramDuration tramDurationA = TramDuration.ofSeconds(10L);
 
         TramDuration resultA = tramDurationA.plusSeconds(5);
         assertEquals(15, resultA.toSeconds());
@@ -44,8 +71,8 @@ public class TramDurationTest {
 
     @Test
     void shouldCreateFrom() {
-        assertEquals(TramDuration.ofSeconds(2*60*60), TramDuration.ofHours(2));
-        assertEquals(TramDuration.ofSeconds(3*60), TramDuration.ofMinutes(3));
+        assertEquals(TramDuration.ofSeconds(2*60*60L), TramDuration.ofHours(2));
+        assertEquals(TramDuration.ofSeconds(3*60L), TramDuration.ofMinutes(3));
     }
 
     @Test
@@ -53,54 +80,56 @@ public class TramDurationTest {
         assertSame(TramDuration.ZERO, TramDuration.ZERO);
         assertSame(TramDuration.ofMinutes(11), TramDuration.ofMinutes(11));
         assertSame(TramDuration.ofHours(42), TramDuration.ofHours(42));
-        assertSame(TramDuration.ofSeconds(111), TramDuration.ofSeconds(111));
+        assertSame(TramDuration.ofSeconds(111L), TramDuration.ofSeconds(111L));
         assertSame(TramDuration.getInvalid(), TramDuration.getInvalid());
         assertSame(TramDuration.getMax(), TramDuration.getMax());
     }
 
     @Test
     void shouldTruncateToMinutes() {
-        TramDuration tramDurationA = TramDuration.ofSeconds(10);
+        TramDuration tramDurationA = TramDuration.ofSeconds(10L);
         assertEquals(0, tramDurationA.truncateToMinutes().toSeconds());
 
-        TramDuration tramDurationB= TramDuration.ofSeconds(65);
+        TramDuration tramDurationB= TramDuration.ofSeconds(65L);
         assertEquals(60, tramDurationB.truncateToMinutes().toSeconds());
 
-        TramDuration tramDurationC = TramDuration.ofSeconds(120);
+        TramDuration tramDurationC = TramDuration.ofSeconds(120L);
         assertEquals(120, tramDurationC.truncateToMinutes().toSeconds());
 
-        TramDuration tramDurationD = TramDuration.ofSeconds(121);
+        TramDuration tramDurationD = TramDuration.ofSeconds(121L);
         assertEquals(120, tramDurationD.truncateToMinutes().toSeconds());
     }
 
     @Test
     void shouldHaveMinus() {
-        TramDuration tramDuration = TramDuration.ofSeconds(60);
+        TramDuration tramDuration = TramDuration.ofSeconds(60L);
 
-        TramDuration result = tramDuration.minus(TramDuration.ofSeconds(15));
+        TramDuration result = tramDuration.minus(TramDuration.ofSeconds(15L));
 
-        assertEquals(TramDuration.ofSeconds(45), result);
+        assertEquals(TramDuration.ofSeconds(45L), result);
 
+        assertEquals(TramDuration.ZERO, tramDuration.minus(tramDuration));
+        assertSame(TramDuration.ZERO, tramDuration.minus(tramDuration));
     }
 
     @Test
     void shouldHaveToMinutes() {
-        TramDuration tramDurationA = TramDuration.ofSeconds(10);
+        TramDuration tramDurationA = TramDuration.ofSeconds(10L);
         assertEquals(0, tramDurationA.toMinutes());
 
-        TramDuration tramDurationB = TramDuration.ofSeconds(60);
+        TramDuration tramDurationB = TramDuration.ofSeconds(60L);
         assertEquals(1, tramDurationB.toMinutes());
 
-        TramDuration tramDurationC = TramDuration.ofSeconds(61);
+        TramDuration tramDurationC = TramDuration.ofSeconds(61L);
         assertEquals(1, tramDurationC.toMinutes());
 
-        TramDuration tramDurationD = TramDuration.ofSeconds(119);
+        TramDuration tramDurationD = TramDuration.ofSeconds(119L);
         assertEquals(1, tramDurationD.toMinutes());
     }
-    
+
     @Test
     void shouldConvertToDuration() {
-        TramDuration tramDuration = TramDuration.ofSeconds(42);
+        TramDuration tramDuration = TramDuration.ofSeconds(42L);
 
         Duration result = tramDuration.toDuration();
         assertEquals(42, result.getSeconds());
@@ -113,7 +142,7 @@ public class TramDurationTest {
     void shouldSerializeRoundTrip() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
 
-        TramDuration duration= TramDuration.ofSeconds(65);
+        TramDuration duration= TramDuration.ofSeconds(65L);
 
         String text = mapper.writeValueAsString(duration);
 
@@ -134,8 +163,8 @@ public class TramDurationTest {
 
     @Test
     void shouldHaveZeroInvalidAndMax() {
-        assertEquals(TramDuration.ZERO, TramDuration.ofSeconds(0));
-        assertSame(TramDuration.ZERO, TramDuration.ofSeconds(0));
+        assertEquals(TramDuration.ZERO, TramDuration.ofSeconds(0L));
+        assertSame(TramDuration.ZERO, TramDuration.ofSeconds(0L));
 
         TramDuration max = TramDuration.getMax();
         assertTrue(max.isMax());

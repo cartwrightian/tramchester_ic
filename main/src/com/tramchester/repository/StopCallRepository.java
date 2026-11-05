@@ -260,7 +260,7 @@ public class StopCallRepository  {
                     mapToLong(TramDuration::toSeconds).average().orElse(0D);
             @SuppressWarnings("WrapperTypeMayBePrimitive")
             final Double ceil = Math.ceil(avg);
-            return TramDuration.ofSeconds( ceil.intValue() );
+            return TramDuration.ofSeconds( ceil.longValue() );
         }
 
         @Override
