@@ -40,6 +40,12 @@ public class TramDurationTest {
     }
 
     @Test
+    void shouldCreateFrom() {
+        assertEquals(TramDuration.ofSeconds(2*60*60), TramDuration.ofHours(2));
+        assertEquals(TramDuration.ofSeconds(3*60), TramDuration.ofMinutes(3));
+    }
+
+    @Test
     void shouldHaveSameObject() {
         assertSame(TramDuration.ZERO, TramDuration.ZERO);
         assertSame(TramDuration.ofMinutes(11), TramDuration.ofMinutes(11));
@@ -65,6 +71,31 @@ public class TramDurationTest {
     }
 
     @Test
+    void shouldHaveMinus() {
+        TramDuration tramDuration = TramDuration.ofSeconds(60);
+
+        TramDuration result = tramDuration.minus(TramDuration.ofSeconds(15));
+
+        assertEquals(TramDuration.ofSeconds(45), result);
+
+    }
+
+    @Test
+    void shouldHaveToMinutes() {
+        TramDuration tramDurationA = TramDuration.ofSeconds(10);
+        assertEquals(0, tramDurationA.toMinutes());
+
+        TramDuration tramDurationB = TramDuration.ofSeconds(60);
+        assertEquals(1, tramDurationB.toMinutes());
+
+        TramDuration tramDurationC = TramDuration.ofSeconds(61);
+        assertEquals(1, tramDurationC.toMinutes());
+
+        TramDuration tramDurationD = TramDuration.ofSeconds(119);
+        assertEquals(1, tramDurationD.toMinutes());
+    }
+
+    @Test
     void shouldSerializeRoundTrip() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -85,6 +116,22 @@ public class TramDurationTest {
         assertTrue(durationA.compareTo(durationB) < 0);
         assertTrue(durationB.compareTo(durationA) > 0);
         assertEquals(0, durationA.compareTo(durationA));
+    }
+
+    @Test
+    void shouldHaveZeroInvalidAndMax() {
+        assertEquals(TramDuration.ZERO, TramDuration.ofSeconds(0));
+        assertSame(TramDuration.ZERO, TramDuration.ofSeconds(0));
+
+        TramDuration max = TramDuration.getMax();
+        assertTrue(max.isMax());
+
+        TramDuration notMax = TramDuration.ofSeconds(Long.MAX_VALUE-1);
+        assertFalse(notMax.isMax());
+
+        TramDuration invalid = TramDuration.getInvalid();
+        assertFalse(invalid.isValid());
+
     }
 
     @Test

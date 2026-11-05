@@ -7,7 +7,6 @@ import com.tramchester.mappers.serialisation.TramDurationSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,17 +24,17 @@ public class TramDuration implements Comparable<TramDuration> {
         ZERO = factory.fromSeconds(0);
     }
 
-    private final Duration duration;
+    private final long duration;
 
-    private TramDuration(Duration duration) {
+    private TramDuration(final long duration) {
         this.duration = duration;
     }
 
-    private static TramDuration from(Duration contained) {
-        return new TramDuration(contained);
-    }
+//    private static TramDuration from(final long duration) {
+//        return new TramDuration(duration);
+//    }
 
-    public static TramDuration ofMinutes(long minutes) {
+    public static TramDuration ofMinutes(final long minutes) {
         return factory.fromSeconds(minutes*60L);
     }
 
@@ -43,8 +42,8 @@ public class TramDuration implements Comparable<TramDuration> {
         return factory.fromSeconds(seconds);
     }
 
-    public static TramDuration ofHours(long hours) {
-        return factory.fromSeconds(hours*60*60);
+    public static TramDuration ofHours(final long hours) {
+        return factory.fromSeconds(hours*60L*60L);
     }
 
     public static TramDuration getMax() {
@@ -56,15 +55,15 @@ public class TramDuration implements Comparable<TramDuration> {
     }
 
     public long toSeconds() {
-        return duration.toSeconds();
-    }
-
-    public Duration toDuration() {
         return duration;
     }
 
+    public Duration toDuration() {
+        return Duration.ofSeconds(duration);
+    }
+
     public int getMinutesSafe() {
-        final long seconds = duration.getSeconds();
+        final long seconds = duration; //.getSeconds();
         final int mod = Math.floorMod(seconds, 60);
         if (mod!=0) {
             throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
@@ -73,16 +72,16 @@ public class TramDuration implements Comparable<TramDuration> {
     }
 
     public boolean isZero() {
-        return duration.isZero();
+        return duration==0;
     }
 
     public boolean isValid() {
-        return duration.isPositive() || duration.isZero();
+        return duration>=0;
     }
 
     @Override
     public int compareTo(@NotNull TramDuration other) {
-        return duration.compareTo(other.duration);
+        return Long.compare(duration, other.duration);
     }
 
     @Override
@@ -102,30 +101,33 @@ public class TramDuration implements Comparable<TramDuration> {
         if (!isValid()) {
             return "TramDuration{INVALID}";
         }
-        if (this==factory.getMax()) {
+        if (this.duration==Long.MAX_VALUE) {
             return "TramDuration{MAX}";
         }
         return "TramDuration{" + duration + '}';
     }
 
     public TramDuration truncateToMinutes() {
-        return new TramDuration(duration.truncatedTo(ChronoUnit.MINUTES));
+        long minutes = Math.floorDivExact(duration, 60L);
+        return ofMinutes(minutes);
+        //return new TramDuration(duration.truncatedTo(ChronoUnit.MINUTES));
     }
 
     public long toMinutes() {
-        return duration.toMinutes();
+        return Math.floorDiv(duration, 60L);
     }
 
     // MATH
 
     public TramDuration minus(final TramDuration other) {
 
-        Duration result = duration.minus(other.duration);
-        return factory.fromDuration(result);
+        //final Duration result = duration.minus(other.duration);
+        long result = duration-other.duration;
+        return factory.fromSeconds(result);
     }
 
     public TramDuration plusMinutes(final int minutes) {
-        return factory.fromDuration(duration.plusMinutes(minutes));
+        return factory.fromSeconds(duration+(60L*minutes));
     }
 
     public TramDuration plus(final TramDuration other) {
@@ -135,7 +137,7 @@ public class TramDuration implements Comparable<TramDuration> {
         if (this.isMax()) {
             throw new RuntimeException("This is Max");
         }
-        return factory.fromDuration(duration.plus(other.duration));
+        return factory.fromSeconds(duration+other.duration);
     }
 
     public boolean isMax() {
@@ -143,15 +145,17 @@ public class TramDuration implements Comparable<TramDuration> {
     }
 
     public TramDuration plusSeconds(final int seconds) {
-        return factory.fromDuration(duration.plusSeconds(seconds));
+        return factory.fromSeconds(duration+seconds);
     }
 
-    public boolean lessThan(TramDuration other) {
-        return duration.compareTo(other.duration) < 0;
+    public boolean lessThan(final TramDuration other) {
+        return duration < other.duration;
+        //return duration.compareTo(other.duration) < 0;
     }
 
-    public boolean moreThan(TramDuration other) {
-        return duration.compareTo(other.duration) > 0;
+    public boolean moreThan(final TramDuration other) {
+        return duration > other.duration;
+        //return duration.compareTo(other.duration) > 0;
     }
 
     // Factory
@@ -162,19 +166,18 @@ public class TramDuration implements Comparable<TramDuration> {
 
         private Factory() {
             secondsToDuration = new ConcurrentHashMap<>();
-            secondsToDuration.put(0L, from(Duration.ZERO));
-
+            secondsToDuration.put(0L, new TramDuration(0L));
         }
 
         public TramDuration fromSeconds(final long seconds) {
-           return secondsToDuration.computeIfAbsent(seconds, key -> from(Duration.ofSeconds(seconds)));
+           return secondsToDuration.computeIfAbsent(seconds, key -> new TramDuration(seconds));
         }
 
-        public TramDuration fromDuration(final Duration duration) {
-            final Duration actual = duration.truncatedTo(ChronoUnit.SECONDS);
-            final long seconds = actual.toSeconds();
-            return fromSeconds(seconds);
-        }
+//        public TramDuration fromDuration(final Duration duration) {
+//            final Duration actual = duration.truncatedTo(ChronoUnit.SECONDS);
+//            final long seconds = actual.toSeconds();
+//            return fromSeconds(seconds);
+//        }
 
         public TramDuration getMax() {
             return fromSeconds(Long.MAX_VALUE);
