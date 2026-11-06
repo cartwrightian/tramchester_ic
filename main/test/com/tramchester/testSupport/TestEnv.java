@@ -57,7 +57,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // summer 2026
-    public static final int NumberOfStationLinks = 222;
+    public static final int NumberOfStationLinks = 202;
 
     public static final int NumberOfRoutes = 40;
 
@@ -80,7 +80,7 @@ public class TestEnv {
             ImmutableEnumSet.of(GTFSTransportationType.tram, GTFSTransportationType.bus);
 
     // validated via TripRepositoryTest
-    public static TramTime EarliestTramTime = TramTime.of(4,51);
+    public static TramTime EarliestTramTime = TramTime.of(4,58);
 
     // TODO is this accurate?
     public static TramTime EarliestTrainTime = TramTime.of(0,1);

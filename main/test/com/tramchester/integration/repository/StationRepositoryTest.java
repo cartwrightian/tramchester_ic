@@ -117,7 +117,7 @@ public class StationRepositoryTest {
                 map(TramRouteId::getRouteName).
                 collect(Collectors.toSet());
 
-        assertEquals(4, lines.size(), lines.toString());
+        assertEquals(3, lines.size(), lines.toString());
 
         assertFalse(lines.contains(Red), "Got " + Red.getShortName() + " in " + lines);
 
@@ -178,8 +178,8 @@ public class StationRepositoryTest {
 
         assertEquals(LocationType.Station, station.getLocationType());
         assertTrue(station.servesMode(Tram));
-        // during closures
-        assertTrue(station.servesMode(TramReplacementBus));
+        // true during closures
+        assertFalse(station.servesMode(TramReplacementBus));
         assertTrue(station.isActive());
         assertFalse(station.isMarkedInterchange());
 
@@ -214,7 +214,7 @@ public class StationRepositoryTest {
 
         // platform
         assertTrue(station.hasPlatforms());
-        assertEquals(1+1, station.getPlatforms().size());
+        assertEquals(1, station.getPlatforms().size());
         final Optional<Platform> maybePlatformOne = station.getPlatforms().
                 stream().filter(platform -> platform.getId().equals(expectedId))
                 .findFirst();
@@ -308,7 +308,7 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // 1->3 closures
-        assertEquals(1+2, dropOffs.size(), dropOffs.toString());
+        assertEquals(1, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(Yellow), "Missing from " + dropOffs);
 
         Set<Route> availableDropoffs = mediaCity.getDropoffRoutes().stream().
@@ -322,7 +322,7 @@ public class StationRepositoryTest {
                 collect(Collectors.toSet());
 
         // 1->2 closures
-        assertEquals(1+2, pickUps.size(), pickUps.toString());
+        assertEquals(1, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Yellow), "Missing from " + pickUps);
 
         Set<Route> availablePickups = mediaCity.getPickupRoutes().stream().

@@ -2,6 +2,7 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.BusReplacementRepository;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(TramAppTestExtension.class)
 class StationGeographyResourceTest {
@@ -103,6 +105,9 @@ class StationGeographyResourceTest {
     @Test
     void shouldHaveExpectLinksDuringReplacementBuses() {
         String endPoint = "geo/links";
+
+        BusReplacementRepository busRepos = dependencies.get(BusReplacementRepository.class);
+        assumeTrue(busRepos.hasReplacementBuses());
 
         Response response = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, response.getStatus(), "status");

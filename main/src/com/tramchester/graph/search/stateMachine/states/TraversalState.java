@@ -1,7 +1,9 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
@@ -25,16 +27,18 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final TramDuration costForLastEdge;
     private final TramDuration parentCost;
     private final GraphNodeId graphNodeId;
+    private ImmutableEnumSet<TransportMode> requestedModes;
 
     // initial only, at beginning of search
     protected TraversalState(final TraversalStateFactory traversalStateFactory,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId,
-                             final GraphTransaction txn) {
+                             final GraphTransaction txn, ImmutableEnumSet<TransportMode> requestedModes) {
         super(stateType);
         this.txn = txn;
         this.traversalStateFactory = traversalStateFactory;
 
         this.graphNodeId = graphNodeId;
+        this.requestedModes = requestedModes;
         this.costForLastEdge = TramDuration.ZERO;
         this.parentCost = TramDuration.ZERO;
         this.outbounds = Stream.empty();
@@ -85,10 +89,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                                     final JourneyStateUpdate journeyState, final TramDuration cost,
                                     final boolean viaDiversion) {
 
-        // TODO If interchange need to check if valid for current date
-        final boolean isInterchange = originalLabels.contains(INTERCHANGE);
-        final boolean hasPlatforms = originalLabels.contains(HAS_PLATFORMS);
-
         // TODO assumption here that performance is ok as using EnumSet for these operations
         final GraphLabels otherLabels = originalLabels.without(TransportModesLabels);
 
@@ -107,9 +107,28 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                     " without modes: " + otherLabels);
         }
 
+        boolean isInterchange = originalLabels.contains(INTERCHANGE);
+
+//        if (isInterchange) {
+//            final ImmutableEnumSet<GraphLabel> labels = forModes(requestedModes);
+//            if (crossTransportOnly) {
+//                // TODO populate this efficiently
+//                originalLabels.retainAll
+//               ImmutableEnumSet<GraphLabel> nodeTransportLables = ImmutableEnumSet.noneOf(GraphLabel.class);
+//                ImmutableEnumSet<GraphLabel> otherModes = nodeTransportLables.without(labels);
+//                if (!otherModes.isEmpty()) {
+//                    isInterchange = false;
+//                }
+//            }
+//        }
+
+
+        final boolean hasPlatforms = originalLabels.contains(HAS_PLATFORMS);
+
         final TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node, journeyState);
 
-        return getTraversalState(nextType, node, journeyState, cost, isInterchange, viaDiversion);
+        boolean interchangeAvailable = isInterchange;
+        return getTraversalState(nextType, node, journeyState, cost, interchangeAvailable, viaDiversion);
 
     }
 

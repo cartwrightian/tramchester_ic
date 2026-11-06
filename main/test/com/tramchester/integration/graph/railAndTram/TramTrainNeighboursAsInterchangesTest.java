@@ -83,7 +83,7 @@ public class TramTrainNeighboursAsInterchangesTest {
     @Test
     public void shouldHaveAltrinchamTramAsMultimode() {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTram);
-        assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
         assertEquals(ImmutableEnumSet.of(Tram, TramReplacementBus, Train), interchange.getTransportModes());
     }
@@ -91,7 +91,7 @@ public class TramTrainNeighboursAsInterchangesTest {
     @Test
     public void shouldHaveAltrinchamTrainAsMultimode() {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTrain);
-        assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
         assertEquals(ImmutableEnumSet.of(Tram, TramReplacementBus, Train), interchange.getTransportModes());
     }

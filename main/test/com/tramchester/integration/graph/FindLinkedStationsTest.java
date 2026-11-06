@@ -81,7 +81,7 @@ class FindLinkedStationsTest {
 
         // only during closures
         long replacements = forTrams.stream().filter(link -> link.getLinkingModes().contains(TramReplacementBus)).count();
-        assertNotEquals(0, replacements);
+        assertEquals(0, replacements);
 
     }
 

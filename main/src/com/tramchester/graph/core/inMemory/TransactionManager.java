@@ -46,7 +46,8 @@ public class TransactionManager implements TransactionObserver {
         openTransactions.add(index);
         final Graph graph = wrapGraph(immutable);
 
-        logger.info("create mutable for id " + index);
+        final String type = immutable ? "immutable" : "mutable";
+        logger.info("create %s for id %d".formatted(type, index));
         return new GraphTransactionInMemory(index, this, graph, immutable);
     }
 
@@ -55,7 +56,8 @@ public class TransactionManager implements TransactionObserver {
         openTransactions.add(index);
         final Graph graph = wrapGraph(immutable);
 
-        logger.info("create timed for id " + index);
+        final String type = immutable ? "immutable" : "mutable";
+        logger.info("create timed %s for id %d".formatted(type, index));
         return new TimedTransactionInMemory(index, this, graph, logger, text, immutable);
     }
 

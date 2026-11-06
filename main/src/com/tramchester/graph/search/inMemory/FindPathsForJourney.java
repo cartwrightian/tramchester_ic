@@ -52,7 +52,7 @@ public class FindPathsForJourney {
 
     public Stream<GraphPath> findPaths(final TramTime actualQueryTime, final Running running, final PathRequest pathRequest) {
 
-        final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
+        final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn, pathRequest.getRequestedModes());
 
         final JourneyState journeyState = new JourneyState(actualQueryTime, initialTraversalState);
 

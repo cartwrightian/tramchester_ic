@@ -4,15 +4,23 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
+import com.tramchester.domain.places.LinkedInterchangeStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.core.inMemory.FindLinkedStationsInMemory;
+import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.Interchanges;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
@@ -20,8 +28,12 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
+import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -30,6 +42,7 @@ class InterchangesRailAndTramTest {
     private static TramchesterConfig config;
     private InterchangeRepository interchangeRepository;
     private StationRepository stationRepository;
+    private RailStationIds InferredButNotMarked = RailStationIds.EastDidsbury;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -77,16 +90,72 @@ class InterchangesRailAndTramTest {
     }
 
     @Test
-    void shouldHaveExpectedModesForNeighbourInterchangeTram() {
-        Station tramStation = TramStations.Altrincham.from(stationRepository);
-        Station railStation = RailStationIds.Altrincham.from(stationRepository);
+    void shouldHaveCorrectBehavioursForPicc() {
+        // not duplication with victoria as Picc usually added by config
+
+        Station piccadillyRail = RailStationIds.ManchesterPiccadilly.from(stationRepository);
+
+        InterchangeStation trainInterchange = interchangeRepository.getInterchange(piccadillyRail);
+
+        assertTrue(trainInterchange.isMultiMode());
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, trainInterchange.getType());
+        assertTrue(trainInterchange.isAvailableSameMode(TransportMode.TrainOnly));
+
+        Station piccadillyTram = TramStations.Piccadilly.from(stationRepository);
+
+        assertTrue(interchangeRepository.isInterchange(piccadillyTram));
+
+        InterchangeStation tramInterchange = interchangeRepository.getInterchange(piccadillyTram);
+
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, tramInterchange.getType());
+
+        FindLinkedStations findStations = componentContainer.get(FindLinkedStationsInMemory.class);
+
+        TramDate today = TramDate.of(LocalDate.now());
+        DateRange timeRange = DateRange.of(today, today.plusWeeks(Interchanges.WEEKS_AHEAD_FOR_LINKS));
+        IdSet<Station> overThreshhold = findStations.atLeastNLinkedStations(Tram, Interchanges.getLinkThreshhold(Tram), timeRange);
+        boolean isAutomaticallyExchange = overThreshhold.contains(piccadillyTram.getId());
+
+        // can be true iff Piccadilly is Id'ed automatically as an interchance
+        assertEquals(isAutomaticallyExchange, tramInterchange.isAvailableSameMode(TransportMode.TramsOnly));
+
+        assertTrue(tramInterchange.isMultiMode());
+    }
+
+    @Test
+    void shouldHaveCorrectBehavioursForVic() {
+        Station vicRail = RailStationIds.ManchesterVictoria.from(stationRepository);
+
+        InterchangeStation trainInterchange = interchangeRepository.getInterchange(vicRail);
+
+        assertTrue(trainInterchange.isMultiMode());
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, trainInterchange.getType());
+        assertTrue(trainInterchange.isAvailableSameMode(TransportMode.TrainOnly));
+
+        Station vicTram = TramStations.Victoria.from(stationRepository);
+
+        InterchangeStation tramInterchange = interchangeRepository.getInterchange(vicTram);
+
+        assertTrue(tramInterchange.isAvailableSameMode(TransportMode.TramsOnly));
+        assertTrue(tramInterchange.isMultiMode());
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, tramInterchange.getType());
+    }
+
+    @Test
+    void shouldHaveModesForNeighbourInterchangeTram() {
+        Station tramStation = TramStations.NavigationRoad.from(stationRepository);
+        Station railStation = RailStationIds.NavigationRaod.from(stationRepository);
 
         // check not being added as interchange via config or source data
         assertFalse(tramStation.isMarkedInterchange());
         assertTrue(interchangeRepository.isInterchange(tramStation));
 
         InterchangeStation tramInterchange = interchangeRepository.getInterchange(tramStation);
-        assertEquals(InterchangeType.NeighbourLinks, tramInterchange.getType());
+
+        assertFalse(tramInterchange.isAvailableSameMode(TransportMode.TramsOnly));
+        assertFalse(tramInterchange.isAvailableSameMode(TransportMode.TrainOnly));
+
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, tramInterchange.getType());
         assertTrue(tramInterchange.isMultiMode(), tramInterchange.toString());
 
         IdSet<Route> tramPickups = getIds(tramStation.getPickupRoutes());
@@ -98,6 +167,8 @@ class InterchangesRailAndTramTest {
         IdSet<Route> trainDropOffs = getIds(railStation.getDropoffRoutes());
 
         assertEquals(IdSet.union(trainDropOffs, tramDropOffs), getIds(tramInterchange.getDropoffRoutes()));
+
+        assertTrue(tramInterchange.getTransportModes().containsAll(EnumSet.of(Tram, Train)));
     }
 
     private IdSet<Route> getIds(Set<Route> pickupRoutes) {
@@ -105,18 +176,44 @@ class InterchangesRailAndTramTest {
     }
 
     @Test
-    void shouldHaveExpectedModesForNeighbourInterchangeTrain() {
-        Station tram = TramStations.Altrincham.from(stationRepository);
-        Station train = RailStationIds.Altrincham.from(stationRepository);
+    void shouldCheckTrainStationsMarkedAsInterchange() {
+        Set<Station> notMarkedInterchange = stationRepository.getStations(TrainOnly).stream().
+                filter(station -> !station.isMarkedInterchange()).
+                collect(Collectors.toSet());
 
-        // for train source dataset indicates if an interchange or not, not via config
-        //assertFalse(tram.isMarkedInterchange());
+        assertFalse(notMarkedInterchange.isEmpty());
 
+        IdSet<Station> inferredOnly = notMarkedInterchange.stream().
+                filter(notMarked -> interchangeRepository.isInterchange(notMarked)).
+                collect(IdSet.collector());
+
+        InferredButNotMarked = RailStationIds.EastDidsbury;
+        assertTrue(inferredOnly.contains(InferredButNotMarked.getId()), "Not within " + inferredOnly);
+    }
+
+    @Test
+    void shouldHaveExpectedModesForNeighbourInterchangeUnmarkedTrain() {
+
+        Station train = InferredButNotMarked.from(stationRepository);
         assertTrue(interchangeRepository.isInterchange(train));
 
-        InterchangeStation trainInterchange = interchangeRepository.getInterchange(train);
+        LinkedInterchangeStation trainInterchange = (LinkedInterchangeStation) interchangeRepository.getInterchange(train);
+        assertNotNull(trainInterchange);
 
-        assertEquals(InterchangeType.NeighbourLinks, trainInterchange.getType());
+        Station tram = TramStations.EastDidsbury.from(stationRepository);
+
+        Set<Station> allLinked = trainInterchange.getLinked();
+        assertEquals(1, allLinked.size());
+        assertTrue(allLinked.contains(tram));
+
+        // for train source dataset indicates if an interchange or not, not via config
+        assertFalse(tram.isMarkedInterchange());
+        assertFalse(train.isMarkedInterchange());
+
+        assertFalse(trainInterchange.isAvailableSameMode(TransportMode.TramsOnly));
+        assertFalse(trainInterchange.isAvailableSameMode(TransportMode.TrainOnly));
+
+        assertEquals(InterchangeType.NeighbourLinksMultimodal, trainInterchange.getType());
 
         assertTrue(trainInterchange.isMultiMode());
 
@@ -127,6 +224,22 @@ class InterchangesRailAndTramTest {
         assertEquals(IdSet.union(getIds(train.getDropoffRoutes()), getIds(tram.getDropoffRoutes())),
                 getIds(trainInterchange.getDropoffRoutes()));
 
+    }
+
+    @Test
+    void sourceDataInterchangesShouldBeSingleModeAllowed() {
+        Set<InterchangeStation> notAvailableTram = interchangeRepository.getAllInterchanges().stream().
+                filter(interchangeStation -> interchangeStation.getType() == InterchangeType.FromSourceData).
+                filter(interchangeStation -> interchangeStation.getTransportModes().contains(Tram)).
+                filter(interchangeStation -> !interchangeStation.isAvailableSameMode(TramsOnly)).
+                collect(Collectors.toSet());
+        assertTrue(notAvailableTram.isEmpty(), "unexpected " + HasId.asIds(notAvailableTram));
+
+        Set<InterchangeStation> notAvailableTrain = interchangeRepository.getAllInterchanges().stream().
+                filter(interchangeStation -> interchangeStation.getType() == InterchangeType.FromSourceData).
+                filter(interchangeStation -> !interchangeStation.isAvailableSameMode(TrainOnly)).
+                collect(Collectors.toSet());
+        assertTrue(notAvailableTrain.isEmpty(), "unexpected " + HasId.asIds(notAvailableTrain));
     }
 
     @Disabled("todo for mixed transport modes")

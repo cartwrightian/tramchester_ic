@@ -6,11 +6,20 @@ import com.tramchester.domain.reference.TransportMode;
 import java.util.EnumSet;
 
 public enum GraphLabel { //implements Label {
+    // types of node
+    PLATFORM,
+    QUERY_NODE, // created to support journeys walking from arbitrary location
+    SERVICE,
+    HOUR,
+    MINUTE,
     GROUPED,  // grouped station node
     ROUTE_STATION,
     STATION, // any station node must have this label
+
+    // station attributes
     HAS_PLATFORMS, // label added to stations iff have platforms
     INTERCHANGE, // label added to route stations if they are interchanges
+
     // transport modes - added to route stations
     TRAM,
     BUS,
@@ -20,12 +29,7 @@ public enum GraphLabel { //implements Label {
 
     HAS_DIVERSION, // impacted by a diversion
 
-    PLATFORM,
-    QUERY_NODE, // created to support journeys walking from arbitrary location
-    SERVICE,
-    HOUR,
-    MINUTE,
-    // meta labels for versions and feature flags
+    // meta labels for DB versions and feature flags
     VERSION,
     NEIGHBOURS_ENABLED,
     BOUNDS,

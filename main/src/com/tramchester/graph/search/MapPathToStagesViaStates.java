@@ -68,7 +68,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final GraphNode startOfPath = path.getStartNode(txn);
 
-        final TraversalState initial = new NotStartedState(stateFactory, startOfPath.getId(), txn);
+        final TraversalState initial = new NotStartedState(stateFactory, startOfPath.getId(), txn, journeyRequest.getRequestedModes());
 
         final PathMapper pathMapper = new PathMapper(path, txn);
 

@@ -38,7 +38,7 @@ public class TestForGraphDatabaseDependency {
                 .layer("TestSupport").definedBy("com.tramchester.testSupport")
 
                 .whereLayer("InMemory").mayOnlyBeAccessedByLayers("InMemorySearch", "Modules", "UnitTest",
-                       "InMemoryPersist", "IntegrationTestInMemory")
+                       "InMemoryPersist", "IntegrationTestInMemory", "IntegrationTest")
                 .whereLayer("InMemoryPersist").mayOnlyBeAccessedByLayers("InMemory", "Core", "IntegrationTest", "UnitTestInMemory")
                 .whereLayer("Core").mayOnlyBeAccessedByLayers("Graph", "Caches", "Search",
                         "Build", "StateMachine", "Diag", "DBMgmt", "Resources", "DTODiag", "Healthchecks",

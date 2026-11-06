@@ -76,6 +76,11 @@ public class SimpleInterchangeStation implements InterchangeStation {
     }
 
     @Override
+    public boolean isAvailableSameMode(final ImmutableEnumSet<TransportMode> requested) {
+        return station.getTransportModes().anyIntersectionWith(requested);
+    }
+
+    @Override
     public Set<Station> getAllStations() {
         return Collections.singleton(station);
     }

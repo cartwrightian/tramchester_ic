@@ -6,6 +6,8 @@ import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.repository.Interchanges;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -24,16 +26,24 @@ public class LinkedInterchangeStation implements InterchangeStation {
     private final Set<StationToStationConnection> links;
     private final Station origin;
     private final EnumSet<TransportMode> allModes;
+    private final ImmutableEnumSet<TransportMode> sameModeChangeOverride;
+
+    private LinkedInterchangeStation(final StationToStationConnection stationLink, final ImmutableEnumSet<TransportMode> sameModeChangeOverride) {
+        this.origin = stationLink.getBegin();
+
+        this.links = new HashSet<>();
+        this.allModes = EnumSet.noneOf(TransportMode.class);
+        this.sameModeChangeOverride = sameModeChangeOverride;
+
+        addLink(stationLink);
+    }
 
     public LinkedInterchangeStation(final StationToStationConnection stationLink) {
-        origin = stationLink.getBegin();
+        this(stationLink, ImmutableEnumSet.noneOf(TransportMode.class));
+    }
 
-        links = new HashSet<>();
-        links.add(stationLink);
-        final Set<TransportMode> collectedModes = links.stream().
-                flatMap(links -> links.getContainedModes().stream()).
-                collect(Collectors.toSet());
-        this.allModes = EnumSet.copyOf(collectedModes);
+    public LinkedInterchangeStation(InterchangeStation existing, StationToStationConnection stationLink) {
+        this(stationLink, existing.getTransportModes());
     }
 
     public void addLink(final StationToStationConnection stationLink) {
@@ -87,7 +97,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
 
     @Override
     public InterchangeType getType() {
-        return InterchangeType.NeighbourLinks;
+        return (allModes.size() > 1) ? InterchangeType.NeighbourLinksMultimodal : InterchangeType.NeighbourLinksSingleMode;
     }
 
     @Override
@@ -98,6 +108,23 @@ public class LinkedInterchangeStation implements InterchangeStation {
     @Override
     public LocationId<?> getLocationId() {
         return origin.getLocationId();
+    }
+
+    @Override
+    public boolean isAvailableSameMode(final ImmutableEnumSet<TransportMode> modes) {
+        if (sameModeChangeOverride.anyIntersectionWith(modes)) {
+            return true;
+        }
+
+        // enough links of the same mode over threshold
+        // TODO could be pre-calculated if causes performance issue
+       return modes.stream().
+               map(mode -> Pair.of(mode, linksWithMode(mode))).
+               anyMatch(pair -> pair.getValue() >= Interchanges.getLinkThreshhold(pair.getKey()));
+    }
+
+    private long linksWithMode(TransportMode mode) {
+        return links.stream().filter(link -> link.getContainedModes().contains(mode)).count();
     }
 
     @Override

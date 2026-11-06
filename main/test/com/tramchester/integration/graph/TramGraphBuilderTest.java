@@ -215,7 +215,7 @@ class TramGraphBuilderTest {
         List<GraphRelationship> list = outboundLinks.toList();
 
         // replacement buses
-        assertEquals(1+2, list.size(), list.toString());
+        assertEquals(1, list.size(), list.toString());
 
         IdSet<Station> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -223,7 +223,8 @@ class TramGraphBuilderTest {
 
         assertTrue(destinations.contains(NavigationRoad.getId()), "not found in destinations " + destinations);
 
-        assertTrue(destinations.contains(Piccadilly.getId()), "not found in destinations " + destinations);
+        // was replacement bus
+        //assertTrue(destinations.contains(Piccadilly.getId()), "not found in destinations " + destinations);
 
     }
 
@@ -806,13 +807,13 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> largest = findLargest.get();
 
-        assertEquals(2062, largest.size());
+        assertEquals(1673, largest.size());
 
         RouteStationId routeStationId = (RouteStationId) largest.getFirst().getEndNode(txn).getRouteStationId();
 
         // this can change, depending on timetable and closures
-        assertEquals(MarketStreet.getId(), routeStationId.getStationId());
-        assertEquals(TFGMRouteNames.Blue, ((TramRouteId)routeStationId.getRouteId()).getRouteName());
+        assertEquals(Cornbrook.getId(), routeStationId.getStationId());
+        assertEquals(Yellow, ((TramRouteId)routeStationId.getRouteId()).getRouteName());
 
         IdSet<Trip> incomingTimes = largest.stream().
                 map(rel -> rel.getStartNode(txn)).

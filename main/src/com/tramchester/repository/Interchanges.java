@@ -78,10 +78,10 @@ public class Interchanges implements InterchangeRepository {
         /// NOTE: started after station & links built in DB but before full graph build
         final ImmutableEnumSet<TransportMode> enabledModes = config.getTransportModesImmutable();
 
-        TramDate today = providesLocalNow.getTramDate();
-        DateRange dateRange = DateRange.of(today, today.plusWeeks(WEEKS_AHEAD_FOR_LINKS));
+        final TramDate today = providesLocalNow.getTramDate();
+        final DateRange dateRange = DateRange.of(today, today.plusWeeks(WEEKS_AHEAD_FOR_LINKS));
 
-        logger.info("Starting for " + enabledModes);
+        logger.info("Starting for %s for range %s".formatted(enabledModes, dateRange));
 
         enabledModes.forEach(this::addMarkedStations);
 
@@ -91,6 +91,7 @@ public class Interchanges implements InterchangeRepository {
         });
 
         addAdditionalInterchanges(config.getGtfsSourceConfig());
+
         addMultiModeStations();
 
         // Need to do this last, as checking if one of the neighbours is an interchange is required
@@ -109,31 +110,28 @@ public class Interchanges implements InterchangeRepository {
             // TODO
             throw new RuntimeException("TODO - not defined yet when neighbours can be same transport mode");
         }
-        Set<StationToStationConnection> neighbours = neighboursRepository.getAll();
-        int before = interchanges.size();
+        final Set<StationToStationConnection> neighbours = neighboursRepository.getAll();
+        final int before = interchanges.size();
 
         neighbours.forEach(stationLink -> {
                     final IdFor<Station> beginId = stationLink.getBegin().getId();
 
                     if (interchanges.containsKey(beginId)) {
                         final InterchangeStation existing = interchanges.get(beginId);
-                        if (existing.getType()==InterchangeType.NeighbourLinks) {
-                            final LinkedInterchangeStation multiInterchangeStation = (LinkedInterchangeStation) existing;
-                            logger.info(format("Updating an existing multiple link interchange %s with %s", multiInterchangeStation, stationLink));
-                            multiInterchangeStation.addLink(stationLink);
-                        } else {
-                            // replace an existing simple interchange, as the start station of link will be same will
-                            // contain same dropoffs and pickups as one it is replacing
-                            final LinkedInterchangeStation multiInterchangeStation = new LinkedInterchangeStation(stationLink);
-                            logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing.getId(),
-                                    multiInterchangeStation.getId()));
-                            interchanges.put(beginId, multiInterchangeStation);
+                        switch (existing.getType()) {
+                            case NeighbourLinksMultimodal, NeighbourLinksSingleMode: {
+                                updateExisting(stationLink, (LinkedInterchangeStation) existing);
+                            }
+                            default: {
+                                replaceExistingWithLinked(stationLink, existing, beginId);
+                            }
                         }
-                    } else {
+                    } else { // new interchange
                         final LinkedInterchangeStation interchangeStation = new LinkedInterchangeStation(stationLink);
                         interchanges.put(beginId, interchangeStation);
                     }
             });
+
         final int count = interchanges.size() - before;
         final String msg = "Added " + count + " interchanges from multi-modal neighbours";
         if (count == 0) {
@@ -141,6 +139,20 @@ public class Interchanges implements InterchangeRepository {
         } else {
             logger.info(msg);
         }
+    }
+
+    private static void updateExisting(StationToStationConnection stationLink, LinkedInterchangeStation existing) {
+        logger.info(format("Updating an existing multiple link interchange %s with %s", existing, stationLink));
+        existing.addLink(stationLink);
+    }
+
+    private void replaceExistingWithLinked(StationToStationConnection stationLink, InterchangeStation existing, IdFor<Station> beginId) {
+        // replace an existing simple interchange, as the start station of link will be same will
+        // contain same dropoffs and pickups as one it is replacing
+        final LinkedInterchangeStation multiInterchangeStation = new LinkedInterchangeStation(existing, stationLink);
+        logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing.getId(),
+                multiInterchangeStation.getId()));
+        interchanges.put(beginId, multiInterchangeStation);
     }
 
     private boolean discoveryEnabled(final TransportMode mode) {
@@ -172,7 +184,7 @@ public class Interchanges implements InterchangeRepository {
     }
 
     private void addMarkedStations(final TransportMode mode) {
-        logger.info("Adding stations marked as interchanges");
+        //logger.info("Adding stations marked as interchanges");
         final Set<Station> markedAsInterchange = stationRepository.getStationsServing(mode).stream().
                 filter(Station::isMarkedInterchange).
                 collect(Collectors.toSet());

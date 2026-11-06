@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
+import static com.tramchester.domain.reference.TransportMode.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -129,6 +130,15 @@ public class InterchangesTramTest {
                 collect(Collectors.toSet());
 
         assertTrue(unexpected.isEmpty(), "Unexpected " + HasId.asIds(unexpected));
+    }
+
+    @Test
+    void numberOfLinkInterchangesShouldBeSingleModeAllowed() {
+        Set<InterchangeStation> notAvailable = interchangeRepository.getAllInterchanges().stream().
+                filter(interchangeStation -> interchangeStation.getType() == InterchangeType.NumberOfLinks).
+                filter(interchangeStation -> !interchangeStation.isAvailableSameMode(TramsOnly)).
+                collect(Collectors.toSet());
+        assertTrue(notAvailable.isEmpty(), "unexpected " + HasId.asIds(notAvailable));
     }
 
     @Test

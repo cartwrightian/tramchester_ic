@@ -152,7 +152,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
-        return new NotStartedState(traversalStateFactory, startNodeId, txn);
+        return new NotStartedState(traversalStateFactory, startNodeId, txn, TransportMode.TramsOnly);
     }
 
     @NotNull

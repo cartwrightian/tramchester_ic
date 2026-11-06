@@ -64,7 +64,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         GraphNodeId startNodeId =  createMock(GraphNodeId.class);
 
-        traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);
+        traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn, TransportMode.TramsOnly);
     }
 
     @Test
