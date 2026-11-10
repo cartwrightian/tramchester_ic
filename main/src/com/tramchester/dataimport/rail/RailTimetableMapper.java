@@ -40,8 +40,6 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.DataSourceID.openRailData;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
-import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
-import static com.tramchester.domain.reference.TransportMode.Train;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoField.*;
 
@@ -307,7 +305,7 @@ public class RailTimetableMapper {
 
             // route ID uses "national" ids, so without calling points filtered to be within bounds
             // this is so routes that start and/or finish out-of-bounds are named correctly
-            final RailRouteId routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
+            final RailRouteId routeId = railRouteIdRepository.getRouteIdFor(agencyId, mode, allCalledAtStations);
 
             final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay, openRailData);
             final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, allCalledAtStations);
@@ -552,26 +550,17 @@ public class RailTimetableMapper {
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
-                if (!matchingTransportModes(route, mode)) {
-                    String msg = String.format("Got route %s wrong TransportMode (%s) route had: %s\nSchedule: %s\nExtraDetails: %s",
+                if (mode!=route.getTransportMode()) {
+                    String msg = String.format("For %s wrong %s route had: %s\nSchedule: %s\nExtraDetails: %s",
                             routeId, mode, route.getTransportMode(), rawService.basicScheduleRecord, rawService.extraDetails);
                     logger.error(msg);
                     throw new RuntimeException(msg);
                 }
             } else {
-                // note:create RailReplacementBus routes as Train
-                final TransportMode actualMode = (mode==RailReplacementBus) ? Train : mode;
-                route = new MutableRailRoute(routeId, allCallingPoints, agency, actualMode);
+                route = new MutableRailRoute(routeId, allCallingPoints, agency, mode);
                 container.addRoute(route);
             }
             return route;
-        }
-
-        private boolean matchingTransportModes(final Route route, final TransportMode mode) {
-            if (route.getTransportMode()==Train) {
-                return mode==RailReplacementBus || mode==Train;
-            }
-            return route.getTransportMode()==mode;
         }
 
         private List<Station> getRouteStationCallingPoints(final RawService rawService) {

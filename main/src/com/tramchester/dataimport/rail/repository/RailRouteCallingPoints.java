@@ -4,6 +4,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -14,15 +15,17 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
     private final IdFor<Agency> agencyId;
     private final List<IdFor<Station>> callingPoints;
     private final StationIdPair beginEnd;
+    private final TransportMode mode;
 
-    public RailRouteCallingPoints(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints) {
-        this(agencyId, callingPoints, findBeginAndEnd(callingPoints));
+    public RailRouteCallingPoints(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints, TransportMode mode) {
+        this(agencyId, callingPoints, findBeginAndEnd(callingPoints), mode);
     }
 
-    private RailRouteCallingPoints(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints, StationIdPair beginEnd) {
+    private RailRouteCallingPoints(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints, StationIdPair beginEnd, TransportMode mode) {
         this.agencyId = agencyId;
         this.callingPoints = callingPoints;
         this.beginEnd = beginEnd;
+        this.mode = mode;
     }
 
     public IdFor<Agency> getAgencyId() {
@@ -57,6 +60,10 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
             return false;
         }
 
+        if (!mode.equals(other.mode)) {
+            return false;
+        }
+
         final int otherSize = other.numberCallingPoints();
         final int size = numberCallingPoints();
 
@@ -82,23 +89,24 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RailRouteCallingPoints that = (RailRouteCallingPoints) o;
-        return agencyId.equals(that.agencyId) && callingPoints.equals(that.callingPoints) && beginEnd.equals(that.beginEnd);
+        return Objects.equals(agencyId, that.agencyId) && Objects.equals(callingPoints, that.callingPoints)
+                && Objects.equals(beginEnd, that.beginEnd) && mode == that.mode;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(agencyId, callingPoints, beginEnd);
+        return Objects.hash(agencyId, callingPoints, beginEnd, mode);
     }
 
     @Override
     public String toString() {
-        return "AgencyCallingPoints{" +
+        return "RailRouteCallingPoints{" +
                 "agencyId=" + agencyId +
                 ", callingPoints=" + callingPoints +
                 ", beginEnd=" + beginEnd +
+                ", mode=" + mode +
                 '}';
     }
 
@@ -107,12 +115,17 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
     }
 
     @Override
-    public int compareTo(@NotNull RailRouteCallingPoints other) {
+    public int compareTo(@NotNull final RailRouteCallingPoints other) {
         if (!other.agencyId.equals(agencyId)) {
             throw new RuntimeException("Undefined when agency is different, got " + agencyId + " and " + other.agencyId);
         }
+        // enum ordering here
+        final int compareMode = Integer.compare(mode.ordinal(), other.mode.ordinal());
+        if (compareMode!=0) {
+            return compareMode;
+        }
         // longer first
-        int compareSize = Integer.compare(other.numberCallingPoints(), numberCallingPoints());
+        final int compareSize = Integer.compare(other.numberCallingPoints(), numberCallingPoints());
         if (compareSize!=0) {
             return compareSize;
         }
@@ -135,5 +148,9 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
             }
         }
         return 0;
+    }
+
+    public TransportMode getMode() {
+        return mode;
     }
 }

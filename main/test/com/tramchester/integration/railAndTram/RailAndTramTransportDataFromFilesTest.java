@@ -307,13 +307,18 @@ public class RailAndTramTransportDataFromFilesTest {
                 filter(route -> route.getEnd().getId().equals(endId)).
                 collect(Collectors.toSet());
 
-        assertEquals(2, routes.size(), HasId.asIds(routes));
+        assertEquals(4, routes.size(), HasId.asIds(routes));
 
         Set<String> agencies = routes.stream().map(route -> route.getAgency().getName()).collect(Collectors.toSet());
 
         assertEquals(2, agencies.size(), agencies.toString());
         assertTrue(agencies.contains(TrainOperatingCompanies.TP.getCompanyName()));
         assertTrue(agencies.contains(NT.getCompanyName()));
+
+        Set<TransportMode> modes = routes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
+        assertEquals(2, modes.size());
+        assertTrue(modes.contains(Train));
+        assertTrue(modes.contains(RailReplacementBus));
     }
 
     @Test
@@ -329,20 +334,6 @@ public class RailAndTramTransportDataFromFilesTest {
                 collect(Collectors.joining());
 
         assertTrue(badTimings.isEmpty(), diagnostics);
-    }
-
-    @Test
-    void shouldNotHaveRailReplacementBusAsTransportModeForRoutesShouldBeTrain() {
-       transportData.getRoutes().forEach(route ->
-               assertNotEquals(TransportMode.RailReplacementBus, route.getTransportMode(),
-                       "route should be rail " +route));
-    }
-
-    @Test
-    void shouldHaveSomeRailRoutesThatContainTripsWithRailReplacementBusTransportMode() {
-        assertTrue(transportData.getRoutes().stream().
-                filter(route -> route.getTransportMode()==Train).
-                anyMatch(route -> route.getTrips().stream().anyMatch(trip -> trip.getTransportMode()==RailReplacementBus)));
     }
 
     private boolean matches(IdFor<Station> firstId, IdFor<Station> secondId, Trip trip) {

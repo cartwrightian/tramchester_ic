@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 586;
+    public static final int ALL_GM_ROUTES = 611;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 
@@ -78,21 +78,21 @@ public class RailAndTramRouteRepositoryTest {
                 filter(route -> beginsAtAndCallsAt(route, ManchesterPiccadilly.getId(), Stockport.getId())).
                 collect(Collectors.toList());
 
-        assertEquals(55-1, result.size(), HasId.asIds(result));
+        assertEquals(55+1, result.size(), HasId.asIds(result));
     }
 
     @Test
     void shouldHaveExpectedNumberOfReplacementBusesRunning() {
         TramDate when = TestEnv.testDay();
         Set<Route> byMode = routeRepository.getRoutesRunningOn(when, RailReplacementBus.singleton());
-        assertEquals(0, byMode.size());
+        assertEquals(13, byMode.size());
     }
 
     @Test
     void shouldHaveExpectedNumberOfReplacementBusesRunningToday() {
         TramDate date = TramDate.of(LocalDate.now());
         Set<Route> byMode = routeRepository.getRoutesRunningOn(date, RailReplacementBus.singleton());
-        assertEquals(0, byMode.size());
+        assertEquals(13, byMode.size());
     }
 
     @Test

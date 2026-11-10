@@ -1,14 +1,13 @@
 package com.tramchester.dataimport.rail;
 
-import com.tramchester.dataimport.rail.records.BasicScheduleExtraDetails;
-import com.tramchester.dataimport.rail.records.RailLocationRecord;
-import com.tramchester.dataimport.rail.records.RailTimetableRecord;
-import com.tramchester.dataimport.rail.records.TIPLOCInsert;
+import com.tramchester.dataimport.rail.records.*;
+import com.tramchester.dataimport.rail.records.reference.ShortTermPlanIndicator;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +24,17 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
     private static final Logger logger = LoggerFactory.getLogger(ExtractAgencyCallingPointsFromLocationRecords.class);
 
     private final RailStationRecordsRepository stationRecordsRepository;
-    private String currentAtocCode;
     private final List<RailLocationRecord> locations;
     // List not Set, need consistent ordering
     private final List<RailRouteCallingPoints> agencyCallingPoints;
 
+    private String currentAtocCode;
+    private TransportMode transportMode;
+
     public ExtractAgencyCallingPointsFromLocationRecords(RailStationRecordsRepository stationRecordsRepository) {
         this.stationRecordsRepository = stationRecordsRepository;
         currentAtocCode = "";
+        transportMode = TransportMode.Unknown;
         agencyCallingPoints = new ArrayList<>();
         locations = new ArrayList<>();
     }
@@ -52,10 +54,20 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
     private void processRecord(final RailTimetableRecord record) {
         switch (record.getRecordType()) {
+            case BasicSchedule -> seenBasicSchedule(record);
             case BasicScheduleExtra -> seenBegin(record);
-            case TerminatingLocation -> seenEnd(record);
             case OriginLocation, IntermediateLocation -> seenLocation(record);
+            case TerminatingLocation -> seenEnd(record);
             case TiplocInsert -> stationRecordsRepository.add((TIPLOCInsert) record);
+        }
+    }
+
+    private void seenBasicSchedule(final RailTimetableRecord record) {
+        final BasicSchedule basicSchedule = (BasicSchedule) record;
+        if (basicSchedule.getSTPIndicator()!= ShortTermPlanIndicator.Cancellation) {
+            transportMode = RailTransportModeMapper.getModeFor(basicSchedule);
+        } else {
+            transportMode = TransportMode.Unknown;
         }
     }
 
@@ -70,9 +82,7 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
 
     private void seenLocation(final RailTimetableRecord record) {
         final RailLocationRecord locationRecord = (RailLocationRecord) record;
-//        if (LocationActivityCode.doesStop(locationRecord.getActivity())) {
-//            locations.add(locationRecord);
-//        }
+
         if (locationRecord.doesStop()) {
             locations.add(locationRecord);
         }
@@ -83,6 +93,7 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
         locations.add(locationRecord);
         createAgencyCallingPoints();
         currentAtocCode = "";
+        transportMode = TransportMode.Unknown;
         locations.clear();
     }
 
@@ -90,6 +101,10 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
         final String atocCode = currentAtocCode;
 
         final IdFor<Agency> agencyId = Agency.createId(atocCode);
+
+        if (transportMode==TransportMode.Unknown) {
+            throw new RuntimeException("Unknown mode");
+        }
 
         List<IdFor<Station>> callingPoints = locations.stream().
                 filter(RailLocationRecord::doesStop).
@@ -99,7 +114,7 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
                 collect(Collectors.toList());
 
         if (callingPoints.size()>1) {
-            agencyCallingPoints.add(new RailRouteCallingPoints(agencyId, callingPoints));
+            agencyCallingPoints.add(new RailRouteCallingPoints(agencyId, callingPoints, transportMode));
         }
 
     }

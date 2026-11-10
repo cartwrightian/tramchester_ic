@@ -39,8 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Train;
-import static com.tramchester.domain.reference.TransportMode.TrainOnly;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -149,7 +148,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
     void shouldHaveSameSizeInRepositoryAndRouteIndex() {
         long inRepository = new HashSet<>(routeRepository.getRoutes(TrainOnly)).size();
 
-        long inIndex = routeIndex.sizeFor(Train);
+        long inIndex = routeIndex.sizeFor(Train) + routeIndex.sizeFor(RailReplacementBus);
 
         assertEquals(inRepository, inIndex);
     }

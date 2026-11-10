@@ -21,7 +21,7 @@ public class TerminatingLocation extends OriginOrTerminatingLocation implements 
 
     private final String path;
 
-    protected TerminatingLocation(final String tiplocCode, final TramTime publicDeptTime, final String platform, final String path,
+    public TerminatingLocation(final String tiplocCode, final TramTime publicDeptTime, final String platform, final String path,
                                   final ImmutableEnumSet<LocationActivityCode> activity) {
         super(tiplocCode, publicDeptTime, platform, activity);
         this.path = path;

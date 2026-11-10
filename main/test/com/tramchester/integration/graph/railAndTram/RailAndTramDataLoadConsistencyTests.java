@@ -130,6 +130,8 @@ public class RailAndTramDataLoadConsistencyTests {
         GuiceContainerDependencies componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
+        TransportMode mode = Train;
+
         final IdFor<Agency> agencyId = TP.getAgencyId();
 
         for (int i = 0; i < 10; i++) {
@@ -142,8 +144,8 @@ public class RailAndTramDataLoadConsistencyTests {
             final RailRouteIds railRouteIdRepository = componentContainer.get(RailRouteIds.class);
             final RailStationRecordsRepository stationRepository = componentContainer.get(RailStationRecordsRepository.class);
 
-            RailRouteId idB = railRouteIdRepository.getRouteIdFor(agencyId, getStatonsFor(idsB, stationRepository));
-            RailRouteId idA = railRouteIdRepository.getRouteIdFor(agencyId, getStatonsFor(idsA, stationRepository));
+            RailRouteId idB = railRouteIdRepository.getRouteIdFor(agencyId, mode, getStatonsFor(idsB, stationRepository));
+            RailRouteId idA = railRouteIdRepository.getRouteIdFor(agencyId, mode, getStatonsFor(idsA, stationRepository));
 
             assertNotEquals(idA, idB);
             assertEquals(Route.createBasicRouteId("MNCRIAP:SBRN=>TP:3"), idA);

@@ -14,6 +14,7 @@ import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ReportsCacheStats;
 import jakarta.inject.Inject;
@@ -126,15 +127,16 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
     /***
      * Only use during rail data import, use RouteRepository otherwise
      * @param agencyId agency id for this rail route
+     * @param mode for the route
      * @param callingStations stations this route calls at
-     * @return the MutableRoute to use
+     * @return the RailRouteId that matches
      */
     @Override
-    public RailRouteId getRouteIdFor(final IdFor<Agency> agencyId, final List<Station> callingStations) {
+    public RailRouteId getRouteIdFor(final IdFor<Agency> agencyId, TransportMode mode, final List<Station> callingStations) {
         // to a list, order matters
         final List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
 
-        final RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds);
+        final RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds, mode);
         return cachedIds.get(agencyCallingPoints, unused -> getRouteId(agencyCallingPoints));
     }
 
@@ -147,9 +149,9 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
     }
 
     /** test support **/
-    public RailRouteId getRouteIdUncached(final IdFor<Agency> agencyId, final List<Station> callingStations) {
+    public RailRouteId getRouteIdUncached(final IdFor<Agency> agencyId, TransportMode mode, final List<Station> callingStations) {
         final List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
-        final RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds);
+        final RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds, mode);
         return getRouteId(agencyCallingPoints);
     }
 
@@ -274,8 +276,8 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
             return callingPoints.numberCallingPoints();
         }
 
-        public List<IdFor<Station>> getCallingPoints() {
-            return callingPoints.getCallingPoints();
+        public RailRouteCallingPoints getCallingPoints() {
+            return callingPoints;
         }
     }
 }

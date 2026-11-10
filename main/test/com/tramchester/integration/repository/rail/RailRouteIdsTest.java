@@ -19,6 +19,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.OnlyIfModesExact;
@@ -98,8 +99,8 @@ public class RailRouteIdsTest {
                 "DWBY","LEEDS",
                 "YORK","THIRSK","NLRTN","YAAM","TABY","MDLSBRO","REDCARC","SBRN"));
 
-        RailRouteId idA = railRouteIdRepository.getRouteId(new RailRouteCallingPoints(TP.getAgencyId(), idsA));
-        RailRouteId idB = railRouteIdRepository.getRouteId(new RailRouteCallingPoints(TP.getAgencyId(), idsB));
+        RailRouteId idA = railRouteIdRepository.getRouteId(new RailRouteCallingPoints(TP.getAgencyId(), idsA, Train));
+        RailRouteId idB = railRouteIdRepository.getRouteId(new RailRouteCallingPoints(TP.getAgencyId(), idsB, Train));
 
         assertNotEquals(idA, idB);
         assertEquals(idA.getAgencyId(), idB.getAgencyId());
@@ -120,15 +121,17 @@ public class RailRouteIdsTest {
     @OnlyIfModesExact({Train, RailReplacementBus})
     void shouldHaveDiffRouteIdsForMaccAndWilmslowRoutes() {
 
+        TransportMode mode = Train;
+
         List<Station> fromManchesterViaWilmslow = getStations(ManchesterPiccadilly, Stockport,
                 Wilmslow, Crewe, LondonEuston);
 
-        IdFor<Route> viaWilmslow = railRouteIdRepository.getRouteIdUncached(agencyId, fromManchesterViaWilmslow);
+        IdFor<Route> viaWilmslow = railRouteIdRepository.getRouteIdUncached(agencyId, mode, fromManchesterViaWilmslow);
 
         List<Station> fromManchesterViaMacc = getStations(ManchesterPiccadilly, Stockport,
                 Macclesfield, StokeOnTrent, LondonEuston);
 
-        IdFor<Route> viaMacc = railRouteIdRepository.getRouteIdUncached(agencyId, fromManchesterViaMacc);
+        IdFor<Route> viaMacc = railRouteIdRepository.getRouteIdUncached(agencyId, mode, fromManchesterViaMacc);
 
         assertNotEquals(viaWilmslow, viaMacc);
     }
@@ -137,51 +140,23 @@ public class RailRouteIdsTest {
     @OnlyIfModesExact({Train, RailReplacementBus})
     void shouldHaveLondonToManchesterWhereOneRouteIsSubsetOfOther() {
 
+        TransportMode mode = Train;
+
         List<Station> fromManchester = getStations(ManchesterPiccadilly, Stockport, Wilmslow, Crewe, LondonEuston);
 
-        IdFor<Route> routeIdA = railRouteIdRepository.getRouteIdFor(agencyId, fromManchester);
+        IdFor<Route> routeIdA = railRouteIdRepository.getRouteIdFor(agencyId, mode, fromManchester);
 
         List<Station> fromManchesterWithoutCrewe = getStations(ManchesterPiccadilly, Stockport, Wilmslow, LondonEuston);
 
-        IdFor<Route> routeIdB = railRouteIdRepository.getRouteIdFor(agencyId, fromManchesterWithoutCrewe);
+        IdFor<Route> routeIdB = railRouteIdRepository.getRouteIdFor(agencyId, mode, fromManchesterWithoutCrewe);
 
         assertEquals(routeIdA, routeIdB);
     }
 
     @Test
-    void shouldHaveContainsForAgencyCallingPoints() {
-
-        List<IdFor<Station>> idListA = LONGEST_VIA_STOKE.stream().map(Station::createId).collect(Collectors.toList());
-
-        RailRouteCallingPoints callingA = new RailRouteCallingPoints(agencyId, idListA);
-
-        assertTrue(callingA.contains(callingA));
-
-        List<IdFor<Station>> idListB = getStationIds(ManchesterPiccadilly, Stockport, Crewe, LondonEuston);
-        RailRouteCallingPoints callingB = new RailRouteCallingPoints(agencyId, idListB);
-
-        assertFalse(callingA.contains(callingB));
-        assertFalse(callingB.contains(callingA));
-
-        List<IdFor<Station>> idListC = getStationIds(ManchesterPiccadilly, Stockport, LondonEuston);
-        RailRouteCallingPoints callingC = new RailRouteCallingPoints(agencyId, idListC);
-
-        assertTrue(callingA.contains(callingC));
-        assertFalse(callingC.contains(callingA));
-        assertFalse(callingC.contains(callingB));
-
-        List<IdFor<Station>> idListD = getStationIds(ManchesterPiccadilly, Stockport, Macclesfield, StokeOnTrent, LondonEuston);
-        RailRouteCallingPoints callingD = new RailRouteCallingPoints(agencyId, idListD);
-
-        assertTrue(callingA.contains(callingD));
-        assertTrue(callingD.contains(callingC));
-        assertFalse(callingD.contains(callingB));
-
-    }
-
-    @Test
     @OnlyIfModesExact({Train, RailReplacementBus})
     void shouldHaveLongestRouteAndSubsetsWithSameId() {
+        TransportMode mode = Train;
 
         StationIdPair beginEnd = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
 
@@ -195,7 +170,7 @@ public class RailRouteIdsTest {
         RailRouteIds.RailRouteCallingPointsWithRouteId longest = findLongest.get();
         IdFor<Route> routeIdForLongest = longest.getRouteId();
 
-        IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, getStations(ManchesterPiccadilly,
+        IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, mode, getStations(ManchesterPiccadilly,
                 Stockport, Wilmslow, Crewe, Stafford, LondonEuston));
 
         assertEquals(routeIdForLongest, routeIdForShorter, "Not Matching route " + longest);
@@ -217,6 +192,7 @@ public class RailRouteIdsTest {
     @Test
     void shouldHaveConsistencyInIndexingOfRoutes() {
         final IdFor<Agency> agencyId = TP.getAgencyId();
+        TransportMode mode = Train;
 
         final Set<RailRouteIds.RailRouteCallingPointsWithRouteId> allForTP = railRouteIdRepository.getCallingPointsFor(agencyId);
 
@@ -227,7 +203,7 @@ public class RailRouteIdsTest {
 
         assertFalse(allTPCalingPoints.isEmpty());
 
-        final Map<IdFor<Route>, List<IdFor<Station>>> originalIds = new HashMap<>();
+        final Map<IdFor<Route>, RailRouteCallingPoints> originalIds = new HashMap<>();
         allTPCalingPoints.forEach(callingPoints -> originalIds.put(callingPoints.getRouteId(), callingPoints.getCallingPoints()));
 
         final RailRouteIDBuilder railRouteIDBuilder = componentContainer.get(RailRouteIDBuilder.class);
@@ -236,10 +212,11 @@ public class RailRouteIdsTest {
 
         final Set<List<IdFor<Station>>> callingStationsForTPs = allTPCalingPoints.stream().
                 map(RailRouteIds.RailRouteCallingPointsWithRouteId::getCallingPoints).
+                map(RailRouteCallingPoints::getCallingPoints).
                 collect(Collectors.toSet());
 
         final List<RailRouteCallingPoints> railCallingPoints = callingStationsForTPs.stream().
-                map(stations -> new RailRouteCallingPoints(agencyId, stations)).toList();
+                map(stations -> new RailRouteCallingPoints(agencyId, stations, mode)).toList();
 
         // now create id's afresh and check get same callingPoints and routeIds
 
@@ -247,7 +224,7 @@ public class RailRouteIdsTest {
             final Set<RailRouteIds.RailRouteCallingPointsWithRouteId> rawIds =
                     railRouteIDBuilder.getRouteIdsFor(agencyId, railCallingPoints.stream());
 
-            final Map<IdFor<Route>, List<IdFor<Station>>> recreatedIds = new HashMap<>();
+            final Map<IdFor<Route>, RailRouteCallingPoints> recreatedIds = new HashMap<>();
             rawIds.forEach(callingPoints -> recreatedIds.put(callingPoints.getRouteId(), callingPoints.getCallingPoints()));
 
             assertEquals(originalIds, recreatedIds);
@@ -296,10 +273,6 @@ public class RailRouteIdsTest {
         final TransportDataContainer contained = new TransportDataContainer(providesNow, first_load);
         loadFromFiles.loadInto(contained);
         return contained.getRouteStations();
-    }
-
-    private List<IdFor<Station>> getStationIds(RailStationIds... railStationIds) {
-        return Arrays.stream(railStationIds).map(RailStationIds::getId).collect(Collectors.toList());
     }
 
     private List<Station> getStations(RailStationIds... railStationsIds) {

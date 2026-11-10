@@ -28,12 +28,14 @@ public class RailHeadsignFactory {
     public String getFor(final TransportStage<?, ?> source) {
         final Route route = source.getRoute();
 
+        // TODO Needs to Include Replacement Bus Services
         if (route.getTransportMode() != TransportMode.Train) {
             throw new RuntimeException("Train stages only!");
         }
 
         final Agency agency = route.getAgency();
 
+        // TODO needs to include Mode
         final RailRouteIds.RailRouteCallingPointsWithRouteId railCallingPoints = railRouteIdRepository.find(agency.getId(), route.getId());
 
         final IdFor<Station> endId = railCallingPoints.getBeginEnd().getEndId();

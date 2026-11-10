@@ -7,6 +7,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,9 @@ public class RailRouteIdBuilderTest {
 
         List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
-        RailRouteCallingPoints railRouteA = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
+        RailRouteCallingPoints railRouteA = formRailRoute(agencyId, TransportMode.Train,
+                ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
+
         agencyCallingPoints.add(railRouteA);
 
         Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints.stream());
@@ -48,14 +51,34 @@ public class RailRouteIdBuilderTest {
     }
 
     @Test
+    void shouldCreateForSameStationsDifferentModes() {
+
+        RailRouteCallingPoints railRouteA = formRailRoute(agencyId, TransportMode.Train,
+                ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
+
+        RailRouteCallingPoints railRouteB = formRailRoute(agencyId, TransportMode.RailReplacementBus,
+                ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
+
+        List<RailRouteCallingPoints> agencyCallingPoints = List.of(railRouteA, railRouteB);
+
+        Set<RailRouteIds.RailRouteCallingPointsWithRouteId> results = builder.getRouteIdsFor(agencyId, agencyCallingPoints.stream());
+
+        assertEquals(2, results.size());
+
+        RailRouteIds.RailRouteCallingPointsWithRouteId result = getFor(results, railRouteA);
+
+        assertEquals(Route.createBasicRouteId("MNCRPIC:EUSTON=>VT:1"), result.getRouteId());
+    }
+
+    @Test
     void shouldCreateExpectedIdForThreeRoutesWithSubset() {
 
         List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
         // no sub-routes here
-        RailRouteCallingPoints routeA = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, LondonEuston);
-        RailRouteCallingPoints routeB = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
-        RailRouteCallingPoints routeC = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, MiltonKeynesCentral, LondonEuston);
+        RailRouteCallingPoints routeA = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Stockport, LondonEuston);
+        RailRouteCallingPoints routeB = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
+        RailRouteCallingPoints routeC = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Stockport, MiltonKeynesCentral, LondonEuston);
 
         agencyCallingPoints.add(routeA);
         agencyCallingPoints.add(routeB);
@@ -79,9 +102,9 @@ public class RailRouteIdBuilderTest {
         List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
         // no sub-routes here
-        RailRouteCallingPoints routeA = formRailRoute(agencyId, ManchesterPiccadilly, Macclesfield, LondonEuston);
-        RailRouteCallingPoints routeB = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
-        RailRouteCallingPoints routeC = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, MiltonKeynesCentral, LondonEuston);
+        RailRouteCallingPoints routeA = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Macclesfield, LondonEuston);
+        RailRouteCallingPoints routeB = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Stockport, StokeOnTrent, Crewe, LondonEuston);
+        RailRouteCallingPoints routeC = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Stockport, MiltonKeynesCentral, LondonEuston);
 
         agencyCallingPoints.add(routeA);
         agencyCallingPoints.add(routeB);
@@ -108,9 +131,9 @@ public class RailRouteIdBuilderTest {
         List<RailRouteCallingPoints> agencyCallingPoints = new ArrayList<>();
 
         // no sub-routes here
-        RailRouteCallingPoints routeA = formRailRoute(agencyId, ManchesterPiccadilly, Macclesfield, LondonEuston);
-        RailRouteCallingPoints routeB = formRailRoute(agencyId, ManchesterPiccadilly, StokeOnTrent, LondonEuston);
-        RailRouteCallingPoints routeC = formRailRoute(agencyId, ManchesterPiccadilly, Stockport, LondonEuston);
+        RailRouteCallingPoints routeA = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Macclesfield, LondonEuston);
+        RailRouteCallingPoints routeB = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, StokeOnTrent, LondonEuston);
+        RailRouteCallingPoints routeC = formRailRoute(agencyId, TransportMode.Train, ManchesterPiccadilly, Stockport, LondonEuston);
 
         agencyCallingPoints.add(routeA);
         agencyCallingPoints.add(routeB);
@@ -131,15 +154,20 @@ public class RailRouteIdBuilderTest {
 
     }
 
-    private RailRouteIds.RailRouteCallingPointsWithRouteId getFor(Set<RailRouteIds.RailRouteCallingPointsWithRouteId> items, RailRouteCallingPoints railRoute) {
-        Optional<RailRouteIds.RailRouteCallingPointsWithRouteId> search = items.stream().filter(item -> item.getCallingPoints().equals(railRoute.getCallingPoints())).findAny();
-        assertTrue(search.isPresent(), "Could not find " + railRoute + " in " + items);
+    private RailRouteIds.RailRouteCallingPointsWithRouteId getFor(Set<RailRouteIds.RailRouteCallingPointsWithRouteId> items,
+                                                                  RailRouteCallingPoints routeCallingPoints) {
+
+        Optional<RailRouteIds.RailRouteCallingPointsWithRouteId> search = items.stream().
+                filter(item -> item.getCallingPoints().equals(routeCallingPoints)).
+                findAny();
+
+        assertTrue(search.isPresent(), "Could not find " + routeCallingPoints + " in " + items);
         return search.get();
     }
 
     @NotNull
-    private RailRouteCallingPoints formRailRoute(IdFor<Agency> agencyId, RailStationIds... stationIds) {
-        return new RailRouteCallingPoints(agencyId, idsFor(stationIds));
+    private RailRouteCallingPoints formRailRoute(IdFor<Agency> agencyId, TransportMode transportMode, RailStationIds... stationIds) {
+        return new RailRouteCallingPoints(agencyId, idsFor(stationIds), transportMode);
     }
 
     private List<IdFor<Station>> idsFor(RailStationIds... stationIds) {
