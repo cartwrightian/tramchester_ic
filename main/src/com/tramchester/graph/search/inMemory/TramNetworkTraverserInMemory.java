@@ -10,7 +10,7 @@ import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.PreviousVisits;
 import com.tramchester.graph.search.TramNetworkTraverser;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
+import com.tramchester.graph.search.InterchangeGraphNodeLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -34,7 +34,7 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
 
     @Override
     public Stream<GraphPath> findPaths(final PathRequest pathRequest, final PreviousVisits previousVisits, final ServiceReasons reasons,
-                                       final ArrivalHandler arrivalHandler, final TowardsDestination towardsDestination, final Running running, InterchangeGraphLookup interchangeLookup) {
+                                       final ArrivalHandler arrivalHandler, final TowardsDestination towardsDestination, final Running running, InterchangeGraphNodeLookup interchangeLookup) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 towardsDestination, config, pathRequest.getRequestedModes());

@@ -15,7 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.MutableGraphTransaction;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
+import com.tramchester.graph.search.InterchangeGraphNodeLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -65,7 +65,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         GraphNodeId startNodeId =  createMock(GraphNodeId.class);
 
-        InterchangeGraphLookup interchangeGraphLookup = EasyMock.createMock(InterchangeGraphLookup.class);
+        InterchangeGraphNodeLookup interchangeGraphLookup = EasyMock.createMock(InterchangeGraphNodeLookup.class);
 
         traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn, interchangeGraphLookup);
     }

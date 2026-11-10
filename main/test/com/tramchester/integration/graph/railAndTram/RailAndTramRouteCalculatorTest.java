@@ -96,8 +96,6 @@ public class RailAndTramRouteCalculatorTest {
 
         stationRepository = componentContainer.get(StationRepository.class);
         tripRepository = componentContainer.get(TripRepository.class);
-
-
     }
 
     @Test
@@ -173,6 +171,7 @@ public class RailAndTramRouteCalculatorTest {
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Altrincham,
                 RailStationIds.ManchesterPiccadilly, journeyRequest);
+
         assertFalse(journeys.isEmpty());
 
         long trams = journeys.stream().filter(journey -> journey.getTransportModes().contains(Tram)).count();

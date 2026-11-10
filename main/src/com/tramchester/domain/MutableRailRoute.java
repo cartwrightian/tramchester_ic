@@ -1,14 +1,15 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static java.lang.String.format;
 
 public class MutableRailRoute extends MutableRoute implements RailRoute {
@@ -17,7 +18,7 @@ public class MutableRailRoute extends MutableRoute implements RailRoute {
     // derive them
     private final List<Station> callingPoints;
 
-    private static final Set<TransportMode> railModes = EnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
+    private static final ImmutableEnumSet<TransportMode> railModes = ImmutableEnumSet.of(Train, RailReplacementBus);
 
     public MutableRailRoute(final RailRouteId id, final List<Station> callingPoints, final Agency agency, final TransportMode transportMode) {
         super(id, createShortName(agency, callingPoints), createName(agency, callingPoints), agency, transportMode);

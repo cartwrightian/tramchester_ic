@@ -116,7 +116,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
             return true;
         }
 
-        // enough links of the same mode over threshold
+        // enough links of the same mode over threshold?
         // TODO could be pre-calculated if causes performance issue
        return modes.stream().
                map(mode -> Pair.of(mode, linksWithMode(mode))).

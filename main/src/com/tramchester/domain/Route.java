@@ -12,7 +12,7 @@ import java.util.Set;
 
 public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, CoreDomain, CrossesDay {
 
-    String REPLACEMENT_BUS_PREFIX = "Replacement Bus";
+    String TRAM_REPLACEMENT_BUS_PREFIX = "Replacement Bus";
 
     static IdFor<Route> InvalidId() {
         return new InvalidId<>(Route.class);

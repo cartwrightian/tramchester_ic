@@ -42,7 +42,7 @@ class RailAndTramInterchangesTest {
     private static TramchesterConfig config;
     private InterchangeRepository interchangeRepository;
     private StationRepository stationRepository;
-    private RailStationIds InferredButNotMarked = RailStationIds.EastDidsbury;
+    private final RailStationIds InferredButNotMarked = RailStationIds.EastDidsbury;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -116,7 +116,7 @@ class RailAndTramInterchangesTest {
         IdSet<Station> overThreshhold = findStations.atLeastNLinkedStations(Tram, Interchanges.getLinkThreshhold(Tram), timeRange);
         boolean isAutomaticallyExchange = overThreshhold.contains(piccadillyTram.getId());
 
-        // can be true iff Piccadilly is Id'ed automatically as an interchance
+        // can be true iff Piccadilly is Id'ed automatically as an interchange
         assertEquals(isAutomaticallyExchange, tramInterchange.isAvailableSameMode(TransportMode.TramsOnly));
 
         assertTrue(tramInterchange.isMultiMode());
@@ -187,7 +187,7 @@ class RailAndTramInterchangesTest {
                 filter(notMarked -> interchangeRepository.isInterchange(notMarked)).
                 collect(IdSet.collector());
 
-        InferredButNotMarked = RailStationIds.EastDidsbury;
+        //InferredButNotMarked = RailStationIds.EastDidsbury;
         assertTrue(inferredOnly.contains(InferredButNotMarked.getId()), "Not within " + inferredOnly);
     }
 

@@ -177,20 +177,6 @@ public class RouteRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedNumberOfReplacementBusesRunningByRouteName() {
-        IdSet<Route> running = routeRepository.getRoutesRunningOn(when, TransportMode.TramsOnly).stream().
-                filter(route -> TramsOnly.contains(route.getTransportMode())).
-                filter(RouteRepositoryTest::isReplacementBus).
-                collect(IdSet.collector());
-
-        assertEquals(0, running.size());
-    }
-
-    private static boolean isReplacementBus(Route route) {
-        return route.getTransportMode()==TramReplacementBus;
-    }
-
-    @Test
     void shouldHaveExpectedNumberOfReplacementBusesRunning() {
         Set<Route> byMode = routeRepository.getRoutesRunningOn(when, TramReplacementBus.singleton());
         assertEquals(0, byMode.size());
@@ -207,7 +193,7 @@ public class RouteRepositoryTest {
     void shouldOverlapAsExpected() {
 
         Set<TFGMRouteNames> knownTram = Arrays.stream(TFGMRouteNames.values()).
-                filter(route -> !route.isReplacementBus()).
+                filter(name -> !name.isReplacementBus()).
                 collect(Collectors.toSet());
 
         Set<RoutePair> noOverlap = new HashSet<>();

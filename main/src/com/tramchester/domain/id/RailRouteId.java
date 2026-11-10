@@ -76,26 +76,6 @@ public class RailRouteId extends ContainsId<Route> {
         return index;
     }
 
-    // super
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null) {
-//            return false;
-//        }
-//        if (StringIdFor.class == o.getClass()) {
-//            StringIdFor<?> other = (StringIdFor<?>) o;
-//            if (other.getDomainType() != Route.class) {
-//                return false;
-//            }
-//            return containedId.getContainedId().equals(other.getContainedId());
-//        }
-//        //if (o == null || getClass() != o.getClass()) return false;
-//        RailRouteId that = (RailRouteId) o;
-//        return containedId.equals(that.containedId);
-//    }
-
     @Override
     public String toString() {
         return "RailRouteId{" +

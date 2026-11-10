@@ -21,7 +21,6 @@ import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
@@ -128,7 +127,7 @@ public abstract class RouteCalculatorSupport {
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                               final PreviousVisits previousSuccessfulVisit, final ArrivalHandler arrivalHandler,
                                               final Running running, final TramNetworkTraverserFactory traverserFactory,
-                                              final TowardsDestination towardsDestination, InterchangeGraphLookup interchangeLookup) {
+                                              final TowardsDestination towardsDestination, InterchangeGraphNodeLookup interchangeLookup) {
         if (!txn.isImmutable()) {
             throw new RuntimeException("Not an immutable transaction");
         }
@@ -291,7 +290,7 @@ public abstract class RouteCalculatorSupport {
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
                 closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration);
 
-        final InterchangeGraphLookup interchangeLookup = new InterchangeGraphLookup(txn, interchangeRepository, journeyRequest);
+        final InterchangeGraphNodeLookup interchangeLookup = new InterchangeGraphNodeLookup(txn, interchangeRepository, journeyRequest.getRequestedModes());
 
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
@@ -342,8 +341,6 @@ public abstract class RouteCalculatorSupport {
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
-        //final ImmutableEnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
-
         final ImmutableEnumSet<TransportMode> destinationModes = resolveRealModes(destinations);
 
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routesAndServicesFilter,
@@ -358,7 +355,7 @@ public abstract class RouteCalculatorSupport {
         final PathRequest singlePathRequest = createPathRequest(journeyRequest, startNode, journeyRequest.getOriginalTime(),
                 journeyRequest.getMaxChanges().get(), journeyConstraints, maxInitialWait);
 
-        final InterchangeGraphLookup interchangeLookup = new InterchangeGraphLookup(txn, interchangeRepository, journeyRequest);
+        final InterchangeGraphNodeLookup interchangeLookup = new InterchangeGraphNodeLookup(txn, interchangeRepository, journeyRequest.getRequestedModes());
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 

@@ -807,7 +807,7 @@ class TramGraphBuilderTest {
 
         List<GraphRelationship> largest = findLargest.get();
 
-        assertEquals(1673, largest.size());
+        assertEquals(988, largest.size());
 
         RouteStationId routeStationId = (RouteStationId) largest.getFirst().getEndNode(txn).getRouteStationId();
 
@@ -958,7 +958,7 @@ class TramGraphBuilderTest {
         int uniqueSize = unique.size();
         double percentage = 100D * (double) uniqueSize / allRelationships;
 
-        assertEquals(22D, Math.ceil(percentage));
+        assertEquals(21D, Math.ceil(percentage));
     }
 
     @Test

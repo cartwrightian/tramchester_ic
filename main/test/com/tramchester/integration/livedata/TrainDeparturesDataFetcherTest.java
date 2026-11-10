@@ -15,6 +15,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.livedata.openLdb.TrainDeparturesDataFetcher;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TrainLiveDataTest
 @GMTest
 @TrainTest
+@RequiresNetwork
 class TrainDeparturesDataFetcherTest {
     private static GuiceContainerDependencies componentContainer;
     private TrainDeparturesDataFetcher dataFetcher;

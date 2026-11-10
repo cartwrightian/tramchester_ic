@@ -23,9 +23,10 @@ public enum TransportMode implements HasTransportMode {
     Unknown;
 
     public static final ImmutableEnumSet<TransportMode> WalkOnly = Walk.singleton();
+
     public static final ImmutableEnumSet<TransportMode> TramsOnly = ImmutableEnumSet.of(Tram, TramReplacementBus);
-    // TODO Include replacements
-    public static final ImmutableEnumSet<TransportMode> TrainOnly = Train.singleton();
+    public static final ImmutableEnumSet<TransportMode> TrainOnly = ImmutableEnumSet.of(RailReplacementBus, Train);
+
     public static final ImmutableEnumSet<TransportMode> ReplacementBus = ImmutableEnumSet.of(RailReplacementBus, TramReplacementBus);
 
     public static final ImmutableEnumSet<TransportMode> Vehicles = ImmutableEnumSet.from(Arrays.asList(Bus, Tram, Train,

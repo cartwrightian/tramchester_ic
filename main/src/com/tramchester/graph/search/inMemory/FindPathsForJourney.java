@@ -12,7 +12,7 @@ import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
+import com.tramchester.graph.search.InterchangeGraphNodeLookup;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -38,11 +38,11 @@ public class FindPathsForJourney {
     private final TramRouteEvaluator evaluator;
     private final TraversalStateFactory traversalStateFactory;
     private final long numberJourneys;
-    private final InterchangeGraphLookup interchangeGraphLookup;
+    private final InterchangeGraphNodeLookup interchangeGraphLookup;
 
     public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
                                final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory,
-                               long numberJourneys, InterchangeGraphLookup interchangeGraphLookup) {
+                               long numberJourneys, InterchangeGraphNodeLookup interchangeGraphLookup) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();

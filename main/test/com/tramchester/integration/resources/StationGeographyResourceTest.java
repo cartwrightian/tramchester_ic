@@ -2,7 +2,6 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.config.BusReplacementRepository;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
@@ -21,6 +20,7 @@ import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.naptan.ResourceTramTestConfigWithNaptan;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.resources.StationGeographyResource;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @ExtendWith(TramAppTestExtension.class)
 class StationGeographyResourceTest {
@@ -106,8 +106,9 @@ class StationGeographyResourceTest {
     void shouldHaveExpectLinksDuringReplacementBuses() {
         String endPoint = "geo/links";
 
-        BusReplacementRepository busRepos = dependencies.get(BusReplacementRepository.class);
-        assumeTrue(busRepos.hasReplacementBuses());
+        RouteRepository routeRepository = dependencies.get(RouteRepository.class);
+        boolean noReplacementBuses = routeRepository.getRoutes(TransportMode.ReplacementBus).isEmpty();
+        assumeFalse(noReplacementBuses);
 
         Response response = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, response.getStatus(), "status");

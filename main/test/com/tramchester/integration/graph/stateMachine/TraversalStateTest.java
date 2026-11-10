@@ -23,7 +23,7 @@ import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
+import com.tramchester.graph.search.InterchangeGraphNodeLookup;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
@@ -58,7 +58,7 @@ public class TraversalStateTest extends EasyMockSupport {
     private TramDuration cost;
     private TramRouteHelper tramRouteHelper;
     private Station cornbrook;
-    private InterchangeGraphLookup interchangeGraphLookup;
+    private InterchangeGraphNodeLookup interchangeGraphLookup;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -89,7 +89,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         cornbrook = Cornbrook.from(stationRepository);
 
-        interchangeGraphLookup = EasyMock.createMock(InterchangeGraphLookup.class);
+        interchangeGraphLookup = EasyMock.createMock(InterchangeGraphNodeLookup.class);
 
     }
 

@@ -6,7 +6,7 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
+import com.tramchester.graph.search.InterchangeNodeCheck;
 import com.tramchester.graph.search.stateMachine.journeyState.CoreJourneyState;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
@@ -27,13 +27,13 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final TramDuration parentCost;
     private final GraphNodeId graphNodeId;
 
-    protected final InterchangeGraphLookup interchangeGraphLookup;
+    protected final InterchangeNodeCheck interchangeGraphLookup;
 
     // initial only, at beginning of search
     protected TraversalState(final TraversalStateFactory traversalStateFactory,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId,
                              final GraphTransaction txn,
-                             final InterchangeGraphLookup interchangeGraphLookup) {
+                             final InterchangeNodeCheck interchangeGraphLookup) {
         super(stateType);
         this.txn = txn;
         this.traversalStateFactory = traversalStateFactory;
@@ -70,7 +70,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     @Override
-    public InterchangeGraphLookup getInterchanges() {
+    public InterchangeNodeCheck getInterchanges() {
         return interchangeGraphLookup;
     }
 
@@ -99,7 +99,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                                     final boolean viaDiversion) {
 
         // TODO assumption here that performance is ok as using EnumSet for these operations
-        final GraphLabels otherLabels = originalLabels.without(TransportModesLabels);
+        final GraphLabels otherLabels = originalLabels.without(TransportModesLabels).without(INTERCHANGE_NOT_SAME_MODE);
 
         final GraphLabel actualNodeType;
         final int numLabels = otherLabels.size();

@@ -27,7 +27,7 @@ import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.diagnostics.*;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
+import com.tramchester.graph.search.InterchangeGraphNodeLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.journeyState.ImmutableJourneyState;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
@@ -153,7 +153,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
-        InterchangeGraphLookup interchangeGraphLookup = EasyMock.createMock(InterchangeGraphLookup.class);
+        InterchangeGraphNodeLookup interchangeGraphLookup = EasyMock.createMock(InterchangeGraphNodeLookup.class);
 
         return new NotStartedState(traversalStateFactory, startNodeId, txn, interchangeGraphLookup);
     }

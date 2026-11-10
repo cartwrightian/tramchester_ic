@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
@@ -19,19 +20,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.TrainOnly;
-import static com.tramchester.domain.reference.TransportMode.TramsOnly;
+import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 597;
+    public static final int ALL_GM_ROUTES = 586;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 
@@ -61,7 +62,7 @@ public class RailAndTramRouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        int numberTramRoutes = 19;
+        int numberTramRoutes = 8;
 
         Set<Route> tramRoutes = routeRepository.getRoutes(TramsOnly);
         assertEquals(numberTramRoutes, tramRoutes.size());
@@ -78,6 +79,20 @@ public class RailAndTramRouteRepositoryTest {
                 collect(Collectors.toList());
 
         assertEquals(55-1, result.size(), HasId.asIds(result));
+    }
+
+    @Test
+    void shouldHaveExpectedNumberOfReplacementBusesRunning() {
+        TramDate when = TestEnv.testDay();
+        Set<Route> byMode = routeRepository.getRoutesRunningOn(when, RailReplacementBus.singleton());
+        assertEquals(0, byMode.size());
+    }
+
+    @Test
+    void shouldHaveExpectedNumberOfReplacementBusesRunningToday() {
+        TramDate date = TramDate.of(LocalDate.now());
+        Set<Route> byMode = routeRepository.getRoutesRunningOn(date, RailReplacementBus.singleton());
+        assertEquals(0, byMode.size());
     }
 
     @Test

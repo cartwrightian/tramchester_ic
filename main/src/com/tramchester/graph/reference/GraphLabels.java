@@ -78,6 +78,11 @@ public class GraphLabels implements Iterable<GraphLabel> {
         return new GraphLabels(theLabels.without(toExclude));
     }
 
+
+    public GraphLabels without(final GraphLabel graphLabel) {
+        return  new GraphLabels(theLabels.without(graphLabel.singleton()));
+    }
+
     public boolean anyIntersectionWith(final ImmutableEnumSet<GraphLabel> labels) {
         return theLabels.anyIntersectionWith(labels);
     }
@@ -91,4 +96,5 @@ public class GraphLabels implements Iterable<GraphLabel> {
     public boolean isEmpty() {
         return theLabels.isEmpty();
     }
+
 }

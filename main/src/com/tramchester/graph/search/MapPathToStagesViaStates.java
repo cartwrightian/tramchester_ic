@@ -11,7 +11,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabels;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.NextStateNotFoundException;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -40,17 +39,15 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final PlatformRepository platformRepository;
     private final TripRepository tripRepository;
     private final TramchesterConfig config;
-    private final InterchangeGraphLookup interchangeGraphLookup;
 
     @Inject
     public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository,
-                                    TripRepository tripRepository, TramchesterConfig config, InterchangeGraphLookup interchangeGraphLookup) {
+                                    TripRepository tripRepository, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.tripRepository = tripRepository;
 
         this.config = config;
-        this.interchangeGraphLookup = interchangeGraphLookup;
     }
 
     @Override
@@ -70,6 +67,8 @@ public class MapPathToStagesViaStates implements PathToStages {
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
         final GraphNode startOfPath = path.getStartNode(txn);
+
+        InterchangeNodeCheck interchangeGraphLookup = node -> true;
 
         final TraversalState initial = new NotStartedState(stateFactory, startOfPath.getId(), txn, interchangeGraphLookup);
 

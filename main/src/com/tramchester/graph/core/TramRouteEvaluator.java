@@ -151,7 +151,9 @@ public abstract class TramRouteEvaluator {
         // already boarded at this location? TODO only check for certain states
         if (journeyState.duplicatedBoardingSeen()) {
             if (journeyState.justBoarded()) {
-                logger.warn("Already saw boarding at " + nextNodeId);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Already saw boarding at " + nextNodeId);
+                }
                 return reasons.recordReason(HeuristicsReasons.AlreadyBoardedAt(howIGotHere));
             }
         }

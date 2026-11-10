@@ -4,8 +4,10 @@ import com.google.inject.ImplementedBy;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.collections.RouteIndexPair;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
@@ -28,5 +30,5 @@ public interface InterchangeRepository {
 
     ImmutableEnumSet<TransportMode> getInterchangeModes(LocationCollection destinations);
 
-    ImmutableEnumSet<TransportMode> getInterchangeModes(Location<?> location);
+    InterchangeStation getInterchangeById(IdFor<Station> stationId);
 }

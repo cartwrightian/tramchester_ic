@@ -363,13 +363,18 @@ public class Interchanges implements InterchangeRepository {
     }
 
     @Override
-    public ImmutableEnumSet<TransportMode> getInterchangeModes(Location<?> location) {
-        if (isInterchange(location)) {
-            return getInterchange(location).getTransportModes();
-        } else {
-            return ImmutableEnumSet.noneOf(TransportMode.class);
-        }
+    public InterchangeStation getInterchangeById(final IdFor<Station> stationId) {
+        return interchanges.get(stationId);
     }
+
+//    @Override
+//    public ImmutableEnumSet<TransportMode> getInterchangeModes(Location<?> location) {
+//        if (isInterchange(location)) {
+//            return getInterchange(location).getTransportModes();
+//        } else {
+//            return ImmutableEnumSet.noneOf(TransportMode.class);
+//        }
+//    }
 
     private void recordPairsToInterchanges() {
         logger.info("Capture route index pairs to interchanges for " + interchanges.size() + " interchanges");

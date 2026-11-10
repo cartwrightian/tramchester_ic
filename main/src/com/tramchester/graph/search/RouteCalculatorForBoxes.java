@@ -23,7 +23,6 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
@@ -115,9 +114,9 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         scheduleLogging(result, serviceReasons);
 
-        final InterchangeGraphLookup interchangeLookup;
+        final InterchangeGraphNodeLookup interchangeLookup;
         try (final GraphTransaction txn = graphDatabaseService.beginTx()) {
-            interchangeLookup = new InterchangeGraphLookup(txn, interchangeRepository, journeyRequest);
+            interchangeLookup = new InterchangeGraphNodeLookup(txn, interchangeRepository, journeyRequest.getRequestedModes());
         }
 
         final Stream<JourneysForBox> stream = startingBoxes.parallelStream().

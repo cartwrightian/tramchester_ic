@@ -28,6 +28,10 @@ public enum TFGMRouteNames {
     Yellow("Yellow Line", false),
     Blue("Blue Line", false);
 
+    /***
+     * Prefer Route transport mode instead if that is available, since that is more generic
+     * @return true if flagged as a replacement bus
+     */
     public boolean isReplacementBus() {
         return replacementBus;
     }

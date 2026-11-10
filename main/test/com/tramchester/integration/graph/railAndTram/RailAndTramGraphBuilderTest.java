@@ -30,7 +30,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -303,20 +302,21 @@ class RailAndTramGraphBuilderTest {
     void shouldAddExpectedRestrictionOnNeighbourOnlyInterchange() {
         Station navRoad = NavigationRoad.from(stationRepository);
 
-        List<Route> dropOffs = new ArrayList<>(navRoad.getDropoffRoutes());
+        Set<Route> dropOffs = navRoad.getDropoffRoutes();
         assertFalse(dropOffs.isEmpty());
 
-        Route route = dropOffs.getFirst();
+        dropOffs.forEach(route -> {
+            RouteStation routeStation = stationRepository.getRouteStation(navRoad, route);
 
-        RouteStation routeStation = stationRepository.getRouteStation(navRoad, route);
+            GraphNode node = txn.findNode(routeStation);
 
-        GraphNode node = txn.findNode(routeStation);
+            GraphLabels labels = node.getLabels();
+            assertTrue(labels.contains(GraphLabel.INTERCHANGE), "missing from " + labels);
+            assertTrue(labels.contains(GraphLabel.TRAM), "missing from " + labels);
+            assertTrue(labels.contains(GraphLabel.INTERCHANGE_NOT_SAME_MODE), "missing from " + labels);
+        });
 
-        GraphLabels labels = node.getLabels();
-        assertTrue(labels.contains(GraphLabel.INTERCHANGE), "missing from " + labels);
-        assertTrue(labels.contains(GraphLabel.TRAM), "missing from " + labels);
 
-        assertTrue(labels.contains(GraphLabel.INTERCHANGE_NOT_SAME_MODE));
 
     }
 
