@@ -6,5 +6,6 @@ public enum InterchangeType {
     NeighbourLinksSingleMode,     // added as neighbour to another station
     NeighbourLinksMultimodal,
     Multimodal,         // multi transport station from source data
-    FromConfig          // from config
+    FromConfig;        // from config
+
 }

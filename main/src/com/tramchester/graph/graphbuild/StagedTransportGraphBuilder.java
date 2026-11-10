@@ -11,6 +11,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -43,6 +45,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.GraphLabel.INTERCHANGE;
+import static com.tramchester.graph.reference.GraphLabel.INTERCHANGE_NOT_SAME_MODE;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
@@ -434,8 +437,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if (isInterchange) {
             routeStationNode.addLabel(tx, INTERCHANGE);
-            final ImmutableEnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(station);
+            final InterchangeStation interchange = interchangeRepository.getInterchange(station);
+            final ImmutableEnumSet<TransportMode> interchangeModes = interchange.getTransportModes();
             GraphLabel.forModes(interchangeModes).forEach(label -> routeStationNode.addLabel(tx, label));
+
+            final InterchangeType type = interchange.getType();
+            if (type==InterchangeType.NeighbourLinksMultimodal) {
+                routeStationNode.addLabel(tx, INTERCHANGE_NOT_SAME_MODE);
+            }
         }
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip

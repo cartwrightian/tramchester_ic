@@ -12,6 +12,7 @@ import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
+import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -27,7 +28,6 @@ import static com.tramchester.graph.reference.TransportRelationshipTypes.DIVERSI
 
 public class FindPathsForJourney {
 
-    @Deprecated
     public static final TramDuration NotVisitedDuration = TramDuration.MAX_VALUE;
 
     private static final Logger logger = LoggerFactory.getLogger(FindPathsForJourney.class);
@@ -38,21 +38,24 @@ public class FindPathsForJourney {
     private final TramRouteEvaluator evaluator;
     private final TraversalStateFactory traversalStateFactory;
     private final long numberJourneys;
+    private final InterchangeGraphLookup interchangeGraphLookup;
 
     public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
                                final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory,
-                               long numberJourneys) {
+                               long numberJourneys, InterchangeGraphLookup interchangeGraphLookup) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();
         this.evaluator = evaluator;
         this.traversalStateFactory = traversalStateFactory;
         this.numberJourneys = numberJourneys;
+        this.interchangeGraphLookup = interchangeGraphLookup;
     }
 
     public Stream<GraphPath> findPaths(final TramTime actualQueryTime, final Running running, final PathRequest pathRequest) {
 
-        final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn, pathRequest.getRequestedModes());
+        final NotStartedState initialTraversalState = new NotStartedState(traversalStateFactory,
+                startNode.getId(), txn, interchangeGraphLookup);
 
         final JourneyState journeyState = new JourneyState(actualQueryTime, initialTraversalState);
 

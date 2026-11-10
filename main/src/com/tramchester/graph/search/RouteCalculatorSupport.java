@@ -21,6 +21,7 @@ import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
@@ -127,7 +128,7 @@ public abstract class RouteCalculatorSupport {
     public Stream<TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                               final PreviousVisits previousSuccessfulVisit, final ArrivalHandler arrivalHandler,
                                               final Running running, final TramNetworkTraverserFactory traverserFactory,
-                                              final TowardsDestination towardsDestination) {
+                                              final TowardsDestination towardsDestination, InterchangeGraphLookup interchangeLookup) {
         if (!txn.isImmutable()) {
             throw new RuntimeException("Not an immutable transaction");
         }
@@ -143,7 +144,7 @@ public abstract class RouteCalculatorSupport {
         final TramNetworkTraverser tramNetworkTraverser = traverserFactory.get(txn);
 
         final Stream<GraphPath> paths = tramNetworkTraverser.findPaths(pathRequest, previousSuccessfulVisit, reasons,
-                arrivalHandler, towardsDestination, running);
+                arrivalHandler, towardsDestination, running, interchangeLookup);
 
         logger.info("Arrivals " + arrivalHandler);
 
@@ -290,6 +291,8 @@ public abstract class RouteCalculatorSupport {
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServicesFilter,
                 closedStations, destinationModes, lowestCostsForRoutes, maxJourneyDuration);
 
+        final InterchangeGraphLookup interchangeLookup = new InterchangeGraphLookup(txn, interchangeRepository, journeyRequest);
+
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
 
@@ -310,7 +313,7 @@ public abstract class RouteCalculatorSupport {
                                 createServiceReasons(journeyRequest, pathRequest),
                                 pathRequest,
                                 createPreviousVisits(journeyRequest),
-                                arrivalHandler, running, traverserFactory, towardsDestination)).
+                                arrivalHandler, running, traverserFactory, towardsDestination, interchangeLookup)).
                         map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn)).
                         filter(journey -> validJourney(journey,journeyRequest));
 
@@ -355,6 +358,8 @@ public abstract class RouteCalculatorSupport {
         final PathRequest singlePathRequest = createPathRequest(journeyRequest, startNode, journeyRequest.getOriginalTime(),
                 journeyRequest.getMaxChanges().get(), journeyConstraints, maxInitialWait);
 
+        final InterchangeGraphLookup interchangeLookup = new InterchangeGraphLookup(txn, interchangeRepository, journeyRequest);
+
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
@@ -362,7 +367,7 @@ public abstract class RouteCalculatorSupport {
         TramNetworkTraverserFactory traverserFactory = getTraverserFactory(destinations, destinationNodeIds);
 
         final Stream<Journey> results = findShortestPath(txn.asImmutable(), serviceReasons, singlePathRequest,
-                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination).
+                        createPreviousVisits(journeyRequest), lowestCostSeen, running, traverserFactory, towardsDestination, interchangeLookup).
                 map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn)).
                 filter(journey -> validJourney(journey, journeyRequest));
 

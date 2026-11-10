@@ -23,6 +23,7 @@ import com.tramchester.graph.core.GraphRelationship;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
@@ -57,6 +58,7 @@ public class TraversalStateTest extends EasyMockSupport {
     private TramDuration cost;
     private TramRouteHelper tramRouteHelper;
     private Station cornbrook;
+    private InterchangeGraphLookup interchangeGraphLookup;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -86,6 +88,8 @@ public class TraversalStateTest extends EasyMockSupport {
         cost = TramDuration.ofMinutes(5);
 
         cornbrook = Cornbrook.from(stationRepository);
+
+        interchangeGraphLookup = EasyMock.createMock(InterchangeGraphLookup.class);
 
     }
 
@@ -292,6 +296,7 @@ public class TraversalStateTest extends EasyMockSupport {
         //EasyMock.expect(minuteState.getTraversalOps()).andReturn(traversalOps);
         EasyMock.expect(minuteState.getTransaction()).andReturn(txn);
         EasyMock.expect(minuteState.getTraversalStateFactory()).andReturn(traversalStateFactory);
+        EasyMock.expect(minuteState.getInterchanges()).andReturn(interchangeGraphLookup);
         EasyMock.expect(minuteState.getTotalDuration()).andReturn(TramDuration.ZERO);
         return minuteState;
     }

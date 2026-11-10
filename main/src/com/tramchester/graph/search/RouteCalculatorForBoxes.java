@@ -23,6 +23,7 @@ import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.*;
@@ -103,6 +104,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TramDuration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startingBoxes, config);
         final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
+
         final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest, timeRange);
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
@@ -112,6 +114,11 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest);
 
         scheduleLogging(result, serviceReasons);
+
+        final InterchangeGraphLookup interchangeLookup;
+        try (final GraphTransaction txn = graphDatabaseService.beginTx()) {
+            interchangeLookup = new InterchangeGraphLookup(txn, interchangeRepository, journeyRequest);
+        }
 
         final Stream<JourneysForBox> stream = startingBoxes.parallelStream().
                 filter(item -> result.isRunning()).
@@ -135,7 +142,7 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
                         filter(item -> result.isRunning()).
                         flatMap(pathRequest -> findShortestPath(txn, serviceReasons, pathRequest, createPreviousVisits(journeyRequest),
-                                lowestCostSeenForBox, result, tramNetworkTraverserFactory, towardsDestination)).
+                                lowestCostSeenForBox, result, tramNetworkTraverserFactory, towardsDestination, interchangeLookup)).
                         filter(item -> result.isRunning()).
                         map(timedPath -> createJourney(journeyRequest, timedPath, towardsDestination, journeyIndex, txn));
 

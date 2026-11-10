@@ -37,7 +37,7 @@ import static com.tramchester.domain.reference.TransportMode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
-class InterchangesRailAndTramTest {
+class RailAndTramInterchangesTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private InterchangeRepository interchangeRepository;

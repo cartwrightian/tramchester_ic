@@ -19,6 +19,7 @@ public enum GraphLabel { //implements Label {
     // station attributes
     HAS_PLATFORMS, // label added to stations iff have platforms
     INTERCHANGE, // label added to route stations if they are interchanges
+    INTERCHANGE_NOT_SAME_MODE, // if interchange is constrained to only allow change if crossing to neighbour
 
     // transport modes - added to route stations
     TRAM,

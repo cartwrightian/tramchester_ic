@@ -28,7 +28,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.AltrinchamLineTests;
@@ -721,7 +720,6 @@ public class RouteCalculatorTest {
         return TramTime.difference(departs, arrive);
     }
 
-    @DisabledUntilDate(year = 2026, month = 11, day = 9)
     @AltrinchamLineTests
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {

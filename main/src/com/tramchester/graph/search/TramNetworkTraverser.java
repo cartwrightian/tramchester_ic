@@ -3,11 +3,12 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.graph.core.GraphPath;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 
 import java.util.stream.Stream;
 
 public interface TramNetworkTraverser {
     Stream<GraphPath> findPaths(PathRequest pathRequest, PreviousVisits previousVisits, ServiceReasons reasons,
-                                ArrivalHandler arrivalHandler, TowardsDestination towardsDestination, Running running);
+                                ArrivalHandler arrivalHandler, TowardsDestination towardsDestination, Running running, InterchangeGraphLookup interchangeLookup);
 }

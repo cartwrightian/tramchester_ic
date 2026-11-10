@@ -14,7 +14,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
-public class RaillBusReplacementRepositoryTest {
+public class RailAndTramBusReplacementRepositoryTest {
     private static GuiceContainerDependencies componentContainer;
     private BusReplacementRepository repository;
     private TramRouteHelper routeHelper;

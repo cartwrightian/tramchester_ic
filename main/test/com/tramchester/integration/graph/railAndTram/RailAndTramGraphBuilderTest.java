@@ -19,6 +19,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.GraphLabels;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -29,6 +30,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -296,5 +298,27 @@ class RailAndTramGraphBuilderTest {
         assertEquals(expectedCost, goesTo.getCost());
 
     }
+
+    @Test
+    void shouldAddExpectedRestrictionOnNeighbourOnlyInterchange() {
+        Station navRoad = NavigationRoad.from(stationRepository);
+
+        List<Route> dropOffs = new ArrayList<>(navRoad.getDropoffRoutes());
+        assertFalse(dropOffs.isEmpty());
+
+        Route route = dropOffs.getFirst();
+
+        RouteStation routeStation = stationRepository.getRouteStation(navRoad, route);
+
+        GraphNode node = txn.findNode(routeStation);
+
+        GraphLabels labels = node.getLabels();
+        assertTrue(labels.contains(GraphLabel.INTERCHANGE), "missing from " + labels);
+        assertTrue(labels.contains(GraphLabel.TRAM), "missing from " + labels);
+
+        assertTrue(labels.contains(GraphLabel.INTERCHANGE_NOT_SAME_MODE));
+
+    }
+
 
 }

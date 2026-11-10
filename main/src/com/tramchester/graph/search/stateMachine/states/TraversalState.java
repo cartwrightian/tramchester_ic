@@ -1,13 +1,12 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.*;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.GraphLabels;
+import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.journeyState.CoreJourneyState;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
@@ -27,24 +26,28 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final TramDuration costForLastEdge;
     private final TramDuration parentCost;
     private final GraphNodeId graphNodeId;
-    private ImmutableEnumSet<TransportMode> requestedModes;
+
+    protected final InterchangeGraphLookup interchangeGraphLookup;
 
     // initial only, at beginning of search
     protected TraversalState(final TraversalStateFactory traversalStateFactory,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId,
-                             final GraphTransaction txn, ImmutableEnumSet<TransportMode> requestedModes) {
+                             final GraphTransaction txn,
+                             final InterchangeGraphLookup interchangeGraphLookup) {
         super(stateType);
         this.txn = txn;
         this.traversalStateFactory = traversalStateFactory;
 
         this.graphNodeId = graphNodeId;
-        this.requestedModes = requestedModes;
         this.costForLastEdge = TramDuration.ZERO;
         this.parentCost = TramDuration.ZERO;
         this.outbounds = Stream.empty();
         if (stateType!=TraversalStateType.NotStartedState) {
             throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
         }
+
+        this.interchangeGraphLookup = interchangeGraphLookup;
+
     }
 
     protected TraversalState(final ImmutableTraversalState parent, final Stream<GraphRelationship> outbounds, final TramDuration costForLastEdge,
@@ -52,6 +55,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         super(stateType);
         this.txn = parent.getTransaction();
         this.traversalStateFactory = parent.getTraversalStateFactory();
+        this.interchangeGraphLookup = parent.getInterchanges();
 
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
@@ -63,6 +67,11 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     @Override
     public TraversalStateFactory getTraversalStateFactory() {
         return traversalStateFactory;
+    }
+
+    @Override
+    public InterchangeGraphLookup getInterchanges() {
+        return interchangeGraphLookup;
     }
 
     @Override
@@ -109,25 +118,19 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
         boolean isInterchange = originalLabels.contains(INTERCHANGE);
 
-//        if (isInterchange) {
-//            final ImmutableEnumSet<GraphLabel> labels = forModes(requestedModes);
-//            if (crossTransportOnly) {
-//                // TODO populate this efficiently
-//                originalLabels.retainAll
-//               ImmutableEnumSet<GraphLabel> nodeTransportLables = ImmutableEnumSet.noneOf(GraphLabel.class);
-//                ImmutableEnumSet<GraphLabel> otherModes = nodeTransportLables.without(labels);
-//                if (!otherModes.isEmpty()) {
-//                    isInterchange = false;
-//                }
-//            }
-//        }
+        final boolean interchangeAvailable;
+        if (isInterchange) {
+            interchangeAvailable = interchangeGraphLookup.checkInterchangeAvailableFor(node);
+
+        } else {
+            interchangeAvailable = false;
+        }
 
 
         final boolean hasPlatforms = originalLabels.contains(HAS_PLATFORMS);
 
         final TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node, journeyState);
 
-        boolean interchangeAvailable = isInterchange;
         return getTraversalState(nextType, node, journeyState, cost, interchangeAvailable, viaDiversion);
 
     }

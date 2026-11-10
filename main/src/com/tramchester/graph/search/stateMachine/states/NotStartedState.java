@@ -1,11 +1,10 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.collections.ImmutableEnumSet;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.graph.core.GraphNode;
 import com.tramchester.graph.core.GraphNodeId;
 import com.tramchester.graph.core.GraphTransaction;
+import com.tramchester.graph.search.stateMachine.InterchangeGraphLookup;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.journeyState.TraversalStateType;
 import com.tramchester.graph.search.stateMachine.states.station.NoPlatformStationState;
@@ -14,8 +13,8 @@ import com.tramchester.graph.search.stateMachine.states.station.PlatformStationS
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(final TraversalStateFactory traversalStateFactory,
-                           final GraphNodeId graphNodeId, GraphTransaction txn, ImmutableEnumSet<TransportMode> requestedModes) {
-        super(traversalStateFactory, TraversalStateType.NotStartedState, graphNodeId, txn, requestedModes);
+                           final GraphNodeId graphNodeId, GraphTransaction txn, InterchangeGraphLookup interchangeGraphLookup) {
+        super(traversalStateFactory, TraversalStateType.NotStartedState, graphNodeId, txn, interchangeGraphLookup);
     }
 
     @Override
