@@ -35,7 +35,7 @@ public abstract class GraphRelationshipProperties <T extends GraphEntityProperti
         extends GraphEntityProperties<T> implements MutableGraphRelationship {
 
     private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
-            DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
+            DEPART, WALKS_TO_STATION, DIVERSION_DEPART, NEIGHBOUR);
 
     private final T relationshipProperties;
 

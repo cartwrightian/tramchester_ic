@@ -46,7 +46,7 @@ public class WalkingState extends TraversalState {
 
         public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final TramDuration cost, final GraphTransaction txn) {
             final Stream<GraphRelationship> relationships = firstNode.getRelationships(txn, GraphDirection.Outgoing, WALKS_TO_STATION);
-            final IterableWithEmptyCheck<GraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
+            final IterableWithEmptyCheck<GraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(firstNode);
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {

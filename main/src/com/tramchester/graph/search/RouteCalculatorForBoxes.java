@@ -93,11 +93,6 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         // TODO Compute over a range of times??
 
-        // share selector across queries, to allow caching of station to station distances
-        // TODO Optimise using box based distance calculation? -- avoid doing per station per box
-
-        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
-
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
         final TramDuration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startingBoxes, config);
@@ -132,6 +127,9 @@ public abstract class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
             try (final GraphTransaction txn = graphDatabaseService.beginTx()) {
+
+                final TowardsDestination towardsDestination = new TowardsDestination(destinations, txn);
+                towardsDestination.start();
 
                 final Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).

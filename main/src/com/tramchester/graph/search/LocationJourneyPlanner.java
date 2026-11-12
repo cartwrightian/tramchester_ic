@@ -65,7 +65,9 @@ public class LocationJourneyPlanner {
 
     public Stream<Journey> quickestRouteForLocation(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
                                                     final JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(), destination.getId(), destination.getName(), journeyRequest));
+        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(), destination.getId(),
+                destination.getName(), journeyRequest));
+
         final boolean walkAtStart = start.getLocationType().isWalk();
         final boolean walkAtEnd = destination.getLocationType().isWalk();
 

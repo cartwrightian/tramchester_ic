@@ -300,7 +300,8 @@ public abstract class RouteCalculatorSupport {
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
+        final TowardsDestination towardsDestination = new TowardsDestination(destinations, txn);
+        towardsDestination.start();
 
         final TramNetworkTraverserFactory traverserFactory = getTraverserFactory(destinations, destinationNodeIds);
 
@@ -359,7 +360,8 @@ public abstract class RouteCalculatorSupport {
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 
-        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
+        final TowardsDestination towardsDestination = new TowardsDestination(destinations, txn);
+        towardsDestination.start();
 
         TramNetworkTraverserFactory traverserFactory = getTraverserFactory(destinations, destinationNodeIds);
 

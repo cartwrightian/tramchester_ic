@@ -101,7 +101,8 @@ public class TraversalStateTest extends EasyMockSupport {
     @Test
     void shouldHaveDestinationOutboundWhenAvailableOnTrip() {
 
-        TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
+        TowardsDestination towardsDestination = new TowardsDestination(cornbrook, txn);
+        towardsDestination.start();
 
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
                 towardsDestination, config, TransportMode.TramsOnly);
@@ -146,7 +147,9 @@ public class TraversalStateTest extends EasyMockSupport {
     @Test
     void shouldHaveDestinationOutboundWhenAvailableEndTrip() {
 
-        TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
+        TowardsDestination towardsDestination = new TowardsDestination(cornbrook, txn);
+        towardsDestination.start();
+
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
                 towardsDestination, config, TransportMode.TramsOnly);
 
@@ -187,7 +190,9 @@ public class TraversalStateTest extends EasyMockSupport {
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
 
-        TowardsDestination towardsDestination = new TowardsDestination(Bury.from(stationRepository));
+        TowardsDestination towardsDestination = new TowardsDestination(Bury.from(stationRepository), txn);
+        towardsDestination.start();
+
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
                 towardsDestination, config, TransportMode.TramsOnly);
 

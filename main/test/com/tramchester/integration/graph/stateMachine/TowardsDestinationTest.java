@@ -142,9 +142,10 @@ public class TowardsDestinationTest {
 
         GraphNode node = findRouteStation(station, route);
 
-        TowardsDestination towardsDestination = new TowardsDestination((station));
+        TowardsDestination towardsDestination = new TowardsDestination(station, txn);
 
-        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        towardsDestination.start();
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(node);
 
         assertFalse(towards.isEmpty());
         List<GraphRelationship> results = towards.stream().toList();
@@ -170,9 +171,10 @@ public class TowardsDestinationTest {
 
         GraphNode node = findRouteStation(station, route);
 
-        TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
+        TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)), txn);
 
-        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        towardsDestination.start();
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(node);
 
         assertTrue(towards.isEmpty());
 
@@ -188,9 +190,10 @@ public class TowardsDestinationTest {
         GraphNode node = txn.findNode(station);
         assertNotNull(node);
 
-        TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
+        TowardsDestination towardsDestination = new TowardsDestination(stationGroup, txn);
 
-        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromStation(txn, node);
+        towardsDestination.start();
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromStation(node);
 
         assertFalse(towards.isEmpty(), "Empty for towards" + stationGroup + " from " + station.getId());
 
@@ -212,9 +215,10 @@ public class TowardsDestinationTest {
 
         @NotNull GraphNode node = findRouteStation(station, route);
 
-        TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
+        TowardsDestination towardsDestination = new TowardsDestination(stationGroup, txn);
 
-        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+        towardsDestination.start();
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(node);
 
         assertFalse(towards.isEmpty());
 
@@ -228,23 +232,6 @@ public class TowardsDestinationTest {
         });
     }
 
-//    @Test
-//    void shouldProvideOriginalDestinationsNotExpanded() {
-//        Station station = StPetersSquare.from(stationRepository);
-//
-//        StationLocalityGroup stationGroup = getStationGroup(station);
-//
-//        TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
-//
-//        LocationCollection results = towardsDestination.getDestinations();
-//
-//        assertEquals(1, results.size());
-//
-//        Location<?> result = results.locationStream().toList().getFirst();
-//
-//        assertEquals(stationGroup, result);
-//    }
-
     @Test
     void shouldNotFindRelationshipsIfNotTowardsDestinationGroup() {
         Station station = StPetersSquare.from(stationRepository);
@@ -253,9 +240,10 @@ public class TowardsDestinationTest {
 
         assertNotNull(node);
 
-        TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
+        TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)), txn);
 
-        IterableWithEmptyCheck<GraphRelationship> results = towardsDestination.fromStation(txn, node);
+        towardsDestination.start();
+        IterableWithEmptyCheck<GraphRelationship> results = towardsDestination.fromStation(node);
 
         assertTrue(results.isEmpty());
 

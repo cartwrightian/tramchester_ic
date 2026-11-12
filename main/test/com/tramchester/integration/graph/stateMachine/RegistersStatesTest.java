@@ -7,12 +7,14 @@ import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +24,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.Set;
 
-class RegistersStatesTest {
+class RegistersStatesTest extends EasyMockSupport {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private TraversalStateFactory factory;
@@ -41,8 +43,10 @@ class RegistersStatesTest {
 
     @BeforeEach
     void beforeEachOfTheTestsRun() {
+        GraphTransaction txn = createMock(GraphTransaction.class);
+
         LocationCollection destinationIds = new LocationSet<>();
-        TowardsDestination towardsDestination = new TowardsDestination(destinationIds);
+        TowardsDestination towardsDestination = new TowardsDestination(destinationIds, txn);
 
         StateBuilderParameters parameters = new StateBuilderParameters(TestEnv.testDay(), TramTime.of(8, 0),
                 towardsDestination, config, TransportMode.TramsOnly);

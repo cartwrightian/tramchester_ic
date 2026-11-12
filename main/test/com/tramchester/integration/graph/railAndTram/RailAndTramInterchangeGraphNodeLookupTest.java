@@ -17,6 +17,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
 import java.util.concurrent.TimeUnit;
@@ -26,6 +27,7 @@ import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@GMTest
 public class RailAndTramInterchangeGraphNodeLookupTest {
 
     private static GuiceContainerDependencies componentContainer;

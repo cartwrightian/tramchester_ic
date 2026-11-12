@@ -147,7 +147,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NotStartedState getNotStartedState(final GraphNodeId startNodeId) {
 
         TramDate queryDate = TestEnv.testDay();
-        TowardsDestination towardsDestination =  new TowardsDestination(destinationStations);
+        TowardsDestination towardsDestination =  new TowardsDestination(destinationStations, txn);
         StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
                 towardsDestination, config, TransportMode.TramsOnly);
 

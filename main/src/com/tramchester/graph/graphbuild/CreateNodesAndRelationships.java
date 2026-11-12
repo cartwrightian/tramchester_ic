@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 
+import static com.tramchester.graph.core.GraphDirection.Outgoing;
 import static com.tramchester.graph.reference.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
@@ -56,7 +57,7 @@ public class CreateNodesAndRelationships {
     protected MutableGraphRelationship createRelationship(final MutableGraphTransaction txn, final MutableGraphNode start,
                                                           final MutableGraphNode end, final TransportRelationshipTypes relationshipType) {
         numberRelationships++;
-        if (start.hasRelationship(txn, GraphDirection.Outgoing, relationshipType, end)) {
+        if (start.hasRelationship(txn, Outgoing, relationshipType, end)) {
             String message = "Already have relationship from " + start.getId() + " to " + end.getId() + " for " + relationshipType;
             logger.error(message);
             throw new RuntimeException(message);
@@ -70,8 +71,9 @@ public class CreateNodesAndRelationships {
     }
 
     protected void addNeighbourRelationship(final MutableGraphTransaction txn, final MutableGraphNode fromNode,
-                                            final MutableGraphNode toNode, final TramDuration walkCost) {
-        addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
+                                            final MutableGraphNode toNode, final TramDuration walkCost, final Station towards) {
+        final MutableGraphRelationship added = addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
+        added.set(towards);
     }
 
     protected void addContainedRelationshipTowardsGroup(final MutableGraphTransaction txn, final MutableGraphNode stationNode,
@@ -90,19 +92,22 @@ public class CreateNodesAndRelationships {
         addRelationshipFor(txn, childGroupNode, parentGroupNode, walkCost, GROUPED_TO_GROUPED);
     }
 
-    private boolean addRelationshipFor(final MutableGraphTransaction txn, final MutableGraphNode fromNode, final MutableGraphNode toNode,
-                                       final TramDuration walkCost, final TransportRelationshipTypes relationshipType) {
+    private MutableGraphRelationship addRelationshipFor(final MutableGraphTransaction txn, final MutableGraphNode fromNode,
+                                    final MutableGraphNode toNode, final TramDuration walkCost,
+                                                        final TransportRelationshipTypes relationshipType) {
 
-        final boolean alreadyPresent = fromNode.getRelationships(txn, GraphDirection.Outgoing, relationshipType).
-                map(relationship -> relationship.getEndNodeId(txn)).
-                anyMatch(endNodeId -> endNodeId.equals(toNode.getId()));
+//        final boolean alreadyPresent = fromNode.getRelationships(txn, GraphDirection.Outgoing, relationshipType).
+//                map(relationship -> relationship.getEndNodeId(txn)).
+//                anyMatch(endNodeId -> endNodeId.equals(toNode.getId()));
+
+        final boolean alreadyPresent = fromNode.hasRelationship(txn, Outgoing, relationshipType, toNode);
 
         if (alreadyPresent) {
-            return false;
+            return fromNode.getSingleRelationshipMutable(txn, relationshipType, Outgoing, toNode);
         }
 
         final MutableGraphRelationship relationship = createRelationship(txn, fromNode, toNode, relationshipType);
         relationship.setCost(walkCost);
-        return true;
+        return relationship;
     }
 }

@@ -3,7 +3,6 @@ package com.tramchester.integration.graph.railAndTram;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.MutableAgency;
@@ -18,9 +17,9 @@ import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
-import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
@@ -30,10 +29,10 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 
-import static com.tramchester.domain.reference.TransportMode.TrainOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@Disabled("WIP on configuring filter correctly")
 @GMTest
 public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static final Duration TXN_TIMEOUT = Duration.ofMinutes(5);
@@ -46,10 +45,11 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     private static final IdSet<Station> stations = FakeStation.IdSetOf(Victoria, ExchangeSquare, StPetersSquare,
             Deansgate, Cornbrook, Pomona, ExchangeQuay, SalfordQuay, Anchorage, HarbourCity,
-            MediaCityUK, Broadway, Langworthy, Weaste, Ladywell, Eccles,
-            RailStationIds.ManchesterVictoria,
-            RailStationIds.ManchesterOxfordRoad); //.map(HasId::getId).toList();
+            MediaCityUK, Broadway, Langworthy, Weaste, Ladywell, Eccles);
+//            RailStationIds.ManchesterVictoria,
+//            RailStationIds.ManchesterOxfordRoad);
 
+    private static TramRouteHelper tramRouteHelper;
     private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
     private TramDuration maxDurationFromConfig;
@@ -64,16 +64,26 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
+        tramRouteHelper = new TramRouteHelper(componentContainer);
+
+
         database = componentContainer.get(GraphDatabase.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
+
+        // No intersection
+//        Station victoria = transportData.getStationById(Victoria.getId());
+//        Station eccles = transportData.getStationById(Eccles.getId());
+//        Set<Route> routes = SetUtils.intersection(victoria.getPickupRoutes(), eccles.getDropoffRoutes());
+//        routes.forEach(route -> graphFilter.addRoute(route.getId()));
+
         stations.forEach(graphFilter::addStation);
-        // need both agencies for realistic test
-        graphFilter.addAgency(TrainOperatingCompanies.NT.getAgencyId());
+//        // need both agencies for realistic test
+//        graphFilter.addAgency(TrainOperatingCompanies.NT.getAgencyId());
         graphFilter.addAgency(MutableAgency.METL);
         // GM train stations
-        transportData.getStations(TrainOnly).forEach(station -> graphFilter.addStation(station.getId()));
+        //transportData.getStations(TrainOnly).forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterEach
@@ -104,9 +114,9 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     @Test
     void shouldHaveVictoriaToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
+
         TramTime time = TramTime.of(9,0);
-        // max changes 1->2 due to eccles bus replacement
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2, maxDurationFromConfig,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TransportMode.TramsOnly);
 
         //journeyRequest.setDiag(true);

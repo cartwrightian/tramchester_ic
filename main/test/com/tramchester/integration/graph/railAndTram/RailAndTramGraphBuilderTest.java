@@ -136,6 +136,7 @@ class RailAndTramGraphBuilderTest {
         GraphRelationship tramNeighbour = fromTram.getFirst();
         assertEquals(altyTrainNode, tramNeighbour.getEndNode(txn)); // GraphNode.fromEnd(tramNeighbour));
         assertEquals(expectedCost, tramNeighbour.getCost());
+        assertEquals(altyTrain.getId(), tramNeighbour.getLocationId(txn).getId());
 
         List<GraphRelationship> fromTrain = altyTrainNode.getRelationships(txn, GraphDirection.Outgoing, NEIGHBOUR).toList();
         assertEquals(1, fromTrain.size(), "Wrong number of neighbours " + fromTram);
@@ -143,6 +144,8 @@ class RailAndTramGraphBuilderTest {
         GraphRelationship trainNeighbour = fromTrain.getFirst();
         assertEquals(altyTramNode, trainNeighbour.getEndNode(txn)); //GraphNode.fromEnd(trainNeighbour));
         assertEquals(expectedCost, trainNeighbour.getCost());
+        assertEquals(altyTram.getId(), trainNeighbour.getLocationId(txn).getId());
+
 
     }
 

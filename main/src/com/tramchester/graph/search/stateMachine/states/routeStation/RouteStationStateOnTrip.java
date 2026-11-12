@@ -50,7 +50,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             final TransportMode transportMode = routeStationNode.getTransportMode();
             final IdFor<Trip> tripId = journeyState.getCurrentTrip();
 
-            final IterableWithEmptyCheck<GraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
+            final IterableWithEmptyCheck<GraphRelationship> towardsDestination = getTowardsDestination(routeStationNode);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateOnTrip(journeyState, minuteState, towardsDestination.stream(), cost,

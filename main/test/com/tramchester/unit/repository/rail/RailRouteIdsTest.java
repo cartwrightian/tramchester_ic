@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
@@ -166,7 +167,11 @@ public class RailRouteIdsTest extends EasyMockSupport {
         RailRouteIds railRouteIds = new RailRouteIds(stationRecords, providesRecords, railRouteIdBuilder, config,
                 cacheMetrics);
         railRouteIds.start();
-        List<RailRouteIds.RailRouteCallingPointsWithRouteId> results = new ArrayList<>(railRouteIds.getCallingPointsFor(agencyId));
+
+        // sorted for deterministic results
+        List<RailRouteIds.RailRouteCallingPointsWithRouteId> results = railRouteIds.getCallingPointsFor(agencyId).
+                stream().sorted(Comparator.comparingInt(a -> a.getRouteId().getIndex())).
+                toList();
         verifyAll();
 
         assertEquals(2, results.size());

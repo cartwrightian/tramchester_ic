@@ -136,7 +136,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                         throw new RuntimeException(msg);
                     }
                     final TramDuration walkingCost = link.getConnectionTime();
-                    addNeighbourRelationship(txn, fromNode, toNode, walkingCost);
+                    addNeighbourRelationship(txn, fromNode, toNode, walkingCost, station);
                 });
     }
 

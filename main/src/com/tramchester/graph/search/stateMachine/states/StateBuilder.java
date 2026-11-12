@@ -67,19 +67,19 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
 
-    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransaction txn) {
-        return towardsDestination.fromRouteStation(txn, node);
+    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromRouteStation(final GraphNode node) {
+        return towardsDestination.fromRouteStation(node);
     }
 
-    public IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromPlatform(GraphTransaction txn, GraphNode node) {
-        return towardsDestination.fromPlatform(txn, node);
+    public IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromPlatform(final GraphNode node) {
+        return towardsDestination.fromPlatform(node);
     }
 
-    public IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransaction txn, GraphNode node) {
-        return towardsDestination.fromStation(txn, node);
+    public IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromNonPlatformStation(final GraphNode node) {
+        return towardsDestination.fromStation(node);
     }
 
-    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromWalk(GraphTransaction txn, GraphNode node) {
-        return towardsDestination.fromWalk(txn, node);
+    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestinationFromWalk(final GraphNode node) {
+        return towardsDestination.fromWalk(node);
     }
 }

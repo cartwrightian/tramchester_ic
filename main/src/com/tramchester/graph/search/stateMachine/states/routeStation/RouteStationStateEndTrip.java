@@ -41,7 +41,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                                         final TramDuration cost, final boolean isInterchange, final GraphTransaction txn) {
             final TransportMode transportMode = node.getTransportMode();
 
-            final IterableWithEmptyCheck<GraphRelationship> towardsDestination = getTowardsDestination(node, txn);
+            final IterableWithEmptyCheck<GraphRelationship> towardsDestination = getTowardsDestination(node);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(journeyState, minuteState, towardsDestination.stream(), cost, transportMode, node, this);

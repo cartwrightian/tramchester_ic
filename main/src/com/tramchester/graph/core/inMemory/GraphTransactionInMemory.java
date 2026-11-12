@@ -229,7 +229,6 @@ public class GraphTransactionInMemory implements MutableGraphTransaction {
                                                     final ImmutableEnumSet<TransportRelationshipTypes> transportRelationshipTypes, final GraphNode end) {
 
         final List<MutableGraphRelationship> results = graph.findRelationshipsMutableFor(id, direction, transportRelationshipTypes).
-                //filter(relationship -> transportRelationshipTypes.contains(relationship.getType())).
                 filter(rel -> rel.getEndId().equals(end.getId())).
                 <MutableGraphRelationship>map(item -> item).
                 toList();

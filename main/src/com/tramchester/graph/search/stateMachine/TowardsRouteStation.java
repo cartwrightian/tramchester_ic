@@ -27,8 +27,8 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         this.interchangesOnly = builderParameters.interchangesOnly();
     }
 
-    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
-        return super.getTowardsDestinationFromRouteStation(node, txn);
+    protected IterableWithEmptyCheck<GraphRelationship> getTowardsDestination(final GraphNode node) {
+        return super.getTowardsDestinationFromRouteStation(node);
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
