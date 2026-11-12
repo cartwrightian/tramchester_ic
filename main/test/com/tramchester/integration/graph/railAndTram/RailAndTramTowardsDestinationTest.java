@@ -1,0 +1,251 @@
+package com.tramchester.integration.graph.stateMachine;
+
+import com.tramchester.ComponentsBuilder;
+import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.LocationCollectionSingleton;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.IterableWithEmptyCheck;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.*;
+import com.tramchester.graph.core.*;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.reference.GraphLabel;
+import com.tramchester.graph.reference.TransportRelationshipTypes;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
+import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.testTags.AltrinchamLineTests;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.*;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TowardsDestinationTest {
+    private static GuiceContainerDependencies componentContainer;
+    private GraphTransaction txn;
+    private StationRepository stationRepository;
+    private TramRouteHelper tramRouteHelper;
+    private TramDate when;
+    private StationGroupsRepository groupRepository;
+
+    // NOTE: currently (3/2024) most tram stations are not allocated to a local area in Naptan
+    // See StationGroupRepositoryTest
+
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() {
+        final TramchesterConfig config = new IntegrationTramTestConfigWithGroupsEnabled();
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer.initialise();
+
+        //TestEnv.deleteDBIfPresent(config);
+    }
+
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
+        componentContainer.close();
+    }
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        stationRepository = componentContainer.get(StationRepository.class);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
+
+        groupRepository = componentContainer.get(StationGroupsRepository.class);
+
+        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
+
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+        txn = database.beginTx();
+
+        when = TestEnv.testDay();
+    }
+
+    @AfterEach
+    void onceAfterEachTestRuns() {
+        if (txn!=null) {
+            txn.close();
+        }
+    }
+
+    @AltrinchamLineTests
+    @Test
+    void shouldHaveDestinationIds() {
+
+        Station station = NavigationRoad.from(stationRepository);
+        Route route = tramRouteHelper.getGreen(when);
+
+        GraphNode node = findRouteStation(station, route);
+
+        List<GraphRelationship> departs = node.getRelationships(txn, GraphDirection.Outgoing, TransportRelationshipTypes.DEPART).toList();
+
+        assertFalse(departs.isEmpty());
+
+        LocationCollection destinations = LocationCollectionSingleton.of(station);
+
+        departs.forEach(depart -> {
+            LocationId<?> locationId = depart.getLocationId(txn);
+            assertTrue(destinations.contains(locationId));
+        });
+
+    }
+
+    @NotNull
+    private GraphNode findRouteStation(Station station, Route route) {
+        RouteStation routeStation = stationRepository.getRouteStation(station, route);
+
+        assertNotNull(routeStation);
+
+        GraphNode node = txn.findNode(routeStation);
+
+        assertNotNull(node);
+        return node;
+    }
+
+    @Test
+    void shouldHaveDestinationForStationGroup() {
+
+        Station station = StPetersSquare.from(stationRepository);
+
+        StationLocalityGroup stationGroup = getStationGroup(station);
+
+        LocationCollection destinations = LocationCollectionSingleton.of(stationGroup);
+
+        GraphNode node = txn.findNode(station);
+        assertNotNull(node);
+
+        List<GraphRelationship> towardsGroup = node.getRelationships(txn, GraphDirection.Outgoing,
+                TransportRelationshipTypes.GROUPED_TO_PARENT).toList();
+
+        assertFalse(towardsGroup.isEmpty());
+
+        towardsGroup.forEach(relationship -> {
+            LocationId<?> locationId = relationship.getLocationId(txn);
+            assertTrue(destinations.contains(locationId), "Did not find " + locationId + " in " + destinations);
+        });
+    }
+
+    @AltrinchamLineTests
+    @Test
+    void shouldFindRelationshipsTowardsDestination() {
+        Station station = NavigationRoad.from(stationRepository);
+        Route route = tramRouteHelper.getGreen(when);
+
+        GraphNode node = findRouteStation(station, route);
+
+        TowardsDestination towardsDestination = new TowardsDestination(station, txn);
+
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(node);
+
+        assertFalse(towards.isEmpty());
+        List<GraphRelationship> results = towards.stream().toList();
+
+        // 2 platforms
+        assertEquals(2, results.size());
+
+        results.forEach(result -> {
+            GraphNode endNode = result.getEndNode(txn);
+
+            assertTrue(endNode.getLabels().contains(GraphLabel.PLATFORM));
+
+            assertEquals(station.getId(), endNode.getStationId());
+        });
+
+    }
+
+    @AltrinchamLineTests
+    @Test
+    void shouldFindNoRelationshipsIfNotTowardsDestination() {
+        Station station = NavigationRoad.from(stationRepository);
+        Route route = tramRouteHelper.getGreen(when);
+
+        GraphNode node = findRouteStation(station, route);
+
+        TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)), txn);
+
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(node);
+
+        assertTrue(towards.isEmpty());
+
+    }
+
+    @Test
+    void shouldFindRelationshipsTowardsDestinationGroupFromStation() {
+        Station station = StPetersSquare.from(stationRepository);
+
+        StationLocalityGroup stationGroup = getStationGroup(station);
+        assertTrue(stationGroup.isActive());
+
+        GraphNode node = txn.findNode(station);
+        assertNotNull(node);
+
+        TowardsDestination towardsDestination = new TowardsDestination(stationGroup, txn);
+
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromStation(node);
+
+        assertFalse(towards.isEmpty(), "Empty for towards" + stationGroup + " from " + station.getId());
+
+        Stream<GraphRelationship> results = towards.stream();
+
+        results.forEach(relationship -> {
+            GraphNode endNode = relationship.getEndNode(txn);
+            assertEquals(stationGroup.getId(), endNode.getStationGroupId());
+        });
+    }
+
+    @AltrinchamLineTests
+    @Test
+    void shouldFindRelationshipsTowardsDestinationGroupFromRouteStation() {
+        Station station = StPetersSquare.from(stationRepository);
+        Route route = tramRouteHelper.getGreen(when);
+
+        StationLocalityGroup stationGroup = getStationGroup(station);
+
+        @NotNull GraphNode node = findRouteStation(station, route);
+
+        TowardsDestination towardsDestination = new TowardsDestination(stationGroup, txn);
+
+        IterableWithEmptyCheck<GraphRelationship> towards = towardsDestination.fromRouteStation(node);
+
+        assertFalse(towards.isEmpty());
+
+        Stream<GraphRelationship> results = towards.stream();
+
+        results.forEach(relationship -> {
+            GraphNode endNode = relationship.getEndNode(txn);
+            IdFor<Station> endNodeStationId = endNode.getStationId();
+            Station endNodeStation = stationRepository.getStationById(endNodeStationId);
+            assertEquals(station.getLocalityId(), endNodeStation.getLocalityId());
+        });
+    }
+
+    @Test
+    void shouldNotFindRelationshipsIfNotTowardsDestinationGroup() {
+        Station station = StPetersSquare.from(stationRepository);
+
+        GraphNode node = txn.findNode(station);
+
+        assertNotNull(node);
+
+        TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)), txn);
+
+        IterableWithEmptyCheck<GraphRelationship> results = towardsDestination.fromStation(node);
+
+        assertTrue(results.isEmpty());
+
+    }
+
+    private StationLocalityGroup getStationGroup(Station station) {
+        final IdFor<NPTGLocality> localityId = station.getLocalityId();
+        return groupRepository.getStationGroupForArea(localityId);
+    }
+}
