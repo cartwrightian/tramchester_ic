@@ -50,9 +50,9 @@ function displayLiveData(app) {
     const queryDate = new Date(app.date); 
     const today = getNow();
     // check live data for today only, todo 
-    if (today.getMonth()==queryDate.getMonth()
-        && today.getYear()==queryDate.getYear()
-        && today.getDate()==queryDate.getDate()) {
+    if (today.getMonth()===queryDate.getMonth()
+        && today.getYear()===queryDate.getYear()
+        && today.getDate()===queryDate.getDate()) {
         const notesStations = getCallingStationsFrom(app.journeys);
         queryLiveData(app, notesStations);
     } else {
@@ -66,7 +66,7 @@ function getCallingStationsFrom(journeys) {
         const journey = journeyPlan.journey;
         const changes = journey.changeStations;
         changes.forEach(change => {
-            if (change.locationType=='Station') {
+            if (change.locationType==='Station') {
                 stations.add(change.id);
             }
         })
@@ -93,7 +93,7 @@ function queryLiveData(app, callingStations) {
     var locationType;
     if (place != null) {
         locationType = place.locationType;
-        if (startLocationType==locationType) {
+        if (startLocationType===locationType) {
             modes = app.selectedModes;
         } else {
             modes = app.startStop.transportModes;
@@ -106,7 +106,7 @@ function queryLiveData(app, callingStations) {
 
     var startLocationId; 
     if (place != null) {
-        if (startLocationType == locationType) { 
+        if (startLocationType === locationType) {
             startLocationId = place.coords.latitude + ',' + place.coords.longitude
         } else {
             startLocationId = app.startStop.id;
@@ -118,7 +118,7 @@ function queryLiveData(app, callingStations) {
 
     // locations we should request notes for
     var getNotesFor = callingStations.slice();
-    if (startLocationType != locationType) {
+    if (startLocationType !== locationType) {
         getNotesFor.push(startLocationId);
     } // else API returns nearby Trams and Notes by default
 
@@ -219,7 +219,7 @@ async function getStationsFromServer(app) {
         gets.push(axios.get('/api/locations/mode/'+mode));
     });
 
-    if (gets.length==0) {
+    if (gets.length===0) {
         console.error("No modes?");
     }
 
@@ -247,7 +247,7 @@ async function getStationsFromServer(app) {
         gets.push(axios.get(url));
     });
 
-    if (gets.length==0) {
+    if (gets.length===0) {
         console.error("No modes?");
     }
 

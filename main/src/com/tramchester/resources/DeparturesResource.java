@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DestinationAndCallingPoints;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
@@ -117,15 +118,29 @@ public class DeparturesResource extends TransportResource implements APIResource
         }
 
         if (departuresQuery.hasJourneys()) {
-            List<JourneyDTO> journeys = departuresQuery.getJourneys();
+            final List<JourneyDTO> journeys = departuresQuery.getJourneys();
+
+
+            // TODO If journey has connecting stage or walking stage at the start need to also get due for that location
+            final Set<Station> departureStations = mapJourneyDTOToStations.getDepartureStations(journeys);
+
+            if (departureStations.isEmpty()) {
+                logger.warn("Got not departure stations for " + journeys);
+            } else {
+                logger.info("From journey got departure stations " + HasId.asIds(departureStations));
+            }
 
             final DestinationAndCallingPoints destinationAndCallingPoints = mapJourneyDTOToStations.getDestAndCalling(journeys);
 
-            // TODO If journey has connecting stage or walking stage at the start need to also get due for that location
-            Set<Station> departureStations = mapJourneyDTOToStations.getDepartureStations(journeys);
-
             final List<UpcomingDeparture> depsForJourneys = departuresRepository.getDueForLocation(departureStations,
                     dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints);
+
+            if (depsForJourneys.isEmpty()) {
+                logger.warn("Got no departures for %s %s %s %s %s".
+                        formatted(departureStations, dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints));
+            } else {
+                logger.info("Found %s departures for %s".formatted(depsForJourneys.size(), HasId.asIds(departureStations)));
+            }
 
             final SortedSet<DepartureDTO> departureDTOs = departuresMapper.createDepDTOForJourneys(depsForJourneys,
                     dateTime, destinationAndCallingPoints);
@@ -136,10 +151,17 @@ public class DeparturesResource extends TransportResource implements APIResource
             return Response.ok(new DepartureListDTO(departureDTOs, notes, departuresQuery.hasJourneys())).build();
 
         } else {
-            final DestinationAndCallingPoints destinationAndCallingPoints =
-                    DestinationAndCallingPoints.None();
+            final DestinationAndCallingPoints destinationAndCallingPoints = DestinationAndCallingPoints.None();
+
             final List<UpcomingDeparture> departuresForLocation = departuresRepository.getDueForLocation(location,
                     dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints);
+
+            if (departuresForLocation.isEmpty()) {
+                logger.warn("Got no departures for location %s %s %s %s %s".
+                        formatted(location, dateTime.toLocalDate(), queryTime, modes, destinationAndCallingPoints));
+            } else {
+                logger.info("Found %s departures for %s".formatted(departuresForLocation.size(), location.getLatLong()));
+            }
 
             //final LocalDateTime currentTime = providesNow.getDateTime();
             final SortedSet<DepartureDTO> departureDTOs = departuresMapper.mapToDTO(departuresForLocation, dateTime);
@@ -151,24 +173,6 @@ public class DeparturesResource extends TransportResource implements APIResource
         }
 
     }
-
-//    private @NotNull SortedSet<DepartureDTO> createDeparturesDTOWhenJourney(final DeparturesQueryDTO departuresQuery,
-//                                                                            final List<UpcomingDeparture> departures) {
-//
-//        final LocalDateTime currentTime = providesNow.getDateTime();
-//
-//        final Set<DepartureDTO> departureDTOS;
-//        //if (departuresQuery.hasJourneys()) {
-//            final List<JourneyDTO> journeys = departuresQuery.getJourneys();
-//            logger.info("Filtering departures corresponding to supplied journeys " +journeys);
-//            departureDTOS = departuresMapper.createDepDTOForJourneys(departures, currentTime, journeys, destAndCalling);
-////        } else {
-////            logger.info("Unfiltered departures");
-////            departureDTOS = departuresMapper.mapToDTO(departures, currentTime);
-////        }
-//        // sorted
-//        return new TreeSet<>(departureDTOS);
-//    }
 
     @NotNull
     private List<Note> getNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams,

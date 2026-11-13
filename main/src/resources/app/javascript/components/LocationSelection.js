@@ -17,12 +17,16 @@ function sort(stopMap, alreadyDisplayed, requestedModes) {
     });
 }
 
-function filterStops(stops, requestedModes, alreadyDisplayed) {
-    var results = stops.
-        filter(stop => Array.from(stop.transportModes).filter(stopMode => requestedModes.includes(stopMode)).length > 0).
-        filter(stop => !alreadyDisplayed.includes(stop.id));
+function filterStopsByMode(stops, requestedModes) {
+    const results = stops.
+        filter(stop => Array.from(stop.transportModes).filter(stopMode => requestedModes.includes(stopMode)).length > 0);
 
     return results;
+}
+
+function filterStops(stops, requestedModes, alreadyDisplayed) {
+    const results = stops.filter(stop => !alreadyDisplayed.includes(stop.id));
+    return filterStopsByMode(results, requestedModes);
 }
 
 function getStop(stopId, app) {
@@ -86,11 +90,11 @@ export default {
 
             var results = [];
 
-            this.stops.recentStops.forEach(stop => {
+            this.recentStops.forEach(stop => {
                 results.push(stop.id)
             });
 
-            this.stops.nearestStops.forEach(stop => {
+            this.nearestStops.forEach(stop => {
                 results.push(stop.id)
             });
 
@@ -103,13 +107,14 @@ export default {
             return this.modes.includes('Bus');
         },
         recentStops: function() {
-            return this.stops.recentStops;
+            return filterStopsByMode(this.stops.recentStops, this.modes);
         },
+        // TODO UNUSED
         currentLocationStops: function () {
             return this.stops.currentLocation;
         },
         nearestStops: function() {
-            return this.stops.nearestStops;
+            return filterStopsByMode(this.stops.nearestStops, this.modes);
         },
         myLocation: function() {
             return this.stops.currentLocation;
