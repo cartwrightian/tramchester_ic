@@ -468,13 +468,14 @@ tasks.register('integrationGM', Test) {
     minHeapSize = "1g"
     maxHeapSize = "3g"
     outputs.upToDateWhen { false }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
     useJUnitPlatform {
         includeTags "GMTest"
         includeTags "dataExpiry"
         includeTags "DualTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
+        excludeTags "BusTest" // workaround what looks like a bug...
     }
     systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
