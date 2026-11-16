@@ -4,6 +4,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
@@ -49,7 +50,8 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcode() {
 
-        JourneyQueryDTO query = JourneyQueryDTO.create(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens, false, 5);
+        JourneyQueryDTO query = JourneyQueryDTO.create(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
+                false, 5, TransportMode.Tram.singleton());
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 

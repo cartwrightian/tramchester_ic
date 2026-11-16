@@ -110,7 +110,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     }
 
     @NotNull
-    private List<LocationRefDTO> getLocationsFor(TransportMode mode) {
+    private List<LocationRefDTO> getLocationsFor(final TransportMode mode) {
         final Set<? extends Location<?>> matching;
         if (mode==TransportMode.Bus) {
             if (!stationGroupsRepository.isEnabled()) {

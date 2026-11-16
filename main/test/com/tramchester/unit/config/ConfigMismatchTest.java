@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -122,6 +124,9 @@ class ConfigMismatchTest {
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
         assertEquals(2, dataSourceConfig.size());
 
+        assertEquals(ImmutableEnumSet.of(TransportMode.Tram, TransportMode.TramReplacementBus), testConfig.getTransportModesImmutable());
+        assertEquals(TransportMode.Tram.singleton(), testConfig.getLiveDataModes());
+
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.tfgm);
         //assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.database);
 
@@ -157,6 +162,9 @@ class ConfigMismatchTest {
 
         AppConfiguration appConfig = loadConfigFromFile("rail.yml");
         IntegrationRailTestConfig  nationalRailConfig = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.National);
+
+        assertEquals(TransportMode.Train.singleton(), nationalRailConfig.getLiveDataModes());
+        assertEquals(TransportMode.Train.singleton(), appConfig.getLiveDataModes());
 
         validateCoreParameters(Collections.emptySet(), appConfig,  nationalRailConfig);
 
@@ -204,6 +212,8 @@ class ConfigMismatchTest {
         AppConfiguration gmConfig = loadConfigFromFile("gm.yml");
 
         // TODO Which other parameters should be the same?
+
+        assertEquals(ImmutableEnumSet.of(TransportMode.Tram, TransportMode.Train), gmConfig.getLiveDataModes());
 
         checkGTFSSourceConfig(normalConfig, gmConfig, Category.Closures.not(EnumSet.noneOf(Category.class)));
         assertRemoteSources(normalConfig.getRemoteSources(), gmConfig.getRemoteSources(), DataSourceID.tfgm);

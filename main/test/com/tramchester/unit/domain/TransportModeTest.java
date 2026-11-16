@@ -76,4 +76,16 @@ public class TransportModeTest {
         assertEquals(transportModes.without(TramReplacementBus.singleton()), TransportMode.consolidateReplacements(transportModes));
 
     }
+
+    @Test
+    void shouldExpandToReplacementBuses() {
+        assertEquals(Bus.singleton(), TransportMode.addReplacements(Bus.singleton()));
+
+        assertEquals(ImmutableEnumSet.of(Tram, TramReplacementBus), TransportMode.addReplacements(Tram.singleton()));
+        assertEquals(ImmutableEnumSet.of(Train, RailReplacementBus), TransportMode.addReplacements(Train.singleton()));
+
+        assertEquals(ImmutableEnumSet.of(Tram, TramReplacementBus, Train, RailReplacementBus),
+                TransportMode.addReplacements(ImmutableEnumSet.of(Tram, Train)));
+
+    }
 }

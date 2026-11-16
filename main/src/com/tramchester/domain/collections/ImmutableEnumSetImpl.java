@@ -18,7 +18,7 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
             throw new RuntimeException("Empty" + source);
         }
         if (source.size()==1) {
-            C element = source.iterator().next();
+            final C element = source.iterator().next();
             return new One<>(element);
 
         }
@@ -144,6 +144,11 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
         }
 
         @Override
+        public ImmutableEnumSet<T> with(ImmutableEnumSet<T> additions) {
+            return additions;
+        }
+
+        @Override
         public List<T> createList() {
             return Collections.emptyList();
         }
@@ -257,6 +262,16 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
             } else {
                 return new One<>(item);
             }
+        }
+
+        @Override
+        public ImmutableEnumSet<T> with(final ImmutableEnumSet<T> additions) {
+            if (additions.contains(item)) {
+                return additions;
+            }
+            final EnumSet<T> enumSet = ImmutableEnumSet.createEnumSet(additions);
+            enumSet.add(item);
+            return ImmutableEnumSet.copyOf(enumSet);
         }
 
         @Override
@@ -402,6 +417,16 @@ public abstract class ImmutableEnumSetImpl<T extends Enum<T>> implements Immutab
             } else {
                 return ImmutableEnumSetImpl.createFrom(EnumSet.copyOf(filtered));
             }
+        }
+
+        @Override
+        public ImmutableEnumSet<T> with(final ImmutableEnumSet<T> additions) {
+           if (additions.containsAll(contained)) {
+               return additions;
+           }
+           final EnumSet<T> result = EnumSet.copyOf(contained);
+           additions.addAllTo(result);
+           return createFrom(result);
         }
 
         @Override

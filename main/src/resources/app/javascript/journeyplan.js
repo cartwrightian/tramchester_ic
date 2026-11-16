@@ -215,6 +215,7 @@ async function getStationsFromServer(app) {
 
     var gets = [];
 
+    // todo consolidate into a single call with set of modes as as paremeter
     app.modes.forEach(mode => {
         gets.push(axios.get('/api/locations/mode/'+mode));
     });
@@ -241,7 +242,8 @@ async function getStationsFromServer(app) {
     var place = app.location;
 
     var gets = [];
-    
+
+    // todo consolidate into single call that takes multiple modes
     app.modes.forEach(mode => {
         const url = '/api/locations/near/'+mode+'?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
         gets.push(axios.get(url));
@@ -430,7 +432,6 @@ const app = createApp({
             let betaRaw = urlParams.get('beta');
             let beta = betaRaw != null;
             getTransportModesThenStations(this, beta);
-       
         },
         created() {
             if("geolocation" in navigator) {

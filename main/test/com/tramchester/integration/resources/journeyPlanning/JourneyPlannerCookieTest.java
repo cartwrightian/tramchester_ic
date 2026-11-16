@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
@@ -179,7 +180,8 @@ public class JourneyPlannerCookieTest {
 
     private Response getResponseForJourney(Location<?> start, Location<?> end, TramTime time, LocalDate date, List<Cookie> cookies) {
 
-        JourneyQueryDTO query = JourneyQueryDTO.create(date, time, start, end, false, 2, false);
+        JourneyQueryDTO query = JourneyQueryDTO.create(date, time, start, end, false, 2, false,
+                TransportMode.Tram.singleton());
 
         query.setMaxNumResults(2);
 

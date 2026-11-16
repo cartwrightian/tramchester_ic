@@ -283,4 +283,14 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return longestWait.get();
     }
 
+    public ImmutableEnumSet<TransportMode> getLiveDataModes() {
+        final EnumSet<TransportMode> results = EnumSet.noneOf(TransportMode.class);
+        if (getTfgmTramliveData()!=null) {
+            results.add(Tram);
+        }
+        if (getOpenLdb()!=null) {
+            results.add(Train);
+        }
+        return results.isEmpty() ? TransportMode.noneOf() : ImmutableEnumSet.copyOf(results);
+    }
 }

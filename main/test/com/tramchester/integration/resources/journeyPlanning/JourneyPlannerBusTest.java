@@ -241,7 +241,8 @@ class JourneyPlannerBusTest {
     void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
 
-        JourneyQueryDTO query = JourneyQueryDTO.create(when, queryTime, nearAltrincham.location(), stockportCentralStops, false, 2);
+        JourneyQueryDTO query = JourneyQueryDTO.create(when, queryTime, nearAltrincham.location(), stockportCentralStops,
+                false, 2, TransportMode.Bus.singleton());
 
         JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(query);
 

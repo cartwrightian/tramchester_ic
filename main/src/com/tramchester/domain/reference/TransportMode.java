@@ -66,6 +66,20 @@ public enum TransportMode implements HasTransportMode {
         return transportModes.stream().map(TransportMode::mapReplacements).collect(ImmutableEnumSet.collect(TransportMode.class));
     }
 
+    public static ImmutableEnumSet<TransportMode> addReplacements(final ImmutableEnumSet<TransportMode> original) {
+        final ImmutableEnumSet<TransportMode> additions;
+        if (original.contains(Tram) && original.contains(Train)) {
+            additions = ImmutableEnumSet.of(TramReplacementBus, RailReplacementBus);
+        } else if (original.contains(Tram)) {
+            additions = TramReplacementBus.singleton;
+        } else if (original.contains(Train)) {
+            additions = RailReplacementBus.singleton;
+        } else {
+            additions = TransportMode.NoneOf;
+        }
+        return original.with(additions);
+    }
+
     public static TransportMode mapReplacements(final TransportMode item) {
         return switch (item) {
             case RailReplacementBus -> Train;

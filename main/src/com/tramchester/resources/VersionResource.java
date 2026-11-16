@@ -62,10 +62,11 @@ public class VersionResource implements APIResource {
         final boolean beta = betaRaw!=null;
 
         final ImmutableEnumSet<TransportMode> modes = repository.getModes(beta);
-        ImmutableEnumSet<TransportMode> coreModes = TransportMode.consolidateReplacements(modes);
+        final ImmutableEnumSet<TransportMode> consolidatedModes = TransportMode.consolidateReplacements(modes);
+        final ImmutableEnumSet<TransportMode> liveDataModes = config.getLiveDataModes();
 
-        final boolean modeSelectionEnabled = coreModes.size()>1;
-        final ConfigDTO configDTO = new ConfigDTO(modes, config, modeSelectionEnabled, coreModes);
+        final boolean modeSelectionEnabled = consolidatedModes.size()>1;
+        final ConfigDTO configDTO = new ConfigDTO(consolidatedModes, config, modeSelectionEnabled, liveDataModes);
 
         logger.info("Returning config " + configDTO);
 

@@ -27,11 +27,13 @@ public class JourneyQueryDTOTest {
 
     private final TramchesterConfig config = new LocalConfig();
 
+    private final ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(TransportMode.Train, TransportMode.Tram);
+
     @Test
     void shouldSerializedDeserialize() throws JsonProcessingException {
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
                 LocalTime.of(13,56), LocationType.Station, new IdForDTO("startId"),
-                LocationType.Station, new IdForDTO("destId"), false, 2, true);
+                LocationType.Station, new IdForDTO("destId"), false, 2, true, modes);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -57,7 +59,7 @@ public class JourneyQueryDTOTest {
     void shouldSerializedDeserializeWithMaxNumResults() throws JsonProcessingException {
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
                 LocalTime.of(13,56), LocationType.Station, new IdForDTO("startId"),
-                LocationType.Station, new IdForDTO("destId"), false, 2, true);
+                LocationType.Station, new IdForDTO("destId"), false, 2, true, modes);
         dto.setMaxNumResults(42);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -76,28 +78,32 @@ public class JourneyQueryDTOTest {
     void shouldConvertToJourneyRequest() {
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
                 LocalTime.of(13,56), LocationType.Station, new IdForDTO("startId"),
-                LocationType.Station, new IdForDTO("destId"), false, 2, true);
+                LocationType.Station, new IdForDTO("destId"), false, 2, true,
+                TransportMode.Tram.singleton());
+
         dto.setMaxNumResults(42);
 
-        JourneyRequest result = JourneyQueryDTO.toJourneyRequest(config, dto);
+        JourneyRequest result = JourneyRequest.fromDTO(config, dto);
 
         assertEquals(dto.getDate(), result.getDate().toLocalDate());
         assertEquals(dto.getTime(), result.getOriginalTime().asLocalTime());
         assertEquals(dto.getMaxChanges(), result.getMaxChanges().get());
         assertEquals(dto.isArriveBy(), result.getArriveBy());
-        assertEquals(TransportMode.TramsOnly, result.getRequestedModes());
         assertEquals(config.getMaxJourneyDuration(), result.getMaxJourneyDuration().getMinutesSafe());
         assertEquals(dto.getDiagnostics(), result.getDiagnosticsEnabled());
         assertEquals(42, result.getMaxNumberOfJourneys());
+
+        assertEquals(ImmutableEnumSet.of(TransportMode.Tram, TransportMode.TramReplacementBus), result.getRequestedModes());
+
     }
 
     @Test
     void shouldConvertToJourneyNoDiagnostics() {
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
                 LocalTime.of(13,56), LocationType.Station, new IdForDTO("startId"),
-                LocationType.Station, new IdForDTO("destId"), false, 2, null);
+                LocationType.Station, new IdForDTO("destId"), false, 2, null, modes);
 
-        JourneyRequest result = JourneyQueryDTO.toJourneyRequest(config, dto);
+        JourneyRequest result = JourneyRequest.fromDTO(config, dto);
 
         assertFalse(result.getDiagnosticsEnabled());
     }
@@ -108,9 +114,9 @@ public class JourneyQueryDTOTest {
 
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
                 afterMidnight.asLocalTime(), LocationType.Station, new IdForDTO("startId"),
-                LocationType.Station, new IdForDTO("destId"), false, 2, true);
+                LocationType.Station, new IdForDTO("destId"), false, 2, true, modes);
 
-        JourneyRequest result = JourneyQueryDTO.toJourneyRequest(config, dto);
+        JourneyRequest result = JourneyRequest.fromDTO(config, dto);
 
         assertEquals(dto.getDate(), result.getDate().toLocalDate());
         assertEquals(afterMidnight, result.getOriginalTime());
@@ -122,9 +128,9 @@ public class JourneyQueryDTOTest {
 
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
                 firstTram.asLocalTime(), LocationType.Station, new IdForDTO("startId"),
-                LocationType.Station, new IdForDTO("destId"), false, 2, true);
+                LocationType.Station, new IdForDTO("destId"), false, 2, true, modes);
 
-        JourneyRequest result = JourneyQueryDTO.toJourneyRequest(config, dto);
+        JourneyRequest result = JourneyRequest.fromDTO(config, dto);
 
         assertEquals(dto.getDate(), result.getDate().toLocalDate());
         assertEquals(firstTram, result.getOriginalTime());

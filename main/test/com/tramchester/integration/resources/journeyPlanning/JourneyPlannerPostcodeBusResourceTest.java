@@ -58,7 +58,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
 
         JourneyQueryDTO query = JourneyQueryDTO.create(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
-                false, 0);
+                false, 0, TransportMode.Bus.singleton());
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 

@@ -192,4 +192,22 @@ public class ImmutableEnumSetTest {
 
     }
 
+    @Test
+    void shouldHaveWith() {
+        ImmutableEnumSet<TransportMode> none = ImmutableEnumSet.noneOf(TransportMode.class);
+        ImmutableEnumSet<TransportMode> one = ImmutableEnumSet.of(Walk);
+        ImmutableEnumSet<TransportMode> many = ImmutableEnumSet.of(Walk, Train, Ferry);
+
+        assertEquals(one, none.with(one));
+        assertEquals(one, none.with(Walk.singleton()));
+        assertEquals(many, none.with(many));
+
+        assertEquals(ImmutableEnumSet.of(Walk, Bus), one.with(Bus.singleton()));
+        assertEquals(many, one.with(ImmutableEnumSet.of(Train, Ferry)));
+
+        assertEquals(ImmutableEnumSet.of(Walk, Train, Ferry, Bus), many.with(Bus.singleton()));
+
+        assertEquals(ImmutableEnumSet.of(Walk, Train, Ferry, Bus), many.with(ImmutableEnumSet.of(Walk, Train, Ferry, Bus)));
+    }
+
 }

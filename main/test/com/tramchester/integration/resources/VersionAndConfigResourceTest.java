@@ -27,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(TramAppTestExtension.class)
 class VersionAndConfigResourceTest {
 
-    private static final IntegrationTramTestConfig configuration = new ResourceTramTestConfig<>(VersionResource.class);
+    private static final IntegrationTramTestConfig configuration =
+            new ResourceTramTestConfig<>(VersionResource.class, IntegrationTramTestConfig.LiveData.Enabled);
 
     @TramApp
     private static IntegrationAppExtension appExtension = new IntegrationAppExtension(configuration);
@@ -63,7 +64,7 @@ class VersionAndConfigResourceTest {
 
     @Test
     void shouldGetConfig() {
-        ImmutableEnumSet<TransportMode> expectedModes = configuration.getTransportModesImmutable();
+        ImmutableEnumSet<TransportMode> expectedModes = TransportMode.consolidateReplacements(configuration.getTransportModesImmutable());
 
         Response response = APIClient.getApiResponse(factory, endPoint+"/config");
         assertEquals(200, response.getStatus());
@@ -79,12 +80,13 @@ class VersionAndConfigResourceTest {
         assertEquals(configuration.getMaxNumberChanges(), results.getMaxNumberChanges());
         assertFalse(results.getModeSelectionEnabled());
 
-        assertEquals(List.of(TransportMode.Tram), results.getLiveDataModes());
+        assertEquals(configuration.getLiveDataModes().stream().toList(), results.getLiveDataModes());
     }
 
     @Test
     void shouldGetTransportModesWithBetaFlag() {
-        ImmutableEnumSet<TransportMode> expectedModes = configuration.getTransportModesImmutable();
+        ImmutableEnumSet<TransportMode> expectedModes = TransportMode.consolidateReplacements(
+                configuration.getTransportModesImmutable());
 
         Response responce = APIClient.getApiResponse(factory, endPoint+"/config?beta=true");
         assertEquals(200, responce.getStatus());

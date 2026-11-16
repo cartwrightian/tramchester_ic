@@ -1,15 +1,19 @@
 package com.tramchester.domain;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
+import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramDuration;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.LocalTime;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -82,6 +86,47 @@ public class JourneyRequest {
                 originalRequest.requestedModes, false);
         diagRequested = originalRequest.diagRequested;
         warnIfNoResults = originalRequest.warnIfNoResults;
+    }
+
+    public static JourneyRequest fromDTO(final TramchesterConfig config, final JourneyQueryDTO dto) {
+        // if no modes provided then default to all modes currently configured
+
+        final ImmutableEnumSet<TransportMode> modes;
+        final Set<TransportMode> dtoModes = dto.getModes();
+        if (dtoModes.isEmpty()) {
+            modes = config.getTransportModesImmutable();
+        } else {
+            modes = withReplacementBuses(dtoModes);
+        }
+
+        final TramDate date = dto.getTramDate();
+        final LocalTime time = dto.getTime();
+
+        final TimeRange earlyHours = TimeRange.of(TramTime.of(0,0), TramTime.of(4,0));
+
+        TramTime queryTime = TramTime.ofHourMins(time);
+        if (earlyHours.contains(queryTime)) {
+            queryTime = TramTime.nextDay(queryTime);
+        }
+
+        final boolean arriveBy = dto.isArriveBy();
+        final int maxChanges = dto.getMaxChanges();
+        final TramDuration maxJourneyDuration = TramDuration.ofMinutes(config.getMaxJourneyDuration());
+
+        int maxNumberResults = (dto.getMaxNumResults()==null) ? config.getMaxNumberResults() : dto.getMaxNumResults();
+
+        final JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy,
+                JourneyRequest.MaxNumberOfChanges.of(maxChanges),
+                maxJourneyDuration, maxNumberResults, modes, false);
+
+        if (dto.getDiagnostics()!=null) {
+            journeyRequest.setDiag(dto.getDiagnostics());
+        }
+        return journeyRequest;
+    }
+
+    private static ImmutableEnumSet<TransportMode> withReplacementBuses(final Set<TransportMode> dtoModes) {
+        return TransportMode.addReplacements(ImmutableEnumSet.copyOf(dtoModes));
     }
 
     public TramDate getDate() {

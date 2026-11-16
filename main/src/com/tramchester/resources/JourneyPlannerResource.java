@@ -216,7 +216,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     }
 
     private JourneyRequest createJourneyRequest(final JourneyQueryDTO query) {
-        return JourneyQueryDTO.toJourneyRequest(config, query);
+        return JourneyRequest.fromDTO(config, query);
     }
 
     private Response buildResponse(Response.ResponseBuilder responseBuilder, Location<?> start, Location<?> dest, Cookie cookie,

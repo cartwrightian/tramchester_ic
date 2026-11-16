@@ -67,6 +67,8 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
 
     ImmutableEnumSet<T> without(ImmutableEnumSet<T> remove);
 
+    ImmutableEnumSet<T> with(ImmutableEnumSet<T> additions);
+
     static <S extends Enum<S>> ImmutableEnumSet<S> of(final S item) {
         return new ImmutableEnumSetImpl.One<>(item);
     }
@@ -120,4 +122,5 @@ public interface ImmutableEnumSet<T extends Enum<T>> extends Iterable<T> {
     }
 
     List<T> createList();
+
 }
