@@ -1,6 +1,7 @@
 package com.tramchester.unit.mappers;
 
 
+import com.google.common.collect.ImmutableSet;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.ImmutableEnumSet;
@@ -26,6 +27,7 @@ import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
+import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -60,6 +62,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     private DTOFactory dTOFactory;
     private JourneyDTODuplicateFilter filter;
     private TramchesterConfig config;
+    private NeighboursRepository neighbourRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -76,8 +79,9 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         dTOFactory = createMock(DTOFactory.class);
         filter = createMock(JourneyDTODuplicateFilter.class);
         config = createMock(TramchesterConfig.class);
+        neighbourRepository = createMock(NeighboursRepository.class);
 
-        mapper = new JourneyToDTOMapper(stageFactory, dTOFactory, filter, config);
+        mapper = new JourneyToDTOMapper(stageFactory, dTOFactory, filter, config, neighbourRepository);
         stages = new LinkedList<>();
         nearPiccGardensLocation = nearPiccGardens.location();
     }
@@ -176,6 +180,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         EasyMock.expect(filter.apply(journeyDTOs)).andStubReturn(journeyDTOs);
         EasyMock.expect(config.getLiveDataModes()).andReturn(ImmutableEnumSet.of(Tram));
+        EasyMock.expect(neighbourRepository.isEnabled()).andReturn(false);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.createJourneyPlan(journeyDTOs, false,false, null);
@@ -203,6 +208,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         EasyMock.expect(filter.apply(journeyDTOs)).andStubReturn(journeyDTOs);
         EasyMock.expect(config.getLiveDataModes()).andReturn(ImmutableEnumSet.of(Train));
+        EasyMock.expect(neighbourRepository.isEnabled()).andReturn(false);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.createJourneyPlan(journeyDTOs, false,false, null);
@@ -230,6 +236,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         EasyMock.expect(filter.apply(journeyDTOs)).andStubReturn(journeyDTOs);
         EasyMock.expect(config.getLiveDataModes()).andReturn(ImmutableEnumSet.of(Tram));
+        EasyMock.expect(neighbourRepository.isEnabled()).andReturn(false);
 
         replayAll();
         JourneyPlanRepresentation result = mapper.createJourneyPlan(journeyDTOs, false,false, null);
@@ -265,6 +272,42 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         EasyMock.expect(filter.apply(journeyDTOs)).andStubReturn(journeyDTOs);
         EasyMock.expect(config.getLiveDataModes()).andReturn(ImmutableEnumSet.of(Tram, Train));
+
+        EasyMock.expect(neighbourRepository.isEnabled()).andReturn(true);
+        EasyMock.expect(neighbourRepository.getNeighboursFor(startStationTram.getId())).andReturn(ImmutableSet.of());
+        EasyMock.expect(neighbourRepository.getNeighboursFor(startStationRail.getId())).andReturn(ImmutableSet.of(Piccadilly.fake()));
+
+        replayAll();
+        JourneyPlanRepresentation result = mapper.createJourneyPlan(journeyDTOs, false,false, null);
+        verifyAll();
+
+        assertEquals(journeyDTOs, result.getJourneys());
+
+        Set<IdForDTO> expected = Set.of(NavigationRoad.getIdForDTO(), Deansgate.getIdForDTO());
+
+        assertEquals(expected, result.getAllChangeStations());
+        assertEquals(EnumSet.of(Tram, Train), result.getLiveDataModes());
+    }
+
+    @Test
+    void shouldCreatePlanRepresentationTrainAddTramAsNeighbourMode() {
+        Station startStationRail = RailStationIds.ManchesterPiccadilly.fakeWithPlatform(1, when);
+
+        LocationRefWithPosition startStationTrainRef = new LocationRefWithPosition(startStationRail);
+
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(startStationRail)).
+                andStubReturn(startStationTrainRef);
+
+        Set<JourneyDTO> journeyDTOs = new HashSet<>();
+        JourneyDTO journeyDTOA = createJourneyDTO(TramTime.of(9,16), when, startStationTrainRef, 0);
+        journeyDTOs.add(journeyDTOA);
+
+        EasyMock.expect(filter.apply(journeyDTOs)).andStubReturn(journeyDTOs);
+        EasyMock.expect(config.getLiveDataModes()).andReturn(ImmutableEnumSet.of(Tram, Train));
+
+        EasyMock.expect(neighbourRepository.isEnabled()).andReturn(true);
+        EasyMock.expect(neighbourRepository.getNeighboursFor(startStationRail.getId())).
+                andReturn(ImmutableSet.of(Piccadilly.fake()));
 
         replayAll();
         JourneyPlanRepresentation result = mapper.createJourneyPlan(journeyDTOs, false,false, null);

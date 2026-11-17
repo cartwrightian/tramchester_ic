@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -18,6 +19,7 @@ import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
+import com.tramchester.repository.NeighboursRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +40,16 @@ public class JourneyToDTOMapper {
     private final DTOFactory stationDTOFactory;
     private final JourneyDTODuplicateFilter duplicateFilter;
     private final TramchesterConfig config;
+    private final NeighboursRepository neighboursRepository;
 
     @Inject
     public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory, JourneyDTODuplicateFilter duplicateFilter,
-                              TramchesterConfig config) {
+                              TramchesterConfig config, NeighboursRepository neighboursRepository) {
         this.stageFactory = stageFactory;
         this.stationDTOFactory = DTOFactory;
         this.duplicateFilter = duplicateFilter;
         this.config = config;
+        this.neighboursRepository = neighboursRepository;
     }
 
     public JourneyDTO createJourneyDTO(final Journey journey, final TramDate queryDate) {
@@ -145,17 +149,32 @@ public class JourneyToDTOMapper {
             logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
         }
 
-
         // live data modes
-
         final ImmutableEnumSet<TransportMode> enabledLiveData = config.getLiveDataModes();
 
-        final ImmutableEnumSet<TransportMode> liveDataModes = journeyDTOS.stream().
+        final ImmutableEnumSet<TransportMode> beginNeighbourLiveDataModes;
+        if (neighboursRepository.isEnabled()) {
+            beginNeighbourLiveDataModes= journeyDTOS.stream().
+                    map(JourneyDTO::getBegin).
+                    filter(locationRefDTO -> locationRefDTO.getLocationType() == LocationType.Station).
+                    map(locationRefDTO -> Station.createId(locationRefDTO.getId())).
+                    flatMap(stationId -> neighboursRepository.getNeighboursFor(stationId).stream()).
+                    flatMap(station -> station.getTransportModes().stream()).
+                    filter(enabledLiveData::contains).
+                    collect(ImmutableEnumSet.collect(TransportMode.class));
+            logger.info("Live data modes for neighbours " + beginNeighbourLiveDataModes);
+        } else {
+            beginNeighbourLiveDataModes = ImmutableEnumSet.noneOf(TransportMode.class);
+        }
+
+        final ImmutableEnumSet<TransportMode> beginLiveDataModes = journeyDTOS.stream().
                 flatMap(journeyDTO -> journeyDTO.getBegin().getTransportModes().stream()).
                 filter(enabledLiveData::contains).
                 collect(ImmutableEnumSet.collect(TransportMode.class));
 
-        // liveDataModes
+        logger.info("Live data modes for begin " + beginLiveDataModes);
+
+        final ImmutableEnumSet<TransportMode> liveDataModes = beginLiveDataModes.with(beginNeighbourLiveDataModes);
 
         // TODO From FE code, no longer needed?
          //  if (place != null) {

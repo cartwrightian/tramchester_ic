@@ -20,18 +20,14 @@ public abstract class TestConfig extends AppConfiguration {
 
     // TODO Better way to handle server factory
 
-    private final GraphDBType graphDBType;
-
     protected TestConfig() {
-        this(TestEnv.getDefaultDBTYpe());
     }
 
-    protected TestConfig(GraphDBType graphDBType) {
-        if (graphDBType==null) {
-            throw new RuntimeException("Cannot have null DB type");
-        }
-        this.graphDBType = graphDBType;
-    }
+//    protected TestConfig(GraphDBType graphDBType) {
+//        if (graphDBType==null) {
+//            throw new RuntimeException("Cannot have null DB type");
+//        }
+//    }
 
     @Override
     public void setServerFactory(ServerFactory factory) {
@@ -238,8 +234,9 @@ public abstract class TestConfig extends AppConfiguration {
         return Integer.parseInt(build);
     }
 
+    @Deprecated
     @Override
     public boolean getInMemoryGraph() {
-        return graphDBType==GraphDBType.InMemory;
+        return true;
     }
 }

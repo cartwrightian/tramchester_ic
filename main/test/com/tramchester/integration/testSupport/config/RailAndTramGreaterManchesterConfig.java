@@ -8,7 +8,6 @@ import com.tramchester.integration.testSupport.rail.OpenRailDataTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.NeighbourTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestOpenLdbConfig;
@@ -21,13 +20,20 @@ import java.util.List;
 // NOTE: if rename this take care of names in build.gradle, for example on integrationGM target
 public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfig {
 
+    private final OpenLdbConfig openLdbConfig;
+
     public RailAndTramGreaterManchesterConfig() {
-        this(TestEnv.getDefaultDBTYpe());
+        // TODO Should be disabled?
+        this(LiveData.Enabled);
     }
 
-    public RailAndTramGreaterManchesterConfig(GraphDBType graphDBType) {
-        super(LiveData.Enabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled,
-                graphDBType);
+    public RailAndTramGreaterManchesterConfig(final LiveData liveData) {
+        super(liveData, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
+        if (liveData.equals(LiveData.Disabled)) {
+            openLdbConfig = null;
+        } else {
+            openLdbConfig = new TestOpenLdbConfig();
+        }
     }
 
     @Override
@@ -82,7 +88,7 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
 
     @Override
     public OpenLdbConfig getOpenLdb() {
-        return new TestOpenLdbConfig();
+        return openLdbConfig;
     }
 
     @Override

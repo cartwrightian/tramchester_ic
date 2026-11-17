@@ -15,7 +15,6 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import org.junit.jupiter.api.*;
@@ -38,7 +37,7 @@ public class MissingTripListOnServicesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig config = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        IntegrationTramTestConfig config = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

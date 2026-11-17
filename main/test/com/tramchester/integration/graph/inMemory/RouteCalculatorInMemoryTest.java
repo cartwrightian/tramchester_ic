@@ -14,7 +14,6 @@ import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
@@ -46,7 +45,7 @@ public class RouteCalculatorInMemoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramTestConfig(GraphDBType.InMemory, IntegrationTramTestConfig.Caching.Enabled);
+        config = new IntegrationTramTestConfig(IntegrationTramTestConfig.Caching.Enabled);
         requestedModes = TransportMode.TramsOnly;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

@@ -5,7 +5,6 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestOpenLdbConfig;
 
@@ -24,12 +23,12 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     private final Scope geoScope;
 
-    public IntegrationRailTestConfig(final Scope geoScope) {
-        this(geoScope, TestEnv.getDefaultDBTYpe());
-    }
+//    public IntegrationRailTestConfig(final Scope geoScope) {
+//        this(geoScope, TestEnv.getDefaultDBTYpe());
+//    }
 
-    public IntegrationRailTestConfig(final Scope geoScope, GraphDBType graphDBTtype) {
-        super(testGroupType, graphDBTtype);
+    public IntegrationRailTestConfig(final Scope geoScope) {
+        super(testGroupType);
         this.geoScope = geoScope;
     }
 

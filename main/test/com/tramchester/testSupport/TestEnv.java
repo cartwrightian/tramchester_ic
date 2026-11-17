@@ -85,19 +85,8 @@ public class TestEnv {
     // TODO is this accurate?
     public static TramTime EarliestTrainTime = TramTime.of(0,1);
 
-    @Deprecated
-    public static Set<TramStations> Autumn2026Connections = Collections.emptySet();
-//            FakeStation.SetOf(Piccadilly, Firswood, MediaCityUK, Deansgate,
-//            Sale, Wharfside, Stretford, OldTrafford, Altrincham);
-
-    //public static final String AltToPicBusLongName = "Piccadilly Station - Altrincham";
-
-    public static GraphDBType getDefaultDBTYpe() {
-        return GraphDBType.InMemory;
-    }
-
     public static AppConfiguration GET() {
-        return new TestConfig(getDefaultDBTYpe()) {
+        return new TestConfig() {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.emptyList();
@@ -106,7 +95,7 @@ public class TestEnv {
     }
 
     public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
-        return new TestConfig(getDefaultDBTYpe()) {
+        return new TestConfig() {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return null;
@@ -300,7 +289,7 @@ public class TestEnv {
         if (platforms.size()!=1) {
             throw new RuntimeException("Wrong number of platforms " + platforms.size());
         }
-        return platforms.get(0);
+        return platforms.getFirst();
     }
 
     public static Path getTempDir() {

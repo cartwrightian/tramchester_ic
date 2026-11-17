@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.google.common.collect.ImmutableSet;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -181,18 +182,24 @@ public class Neighbours implements NeighboursRepository {
     }
 
     @Override
-    public Set<StationToStationConnection> getAll() {
-        return neighbours.values().stream().flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
+    public ImmutableSet<StationToStationConnection> getAll() {
+        return neighbours.values().stream().flatMap(Collection::stream).collect(ImmutableSet.toImmutableSet());
     }
 
     @Override
-    public Set<Station> getNeighboursFor(final IdFor<Station> id) {
-        return neighbours.get(id).stream().map(StationToStationConnection::getEnd).collect(Collectors.toUnmodifiableSet());
+    public ImmutableSet<Station> getNeighboursFor(final IdFor<Station> id) {
+        if (hasNeighbours(id)) {
+            return neighbours.get(id).stream().
+                    map(StationToStationConnection::getEnd).
+                    collect(ImmutableSet.toImmutableSet());
+        } else {
+            return ImmutableSet.of();
+        }
     }
 
     @Override
-    public Set<StationToStationConnection> getNeighbourLinksFor(final IdFor<Station> id) {
-        return neighbours.get(id);
+    public ImmutableSet<StationToStationConnection> getNeighbourLinksFor(final IdFor<Station> id) {
+        return ImmutableSet.copyOf(neighbours.get(id));
     }
 
     @Override

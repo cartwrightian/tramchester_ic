@@ -16,7 +16,6 @@ import com.tramchester.graph.reference.GraphLabelsFactory;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.DataSourceRepository;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +46,7 @@ public class GraphSaveAndLoadTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new LocalConfig(GraphDBType.InMemory);
+        config = new LocalConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -263,8 +262,8 @@ public class GraphSaveAndLoadTest {
     }
 
     private static class LocalConfig extends IntegrationTramTestConfig {
-        public LocalConfig(GraphDBType graphDBType) {
-            super(graphDBType);
+        public LocalConfig() {
+            super();
         }
 
         @Override

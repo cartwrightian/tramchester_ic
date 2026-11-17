@@ -22,7 +22,6 @@ import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.DiagramCreator;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.MixedTransportTestDataFactory;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +29,9 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.MixedTransportTestDataFactory.MixedTransportTestData.*;
@@ -167,7 +168,7 @@ class MixedRouteTest {
     private static class SimpleMixedRouteGraphConfig extends IntegrationTestConfig {
 
         public SimpleMixedRouteGraphConfig() {
-            super(TestGroupType.unit, GraphDBType.InMemory);
+            super(TestGroupType.unit);
         }
 
         @Override

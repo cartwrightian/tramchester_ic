@@ -10,7 +10,6 @@ import com.tramchester.domain.time.TramDuration;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
@@ -29,13 +28,9 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     public IntegrationBusTestConfig(TestGroupType testGroupType) {
-        this(testGroupType, TestEnv.getDefaultDBTYpe());
-    }
+        super(testGroupType);
 
-    public IntegrationBusTestConfig(TestGroupType testGroupType, GraphDBType graphDBType) {
-        super(testGroupType, graphDBType);
-
-        final Set<TransportMode> modesWithPlatforms = Collections.emptySet();
+//        final Set<TransportMode> modesWithPlatforms = Collections.emptySet();
         final IdSet<Station> additionalInterchanges = IdSet.emptySet();
         final Set<TransportMode> groupedStationModes = Collections.singleton(TransportMode.Bus);
 

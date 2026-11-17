@@ -20,7 +20,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 public class UnitTestOfGraphConfig extends TestConfig {
 
     public UnitTestOfGraphConfig() {
-        super(GraphDBType.InMemory);
+        super();
     }
 
     @Override

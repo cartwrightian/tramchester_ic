@@ -16,7 +16,6 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.reference.GraphLabel;
 import com.tramchester.graph.reference.TransportRelationshipTypes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.GraphDBType;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
@@ -34,7 +33,7 @@ class TramInMemoryGraphBuilderTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationTramTestConfig(GraphDBType.InMemory);
+        testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

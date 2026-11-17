@@ -6,7 +6,7 @@ import com.tramchester.resources.GraphDatabaseDependencyMarker;
 
 import java.nio.file.Path;
 
-public class ResourceTramTestConfig<T extends APIResource>  extends IntegrationTramTestConfig {
+public class ResourceTramTestConfig<T extends APIResource> extends IntegrationTramTestConfig {
     private final boolean planningEnabled;
 
     public ResourceTramTestConfig(Class<T> resourceClass) {
