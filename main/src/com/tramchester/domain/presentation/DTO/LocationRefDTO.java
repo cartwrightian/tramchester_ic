@@ -17,7 +17,7 @@ public class LocationRefDTO implements HasIdForDTO {
     private String name;
     private Set<TransportMode> transportModes;
 
-    public LocationRefDTO(Location<?> location) {
+    public LocationRefDTO(final Location<?> location) {
         this.id = IdForDTO.createFor(location);
         this.name = location.getName();
         this.transportModes = ImmutableEnumSet.createEnumSet(location.getTransportModes());

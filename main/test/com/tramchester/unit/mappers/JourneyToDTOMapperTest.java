@@ -6,10 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
@@ -24,6 +21,7 @@ import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
+import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -34,10 +32,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.StopAtAltrinchamInterchange;
@@ -56,7 +52,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     private StageDTOFactory stageFactory;
     private MyLocation nearPiccGardensLocation;
     private final int requestedNumberChanges = 5;
-    private DTOFactory DTOFactory;
+    private DTOFactory dTOFactory;
+    private JourneyDTODuplicateFilter filter;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -70,9 +67,10 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         stageFactory = createMock(StageDTOFactory.class);
 
-        DTOFactory = createMock(DTOFactory.class);
+        dTOFactory = createMock(DTOFactory.class);
+        filter = createMock(JourneyDTODuplicateFilter.class);
 
-        mapper = new JourneyToDTOMapper(stageFactory, DTOFactory);
+        mapper = new JourneyToDTOMapper(stageFactory, dTOFactory, filter);
         stages = new LinkedList<>();
         nearPiccGardensLocation = nearPiccGardens.location();
     }
@@ -96,11 +94,11 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         final List<Location<?>> path = Collections.singletonList(Deansgate.fake());
         Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages, path, requestedNumberChanges, 0);
 
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).
                 andReturn(new LocationRefWithPosition(nearPiccGardensLocation));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Deansgate.fake())).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(Deansgate.fake())).
                 andReturn(new LocationRefWithPosition(Deansgate.fake()));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(MarketStreet.fake())).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(MarketStreet.fake())).
                 andStubReturn(new LocationRefWithPosition(MarketStreet.fake()));
 
         replayAll();
@@ -132,9 +130,9 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, "Walk from", when)).andReturn(stageDTOA);
 
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Deansgate.fake())).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(Deansgate.fake())).
                 andStubReturn(new LocationRefWithPosition(Deansgate.fake()));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).
                 andStubReturn(new LocationRefWithPosition(nearPiccGardensLocation));
 
         Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages,
@@ -155,6 +153,30 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         ChangeStationRefWithPosition changeStation = result.getChangeStations().getFirst();
         assertEquals(Deansgate.getIdForDTO(), changeStation.getId());
         //validateStationList(Collections.singletonList(Deansgate.fake()), result.getChangeStations());
+    }
+
+    @Test
+    void shouldCreatePlanRepresentation() {
+        Station startStation = Altrincham.fakeWithPlatform(1, when);
+
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(startStation)).
+                andStubReturn(new LocationRefWithPosition(startStation));
+
+        Set<JourneyDTO> journeyDTOs = new HashSet<>();
+        JourneyDTO journeyDTO = createJourneyDTO(TramTime.of(9,16), when,0);
+        journeyDTOs.add(journeyDTO);
+
+        EasyMock.expect(filter.apply(journeyDTOs)).andStubReturn(journeyDTOs);
+
+        replayAll();
+        JourneyPlanRepresentation result = mapper.createJourneyPlan(journeyDTOs, false,false, null);
+        verifyAll();
+
+        assertEquals(journeyDTOs, result.getJourneys());
+
+        Set<IdForDTO> expected = Set.of(NavigationRoad.getIdForDTO(), Deansgate.getIdForDTO());
+
+        assertEquals(expected, result.getAllChangeStations());
     }
 
     @Test
@@ -179,11 +201,11 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         // TODO Should be board?
         EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change, "Board Tram", when)).andReturn(stageDTOB);
 
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Altrincham.fake())).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(Altrincham.fake())).
                 andStubReturn(new LocationRefWithPosition(Altrincham.fake()));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(StopAtAltrinchamInterchange.fake())).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(StopAtAltrinchamInterchange.fake())).
                 andStubReturn(new LocationRefWithPosition(StopAtAltrinchamInterchange.fake()));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Shudehill.fake())).andStubReturn(new LocationRefWithPosition(Shudehill.fake()));
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(Shudehill.fake())).andStubReturn(new LocationRefWithPosition(Shudehill.fake()));
 
         final List<Location<?>> path = Collections.singletonList(Altrincham.fake());
         Journey journey = new Journey(time.plusMinutes(5), time, time.plusMinutes(10), stages, path, requestedNumberChanges, 42);
@@ -237,13 +259,13 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStageDTO stageDTOB = new VehicleStageDTO();
         VehicleStageDTO stageDTOC = new VehicleStageDTO();
 
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Altrincham.fake())).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(Altrincham.fake())).
                 andStubReturn(new LocationRefWithPosition(Altrincham.fake()));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).
                 andStubReturn(new LocationRefWithPosition(nearPiccGardensLocation));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(MarketStreet.fake())).
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(MarketStreet.fake())).
                 andStubReturn(new LocationRefWithPosition(MarketStreet.fake()));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(end)).andStubReturn(new LocationRefWithPosition(end));
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(end)).andStubReturn(new LocationRefWithPosition(end));
 
         EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, "Board Tram", when)).andReturn(stageDTOA);
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, "Walk to",when)).andReturn(stageDTOB);
@@ -298,8 +320,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
         VehicleStageDTO stageDTOB = new VehicleStageDTO();
 
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(start)).andStubReturn(new LocationRefWithPosition(start));
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(finish)).andReturn(new LocationRefWithPosition(finish));
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(start)).andStubReturn(new LocationRefWithPosition(start));
+        EasyMock.expect(dTOFactory.createLocationRefWithPosition(finish)).andReturn(new LocationRefWithPosition(finish));
 
         EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, "Board Tram",when)).andReturn(stageDTOA);
         EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, "Change Tram",when)).andReturn(stageDTOB);
@@ -357,6 +379,53 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 collect(Collectors.toList());
 
         assertEquals(expectedIds, resultIds, diag);
+    }
+
+    private JourneyDTO createJourneyDTO(TramTime queryTime, TramDate queryDate, int journeyIndex) {
+
+        int duration = 15;
+        TramTime departTime = queryTime.plusMinutes(5);
+
+        LocalDateTime firstDepartureTime = departTime.toDate(queryDate);
+
+        List<ChangeStationRefWithPosition> changeStations = Collections.singletonList(getChangeStationRef(Deansgate));
+
+        LocationRefWithPosition begin = getStationRef(Ashton);
+
+        LocationRefWithPosition last = getStationRef(NavigationRoad);
+        LocationRefWithPosition changeStation = getStationRef(Deansgate);
+        List<LocationRefWithPosition> path = Arrays.asList(begin, changeStation, last);
+
+
+        VehicleStageDTO stageA = createVehicleStageDTO(begin,changeStation, begin, departTime, when);
+        VehicleStageDTO stageB = createVehicleStageDTO(changeStation, last, changeStation, departTime.plusMinutes(10), when);
+        List<SimpleStageDTO> stages = List.of(stageA, stageB);
+
+        LocalDateTime expectedArrivalTime = departTime.plusMinutes(duration).toDate(queryDate);
+
+        return new JourneyDTO(begin, last, stages,
+                expectedArrivalTime, firstDepartureTime,
+                changeStations, queryTime,
+                path, queryDate.toLocalDate(), journeyIndex);
+    }
+
+    private VehicleStageDTO createVehicleStageDTO(LocationRefWithPosition begin, LocationRefWithPosition lastStation,
+                                                  LocationRefWithPosition actionStation, TramTime firstDeparture, TramDate queryDate) {
+        TramDuration duration = TramDuration.ofMinutes(12);
+        RouteRefDTO routeRef = new RouteRefDTO(TestEnv.getTramTestRoute());
+        IdForDTO tripId = IdForDTO.createFor(Trip.createId("tripId"));
+        return new VehicleStageDTO(begin, lastStation, actionStation,
+                firstDeparture.toDate(queryDate), firstDeparture.plus(duration).toDate(queryDate),
+                duration, "headSign", TransportMode.Tram, 2,
+                routeRef, TravelAction.Board, "actionText", queryDate, tripId);
+    }
+
+    private LocationRefWithPosition getStationRef(final TramStations tramStations) {
+        return new LocationRefWithPosition(tramStations.fake());
+    }
+
+    private ChangeStationRefWithPosition getChangeStationRef(TramStations tramStations) {
+        return new ChangeStationRefWithPosition(tramStations.fake(), TransportMode.Tram);
     }
 
 }

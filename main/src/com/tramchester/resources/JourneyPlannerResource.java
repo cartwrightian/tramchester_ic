@@ -17,7 +17,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.core.GraphDatabase;
 import com.tramchester.graph.core.MutableGraphTransaction;
 import com.tramchester.graph.search.LocationJourneyPlanner;
-import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -49,18 +48,16 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     private final JourneyToDTOMapper journeyToDTOMapper;
     private final GraphDatabase graphDatabase;
     private final TramchesterConfig config;
-    private final JourneyDTODuplicateFilter duplicateFilter;
     private final LocationRepository locationRepository;
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   GraphDatabase graphDatabase,
                                   ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper,
-                                  TramchesterConfig config, JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
+                                  TramchesterConfig config, LocationRepository locationRepository) {
         super(updateRecentJourneys, providesNow);
         this.locToLocPlanner = locToLocPlanner;
         this.journeyToDTOMapper = journeyToDTOMapper;
-        this.duplicateFilter = duplicateFilter;
         this.locationRepository = locationRepository;
         this.graphDatabase = graphDatabase;
         this.config = config;
@@ -109,30 +106,34 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             final Stream<Journey> journeyStream = getJourneyStream(tx, start, dest, journeyRequest);
 
             final Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
-            journeyStream.close(); // important, onCLose used to trigger removal of walk nodes etc.
+            journeyStream.close(); // important, onClose used to trigger removal of walk nodes etc.
 
-            // duplicates where same path and timings, just different change points
-            final Set<JourneyDTO> journeyDTOS = journeys.stream().
-                    map(journey -> journeyToDTOMapper.createJourneyDTO(journey,queryTramDate)).
-                    collect(Collectors.toSet());
-            final Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
-            final int diff = journeyDTOS.size()-filtered.size();
-            if (diff == 0) {
-                logger.info(format("No filtering, returning %s journeys", journeyDTOS.size()));
-            } else {
-                logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
-            }
+            final JourneyPlanRepresentation planRepresentation = journeyToDTOMapper.createJourneyPlan(journeys, diagnostics,
+                    queryTramDate, journeyRequest.hasReceivedDiagnostics(), journeyRequest.getDiagnostics());
 
-            // TODO likely this will only remain for the diag API, with streamed for the production one
-            final JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
-
-            if (diagnostics) {
-                if (journeyRequest.hasReceivedDiagnostics()) {
-                    planRepresentation.addDiag(journeyRequest.getDiagnostics());
-                } else {
-                    logger.error("Diagnostics requested, but not received");
-                }
-            }
+//            // duplicates where same path and timings, just different change points
+//            final Set<JourneyDTO> journeyDTOS = journeys.stream().
+//                    map(journey -> journeyToDTOMapper.createJourneyDTO(journey,queryTramDate)).
+//                    collect(Collectors.toSet());
+//
+//            final Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
+//            final int diff = journeyDTOS.size()-filtered.size();
+//            if (diff == 0) {
+//                logger.info(format("No filtering, returning %s journeys", journeyDTOS.size()));
+//            } else {
+//                logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
+//            }
+//
+//            // TODO likely this will only remain for the diag API, with streamed for the production one
+//            final JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
+//
+//            if (diagnostics) {
+//                if (journeyRequest.hasReceivedDiagnostics()) {
+//                    planRepresentation.addDiag(journeyRequest.getDiagnostics());
+//                } else {
+//                    logger.error("Diagnostics requested, but not received");
+//                }
+//            }
 
             if (planRepresentation.getJourneys().isEmpty()) {
                 logger.warn(format("No journeys found from %s to %s at %s on %s",

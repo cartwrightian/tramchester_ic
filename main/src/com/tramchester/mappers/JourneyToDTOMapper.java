@@ -3,12 +3,12 @@ package com.tramchester.mappers;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.presentation.DTO.ChangeStationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
+import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.TransportStage;
@@ -23,17 +23,24 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.lang.String.format;
 
 @LazySingleton
 public class JourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyToDTOMapper.class);
     private final StageDTOFactory stageFactory;
     private final DTOFactory stationDTOFactory;
+    private final JourneyDTODuplicateFilter duplicateFilter;
 
     @Inject
-    public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory) {
+    public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory, JourneyDTODuplicateFilter duplicateFilter) {
         this.stageFactory = stageFactory;
         this.stationDTOFactory = DTOFactory;
+        this.duplicateFilter = duplicateFilter;
     }
 
     public JourneyDTO createJourneyDTO(final Journey journey, final TramDate queryDate) {
@@ -110,5 +117,65 @@ public class JourneyToDTOMapper {
             return TravelAction.Board;
         }
         return TravelAction.Change;
+    }
+
+    public JourneyPlanRepresentation createJourneyPlan(final Set<Journey> journeys, final boolean diagnostics, TramDate queryTramDate,
+                                                       final boolean diagReceived, final JourneyDiagnostics journeyDiagnostics) {
+        // duplicates where same path and timings, just different change points
+        final Set<JourneyDTO> journeyDTOS = journeys.stream().
+                map(journey -> createJourneyDTO(journey, queryTramDate)).
+                collect(Collectors.toSet());
+
+        return createJourneyPlan(journeyDTOS, diagnostics, diagReceived, journeyDiagnostics);
+
+    }
+
+    public JourneyPlanRepresentation createJourneyPlan(final Set<JourneyDTO> journeyDTOS, final boolean diagnostics,
+                                                       final boolean diagReceived, final JourneyDiagnostics journeyDiagnostics) {
+        final Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
+        final int diff = journeyDTOS.size()-filtered.size();
+        if (diff == 0) {
+            logger.info(format("No filtering, returning %s journeys", journeyDTOS.size()));
+        } else {
+            logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
+        }
+
+        // var stations = new Set();
+        // journeys.forEach(journeyPlan => {
+        //     const journey = journeyPlan.journey;
+        //     const changes = journey.changeStations;
+        //     changes.forEach(change => {
+        //         if (change.locationType==='Station') {
+        //             stations.add(change.id);
+        //         }
+        //     })
+        //     stations.add(journey.destination.id);
+        // })
+        // return Array.from(stations);
+
+        Stream<LocationRefDTO> changeStationStream = journeyDTOS.stream().
+                flatMap(journeyDTO -> journeyDTO.getChangeStations().stream());
+
+        Stream<LocationRefDTO> destinationStream = journeyDTOS.stream().
+                map(JourneyDTO::getDestination);
+
+        final Set<IdForDTO> allChangeStations = Stream.concat(changeStationStream, destinationStream).
+                filter(station -> station.getLocationType()==LocationType.Station).
+                map(LocationRefDTO::getId).
+                collect(Collectors.toSet());
+
+        // TODO likely this will only remain for the diag API, with streamed for the production one
+        final JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered,
+                allChangeStations);
+
+        if (diagnostics) {
+            if (diagReceived) {
+                planRepresentation.addDiag(journeyDiagnostics);
+            } else {
+                logger.error("Diagnostics requested, but not received");
+            }
+        }
+
+        return planRepresentation;
     }
 }

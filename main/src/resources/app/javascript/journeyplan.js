@@ -53,26 +53,27 @@ function displayLiveData(app) {
     if (today.getMonth()===queryDate.getMonth()
         && today.getYear()===queryDate.getYear()
         && today.getDate()===queryDate.getDate()) {
-        const notesStations = getCallingStationsFrom(app.journeys);
+        const notesStations = getCallingStationsFrom(app.journeyPlan);
         queryLiveData(app, notesStations);
     } else {
         app.liveDepartureResponse = null;
     }
 }
 
-function getCallingStationsFrom(journeys) {
-    var stations = new Set();
-    journeys.forEach(journeyPlan => {
-        const journey = journeyPlan.journey;
-        const changes = journey.changeStations;
-        changes.forEach(change => {
-            if (change.locationType==='Station') {
-                stations.add(change.id);
-            }
-        })
-        stations.add(journey.destination.id);
-    })
-    return Array.from(stations);
+function getCallingStationsFrom(journeyPlan) {
+    // var stations = new Set();
+    // journeys.forEach(journeyPlan => {
+    //     const journey = journeyPlan.journey;
+    //     const changes = journey.changeStations;
+    //     changes.forEach(change => {
+    //         if (change.locationType==='Station') {
+    //             stations.add(change.id);
+    //         }
+    //     })
+    //     stations.add(journey.destination.id);
+    // })
+    // return Array.from(stations);
+    return Array.from(journeyPlan.allChangeStations);
 }
 
 function getLocationType(stop) {
@@ -83,13 +84,23 @@ function getLocationType(stop) {
     }
 }
 
+function getInitialModesFrom(journeyList) {
+    const modes = new Set();
+    journeyList.forEach(journeyPlan => {
+        const journey = journeyPlan.journey;
+        const beginModes = journey.begin.transportModes;
+        beginModes.forEach(mode => modes.add(mode));
+    });
+    return Array.from(modes);
+}
+
 function queryLiveData(app, callingStations) {
 
     var modes;
     var startLocationType = getLocationType(app.startStop);
     const place = app.location;
 
-    // TODO This restricts query of live data to modes served by first station, which might not be what we want?
+    // See below where, if we have a journey extract modes from first stages
     var locationType;
     if (place != null) {
         locationType = place.locationType;
@@ -123,10 +134,11 @@ function queryLiveData(app, callingStations) {
     } // else API returns nearby Trams and Notes by default
 
     var journeyList;
-    if (app.journeys==null) {
+    if (app.journeyPlan.journeys==null) {
         journeyList = []
     } else {
-        journeyList = app.journeys;
+        journeyList = app.journeyPlan.journeys;
+        modes = getInitialModesFrom(journeyList)
     }
 
     // ensure we don't query for modes where no live data available
@@ -280,13 +292,14 @@ async function getRecentAndNearest(app) {
 }
 
 // json parses dates to string
-function addParsedDatesToJourney(journeysArray) {
+function addParsedDatesToJourney(plan) {
+    const journeysArray = plan.journeys;
     journeysArray.forEach(item => {
         item.journey.queryDateAsDate = new Date(item.journey.queryDate);
         item.journey.firstDepartureTimeAsDate = new Date(item.journey.firstDepartureTime);
         item.journey.expectedArrivalTimeAsDate = new Date(item.journey.expectedArrivalTime);
     })
-    return journeysArray;
+    return plan;
 }
 
 // json parses dates to string
@@ -310,7 +323,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     axios.post('/api/journey/', query, {timeout: 60000 }).
         then(function (response) {
             app.networkError = false;
-            app.journeys = addParsedDatesToJourney(response.data.journeys);
+            app.journeyPlan = addParsedDatesToJourney(response.data);
             // get from call to get departures
             //app.notes = response.data.notes;
             getRecentAndNearest(app);
@@ -352,7 +365,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         time: getCurrentTime(),
         date: getCurrentDate(),
         maxChanges: -1,                  // todo from server side
-        journeys: null,
+        journeyPlan: null,
         notes: [],
         liveDepartureResponse: null,
         feedinfo: [],
@@ -447,6 +460,12 @@ const app = createApp({
             },
             selectModesEnabled: function() {
                 return selectModesEnabled(this);
+            },
+            journeys: function() {
+                if (this.journeyPlan==null) {
+                    return null;
+                }
+                return this.journeyPlan.journeys;
             }
         }
     }).use(vuetify).use(vueCookies).mount('#journeyplan')
