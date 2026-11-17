@@ -1,9 +1,6 @@
 package com.tramchester.domain.presentation.DTO.query;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -43,6 +40,7 @@ public class DeparturesQueryDTO {
         modes = Collections.emptySet();
     }
 
+    @JsonCreator
     public DeparturesQueryDTO() {
         modes = Collections.emptySet();
         time = LocalTime.MAX;

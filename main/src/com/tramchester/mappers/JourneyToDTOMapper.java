@@ -1,7 +1,9 @@
 package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.collections.ImmutableEnumSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.ChangeLocation;
@@ -35,12 +37,15 @@ public class JourneyToDTOMapper {
     private final StageDTOFactory stageFactory;
     private final DTOFactory stationDTOFactory;
     private final JourneyDTODuplicateFilter duplicateFilter;
+    private final TramchesterConfig config;
 
     @Inject
-    public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory, JourneyDTODuplicateFilter duplicateFilter) {
+    public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory, JourneyDTODuplicateFilter duplicateFilter,
+                              TramchesterConfig config) {
         this.stageFactory = stageFactory;
         this.stationDTOFactory = DTOFactory;
         this.duplicateFilter = duplicateFilter;
+        this.config = config;
     }
 
     public JourneyDTO createJourneyDTO(final Journey journey, final TramDate queryDate) {
@@ -140,23 +145,38 @@ public class JourneyToDTOMapper {
             logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
         }
 
-        // var stations = new Set();
-        // journeys.forEach(journeyPlan => {
-        //     const journey = journeyPlan.journey;
-        //     const changes = journey.changeStations;
-        //     changes.forEach(change => {
-        //         if (change.locationType==='Station') {
-        //             stations.add(change.id);
-        //         }
-        //     })
-        //     stations.add(journey.destination.id);
-        // })
-        // return Array.from(stations);
 
-        Stream<LocationRefDTO> changeStationStream = journeyDTOS.stream().
+        // live data modes
+
+        final ImmutableEnumSet<TransportMode> enabledLiveData = config.getLiveDataModes();
+
+        final ImmutableEnumSet<TransportMode> liveDataModes = journeyDTOS.stream().
+                flatMap(journeyDTO -> journeyDTO.getBegin().getTransportModes().stream()).
+                filter(enabledLiveData::contains).
+                collect(ImmutableEnumSet.collect(TransportMode.class));
+
+        // liveDataModes
+
+        // TODO From FE code, no longer needed?
+         //  if (place != null) {
+        //        locationType = place.locationType;
+        //        if (startLocationType===locationType) {
+        //            modes = app.selectedModes;
+        //        } else {
+        //            modes = app.startStop.transportModes;
+        //        }
+        //    } else {
+        //        // if no location available use all selected modes
+        //        locationType = startLocationType;
+        //        modes = app.selectedModes;
+        //    }
+
+        // all change stations
+
+        final Stream<LocationRefDTO> changeStationStream = journeyDTOS.stream().
                 flatMap(journeyDTO -> journeyDTO.getChangeStations().stream());
 
-        Stream<LocationRefDTO> destinationStream = journeyDTOS.stream().
+        final Stream<LocationRefDTO> destinationStream = journeyDTOS.stream().
                 map(JourneyDTO::getDestination);
 
         final Set<IdForDTO> allChangeStations = Stream.concat(changeStationStream, destinationStream).
@@ -166,7 +186,7 @@ public class JourneyToDTOMapper {
 
         // TODO likely this will only remain for the diag API, with streamed for the production one
         final JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered,
-                allChangeStations);
+                allChangeStations, ImmutableEnumSet.createEnumSet(liveDataModes));
 
         if (diagnostics) {
             if (diagReceived) {

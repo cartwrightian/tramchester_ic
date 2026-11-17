@@ -61,18 +61,6 @@ function displayLiveData(app) {
 }
 
 function getCallingStationsFrom(journeyPlan) {
-    // var stations = new Set();
-    // journeys.forEach(journeyPlan => {
-    //     const journey = journeyPlan.journey;
-    //     const changes = journey.changeStations;
-    //     changes.forEach(change => {
-    //         if (change.locationType==='Station') {
-    //             stations.add(change.id);
-    //         }
-    //     })
-    //     stations.add(journey.destination.id);
-    // })
-    // return Array.from(stations);
     return Array.from(journeyPlan.allChangeStations);
 }
 
@@ -84,66 +72,62 @@ function getLocationType(stop) {
     }
 }
 
-function getInitialModesFrom(journeyList) {
-    const modes = new Set();
-    journeyList.forEach(journeyPlan => {
-        const journey = journeyPlan.journey;
-        const beginModes = journey.begin.transportModes;
-        beginModes.forEach(mode => modes.add(mode));
-    });
-    return Array.from(modes);
-}
-
 function queryLiveData(app, callingStations) {
 
-    var modes;
-    var startLocationType = getLocationType(app.startStop);
+    //var modes;
+    const startLocationType = getLocationType(app.startStop);
     const place = app.location;
 
     // See below where, if we have a journey extract modes from first stages
     var locationType;
-    if (place != null) {
-        locationType = place.locationType;
-        if (startLocationType===locationType) {
-            modes = app.selectedModes;
-        } else {
-            modes = app.startStop.transportModes;
-        }
-    } else {
-        // if no location available use all selected modes
-        locationType = startLocationType;
-        modes = app.selectedModes; 
-    }
+    // if (place != null) {
+    //     locationType = place.locationType;
+    //     // if (startLocationType===locationType) {
+    //     //     modes = app.selectedModes;
+    //     // } else {
+    //     //     modes = app.startStop.transportModes;
+    //     // }
+    // } else {
+    //     // if no location available use all selected modes
+    //     locationType = startLocationType;
+    //     // modes = app.selectedModes;
+    // }
 
     var startLocationId; 
-    if (place != null) {
-        if (startLocationType === locationType) {
-            startLocationId = place.coords.latitude + ',' + place.coords.longitude
+    if (app.location != null) {
+        // we have location available, defaults to, or use MyLocation if type matches
+        if (startLocationType === app.myLocation.locationType) {
+            startLocationId = app.myLocation.id;
         } else {
+            // an actual station is selected
             startLocationId = app.startStop.id;
         }
     } else {
         // no location available
+        // TODO No way to query......
         startLocationId = app.startStop.id;
     }
 
     // locations we should request notes for
-    var getNotesFor = callingStations.slice();
-    if (startLocationType !== locationType) {
+    const getNotesFor = callingStations.slice();
+    if (startLocationType !== app.myLocation.locationType) {
         getNotesFor.push(startLocationId);
     } // else API returns nearby Trams and Notes by default
 
+    var queryModes;
     var journeyList;
-    if (app.journeyPlan.journeys==null) {
+    if (app.journeyPlan==null) {
+        // default to current selection
         journeyList = []
+        queryModes = app.modes;
     } else {
+        // take from current journey plan
+        queryModes = app.journeyPlan.liveDataModes;
         journeyList = app.journeyPlan.journeys;
-        modes = getInitialModesFrom(journeyList)
     }
 
     // ensure we don't query for modes where no live data available
-
-    const queryModes = modes==null ? app.selectedModes : modes.filter(item => app.liveDataModes.includes(item))
+    // const queryModes = modes==null ? app.selectedModes : modes.filter(item => app.liveDataModes.includes(item))
 
     const query = {
         time: app.time,
@@ -208,13 +192,19 @@ function getStations(app) {
         navigator.geolocation.getCurrentPosition(pos => {
             app.location = pos;
             app.myLocation = {
-                name: "My Location", id: pos.coords.latitude + "," + pos.coords.longitude,
+                name: "My Location",
+                id: pos.coords.latitude + "," + pos.coords.longitude,
                 locationType: "MyLocation"
             };
             app.stops.currentLocation.push(app.myLocation);
             getStationsFromServer(app);
         }, err => {
             console.log("Location disabled: " + err.message);
+            app.myLocation = {
+                name: "No Location",
+                id: "InvalidId",
+                locationType: "NoLocation"
+            };
             getStationsFromServer(app);
         });
     } else {
