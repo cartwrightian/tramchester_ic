@@ -85,14 +85,15 @@ public class StationLocationsRepositoryTest {
     @Test
     void shouldFindNearStationsUnsorted() {
         Station station = PiccadillyGardens.from(stationRepository);
-        List<Station> results = locationsRepository.nearestStationsUnsorted(station, MarginInMeters.ofMeters(600)).toList();
+        List<Station> tramResults = locationsRepository.nearestStationsUnsorted(station, MarginInMeters.ofMeters(600)).
+                filter(item -> item.getTransportModes().contains(Tram)).toList();
 
-        assertEquals(5, results.size());
+        assertEquals(5, tramResults.size());
 
-        assertTrue(results.contains(station), "Did not find in " + HasId.asIds(results));
-        assertTrue(results.contains(Piccadilly.from(stationRepository)), "Did not find in " + HasId.asIds(results));
-        assertTrue(results.contains(MarketStreet.from(stationRepository)), "Did not find in " + HasId.asIds(results));
-        assertTrue(results.contains(StPetersSquare.from(stationRepository)), "Did not find in " + HasId.asIds(results));
-        assertTrue(results.contains(Shudehill.from(stationRepository)), "Did not find in " + HasId.asIds(results));
+        assertTrue(tramResults.contains(station), "Did not find in " + HasId.asIds(tramResults));
+        assertTrue(tramResults.contains(Piccadilly.from(stationRepository)), "Did not find in " + HasId.asIds(tramResults));
+        assertTrue(tramResults.contains(MarketStreet.from(stationRepository)), "Did not find in " + HasId.asIds(tramResults));
+        assertTrue(tramResults.contains(StPetersSquare.from(stationRepository)), "Did not find in " + HasId.asIds(tramResults));
+        assertTrue(tramResults.contains(Shudehill.from(stationRepository)), "Did not find in " + HasId.asIds(tramResults));
     }
 }

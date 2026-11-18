@@ -203,7 +203,8 @@ public class StationLocations implements StationLocationsRepository {
 
     @Override
     public Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters) {
-        return geography.getNearToUnsorted(stationRepository::getActiveStationStream, station.getGridPosition(), rangeInMeters);
+        return geography.getNearToUnsorted(stationRepository::getActiveStationStream,
+                station.getGridPosition(), rangeInMeters);
     }
 
     public boolean anyStationsWithinRangeOf(Location<?> position, MarginInMeters margin) {

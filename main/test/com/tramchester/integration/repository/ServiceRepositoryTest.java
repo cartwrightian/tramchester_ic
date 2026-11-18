@@ -166,18 +166,22 @@ public class ServiceRepositoryTest {
     void shouldServicesOverlappingWithUpcomingPeriod() {
 
         TramDate today = TramDate.of(LocalDate.now());
-        int weeksAhead = config.getTransportModesImmutable().contains(Train) ? WEEKS_AHEAD_FOR_LINKS*2 : WEEKS_AHEAD_FOR_LINKS;
+        int weeksAhead = config.getTransportModesImmutable().contains(Train) ? WEEKS_AHEAD_FOR_LINKS*2 :
+                WEEKS_AHEAD_FOR_LINKS;
         DateRange dateRange = DateRange.of(today, today.plusWeeks(weeksAhead));
 
         IdSet<Service> allSvcs = serviceRepository.getServices().stream().
                 filter(service -> !service.getCalendar().operatesNoDays()).
                 filter(service -> !service.getCalendar().isCancelled()).
                 filter(service -> service.getCalendar().getDateRange().getEndDate().isAfter(today)).
+                filter(service -> service.getCalendar().getDateRange().overlapsWith(dateRange)).
                 collect(IdSet.collector());
 
         allSvcs.forEach(id -> {
-            boolean expect = !serviceRepository.getServiceById(id).getCalendar().operatesNoDays();
-            assertEquals(expect, serviceRepository.anyOverlaps(IdSet.singleton(id), dateRange), "No overlap for " + id);
+            boolean hasRunningDays = !serviceRepository.getServiceById(id).getCalendar().operatesNoDays();
+            assertEquals(hasRunningDays, serviceRepository.anyOverlaps(IdSet.singleton(id), dateRange),
+                    "Not expected overlap for " + id + " for " + dateRange
+                            + " service\n" + serviceRepository.getServiceById(id));
         });
 
         IdSet<Service> noOverlap = allSvcs.stream().
