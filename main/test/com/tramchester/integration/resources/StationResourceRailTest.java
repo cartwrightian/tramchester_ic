@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig.Scope.GreaterManchester;
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearMarketStreet;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -131,7 +131,7 @@ class StationResourceRailTest {
     @Test
     void shouldGetNearestTrainStations() {
 
-        LatLong place = nearPiccGardens.latLong();
+        LatLong place = nearMarketStreet.latLong();
         Response result = APIClient.getApiResponse(factory, String.format("stations/near?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());

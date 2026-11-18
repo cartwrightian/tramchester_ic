@@ -16,7 +16,7 @@ import org.junit.jupiter.api.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearMarketStreet;
 import static org.junit.jupiter.api.Assertions.*;
 
 @PostcodeTest
@@ -49,7 +49,7 @@ class PostcodeRepositoryTest {
     @Test
     void shouldLoadPostcodes() {
 
-        LatLong expectedLocation = nearPiccGardens.latLong();
+        LatLong expectedLocation = nearMarketStreet.latLong();
 
         PostcodeLocation result = repository.getPostcode(PostcodeLocation.createId(TestPostcodes.postcodeForPiccGardens()));
         assertNotNull(result);
@@ -61,7 +61,7 @@ class PostcodeRepositoryTest {
 
     @Test
     void shouldHavePostcodesNear() {
-        GridPosition place = nearPiccGardens.grid();
+        GridPosition place = nearMarketStreet.grid();
 
         Set<PostcodeLocation> found = repository.getPostcodesNear(place, MarginInMeters.ofMeters(500)).collect(Collectors.toSet());
         assertFalse(found.isEmpty());

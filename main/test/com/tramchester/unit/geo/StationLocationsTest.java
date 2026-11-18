@@ -105,7 +105,7 @@ class StationLocationsTest extends EasyMockSupport {
     @Test
     void shouldOrderClosestFirstRespectingNumToFind() {
         Station stationA = createTestStation("id123", "nameA", nearAltrincham);
-        Station stationB = createTestStation("id456", "nameB", nearPiccGardens);
+        Station stationB = createTestStation("id456", "nameB", nearMarketStreet);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
         MyLocation location = nearAltrincham.location();
@@ -127,7 +127,7 @@ class StationLocationsTest extends EasyMockSupport {
     @Test
     void shouldOrderClosestFirst() {
         Station stationA = createTestStation("id123", "nameA", nearAltrincham);
-        Station stationB = createTestStation("id456", "nameB", nearPiccGardens);
+        Station stationB = createTestStation("id456", "nameB", nearMarketStreet);
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
         MyLocation location = nearAltrincham.location();
@@ -151,7 +151,7 @@ class StationLocationsTest extends EasyMockSupport {
     void shouldCaptureBoundingAreaForStations() {
         Station testStationA = createTestStation("id123", "name", nearAltrincham);
         Station testStationB = createTestStation("id456", "name", nearShudehill);
-        Station testStationC = createTestStation("id789", "nameB", nearPiccGardens);
+        Station testStationC = createTestStation("id789", "nameB", nearMarketStreet);
 
         EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(testStationA, testStationB, testStationC));
@@ -176,7 +176,7 @@ class StationLocationsTest extends EasyMockSupport {
     void shouldHaveExpectedBoundingBoxes() {
         final int gridSize = 50;
 
-        Station testStationA = createTestStation("id123", "name", nearPiccGardens);
+        Station testStationA = createTestStation("id123", "name", nearMarketStreet);
         Station testStationC = createTestStation("id789", "nameB", nearShudehill);
 
         EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
@@ -209,7 +209,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         Station testStationA = createTestStation("id123", "name", nearAltrincham);
         Station testStationB = createTestStation("id456", "name", nearShudehill);
-        Station testStationC = createTestStation("id789", "nameB", nearPiccGardens);
+        Station testStationC = createTestStation("id789", "nameB", nearMarketStreet);
 
         EasyMock.expect(naptanRespository.isEnabled()).andReturn(false);
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() -> Stream.of(testStationA, testStationB, testStationC));
@@ -231,7 +231,7 @@ class StationLocationsTest extends EasyMockSupport {
         assertTrue(central.contains(testStationC));
 //        assertTrue(central.containsAll(Arrays.asList(testStationB, testStationC)));
         assertTrue(centralBox.contained(nearShudehill.grid()));
-        assertTrue(centralBox.contained(nearPiccGardens.grid()));
+        assertTrue(centralBox.contained(nearMarketStreet.grid()));
 
         // other box should contain the one non-central
         Optional<BoundingBoxWithStations> maybeAlty = boxedStations.stream().filter(box -> box.getStations().size() == 1).findFirst();

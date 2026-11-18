@@ -33,7 +33,7 @@ import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearMarketStreet;
 import static com.tramchester.testSupport.reference.TramStations.Deansgate;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +65,7 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldFindStationsNearPiccGardensToExchangeSquare() {
-        validateJourneyFromLocation(nearPiccGardens, TramStations.ExchangeSquare, TramTime.of(9,0),
+        validateJourneyFromLocation(nearMarketStreet, TramStations.ExchangeSquare, TramTime.of(9,0),
                 false, when);
     }
 
@@ -273,7 +273,7 @@ class JourneyPlannerLocationResourceTest {
     void shouldFindStationsNearPiccGardensWalkingOnly() {
         TramDate testDay = when;
         // Picc Gardens -> Market Street during closure
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.MarketStreet,
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearMarketStreet, TramStations.MarketStreet,
                 TramTime.of(9,0), false, testDay);
 
         assertFalse(journeys.isEmpty());
@@ -294,7 +294,7 @@ class JourneyPlannerLocationResourceTest {
         TramTime queryTime = TramTime.of(9, 0);
 
         // Picc Gardens -> Market Street during closure
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.MarketStreet,
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearMarketStreet, TramStations.MarketStreet,
                 queryTime, true, when);
 
         journeys.forEach(journeyDTO -> {

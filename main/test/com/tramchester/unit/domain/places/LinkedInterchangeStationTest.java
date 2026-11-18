@@ -50,7 +50,7 @@ public class LinkedInterchangeStationTest {
 
         trainId = Station.createId("railStationId");
         trainStation = new MutableStation(trainId, NPTGLocality.createId("napranId2"),
-                "rail stations", nearPiccGardens.latLong(), nearPiccGardens.grid(), DataSourceID.openRailData, true);
+                "rail stations", nearMarketStreet.latLong(), nearMarketStreet.grid(), DataSourceID.openRailData, true);
 
         trainDropoff = getTrainTestRoute(Route.createBasicRouteId("routeTrain1"), "train route 1 name");
         trainPickup = getTrainTestRoute(Route.createBasicRouteId("routeTrain2"), "train route 2 name");

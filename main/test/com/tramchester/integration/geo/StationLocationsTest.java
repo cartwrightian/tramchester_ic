@@ -86,7 +86,7 @@ public class StationLocationsTest {
         final BoundingBox fullBoundsOfAllTramStations = locations.getActiveStationBounds();
 
         assertTrue(fullBoundsOfAllTramStations.contained(nearShudehill.grid()));
-        assertTrue(fullBoundsOfAllTramStations.contained(nearPiccGardens.grid()));
+        assertTrue(fullBoundsOfAllTramStations.contained(nearMarketStreet.grid()));
 
         assertTrue(fullBoundsOfAllTramStations.within(margin, nearAltrincham.grid()));
 
@@ -98,7 +98,7 @@ public class StationLocationsTest {
         MarginInMeters margin = config.getWalkingDistanceRange();
 
         assertTrue(locations.anyStationsWithinRangeOf(nearShudehill.location(), margin));
-        assertTrue(locations.anyStationsWithinRangeOf(nearPiccGardens.location(), margin));
+        assertTrue(locations.anyStationsWithinRangeOf(nearMarketStreet.location(), margin));
 
         assertTrue(locations.anyStationsWithinRangeOf(nearAltrincham.location(), margin));
 

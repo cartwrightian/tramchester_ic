@@ -104,7 +104,7 @@ public class StationLocationsFromTestDataTest extends EasyMockSupport {
     @Test
     void shouldFindLastStation() {
         replayAll();
-        List<Station> results = stationLocations.nearestStationsSorted(nearPiccGardens.location(), 3,
+        List<Station> results = stationLocations.nearestStationsSorted(nearMarketStreet.location(), 3,
                 MarginInMeters.ofMeters(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getLast()));

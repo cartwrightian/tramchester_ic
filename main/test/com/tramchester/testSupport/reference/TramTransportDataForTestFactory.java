@@ -176,7 +176,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         tripA.addStop(stopC);
 
         final MutableStation last = createStation(TramTransportDataForTest.LAST_STATION, NPTGLocality.createId("area4"),
-                "endStation", nearPiccGardens, dataSourceID, true);
+                "endStation", nearMarketStreet, dataSourceID, true);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
         final PlatformStopCall stopD = createStop(container, tripA, last, of(8, 40), of(8, 40), 4);

@@ -73,8 +73,8 @@ public class DeparturesRepository {
     public List<UpcomingDeparture> getDueForLocation(final Location<?> location, final LocalDate date, final TramTime time,
                                                      final ImmutableEnumSet<TransportMode> modes,
                                                      final DestinationAndCallingPoints destinationAndCallingPoints) {
-        logger.info(format("Get due %s services %s at %s for %s %s",
-                destinationAndCallingPoints, modes, location.getId(), date, time));
+        logger.info(format("Get due %s services %s at %s %s for %s %s",
+                destinationAndCallingPoints, modes, location.getId(), location.getLocationType(), date, time));
         final List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes, destinationAndCallingPoints);
             case StationGroup -> getStationGroupDepartures((StationGroup) location, modes, destinationAndCallingPoints);

@@ -120,7 +120,6 @@ public class DeparturesResource extends TransportResource implements APIResource
         if (departuresQuery.hasJourneys()) {
             final List<JourneyDTO> journeys = departuresQuery.getJourneys();
 
-
             // TODO If journey has connecting stage or walking stage at the start need to also get due for that location
             final Set<Station> departureStations = mapJourneyDTOToStations.getDepartureStations(journeys);
 
@@ -163,7 +162,6 @@ public class DeparturesResource extends TransportResource implements APIResource
                 logger.info("Found %s departures for %s".formatted(departuresForLocation.size(), location.getLatLong()));
             }
 
-            //final LocalDateTime currentTime = providesNow.getDateTime();
             final SortedSet<DepartureDTO> departureDTOs = departuresMapper.mapToDTO(departuresForLocation, dateTime);
 
             final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();

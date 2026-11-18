@@ -37,7 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearMarketStreet;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -136,7 +136,7 @@ class JourneyLocationsResourceBusTest {
     @Test
     void shouldGetNearestStationsWithModeGiven() {
 
-        LatLong place = nearPiccGardens.latLong();
+        LatLong place = nearMarketStreet.latLong();
         Response result = APIClient.getApiResponse(factory, String.format("locations/near/Bus?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());

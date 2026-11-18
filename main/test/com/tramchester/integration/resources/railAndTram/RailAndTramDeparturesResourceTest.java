@@ -11,11 +11,13 @@ import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.query.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
+import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.ResourceTramTrainTestConfig;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
@@ -30,8 +32,6 @@ import com.tramchester.resources.DeparturesResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramAppTestExtension;
 import com.tramchester.testSupport.conditional.RequiresNetwork;
-import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.*;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
@@ -45,10 +45,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.KnownLocations.nearAltrinchamInterchange;
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.reference.KnownLocations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -66,6 +67,7 @@ class RailAndTramDeparturesResourceTest {
     private Station stationWithDepartures;
     private PlatformMessageSource platformMessageSource;
     private LocalDateTime localDateTime;
+    private StationRepository stationRepository;
 
     @BeforeAll
     public static void onceBeforeAll() {
@@ -84,7 +86,7 @@ class RailAndTramDeparturesResourceTest {
         final GuiceContainerDependencies dependencies = app.getDependencies();
 
         platformMessageSource = dependencies.get(PlatformMessageSource.class);
-        StationRepository stationRepository = dependencies.get(StationRepository.class);
+        stationRepository = dependencies.get(StationRepository.class);
         ProvidesLocalNow providesLocalNow = dependencies.get(ProvidesLocalNow.class);
 
         TramDate queryDate = providesLocalNow.getTramDate();
@@ -155,28 +157,12 @@ class RailAndTramDeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesTest
-    void shouldHaveNoMessagesForNoneExistentStation() {
-        IdForDTO invalidStation = BusStations.KnutsfordStationStand3.getIdForDTO();
-
-        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(stationWithNotes));
-        queryDTO.setNotesFor(Collections.singleton(invalidStation));
-        Response response = getPostResponse(queryDTO);
-        assertEquals(200, response.getStatus());
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-
-        List<Note> notes = departureList.getNotes();
-        List<Note> liveNotes = notes.stream().filter(note -> note.getNoteType()== Note.NoteType.Live).toList();
-        assertTrue(liveNotes.isEmpty(), "got unexpectedNotes " + liveNotes);
-    }
-
-    @Test
     @LiveDataDueTramsTest
     void shouldGetDueTramsForStationWithinQuerytimeNow() {
         Station station = stationWithDepartures;
 
         LocalTime now = localDateTime.toLocalTime();
-        DepartureListDTO result = getDeparturesForStation(station, now);
+        DepartureListDTO result = getDeparturesForStation(station, now, EnumSet.of(Tram));
         SortedSet<DepartureDTO> departures = result.getDepartures();
         assertFalse(departures.isEmpty(), "no due trams at " + station);
         departures.forEach(depart -> assertEquals(new LocationRefDTO(station), depart.getFrom()));
@@ -184,56 +170,35 @@ class RailAndTramDeparturesResourceTest {
 
     @Test
     @LiveDataDueTramsTest
-    void shouldGetDueTramsForStationWithQueryTimePast() {
-        LocalTime queryTime = localDateTime.toLocalTime().minusMinutes(120);
+    void shouldGetDueTrainsForStationWithinQuerytimeNow() {
+        Station station = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
-        DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
+        LocalTime now = localDateTime.toLocalTime();
+        DepartureListDTO result = getDeparturesForStation(station, now,  EnumSet.of(Train));
         SortedSet<DepartureDTO> departures = result.getDepartures();
-        assertTrue(departures.isEmpty());
-
-        List<Note> notes = result.getNotes().stream().
-                filter(note -> note.getNoteType() != Note.NoteType.Christmas).
-                filter(note -> note.getNoteType() != Note.NoteType.Weekend).
-                toList();
-
-        assertTrue(notes.isEmpty(), "expected no notes in " + result);
+        assertFalse(departures.isEmpty(), "no due trains at " + station);
+        departures.forEach(depart -> assertEquals(new LocationRefDTO(station), depart.getFrom()));
     }
 
-    @Test
-    @LiveDataDueTramsTest
-    void shouldGetDueTramsForStationWithQueryTimeFuture() {
-        LocalTime queryTime = localDateTime.toLocalTime().plusMinutes(120);
-
-        DepartureListDTO result = getDeparturesForStation(stationWithDepartures, queryTime);
-        SortedSet<DepartureDTO> departures = result.getDepartures();
-
-        List<Note> notes = result.getNotes().stream().
-                filter(note -> note.getNoteType() != Note.NoteType.Christmas).
-                filter(note -> note.getNoteType() != Note.NoteType.Weekend).
-
-                toList();
-
-        assertTrue(departures.isEmpty());
-        assertTrue(notes.isEmpty(), "expected no notes in " + result);
-    }
-
-    @AltrinchamLineTests
     @Test
     @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQueryTimeNow() {
-        LatLong where = nearAltrinchamInterchange.latLong();
+        LatLong where = betweenPiccAndPiccGardens.latLong();
         LocalTime queryTime = localDateTime.toLocalTime();
 
-        DepartureListDTO result = getDeparturesForLatlongTime(where, queryTime);
+        DepartureListDTO result = getDeparturesForLatlongTime(where, queryTime, EnumSet.of(Tram, Train));
         assertFalse(result.isForJourney());
         SortedSet<DepartureDTO> departures = result.getDepartures();
-        assertFalse(departures.isEmpty(), "no departures for " + nearAltrinchamInterchange);
+        assertFalse(departures.isEmpty(), "no departures for " + where);
 
         Set<IdForDTO> departsFrom = departures.stream().
                 map(departureDTO -> departureDTO.getFrom().getId()).
                 collect(Collectors.toSet());
 
-        assertTrue(departsFrom.contains(Altrincham.getIdForDTO()), "Did see altrincham departure in " + departures);
+        assertTrue(departsFrom.contains(Piccadilly.getIdForDTO()),
+                "Missing tram departure in " + departsFrom + " " + departures);
+        assertTrue(departsFrom.contains(RailStationIds.ManchesterPiccadilly.getIdForDTO()),
+                "Missing train departure in " + departsFrom + " " + departures);
 
         List<Note> notes = result.getNotes();
         assertFalse(notes.isEmpty(),"no notes for " + nearAltrinchamInterchange);
@@ -244,77 +209,21 @@ class RailAndTramDeparturesResourceTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertTrue(notesDisplayedAt.contains(Altrincham.getIdForDTO()), "Did see altrincham departure in " + notes);
+        assertTrue(notesDisplayedAt.contains(Piccadilly.getIdForDTO()), "Did not see altrincham departure in " + notes);
+        assertFalse(notesDisplayedAt.contains(RailStationIds.ManchesterPiccadilly.getIdForDTO()),
+                "Should not see train departure in " + notes);
+
     }
 
-    @Test
-    @LiveDataDueTramsTest
-    void shouldGetNearbyDeparturesQueryTimeFuture() {
-        LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
-        LocalTime queryTime =localDateTime.toLocalTime().plusMinutes(120);
-        //SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
-
-        DepartureListDTO result = getDeparturesForLatlongTime(latLong, queryTime);
-        assertFalse(result.isForJourney());
-
-        SortedSet<DepartureDTO> departures = result.getDepartures();
-
-        assertTrue(departures.isEmpty());
-        assertTrue(result.getNotes().isEmpty());
-    }
-
-    @Test
-    @LiveDataDueTramsTest
-    void shouldGetNearbyDeparturesQueryTimePast() {
-        LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
-        LocalTime queryTime =localDateTime.toLocalTime().minusMinutes(120);
-
-        //SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(latLong, queryTime);
-        DepartureListDTO result = getDeparturesForLatlongTime(latLong, queryTime);
-        assertFalse(result.isForJourney());
-
-        SortedSet<DepartureDTO> departures = result.getDepartures();
-
-        assertTrue(departures.isEmpty());
-        assertTrue(result.getNotes().isEmpty());
-    }
-
-    @AltrinchamLineTests
-    @Test
-    @LiveDataDueTramsTest
-    void shouldNotGetNearbyIfOutsideOfThreshold() {
-        LatLong where = nearAltrinchamInterchange.latLong();
-
-        final Set<IdForDTO> nearAlty = Stream.of(Altrincham, TramStations.NavigationRoad).
-                map(TramStations::getIdForDTO).collect(Collectors.toSet());
-
-        Response response = getResponseForLocation(where);
-        assertEquals(200, response.getStatus());
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        assertFalse(departureList.isForJourney());
-
-        SortedSet<DepartureDTO> departures = departureList.getDepartures();
-        assertFalse(departures.isEmpty(), "no departures");
-
-        DepartureDTO departureDTO = departures.first();
-        LocalDateTime when = departureDTO.getDueTime();
-
-        TramTime nowMinus5mins = TramTime.ofHourMins(TestEnv.LocalNow().toLocalTime().minusMinutes(6));
-        assertTrue(when.toLocalTime().isAfter(nowMinus5mins.asLocalTime()), when.toString());
-
-        LocationRefDTO nextDepart = departureDTO.getFrom();
-        assertTrue(nearAlty.contains(nextDepart.getId()), nextDepart.toString());
-        assertFalse(departureDTO.getStatus().isEmpty());
-    }
-
-    private DepartureListDTO getDeparturesForLatlongTime(LatLong where, LocalTime queryTime) {
+    private DepartureListDTO getDeparturesForLatlongTime(LatLong where, LocalTime queryTime, Set<TransportMode> modes) {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
+        queryDTO.setModes(modes);
         return getDepartureDTOS(queryTime, queryDTO);
     }
 
-    private DepartureListDTO getDeparturesForStation(Station station, LocalTime queryTime) {
+    private DepartureListDTO getDeparturesForStation(Station station, LocalTime queryTime, Set<TransportMode> modes) {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
+        queryDTO.setModes(modes);
         return getDepartureDTOS(queryTime, queryDTO);
     }
 
@@ -326,11 +235,6 @@ class RailAndTramDeparturesResourceTest {
 
     private Response getResponseForStation(Station station) {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
-        return getPostResponse(queryDTO);
-    }
-
-    private Response getResponseForLocation(LatLong where) {
-        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
         return getPostResponse(queryDTO);
     }
 

@@ -22,7 +22,7 @@ class BoundingBoxTest {
     void shouldHaveContained() {
         BoundingBox box = TestEnv.getGreaterManchesterBounds();
 
-        List<LatLong> withinBox = Arrays.asList(nearPiccGardens.latLong(), nearShudehill.latLong(),
+        List<LatLong> withinBox = Arrays.asList(nearMarketStreet.latLong(), nearShudehill.latLong(),
                 TramStations.ManAirport.getLatLong(), nearAltrincham.latLong(), nearStockportBus.latLong());
 
         withinBox.forEach(latLong -> {

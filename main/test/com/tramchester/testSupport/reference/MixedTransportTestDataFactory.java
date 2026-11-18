@@ -124,7 +124,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         tripA.addStop(stopA);
 
         MutableStation second = StationHelper.forTestMutable(MixedTransportTestData.SECOND_STATION, "area2",
-                "secondStation", nearPiccGardens, dataSourceID, false);
+                "secondStation", nearMarketStreet, dataSourceID, false);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         NoPlatformStopCall stopB = createStop(tripA, second, TramTime.of(8, 11),
@@ -140,7 +140,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         tripA.addStop(stopC);
 
         MutableStation last =  StationHelper.forTestMutable(MixedTransportTestData.LAST_STATION, "area4",
-                "endStation", nearPiccGardens, dataSourceID, false);
+                "endStation", nearMarketStreet, dataSourceID, false);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
         NoPlatformStopCall stopD = createStop(tripA, last, TramTime.of(8, 40),
@@ -151,7 +151,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         routeA.addTrip(tripA);
 
         MutableStation stationFour = StationHelper.forTestMutable(MixedTransportTestData.STATION_FOUR, "area4",
-                "Station4", nearPiccGardens, dataSourceID, false);
+                "Station4", nearMarketStreet, dataSourceID, false);
         addAStation(container, stationFour);
 
         MutableStation stationFive = StationHelper.forTestMutable(MixedTransportTestData.STATION_FIVE, "area5",

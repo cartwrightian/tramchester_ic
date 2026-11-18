@@ -22,7 +22,7 @@ import java.util.Set;
 
 import static com.tramchester.domain.MutableAgency.Walking;
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearMarketStreet;
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,8 +60,8 @@ class StationTest {
     @Test
     void shouldHaveCorrectTransportModes() {
 
-        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
-                nearPiccGardens.grid(), DataSourceID.tfgm, false);
+        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearMarketStreet.latLong(),
+                nearMarketStreet.grid(), DataSourceID.tfgm, false);
 
         assertTrue(station.getTransportModes().isEmpty());
         assertFalse(station.anyOverlapWith(TramsOnly));
@@ -89,8 +89,8 @@ class StationTest {
 
     @Test
     void shouldHavePickupAndDropoffRoutes() {
-        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
-                nearPiccGardens.grid(), DataSourceID.tfgm, false);
+        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearMarketStreet.latLong(),
+                nearMarketStreet.grid(), DataSourceID.tfgm, false);
 
         final Route routeA = MutableRoute.getRoute(Route.createBasicRouteId("routeIdA"), "shortNameA", "nameA",
                 TestEnv.MetAgency(), Tram);
@@ -130,8 +130,8 @@ class StationTest {
     void shouldHavePickupAndDropoffRoutesForSpecificDates() {
         EnumSet<DayOfWeek> days = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY);
 
-        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
-                nearPiccGardens.grid(), DataSourceID.tfgm, true);
+        MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearMarketStreet.latLong(),
+                nearMarketStreet.grid(), DataSourceID.tfgm, true);
 
         final MutableRoute routeA = new MutableRoute(Route.createBasicRouteId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
 

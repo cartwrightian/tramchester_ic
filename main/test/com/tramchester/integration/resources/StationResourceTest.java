@@ -35,7 +35,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static com.tramchester.testSupport.reference.KnownLocations.nearMarketStreet;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(TramAppTestExtension.class)
@@ -224,7 +224,7 @@ class StationResourceTest {
     @Test
     void shouldGetNearestStationsNoModeGiven() {
 
-        LatLong place = nearPiccGardens.latLong();
+        LatLong place = nearMarketStreet.latLong();
         Response result = APIClient.getApiResponse(factory, String.format("stations/near?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
@@ -249,7 +249,7 @@ class StationResourceTest {
     @Test
     void shouldGetNearestStationsWithModeGiven() {
 
-        LatLong place = nearPiccGardens.latLong();
+        LatLong place = nearMarketStreet.latLong();
         Response result = APIClient.getApiResponse(factory, String.format("stations/near/Tram?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());

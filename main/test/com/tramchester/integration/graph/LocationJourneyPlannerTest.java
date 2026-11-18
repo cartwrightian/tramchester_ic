@@ -92,7 +92,7 @@ class LocationJourneyPlannerTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
                 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
-        KnownLocations startingLocation = nearPiccGardens;
+        KnownLocations startingLocation = nearMarketStreet;
         TramStations destinationStation = PiccadillyGardens;
 
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(startingLocation, destinationStation,
@@ -129,7 +129,7 @@ class LocationJourneyPlannerTest {
     void shouldHaveDirectWalkFromPiccadilly() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
-        Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens, nearPiccGardens, journeyRequest, 2);
+        Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens, nearMarketStreet, journeyRequest, 2);
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -137,7 +137,7 @@ class LocationJourneyPlannerTest {
             //WalkingFromStationStage first = (WalkingFromStationStage) stages.getFirst();
             if (stages.getFirst() instanceof WalkingFromStationStage walkingFromStationStage) {
                 assertEquals(PiccadillyGardens.getId(), walkingFromStationStage.getFirstStation().getId());
-                assertEquals(nearPiccGardens.latLong(), walkingFromStationStage.getLastStation().getLatLong());
+                assertEquals(nearMarketStreet.latLong(), walkingFromStationStage.getLastStation().getLatLong());
             } else {
                 fail("Not a WalkingFromStationStage" + stages.getFirst());
             }
@@ -428,14 +428,14 @@ class LocationJourneyPlannerTest {
                 false, 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         // set max stages to 1, because there is another path via walk to market street and then tram
-        Set<Journey> results = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens, request, 1);
+        Set<Journey> results = planner.quickestRouteForLocation(nearMarketStreet, PiccadillyGardens, request, 1);
         assertFalse(results.isEmpty(),"no results for " + request);
 
         results.forEach(journey-> {
             TransportStage<?,?> rawStage = journey.getStages().getFirst();
             assertEquals(TransportMode.Walk, rawStage.getTransportMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());
-            assertEquals(nearPiccGardens.latLong(), rawStage.getFirstStation().getLatLong());
+            assertEquals(nearMarketStreet.latLong(), rawStage.getFirstStation().getLatLong());
             TestEnv.assertMinutesRoundedEquals(TramDuration.ofMinutes(2), rawStage.getDuration());
         });
     }
@@ -444,7 +444,7 @@ class LocationJourneyPlannerTest {
     void shouldGetExpectedStationWalks() {
         LocationJourneyPlanner journeyPlanner = componentContainer.get(LocationJourneyPlanner.class);
 
-        Set<StationWalk> walks = journeyPlanner.getStationWalks(nearPiccGardens.location(), TransportMode.TramsOnly);
+        Set<StationWalk> walks = journeyPlanner.getStationWalks(nearMarketStreet.location(), TransportMode.TramsOnly);
 
         assertEquals(3, walks.size(), walks.toString());
 

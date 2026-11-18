@@ -89,7 +89,7 @@ public class StationLocations implements StationLocationsRepository {
         logger.info("Discovered " + quadrants.size() + " quadrants");
     }
 
-    private void populateQuadrants(final BoundingBox box, final int depthLimit, Set<Station> inside) {
+    private void populateQuadrants(final BoundingBox box, final int depthLimit, final Set<Station> inside) {
         final int currentLimit = depthLimit - 1;
 
         if (currentLimit<=0 || box.width() <= GRID_SIZE_METERS || box.height() <= GRID_SIZE_METERS) {
@@ -102,7 +102,7 @@ public class StationLocations implements StationLocationsRepository {
         // break current box into quadrants, but only if quadrant contains stations
         final Set<BoundingBox> newQuadrants = box.quadrants();
         newQuadrants.forEach(quadrant -> {
-            Set<Station> insideNewQuadrant = inside.stream().
+            final Set<Station> insideNewQuadrant = inside.stream().
                     filter(station -> quadrant.contained(station.getGridPosition())).
                     collect(Collectors.toSet());
             if (!insideNewQuadrant.isEmpty()) {
@@ -146,7 +146,6 @@ public class StationLocations implements StationLocationsRepository {
         return locationsWithinLocality.get(areaId);
     }
 
-
     /***
      * Uses Latitude/Longitude and EPSG
      * @return A list of points on convex hull containing all stations
@@ -159,7 +158,7 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public boolean hasStationsOrPlatformsIn(IdFor<NPTGLocality> areaId) {
+    public boolean hasStationsOrPlatformsIn(final IdFor<NPTGLocality> areaId) {
         // map only populated if an area does contain a station or platform
         return locationsWithinLocality.containsKey(areaId);
     }
@@ -174,8 +173,8 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public List<Station> nearestStationsSorted(Location<?> origin, int maxToFind, MarginInMeters rangeInMeters,
-                                               ImmutableEnumSet<TransportMode> modes) {
+    public List<Station> nearestStationsSorted(final Location<?> origin, final int maxToFind, final MarginInMeters rangeInMeters,
+                                               final ImmutableEnumSet<TransportMode> modes) {
         return nearestStationsSorted(origin.getGridPosition(), maxToFind, rangeInMeters, modes);
     }
 
@@ -189,7 +188,7 @@ public class StationLocations implements StationLocationsRepository {
             logger.warn("No station modes provided, will not filter stations by mode");
             source = stationRepository::getActiveStationStream;
         } else {
-            source = () -> getStationModeFilteredStations(modes);
+            source = () -> stationRepository.getStations(modes).stream();
         }
 
         return geography.getNearToSorted(source, gridPosition, rangeInMeters).
@@ -197,10 +196,10 @@ public class StationLocations implements StationLocationsRepository {
                 collect(Collectors.toList());
     }
 
-    private Stream<Station> getStationModeFilteredStations(ImmutableEnumSet<TransportMode> modes) {
-        return stationRepository.getActiveStationStream().
-                filter(station -> station.anyOverlapWith(modes));
-    }
+//    private Stream<Station> getStationModeFilteredStations(final ImmutableEnumSet<TransportMode> modes) {
+//        return stationRepository.getActiveStationStream().
+//                filter(station -> station.anyOverlapWith(modes));
+//    }
 
     @Override
     public Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters) {
