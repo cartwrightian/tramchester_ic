@@ -63,7 +63,7 @@ def allureVersion = "2.35.5"
 
 repositories {
     maven {
-        url "https://repo.osgeo.org/repository/release/"
+        url = "https://repo.osgeo.org/repository/release/"
     }
     mavenCentral()
 }
@@ -219,7 +219,7 @@ tasks.register('webpack', Exec) {
 jar {
     dependsOn 'webpack'
     from('build/resources/main') {
-        duplicatesStrategy duplicatesStrategy.INCLUDE
+        duplicatesStrategy = duplicatesStrategy.INCLUDE
         exclude '**.yml'
     }
     manifest {
@@ -681,7 +681,7 @@ tasks.shadowJar {
     dependsOn 'distZip'
     archiveClassifier = 'full'
     mergeServiceFiles()
-    zip64 true
+    zip64 = true
 }
 
 distTar.dependsOn('webpack')
