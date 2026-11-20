@@ -1,4 +1,5 @@
 #!/bin/bash
+# NOT IN USE FOR single EC2 Server deploy in Cloudwatch template instead
 logger tramchester initial updates/installs
 yum install -y java-25-amazon-corretto-devel
 yum install -y jq

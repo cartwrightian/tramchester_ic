@@ -50,7 +50,7 @@
 							"", [
 								"#!/bin/bash\n",
 								"yum install -y aws-cli\n",
-								"yum install -y java-21-amazon-corretto-devel\n",
+								"yum install -y java-25-amazon-corretto-devel\n",
 								"yum install -y jq\n",
 								"yum install -y amazon-cloudwatch-agent\n",
 								"aws s3 cp s3://", {"Ref": "bucketName"}, "/dist/", {"Ref": "build"}, "/", {"Ref": "bootstrapWebScript"},
