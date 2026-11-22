@@ -234,8 +234,10 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         // boardingStations populated in recordRouteStation
         if (passedStations.alreadyBoardedAt(stationId)) {
             coreState.setDuplicatedBoarding();
-            logger.warn("Set duplicated boarding, boarding at %s \n passedStations: %s".
-                    formatted(stationId, passedStations));
+            if (logger.isDebugEnabled()) {
+                logger.debug("Set duplicated boarding, boarding at %s \n passedStations: %s".
+                        formatted(stationId, passedStations));
+            }
         }
         coreState.board(mode);
     }

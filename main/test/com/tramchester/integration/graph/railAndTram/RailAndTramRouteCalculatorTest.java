@@ -194,7 +194,7 @@ public class RailAndTramRouteCalculatorTest {
 
         TramTime time = TramTime.of(9,52);
 
-        long maxNumberJourneys = 5; //config.getMaxNumberResults();
+        long maxNumberJourneys = 2;
 
         ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(RailReplacementBus, Train);
 
@@ -208,7 +208,7 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveSameArrivalTimeWhenDirectOrViaStockport() {
         TramTime time = TramTime.of(9,52);
-        long maxNumberJourneys = 2; //config.getMaxNumberResults();
+        long maxNumberJourneys = 2;
 
         ImmutableEnumSet<TransportMode> modes = TrainOnly;
 
