@@ -194,7 +194,7 @@ public class RailAndTramRouteCalculatorTest {
 
         TramTime time = TramTime.of(9,52);
 
-        long maxNumberJourneys = 2;
+        long maxNumberJourneys = 5;
 
         ImmutableEnumSet<TransportMode> modes = ImmutableEnumSet.of(RailReplacementBus, Train);
 

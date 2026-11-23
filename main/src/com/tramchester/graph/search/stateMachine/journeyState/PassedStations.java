@@ -44,7 +44,6 @@ public class PassedStations {
         // leave station on diversion
         if (passType == PassType.JustBoarded) {
             boardingStations.add(stationId);
-            //return;
         }
 
         if (passType == PassType.OnTrip | passType == PassType.JustBoarded){
@@ -106,7 +105,7 @@ public class PassedStations {
             return false;
         }
 
-        boolean matches = passed.contains(stationId);
+        final boolean matches = passed.contains(stationId);
         if (matches && logger.isDebugEnabled()) {
             logger.debug("Already seen %s in %s".formatted(stationId, passed));
         }
