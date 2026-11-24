@@ -6,9 +6,11 @@ import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.NodeIdInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.search.inMemory.NodeSearchState;
+import com.tramchester.graph.search.inMemory.NodeSearchStateFactory;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -18,14 +20,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NodeSearchStateTest extends EasyMockSupport {
 
+    NodeSearchStateFactory nodeSearchStateFactory;
+
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        nodeSearchStateFactory = new NodeSearchStateFactory();
+    }
+
     @Test
     void shouldOrderOnDurationPathFirst() {
         GraphPathInMemory path = createMockPathOfLength(1);
 
         replayAll();
-        NodeSearchState stateA = NodeSearchState.createNodeSearchState(getStateKey(1), TramDuration.ofMinutes(8), path, false);
-        NodeSearchState stateB = NodeSearchState.createNodeSearchState(getStateKey(2), TramDuration.ofMinutes(2), path, false);
-        NodeSearchState stateC = NodeSearchState.createNodeSearchState(getStateKey(3), TramDuration.ofMinutes(11), path, false);
+        NodeSearchState stateA = nodeSearchStateFactory.createNodeSearchState(getStateKey(1), TramDuration.ofMinutes(8), path, false);
+        NodeSearchState stateB = nodeSearchStateFactory.createNodeSearchState(getStateKey(2), TramDuration.ofMinutes(2), path, false);
+        NodeSearchState stateC = nodeSearchStateFactory.createNodeSearchState(getStateKey(3), TramDuration.ofMinutes(11), path, false);
 
         PriorityQueue<NodeSearchState> queue = new PriorityQueue<>();
         queue.add(stateA);
@@ -54,9 +63,9 @@ public class NodeSearchStateTest extends EasyMockSupport {
         GraphPathInMemory pathC = createMockPathOfLength(4);
 
         replayAll();
-        NodeSearchState stateA = NodeSearchState.createNodeSearchState(getStateKey(1), TramDuration.ofSeconds(50L), pathA, false);
-        NodeSearchState stateB = NodeSearchState.createNodeSearchState(getStateKey(2), TramDuration.ofSeconds(45L), pathB, false);
-        NodeSearchState stateC = NodeSearchState.createNodeSearchState(getStateKey(3), TramDuration.ofSeconds(60L), pathC, false);
+        NodeSearchState stateA = nodeSearchStateFactory.createNodeSearchState(getStateKey(1), TramDuration.ofSeconds(50L), pathA, false);
+        NodeSearchState stateB = nodeSearchStateFactory.createNodeSearchState(getStateKey(2), TramDuration.ofSeconds(45L), pathB, false);
+        NodeSearchState stateC = nodeSearchStateFactory.createNodeSearchState(getStateKey(3), TramDuration.ofSeconds(60L), pathC, false);
 
         PriorityQueue<NodeSearchState> queue = new PriorityQueue<>();
         queue.add(stateA);
@@ -80,9 +89,9 @@ public class NodeSearchStateTest extends EasyMockSupport {
         GraphPathInMemory path = createMockPathOfLength(8);
 
         replayAll();
-        NodeSearchState stateA = NodeSearchState.createNodeSearchState(getStateKey(1), TramDuration.ofMinutes(8), path, true);
-        NodeSearchState stateB = NodeSearchState.createNodeSearchState(getStateKey(2), TramDuration.ofMinutes(2), path, true);
-        NodeSearchState stateC = NodeSearchState.createNodeSearchState(getStateKey(3), TramDuration.ofMinutes(11), path, true);
+        NodeSearchState stateA = nodeSearchStateFactory.createNodeSearchState(getStateKey(1), TramDuration.ofMinutes(8), path, true);
+        NodeSearchState stateB = nodeSearchStateFactory.createNodeSearchState(getStateKey(2), TramDuration.ofMinutes(2), path, true);
+        NodeSearchState stateC = nodeSearchStateFactory.createNodeSearchState(getStateKey(3), TramDuration.ofMinutes(11), path, true);
 
         PriorityQueue<NodeSearchState> queue = new PriorityQueue<>();
         queue.add(stateA);
@@ -109,9 +118,9 @@ public class NodeSearchStateTest extends EasyMockSupport {
         GraphPathInMemory pathC = createMockPathOfLength(11);
 
         replayAll();
-        NodeSearchState stateA = NodeSearchState.createNodeSearchState(getStateKey(1), TramDuration.ofSeconds(40L), pathA, true);
-        NodeSearchState stateB = NodeSearchState.createNodeSearchState(getStateKey(2), TramDuration.ofSeconds(30L), pathB, true);
-        NodeSearchState stateC = NodeSearchState.createNodeSearchState(getStateKey(3), TramDuration.ofSeconds(10L), pathC, true);
+        NodeSearchState stateA = nodeSearchStateFactory.createNodeSearchState(getStateKey(1), TramDuration.ofSeconds(40L), pathA, true);
+        NodeSearchState stateB = nodeSearchStateFactory.createNodeSearchState(getStateKey(2), TramDuration.ofSeconds(30L), pathB, true);
+        NodeSearchState stateC = nodeSearchStateFactory.createNodeSearchState(getStateKey(3), TramDuration.ofSeconds(10L), pathC, true);
 
         PriorityQueue<NodeSearchState> queue = new PriorityQueue<>();
         queue.add(stateA);
@@ -134,9 +143,9 @@ public class NodeSearchStateTest extends EasyMockSupport {
         GraphPathInMemory path = createMockPathOfLength(8);
 
         replayAll();
-        NodeSearchState stateA = NodeSearchState.createNodeSearchState(getStateKey(1), TramDuration.ofMinutes(8), path, false);
-        NodeSearchState stateB = NodeSearchState.createNodeSearchState(getStateKey(2), TramDuration.ofMinutes(8), path, true);
-        NodeSearchState stateC = NodeSearchState.createNodeSearchState(getStateKey(3), TramDuration.ofMinutes(8), path, false);
+        NodeSearchState stateA = nodeSearchStateFactory.createNodeSearchState(getStateKey(1), TramDuration.ofMinutes(8), path, false);
+        NodeSearchState stateB = nodeSearchStateFactory.createNodeSearchState(getStateKey(2), TramDuration.ofMinutes(8), path, true);
+        NodeSearchState stateC = nodeSearchStateFactory.createNodeSearchState(getStateKey(3), TramDuration.ofMinutes(8), path, false);
 
         PriorityQueue<NodeSearchState> queue = new PriorityQueue<>();
         queue.add(stateA);

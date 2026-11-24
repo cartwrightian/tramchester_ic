@@ -23,11 +23,13 @@ public class PathSearchState {
     private final long numberJourneys;
     private final PathRequest diagnostics;
 
-    PathSearchState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere, long numberJourneys, PathRequest diagnostics) {
+    PathSearchState(final SearchStateKey searchStateKey, final long numberJourneys, final PathRequest diagnostics, final NodeSearchState initial) {
         this.numberJourneys = numberJourneys;
         this.diagnostics = diagnostics;
         nodeQueue = new PriorityQueue<>();
-        nodeQueue.add(NodeSearchState.createInitialState(searchStateKey, pathToHere));
+
+        //nodeQueue.add(NodeSearchState.createInitialState(searchStateKey, pathToHere));
+        nodeQueue.add(initial);
 
         currentCost = new HashMap<>();
         currentCost.put(searchStateKey, TramDuration.ZERO);

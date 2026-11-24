@@ -39,6 +39,7 @@ public class FindPathsForJourney {
     private final TraversalStateFactory traversalStateFactory;
     private final long numberJourneys;
     private final InterchangeGraphNodeLookup interchangeGraphLookup;
+    private final NodeSearchStateFactory nodeSearchStateFactory;
 
     public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
                                final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory,
@@ -50,6 +51,7 @@ public class FindPathsForJourney {
         this.traversalStateFactory = traversalStateFactory;
         this.numberJourneys = numberJourneys;
         this.interchangeGraphLookup = interchangeGraphLookup;
+        nodeSearchStateFactory = new NodeSearchStateFactory();
     }
 
     public Stream<GraphPath> findPaths(final TramTime actualQueryTime, final Running running, final PathRequest pathRequest) {
@@ -62,7 +64,10 @@ public class FindPathsForJourney {
         final GraphPathInMemory initialPath = new GraphPathInMemory();
 
         final SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
-        final PathSearchState searchState = new PathSearchState(stateKey, initialPath, numberJourneys, pathRequest);
+
+        final NodeSearchState initial = nodeSearchStateFactory.createInitialState(stateKey, initialPath);
+
+        final PathSearchState searchState = new PathSearchState(stateKey, numberJourneys, pathRequest, initial);
         searchState.setJourneyState(stateKey, journeyState);
 
         // TODO ideally want yield/stream here
@@ -146,7 +151,7 @@ public class FindPathsForJourney {
 
             // prioritise those Towards Dest
             final boolean towardsDest = evaluator.matchesDestination(endNodeId);
-            final NodeSearchState nextSearchNodeState = NodeSearchState.createNodeSearchState(endStateKey, newCost,
+            final NodeSearchState nextSearchNodeState = nodeSearchStateFactory.createNodeSearchState(endStateKey, newCost,
                     continuePath, towardsDest);
 
             if (alreadySeen) {

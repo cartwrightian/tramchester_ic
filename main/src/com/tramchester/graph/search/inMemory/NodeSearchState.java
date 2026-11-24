@@ -20,12 +20,12 @@ public class NodeSearchState implements Comparable<NodeSearchState> {
         this.towardsDest = towardsDest; // used when we can id states that lead directly to a destination
     }
 
-    public static NodeSearchState createNodeSearchState(final SearchStateKey endStateKey, final TramDuration newCost,
+    static NodeSearchState createNodeSearchState(final SearchStateKey endStateKey, final TramDuration newCost,
                                                         final GraphPathInMemory continuePath, final boolean towardsDest) {
         return new NodeSearchState(endStateKey, newCost, continuePath, towardsDest);
     }
 
-    public static NodeSearchState createInitialState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere) {
+    static NodeSearchState createInitialState(final SearchStateKey searchStateKey, final GraphPathInMemory pathToHere) {
         return new NodeSearchState(searchStateKey, TramDuration.ZERO, pathToHere, false);
     }
 
