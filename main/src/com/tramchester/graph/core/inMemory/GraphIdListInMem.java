@@ -9,19 +9,26 @@ import java.util.Objects;
 
 public class GraphIdListInMem implements GraphIdList {
     private final List<Integer> ids;
+    private int hash;
 
     public GraphIdListInMem(final GraphIdListInMem other) {
         ids = new ArrayList<>(other.ids);
+        hash = other.hash;
     }
 
     public GraphIdListInMem() {
         ids = new ArrayList<>();
+        hash = 1;
     }
 
     @Override
     public void add(final GraphId id) {
         final InternalGraphId internalGraphId = (InternalGraphId) id;
-        ids.add(internalGraphId.getInternalId());
+        final int actualId = internalGraphId.getInternalId();
+        synchronized (ids) {
+            ids.add(actualId);
+            hash = 31 * hash + actualId;
+        }
     }
 
     @Override
@@ -33,6 +40,7 @@ public class GraphIdListInMem implements GraphIdList {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(ids);
+        return hash;
+        //return Objects.hashCode(ids);
     }
 }
