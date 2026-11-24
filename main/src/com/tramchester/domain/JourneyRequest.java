@@ -80,7 +80,7 @@ public class JourneyRequest {
 
     }
 
-    public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {
+    public JourneyRequest(final JourneyRequest originalRequest, final TramTime computedDepartTime) {
         this(originalRequest.date, computedDepartTime, originalRequest.arriveBy, originalRequest.maxChanges,
                 originalRequest.maxJourneyDuration, originalRequest.maxNumberOfJourneys,
                 originalRequest.requestedModes, false);

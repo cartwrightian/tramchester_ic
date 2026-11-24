@@ -434,7 +434,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
 
         private int getFewestChangesUncached(final short indexOfStart, final Route startingRoute) {
-            //final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;
             }

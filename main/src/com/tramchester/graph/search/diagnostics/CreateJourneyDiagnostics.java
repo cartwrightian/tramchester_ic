@@ -257,7 +257,7 @@ public class CreateJourneyDiagnostics {
             node.addEdgeTowards(towardsId, towardsNode, reason);
         }
 
-        public <T> List<T> visit(Function<DiagNode,T> visitor) {
+        public <T> List<T> visit(final Function<DiagNode,T> visitor) {
             return nodes.values().stream().map(visitor).toList();
         }
     }
