@@ -92,7 +92,7 @@ public class RailAndTramRouteRepositoryTest {
     void shouldHaveExpectedNumberOfReplacementBusesRunningToday() {
         TramDate date = TramDate.of(LocalDate.now());
         Set<Route> byMode = routeRepository.getRoutesRunningOn(date, RailReplacementBus.singleton());
-        assertEquals(10, byMode.size());
+        assertEquals(12, byMode.size());
     }
 
     @Test

@@ -34,7 +34,8 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
 
     @Override
     public Stream<GraphPath> findPaths(final PathRequest pathRequest, final PreviousVisits previousVisits, final ServiceReasons reasons,
-                                       final ArrivalHandler arrivalHandler, final TowardsDestination towardsDestination, final Running running, InterchangeGraphNodeLookup interchangeLookup) {
+                                       final ArrivalHandler arrivalHandler, final TowardsDestination towardsDestination,
+                                       final Running running, InterchangeGraphNodeLookup interchangeLookup) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 towardsDestination, config, pathRequest.getRequestedModes());
@@ -47,6 +48,7 @@ public class TramNetworkTraverserInMemory implements TramNetworkTraverser {
                 startNodeId, txn, running);
 
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
+
         final FindPathsForJourney searchAlgo = new FindPathsForJourney(txn, startNode, config, tramRouteEvaluator,
                 traversalStateFactory, pathRequest.getMaxNumberJourneys(), interchangeLookup);
 

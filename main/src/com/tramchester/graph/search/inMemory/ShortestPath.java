@@ -55,7 +55,7 @@ public class ShortestPath {
 
         final GraphNode currentNode = txn.getNodeById(currentNodeId);
         final GraphPath pathToHere = incomingPath.duplicateWith(txn, currentNode);
-        boolean everVisited = searchState.everVisited(currentNodeId);
+        //boolean everVisited = searchState.everVisited(currentNodeId);
         final TramDuration currentCostToNode = searchState.getCurrentCost(currentNodeId);
 
         final Stream<GraphRelationship> outgoing = currentNode.getAllRelationships(txn, GraphDirection.Outgoing).

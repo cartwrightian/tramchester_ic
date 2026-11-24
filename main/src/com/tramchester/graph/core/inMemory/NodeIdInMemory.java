@@ -31,17 +31,6 @@ public class NodeIdInMemory extends InternalGraphId implements GraphNodeId, Comp
         return "NodeId{" +
                 "id=" + id +
                 '}';
-//        if (labels.isEmpty()) {
-//            return "NodeId{" +
-//                    "id=" + id +
-//                    '}';
-//        } else {
-//            return "NodeId{" +
-//                    "id=" + id +
-//                    " " +labels +
-//                    '}';
-//        }
-
     }
 
     @Override

@@ -42,7 +42,7 @@ public class FindPathsForJourney {
 
     public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
                                final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory,
-                               long numberJourneys, InterchangeGraphNodeLookup interchangeGraphLookup) {
+                               final long numberJourneys, final InterchangeGraphNodeLookup interchangeGraphLookup) {
         this.txn = (GraphTransactionInMemory) txn;
         this.startNode = startNode;
         this.depthFirst = config.getDepthFirst();
@@ -116,7 +116,7 @@ public class FindPathsForJourney {
             return;
         }
 
-        final Stream<GraphRelationship> outgoing = expand(graphStateForChildren, currentNode);
+        final Stream<GraphRelationship> outgoing = expand(graphStateForChildren);
         final TramDuration currentCostToNode = searchState.getCurrentCost(stateKey);
 
         expandRelationshipsForNode(searchState, graphStateForChildren, outgoing, currentCostToNode, pathToCurrentNode);
@@ -218,11 +218,9 @@ public class FindPathsForJourney {
 
     }
 
-    private Stream<GraphRelationship> expand(final JourneyState currentState, final GraphNode currentNode) {
-
+    private Stream<GraphRelationship> expand(final JourneyState currentState) {
         final ImmutableTraversalState currentTraversalState = currentState.getTraversalState();
         return currentTraversalState.getOutbounds();
-
     }
 
 

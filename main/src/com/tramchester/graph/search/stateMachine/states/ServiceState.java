@@ -23,11 +23,11 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
 
     public static class Builder extends StateBuilder<ServiceState> {
 
-        private final boolean depthFirst;
+        //private final boolean depthFirst;
 
         public Builder(StateBuilderParameters builderParameters) {
             super(builderParameters);
-            this.depthFirst = builderParameters.depthFirst();
+            //this.depthFirst = builderParameters.depthFirst();
         }
 
         @Override

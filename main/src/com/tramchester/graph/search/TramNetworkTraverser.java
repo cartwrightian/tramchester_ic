@@ -9,5 +9,6 @@ import java.util.stream.Stream;
 
 public interface TramNetworkTraverser {
     Stream<GraphPath> findPaths(PathRequest pathRequest, PreviousVisits previousVisits, ServiceReasons reasons,
-                                ArrivalHandler arrivalHandler, TowardsDestination towardsDestination, Running running, InterchangeGraphNodeLookup interchangeLookup);
+                                ArrivalHandler arrivalHandler, TowardsDestination towardsDestination, Running running,
+                                InterchangeGraphNodeLookup interchangeLookup);
 }
