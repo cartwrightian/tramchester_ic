@@ -10,9 +10,9 @@ import com.tramchester.graph.core.inMemory.GraphPathInMemory;
 import com.tramchester.graph.core.inMemory.GraphTransactionInMemory;
 import com.tramchester.graph.core.inMemory.SearchStateKey;
 import com.tramchester.graph.reference.GraphLabels;
+import com.tramchester.graph.search.InterchangeGraphNodeLookup;
 import com.tramchester.graph.search.PathRequest;
 import com.tramchester.graph.search.diagnostics.GraphEvaluationAction;
-import com.tramchester.graph.search.InterchangeGraphNodeLookup;
 import com.tramchester.graph.search.stateMachine.journeyState.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -39,7 +39,7 @@ public class FindPathsForJourney {
     private final TraversalStateFactory traversalStateFactory;
     private final long numberJourneys;
     private final InterchangeGraphNodeLookup interchangeGraphLookup;
-    private final NodeSearchStateFactory nodeSearchStateFactory;
+    private final NodeSearchStateFactory<Long> nodeSearchStateFactory;
 
     public FindPathsForJourney(final GraphTransaction txn, final GraphNode startNode, final TramchesterConfig config,
                                final TramRouteEvaluator evaluator, final TraversalStateFactory traversalStateFactory,
@@ -51,7 +51,7 @@ public class FindPathsForJourney {
         this.traversalStateFactory = traversalStateFactory;
         this.numberJourneys = numberJourneys;
         this.interchangeGraphLookup = interchangeGraphLookup;
-        nodeSearchStateFactory = new NodeSearchStateFactory();
+        nodeSearchStateFactory = new NodeSearchStateFactory<>(Long::compare);
     }
 
     public Stream<GraphPath> findPaths(final TramTime actualQueryTime, final Running running, final PathRequest pathRequest) {
@@ -65,7 +65,7 @@ public class FindPathsForJourney {
 
         final SearchStateKey stateKey = SearchStateKey.create(initialPath, startNode.getId());
 
-        final NodeSearchState initial = nodeSearchStateFactory.createInitialState(stateKey, initialPath);
+        final NodeSearchState initial = nodeSearchStateFactory.createInitialState(stateKey, initialPath, 0L);
 
         final PathSearchState searchState = new PathSearchState(stateKey, numberJourneys, pathRequest, initial);
         searchState.setJourneyState(stateKey, journeyState);
@@ -152,7 +152,7 @@ public class FindPathsForJourney {
             // prioritise those Towards Dest
             final boolean towardsDest = evaluator.matchesDestination(endNodeId);
             final NodeSearchState nextSearchNodeState = nodeSearchStateFactory.createNodeSearchState(endStateKey, newCost,
-                    continuePath, towardsDest);
+                    continuePath, towardsDest, newCost.toSeconds());
 
             if (alreadySeen) {
                 final TramDuration currentDurationForEnd = searchState.getCurrentCost(endStateKey);
