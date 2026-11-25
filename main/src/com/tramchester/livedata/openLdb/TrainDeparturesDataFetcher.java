@@ -1,8 +1,6 @@
 package com.tramchester.livedata.openLdb;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.sun.xml.ws.client.ClientTransportException;
-import com.sun.xml.ws.fault.ServerSOAPFaultException;
 import com.thalesgroup.rtti._2013_11_28.token.types.AccessToken;
 import com.thalesgroup.rtti._2017_10_01.ldb.*;
 import com.thalesgroup.rtti._2017_10_01.ldb.types.DeparturesBoardWithDetails;
@@ -16,7 +14,6 @@ import com.tramchester.domain.id.ImmutableIdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import jakarta.inject.Inject;
-import jakarta.xml.ws.WebServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,15 +68,9 @@ public class TrainDeparturesDataFetcher {
 
     private boolean createSOAPService(final URL wsdlLocation) {
         logger.info("Start SOAP service for " + wsdlLocation);
-        try {
-            final Ldb soap = new Ldb(wsdlLocation);
-            soapService = soap.getLDBServiceSoap12();
-            return true;
-        }
-        catch(WebServiceException webServiceException) {
-            logger.error("Unable to start", webServiceException);
-            return false;
-        }
+        final Ldb soap = new Ldb(wsdlLocation);
+        soapService = soap.getLDBServiceSoap12();
+        return true;
     }
 
     public Optional<StationBoard> getFor(final Station station) {
@@ -97,7 +88,7 @@ public class TrainDeparturesDataFetcher {
         params.setTimeOffset(0);
         params.setTimeWindow(config.getMaxWait());
 
-        try {
+//        try {
             final StationBoardResponseType departureBoard = soapService.getDepartureBoard(params, accessToken);
 
             final StationBoard stationBoardResult = departureBoard.getGetStationBoardResult();
@@ -105,11 +96,11 @@ public class TrainDeparturesDataFetcher {
                     stationBoardResult.getGeneratedAt(), crs));
 
             return Optional.of(stationBoardResult);
-        }
-        catch(ClientTransportException clientTransportException) {
-            logger.error("Unable to fetch live rail data", clientTransportException);
-            return Optional.empty();
-        }
+//        }
+//        catch(ClientTransportException clientTransportException) {
+//            logger.error("Unable to fetch live rail data", clientTransportException);
+//            return Optional.empty();
+//        }
 
     }
 
@@ -134,7 +125,7 @@ public class TrainDeparturesDataFetcher {
             params.setFilterList(filterList);
         }
 
-        try {
+//        try {
             DeparturesBoardWithDetailsResponseType departureBoard = soapService.getNextDeparturesWithDetails(params, accessToken);
 
             DeparturesBoardWithDetails stationBoardResult = departureBoard.getDeparturesBoard();
@@ -142,13 +133,13 @@ public class TrainDeparturesDataFetcher {
                     stationBoardResult.getGeneratedAt(), crs));
 
             return Optional.of(stationBoardResult);
-        }
-        catch(ClientTransportException | ServerSOAPFaultException clientTransportException) {
-            final String msg = format("Unable to fetch live rail data for %s and station CRs %s and filter list %s (for %s)",
-                    station.getId(), crs, filterList.getCrs(), destinationAndCallingPoints);
-            logger.error(msg, clientTransportException);
-            return Optional.empty();
-        }
+//        }
+//        catch(ClientTransportException | ServerSOAPFaultException clientTransportException) {
+//            final String msg = format("Unable to fetch live rail data for %s and station CRs %s and filter list %s (for %s)",
+//                    station.getId(), crs, filterList.getCrs(), destinationAndCallingPoints);
+//            logger.error(msg, clientTransportException);
+//            return Optional.empty();
+//        }
     }
 
     private GetDeparturesRequestParams.FilterList createFilterListFor(final DestinationAndCallingPoints destinationAndCallingPoints) {
