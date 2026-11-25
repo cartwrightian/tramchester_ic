@@ -59,7 +59,7 @@ ext {
 }
 
 // see also allure.properties file
-def allureVersion = "2.35.5"
+def allureVersion = "3.1.1"
 
 def cxfVersion = "4.2.4"
 
@@ -150,7 +150,7 @@ dependencies {
 
     // allure test reports
     testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))
-    testImplementation("io.qameta.allure:allure-junit5")
+    testImplementation("io.qameta.allure:allure-jupiter:$allureVersion")
 
     // No longer needed - workaround for issues running tests in intellij and glassfish DI, does not occur with running via gradle
     //testRuntimeOnly 'javax.servlet:javax.servlet-api:3.0.1'
