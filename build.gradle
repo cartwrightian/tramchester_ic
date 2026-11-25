@@ -59,7 +59,7 @@ ext {
 }
 
 // see also allure.properties file
-def allureVersion = "2.35.5"
+def allureVersion = "3.1.1"
 
 def cxfVersion = "4.2.4"
 
